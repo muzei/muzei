@@ -1,0 +1,105 @@
+<!--
+  Copyright 2014 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+    <string name="app_name">Muzei</string>
+    <string name="app_description">Muzei Live Wallpaper</string>
+
+    <string name="settings_title">Muzei Settings</string>
+    <string name="settings_blur_amount_title">Blur</string>
+    <string name="settings_dim_amount_title">Dim</string>
+    <string name="settings_notify_new_wallpaper">New wallpaper notifications</string>
+
+    <string name="notification_new_wallpaper">New wallpaper</string>
+
+    <string name="gallery_source_title">My photos</string>
+    <string name="gallery_source_description">Random camera photos</string>
+    <plurals name="gallery_source_description_choice_template">
+        <item quantity="one">1 photo</item>
+        <item quantity="other">%1$d photos</item>
+    </plurals>
+    <string name="gallery_source_settings_title">My Photos</string>
+    <string name="gallery_source_settings_empty">Random camera photos</string>
+    <string name="gallery_source_settings_empty_subtitle">Choose specific photos instead</string>
+    <string name="gallery_source_temporary_force_image">Wallpaper set to selected image.</string>
+    <string name="gallery_source_from_gallery">From your gallery</string>
+    <string name="gallery_source_touch_to_view">Touch to view</string>
+
+    <string name="dummy_source_title">Dummy source</string>
+    <string name="dummy_source_description">Sample artwork</string>
+
+    <string name="featuredart_source_title">Featured art</string>
+    <string name="featuredart_source_description">A new painting every day</string>
+    <string name="featuredart_source_error_no_artwork_to_share">No artwork to share.</string>
+
+    <string name="webstream_source_title">From the web</string>
+    <string name="webstream_source_description">Artwork from the web</string>
+
+    <string name="action_activate">Activate</string>
+    <string name="action_settings">Customize</string>
+    <string name="action_source_settings">Customize source</string>
+
+    <string name="contentdesc_overflow">More options</string>
+    <string name="error_view_details">Couldn\'t view artwork details.</string>
+    <string name="error_easter_egg">Hmm, this picture doesn\'t seem to be loading. Grumpy McPuzzles is very sorry about that, and recommends trying a different wallpaper source.</string>
+
+    <string name="section_choose_source">Choose source</string>
+    <string name="section_advanced">Advanced</string>
+
+    <string name="action_previous_artwork">Previous artwork</string>
+    <string name="action_next_artwork">Next artwork</string>
+
+    <string name="done">Done</string>
+    <string name="retry">Retry</string>
+
+    <string name="action_clear_photos">Remove all photos</string>
+    <string name="action_add_photos">Add photos</string>
+    <string name="action_rotate_interval">Change interval</string>
+    <string name="action_share_artwork">Share artwork</string>
+
+    <string name="action_remove">Remove</string>
+
+    <string name="set_as_wallpaper_using_muzei">Wallpaper (using Muzei)</string>
+
+    <string name="tutorial_main">Open the Muzei app to see your wallpaper.</string>
+    <string name="tutorial_subtitle">Double touch the blurred wallpaper on your home screen to temporarily focus.</string>
+
+    <string name="about_title">About Muzei</string>
+    <string name="about_body"><![CDATA[
+        Made in New York by Roman Nurik. <i>Muzei</i> is a transliteration of the Russian word
+        <a href="http://translate.google.com/#en/ru/museum"><i>музей</i></a>, which means
+        &#8220;museum.&#8221;<br><br>
+
+        Copyright 2013&ndash;2014 Google Inc.<br>
+        All Rights Reserved.<br><br>
+
+        <a href="http://m.google.com/utos">Terms of Service</a>,
+        <a href="http://www.google.com/policies/privacy/">Privacy Policy</a>&nbsp;<br><br>
+
+        Many thanks to these open source projects:<br><br>
+
+        <b><a href="http://square.github.io/okhttp/">OkHttp</a> and <a href="http://square.github.io/picasso/">Picasso</a>&nbsp;</b><br>
+        <i>by Square</i><br><br>
+
+        <b><a href="https://github.com/greenrobot/EventBus">EventBus</a>&nbsp;</b><br>
+        <i>by greenrobot</i><br><br>
+
+        <b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a>&nbsp;</b><br>
+        <i>by Robert Green, Mark F. Guerra, and others</i><br><br>
+    ]]></string>
+    <string name="about_version_template">v%1$s</string>
+
+</resources>

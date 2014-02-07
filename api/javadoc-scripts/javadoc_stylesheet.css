@@ -1,0 +1,95 @@
+/*
+ * Copyright 2014 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* Javadoc style sheet */
+
+/* Define colors, fonts and other style attributes here to override the defaults */
+
+/* Page background color */
+body {
+  background-color: #fff;
+  color: #333;
+  margin: 60px 80px;
+  font-family: roboto;
+  font-size: 16px;
+  line-height: 140%;
+}
+
+/* Headings */
+h2 {
+  font-size: 200%;
+  font-weight: 300;
+}
+
+/* Table colors */
+/*.TableHeadingColor     { background: #CCCCFF; color:#000000 }
+.TableSubHeadingColor  { background: #EEEEFF; color:#000000 }
+.TableRowColor         { background: #FFFFFF; color:#000000 }*/
+
+table, td, tr, th {
+  border:0;
+}
+
+hr {
+  margin: 20px 0;
+  border: 1px solid #09c;
+}
+
+th {
+  background-color: #eee;
+  border-bottom: 1px solid #ccc;
+}
+
+td {
+  padding: 6px;
+}
+
+table {
+  margin-top: 20px;
+}
+
+td {
+  border-bottom: 1px solid #eee;
+}
+
+pre, code {
+  font-family: inconsolata;
+  font-size: 110%;
+}
+
+code {
+  color: #096;
+}
+
+pre.prettyprint {
+  background: #eee;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 20px 10px;
+}
+
+a, a code {
+  color: #09c;
+  text-decoration: none;
+}
+
+a {
+  border-bottom: 1px dotted #09c;
+}
+
+a:hover {
+  border-bottom: 1px solid #09c;
+}

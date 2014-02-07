@@ -1,0 +1,318 @@
+/**
+ * Copyright 2014 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+html, body {
+  margin: 0;
+  height: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-color: #fff;
+  min-width: 690px;
+  min-height: 640px;
+
+  display: -webkit-flex;
+  -webkit-justify-content: center;
+  -webkit-align-items: center;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+  body.withvignette {
+    background-image: radial-gradient(circle at 50% 50%, #fff 60%, #ddd);
+  }
+
+#container {
+  position: relative;
+  margin: 70px;
+  width: 550px;
+  height: 500px;
+}
+
+#logo {
+  position: absolute;
+  left: 0;
+  top: 60px;
+  width: 250px;
+  height: 102px;
+  background-image: url(muzei.png);
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.7;
+  z-index: 100;
+}
+
+#text {
+  position: absolute;
+  left: 0;
+  top: 200px;
+  width: 240px;
+  font-family: 'Alegreya Sans';
+  font-weight: 300;
+  font-size: 20px;
+  line-height: 26px;
+  color: #444;
+  z-index: 100;
+}
+
+#playlink {
+  position: absolute;
+  left: 0;
+  bottom: 100px;
+  width: 113px;
+  height: 33px;
+  padding: 15px 20px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background-origin: content-box;
+  background-color: #fff;
+  background-image: url(onplay.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 50% 0%;
+  text-decoration: none;
+  box-shadow: 0 1px 0px rgba(0,0,0,0.25);
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  z-index: 100;
+}
+
+  #playlink:hover {
+    background-color: #eee;
+    background-position: 50% 100%;
+  }
+
+  #playlink:active {
+    bottom: 99px;
+    box-shadow: 0 0 0;
+  }
+
+#device-frame {
+  position: absolute;
+  right: -70px;
+  top: 0;
+  width: 420px;
+  height: 500px;
+  background-image: url(tilted_fallback.jpg);
+  background-size: cover;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+}
+
+  #device-frame:after {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 420px;
+    height: 500px;
+    background: url(tilted_fore.png);
+    background-size: cover;
+  }
+
+  #device-frame.artdetailopen {
+    cursor: pointer;
+  }
+
+#device-screen {
+  display: none;
+  position: absolute;
+  left: 146px;
+  top: 49px;
+  width: 360px;
+  height: 640px;
+  background-color: #000;
+  color: white;
+  -webkit-transform-origin: 0% 0%;
+  -webkit-transform: perspective(2100px) rotateZ(-5.2deg) rotateY(-42.6deg) rotateX(31deg) scale(0.6);
+  -moz-transform-origin: 0% 0%;
+  -moz-transform: perspective(2100px) rotateZ(-5.2deg) rotateY(-42.6deg) rotateX(31deg) scale(0.6);
+  -ms-transform-origin: 0% 0%;
+  -ms-transform: perspective(2100px) rotateZ(-5.2deg) rotateY(-42.6deg) rotateX(31deg) scale(0.6);
+  transform-origin: 0% 0%;
+  transform: perspective(2100px) rotateZ(-5.2deg) rotateY(-42.6deg) rotateX(31deg) scale(0.6);
+  overflow: hidden;
+}
+
+  .fullscreenlayer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 360px;
+    height: 640px;
+  }
+
+  .whenartdetailopen {
+    opacity: 0;
+  }
+  .artdetailopen .whenartdetailopen {
+    opacity: 1;
+  }
+  .artdetailopen .whenartdetailclosed {
+    opacity: 0;
+  }
+  .whenartdetailopen, .whenartdetailclosed {
+    transition-property: opacity;
+    transition-duration: 0.5s;
+  }
+
+#layer-wall, #layer-wall-blurred {
+  background-size: cover;
+  background-position: 50% 50%;
+}
+
+  #layer-wall-blurred {
+    -webkit-filter: blur(20px);
+    filter: url(#blur-filter);
+    opacity: 0.6;
+  }
+
+  .artdetailopen #layer-wall {
+    transition-property: opacity;
+    transition-duration: 2s;
+    transition-delay: 0.5s;
+  }
+
+#layer-sysui {
+  background: url(systemui.png);
+}
+
+#layer-home {
+  background: url(home.png);
+}
+
+#layer-artdetail {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 320px;
+  padding: 40px 20px 60px 20px;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0%,rgba(0,0,0,0.8)), color-stop(100%,rgba(0,0,0,0)));
+  background: -moz-gradient(linear, left bottom, left top, color-stop(0%,rgba(0,0,0,0.8)), color-stop(100%,rgba(0,0,0,0)));
+  background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0));
+}
+
+  @-webkit-keyframes slideup {
+    from { opacity: 0; bottom: -20px; }
+    to   { opacity: 1; bottom: 0px; }
+  }
+
+  @-moz-keyframes slideup {
+    from { opacity: 0; bottom: -20px; }
+    to   { opacity: 1; bottom: 0px; }
+  }
+
+  @keyframes slideup {
+    from { opacity: 0; bottom: -20px; }
+    to   { opacity: 1; bottom: 0px; }
+  }
+
+  .artdetailopen #layer-artdetail {
+    opacity: 0;
+    -webkit-animation: slideup 0.5s;
+    -webkit-animation-delay: 0.75s;
+    -webkit-animation-fill-mode: forwards;
+    -moz-animation: slideup 0.5s;
+    -moz-animation-delay: 0.75s;
+    -moz-animation-fill-mode: forwards;
+    animation: slideup 0.5s;
+    animation-delay: 0.75s;
+    animation-fill-mode: forwards;
+  }
+
+  #layer-artdetail .overflow {
+    position: absolute;
+    right: 24px;
+    bottom: 65px;
+    width: 7px;
+    height: 23px;
+    background: url(overflow.png);
+  }
+
+  #layer-artdetail .title,
+  #layer-artdetail .byline {
+    font-family: Alegreya;
+    font-weight: 400;
+    font-style: italic;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    margin-right: 24px;
+  }
+
+  #layer-artdetail .title {
+    font-size: 30px;
+    line-height: 30px;
+    font-weight: 900;
+  }
+
+  #layer-artdetail .byline {
+    font-size: 24px;
+    margin-top: 4px;
+    line-height: 26px;
+  }
+
+@-webkit-keyframes bulge {
+  from {  }
+  to { -webkit-transform: scale(1.4); }
+}
+
+@-moz-keyframes bulge {
+  from {  }
+  to { -moz-transform: scale(1.4); }
+}
+
+@keyframes bulge {
+  from {  }
+  to { transform: scale(1.4); }
+}
+
+#layer-openindicator {
+  position: absolute;
+  left: 266px;
+  top: 503px;
+  -webkit-animation: bulge 0.5s;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-direction: alternate;
+  -moz-animation: bulge 0.5s;
+  -moz-animation-iteration-count: infinite;
+  -moz-animation-direction: alternate;
+  animation: bulge 0.5s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  opacity: 0.8;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+/* additional click target for firefox */
+#opentarget {
+  position: absolute;
+  left: 168px;
+  top: 328px;
+  width: 70px;
+  height: 80px;
+  cursor: pointer;
+  z-index: 1000;
+  visibility: hidden;
+}
+
+  .artdetailopen #layer-openindicator,
+  .artdetailopen #opentarget {
+    display: none;
+  }

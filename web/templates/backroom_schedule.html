@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html>
+<!--
+  Copyright 2014 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Muzei Featured Art Admin</title>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+  <style>
+    html, body {
+      font-family: roboto;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #000;
+    }
+
+    /* calendar */
+    #calendar {
+      width: 100%;
+      height: 100%;
+    }
+      #calendar table {
+        width: 100%;
+        height: 100%;
+        border-spacing: 0;
+        border-collapse: separate;
+      }
+      #calendar th, td {
+        border: 4px solid #000;
+        color: #fff;
+      }
+      #calendar .weekday-label {
+        background-color: #444;
+        height: 30px;
+      }
+      #calendar .month-switcher {
+        cursor: pointer;
+        text-align: center;
+      }
+      #calendar .month-switcher:hover {
+        background-color: #09c;
+        color: #fff;
+      }
+      #calendar .month-label {
+        font-size: 30px;
+        height: 30px;
+      }
+      #calendar .trash-destination {
+        text-align: center;
+        color: red;
+      }
+      #calendar .trash-destination.draghover {
+        background-color: red;
+        color: #fff;
+      }
+
+      #calendar .day {
+        position: relative;
+        background-color: #333;
+        -webkit-user-select: none;
+      }
+      #calendar .day.this-month {
+      }
+      #calendar .day.today {
+        border-color: #33b5e5;
+        outline: 20px solid rgba(51, 181, 229, 0.5);
+        z-index: 100;
+      }
+      #calendar .day.past {
+        opacity: 0.4;
+      }
+      #calendar .day .target {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        color: transparent;
+        font-size: 70px;
+        cursor: pointer;
+        background-size: cover;
+        background-position: 50% 50%;
+      }
+      #calendar .day .target[disabled] {
+        cursor: auto;
+      }
+      #calendar .day .target:hover {
+        color: rgba(255, 255, 255, 0.3);
+      }
+      #calendar .day .target.dragging {
+        opacity: 0.4;
+      }
+      #calendar .day .target.draghover {
+        background-color: #09c;
+        background-image: none !important;
+      }
+      #calendar .day .date {
+        position: absolute;
+        left: 10px;
+        top: 10px;
+        width: auto;
+        height: auto;
+        color: #fff;
+        font-weight: bold;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.75);
+        pointer-events: none;
+      }
+
+    /* editor popup */
+    #editor {
+      z-index: 1000;
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+      #editor-form {
+        flex-grow: 1;
+        overflow-y: scroll;
+      }
+      #editor .editor-row {
+        margin-bottom: 10px;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+      }
+      #editor label {
+        color: #ccc;
+        display: inline-block;
+        margin-top: 10px;
+        width: 150px;
+        font-size: 24px;
+      }
+      #editor .editor-value {
+        flex-grow: 1;
+      }
+      #editor input,
+      #editor textarea {
+        color: #fff;
+        background-color: rgba(128, 128, 128, 0.5);
+        border-radius: 4px;
+        border: 0;
+        font-size: 24px;
+        padding: 10px 15px;
+        font-family: monospace;
+      }
+      #editor input,
+      #editor textarea,
+      #editor .editor-secondary-button {
+        margin: 0;
+        box-sizing: border-box;
+        padding: 10px 15px;
+        height: 40px;
+      }
+        #editor input.error,
+        #editor textarea.error {
+          background-color: #522;
+        }
+      #editor .editor-secondary-button {
+        border-radius: 4px;
+        border: 0;
+        margin-left: 10px;
+        background: #ccc;
+        color: #000;
+        text-shadow: -1px 0 0 white,
+                      1px 0 0 white,
+                     0 -1px 0 white,
+                     0  1px 0 white;
+        font-size: 15px;
+      }
+      #editor #editor-imageurl-visit,
+      #editor #editor-thumburl-visit {
+        background-size: cover;
+        background-position: 50% 50%;
+      }
+      #editor #editor-json {
+        height: 400px;
+      }
+    #editor-buttons {
+      display: flex;
+      flex-shrink: 0;
+    }
+      #editor-buttons button {
+        flex-grow: 1;
+        font-size: 24px;
+        padding: 10px 15px;
+        min-height: 50px;
+        background-color: #888;
+        color: #fff;
+        border: 0;
+        border-radius: 4px;
+      }
+      #editor-buttons button:active {
+        opacity: 0.8;
+      }
+    #editor button[disabled] {
+      opacity: 0.3;
+    }
+  </style>
+</head>
+<body>
+
+<div id="calendar">
+</div>
+
+<div id="editor">
+  <div id="editor-form">
+    <div class="editor-row">
+      <label for="editor-title">Title</label>
+      <input id="editor-title" class="editor-value">
+    </div>
+
+    <div class="editor-row">
+      <label for="editor-byline">Byline</label>
+      <input id="editor-byline" class="editor-value">
+    </div>
+
+    <div class="editor-row">
+      <label for="editor-detailsurl">Details URL</label>
+      <input id="editor-detailsurl" class="editor-value">
+      <button id="editor-detailsurl-visit" tabindex="-1" class="editor-secondary-button">View</button>
+    </div>
+
+    <div class="editor-row">
+      <label for="editor-imageurl">Image URL</label>
+      <input id="editor-imageurl" class="editor-value">
+      <button id="editor-imageurl-visit" tabindex="-1" class="editor-secondary-button">View</button>
+    </div>
+
+    <div class="editor-row">
+      <label for="editor-thumburl">Thumb URL</label>
+      <input id="editor-thumburl" class="editor-value">
+      <button id="editor-thumburl-visit" tabindex="-1" class="editor-secondary-button">View</button>
+    </div>
+
+    <div class="editor-row">
+      <label for="editor-json">JSON</label>
+      <textarea id="editor-json" class="editor-value"></textarea>
+    </div>
+  </div>
+  <div id="editor-buttons">
+    <button id="editor-cancel">Cancel</button>
+    <button id="editor-save">Save</button>
+  </div>
+</div>
+
+<script>
+
+jQuery.event.props.push('dataTransfer');
+
+$('#editor').hide();
+
+var g_artworks = {};
+var g_month = new Date().getUTCMonth();
+var g_year = new Date().getUTCFullYear();
+var g_editorState = {};
+
+
+var MONTHS = [
+    'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
+    'September', 'October', 'November', 'December'];
+var DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+var DAY_MILLIS = 24 * 60 * 60 * 1000;
+
+
+function reloadArtworks() {
+  $.ajax({
+    type: 'get',
+    dataType: 'json',
+    url: 's/list'
+  }).done(function(artworks) {
+    g_artworks = {};
+    if (!artworks) {
+      return;
+    }
+    for (var i = 0; i < artworks.length; i++) {
+      var artwork = artworks[i];
+      g_artworks[artwork.publishDate] = artwork;
+    }
+    setTimeout(renderCalendar, 0);
+  });
+}
+
+function removeArtwork(id, callback) {
+  callback = callback || function(){};
+  $.ajax({
+    type: 'post',
+    url: 's/remove',
+    data: { id: id }
+  }).done(function() {
+    setTimeout(reloadArtworks, 500);
+    callback();
+  }).fail(function() {
+    alert('error removing');
+  });
+}
+
+function moveArtwork(id, publishDate, callback) {
+  callback = callback || function(){};
+  $.ajax({
+    type: 'post',
+    url: 's/move',
+    data: { id: id, publishDate: publishDate }
+  }).done(function() {
+    setTimeout(reloadArtworks, 500);
+    callback();
+  }).fail(function() {
+    alert('error moving');
+  });
+}
+
+function addArtwork(json, callback) {
+  callback = callback || function(){};
+  $.ajax({
+    type: 'post',
+    url: 's/add',
+    data: { json: json }
+  }).done(function() {
+    setTimeout(reloadArtworks, 500);
+    callback();
+  }).fail(function() {
+    alert('error adding');
+  });
+}
+
+function editArtwork(id, json, callback) {
+  callback = callback || function(){};
+  $.ajax({
+    type: 'post',
+    url: 's/edit',
+    data: { id: id, json: json}
+  }).done(function() {
+    setTimeout(reloadArtworks, 500);
+    callback();
+  }).fail(function() {
+    alert('error editing');
+  });
+}
+
+function renderCalendar() {
+  var $calendar = $('#calendar');
+  $calendar.empty();
+
+  var $table = $('<table>').appendTo($calendar);
+
+  // header row
+  var $headerRow = $('<tr>').appendTo($table);
+  $('<td>')
+      .text('<<')
+      .addClass('month-switcher')
+      .click(function() {
+        --g_month;
+        if (g_month < 0) {
+          g_month = 11;
+          --g_year;
+        }
+        renderCalendar();
+      })
+      .appendTo($headerRow);
+  $('<th>')
+      .attr('colspan', 4)
+      .addClass('month-label')
+      .text(MONTHS[g_month] + ' ' + g_year)
+      .appendTo($headerRow);
+
+  $('<td>')
+      .text('Trash')
+      .addClass('trash-destination')
+      .appendTo($headerRow)
+      .bind('dragenter', function() {
+        $(this).addClass('draghover');
+      })
+      .bind('dragleave', function() {
+        $(this).removeClass('draghover');
+      })
+      .bind('dragover', function(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        return false;
+      })
+      .bind('drop', function(e) {
+        e.stopPropagation();
+        $(this).removeClass('draghover');
+        var id = e.dataTransfer.getData('text/x-featuredartid');
+        if (window.confirm('Remove artwork?')) {
+          removeArtwork(id);
+        }
+        return false;
+      });
+
+  $('<td>')
+      .text('>>')
+      .addClass('month-switcher')
+      .click(function() {
+        ++g_month;
+        if (g_month > 11) {
+          g_month = 0;
+          ++g_year;
+        }
+        renderCalendar();
+      })
+      .appendTo($headerRow);
+
+  // weekdays row
+  var $weekdayLabelsRow = $('<tr>').appendTo($table);
+  for (var dow = 0; dow < 7; dow++) {
+    $('<th>')
+        .text(DAYS[dow])
+        .addClass('weekday-label')
+        .attr('width', '14%')
+        .appendTo($weekdayLabelsRow);
+  }
+
+  // days
+  var today = new Date();
+  var todayYear = today.getUTCFullYear();
+  var todayMonth = today.getUTCMonth();
+  var todayDate = today.getUTCDate();
+
+  var firstOfMonthDate = new Date();
+  firstOfMonthDate.setUTCHours(0);
+  firstOfMonthDate.setUTCMinutes(0);
+  firstOfMonthDate.setUTCSeconds(0);
+  firstOfMonthDate.setUTCDate(1);
+  firstOfMonthDate.setUTCFullYear(g_year);
+  firstOfMonthDate.setUTCMonth(g_month);
+
+  var dowFirstOfMonth = firstOfMonthDate.getUTCDay();
+  var firstVisibleDate = new Date(firstOfMonthDate - dowFirstOfMonth * DAY_MILLIS);
+  var date = firstVisibleDate;
+  var week = 0;
+  while (++week < 10) {
+    var $weekRow = $('<tr>').appendTo($table);
+    for (var dow = 0; dow < 7; dow++) {
+      // basic cell setup
+      var $dayCell = $('<td>')
+          .addClass('day')
+          .attr('width', '14%')
+          .appendTo($weekRow);
+
+      var dayKey = Math.floor(date / 1000);
+      $dayCell.attr('id', 'day-' + dayKey);
+
+      var dayMonth = date.getUTCMonth();
+      var dayYear = date.getUTCFullYear();
+      var dayDate = date.getUTCDate();
+
+      // extra annotations
+      if (dayMonth == g_month) {
+        $dayCell.addClass('this-month');
+      }
+
+      var isToday = false;
+      var isPast = false;
+      var isFuture = false;
+      if (dayYear == todayYear && dayMonth == todayMonth && dayDate == todayDate) {
+        isToday = true;
+        $dayCell.addClass('today');
+      } else if (date < today) {
+        isPast = true;
+        $dayCell.addClass('past');
+      } else {
+        isFuture = true;
+        $dayCell.addClass('future');
+      }
+
+      // create touch target
+      // draw image if one exists for this timestamp
+      var $target = $('<div>')
+          .addClass('target')
+          .appendTo($dayCell);
+      var artwork;
+      var enabled = false;
+      if (artwork = g_artworks[dayKey]) {
+        if (artwork.thumbUri) {
+          $target.css('background-image', 'url("' + artwork.thumbUri + '")');
+        }
+        enabled = true;
+        $target
+            .click((function(artwork) {
+              return function() {
+                showEditor({
+                  action: 'edit',
+                  id: artwork.id,
+                  artwork: artwork
+                });
+              };
+            }(artwork)))
+            .attr('draggable', 'true')
+            .bind('dragstart', (function(id) {
+              return function(e) {
+                $(this).addClass('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/x-featuredartid', id);
+              };
+            }(artwork.id)))
+            .bind('dragend', function(e) {
+              $(this).removeClass('dragging');
+            });
+      } else if (!isPast) {
+        $target.text('+');
+        $target.click((function(dayKey) {
+          return function() {
+            showEditor({
+              action: 'add',
+              publishDate: dayKey * 1000
+            });
+          };
+        }(dayKey)));
+        enabled = true;
+      }
+
+      if (!isPast) {
+        $target
+            .bind('dragenter', function() {
+              $(this).addClass('draghover');
+            })
+            .bind('dragleave', function() {
+              $(this).removeClass('draghover');
+            })
+            .bind('dragover', function(e) {
+              e.preventDefault();
+              e.dataTransfer.dropEffect = 'move';
+              return false;
+            })
+            .bind('drop', (function(dayKey) {
+              return function(e) {
+                e.stopPropagation();
+                $(this).removeClass('draghover');
+                var id = e.dataTransfer.getData('text/x-featuredartid');
+                var currentArtwork = g_artworks[dayKey];
+                if (!currentArtwork || currentArtwork.id != id) {
+                  moveArtwork(id, dayKey * 1000);
+                }
+                return false;
+              };
+            }(dayKey)));
+      }
+
+      if (!enabled) {
+        $target.attr('disabled', 'disabled');
+      }
+
+      // show meta layer
+      $('<div>')
+          .addClass('date')
+          .text(date.getUTCDate())
+          .appendTo($dayCell);
+
+      // move on to next day
+      date = new Date(date.getTime() + DAY_MILLIS);
+    }
+    if (date.getUTCMonth() != g_month) {
+      break;
+    }
+  }
+}
+
+(function() {
+  var $editor = $('#editor');
+  var $title = $('#editor-title');
+  var $byline = $('#editor-byline');
+  var $detailsurl = $('#editor-detailsurl');
+  var $detailsurlvisit = $('#editor-detailsurl-visit');
+  var $imageurl = $('#editor-imageurl');
+  var $imageurlvisit = $('#editor-imageurl-visit');
+  var $thumburl = $('#editor-thumburl');
+  var $thumburlvisit = $('#editor-thumburl-visit');
+  var $json = $('#editor-json');
+  var $save = $('#editor-save');
+
+  function setupEditor() {
+    $('#editor-cancel').click(function() {
+      hideEditor();
+    });
+
+    $save.click(function() {
+      if (g_editorState.action == 'add') {
+        var artwork = JSON.parse($json.val());
+        artwork.publishDate = g_editorState.publishDate;
+        addArtwork(JSON.stringify(artwork), function() {
+          hideEditor();
+        });
+
+      } else if (g_editorState.action == 'edit') {
+        var artwork = JSON.parse($json.val());
+        editArtwork(g_editorState.id, JSON.stringify(artwork), function() {
+          hideEditor();
+        });
+      }
+    });
+
+    $('#editor input')
+        .bind('input', function() {
+          editorFieldsToJson();
+          updateEditorState();
+        })
+        .bind('blur', function() {
+          var val = $(this).val();
+          var strippedVal = val.replace(/^\s+|\s+$/g, '');
+          if (val != strippedVal) {
+            $(this).val(strippedVal);
+            editorFieldsToJson();
+            updateEditorState();
+          }
+        });
+
+    $('#editor-imageurl, #editor-thumburl').bind('blur', function() {
+      var val = $(this).val();
+      if (val.indexOf('http') != 0) {
+        $(this).val('https://docs.google.com/uc?id=' + val);
+        editorFieldsToJson();
+        updateEditorState();
+      }
+    });
+
+    $('#editor-json').bind('input', function() {
+      editorJsonToFields();
+      updateEditorState();
+    });
+
+    $detailsurlvisit.click(function() {
+      window.open($detailsurl.val());
+    });
+    $imageurlvisit.click(function() {
+      window.open($imageurl.val());
+    });
+    $thumburlvisit.click(function() {
+      window.open($thumburl.val());
+    });
+  }
+
+  function editorFieldsToJson() {
+    var artwork = {
+      title: $title.val(),
+      byline: $byline.val(),
+      detailsUri: $detailsurl.val(),
+      imageUri: $imageurl.val()
+    };
+
+    if (!isEmpty($thumburl.val())) {
+      artwork.thumbUri = $thumburl.val();
+    }
+
+    $json.val(JSON.stringify(artwork, null, 2));
+  }
+
+  function editorJsonToFields() {
+    try {
+      var artwork = JSON.parse($json.val());
+      $title.val(artwork.title);
+      $byline.val(artwork.byline);
+      $detailsurl.val(artwork.detailsUri);
+      $imageurl.val(artwork.imageUri);
+      $thumburl.val(artwork.thumbUri);
+    } catch (e) {
+    }
+  }
+
+  function isEmpty(s) {
+    return !(s || '').replace(/^\s+|\s+$/g, '');
+  }
+
+  function updateEditorState() {
+    // required fields
+    $title.toggleClass('error', isEmpty($title.val()));
+    $byline.toggleClass('error', isEmpty($byline.val()));
+
+    $detailsurl.toggleClass('error', isEmpty($detailsurl.val()));
+    $detailsurlvisit[isEmpty($detailsurl.val()) ? 'attr' : 'removeAttr']('disabled', '');
+    $imageurl.toggleClass('error', isEmpty($imageurl.val()));
+    $imageurlvisit[isEmpty($imageurl.val()) ? 'attr' : 'removeAttr']('disabled', '');
+    $imageurlvisit.css('background-image', 'url("' + $imageurl.val() + '")');
+    $thumburlvisit[isEmpty($thumburl.val()) ? 'attr' : 'removeAttr']('disabled', '');
+    $thumburlvisit.css('background-image', 'url("' + $thumburl.val() + '")');
+
+    // ensure JSON is correct
+    try {
+      var json = $json.val();
+      if (isEmpty(json)) {
+        $json.addClass('error');
+      } else {
+        var obj = JSON.parse($json.val());
+        $json.removeClass('error');
+      }
+    } catch (e) {
+      $json.addClass('error');
+    }
+
+    $save[($('#editor .error').length > 0) ? 'attr' : 'removeAttr']('disabled', '');
+  }
+
+  function hideEditor() {
+    g_editorState = null;
+    $editor.hide();
+    $('#calendar').show();
+  }
+
+  function showEditor(args) {
+    g_editorState = args;
+
+    $('#editor input, #editor textarea').val('');
+
+    if (args.action == 'edit') {
+      if (!args.id) {
+        g_editorState = null;
+        alert('no ID for artwork, can\'t edit.');
+        return;
+      }
+      var clonedArtwork = JSON.parse(JSON.stringify(args.artwork));
+      $title.val(clonedArtwork.title);
+      $byline.val(clonedArtwork.byline);
+      $detailsurl.val(clonedArtwork.detailsUri);
+      $imageurl.val(clonedArtwork.imageUri);
+      $thumburl.val(clonedArtwork.thumbUri);
+      delete clonedArtwork.publishDate;
+      delete clonedArtwork.id;
+      $json.val(JSON.stringify(clonedArtwork, null, 2));
+    } else {
+      editorFieldsToJson();
+    }
+
+    updateEditorState();
+
+    $('#calendar').hide();
+    $editor.show();
+  }
+
+  // detect escape key
+  $('body').keydown(function(e){
+    var code = e.keyCode || e.which;
+    if (code == 27 && g_editorState) {
+      hideEditor();
+    }
+  });
+
+  window.setupEditor = setupEditor;
+  window.showEditor = showEditor;
+})();
+
+$(document).ready(function() {
+  renderCalendar();
+  setupEditor();
+  reloadArtworks();
+});
+
+</script>
+
+</body>
+</html>
