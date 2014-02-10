@@ -67,7 +67,7 @@ public class RealRenderController extends RenderController {
             return null;
         }
 
-        if (!file.exists()) {
+        if (!file.exists() || file.length() == 0) {
             mContext.startService(TaskQueueService.getDownloadCurrentArtworkIntent(mContext));
             return null;
         }

@@ -162,8 +162,8 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA
  *
  * <ol>
  * <li>{@link #onEnabled()}, called when the first subscriber is added.</li>
- * <li>{@link #onSubscriberAdded()}, called when a new subscriber is added.</li>
- * <li>{@link #onSubscriberRemoved()}, called when a subscriber is removed.</li>
+ * <li>{@link #onSubscriberAdded(ComponentName)}, called when a new subscriber is added.</li>
+ * <li>{@link #onSubscriberRemoved(ComponentName)}, called when a subscriber is removed.</li>
  * <li>{@link #onDisabled()}, called when the last subscriber unsubscribes.</li>
  * </ol>
  *
@@ -296,11 +296,21 @@ public abstract class MuzeiArtSource extends IntentService {
     }
 
     /**
+     * Method called before a new subscriber is added that determines whether the subscription is
+     * allowed or not. The default behavior is to allow all subscriptions.
+     *
+     * @return true if the subscription should be allowed, false if it should be denied.
+     */
+    protected boolean onAllowSubscription(ComponentName subscriber) {
+        return true;
+    }
+
+    /**
      * Lifecycle method called when a new subscriber is added. Sources generally don't need to
      * override this. For more details on the source lifecycle, see the discussion in the
      * {@link MuzeiArtSource} reference.
      */
-    protected void onSubscriberAdded() {
+    protected void onSubscriberAdded(ComponentName subscriber) {
     }
 
     /**
@@ -308,21 +318,23 @@ public abstract class MuzeiArtSource extends IntentService {
      * override this. For more details on the source lifecycle, see the discussion in the
      * {@link MuzeiArtSource} reference.
      */
-    protected void onSubscriberRemoved() {
+    protected void onSubscriberRemoved(ComponentName subscriber) {
     }
 
     /**
      * Lifecycle method called when the first subscriber is added. This will be called before
-     * {@link #onSubscriberAdded()}. Sources generally don't need to override this. For more
-     * details on the source lifecycle, see the discussion in the {@link MuzeiArtSource} reference.
+     * {@link #onSubscriberAdded(ComponentName)}. Sources generally don't need to override this.
+     * For more details on the source lifecycle, see the discussion in the {@link MuzeiArtSource}
+     * reference.
      */
     protected void onEnabled() {
     }
 
     /**
      * Lifecycle method called when the last subscriber is removed. This will be called after
-     * {@link #onSubscriberRemoved()}. Sources generally don't need to override this. For more
-     * details on the source lifecycle, see the discussion in the {@link MuzeiArtSource} reference.
+     * {@link #onSubscriberRemoved(ComponentName)}. Sources generally don't need to override this.
+     * For more details on the source lifecycle, see the discussion in the {@link MuzeiArtSource}
+     * reference.
      */
     protected void onDisabled() {
     }
@@ -561,6 +573,10 @@ public abstract class MuzeiArtSource extends IntentService {
                 processAndDispatchSubscriberRemoved(subscriber);
             }
 
+            if (!onAllowSubscription(subscriber)) {
+                return;
+            }
+
             mSubscriptions.put(subscriber, token);
             processAndDispatchSubscriberAdded(subscriber);
         }
@@ -589,7 +605,7 @@ public abstract class MuzeiArtSource extends IntentService {
             }
         }
 
-        onSubscriberAdded();
+        onSubscriberAdded(subscriber);
 
         // If there's no artwork, trigger initial update
         if (!updateDueToSchedule
@@ -604,7 +620,7 @@ public abstract class MuzeiArtSource extends IntentService {
 
     private void processAndDispatchSubscriberRemoved(ComponentName subscriber) {
         // Trigger callbacks
-        onSubscriberRemoved();
+        onSubscriberRemoved(subscriber);
         if (mSubscriptions.size() == 0) {
             clearUpdateAlarm();
             onDisabled();
@@ -652,7 +668,7 @@ public abstract class MuzeiArtSource extends IntentService {
         am.cancel(getHandleNextCommandPendingIntent(this));
     }
 
-    protected PendingIntent getHandleNextCommandPendingIntent(Context context) {
+    private PendingIntent getHandleNextCommandPendingIntent(Context context) {
         return PendingIntent.getService(context, 0,
                 new Intent(ACTION_HANDLE_COMMAND)
                         .setComponent(new ComponentName(context, getClass()))

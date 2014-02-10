@@ -94,12 +94,12 @@ uploadArchives {
                name 'Muzei API'
                packaging 'jar'
                description 'The Muzei API allows you to extend Muzei with custom sources'
-               url 'http://muzei.co/api'
+               url 'http://api.muzei.co'
 
                scm {
-                   url 'https://code.google.com/p/dashclock/source/browse'
-                   connection 'scm:git:https://code.google.com/p/dashclock/'
-                   developerConnection 'scm:git:https://code.google.com/p/dashclock/'
+                   url 'https://github.com/romannurik/muzei.git'
+                   connection 'scm:git:https://github.com/romannurik/muzei'
+                   developerConnection 'scm:git:https://github.com/romannurik/muzei'
                }
 
                licenses {

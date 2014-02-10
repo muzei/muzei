@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.featuredart;
 
+import android.content.ComponentName;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
@@ -103,8 +104,8 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
     }
 
     @Override
-    protected void onSubscriberAdded() {
-        super.onSubscriberAdded();
+    protected void onSubscriberAdded(ComponentName subscriber) {
+        super.onSubscriberAdded(subscriber);
         Artwork currentArtwork = getCurrentArtwork();
         if (currentArtwork != null && !"initial".equals(currentArtwork.getToken())) {
             // TODO: is this really necessary?

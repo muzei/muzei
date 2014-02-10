@@ -91,7 +91,7 @@ public class ArtworkCache {
             return;
         }
 
-        if (destFile.exists()) {
+        if (destFile.exists() && destFile.length() > 0) {
             EventBus.getDefault().postSticky(new ArtworkLoadingStateChangedEvent(false, false));
             EventBus.getDefault().post(new CurrentArtworkDownloadedEvent());
             return;
@@ -118,7 +118,12 @@ public class ArtworkCache {
 
         // Input stream successfully opened. Save to cache file
         try {
-            IOUtil.readFullyWriteToFile(in, destFile);
+            File tempFile = new File(mArtCacheRoot, "temp.download");
+            IOUtil.readFullyWriteToFile(in, tempFile);
+            destFile.delete();
+            if (!tempFile.renameTo(destFile)) {
+                throw new IOException("Couldn't move temp artwork file to final cache location.");
+            }
         } catch (IOException e) {
             LOGE(TAG, "Error loading and caching current artwork.", e);
             destFile.delete();

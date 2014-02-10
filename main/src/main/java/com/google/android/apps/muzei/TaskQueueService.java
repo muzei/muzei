@@ -20,11 +20,18 @@ import android.app.IntentService;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.PowerManager;
 import android.support.v4.content.WakefulBroadcastReceiver;
 
+import com.google.android.apps.muzei.util.LogUtil;
+
 public class TaskQueueService extends IntentService {
+    private static final String TAG = LogUtil.makeLogTag(TaskQueueService.class);
+
     static final String ACTION_DOWNLOAD_CURRENT_ARTWORK
             = "com.google.android.apps.muzei.action.DOWNLOAD_CURRENT_ARTWORK";
+
+    private static final long DOWNLOAD_ARTWORK_WAKELOCK_TIMEOUT_MILLIS = 30 * 1000;
 
     public TaskQueueService() {
         super("TaskQueueService");
@@ -38,11 +45,21 @@ public class TaskQueueService extends IntentService {
 
         String action = intent.getAction();
         if (ACTION_DOWNLOAD_CURRENT_ARTWORK.equals(action)) {
-            // TODO: request a wake lock because this doesn't always get started
-            // from a wakeful broadcast receiver
+            // This is normally not started by a WakefulBroadcastReceiver so request a
+            // new wakelock.
+            PowerManager pwm = (PowerManager) getSystemService(POWER_SERVICE);
+            PowerManager.WakeLock lock = pwm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
+            lock.acquire(DOWNLOAD_ARTWORK_WAKELOCK_TIMEOUT_MILLIS);
 
-            // Handle internal download artwork request
-            ArtworkCache.getInstance(this).maybeDownloadCurrentArtworkSync();
+            try {
+                // Handle internal download artwork request
+                ArtworkCache.getInstance(this).maybeDownloadCurrentArtworkSync();
+            } finally {
+                if (lock.isHeld()) {
+                    lock.release();
+                }
+            }
+
             WakefulBroadcastReceiver.completeWakefulIntent(intent);
         }
     }
