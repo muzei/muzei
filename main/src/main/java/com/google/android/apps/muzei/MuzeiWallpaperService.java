@@ -17,6 +17,8 @@
 package com.google.android.apps.muzei;
 
 import android.app.WallpaperManager;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.GestureDetector;
@@ -35,9 +37,31 @@ import net.rbgrn.android.glwallpaperservice.GLWallpaperService;
 import de.greenrobot.event.EventBus;
 
 public class MuzeiWallpaperService extends GLWallpaperService {
+
+    private UserPresentReceiver mUserPresentReceiver;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        IntentFilter presentFilter = new IntentFilter();
+        presentFilter.addAction(Intent.ACTION_USER_PRESENT);
+        presentFilter.addAction(Intent.ACTION_SCREEN_OFF);
+        mUserPresentReceiver = new UserPresentReceiver();
+        registerReceiver(mUserPresentReceiver, presentFilter);
+    }
+
     @Override
     public Engine onCreateEngine() {
         return new MuzeiWallpaperEngine();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mUserPresentReceiver != null) {
+            unregisterReceiver(mUserPresentReceiver);
+            mUserPresentReceiver = null;
+        }
     }
 
     private class MuzeiWallpaperEngine extends GLEngine implements
@@ -121,6 +145,17 @@ public class MuzeiWallpaperService extends GLWallpaperService {
 
         public void onEventMainThread(ArtDetailViewport e) {
             requestRender();
+        }
+
+        public void onEventMainThread(UserPresentReceiver.UserPresent e) {
+            final boolean blur = e.present;
+            cancelDelayedBlur();
+            queueEvent(new Runnable() {
+                @Override
+                public void run() {
+                    mRenderer.setIsBlurred(blur, false);
+                }
+            });
         }
 
         @Override

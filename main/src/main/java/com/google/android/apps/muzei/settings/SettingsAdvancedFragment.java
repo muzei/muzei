@@ -29,6 +29,7 @@ import android.widget.CompoundButton;
 import android.widget.SeekBar;
 
 import com.google.android.apps.muzei.NewWallpaperNotificationReceiver;
+import com.google.android.apps.muzei.UserPresentReceiver;
 import com.google.android.apps.muzei.event.BlurAmountChangedEvent;
 import com.google.android.apps.muzei.event.DimAmountChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
@@ -45,6 +46,7 @@ public class SettingsAdvancedFragment extends Fragment {
     private SeekBar mBlurSeekBar;
     private SeekBar mDimSeekBar;
     private CheckBox mNotifyNewWallpaperCheckBox;
+    private CheckBox mDisableBlurWhenScreenLockedCheckBox;
 
     public SettingsAdvancedFragment() {
     }
@@ -111,6 +113,22 @@ public class SettingsAdvancedFragment extends Fragment {
                 });
         mNotifyNewWallpaperCheckBox.setChecked(getSharedPreferences()
                 .getBoolean(NewWallpaperNotificationReceiver.PREF_ENABLED, true));
+
+        mDisableBlurWhenScreenLockedCheckBox = (CheckBox) rootView.findViewById(
+                R.id.disable_blur_when_locked_checkbox);
+        mDisableBlurWhenScreenLockedCheckBox.setOnCheckedChangeListener(
+                new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton button, boolean checked) {
+                        getSharedPreferences().edit()
+                                .putBoolean(UserPresentReceiver.PREF_ENABLED, checked)
+                                .apply();
+                        EventBus.getDefault().post(new BlurAmountChangedEvent());
+                    }
+                }
+        );
+        mDisableBlurWhenScreenLockedCheckBox.setChecked(getSharedPreferences()
+                .getBoolean(UserPresentReceiver.PREF_ENABLED, true));
         return rootView;
     }
 
