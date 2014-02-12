@@ -21,7 +21,7 @@ apply plugin: 'java'
 
 jar.baseName = 'muzei-api'
 group = 'com.google.android.apps.muzei'
-version = '0.9'
+version = '1.0'
 
 def Properties props = new Properties()
 props.load(new FileInputStream(file('../local.properties')))
