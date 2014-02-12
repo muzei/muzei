@@ -1,0 +1,105 @@
+<!--
+  Copyright 2014 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+    <string name="app_name">Muzei</string>
+    <string name="app_description">Arrière-plan animé Muzei</string>
+
+    <string name="settings_title">Paramètres Muzei</string>
+    <string name="settings_blur_amount_title">Flou</string>
+    <string name="settings_dim_amount_title">Obscurité</string>
+    <string name="settings_notify_new_wallpaper">Notifications de nouvel arrière-plan</string>
+
+    <string name="notification_new_wallpaper">Nouvel arrière-plan</string>
+
+    <string name="gallery_source_title">Mes photos</string>
+    <string name="gallery_source_description">Photos aléatoires de la caméra</string>
+    <plurals name="gallery_source_description_choice_template">
+        <item quantity="one">1 photo</item>
+        <item quantity="other">%1$d photos</item>
+    </plurals>
+    <string name="gallery_source_settings_title">Mes photos</string>
+    <string name="gallery_source_settings_empty">Photos aléatoires de la caméra</string>
+    <string name="gallery_source_settings_empty_subtitle">Choisir des photos spécifiques</string>
+    <string name="gallery_source_temporary_force_image">Arière-plan assigné à l\'image sélectionnée.</string>
+    <string name="gallery_source_from_gallery">De votre Gallerie</string>
+    <string name="gallery_source_touch_to_view">Tapez pour voir</string>
+
+    <string name="dummy_source_title">Source fictive</string>
+    <string name="dummy_source_description">Image d\'example</string>
+
+    <string name="featuredart_source_title">Oeuvre du jour</string>
+    <string name="featuredart_source_description">Une nouvelle peinture tous les jours</string>
+    <string name="featuredart_source_error_no_artwork_to_share">Aucune ouevre à partager.</string>
+
+    <string name="webstream_source_title">À partir du Web</string>
+    <string name="webstream_source_description">Oeuvre à partir du Web</string>
+
+    <string name="action_activate">Activer</string>
+    <string name="action_settings">Personnaliser</string>
+    <string name="action_source_settings">Personnaliser les sources</string>
+
+    <string name="contentdesc_overflow">Plus d\'options</string>
+    <string name="error_view_details">Impossible d\'afficher les détails de l\'oeuvre.</string>
+    <string name="error_easter_egg">Hmm, this picture doesn\'t seem to be loading. Grumpy McPuzzles is very sorry about that, and recommends trying a different wallpaper source.</string>
+
+    <string name="section_choose_source">Choisir la source</string>
+    <string name="section_advanced">Avancé</string>
+
+    <string name="action_previous_artwork">Oeuvre précédente</string>
+    <string name="action_next_artwork">Oeuvre suivante</string>
+
+    <string name="done">Terminé</string>
+    <string name="retry">Réessayer</string>
+
+    <string name="action_clear_photos">Retirer toutes les photos</string>
+    <string name="action_add_photos">Ajouter des photos</string>
+    <string name="action_rotate_interval">Intervale de rotation</string>
+    <string name="action_share_artwork">Partager l\'image</string>
+
+    <string name="action_remove">Retirer</string>
+
+    <string name="set_as_wallpaper_using_muzei">Arrière-plan (via Muzei)</string>
+
+    <string name="tutorial_main">Ouvrez l\'app Muzei pour voir votre arrière-plan.</string>
+    <string name="tutorial_subtitle">Appuyez deux fois sur l\'arrière-plan flou pour le mettre en focus.</string>
+
+    <string name="about_title">À propos de Muzei</string>
+    <string name="about_body"><![CDATA[
+        Créé à New York par Roman Nurik et traduit en français par Marc&ndash;André Dufresne. <i>Muzei</i> est une translitération du mot Russe 
+        <a href="http://translate.google.com/#en/ru/museum"><i>музей</i></a>, qui signifie
+        &#8220;musée.&#8221;<br><br>
+
+        Copyright 2013&ndash;2014 Google Inc.<br>
+        Tous droits réservés.<br><br>
+
+        <a href="http://m.google.com/utos">Terms of Service</a>,
+        <a href="http://www.google.com/policies/privacy/">Privacy Policy</a>&nbsp;<br><br>
+
+        Plusieurs remerciements à ces projets open-source:<br><br>
+
+        <b><a href="http://square.github.io/okhttp/">OkHttp</a> et <a href="http://square.github.io/picasso/">Picasso</a>&nbsp;</b><br>
+        <i>par Square</i><br><br>
+
+        <b><a href="https://github.com/greenrobot/EventBus">EventBus</a>&nbsp;</b><br>
+        <i>par greenrobot</i><br><br>
+
+        <b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a>&nbsp;</b><br>
+        <i>par Robert Green, Mark F. Guerra, et plusieurs autres</i><br><br>
+    ]]></string>
+    <string name="about_version_template">v%1$s</string>
+
+</resources>
