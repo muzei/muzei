@@ -1,0 +1,113 @@
+<!--
+  Copyright 2014 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+    <string name="app_name">Muzei</string>
+    <string name="app_description">Muzei Live Wallpaper</string>
+
+    <string name="settings_title">Impostazioni Muzei</string>
+    <string name="settings_blur_amount_title">Offuscamento</string>
+    <string name="settings_dim_amount_title">Luminosità</string>
+    <string name="settings_notify_new_wallpaper">Notifiche per i nuovi sfondi</string>
+
+    <string name="notification_new_wallpaper">Nuovo sfondo</string>
+
+    <string name="gallery_source_title">Le mie foto</string>
+    <string name="gallery_source_description">Foto casuali della fotocamera</string>
+    <plurals name="gallery_source_description_choice_template">
+        <item quantity="one">1 foto</item>
+        <item quantity="other">%1$d foto</item>
+    </plurals>
+    <string name="gallery_source_settings_title">Le mie foto</string>
+    <string name="gallery_source_settings_empty">Foto casuali della fotocamera</string>
+    <string name="gallery_source_settings_empty_subtitle">Scegli invece delle foto specifiche</string>
+    <string name="gallery_source_temporary_force_image">Sfondo impostato</string>
+    <string name="gallery_source_from_gallery">Dalla tua galleria</string>
+    <string name="gallery_source_touch_to_view">Tocca per visualizzare</string>
+
+    <string name="dummy_source_title">Finta fonte</string>
+    <string name="dummy_source_description">Esempio d\'opera d\'arte</string>
+
+    <string name="featuredart_source_title">Opera d\'arte in evidenza</string>
+    <string name="featuredart_source_description">Un nuovo dipinto ogni giorno</string>
+    <string name="featuredart_source_error_no_artwork_to_share">Nessuna opera d\'arte da condividere</string>
+
+    <string name="webstream_source_title">Dal web</string>
+    <string name="webstream_source_description">Opera d\'arte dal web</string>
+
+    <string name="action_activate">Attiva</string>
+    <string name="action_settings">Personalizza</string>
+    <string name="action_source_settings">Personalizza fonte</string>
+
+    <string name="contentdesc_overflow">Altre opzioni</string>
+    <string name="error_view_details">Impossibile visualizzare i dettagli dell\'opera d\'arte.</string>
+    <string name="error_easter_egg">Hmm, sembra che questa immagine non si stia caricando. Grumpy McPuzzles è molto dispiaciuto per questo, e consiglia di provare una diversa fonte per gli sfondi.</string>
+    <string name="error_wallpaper_chooser">Impossibile aprire il selezionatore di wallpaper. Puoi comunque attivare Muzei selezionando \'Sfondi live\' nel selezionatore di sfondi della tua home screen.</string>
+
+    <string name="section_choose_source">Seleziona fonte</string>
+    <string name="section_advanced">Avanzato</string>
+
+    <string name="action_previous_artwork">Opera d\'arte precedente</string>
+    <string name="action_next_artwork">Prossima opera d\'arte</string>
+
+    <string name="done">Fatto</string>
+    <string name="retry">Riprova</string>
+
+    <string name="action_clear_photos">Rimuovi tutte le foto</string>
+    <string name="action_add_photos">Aggiungi foto</string>
+    <string name="action_rotate_interval">Cambia intervallo</string>
+    <string name="action_share_artwork">Condividi opera d\'arte</string>
+
+    <string name="action_remove">Rimuovi</string>
+
+    <string name="set_as_wallpaper_using_muzei">Sfondo (tramite Muzei)</string>
+
+    <string name="tutorial_main">Apri l\'app Muzei per vedere il tuo sfondo.</string>
+    <string name="tutorial_subtitle">Tocca due volte lo sfondo offuscato nella tua home screen per mettere temporaneamente a fuoco.</string>
+
+    <string name="about_title">Su Muzei</string>
+    <string name="about_body"><![CDATA[
+        Scritta in New York da Roman Nurik. <i>Muzei</i> è una translitterazione della parola russa
+        <a href="http://translate.google.com/#en/ru/museum"><i>музей</i></a>, che significa
+        &#8220;museo.&#8221;<br><br>
+
+        Traduzione italiana a cura di <a href="https://plus.google.com/+PietroRampini">Pietro Rampini</a><br><br>
+
+        Copyright 2013&ndash;2014 Google Inc.<br>
+        Tutti i diritti risevati.<br><br>
+
+        <a href="http://m.google.com/utos">Terms of Service</a>,
+        <a href="http://www.google.com/policies/privacy/">Privacy Policy</a>&nbsp;<br><br>
+
+        Tante grazie a questi progetti open-source:<br><br>
+
+        <b><a href="http://square.github.io/okhttp/">OkHttp</a> and <a href="http://square.github.io/picasso/">Picasso</a>&nbsp;</b><br>
+        <i>by Square</i><br><br>
+
+        <b><a href="https://github.com/greenrobot/EventBus">EventBus</a>&nbsp;</b><br>
+        <i>by greenrobot</i><br><br>
+
+        <b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a>&nbsp;</b><br>
+        <i>by Robert Green, Mark F. Guerra, and others</i><br><br>
+    ]]></string>
+    <string name="about_version_template">v%1$s</string>
+    <string name="action_rotate_interval_none">Non cambiare sfondo</string>
+    <string name="action_rotate_interval_1h">Ogni ora</string>
+    <string name="action_rotate_interval_3h">Ogni 3 ore</string>
+    <string name="action_rotate_interval_6h">Ogni 6 ore</string>
+    <string name="action_rotate_interval_24h">Ogni 24 ore</string>
+    <string name="action_rotate_interval_72h">Ogni 3 ore</string>
+</resources>
