@@ -214,10 +214,21 @@ public class MuzeiActivity extends Activity {
         findViewById(R.id.activate_muzei_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
-                        .putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
-                                new ComponentName(MuzeiActivity.this, MuzeiWallpaperService.class))
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                try {
+                    startActivity(new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
+                            .putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
+                                    new ComponentName(MuzeiActivity.this,
+                                            MuzeiWallpaperService.class))
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                } catch (ActivityNotFoundException e) {
+                    try {
+                        startActivity(new Intent(WallpaperManager.ACTION_LIVE_WALLPAPER_CHOOSER)
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                    } catch (ActivityNotFoundException e2) {
+                        Toast.makeText(MuzeiActivity.this, R.string.error_wallpaper_chooser,
+                                Toast.LENGTH_LONG).show();
+                    }
+                }
             }
         });
     }

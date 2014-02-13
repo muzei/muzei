@@ -50,7 +50,9 @@ public class IOUtil {
     private static final int DEFAULT_READ_TIMEOUT = 30 * 1000; // 30s
     private static final int DEFAULT_CONNECT_TIMEOUT = 15 * 1000; // 15s
 
-    public static InputStream openUri(Context context, Uri uri) throws OpenUriException {
+    public static InputStream openUri(Context context, Uri uri, String reqContentTypeSubstring)
+            throws OpenUriException {
+
         if (uri == null) {
             throw new IllegalArgumentException("Uri cannot be empty");
         }
@@ -102,6 +104,16 @@ public class IOUtil {
                 conn.setReadTimeout(DEFAULT_READ_TIMEOUT);
                 responseCode = conn.getResponseCode();
                 responseMessage = conn.getResponseMessage();
+                if (!(responseCode >= 200 && responseCode < 300)) {
+                    throw new IOException("HTTP error response.");
+                }
+                if (reqContentTypeSubstring != null) {
+                    String contentType = conn.getContentType();
+                    if (contentType == null || contentType.indexOf(reqContentTypeSubstring) < 0) {
+                        throw new IOException("HTTP content type '" + contentType
+                                + "' didn't match '" + reqContentTypeSubstring + "'.");
+                    }
+                }
                 in = conn.getInputStream();
 
             } catch (MalformedURLException e) {

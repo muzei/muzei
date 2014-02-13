@@ -104,9 +104,9 @@ public class ArtworkCache {
 
         InputStream in;
         try {
-            in = IOUtil.openUri(mApplicationContext, currentArtwork.getImageUri());
+            in = IOUtil.openUri(mApplicationContext, currentArtwork.getImageUri(), "image/");
         } catch (IOUtil.OpenUriException e) {
-            LOGE(TAG, "Error downloading current artwork.", e);
+            LOGE(TAG, "Error downloading current artwork. URI: " + currentArtwork.getImageUri(), e);
             if (e.isRetryable()) {
                 scheduleRetryArtworkDownload();
             }

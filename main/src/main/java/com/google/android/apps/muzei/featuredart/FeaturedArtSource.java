@@ -53,7 +53,7 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
     private static final String TAG = LogUtil.makeLogTag(FeaturedArtSource.class);
     private static final String SOURCE_NAME = "FeaturedArt";
 
-    private static final String QUERY_URL = "http://muzeiapi.appspot.com/featured";
+    private static final String QUERY_URL = "http://muzeiapi.appspot.com/featured?cachebust=1";
 
     private static final int COMMAND_ID_SHARE = 1;
     private static final int COMMAND_ID_DEBUG_INFO = 51;

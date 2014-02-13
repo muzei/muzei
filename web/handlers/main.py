@@ -133,7 +133,10 @@ class FeaturedArtworkHandler(BaseHandler):
           + datetime.timedelta(days=1), START_TIME) + NEXT_PADDING
       featured['nextTime'] = _serialize_datetime(next_time)
 
-      cache_expire_time = next_time - datetime.timedelta(minutes=5)
+      # Caches expire in an hour, but no later than the next start time minus 5 minutes
+      cache_expire_time = min(
+          datetime.datetime.now() + datetime.timedelta(hours=1),
+          next_time - datetime.timedelta(minutes=5))
       expire_seconds = max(0, (cache_expire_time - now).total_seconds())
       self.response.headers['Cache-Control'] = 'max-age=%d, must-revalidate, public' % expire_seconds
       self.response.headers['Expires'] = cache_expire_time.strftime('%a, %d %b %Y %H:%M:%S GMT')

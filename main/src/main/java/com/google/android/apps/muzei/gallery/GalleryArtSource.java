@@ -147,7 +147,7 @@ public class GalleryArtSource extends MuzeiArtSource {
             File destFile = getStoredFileForUri(this, uri);
             InputStream in;
             try {
-                in = IOUtil.openUri(this, uri);
+                in = IOUtil.openUri(this, uri, null);
                 IOUtil.readFullyWriteToFile(in, destFile);
             } catch (IOUtil.OpenUriException e) {
                 LOGE(TAG, "Error downloading gallery image.", e);
@@ -369,7 +369,7 @@ public class GalleryArtSource extends MuzeiArtSource {
 
             File tempImageFile = new File(IOUtil.getBestAvailableCacheRoot(this), "tempimage");
             try {
-                InputStream in = IOUtil.openUri(this, imageUri);
+                InputStream in = IOUtil.openUri(this, imageUri, null);
                 IOUtil.readFullyWriteToFile(in, tempImageFile);
 
                 ExifInterface exifInterface = new ExifInterface(tempImageFile.getPath());
