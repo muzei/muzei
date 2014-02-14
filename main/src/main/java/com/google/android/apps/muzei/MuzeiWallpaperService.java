@@ -186,6 +186,7 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             mMainThreadHandler.postDelayed(mDoubleTapTimeout, timeout);
         }
 
+        private final GestureDetector.OnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onDown(MotionEvent e) {
                 return true;
