@@ -24,13 +24,18 @@ import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 
+import com.google.android.apps.muzei.MuzeiWallpaperService;
 import com.google.android.apps.muzei.NewWallpaperNotificationReceiver;
 import com.google.android.apps.muzei.event.BlurAmountChangedEvent;
 import com.google.android.apps.muzei.event.DimAmountChangedEvent;
+import com.google.android.apps.muzei.event.DoubleTapActionChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
 
 import net.nurik.roman.muzei.R;
@@ -45,6 +50,7 @@ public class SettingsAdvancedFragment extends Fragment {
     private SeekBar mBlurSeekBar;
     private SeekBar mDimSeekBar;
     private CheckBox mNotifyNewWallpaperCheckBox;
+    private Spinner mDoubleTapActionSpinner;
 
     public SettingsAdvancedFragment() {
     }
@@ -111,6 +117,56 @@ public class SettingsAdvancedFragment extends Fragment {
                 });
         mNotifyNewWallpaperCheckBox.setChecked(getSharedPreferences()
                 .getBoolean(NewWallpaperNotificationReceiver.PREF_ENABLED, true));
+
+        //Double Tap action
+
+        mDoubleTapActionSpinner = (Spinner)rootView.findViewById(R.id.advanced_settings_doubletapaction_spinner);
+
+        DoubleTapActionEntry[] entries = new DoubleTapActionEntry[] {
+            new DoubleTapActionEntry(getString(R.string.settings_doubletap_action_deblur), DoubleTapActionChangedEvent.DoubleTapAction.Deblur),
+            new DoubleTapActionEntry(getString(R.string.settings_doubletap_action_next), DoubleTapActionChangedEvent.DoubleTapAction.NextItem)
+        };
+
+        ArrayAdapter<DoubleTapActionEntry> doubleTapActionSpinnerAdapter =
+                new ArrayAdapter<DoubleTapActionEntry>(
+                        inflater.getContext(),
+                        android.R.layout.simple_spinner_dropdown_item,
+                        entries);
+
+        mDoubleTapActionSpinner.setAdapter(doubleTapActionSpinnerAdapter);
+        mDoubleTapActionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                DoubleTapActionEntry entry = (DoubleTapActionEntry)parent.getSelectedItem();
+                DoubleTapActionChangedEvent.DoubleTapAction newAction = entry.getDoubleTapAction();
+                getSharedPreferences().edit()
+                        .putInt(MuzeiWallpaperService.PREF_DOUBLETAPACTION, newAction.getAction())
+                        .apply();
+                EventBus.getDefault().post(new DoubleTapActionChangedEvent(newAction));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+        DoubleTapActionChangedEvent.DoubleTapAction currentDoubleTapAction = DoubleTapActionChangedEvent.DoubleTapAction.fromAction(
+                getSharedPreferences().getInt(
+                        MuzeiWallpaperService.PREF_DOUBLETAPACTION,
+                        DoubleTapActionChangedEvent.DoubleTapAction.Deblur.getAction()));
+
+        //Search the current action in the provided entries
+        int idx = 0;
+        for(int i=0; i<entries.length; i++)
+        {
+            if(entries[i].getDoubleTapAction() == currentDoubleTapAction)
+            {
+                idx = i;
+                break;
+            }
+        }
+        //to set the selected item
+        mDoubleTapActionSpinner.setSelection(idx);
+
         return rootView;
     }
 
@@ -143,4 +199,31 @@ public class SettingsAdvancedFragment extends Fragment {
             EventBus.getDefault().post(new DimAmountChangedEvent());
         }
     };
+
+    public class DoubleTapActionEntry
+    {
+        private String mName;
+        private DoubleTapActionChangedEvent.DoubleTapAction mAction;
+
+        public DoubleTapActionEntry(String name, DoubleTapActionChangedEvent.DoubleTapAction action)
+        {
+            mName = name;
+            mAction = action;
+        }
+
+        public String getName()
+        {
+            return mName;
+        }
+
+        public DoubleTapActionChangedEvent.DoubleTapAction getDoubleTapAction()
+        {
+            return mAction;
+        }
+
+        @Override
+        public String toString() {
+            return mName;
+        }
+    }
 }
