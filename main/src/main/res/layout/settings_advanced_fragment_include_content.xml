@@ -27,6 +27,8 @@
         android:textAllCaps="true"
         android:textColor="#fff"
         android:textStyle="bold"
+        android:layout_alignLeft="@+id/advanced_settings_doubletapaction_label"
+        android:layout_alignRight="@id/advanced_settings_doubletapaction_label"
         android:text="@string/settings_blur_amount_title" />
 
     <SeekBar style="@style/Settings.Widget.SeekBar.BlurAmount"
@@ -62,14 +64,36 @@
         android:layout_alignTop="@id/dim_amount_label"
         android:max="255" />
 
+    <TextView android:id="@id/advanced_settings_doubletapaction_label"
+        android:layout_width="wrap_content"
+        android:layout_height="32dp"
+        android:layout_below="@id/dim_amount_label"
+        android:layout_alignBottom="@+id/advanced_settings_doubletapaction_spinner"
+        android:gravity="center_vertical|right"
+        android:textSize="@dimen/settings_text_size_normal"
+        android:fontFamily="sans-serif-condensed"
+        android:textAllCaps="true"
+        android:textColor="#fff"
+        android:textStyle="bold"
+        android:text="@string/settings_doubletap_action_title" />
+
+    <Spinner
+        android:id="@id/advanced_settings_doubletapaction_spinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/blur_amount"
+        android:layout_alignRight="@id/blur_amount"
+        android:layout_below="@id/dim_amount_label"
+        />
+
     <CheckBox android:id="@+id/notify_new_wallpaper_checkbox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:layout_marginLeft="8dp"
-        android:layout_alignLeft="@id/dim_amount"
-        android:layout_alignRight="@id/dim_amount"
-        android:layout_below="@id/dim_amount"
+        android:layout_alignLeft="@id/advanced_settings_doubletapaction_spinner"
+        android:layout_alignRight="@id/advanced_settings_doubletapaction_spinner"
+        android:layout_below="@id/advanced_settings_doubletapaction_spinner"
         android:textSize="@dimen/settings_text_size_normal"
         android:fontFamily="sans-serif-condensed"
         android:textColor="#fff"

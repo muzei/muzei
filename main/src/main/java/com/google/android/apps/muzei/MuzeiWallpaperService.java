@@ -17,13 +17,17 @@
 package com.google.android.apps.muzei;
 
 import android.app.WallpaperManager;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 
+import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
+import com.google.android.apps.muzei.event.DoubleTapActionChangedEvent;
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
 import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
@@ -35,6 +39,9 @@ import net.rbgrn.android.glwallpaperservice.GLWallpaperService;
 import de.greenrobot.event.EventBus;
 
 public class MuzeiWallpaperService extends GLWallpaperService {
+
+    public static final String PREF_DOUBLETAPACTION = "doubletap_action";
+
     @Override
     public Engine onCreateEngine() {
         return new MuzeiWallpaperEngine();
@@ -54,6 +61,8 @@ public class MuzeiWallpaperService extends GLWallpaperService {
 
         private boolean mArtDetailMode = false;
         private boolean mVisible = true;
+
+        private DoubleTapActionChangedEvent.DoubleTapAction mDoubleTapAction = DoubleTapActionChangedEvent.DoubleTapAction.ShowOriginalArtwork;
 
         @Override
         public void onCreate(SurfaceHolder surfaceHolder) {
@@ -75,6 +84,10 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             setTouchEventsEnabled(true);
             setOffsetNotificationsEnabled(true);
             EventBus.getDefault().registerSticky(this);
+
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            int actionCode = sp.getInt(PREF_DOUBLETAPACTION, DoubleTapActionChangedEvent.DoubleTapAction.ShowOriginalArtwork.getCode());
+            mDoubleTapAction = DoubleTapActionChangedEvent.DoubleTapAction.fromCode(actionCode);
         }
 
         @Override
@@ -123,6 +136,10 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             requestRender();
         }
 
+        public void onEventMainThread(DoubleTapActionChangedEvent e) {
+            mDoubleTapAction = e.getNewAction();
+        }
+
         @Override
         public void onVisibilityChanged(boolean visible) {
             mVisible = visible;
@@ -169,19 +186,36 @@ public class MuzeiWallpaperService extends GLWallpaperService {
                     return true;
                 }
 
-                // Temporarily toggle focused/blurred
-                queueEvent(new Runnable() {
-                    @Override
-                    public void run() {
-                        mRenderer.setIsBlurred(!mRenderer.isBlurred(), false);
-                    }
-                });
+                executeDoubleTapAction();
 
-                // Schedule a re-blur
-                delayedBlur();
                 return true;
             }
         };
+
+        private void executeDoubleTapAction() {
+
+            if(mDoubleTapAction == DoubleTapActionChangedEvent.DoubleTapAction.NextArtwork)
+                executeNextArtworkAction();
+            else //Default == Deblur
+                executeShowOriginalArtworkAction();
+        }
+
+        private void executeShowOriginalArtworkAction() {
+            // Temporarily toggle focused/blurred
+            queueEvent(new Runnable() {
+                @Override
+                public void run() {
+                    mRenderer.setIsBlurred(!mRenderer.isBlurred(), false);
+                }
+            });
+
+            // Schedule a re-blur
+            delayedBlur();
+        }
+
+        private void executeNextArtworkAction() {
+            SourceManager.getInstance(getApplicationContext()).sendAction(MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK);
+        }
 
         private void cancelDelayedBlur() {
             mMainThreadHandler.removeCallbacks(mBlurRunnable);
