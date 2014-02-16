@@ -16,18 +16,38 @@
 package com.google.android.apps.muzei.event;
 
 /**
- * Created by devmil on 15.02.14.
+ * Created by devmil on 16.02.14.
  */
-public class DoubleTapActionChangedEvent {
+public enum TapAction
+{
+    Nothing(0),
+    ShowOriginalArtwork(1),
+    NextArtwork(2);
 
-    private TapAction mNewAction;
+    //Enum implementation
 
-    public DoubleTapActionChangedEvent(TapAction newAction)
+    private int mCode;
+
+    private TapAction(int code)
     {
-        mNewAction = newAction;
+        mCode = code;
     }
 
-    public TapAction getNewAction() {
-        return mNewAction;
+    public int getCode()
+    {
+        return mCode;
+    }
+
+    public static TapAction fromCode(int code)
+    {
+        switch(code)
+        {
+            case 1:
+                return ShowOriginalArtwork;
+            case 2:
+                return NextArtwork;
+            default:
+                return Nothing;
+        }
     }
 }

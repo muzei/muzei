@@ -16,13 +16,13 @@
 package com.google.android.apps.muzei.event;
 
 /**
- * Created by devmil on 15.02.14.
+ * Created by devmil on 16.02.14.
  */
-public class DoubleTapActionChangedEvent {
+public class ThreeFingerActionChangedEvent {
 
     private TapAction mNewAction;
 
-    public DoubleTapActionChangedEvent(TapAction newAction)
+    public ThreeFingerActionChangedEvent(TapAction newAction)
     {
         mNewAction = newAction;
     }

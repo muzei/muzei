@@ -20,6 +20,7 @@ import android.app.WallpaperManager;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -28,6 +29,8 @@ import android.view.SurfaceHolder;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
 import com.google.android.apps.muzei.event.DoubleTapActionChangedEvent;
+import com.google.android.apps.muzei.event.TapAction;
+import com.google.android.apps.muzei.event.ThreeFingerActionChangedEvent;
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
 import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
@@ -41,6 +44,9 @@ import de.greenrobot.event.EventBus;
 public class MuzeiWallpaperService extends GLWallpaperService {
 
     public static final String PREF_DOUBLETAPACTION = "doubletap_action";
+    public static final String PREF_THREEFINGERACTION = "threefinger_action";
+
+    private static final int THREE_FINGER_ACTION_PAUSE_MS = 1000 * 5; //5s
 
     @Override
     public Engine onCreateEngine() {
@@ -62,7 +68,9 @@ public class MuzeiWallpaperService extends GLWallpaperService {
         private boolean mArtDetailMode = false;
         private boolean mVisible = true;
 
-        private DoubleTapActionChangedEvent.DoubleTapAction mDoubleTapAction = DoubleTapActionChangedEvent.DoubleTapAction.ShowOriginalArtwork;
+        private TapAction mDoubleTapAction = TapAction.ShowOriginalArtwork;
+        private TapAction mThreeFingerAction = TapAction.Nothing;
+        private long mLastThreeFingerAction = 0;
 
         @Override
         public void onCreate(SurfaceHolder surfaceHolder) {
@@ -86,8 +94,11 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             EventBus.getDefault().registerSticky(this);
 
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            int actionCode = sp.getInt(PREF_DOUBLETAPACTION, DoubleTapActionChangedEvent.DoubleTapAction.ShowOriginalArtwork.getCode());
-            mDoubleTapAction = DoubleTapActionChangedEvent.DoubleTapAction.fromCode(actionCode);
+            int doubleTapActionCode = sp.getInt(PREF_DOUBLETAPACTION, TapAction.ShowOriginalArtwork.getCode());
+            mDoubleTapAction = TapAction.fromCode(doubleTapActionCode);
+
+            int threeFingerActionCode = sp.getInt(PREF_THREEFINGERACTION, TapAction.Nothing.getCode());
+            mThreeFingerAction = TapAction.fromCode(threeFingerActionCode);
         }
 
         @Override
@@ -140,6 +151,10 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             mDoubleTapAction = e.getNewAction();
         }
 
+        public void onEventMainThread(ThreeFingerActionChangedEvent e) {
+            mThreeFingerAction = e.getNewAction();
+        }
+
         @Override
         public void onVisibilityChanged(boolean visible) {
             mVisible = visible;
@@ -169,6 +184,14 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             mGestureDetector.onTouchEvent(event);
             // Delay blur from temporary refocus while touching the screen
             delayedBlur();
+            long curTime = SystemClock.elapsedRealtime();
+            long lastDiff = curTime - mLastThreeFingerAction;
+            if(event.getPointerCount() == 3
+                    && lastDiff > THREE_FINGER_ACTION_PAUSE_MS)
+            {
+                mLastThreeFingerAction = curTime;
+                executeTapAction(mThreeFingerAction);
+            }
         }
 
         private GestureDetector.OnGestureListener mGestureListener
@@ -186,17 +209,17 @@ public class MuzeiWallpaperService extends GLWallpaperService {
                     return true;
                 }
 
-                executeDoubleTapAction();
+                executeTapAction(mDoubleTapAction);
 
                 return true;
             }
         };
 
-        private void executeDoubleTapAction() {
+        private void executeTapAction(TapAction action) {
 
-            if(mDoubleTapAction == DoubleTapActionChangedEvent.DoubleTapAction.NextArtwork)
+            if(action == TapAction.NextArtwork)
                 executeNextArtworkAction();
-            else //Default == Deblur
+            else if(action == TapAction.ShowOriginalArtwork)
                 executeShowOriginalArtworkAction();
         }
 

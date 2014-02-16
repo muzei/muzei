@@ -36,6 +36,8 @@ import com.google.android.apps.muzei.NewWallpaperNotificationReceiver;
 import com.google.android.apps.muzei.event.BlurAmountChangedEvent;
 import com.google.android.apps.muzei.event.DimAmountChangedEvent;
 import com.google.android.apps.muzei.event.DoubleTapActionChangedEvent;
+import com.google.android.apps.muzei.event.TapAction;
+import com.google.android.apps.muzei.event.ThreeFingerActionChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
 
 import net.nurik.roman.muzei.R;
@@ -51,6 +53,7 @@ public class SettingsAdvancedFragment extends Fragment {
     private SeekBar mDimSeekBar;
     private CheckBox mNotifyNewWallpaperCheckBox;
     private Spinner mDoubleTapActionSpinner;
+    private Spinner mThreeFingerActionSpinner;
 
     public SettingsAdvancedFragment() {
     }
@@ -122,23 +125,30 @@ public class SettingsAdvancedFragment extends Fragment {
 
         mDoubleTapActionSpinner = (Spinner)rootView.findViewById(R.id.advanced_settings_doubletapaction_spinner);
 
-        DoubleTapActionEntry[] entries = new DoubleTapActionEntry[] {
-            new DoubleTapActionEntry(getString(R.string.settings_doubletap_action_showoriginal), DoubleTapActionChangedEvent.DoubleTapAction.ShowOriginalArtwork),
-            new DoubleTapActionEntry(getString(R.string.settings_doubletap_action_next), DoubleTapActionChangedEvent.DoubleTapAction.NextArtwork)
+        TapActionEntry[] entries = new TapActionEntry[] {
+            new TapActionEntry(getString(R.string.settings_tap_action_nothing), TapAction.Nothing),
+            new TapActionEntry(getString(R.string.settings_tap_action_showoriginal), TapAction.ShowOriginalArtwork),
+            new TapActionEntry(getString(R.string.settings_tap_action_next), TapAction.NextArtwork)
         };
 
-        ArrayAdapter<DoubleTapActionEntry> doubleTapActionSpinnerAdapter =
-                new ArrayAdapter<DoubleTapActionEntry>(
+        ArrayAdapter<TapActionEntry> doubleTapActionSpinnerAdapter =
+                new ArrayAdapter<TapActionEntry>(
                         inflater.getContext(),
                         R.layout.settings_ab_spinner_list_item_dropdown,
                         entries);
 
-        mDoubleTapActionSpinner.setAdapter(doubleTapActionSpinnerAdapter);
+        TapAction currentDoubleTapAction = TapAction.fromCode(
+                getSharedPreferences().getInt(
+                        MuzeiWallpaperService.PREF_DOUBLETAPACTION,
+                        TapAction.ShowOriginalArtwork.getCode()));
+
+        initTapActionSpinner(mDoubleTapActionSpinner, doubleTapActionSpinnerAdapter, entries, currentDoubleTapAction);
+
         mDoubleTapActionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                DoubleTapActionEntry entry = (DoubleTapActionEntry)parent.getSelectedItem();
-                DoubleTapActionChangedEvent.DoubleTapAction newAction = entry.getDoubleTapAction();
+                TapActionEntry entry = (TapActionEntry)parent.getSelectedItem();
+                TapAction newAction = entry.getTapAction();
                 getSharedPreferences().edit()
                         .putInt(MuzeiWallpaperService.PREF_DOUBLETAPACTION, newAction.getCode())
                         .apply();
@@ -149,25 +159,58 @@ public class SettingsAdvancedFragment extends Fragment {
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
-        DoubleTapActionChangedEvent.DoubleTapAction currentDoubleTapAction = DoubleTapActionChangedEvent.DoubleTapAction.fromCode(
+
+
+        //Three finger action
+
+        mThreeFingerActionSpinner = (Spinner)rootView.findViewById(R.id.advanced_settings_threefingertapaction_spinner);
+
+        ArrayAdapter<TapActionEntry> threeFingerActionSpinnerAdapter =
+                new ArrayAdapter<TapActionEntry>(
+                        inflater.getContext(),
+                        R.layout.settings_ab_spinner_list_item_dropdown,
+                        entries);
+
+        TapAction currentThreeFingerAction = TapAction.fromCode(
                 getSharedPreferences().getInt(
-                        MuzeiWallpaperService.PREF_DOUBLETAPACTION,
-                        DoubleTapActionChangedEvent.DoubleTapAction.ShowOriginalArtwork.getCode()));
+                        MuzeiWallpaperService.PREF_THREEFINGERACTION,
+                        TapAction.Nothing.getCode()));
+
+        initTapActionSpinner(mThreeFingerActionSpinner, threeFingerActionSpinnerAdapter, entries, currentThreeFingerAction);
+
+        mThreeFingerActionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                TapActionEntry entry = (TapActionEntry)parent.getSelectedItem();
+                TapAction newAction = entry.getTapAction();
+                getSharedPreferences().edit()
+                        .putInt(MuzeiWallpaperService.PREF_THREEFINGERACTION, newAction.getCode())
+                        .apply();
+                EventBus.getDefault().post(new ThreeFingerActionChangedEvent(newAction));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+        return rootView;
+    }
+
+    private void initTapActionSpinner(Spinner tapActionSpinner, ArrayAdapter<TapActionEntry> arrayAdapter, TapActionEntry[] entries, TapAction currentTapAction) {
+        tapActionSpinner.setAdapter(arrayAdapter);
 
         //Search the current action in the provided entries
         int idx = 0;
         for(int i=0; i<entries.length; i++)
         {
-            if(entries[i].getDoubleTapAction() == currentDoubleTapAction)
+            if(entries[i].getTapAction() == currentTapAction)
             {
                 idx = i;
                 break;
             }
         }
         //to set the selected item
-        mDoubleTapActionSpinner.setSelection(idx);
-
-        return rootView;
+        tapActionSpinner.setSelection(idx);
     }
 
     @Override
@@ -200,12 +243,12 @@ public class SettingsAdvancedFragment extends Fragment {
         }
     };
 
-    public class DoubleTapActionEntry
+    public class TapActionEntry
     {
         private String mName;
-        private DoubleTapActionChangedEvent.DoubleTapAction mAction;
+        private TapAction mAction;
 
-        public DoubleTapActionEntry(String name, DoubleTapActionChangedEvent.DoubleTapAction action)
+        public TapActionEntry(String name, TapAction action)
         {
             mName = name;
             mAction = action;
@@ -216,7 +259,7 @@ public class SettingsAdvancedFragment extends Fragment {
             return mName;
         }
 
-        public DoubleTapActionChangedEvent.DoubleTapAction getDoubleTapAction()
+        public TapAction getTapAction()
         {
             return mAction;
         }
