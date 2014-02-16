@@ -128,7 +128,7 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA
  * </pre>
  *
  * If a <code>settingsActivity</code> meta-data element is present, an activity with the given
- * component name should be defined and exported in the application's manifest as well. DashClock
+ * component name should be defined and exported in the application's manifest as well. Muzei
  * will set the {@link #EXTRA_FROM_MUZEI_SETTINGS} extra to true in the launch intent for this
  * activity. An example is shown below:
  *
