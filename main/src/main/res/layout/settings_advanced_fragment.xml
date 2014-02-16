@@ -20,9 +20,15 @@
     android:layout_height="match_parent"
     android:padding="32dp">
 
-    <include layout="@layout/settings_advanced_fragment_include_content"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center" />
+        android:layout_gravity="center"
+        >
+        <include layout="@layout/settings_advanced_fragment_include_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+             />
+    </ScrollView>
 
 </FrameLayout>
