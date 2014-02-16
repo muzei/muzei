@@ -22,7 +22,7 @@
     <string name="settings_blur_amount_title">Blur</string>
     <string name="settings_dim_amount_title">Dim</string>
     <string name="settings_doubletap_action_title">D-Tap</string>
-    <string name="settings_doubletap_action_deblur">Deblur</string>
+    <string name="settings_doubletap_action_showoriginal">Show Original Artwork</string>
     <string name="settings_doubletap_action_next">Next Artwork</string>
     <string name="settings_notify_new_wallpaper">New wallpaper notifications</string>
 

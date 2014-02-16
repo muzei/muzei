@@ -62,7 +62,7 @@ public class MuzeiWallpaperService extends GLWallpaperService {
         private boolean mArtDetailMode = false;
         private boolean mVisible = true;
 
-        private DoubleTapActionChangedEvent.DoubleTapAction mDoubleTapAction = DoubleTapActionChangedEvent.DoubleTapAction.Deblur;
+        private DoubleTapActionChangedEvent.DoubleTapAction mDoubleTapAction = DoubleTapActionChangedEvent.DoubleTapAction.ShowOriginalArtwork;
 
         @Override
         public void onCreate(SurfaceHolder surfaceHolder) {
@@ -86,8 +86,8 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             EventBus.getDefault().registerSticky(this);
 
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            int actionCode = sp.getInt(PREF_DOUBLETAPACTION, DoubleTapActionChangedEvent.DoubleTapAction.Deblur.getAction());
-            mDoubleTapAction = DoubleTapActionChangedEvent.DoubleTapAction.fromAction(actionCode);
+            int actionCode = sp.getInt(PREF_DOUBLETAPACTION, DoubleTapActionChangedEvent.DoubleTapAction.ShowOriginalArtwork.getCode());
+            mDoubleTapAction = DoubleTapActionChangedEvent.DoubleTapAction.fromCode(actionCode);
         }
 
         @Override
@@ -194,13 +194,13 @@ public class MuzeiWallpaperService extends GLWallpaperService {
 
         private void executeDoubleTapAction() {
 
-            if(mDoubleTapAction == DoubleTapActionChangedEvent.DoubleTapAction.NextItem)
-                executeNextItemAction();
+            if(mDoubleTapAction == DoubleTapActionChangedEvent.DoubleTapAction.NextArtwork)
+                executeNextArtworkAction();
             else //Default == Deblur
-                executeDeblurAction();
+                executeShowOriginalArtworkAction();
         }
 
-        private void executeDeblurAction() {
+        private void executeShowOriginalArtworkAction() {
             // Temporarily toggle focused/blurred
             queueEvent(new Runnable() {
                 @Override
@@ -213,7 +213,7 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             delayedBlur();
         }
 
-        private void executeNextItemAction() {
+        private void executeNextArtworkAction() {
             SourceManager.getInstance(getApplicationContext()).sendAction(MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK);
         }
 

@@ -22,31 +22,31 @@ public class DoubleTapActionChangedEvent {
 
     public enum DoubleTapAction
     {
-        Deblur(1),
-        NextItem(2);
+        ShowOriginalArtwork(1),
+        NextArtwork(2);
 
         //Enum implementation
 
-        private int mAction;
+        private int mCode;
 
-        private DoubleTapAction(int action)
+        private DoubleTapAction(int code)
         {
-            mAction = action;
+            mCode = code;
         }
 
-        public int getAction()
+        public int getCode()
         {
-            return mAction;
+            return mCode;
         }
 
-        public static DoubleTapAction fromAction(int action)
+        public static DoubleTapAction fromCode(int code)
         {
-            switch(action)
+            switch(code)
             {
                 case 2:
-                    return NextItem;
+                    return NextArtwork;
                 default:
-                    return Deblur;
+                    return ShowOriginalArtwork;
             }
         }
     }

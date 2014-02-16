@@ -123,14 +123,14 @@ public class SettingsAdvancedFragment extends Fragment {
         mDoubleTapActionSpinner = (Spinner)rootView.findViewById(R.id.advanced_settings_doubletapaction_spinner);
 
         DoubleTapActionEntry[] entries = new DoubleTapActionEntry[] {
-            new DoubleTapActionEntry(getString(R.string.settings_doubletap_action_deblur), DoubleTapActionChangedEvent.DoubleTapAction.Deblur),
-            new DoubleTapActionEntry(getString(R.string.settings_doubletap_action_next), DoubleTapActionChangedEvent.DoubleTapAction.NextItem)
+            new DoubleTapActionEntry(getString(R.string.settings_doubletap_action_showoriginal), DoubleTapActionChangedEvent.DoubleTapAction.ShowOriginalArtwork),
+            new DoubleTapActionEntry(getString(R.string.settings_doubletap_action_next), DoubleTapActionChangedEvent.DoubleTapAction.NextArtwork)
         };
 
         ArrayAdapter<DoubleTapActionEntry> doubleTapActionSpinnerAdapter =
                 new ArrayAdapter<DoubleTapActionEntry>(
                         inflater.getContext(),
-                        android.R.layout.simple_spinner_dropdown_item,
+                        R.layout.settings_ab_spinner_list_item_dropdown,
                         entries);
 
         mDoubleTapActionSpinner.setAdapter(doubleTapActionSpinnerAdapter);
@@ -140,7 +140,7 @@ public class SettingsAdvancedFragment extends Fragment {
                 DoubleTapActionEntry entry = (DoubleTapActionEntry)parent.getSelectedItem();
                 DoubleTapActionChangedEvent.DoubleTapAction newAction = entry.getDoubleTapAction();
                 getSharedPreferences().edit()
-                        .putInt(MuzeiWallpaperService.PREF_DOUBLETAPACTION, newAction.getAction())
+                        .putInt(MuzeiWallpaperService.PREF_DOUBLETAPACTION, newAction.getCode())
                         .apply();
                 EventBus.getDefault().post(new DoubleTapActionChangedEvent(newAction));
             }
@@ -149,10 +149,10 @@ public class SettingsAdvancedFragment extends Fragment {
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
-        DoubleTapActionChangedEvent.DoubleTapAction currentDoubleTapAction = DoubleTapActionChangedEvent.DoubleTapAction.fromAction(
+        DoubleTapActionChangedEvent.DoubleTapAction currentDoubleTapAction = DoubleTapActionChangedEvent.DoubleTapAction.fromCode(
                 getSharedPreferences().getInt(
                         MuzeiWallpaperService.PREF_DOUBLETAPACTION,
-                        DoubleTapActionChangedEvent.DoubleTapAction.Deblur.getAction()));
+                        DoubleTapActionChangedEvent.DoubleTapAction.ShowOriginalArtwork.getCode()));
 
         //Search the current action in the provided entries
         int idx = 0;
