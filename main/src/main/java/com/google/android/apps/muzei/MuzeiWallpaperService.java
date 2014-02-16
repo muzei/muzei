@@ -17,13 +17,20 @@
 package com.google.android.apps.muzei;
 
 import android.app.WallpaperManager;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 
+import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
+import com.google.android.apps.muzei.event.DoubleTapActionChangedEvent;
+import com.google.android.apps.muzei.event.TapAction;
+import com.google.android.apps.muzei.event.ThreeFingerActionChangedEvent;
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
 import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
@@ -35,6 +42,12 @@ import net.rbgrn.android.glwallpaperservice.GLWallpaperService;
 import de.greenrobot.event.EventBus;
 
 public class MuzeiWallpaperService extends GLWallpaperService {
+
+    public static final String PREF_DOUBLETAPACTION = "doubletap_action";
+    public static final String PREF_THREEFINGERACTION = "threefinger_action";
+
+    private static final int THREE_FINGER_ACTION_PAUSE_MS = 1000 * 5; //5s
+
     @Override
     public Engine onCreateEngine() {
         return new MuzeiWallpaperEngine();
@@ -54,6 +67,10 @@ public class MuzeiWallpaperService extends GLWallpaperService {
 
         private boolean mArtDetailMode = false;
         private boolean mVisible = true;
+
+        private TapAction mDoubleTapAction = TapAction.ShowOriginalArtwork;
+        private TapAction mThreeFingerAction = TapAction.Nothing;
+        private long mLastThreeFingerAction = 0;
 
         @Override
         public void onCreate(SurfaceHolder surfaceHolder) {
@@ -75,6 +92,13 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             setTouchEventsEnabled(true);
             setOffsetNotificationsEnabled(true);
             EventBus.getDefault().registerSticky(this);
+
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            int doubleTapActionCode = sp.getInt(PREF_DOUBLETAPACTION, TapAction.ShowOriginalArtwork.getCode());
+            mDoubleTapAction = TapAction.fromCode(doubleTapActionCode);
+
+            int threeFingerActionCode = sp.getInt(PREF_THREEFINGERACTION, TapAction.Nothing.getCode());
+            mThreeFingerAction = TapAction.fromCode(threeFingerActionCode);
         }
 
         @Override
@@ -123,6 +147,14 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             requestRender();
         }
 
+        public void onEventMainThread(DoubleTapActionChangedEvent e) {
+            mDoubleTapAction = e.getNewAction();
+        }
+
+        public void onEventMainThread(ThreeFingerActionChangedEvent e) {
+            mThreeFingerAction = e.getNewAction();
+        }
+
         @Override
         public void onVisibilityChanged(boolean visible) {
             mVisible = visible;
@@ -152,6 +184,14 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             mGestureDetector.onTouchEvent(event);
             // Delay blur from temporary refocus while touching the screen
             delayedBlur();
+            long curTime = SystemClock.elapsedRealtime();
+            long lastDiff = curTime - mLastThreeFingerAction;
+            if(event.getPointerCount() == 3
+                    && lastDiff > THREE_FINGER_ACTION_PAUSE_MS)
+            {
+                mLastThreeFingerAction = curTime;
+                executeTapAction(mThreeFingerAction);
+            }
         }
 
         private GestureDetector.OnGestureListener mGestureListener
@@ -169,19 +209,36 @@ public class MuzeiWallpaperService extends GLWallpaperService {
                     return true;
                 }
 
-                // Temporarily toggle focused/blurred
-                queueEvent(new Runnable() {
-                    @Override
-                    public void run() {
-                        mRenderer.setIsBlurred(!mRenderer.isBlurred(), false);
-                    }
-                });
+                executeTapAction(mDoubleTapAction);
 
-                // Schedule a re-blur
-                delayedBlur();
                 return true;
             }
         };
+
+        private void executeTapAction(TapAction action) {
+
+            if(action == TapAction.NextArtwork)
+                executeNextArtworkAction();
+            else if(action == TapAction.ShowOriginalArtwork)
+                executeShowOriginalArtworkAction();
+        }
+
+        private void executeShowOriginalArtworkAction() {
+            // Temporarily toggle focused/blurred
+            queueEvent(new Runnable() {
+                @Override
+                public void run() {
+                    mRenderer.setIsBlurred(!mRenderer.isBlurred(), false);
+                }
+            });
+
+            // Schedule a re-blur
+            delayedBlur();
+        }
+
+        private void executeNextArtworkAction() {
+            SourceManager.getInstance(getApplicationContext()).sendAction(MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK);
+        }
 
         private void cancelDelayedBlur() {
             mMainThreadHandler.removeCallbacks(mBlurRunnable);
