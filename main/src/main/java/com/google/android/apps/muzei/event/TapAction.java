@@ -22,7 +22,8 @@ public enum TapAction
 {
     Nothing(0),
     ShowOriginalArtwork(1),
-    NextArtwork(2);
+    NextArtwork(2),
+    ViewArtwork(3);
 
     //Enum implementation
 
@@ -46,6 +47,8 @@ public enum TapAction
                 return ShowOriginalArtwork;
             case 2:
                 return NextArtwork;
+            case 3:
+                return ViewArtwork;
             default:
                 return Nothing;
         }

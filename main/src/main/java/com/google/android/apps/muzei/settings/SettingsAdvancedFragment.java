@@ -128,7 +128,8 @@ public class SettingsAdvancedFragment extends Fragment {
         TapActionEntry[] entries = new TapActionEntry[] {
             new TapActionEntry(getString(R.string.settings_tap_action_nothing), TapAction.Nothing),
             new TapActionEntry(getString(R.string.settings_tap_action_showoriginal), TapAction.ShowOriginalArtwork),
-            new TapActionEntry(getString(R.string.settings_tap_action_next), TapAction.NextArtwork)
+            new TapActionEntry(getString(R.string.settings_tap_action_next), TapAction.NextArtwork),
+            new TapActionEntry(getString(R.string.settings_tap_action_view), TapAction.ViewArtwork)
         };
 
         ArrayAdapter<TapActionEntry> doubleTapActionSpinnerAdapter =

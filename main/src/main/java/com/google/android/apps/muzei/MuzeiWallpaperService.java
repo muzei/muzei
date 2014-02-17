@@ -17,6 +17,8 @@
 package com.google.android.apps.muzei;
 
 import android.app.WallpaperManager;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,8 +27,11 @@ import android.preference.PreferenceManager;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
+import android.widget.Toast;
 
+import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
+import com.google.android.apps.muzei.api.internal.SourceState;
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
 import com.google.android.apps.muzei.event.DoubleTapActionChangedEvent;
 import com.google.android.apps.muzei.event.TapAction;
@@ -36,17 +41,23 @@ import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
 import com.google.android.apps.muzei.render.RealRenderController;
 import com.google.android.apps.muzei.render.RenderController;
+import com.google.android.apps.muzei.util.LogUtil;
 
+import net.nurik.roman.muzei.R;
 import net.rbgrn.android.glwallpaperservice.GLWallpaperService;
 
 import de.greenrobot.event.EventBus;
+
+import static com.google.android.apps.muzei.util.LogUtil.LOGE;
 
 public class MuzeiWallpaperService extends GLWallpaperService {
 
     public static final String PREF_DOUBLETAPACTION = "doubletap_action";
     public static final String PREF_THREEFINGERACTION = "threefinger_action";
 
-    private static final int THREE_FINGER_ACTION_PAUSE_MS = 1000 * 5; //5s
+    private static final int THREE_FINGER_ACTION_PAUSE_MS = 1000 * 3; //3s
+
+    private static final String TAG = LogUtil.makeLogTag(MuzeiWallpaperService.class);
 
     @Override
     public Engine onCreateEngine() {
@@ -216,11 +227,21 @@ public class MuzeiWallpaperService extends GLWallpaperService {
         };
 
         private void executeTapAction(TapAction action) {
-
-            if(action == TapAction.NextArtwork)
-                executeNextArtworkAction();
-            else if(action == TapAction.ShowOriginalArtwork)
-                executeShowOriginalArtworkAction();
+            switch(action)
+            {
+                case NextArtwork:
+                    executeNextArtworkAction();
+                    break;
+                case ShowOriginalArtwork:
+                    executeShowOriginalArtworkAction();
+                    break;
+                case ViewArtwork:
+                    executeViewArtworkAction();
+                    break;
+                default:
+                    //NOOP
+                    break;
+            }
         }
 
         private void executeShowOriginalArtworkAction() {
@@ -238,6 +259,35 @@ public class MuzeiWallpaperService extends GLWallpaperService {
 
         private void executeNextArtworkAction() {
             SourceManager.getInstance(getApplicationContext()).sendAction(MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK);
+        }
+
+        private void executeViewArtworkAction() {
+            SourceManager sm = SourceManager.getInstance(getApplicationContext());
+            SourceState selectedSourceState = sm.getSelectedSourceState();
+
+            if(selectedSourceState == null)
+                return;
+
+            Artwork artwork = selectedSourceState.getCurrentArtwork();
+            if(artwork == null)
+                return;
+
+            Intent viewIntent = artwork.getViewIntent();
+            if(viewIntent == null)
+                return;
+
+            viewIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            try {
+                startActivity(viewIntent);
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(getApplicationContext(), R.string.error_view_details,
+                        Toast.LENGTH_SHORT).show();
+                LOGE(TAG, "Error viewing artwork details.", e);
+            } catch (SecurityException e) {
+                Toast.makeText(getApplicationContext(), R.string.error_view_details,
+                        Toast.LENGTH_SHORT).show();
+                LOGE(TAG, "Error viewing artwork details.", e);
+            }
         }
 
         private void cancelDelayedBlur() {
