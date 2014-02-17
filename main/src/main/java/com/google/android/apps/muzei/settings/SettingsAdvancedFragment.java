@@ -20,6 +20,7 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -44,6 +45,8 @@ import com.google.android.apps.muzei.event.DimAmountChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
 
 import net.nurik.roman.muzei.R;
+
+import java.lang.ref.WeakReference;
 
 import de.greenrobot.event.EventBus;
 
@@ -138,7 +141,7 @@ public class SettingsAdvancedFragment extends Fragment {
                                     .apply();
                             EventBus.getDefault().post(new BlurAmountChangedEvent());
                             if (checked) {
-                                new CheckMusicListenerPermission().execute();
+                                new CheckMusicListenerPermission(getActivity()).execute();
                             }
                         }
                     });
@@ -156,7 +159,7 @@ public class SettingsAdvancedFragment extends Fragment {
             if (showMusicArtwork && !stateChanging) {
                 // Recheck permission if the user hits back from the Settings screen to re-prompt
                 // them if they opened Settings but then did not grant permission
-                new CheckMusicListenerPermission().execute();
+                new CheckMusicListenerPermission(getActivity()).execute();
             } else {
                 // setChecked will call the permission check when changing the state
                 mShowMusicArtworkCheckBox.setChecked(showMusicArtwork);
@@ -195,6 +198,12 @@ public class SettingsAdvancedFragment extends Fragment {
     };
 
     private class CheckMusicListenerPermission extends AsyncTask<Void, Void, Boolean> {
+        private final WeakReference<Context> mContext;
+
+        CheckMusicListenerPermission(Context context) {
+            mContext = new WeakReference<Context>(context);
+        }
+
         @Override
         protected void onPreExecute() {
             mShowMusicArtworkProgress.setVisibility(View.VISIBLE);
@@ -202,14 +211,18 @@ public class SettingsAdvancedFragment extends Fragment {
 
         @Override
         protected Boolean doInBackground(final Void... params) {
-            ContentResolver contentResolver = getActivity().getContentResolver();
+            Context context = mContext.get();
+            if (context == null) {
+                return false;
+            }
+            ContentResolver contentResolver = context.getContentResolver();
             // This does a direct database call and therefore should not be on the main thread
             final String flattenedListenerList = Settings.Secure.getString(contentResolver,
                     "enabled_notification_listeners");
             if (TextUtils.isEmpty(flattenedListenerList)) {
                 return false;
             }
-            String ourPackageName = getActivity().getPackageName();
+            String ourPackageName = context.getPackageName();
             for (String flatComponentName : flattenedListenerList.split(":")) {
                 ComponentName componentName = ComponentName.unflattenFromString(flatComponentName);
                 if (componentName != null && TextUtils.equals(componentName.getPackageName(), ourPackageName)) {
@@ -221,9 +234,13 @@ public class SettingsAdvancedFragment extends Fragment {
 
         @Override
         protected void onPostExecute(final Boolean grantedPermission) {
+            Context context = mContext.get();
+            if (context == null) {
+                return;
+            }
             mShowMusicArtworkProgress.setVisibility(View.INVISIBLE);
             if (!grantedPermission) {
-                new AlertDialog.Builder(getActivity())
+                new AlertDialog.Builder(context)
                         .setTitle(R.string.settings_enable_music_permission_title)
                         .setMessage(R.string.settings_enable_music_permission_message)
                         .setPositiveButton(R.string.settings_enable_music_permissions_positive,
