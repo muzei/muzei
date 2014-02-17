@@ -26,8 +26,8 @@ import android.view.SurfaceHolder;
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
 import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent;
+import com.google.android.apps.muzei.render.MusicAwareRealRenderController;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
-import com.google.android.apps.muzei.render.RealRenderController;
 import com.google.android.apps.muzei.render.RenderController;
 
 import net.rbgrn.android.glwallpaperservice.GLWallpaperService;
@@ -60,7 +60,7 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             super.onCreate(surfaceHolder);
             mRenderer = new MuzeiBlurRenderer(MuzeiWallpaperService.this, this);
             mRenderer.setIsPreview(isPreview());
-            mRenderController = new RealRenderController(MuzeiWallpaperService.this,
+            mRenderController = new MusicAwareRealRenderController(MuzeiWallpaperService.this,
                     mRenderer, this);
             setEGLContextClientVersion(2);
             setEGLConfigChooser(8, 8, 8, 0, 0, 0);
