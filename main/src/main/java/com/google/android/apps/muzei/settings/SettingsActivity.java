@@ -22,6 +22,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -275,6 +276,13 @@ public class SettingsActivity extends Activity implements SettingsChooseSourceFr
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.action_get_more_extensions:
+                startActivity(new Intent(Intent.ACTION_VIEW,
+                        Uri.parse("http://play.google.com/store/search?q=Muzei+Extension"
+                                + "&c=apps"))
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                return true;
+
             case R.id.action_about:
                 startActivity(new Intent(this, AboutActivity.class));
                 return true;
