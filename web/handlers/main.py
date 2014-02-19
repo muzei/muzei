@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import datetime
+from datetime import datetime, time, date, timedelta
 import logging
 import os
 import json
@@ -25,8 +25,9 @@ from models import FeaturedArtwork, _serialize_datetime
 
 IS_DEVELOPMENT = ('Development' in os.environ['SERVER_SOFTWARE'])
 
-START_TIME = datetime.time(1, 55, 0, tzinfo=None) # 1:55am UTC
-NEXT_PADDING = datetime.timedelta(minutes=5) # Next one should be requested at 1:55am + 5 minutes
+START_TIME = time(1, 55, 0, tzinfo=None) # 1:55am UTC
+NEXT_PADDING = timedelta(minutes=5) # Next art should be requested at 2:00am UTC
+MAX_HTTP_CACHE_AGE = timedelta(hours=111) # Cache HTTP cache requests for up to 1 hour
 
 
 def values_with_defaults(values):
@@ -42,9 +43,7 @@ class pagecache:
   def __call__(self, fn):
     def _new_fn(fnSelf, *args):
       cache_key = self.key + '_'.join([str(arg) for arg in args])
-      return_value = (memcache.get(cache_key)
-                      if not 'Development' in os.environ['SERVER_SOFTWARE']
-                      else None)
+      return_value = (memcache.get(cache_key) if not IS_DEVELOPMENT else None)
       if return_value and not IS_DEVELOPMENT:
         return return_value
       else:
@@ -99,55 +98,69 @@ def make_redirect_handler(url_template):
 class FeaturedArtworkHandler(BaseHandler):
   def get(self):
     self.response.headers['Content-Type'] = 'application/json'
-    self.response.out.write(self.render(self.request.get('callback', '')))
+    body, headers = self.render_with_headers(self.request.get('callback', ''))
+    for header in headers:
+      self.response.headers[header] = headers[header]
+    self.response.out.write(body)
 
   @pagecache('featured_artwork')
-  def render(self, callback):
-    now = datetime.datetime.utcnow()
+  def render_with_headers(self, callback):
+    now = datetime.utcnow()
+    headers = {}
     current = None
 
     # Get up to 5 artworks published earlier than 2 days from now, ordered by latest first
     latest_artworks = (FeaturedArtwork.all()
-        .filter('publish_date <=', datetime.date.today() + datetime.timedelta(days=2))
+        .filter('publish_date <=', date.today() + timedelta(days=2))
         .order('-publish_date')
         .fetch(5))
 
     # Pick out the first artwork in that set that has actually been published
     for artwork in latest_artworks:
-      if now >= datetime.datetime.combine(artwork.publish_date, START_TIME):
+      if now >= datetime.combine(artwork.publish_date, START_TIME):
         current = artwork
         break
 
     ret_obj = dict()
     if current is not None:
-      featured = dict(
-          title=current.title,
-          byline=current.byline,
+      # Found the next featured artwork
+      ret_obj = dict(
+          title=current.title.strip(),
+          byline=current.byline.strip(),
           imageUri=current.image_url,
           detailsUri=current.details_url)
       if current.thumb_url:
-        featured['thumbUri'] = current.thumb_url
+        ret_obj['thumbUri'] = current.thumb_url
 
-      # The next update time is at START_TIME tomorrow
-      next_time = datetime.datetime.combine(datetime.date.today() \
-          + datetime.timedelta(days=1), START_TIME) + NEXT_PADDING
-      featured['nextTime'] = _serialize_datetime(next_time)
+      # The next update time is the next START_TIME
+      next_start_time = datetime.combine(date.today(), START_TIME)
+      while next_start_time < now:
+        next_start_time += timedelta(hours=24)
 
-      # Caches expire in an hour, but no later than the next start time minus 5 minutes
+      ret_obj['nextTime'] = _serialize_datetime(next_start_time + NEXT_PADDING)
+
+      # Caches expire in an hour, but no later than the next start time minus padding
       cache_expire_time = min(
-          datetime.datetime.now() + datetime.timedelta(hours=1),
-          next_time - datetime.timedelta(minutes=5))
+          now + MAX_HTTP_CACHE_AGE,
+          next_start_time)
       expire_seconds = max(0, (cache_expire_time - now).total_seconds())
-      self.response.headers['Cache-Control'] = 'max-age=%d, must-revalidate, public' % expire_seconds
-      self.response.headers['Expires'] = cache_expire_time.strftime('%a, %d %b %Y %H:%M:%S GMT')
 
-      ret_obj = featured
+      # Note that this max-age header will be cached, so max-age may be off by the memcache
+      # cache time which is set above to 60 seconds
+      headers['Cache-Control'] = 'max-age=%d, must-revalidate, public' % expire_seconds
+      headers['Expires'] = cache_expire_time.strftime('%a, %d %b %Y %H:%M:%S GMT')
+      headers['Pragma'] = 'public'
 
-    s = json.dumps(ret_obj, sort_keys=True)
-    if callback:
-      return '%s(%s)' % (callback, s)
     else:
-      return s
+      # Found no featured artwork; hopefully this is temporary; don't cache this response
+      headers['Cache-Control'] = 'max-age=0, no-cache, no-store'
+      headers['Pragma'] = 'no-cache'
+
+    body = json.dumps(ret_obj, sort_keys=True)
+    if callback:
+      body = '%s(%s)' % (callback, body)
+
+    return (body, headers)
 
 
 app = webapp2.WSGIApplication([
