@@ -27,7 +27,7 @@ IS_DEVELOPMENT = ('Development' in os.environ['SERVER_SOFTWARE'])
 
 START_TIME = time(1, 55, 0, tzinfo=None) # 1:55am UTC
 NEXT_PADDING = timedelta(minutes=5) # Next art should be requested at 2:00am UTC
-MAX_HTTP_CACHE_AGE = timedelta(hours=111) # Cache HTTP cache requests for up to 1 hour
+MAX_HTTP_CACHE_AGE = timedelta(hours=1) # Cache HTTP cache requests for up to 1 hour
 
 
 def values_with_defaults(values):
