@@ -36,6 +36,7 @@ import de.greenrobot.event.EventBus;
 public class MusicListenerService extends NotificationListenerService
         implements RemoteController.OnClientUpdateListener {
     public static final String PREF_ENABLED = "show_music_artwork_enabled";
+    private static final Bitmap EMPTY_BITMAP = Bitmap.createBitmap(1, 1, Bitmap.Config.ALPHA_8);
 
     private RemoteController mRemoteController;
     private Bitmap mCurrentArtwork = null;
@@ -89,7 +90,18 @@ public class MusicListenerService extends NotificationListenerService
 
     @Override
     public void onClientMetadataUpdate(final RemoteController.MetadataEditor metadataEditor) {
-        Bitmap artwork = metadataEditor.getBitmap(RemoteController.MetadataEditor.BITMAP_KEY_ARTWORK, null);
+        Bitmap artwork = metadataEditor.getBitmap(RemoteController.MetadataEditor.BITMAP_KEY_ARTWORK, EMPTY_BITMAP);
+        if (artwork == EMPTY_BITMAP) {
+            /**
+             * Certain RemoteControlClients (such as YouTube while Chromecasting) do not return artwork with every
+             * metadata update so we should continue to use what artwork we have previously received.
+             *
+             * Note that this is different from the RemoteControlClient specifically passing us a null Bitmap (which
+             * would signify that they do not have any artwork for the current playing track and we should clear our
+             * artwork to stay in sync)
+             */
+            return;
+        }
         if (mCurrentArtwork == null || !mCurrentArtwork.sameAs(artwork)) {
             mCurrentArtwork = artwork;
             EventBus.getDefault().postSticky(new MusicArtworkChangedEvent(mCurrentArtwork));
