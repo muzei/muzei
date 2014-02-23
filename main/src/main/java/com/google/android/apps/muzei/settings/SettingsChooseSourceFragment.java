@@ -37,8 +37,10 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -440,6 +442,23 @@ public class SettingsChooseSourceFragment extends Fragment {
                     } else {
                         mSourceManager.selectSource(source.componentName);
                     }
+                }
+            });
+
+            source.rootView.setOnLongClickListener(new View.OnLongClickListener() {
+
+                @Override
+                public boolean onLongClick(View v) {
+                    final String pkg = source.componentName.getPackageName();
+                    if (TextUtils.equals(pkg, getActivity().getPackageName())) {
+                        // Don't open Muzei's app info
+                        return false;
+                    }
+                    // Otherwise open third party extensions
+                    final Intent appInfo = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                            Uri.fromParts("package", pkg, null));
+                    startActivity(appInfo);
+                    return appInfo.resolveActivity(getActivity().getPackageManager()) != null;
                 }
             });
 
