@@ -99,7 +99,6 @@ public class SettingsChooseSourceFragment extends Fragment {
     private RectF mTempRectF = new RectF();
     private Paint mImageFillPaint = new Paint();
     private Paint mAlphaPaint = new Paint();
-    private Drawable mSelectedSourceImage;
     private int mSelectedSourceIndex;
 
     public SettingsChooseSourceFragment() {
@@ -279,7 +278,7 @@ public class SettingsChooseSourceFragment extends Fragment {
             }
 
             View sourceImageButton = source.rootView.findViewById(R.id.source_image);
-            Drawable drawable = selected ? mSelectedSourceImage : source.icon;
+            Drawable drawable = source.icon;
             drawable.setColorFilter(source.color, PorterDuff.Mode.SRC_ATOP);
             sourceImageButton.setBackground(drawable);
 
@@ -478,8 +477,6 @@ public class SettingsChooseSourceFragment extends Fragment {
         mImageFillPaint.setColor(Color.WHITE);
         mImageFillPaint.setAntiAlias(true);
         mAlphaPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OUT));
-        mSelectedSourceImage = new BitmapDrawable(getResources(),
-                generateSourceImage(getResources().getDrawable(R.drawable.ic_source_selected)));
     }
 
     private Bitmap generateSourceImage(Drawable image) {
