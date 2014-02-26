@@ -455,10 +455,13 @@ public class SettingsChooseSourceFragment extends Fragment {
                         return false;
                     }
                     // Otherwise open third party extensions
-                    final Intent appInfo = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                            Uri.fromParts("package", pkg, null));
-                    startActivity(appInfo);
-                    return appInfo.resolveActivity(getActivity().getPackageManager()) != null;
+                    try {
+                        startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                Uri.fromParts("package", pkg, null)));
+                    } catch (final ActivityNotFoundException e) {
+                        return false;
+                    }
+                    return true;
                 }
             });
 
