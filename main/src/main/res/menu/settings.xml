@@ -15,8 +15,8 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/action_get_more_extensions"
-        android:title="@string/get_more_extensions"
+    <item android:id="@+id/action_get_more_sources"
+        android:title="@string/get_more_sources"
         android:showAsAction="never" />
     <item
         android:id="@+id/action_about"
