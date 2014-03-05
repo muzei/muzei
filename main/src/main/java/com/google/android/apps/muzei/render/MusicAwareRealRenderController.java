@@ -100,6 +100,12 @@ public class MusicAwareRealRenderController extends RealRenderController {
             @Override
             protected BitmapRegionLoader doInBackground(Void... voids) {
                 File cacheArtworkFile = new File(IOUtil.getBestAvailableCacheRoot(mContext), "music_artwork.png");
+                // Return early if the music artwork no longer exists. This prevents a race condition where players
+                // like YouTube with Chromecast tend to send both artwork and then immediately afterwards stop
+                // listening (clearing the artwork)
+                if (mMusicArtwork == null) {
+                    return null;
+                }
                 FileOutputStream outputStream = null;
                 try {
                     outputStream = new FileOutputStream(cacheArtworkFile);
