@@ -101,6 +101,15 @@
         <b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a>&nbsp;</b><br>
         <i>by Robert Green, Mark F. Guerra, and others</i><br><br>
     ]]></string>
+
     <string name="about_version_template">v%1$s</string>
+    <string name="rotate_interval_dont_change">Don\'t change wallpaper</string>
+    <string name="rotate_interval_1_hour">Every hour</string>
+    <string name="rotate_interval_3_hours">Every 3 hours</string>
+    <string name="rotate_interval_6_hours">Every 6 hours</string>
+    <string name="rotate_interval_24_hours">Every 24 hours</string>
+    <string name="rotate_interval_3_days">Every 3 days</string>
+    <string name="share_artwork_caption">Share artwork</string>
+    <string name="share_artwork_text">My Android wallpaper today is \'%1$s\' by %2$s. #MuzeiFeaturedArt \n\n%3$s</string>
 
 </resources>

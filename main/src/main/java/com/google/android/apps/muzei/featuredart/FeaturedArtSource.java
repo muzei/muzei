@@ -141,12 +141,8 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
 
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, "My Android wallpaper today is '"
-                    + currentArtwork.getTitle().trim()
-                    + "' by " + artist
-                    + ". #MuzeiFeaturedArt\n\n"
-                    + detailUrl);
-            shareIntent = Intent.createChooser(shareIntent, "Share artwork");
+            shareIntent.putExtra(Intent.EXTRA_TEXT, String.format(getString(R.string.share_artwork_text), currentArtwork.getTitle().trim(), artist, detailUrl));
+            shareIntent = Intent.createChooser(shareIntent, getString(R.string.share_artwork_caption));
             shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(shareIntent);
 

@@ -1,0 +1,117 @@
+<!--
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+    <string name="app_name">Muzei</string>
+    <string name="app_description">Muzei Живые обои</string>
+
+    <string name="settings_title">Muzei Настройки</string>
+    <string name="settings_blur_amount_title"><![CDATA[    Размытие]]></string>
+    <string name="settings_dim_amount_title">Затемнение</string>
+    <string name="settings_notify_new_wallpaper">Уведомлять о новых обоях</string>
+
+    <string name="notification_new_wallpaper">Новые обои</string>
+
+    <string name="gallery_source_title">Мои фотографии</string>
+    <string name="gallery_source_description">Случайные фотографии с камеры</string>
+    <plurals name="gallery_source_description_choice_template">
+        <item quantity="one">1 фотография</item>
+        <item quantity="few">%1$d фотографии</item>
+        <item quantity="many">%1$d фотографий</item>
+        <item quantity="other">%1$d фотографий</item>
+    </plurals>
+    <string name="gallery_source_settings_title">Мои фотографии</string>
+    <string name="gallery_source_settings_empty">Случайные фотографии с камеры</string>
+    <string name="gallery_source_settings_empty_subtitle">Выбрать определённые фотографии</string>
+    <string name="gallery_source_temporary_force_image">Изображение выбрано в качестве обоев.</string>
+    <string name="gallery_source_from_gallery">Из фото галереи</string>
+    <string name="gallery_source_touch_to_view">Коснитесь чтобы открыть</string>
+
+    <string name="dummy_source_title">Пустой источник</string>
+    <string name="dummy_source_description">Пример artwork</string>
+
+    <string name="featuredart_source_title">Мировое искусство</string>
+    <string name="featuredart_source_description">Новая картина каждый день</string>
+    <string name="featuredart_source_error_no_artwork_to_share">Нет иллюстрации.</string>
+
+    <string name="webstream_source_title">Из интернета</string>
+    <string name="webstream_source_description">Иллюстрация из интернета</string>
+
+    <string name="action_activate">Начать</string>
+    <string name="action_settings">Настроить</string>
+    <string name="action_source_settings">Настроить источник</string>
+
+    <string name="contentdesc_overflow">Больше настроек</string>
+    <string name="error_view_details">Не могу отобразить сведения об иллюстрации.</string>
+    <string name="error_easter_egg">Хмм, похоже эта картинка похоже не грузится. Компания Grumpy McPuzzles сожалеет об этом и рекомендует попробовать другой источнк изображений.</string>
+    <string name="error_wallpaper_chooser">Не могу открыть диалог смены обоев. Вы всё ещё можете активировать Muzei выбрав \'Живые обои\' в средстве смены обоев вашего рабочего стола..</string>
+
+    <string name="section_choose_source">Выбор источника</string>
+    <string name="section_advanced">Расширенные настройки</string>
+
+    <string name="action_previous_artwork">Предыдущее изображение</string>
+    <string name="action_next_artwork">Следующее изображение</string>
+
+    <string name="done">Готово</string>
+    <string name="retry">Повторить</string>
+
+    <string name="action_clear_photos">Убрать все фотографии</string>
+    <string name="action_add_photos">Добавить фотографии</string>
+    <string name="action_rotate_interval">Интервал смены обоев</string>
+    <string name="action_share_artwork">Поделиться изображением</string>
+
+    <string name="action_remove">Убрать</string>
+
+    <string name="set_as_wallpaper_using_muzei">Обои (используя Muzei)</string>
+
+    <string name="tutorial_main">Откройте приложене Muzei чтобы увидеть изобраение обоев.</string>
+    <string name="tutorial_subtitle">Дважды коснитесь размытых обоев на домашнем экране для временноой фокусировки (чёткости).</string>
+
+    <string name="about_title">О программе Muzei</string>
+    <string name="about_body"><![CDATA[
+        Сделано в Нью-Йорке. Автор: Roman Nurik. <i>Muzei</i> - это транслитерация русского слова
+        <a href="http://translate.google.com/#en/ru/museum"><i>музей</i></a><br><br>
+
+        Copyright 2013&ndash;2014 Google Inc.<br>
+        All Rights Reserved.<br><br>
+
+        <a href="http://m.google.com/utos">Terms of Service</a>,
+        <a href="http://www.google.com/policies/privacy/">Privacy Policy</a>&nbsp;<br><br>
+
+        Большое спасибо следующим open source проектам:<br><br>
+
+        <b><a href="http://square.github.io/okhttp/">OkHttp</a> and <a href="http://square.github.io/picasso/">Picasso</a>&nbsp;</b><br>
+        <i>by Square</i><br><br>
+
+        <b><a href="https://github.com/greenrobot/EventBus">EventBus</a>&nbsp;</b><br>
+        <i>by greenrobot</i><br><br>
+
+        <b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a>&nbsp;</b><br>
+        <i>by Robert Green, Mark F. Guerra, and others</i><br><br>
+
+        Перевод на русский язык:<br><a href="https://vk.com/ShockIndustry">Shock Industry</a><br><br>
+    ]]></string>
+    <string name="about_version_template">v%1$s</string>
+
+    <string name="rotate_interval_dont_change">Не менять обои</string>
+    <string name="rotate_interval_1_hour">Каждый час</string>
+    <string name="rotate_interval_3_hours">Каждые 3 часа</string>
+    <string name="rotate_interval_6_hours">Каждые 6 часов</string>
+    <string name="rotate_interval_24_hours">Каждые 24 часа</string>
+    <string name="rotate_interval_3_days">Каждые 3 дня</string>
+
+    <string name="share_artwork_caption">Поделиться изображением</string>
+    <string name="share_artwork_text">Сегодня на обоях моего Android стоит \'%1$s\' автора %2$s. #MuzeiFeaturedArt \n\n%3$s</string>
+
+</resources>
