@@ -24,22 +24,22 @@
             <group android:checkableBehavior="single">
                 <item
                     android:id="@+id/action_rotate_interval_none"
-                    android:title="Don't change wallpaper" />
+                    android:title="@string/rotate_interval_dont_change" />
                 <item
                     android:id="@+id/action_rotate_interval_1h"
-                    android:title="Every hour" />
+                    android:title="@string/rotate_interval_1_hour" />
                 <item
                     android:id="@+id/action_rotate_interval_3h"
-                    android:title="Every 3 hours" />
+                    android:title="@string/rotate_interval_3_hours" />
                 <item
                     android:id="@+id/action_rotate_interval_6h"
-                    android:title="Every 6 hours" />
+                    android:title="@string/rotate_interval_6_hours" />
                 <item
                     android:id="@+id/action_rotate_interval_24h"
-                    android:title="Every 24 hours" />
+                    android:title="@string/rotate_interval_24_hours" />
                 <item
                     android:id="@+id/action_rotate_interval_72h"
-                    android:title="Every 3 days" />
+                    android:title="@string/rotate_interval_3_days" />
             </group>
         </menu>
     </item>
