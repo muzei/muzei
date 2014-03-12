@@ -83,6 +83,7 @@ public class GallerySettingsActivity extends Activity
 
     static {
         sRotateMenuIdsByMin.put(0, R.id.action_rotate_interval_none);
+        sRotateMenuIdsByMin.put(60 / 2, R.id.action_rotate_interval_30m);
         sRotateMenuIdsByMin.put(60, R.id.action_rotate_interval_1h);
         sRotateMenuIdsByMin.put(60 * 3, R.id.action_rotate_interval_3h);
         sRotateMenuIdsByMin.put(60 * 6, R.id.action_rotate_interval_6h);
