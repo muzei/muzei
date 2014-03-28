@@ -169,6 +169,11 @@ public class MusicAwareRealRenderController extends RealRenderController {
                 mCallbacks.queueEventOnGlThread(new Runnable() {
                     @Override
                     public void run() {
+                        if (mQueuedMusicBitmapRegionLoader == null) {
+                            // Caused by a difference between the state when this callback was queued and the current
+                            // music state. A further queued event will take care of ensuring the current state is set
+                            return;
+                        }
                         mShowingMusicArtwork = true;
                         if (mVisible) {
                             mRenderer.setAndConsumeBitmapRegionLoader(mQueuedMusicBitmapRegionLoader);
