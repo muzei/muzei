@@ -22,6 +22,11 @@
     <string name="settings_blur_amount_title">Blur</string>
     <string name="settings_dim_amount_title">Dim</string>
     <string name="settings_notify_new_wallpaper">New wallpaper notifications</string>
+    <string name="settings_show_music_artwork">Show playing music artwork</string>
+    <string name="settings_enable_music_permission_title">Enable Music Permission</string>
+    <string name="settings_enable_music_permission_message">Muzei needs permission to retrieve music artwork</string>
+    <string name="settings_enable_music_permissions_positive">Open Settings</string>
+    <string name="settings_enable_music_permissions_negative">Cancel</string>
 
     <string name="notification_new_wallpaper">New wallpaper</string>
 

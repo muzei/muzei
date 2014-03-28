@@ -108,6 +108,17 @@
             android:parentActivityName="com.google.android.apps.muzei.settings.SettingsActivity"
             android:theme="@style/Theme.Muzei.GallerySettings" />
 
+        <!-- NotificationListenerService used to retrieve current playing music artwork -->
+
+        <service android:name="com.google.android.apps.muzei.MusicListenerService"
+                 android:enabled="@bool/remote_controller_api_available"
+                 android:label="@string/app_name"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
         <!-- Target for "Set As" intent -->
 
         <activity android:name="com.google.android.apps.muzei.PhotoSetAsTargetActivity"

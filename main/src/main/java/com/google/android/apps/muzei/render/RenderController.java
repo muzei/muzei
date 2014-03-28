@@ -29,7 +29,7 @@ public abstract class RenderController {
     protected MuzeiBlurRenderer mRenderer;
     protected Callbacks mCallbacks;
     protected boolean mVisible;
-    private BitmapRegionLoader mQueuedBitmapRegionLoader;
+    protected BitmapRegionLoader mQueuedBitmapRegionLoader;
 
     public RenderController(Context context, MuzeiBlurRenderer renderer, Callbacks callbacks) {
         mRenderer = renderer;
