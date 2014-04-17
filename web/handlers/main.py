@@ -13,86 +13,17 @@
 # limitations under the License.
 
 from datetime import datetime, time, date, timedelta
-import logging
-import os
 import json
 
 import webapp2
-from google.appengine.ext.webapp import template
-from google.appengine.api import memcache
 
+from handlers.common import *
 from models import FeaturedArtwork, _serialize_datetime
 
-IS_DEVELOPMENT = ('Development' in os.environ['SERVER_SOFTWARE'])
 
 START_TIME = time(1, 55, 0, tzinfo=None) # 1:55am UTC
 NEXT_PADDING = timedelta(minutes=5) # Next art should be requested at 2:00am UTC
 MAX_HTTP_CACHE_AGE = timedelta(hours=1) # Cache HTTP cache requests for up to 1 hour
-
-
-def values_with_defaults(values):
-  v = dict()
-  v.update(values)
-  return v
-
-
-class pagecache:
-  def __init__(self, key):
-    self.key = key
-
-  def __call__(self, fn):
-    def _new_fn(fnSelf, *args):
-      cache_key = self.key + '_'.join([str(arg) for arg in args])
-      return_value = (memcache.get(cache_key) if not IS_DEVELOPMENT else None)
-      if return_value and not IS_DEVELOPMENT:
-        return return_value
-      else:
-        return_value = fn(fnSelf, *args)
-        memcache.set(cache_key, return_value, 60)  # cache for a minute
-        return return_value
-
-    return _new_fn
-
-
-class BaseHandler(webapp2.RequestHandler):
-  def handle_exception(self, exception, debug):
-    # Log the error.
-    logging.exception(exception)
-
-    # Set a custom message.
-    self.response.write('An error occurred.')
-
-    # If the exception is a HTTPException, use its error code.
-    # Otherwise use a generic 500 error code.
-    if isinstance(exception, webapp2.HTTPException):
-      self.response.set_status(exception.code)
-    else:
-      self.response.set_status(500)
-
-
-def make_static_page_handler(template_file, page_title=None):
-  class StaticHandler(BaseHandler):
-    def get(self):
-      self.response.out.write(self.render(template_file))
-
-    @pagecache('static_page')
-    def render(self, template_file):
-      return template.render(
-          os.path.join(os.path.dirname(__file__), '../templates/' + template_file),
-          values_with_defaults(dict(title=page_title)))
-  
-  return StaticHandler
-
-
-def make_redirect_handler(url_template):
-  class RedirectHandler(BaseHandler):
-    def get(self, *args):
-      url = url_template
-      for i, arg in enumerate(args):
-        url = url.replace("$" + str(i + 1), arg)
-      self.redirect(url)
-  
-  return RedirectHandler
 
 
 class FeaturedArtworkHandler(BaseHandler):

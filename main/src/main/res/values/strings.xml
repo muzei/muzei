@@ -57,7 +57,7 @@
     <string name="error_easter_egg">Hmm, this picture doesn\'t seem to be loading. Grumpy McPuzzles is very sorry about that, and recommends trying a different wallpaper source.</string>
     <string name="error_wallpaper_chooser">Couldn\'t launch wallpaper chooser. You can still activate Muzei by choosing \'Live Wallpapers\' in your home screen wallpaper picker.</string>
 
-    <string name="section_choose_source">Choose source</string>
+    <string name="section_choose_source">Sources</string>
     <string name="section_advanced">Advanced</string>
 
     <string name="action_previous_artwork">Previous artwork</string>

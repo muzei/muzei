@@ -260,6 +260,7 @@
     </div>
   </div>
   <div id="editor-buttons">
+    <button id="editor-addfromwikipaintingsurl" style="margin-right: 30px">Add from WikiPaintings URL</button>
     <button id="editor-cancel">Cancel</button>
     <button id="editor-save">Save</button>
   </div>
@@ -336,6 +337,20 @@ function addArtwork(json, callback) {
     type: 'post',
     url: 's/add',
     data: { json: json }
+  }).done(function() {
+    setTimeout(reloadArtworks, 500);
+    callback();
+  }).fail(function() {
+    alert('error adding');
+  });
+}
+
+function addArtworkFromWikiPaintingsUrl(url, publishDate, callback) {
+  callback = callback || function(){};
+  $.ajax({
+    type: 'post',
+    url: 's/addfromwikipaintings',
+    data: { wikiPaintingsUrl: url, publishDate: publishDate }
   }).done(function() {
     setTimeout(reloadArtworks, 500);
     callback();
@@ -589,10 +604,18 @@ function renderCalendar() {
   var $thumburlvisit = $('#editor-thumburl-visit');
   var $json = $('#editor-json');
   var $save = $('#editor-save');
+  var $addfromwikipaintingsurl = $('#editor-addfromwikipaintingsurl')
 
   function setupEditor() {
     $('#editor-cancel').click(function() {
       hideEditor();
+    });
+
+    $addfromwikipaintingsurl.click(function() {
+      var url = window.prompt('Enter WikiPaintings detail URL');
+      addArtworkFromWikiPaintingsUrl(url, g_editorState.publishDate, function() {
+        hideEditor();
+      });
     });
 
     $save.click(function() {
@@ -628,7 +651,7 @@ function renderCalendar() {
 
     $('#editor-imageurl, #editor-thumburl').bind('blur', function() {
       var val = $(this).val();
-      if (val.indexOf('http') != 0) {
+      if (val && val.indexOf('http') != 0) {
         $(this).val('https://docs.google.com/uc?id=' + val);
         editorFieldsToJson();
         updateEditorState();
@@ -737,8 +760,10 @@ function renderCalendar() {
       delete clonedArtwork.publishDate;
       delete clonedArtwork.id;
       $json.val(JSON.stringify(clonedArtwork, null, 2));
+      $addfromwikipaintingsurl.hide();
     } else {
       editorFieldsToJson();
+      $addfromwikipaintingsurl.show();
     }
 
     updateEditorState();

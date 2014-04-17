@@ -13,90 +13,15 @@
 # limitations under the License.
 
 import datetime
-import logging
 import os
 import json
 
 import webapp2
 from google.appengine.ext.webapp import template
-from google.appengine.api import memcache
 
+from handlers import addfromwikipaintings
+from handlers.common import *
 from models import FeaturedArtwork
-
-IS_DEVELOPMENT = ('Development' in os.environ['SERVER_SOFTWARE'])
-
-
-def values_with_defaults(values):
-  v = dict()
-  v.update(values)
-  return v
-
-
-#http://stackoverflow.com/questions/8777753#8778548
-def date_to_timestamp(dt, epoch=datetime.date(1970,1,1)):
-  td = dt - epoch
-  return td.days * 24 * 3600
-
-
-class pagecache:
-  def __init__(self, key):
-    self.key = key
-
-  def __call__(self, fn):
-    def _new_fn(fnSelf, *args):
-      cache_key = self.key + '_'.join([str(arg) for arg in args])
-      return_value = (memcache.get(cache_key)
-                      if not 'Development' in os.environ['SERVER_SOFTWARE']
-                      else None)
-      if return_value and not IS_DEVELOPMENT:
-        return return_value
-      else:
-        return_value = fn(fnSelf, *args)
-        memcache.set(cache_key, return_value, 60)  # cache for a minute
-        return return_value
-
-    return _new_fn
-
-
-class BaseHandler(webapp2.RequestHandler):
-  def handle_exception(self, exception, debug):
-    # Log the error.
-    logging.exception(exception)
-
-    # Set a custom message.
-    self.response.write('An error occurred.')
-
-    # If the exception is a HTTPException, use its error code.
-    # Otherwise use a generic 500 error code.
-    if isinstance(exception, webapp2.HTTPException):
-      self.response.set_status(exception.code)
-    else:
-      self.response.set_status(500)
-
-
-def make_static_page_handler(template_file, page_title):
-  class StaticHandler(BaseHandler):
-    def get(self):
-      self.response.out.write(self.render(template_file))
-
-    @pagecache('static_page')
-    def render(self, template_file):
-      return template.render(
-          os.path.join(os.path.dirname(__file__), '../templates/' + template_file),
-          values_with_defaults(dict(title=page_title)))
-  
-  return StaticHandler
-
-
-def make_redirect_handler(url_template):
-  class RedirectHandler(BaseHandler):
-    def get(self, *args):
-      url = url_template
-      for i, arg in enumerate(args):
-        url = url.replace("$" + str(i + 1), arg)
-      self.redirect(url)
-  
-  return RedirectHandler
 
 
 class ServiceListHandler(BaseHandler):
@@ -127,9 +52,7 @@ class ServiceAddHandler(BaseHandler):
         title=artwork_json['title'],
         byline=artwork_json['byline'],
         image_url=artwork_json['imageUri'],
-        thumb_url=(artwork_json['thumbUri']
-                   if 'thumbUri' in artwork_json
-                   else (artwork_json['imageUri'] + '!BlogSmall.jpg')),
+        thumb_url=(artwork_json['thumbUri'] if 'thumbUri' in artwork_json else None),
         details_url=artwork_json['detailsUri'],
         publish_date=datetime.datetime
             .utcfromtimestamp(artwork_json['publishDate'] / 1000)
@@ -209,6 +132,7 @@ class ScheduleHandler(BaseHandler):
 app = webapp2.WSGIApplication([
     ('/backroom/s/list', ServiceListHandler),
     ('/backroom/s/add', ServiceAddHandler),
+    ('/backroom/s/addfromwikipaintings', addfromwikipaintings.ServiceAddFromWikiPaintingsHandler),
     ('/backroom/s/edit', ServiceEditHandler),
     ('/backroom/s/remove', ServiceRemoveHandler),
     ('/backroom/s/move', ServiceMoveHandler),
