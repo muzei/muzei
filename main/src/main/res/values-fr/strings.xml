@@ -1,0 +1,106 @@
+<!--
+  Copyright 2014 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+    <string name="app_name">Muzei</string>
+    <string name="app_description">Muzei Fond d\'écran animé</string>
+
+    <string name="settings_title">Paramètres Muzei</string>
+    <string name="settings_blur_amount_title">Flou</string>
+    <string name="settings_dim_amount_title">Trouble</string>
+    <string name="settings_notify_new_wallpaper">Notifications nouveau fond</string>
+
+    <string name="notification_new_wallpaper">Nouveau fond d\'écran</string>
+
+    <string name="gallery_source_title">Mes photos</string>
+    <string name="gallery_source_description">Photos aléatoire</string>
+    <plurals name="gallery_source_description_choice_template">
+        <item quantity="one">1 photo</item>
+        <item quantity="other">%1$d photos</item>
+    </plurals>
+    <string name="gallery_source_settings_title">Mes Photos</string>
+    <string name="gallery_source_settings_empty">Photos aléatoire</string>
+    <string name="gallery_source_settings_empty_subtitle">Choisissez des photos spécifiques à la place.</string>
+    <string name="gallery_source_temporary_force_image">Fond d\'écran défini sur l\'image sélectionnée.</string>
+    <string name="gallery_source_from_gallery">Depuis la galerie</string>
+    <string name="gallery_source_touch_to_view">Touchez pour voir</string>
+
+    <string name="dummy_source_title">Source factice</string>
+    <string name="dummy_source_description">Exemple artwork</string>
+
+    <string name="featuredart_source_title">Art en vedette</string>
+    <string name="featuredart_source_description">Une nouvelle oeuvre chaque jour</string>
+    <string name="featuredart_source_error_no_artwork_to_share">Aucun artwork à partager.</string>
+
+    <string name="webstream_source_title">Depuis internet</string>
+    <string name="webstream_source_description">Artwork depuis interet</string>
+
+    <string name="action_activate">Activer</string>
+    <string name="action_settings">Personnaliser</string>
+    <string name="action_source_settings">Choisir source</string>
+
+    <string name="contentdesc_overflow">Plus d\'options</string>
+    <string name="error_view_details">Impossible de voir les détails.</string>
+    <string name="error_easter_egg">Hmm, cette image ne peut être chargée. Grumpy McPuzzles est désolé pour ça, et recommande choisir une autre source.</string>
+    <string name="error_wallpaper_chooser">Impossible de lancer l\'application de choix de fond d\'écran. Vous pouvez activer Muzei en choisissant \'Fonds d\'écrans animés\' en faisant un appui long sur votre écran d\'accueil.</string>
+
+    <string name="section_choose_source">Sources</string>
+    <string name="section_advanced">Avancé</string>
+
+    <string name="action_previous_artwork">Artwork précédant</string>
+    <string name="action_next_artwork">Artwork suivant</string>
+
+    <string name="done">Terminé</string>
+    <string name="retry">Réessayer</string>
+
+    <string name="action_clear_photos">Enlever toutes les photos</string>
+    <string name="action_add_photos">Ajouter photos</string>
+    <string name="action_rotate_interval">Changer intervale</string>
+    <string name="action_share_artwork">Partager artwork</string>
+
+    <string name="action_remove">Enlever</string>
+
+    <string name="set_as_wallpaper_using_muzei">Fond d\'écran (avec Muzei)</string>
+
+    <string name="tutorial_main">Ouvrir l\'application Muzei pour voir votre fond d\'écran.</string>
+    <string name="tutorial_subtitle">Touchez deux fois votre fond d\'écran flou pour le voir net.</string>
+
+    <string name="about_title">A propos de Muzei</string>
+    <string name="about_body"><![CDATA[
+        Fait à New York par Roman Nurik. <i>Muzei</i> est une translittération du mot russe
+        <a href="http://translate.google.com/#en/ru/museum"><i>музей</i></a>, qui signifie
+        &#8220;musée.&#8221;<br><br>
+
+        Copyright 2013&ndash;2014 Google Inc.<br>
+        Tout droits réservés.<br><br>
+
+        <a href="http://m.google.com/utos">Conditions d\'utilisation</a>,
+        <a href="http://www.google.com/policies/privacy/">Règles de confidentialité</a>&nbsp;<br><br>
+
+        Un grand merci à ces projets open source:<br><br>
+
+        <b><a href="http://square.github.io/okhttp/">OkHttp</a> et <a href="http://square.github.io/picasso/">Picasso</a>&nbsp;</b><br>
+        <i>par Square</i><br><br>
+
+        <b><a href="https://github.com/greenrobot/EventBus">EventBus</a>&nbsp;</b><br>
+        <i>par greenrobot</i><br><br>
+
+        <b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a>&nbsp;</b><br>
+        <i>par Robert Green, Mark F. Guerra, et others</i><br><br>
+    ]]></string>
+    <string name="about_version_template">v%1$s</string>
+
+</resources>
