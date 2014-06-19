@@ -1,0 +1,4 @@
+cron:
+- description: update archive daily
+  url: /tasks/update_archive
+  schedule: every day 02:05

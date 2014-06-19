@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import date
+from datetime import date, time
 import logging
 import os
 
@@ -20,6 +20,11 @@ import webapp2
 from google.appengine.api import memcache
 from google.appengine.ext.webapp import template
 
+
+START_TIME = time(1, 55, 0, tzinfo=None) # 1:55am UTC
+
+CLOUD_STORAGE_ROOT_URL = 'http://storage.googleapis.com'
+CLOUD_STORAGE_BASE_PATH = '/muzeifeaturedart'
 
 IS_DEVELOPMENT = ('Development' in os.environ['SERVER_SOFTWARE'])
 

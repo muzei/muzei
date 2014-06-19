@@ -64,14 +64,14 @@ def maybe_process_image(image_url, base_name):
   base_filename = re.sub(r'[^\w]+', '-', base_name.strip().lower())
 
   # main image
-  image_gcs_path = '/muzeifeaturedart/' + base_filename + '.jpg'
+  image_gcs_path = CLOUD_STORAGE_BASE_PATH + '/' + base_filename + '.jpg'
   # upload with default ACLs set on the bucket  # or use options={'x-goog-acl': 'public-read'})
   gcs_file = gcs.open(image_gcs_path, 'w', content_type='image/jpeg')
   gcs_file.write(image_result.content)
   gcs_file.close()
 
   # thumb
-  thumb_gcs_path = '/muzeifeaturedart/' + base_filename + '_thumb.jpg'
+  thumb_gcs_path = CLOUD_STORAGE_BASE_PATH + '/' + base_filename + '_thumb.jpg'
   thumb = images.Image(image_result.content)
   thumb.resize(width=(thumb.width * 600 / thumb.height), height=600)
   thumb_contents = thumb.execute_transforms(output_encoding=images.JPEG, quality=40)
@@ -81,9 +81,6 @@ def maybe_process_image(image_url, base_name):
 
   return (CLOUD_STORAGE_ROOT_URL + image_gcs_path,
           CLOUD_STORAGE_ROOT_URL + thumb_gcs_path)
-
-
-CLOUD_STORAGE_ROOT_URL = 'http://storage.googleapis.com'
 
 
 class ServiceAddHandler(BaseHandler):
