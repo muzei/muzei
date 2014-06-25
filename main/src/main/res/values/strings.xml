@@ -21,6 +21,12 @@
     <string name="settings_title">Muzei Settings</string>
     <string name="settings_blur_amount_title">Blur</string>
     <string name="settings_dim_amount_title">Dim</string>
+    <string name="settings_doubletap_action_title">2-Tap</string>
+    <string name="settings_threefinger_action_title">3-Fingers</string>
+    <string name="settings_tap_action_nothing">Nothing</string>
+    <string name="settings_tap_action_showoriginal">Show Original Artwork</string>
+    <string name="settings_tap_action_next">Next Artwork</string>
+    <string name="settings_tap_action_view">View Artwork details</string>
     <string name="settings_notify_new_wallpaper">New wallpaper notifications</string>
 
     <string name="notification_new_wallpaper">New wallpaper</string>

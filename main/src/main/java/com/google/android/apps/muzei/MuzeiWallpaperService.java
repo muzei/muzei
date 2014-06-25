@@ -17,24 +17,48 @@
 package com.google.android.apps.muzei;
 
 import android.app.WallpaperManager;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
+import android.widget.Toast;
 
+import com.google.android.apps.muzei.api.Artwork;
+import com.google.android.apps.muzei.api.MuzeiArtSource;
+import com.google.android.apps.muzei.api.internal.SourceState;
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
+import com.google.android.apps.muzei.event.DoubleTapActionChangedEvent;
+import com.google.android.apps.muzei.event.TapAction;
+import com.google.android.apps.muzei.event.ThreeFingerActionChangedEvent;
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
 import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
 import com.google.android.apps.muzei.render.RealRenderController;
 import com.google.android.apps.muzei.render.RenderController;
+import com.google.android.apps.muzei.util.LogUtil;
 
+import net.nurik.roman.muzei.R;
 import net.rbgrn.android.glwallpaperservice.GLWallpaperService;
 
 import de.greenrobot.event.EventBus;
 
+import static com.google.android.apps.muzei.util.LogUtil.LOGE;
+
 public class MuzeiWallpaperService extends GLWallpaperService {
+
+    public static final String PREF_DOUBLETAPACTION = "doubletap_action";
+    public static final String PREF_THREEFINGERACTION = "threefinger_action";
+
+    private static final int THREE_FINGER_ACTION_PAUSE_MS = 1000 * 3; //3s
+
+    private static final String TAG = LogUtil.makeLogTag(MuzeiWallpaperService.class);
+
     @Override
     public Engine onCreateEngine() {
         return new MuzeiWallpaperEngine();
@@ -54,6 +78,10 @@ public class MuzeiWallpaperService extends GLWallpaperService {
 
         private boolean mArtDetailMode = false;
         private boolean mVisible = true;
+
+        private TapAction mDoubleTapAction = TapAction.ShowOriginalArtwork;
+        private TapAction mThreeFingerAction = TapAction.Nothing;
+        private long mLastThreeFingerAction = 0;
 
         @Override
         public void onCreate(SurfaceHolder surfaceHolder) {
@@ -75,6 +103,13 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             setTouchEventsEnabled(true);
             setOffsetNotificationsEnabled(true);
             EventBus.getDefault().registerSticky(this);
+
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            int doubleTapActionCode = sp.getInt(PREF_DOUBLETAPACTION, TapAction.ShowOriginalArtwork.getCode());
+            mDoubleTapAction = TapAction.fromCode(doubleTapActionCode);
+
+            int threeFingerActionCode = sp.getInt(PREF_THREEFINGERACTION, TapAction.Nothing.getCode());
+            mThreeFingerAction = TapAction.fromCode(threeFingerActionCode);
         }
 
         @Override
@@ -123,6 +158,14 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             requestRender();
         }
 
+        public void onEventMainThread(DoubleTapActionChangedEvent e) {
+            mDoubleTapAction = e.getNewAction();
+        }
+
+        public void onEventMainThread(ThreeFingerActionChangedEvent e) {
+            mThreeFingerAction = e.getNewAction();
+        }
+
         @Override
         public void onVisibilityChanged(boolean visible) {
             mVisible = visible;
@@ -152,6 +195,14 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             mGestureDetector.onTouchEvent(event);
             // Delay blur from temporary refocus while touching the screen
             delayedBlur();
+            long curTime = SystemClock.elapsedRealtime();
+            long lastDiff = curTime - mLastThreeFingerAction;
+            if(event.getPointerCount() == 3
+                    && lastDiff > THREE_FINGER_ACTION_PAUSE_MS)
+            {
+                mLastThreeFingerAction = curTime;
+                executeTapAction(mThreeFingerAction);
+            }
         }
 
         private GestureDetector.OnGestureListener mGestureListener
@@ -169,19 +220,75 @@ public class MuzeiWallpaperService extends GLWallpaperService {
                     return true;
                 }
 
-                // Temporarily toggle focused/blurred
-                queueEvent(new Runnable() {
-                    @Override
-                    public void run() {
-                        mRenderer.setIsBlurred(!mRenderer.isBlurred(), false);
-                    }
-                });
+                executeTapAction(mDoubleTapAction);
 
-                // Schedule a re-blur
-                delayedBlur();
                 return true;
             }
         };
+
+        private void executeTapAction(TapAction action) {
+            switch(action)
+            {
+                case NextArtwork:
+                    executeNextArtworkAction();
+                    break;
+                case ShowOriginalArtwork:
+                    executeShowOriginalArtworkAction();
+                    break;
+                case ViewArtwork:
+                    executeViewArtworkAction();
+                    break;
+                default:
+                    //NOOP
+                    break;
+            }
+        }
+
+        private void executeShowOriginalArtworkAction() {
+            // Temporarily toggle focused/blurred
+            queueEvent(new Runnable() {
+                @Override
+                public void run() {
+                    mRenderer.setIsBlurred(!mRenderer.isBlurred(), false);
+                }
+            });
+
+            // Schedule a re-blur
+            delayedBlur();
+        }
+
+        private void executeNextArtworkAction() {
+            SourceManager.getInstance(getApplicationContext()).sendAction(MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK);
+        }
+
+        private void executeViewArtworkAction() {
+            SourceManager sm = SourceManager.getInstance(getApplicationContext());
+            SourceState selectedSourceState = sm.getSelectedSourceState();
+
+            if(selectedSourceState == null)
+                return;
+
+            Artwork artwork = selectedSourceState.getCurrentArtwork();
+            if(artwork == null)
+                return;
+
+            Intent viewIntent = artwork.getViewIntent();
+            if(viewIntent == null)
+                return;
+
+            viewIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            try {
+                startActivity(viewIntent);
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(getApplicationContext(), R.string.error_view_details,
+                        Toast.LENGTH_SHORT).show();
+                LOGE(TAG, "Error viewing artwork details.", e);
+            } catch (SecurityException e) {
+                Toast.makeText(getApplicationContext(), R.string.error_view_details,
+                        Toast.LENGTH_SHORT).show();
+                LOGE(TAG, "Error viewing artwork details.", e);
+            }
+        }
 
         private void cancelDelayedBlur() {
             mMainThreadHandler.removeCallbacks(mBlurRunnable);

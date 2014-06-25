@@ -14,66 +14,120 @@
   limitations under the License.
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <TextView android:id="@+id/blur_amount_label"
-        android:layout_width="wrap_content"
-        android:layout_height="32dp"
-        android:gravity="center_vertical|right"
-        android:textSize="@dimen/settings_text_size_normal"
-        android:fontFamily="sans-serif-condensed"
-        android:textAllCaps="true"
-        android:textColor="#fff"
-        android:textStyle="bold"
-        android:text="@string/settings_blur_amount_title" />
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView android:id="@+id/blur_amount_label"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical|right"
+            android:layout_column="0"
+            android:layout_weight="0"
+            android:textSize="@dimen/settings_text_size_normal"
+            android:fontFamily="sans-serif-condensed"
+            android:textAllCaps="true"
+            android:textColor="#fff"
+            android:textStyle="bold"
+            android:text="@string/settings_blur_amount_title" />
 
-    <SeekBar style="@style/Settings.Widget.SeekBar.BlurAmount"
-        android:id="@+id/blur_amount"
-        android:layout_width="0dp"
+        <SeekBar style="@style/Settings.Widget.SeekBar.BlurAmount"
+            android:id="@+id/blur_amount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_column="1"
+            android:layout_weight="1"
+            android:max="500" />
+    </TableRow>
+    <TableRow
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/blur_amount_label"
-        android:layout_alignParentRight="true"
-        android:layout_alignTop="@id/blur_amount_label"
-        android:max="500" />
+        android:layout_marginTop="16dp">
+        <TextView android:id="@+id/dim_amount_label"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_column="0"
+            android:layout_weight="0"
+            android:gravity="center_vertical|right"
+            android:textSize="@dimen/settings_text_size_normal"
+            android:fontFamily="sans-serif-condensed"
+            android:textAllCaps="true"
+            android:textColor="#fff"
+            android:textStyle="bold"
+            android:text="@string/settings_dim_amount_title" />
 
-    <TextView android:id="@+id/dim_amount_label"
-        android:layout_width="wrap_content"
-        android:layout_height="32dp"
-        android:layout_marginTop="16dp"
-        android:layout_below="@id/blur_amount_label"
-        android:layout_alignLeft="@id/blur_amount_label"
-        android:layout_alignRight="@id/blur_amount_label"
-        android:gravity="center_vertical|right"
-        android:textSize="@dimen/settings_text_size_normal"
-        android:fontFamily="sans-serif-condensed"
-        android:textAllCaps="true"
-        android:textColor="#fff"
-        android:textStyle="bold"
-        android:text="@string/settings_dim_amount_title" />
+        <SeekBar style="@style/Settings.Widget.SeekBar.DimAmount"
+            android:id="@+id/dim_amount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_column="1"
+            android:layout_weight="1"
+            android:max="255" />
+    </TableRow>
 
-    <SeekBar style="@style/Settings.Widget.SeekBar.DimAmount"
-        android:id="@+id/dim_amount"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@id/blur_amount"
-        android:layout_alignRight="@id/blur_amount"
-        android:layout_alignTop="@id/dim_amount_label"
-        android:max="255" />
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView android:id="@+id/advanced_settings_doubletapaction_label"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_column="0"
+            android:layout_weight="0"
+            android:gravity="center_vertical|right"
+            android:textSize="@dimen/settings_text_size_normal"
+            android:fontFamily="sans-serif-condensed"
+            android:textAllCaps="true"
+            android:textColor="#fff"
+            android:textStyle="bold"
+            android:text="@string/settings_doubletap_action_title" />
 
-    <CheckBox android:id="@+id/notify_new_wallpaper_checkbox"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:layout_marginLeft="8dp"
-        android:layout_alignLeft="@id/dim_amount"
-        android:layout_alignRight="@id/dim_amount"
-        android:layout_below="@id/dim_amount"
-        android:textSize="@dimen/settings_text_size_normal"
-        android:fontFamily="sans-serif-condensed"
-        android:textColor="#fff"
-        android:paddingLeft="4dp"
-        android:text="@string/settings_notify_new_wallpaper" />
+        <Spinner
+            android:id="@+id/advanced_settings_doubletapaction_spinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_column="1"
+            android:layout_weight="1"
+            />
+    </TableRow>
 
-</RelativeLayout>
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView android:id="@+id/advanced_settings_threefingeraction_label"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_column="0"
+            android:layout_weight="0"
+            android:gravity="center_vertical|right"
+            android:textSize="@dimen/settings_text_size_normal"
+            android:fontFamily="sans-serif-condensed"
+            android:textAllCaps="true"
+            android:textColor="#fff"
+            android:textStyle="bold"
+            android:text="@string/settings_threefinger_action_title" />
+
+        <Spinner
+            android:id="@+id/advanced_settings_threefingertapaction_spinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_column="1"
+            android:layout_weight="1"
+            />
+    </TableRow>
+
+    <TableRow>
+        <CheckBox android:id="@+id/notify_new_wallpaper_checkbox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_column="1"
+            android:layout_weight="1"
+            android:textSize="@dimen/settings_text_size_normal"
+            android:fontFamily="sans-serif-condensed"
+            android:textColor="#fff"
+            android:paddingLeft="4dp"
+            android:text="@string/settings_notify_new_wallpaper" />
+    </TableRow>
+</TableLayout>
