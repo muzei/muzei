@@ -38,8 +38,11 @@ class ServiceListHandler(BaseHandler):
     self.response.out.write(self.render())
 
   def render(self):
+    start = datetime.date(day=1,
+        month=int(self.request.get('month')),
+        year=int(self.request.get('year')))
     queue = (FeaturedArtwork.all()
-        .filter('publish_date >=', datetime.date.today() - datetime.timedelta(days=30))
+        .filter('publish_date >=', start)
         .order('publish_date')
         .fetch(1000))
     return json.dumps([dict(
@@ -61,17 +64,17 @@ def maybe_process_image(image_url, base_name):
   if image_result.status_code < 200 or image_result.status_code >= 300:
     raise IOError('Error downloading image: HTTP %d.' % image_result.status_code)
 
-  base_filename = re.sub(r'[^\w]+', '-', base_name.strip().lower())
+  filename = re.sub(r'[^\w]+', '-', base_name.strip().lower()) + '.jpg'
 
   # main image
-  image_gcs_path = CLOUD_STORAGE_BASE_PATH + '/' + base_filename + '.jpg'
+  image_gcs_path = CLOUD_STORAGE_BASE_PATH + '/fullres/' + filename
   # upload with default ACLs set on the bucket  # or use options={'x-goog-acl': 'public-read'})
   gcs_file = gcs.open(image_gcs_path, 'w', content_type='image/jpeg')
   gcs_file.write(image_result.content)
   gcs_file.close()
 
   # thumb
-  thumb_gcs_path = CLOUD_STORAGE_BASE_PATH + '/' + base_filename + '_thumb.jpg'
+  thumb_gcs_path = CLOUD_STORAGE_BASE_PATH + '/thumbs/' + filename
   thumb = images.Image(image_result.content)
   thumb.resize(width=(thumb.width * 600 / thumb.height), height=600)
   thumb_contents = thumb.execute_transforms(output_encoding=images.JPEG, quality=40)
@@ -104,17 +107,17 @@ class ServiceAddHandler(BaseHandler):
     self.response.set_status(200)
 
 
-class ServiceAddFromWikiPaintingsHandler(BaseHandler):
+class ServiceAddFromWikiArtHandler(BaseHandler):
   def post(self):
-    wikipaintings_url = self.request.get('wikiPaintingsUrl')
-    result = urlfetch.fetch(wikipaintings_url)
+    wikiart_url = self.request.get('wikiArtUrl')
+    result = urlfetch.fetch(wikiart_url)
     if result.status_code < 200 or result.status_code >= 300:
       self.response.out.write('Error processing URL: HTTP %d. Content: %s'
           % (result.status_code, result.content))
       self.response.set_status(500)
       return
 
-    self.process_html(wikipaintings_url, result.content)
+    self.process_html(wikiart_url, result.content)
 
 
   def process_html(self, url, html):
@@ -224,7 +227,7 @@ class ScheduleHandler(BaseHandler):
 app = webapp2.WSGIApplication([
     ('/backroom/s/list', ServiceListHandler),
     ('/backroom/s/add', ServiceAddHandler),
-    ('/backroom/s/addfromwikipaintings', ServiceAddFromWikiPaintingsHandler),
+    ('/backroom/s/addfromwikiart', ServiceAddFromWikiArtHandler),
     ('/backroom/s/edit', ServiceEditHandler),
     ('/backroom/s/remove', ServiceRemoveHandler),
     ('/backroom/s/move', ServiceMoveHandler),
