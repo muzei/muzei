@@ -54,6 +54,9 @@ html, body {
   position: relative;
   margin: 0 auto;
   -webkit-flex: 1 0 auto;
+}
+
+.month-carousel.animate {
   -webkit-transition: -webkit-transform 0.2s;
 }
 
@@ -203,9 +206,6 @@ html, body {
   opacity: 0;
 }
 
-.days .cell.skipped.before {
-  background-color: #f2f2f2;
-}
 
 .days .cell.today .overlay-link,
 .days .cell.past .overlay-link {

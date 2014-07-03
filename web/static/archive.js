@@ -9,8 +9,10 @@ var DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'S
 var DAY_MILLIS = 24 * 60 * 60 * 1000;
 
 var START_DATE = new Date('2014-02-12');
+var START_MONTH = [START_DATE.getFullYear(), START_DATE.getMonth() + 1];
 var TODAY = new Date();
 var TODAY_MONTH = [TODAY.getFullYear(), TODAY.getMonth() + 1];
+var NUM_CAROUSEL_PAGES = monthDistance(START_MONTH, TODAY_MONTH) + 1;
 
 var MONTH_SPACING_WIDE = 120; // pixels
 var MONTH_SPACING_NARROW = 40; // pixels
@@ -91,13 +93,15 @@ function relayout() {
 
 function selectMonth(month) {
   if (!isMonthInValidRange(month)) {
+    selectMonth(selectedMonth);
     return;
   }
 
   renderMonth(month);
   $month = monthNode(month);
+  $carousel.addClass('animate');
   $carousel.css({
-    'transform': 'translateX(' + -($month.offset().left - $carousel.offset().left) + 'px)'
+    'transform': 'translate3d(' + -($month.offset().left - $carousel.offset().left) + 'px,0,0)'
   });
   $('.month').removeClass('active');
   $month.toggleClass('active', true);
@@ -113,7 +117,7 @@ function clearMonth(month) {
 }
 
 function isMonthInValidRange(month) {
-  return monthDistance([START_DATE.getFullYear(), START_DATE.getMonth() + 1], month) >= 0 &&
+  return monthDistance(START_MONTH, month) >= 0 &&
          monthDistance(month, TODAY_MONTH) >= 0;
 }
 
@@ -160,7 +164,64 @@ function nextMonth(month) {
   return [month[0], month[1] + 1];
 }
 
+// based on http://rawgit.com/EightMedia/hammer.js/1.1.3/tests/manual/carousel.html
 
+function handleHammer(ev) {
+  // disable browser scrolling
+  ev.gesture.preventDefault();
+
+  var currentPage = monthDistance(START_MONTH, selectedMonth);
+
+  switch (ev.type) {
+    case 'dragright':
+    case 'dragleft':
+      // stick to the finger
+      var monthOffset = monthX(selectedMonth);
+      var dragOffset = -ev.gesture.deltaX;
+
+      // slow down at the first and last pane
+      if ((currentPage == 0 && ev.gesture.direction == 'right') ||
+        (currentPage == NUM_CAROUSEL_PAGES - 1 && ev.gesture.direction == 'left')) {
+        dragOffset *= .4;
+      }
+
+      var offset = monthOffset + dragOffset;
+
+      $carousel.removeClass('animate');
+      $carousel.css({
+        'transform': 'translate3d(' + -offset + 'px,0,0)'
+      });
+      break;
+
+    case 'swipeleft':
+      selectMonth(nextMonth(selectedMonth));
+      ev.gesture.stopDetect();
+      break;
+
+    case 'swiperight':
+      selectMonth(prevMonth(selectedMonth));
+      ev.gesture.stopDetect();
+      break;
+
+    case 'release':
+      // more then 50% moved, navigate
+      if (Math.abs(ev.gesture.deltaX) > pageWidth / 2) {
+        if (ev.gesture.direction == 'right') {
+          selectMonth(prevMonth(selectedMonth));
+        } else {
+          selectMonth(nextMonth(selectedMonth));
+        }
+      } else {
+        selectMonth(selectedMonth);
+      }
+      break;
+  }
+}
+
+$(document).ready(function() {
+  new Hammer($carousel.get(0), { dragLockToAxis: true })
+      .on("release dragleft dragright swipeleft swiperight", handleHammer);
+});
 
 /*
  * Month page
@@ -301,7 +362,6 @@ function loadArchiveData(archiveKey) {
   var imageBlobsProcessed = 0;
 
   var _processBuffer = function() {
-    //console.log('processing buffer of length ' + buffer.length);
     lines = buffer.split(/\n/);
     for (var l = 0; l < lines.length; l++) {
       var line = lines[l];
@@ -340,11 +400,7 @@ function loadArchiveData(archiveKey) {
     imageBlobsProcessed = imageBlobs.length;
   };
 
-  xhr.addEventListener('load', function(e) {
-    // todo
-  }, false);
-
-  xhr.addEventListener('progress', function(e) {
+  var _processMoreResponseText = function() {
     var i = xhr.responseText.lastIndexOf('\n');
     if (i > index) {
       i += 1; // newline
@@ -354,6 +410,14 @@ function loadArchiveData(archiveKey) {
       _processBuffer();
       buffer = '';
     }
+  };
+
+  xhr.addEventListener('load', function(e) {
+    _processMoreResponseText();
+  }, false);
+
+  xhr.addEventListener('progress', function(e) {
+    _processMoreResponseText();
   }, false);
 
   xhr.addEventListener('error', function(e) {
