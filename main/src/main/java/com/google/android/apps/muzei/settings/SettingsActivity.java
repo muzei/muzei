@@ -22,7 +22,10 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -68,6 +71,8 @@ public class SettingsActivity extends Activity implements SettingsChooseSourceFr
             SettingsChooseSourceFragment.class,
             SettingsAdvancedFragment.class,
     };
+
+    private static final String PLAY_STORE_PACKAGE_NAME = "com.android.vending";
 
     private int mStartSection = START_SECTION_SOURCE;
 
@@ -275,17 +280,28 @@ public class SettingsActivity extends Activity implements SettingsChooseSourceFr
         return true;
     }
 
+    public static void preferPackageForIntent(Context context, Intent intent, String packageName) {
+        PackageManager pm = context.getPackageManager();
+        for (ResolveInfo resolveInfo : pm.queryIntentActivities(intent, 0)) {
+            if (resolveInfo.activityInfo.packageName.equals(packageName)) {
+                intent.setPackage(packageName);
+                break;
+            }
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_get_more_sources:
                 try {
-                    startActivity(new Intent(Intent.ACTION_VIEW,
-                            Uri.parse("http://play.google.com/store/search?q=Muzei+Extension"
-                                    + "&c=apps"))
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                    Intent playStoreIntent = new Intent(Intent.ACTION_VIEW,
+                            Uri.parse("http://play.google.com/store/search?q=Muzei&c=apps"))
+                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+                    preferPackageForIntent(this, playStoreIntent, PLAY_STORE_PACKAGE_NAME);
+                    startActivity(playStoreIntent);
                 } catch (ActivityNotFoundException activityNotFoundException1) {
-                    Toast.makeText(this, this.getString(R.string.play_store_not_found), Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, R.string.play_store_not_found, Toast.LENGTH_LONG).show();
                 }
                 return true;
 
