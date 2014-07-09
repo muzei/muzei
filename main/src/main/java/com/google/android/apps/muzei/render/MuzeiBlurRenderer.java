@@ -52,6 +52,7 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
     private static final int BLUR_ANIMATION_DURATION = 750;
 
     public static final int DEFAULT_BLUR = 250; // max 500
+    public static final int DEFAULT_GREY = 0; // max 500
     public static final int DEMO_DIM = 64;
     public static final int DEFAULT_MAX_DIM = 128; // technical max 255
     public static final float DIM_RANGE = 0.5f; // percent of max dim
@@ -62,6 +63,7 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
     private int mBlurKeyframes = 3;
     private int mBlurredSampleSize;
     private int mMaxDim;
+    private int mMaxGrey;
 
     // Model and view matrices. Projection and MVP stored in picture set
     private final float[] mMMatrix = new float[16];
@@ -103,6 +105,7 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
         setNormalOffsetX(0);
         recomputeMaxPrescaledBlurPixels();
         recomputeMaxDimAmount();
+        recomputeGreyAmount();
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
@@ -135,6 +138,11 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
     public void recomputeMaxDimAmount() {
         mMaxDim = PreferenceManager
                 .getDefaultSharedPreferences(mContext).getInt("dim_amount", DEFAULT_MAX_DIM);
+    }
+
+    public void recomputeGreyAmount() {
+        mMaxGrey = PreferenceManager
+                .getDefaultSharedPreferences(mContext).getInt("grey_amount", DEFAULT_GREY);
     }
 
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
@@ -363,8 +371,9 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
 
                     // And finally, create a blurred copy for each keyframe.
                     for (int f = 1; f <= mBlurKeyframes; f++) {
+                        float desaturateAmount = mMaxGrey / 500f * f / mBlurKeyframes;
                         Bitmap blurredBitmap = blurrer.blurBitmap(
-                                scaledBitmap, blurRadiusAtFrame(f));
+                                scaledBitmap, blurRadiusAtFrame(f), desaturateAmount);
                         mPictures[f] = new GLPicture(blurredBitmap);
                         blurredBitmap.recycle();
                     }

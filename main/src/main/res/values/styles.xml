@@ -43,6 +43,10 @@
         <item name="android:progressDrawable">@drawable/scrubber_progress_dim_amount</item>
     </style>
 
+    <style name="Settings.Widget.SeekBar.GreyAmount" parent="Widget.Muzei.SeekBar">
+        <item name="android:progressDrawable">@drawable/scrubber_progress_grey_amount</item>
+    </style>
+
     <!-- Gallery source settings -->
 
     <style name="Theme.Muzei.GallerySettings" parent="Theme.Muzei">

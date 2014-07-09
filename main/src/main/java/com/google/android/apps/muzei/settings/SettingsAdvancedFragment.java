@@ -32,6 +32,7 @@ import com.google.android.apps.muzei.LockScreenVisibleReceiver;
 import com.google.android.apps.muzei.NewWallpaperNotificationReceiver;
 import com.google.android.apps.muzei.event.BlurAmountChangedEvent;
 import com.google.android.apps.muzei.event.DimAmountChangedEvent;
+import com.google.android.apps.muzei.event.GreyAmountChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
 
 import net.nurik.roman.muzei.R;
@@ -45,6 +46,7 @@ public class SettingsAdvancedFragment extends Fragment {
     private Handler mHandler = new Handler();
     private SeekBar mBlurSeekBar;
     private SeekBar mDimSeekBar;
+    private SeekBar mGreySeekBar;
     private CheckBox mNotifyNewWallpaperCheckBox;
     private CheckBox mBlurOnLockScreenCheckBox;
 
@@ -86,6 +88,27 @@ public class SettingsAdvancedFragment extends Fragment {
                 if (fromUser) {
                     mHandler.removeCallbacks(mUpdateDimRunnable);
                     mHandler.postDelayed(mUpdateDimRunnable, 750);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+
+        mGreySeekBar = (SeekBar) rootView.findViewById(R.id.grey_amount);
+        mGreySeekBar.setProgress(getSharedPreferences().getInt("grey_amount",
+                MuzeiBlurRenderer.DEFAULT_GREY));
+        mGreySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int value, boolean fromUser) {
+                if (fromUser) {
+                    mHandler.removeCallbacks(mUpdateGreyRunnable);
+                    mHandler.postDelayed(mUpdateGreyRunnable, 750);
                 }
             }
 
@@ -160,4 +183,15 @@ public class SettingsAdvancedFragment extends Fragment {
             EventBus.getDefault().post(new DimAmountChangedEvent());
         }
     };
+
+    private Runnable mUpdateGreyRunnable = new Runnable() {
+        @Override
+        public void run() {
+            getSharedPreferences().edit()
+                    .putInt("grey_amount", mGreySeekBar.getProgress())
+                    .apply();
+            EventBus.getDefault().post(new GreyAmountChangedEvent());
+        }
+    };
+
 }
