@@ -34,10 +34,6 @@ body {
   align-items: center;
 }
 
-  body.withvignette {
-    background-image: radial-gradient(circle at 50% 50%, #fff 60%, #ddd);
-  }
-
 #container {
   position: relative;
   margin: 70px;
@@ -172,6 +168,49 @@ body {
     transition-property: opacity;
     transition-duration: 0.5s;
   }
+
+@media (max-width: 900px) {
+  body {
+    display: block;
+    min-width: auto;
+    width: auto;
+    min-height: auto;
+  }
+
+  #container {
+    margin: 0;
+    width: auto;
+    height: auto;
+  }
+
+  #logo, #text {
+    position: relative;
+    left: 0;
+    top: 0;
+  }
+
+  #device-frame {
+    position: relative;
+    right: auto;
+  }
+
+  #device-frame:after {
+    background: none;
+  }
+
+  #device-screen {
+    position: relative;
+    left: 0;
+    top: 0;
+    width: 360px;
+    height: 640px;
+
+    -webkit-transform: none;
+    -moz-transform: none;
+    -ms-transform: none;
+    transform: none;
+  }
+}
 
 #layer-wall, #layer-wall-blurred {
   background-size: cover;
