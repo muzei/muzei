@@ -51,7 +51,7 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
     private static final int CROSSFADE_ANIMATION_DURATION = 750;
     private static final int BLUR_ANIMATION_DURATION = 750;
 
-    public static final int DEFAULT_BLUR = 400; // max 500
+    public static final int DEFAULT_BLUR = 250; // max 500
     public static final int DEMO_DIM = 64;
     public static final int DEFAULT_MAX_DIM = 128; // technical max 255
     public static final float DIM_RANGE = 0.5f; // percent of max dim
