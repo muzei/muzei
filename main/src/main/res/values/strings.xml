@@ -105,5 +105,6 @@
         <i>by Robert Green, Mark F. Guerra, and others</i><br><br>
     ]]></string>
     <string name="about_version_template">v%1$s</string>
+    <string name="app_author">Roman Nurik</string>
 
 </resources>
