@@ -500,7 +500,7 @@ public abstract class MuzeiArtSource extends IntentService {
      * @see #onEnabled()
      * @see #onDisabled()
      */
-    protected final boolean isEnabled() {
+    protected synchronized final boolean isEnabled() {
         return mSubscriptions.size() > 0;
     }
 
@@ -549,7 +549,7 @@ public abstract class MuzeiArtSource extends IntentService {
         }
     }
 
-    private void processSubscribe(ComponentName subscriber, String token) {
+    private synchronized void processSubscribe(ComponentName subscriber, String token) {
         if (subscriber == null) {
             Log.w(TAG, "No subscriber given.");
             return;
@@ -584,7 +584,7 @@ public abstract class MuzeiArtSource extends IntentService {
         saveSubscriptions();
     }
 
-    private void processAndDispatchSubscriberAdded(ComponentName subscriber) {
+    private synchronized void processAndDispatchSubscriberAdded(ComponentName subscriber) {
         // Trigger callbacks
         boolean updateDueToSchedule = false;
         if (mSubscriptions.size() == 1) {
@@ -618,7 +618,7 @@ public abstract class MuzeiArtSource extends IntentService {
         publishCurrentState(subscriber);
     }
 
-    private void processAndDispatchSubscriberRemoved(ComponentName subscriber) {
+    private synchronized void processAndDispatchSubscriberRemoved(ComponentName subscriber) {
         // Trigger callbacks
         onSubscriberRemoved(subscriber);
         if (mSubscriptions.size() == 0) {
@@ -679,13 +679,13 @@ public abstract class MuzeiArtSource extends IntentService {
                 PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    private void publishCurrentState() {
+    private synchronized void publishCurrentState() {
         for (ComponentName subscription : mSubscriptions.keySet()) {
             publishCurrentState(subscription);
         }
     }
 
-    private void publishCurrentState(final ComponentName subscriber) {
+    private synchronized void publishCurrentState(final ComponentName subscriber) {
         String token = mSubscriptions.get(subscriber);
         if (TextUtils.isEmpty(token)) {
             Log.w(TAG, "Not active, canceling update, id=" + mName);
@@ -715,7 +715,7 @@ public abstract class MuzeiArtSource extends IntentService {
         }
     }
 
-    private void loadSubscriptions() {
+    private synchronized void loadSubscriptions() {
         mSubscriptions = new HashMap<ComponentName, String>();
         Set<String> serializedSubscriptions = mSharedPrefs.getStringSet(PREF_SUBSCRIPTIONS, null);
         if (serializedSubscriptions != null) {
@@ -728,7 +728,7 @@ public abstract class MuzeiArtSource extends IntentService {
         }
     }
 
-    private void saveSubscriptions() {
+    private synchronized void saveSubscriptions() {
         Set<String> serializedSubscriptions = new HashSet<String>();
         for (ComponentName subscriber : mSubscriptions.keySet()) {
             serializedSubscriptions.add(subscriber.flattenToShortString() + "|"
