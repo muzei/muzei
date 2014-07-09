@@ -139,6 +139,8 @@ public class GallerySettingsActivity extends Activity
                         R.dimen.gallery_settings_chosen_photo_grid_spacing);
                 mItemSize = (width - spacing * (numColumns - 1)) / numColumns;
                 mGridView.setNumColumns(numColumns);
+
+                mGridView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
         });
 
