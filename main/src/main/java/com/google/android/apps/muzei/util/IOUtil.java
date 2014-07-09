@@ -58,6 +58,10 @@ public class IOUtil {
         }
 
         String scheme = uri.getScheme();
+        if (scheme == null) {
+            throw new OpenUriException(false, new IOException("Uri had no scheme"));
+        }
+
         InputStream in = null;
         if ("content".equals(scheme)) {
             try {
@@ -118,7 +122,6 @@ public class IOUtil {
 
             } catch (MalformedURLException e) {
                 throw new OpenUriException(false, e);
-
             } catch (IOException e) {
                 if (conn != null && responseCode > 0) {
                     throw new OpenUriException(
