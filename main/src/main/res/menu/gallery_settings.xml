@@ -26,6 +26,9 @@
                     android:id="@+id/action_rotate_interval_none"
                     android:title="Don't change wallpaper" />
                 <item
+                    android:id="@+id/action_rotate_interval_30m"
+                    android:title="Every half hour" />                    
+                <item
                     android:id="@+id/action_rotate_interval_1h"
                     android:title="Every hour" />
                 <item
