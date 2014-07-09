@@ -25,6 +25,7 @@ import android.view.SurfaceHolder;
 import android.view.ViewConfiguration;
 
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
+import com.google.android.apps.muzei.event.LockScreenVisibleChangedEvent;
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
 import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
@@ -36,9 +37,27 @@ import net.rbgrn.android.glwallpaperservice.GLWallpaperService;
 import de.greenrobot.event.EventBus;
 
 public class MuzeiWallpaperService extends GLWallpaperService {
+    private LockScreenVisibleReceiver mLockScreenVisibleReceiver;
+
     @Override
     public Engine onCreateEngine() {
         return new MuzeiWallpaperEngine();
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mLockScreenVisibleReceiver = new LockScreenVisibleReceiver();
+        mLockScreenVisibleReceiver.setupRegisterDeregister(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mLockScreenVisibleReceiver != null) {
+            mLockScreenVisibleReceiver.destroy();
+            mLockScreenVisibleReceiver = null;
+        }
     }
 
     private class MuzeiWallpaperEngine extends GLEngine implements
@@ -123,6 +142,17 @@ public class MuzeiWallpaperService extends GLWallpaperService {
 
         public void onEventMainThread(ArtDetailViewport e) {
             requestRender();
+        }
+
+        public void onEventMainThread(LockScreenVisibleChangedEvent e) {
+            final boolean blur = e.isLockScreenVisible();
+            cancelDelayedBlur();
+            queueEvent(new Runnable() {
+                @Override
+                public void run() {
+                    mRenderer.setIsBlurred(blur, false);
+                }
+            });
         }
 
         @Override

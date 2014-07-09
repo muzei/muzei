@@ -28,6 +28,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 
+import com.google.android.apps.muzei.LockScreenVisibleReceiver;
 import com.google.android.apps.muzei.NewWallpaperNotificationReceiver;
 import com.google.android.apps.muzei.event.BlurAmountChangedEvent;
 import com.google.android.apps.muzei.event.DimAmountChangedEvent;
@@ -45,6 +46,7 @@ public class SettingsAdvancedFragment extends Fragment {
     private SeekBar mBlurSeekBar;
     private SeekBar mDimSeekBar;
     private CheckBox mNotifyNewWallpaperCheckBox;
+    private CheckBox mBlurOnLockScreenCheckBox;
 
     public SettingsAdvancedFragment() {
     }
@@ -111,6 +113,21 @@ public class SettingsAdvancedFragment extends Fragment {
                 });
         mNotifyNewWallpaperCheckBox.setChecked(getSharedPreferences()
                 .getBoolean(NewWallpaperNotificationReceiver.PREF_ENABLED, true));
+
+        mBlurOnLockScreenCheckBox = (CheckBox) rootView.findViewById(
+                R.id.blur_on_lockscreen_checkbox);
+        mBlurOnLockScreenCheckBox.setOnCheckedChangeListener(
+                new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton button, boolean checked) {
+                        getSharedPreferences().edit()
+                                .putBoolean(LockScreenVisibleReceiver.PREF_ENABLED, !checked)
+                                .apply();
+                    }
+                }
+        );
+        mBlurOnLockScreenCheckBox.setChecked(!getSharedPreferences()
+                .getBoolean(LockScreenVisibleReceiver.PREF_ENABLED, false));
         return rootView;
     }
 

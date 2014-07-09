@@ -22,6 +22,7 @@
     <string name="settings_blur_amount_title">Blur</string>
     <string name="settings_dim_amount_title">Dim</string>
     <string name="settings_notify_new_wallpaper">New wallpaper notifications</string>
+    <string name="settings_blur_on_lockscreen">Apply blur on lockscreen</string>
 
     <string name="notification_new_wallpaper">New wallpaper</string>
 

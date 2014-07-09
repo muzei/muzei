@@ -76,4 +76,18 @@
         android:paddingLeft="4dp"
         android:text="@string/settings_notify_new_wallpaper" />
 
+    <CheckBox android:id="@+id/blur_on_lockscreen_checkbox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="8dp"
+        android:layout_alignLeft="@id/dim_amount"
+        android:layout_alignRight="@id/dim_amount"
+        android:layout_below="@id/notify_new_wallpaper_checkbox"
+        android:textSize="@dimen/settings_text_size_normal"
+        android:fontFamily="sans-serif-condensed"
+        android:textColor="#fff"
+        android:paddingLeft="4dp"
+        android:text="@string/settings_blur_on_lockscreen" />
+
 </RelativeLayout>
