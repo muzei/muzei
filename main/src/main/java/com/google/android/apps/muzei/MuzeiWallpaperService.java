@@ -22,6 +22,7 @@ import android.os.Handler;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
+import android.view.ViewConfiguration;
 
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
@@ -54,6 +55,7 @@ public class MuzeiWallpaperService extends GLWallpaperService {
 
         private boolean mArtDetailMode = false;
         private boolean mVisible = true;
+        private boolean mValidDoubleTap;
 
         @Override
         public void onCreate(SurfaceHolder surfaceHolder) {
@@ -140,8 +142,18 @@ public class MuzeiWallpaperService extends GLWallpaperService {
         @Override
         public Bundle onCommand(String action, int x, int y, int z, Bundle extras,
                 boolean resultRequested) {
-            if (WallpaperManager.COMMAND_TAP.equals(action)) {
-                // TODO: could we replace double tap with single tap using this?
+            if (WallpaperManager.COMMAND_TAP.equals(action) && mValidDoubleTap) {
+                // Temporarily toggle focused/blurred
+                queueEvent(new Runnable() {
+                    @Override
+                    public void run() {
+                        mRenderer.setIsBlurred(!mRenderer.isBlurred(), false);
+                        // Schedule a re-blur
+                        delayedBlur();
+                    }
+                });
+                // Reset the flag
+                mValidDoubleTap = false;
             }
             return super.onCommand(action, x, y, z, extras, resultRequested);
         }
@@ -154,8 +166,27 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             delayedBlur();
         }
 
-        private GestureDetector.OnGestureListener mGestureListener
-                = new GestureDetector.SimpleOnGestureListener() {
+        private final Runnable mDoubleTapTimeout = new Runnable() {
+
+            @Override
+            public void run() {
+                queueEvent(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        mValidDoubleTap = false;
+                    }
+                });
+            }
+        };
+
+        private void validateDoubleTap() {
+            mMainThreadHandler.removeCallbacks(mDoubleTapTimeout);
+            final int timeout = ViewConfiguration.getDoubleTapTimeout();
+            mMainThreadHandler.postDelayed(mDoubleTapTimeout, timeout);
+        }
+
+        private final GestureDetector.OnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onDown(MotionEvent e) {
                 return true;
@@ -163,22 +194,13 @@ public class MuzeiWallpaperService extends GLWallpaperService {
 
             @Override
             public boolean onDoubleTap(MotionEvent e) {
+                mValidDoubleTap = true;
                 if (mArtDetailMode) {
                     // The main activity is visible, so discard any double touches since focus
                     // should be forced on
                     return true;
                 }
-
-                // Temporarily toggle focused/blurred
-                queueEvent(new Runnable() {
-                    @Override
-                    public void run() {
-                        mRenderer.setIsBlurred(!mRenderer.isBlurred(), false);
-                    }
-                });
-
-                // Schedule a re-blur
-                delayedBlur();
+                validateDoubleTap();
                 return true;
             }
         };
