@@ -389,19 +389,27 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
 
         private void recomputeTransformMatrices() {
             float screenToBitmapAspectRatio = mAspectRatio / mBitmapAspectRatio;
+            if (screenToBitmapAspectRatio == 0) {
+                return;
+            }
 
             // Ensure the bitmap is wider than the screen relatively by applying zoom
             // if necessary. Vary width but keep height the same.
             float zoom = Math.max(1f, 1.15f * screenToBitmapAspectRatio);
 
             // Total scale factors in both zoom and scale due to aspect ratio.
-            float totalScale = zoom / screenToBitmapAspectRatio;
+            float scaledBitmapToScreenAspectRatio = zoom / screenToBitmapAspectRatio;
 
-            mCurrentViewport.left = MathUtil.interpolate(
-                    -1f * Math.min(1f, screenToBitmapAspectRatio), // remove screenToBitmapAspectRatio to unconstrain panning amount
-                    1f * Math.min(1f, screenToBitmapAspectRatio),
-                    mNormalOffsetX * (totalScale - 1) / totalScale);
-            mCurrentViewport.right = mCurrentViewport.left + 2f / totalScale;
+            // At most pan across 2 screenfuls
+            // TODO: if we know the number of home screen pages, use that number here
+            float maxPanScreenWidths = Math.min(2, scaledBitmapToScreenAspectRatio);
+
+            mCurrentViewport.left = MathUtil.interpolate(-1f, 1f,
+                    MathUtil.interpolate(
+                            (1 - maxPanScreenWidths / scaledBitmapToScreenAspectRatio) / 2,
+                            (1 + (maxPanScreenWidths - 2) / scaledBitmapToScreenAspectRatio) / 2,
+                            mNormalOffsetX));
+            mCurrentViewport.right = mCurrentViewport.left + 2f / scaledBitmapToScreenAspectRatio;
             mCurrentViewport.bottom = -1f / zoom;
             mCurrentViewport.top = 1f / zoom;
 
