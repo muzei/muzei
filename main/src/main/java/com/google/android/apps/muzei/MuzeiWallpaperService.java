@@ -217,7 +217,10 @@ public class MuzeiWallpaperService extends GLWallpaperService {
                 boolean resultRequested) {
             if (WallpaperManager.COMMAND_TAP.equals(action) && mValidDoubleTap) {
                 executeTapAction(mDoubleTapAction);
+                // Reset the flag
+                mValidDoubleTap = false;
             }
+
             return super.onCommand(action, x, y, z, extras, resultRequested);
         }
 
@@ -249,8 +252,6 @@ public class MuzeiWallpaperService extends GLWallpaperService {
                     delayedBlur();
                 }
             });
-            // Reset the flag
-            mValidDoubleTap = false;
         }
 
         private void executeNextArtworkAction() {
