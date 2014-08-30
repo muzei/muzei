@@ -55,7 +55,7 @@ public class FiveHundredPxExampleArtSource extends RemoteMuzeiArtSource {
         String currentToken = (getCurrentArtwork() != null) ? getCurrentArtwork().getToken() : null;
 
         RestAdapter restAdapter = new RestAdapter.Builder()
-                .setServer("https://api.500px.com")
+                .setEndpoint("https://api.500px.com")
                 .setRequestInterceptor(new RequestInterceptor() {
                     @Override
                     public void intercept(RequestFacade request) {
