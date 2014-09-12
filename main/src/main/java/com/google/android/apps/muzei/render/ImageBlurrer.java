@@ -18,6 +18,7 @@ package com.google.android.apps.muzei.render;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.Matrix3f;
@@ -39,7 +40,9 @@ public class ImageBlurrer {
     public ImageBlurrer(Context context) {
         mRS = RenderScript.create(context);
         mSIBlur = ScriptIntrinsicBlur.create(mRS, Element.U8_4(mRS));
-        mSIGrey = ScriptIntrinsicColorMatrix.create(mRS);
+        if (Build.VERSION.SDK_INT >= 19) {
+            mSIGrey = ScriptIntrinsicColorMatrix.create(mRS);
+        }
     }
 
     public Bitmap blurBitmap(Bitmap src, float radius, float desaturateAmount) {
@@ -62,7 +65,7 @@ public class ImageBlurrer {
         mSIBlur.setInput(mTmp1);
         mSIBlur.forEach(mTmp2);
 
-        if (desaturateAmount > 0) {
+        if (desaturateAmount > 0 && mSIGrey != null) {
             desaturateAmount = MathUtil.constrain(0, 1, desaturateAmount);
             Matrix3f m = new Matrix3f(new float[]{
                     MathUtil.interpolate(1, 0.299f, desaturateAmount),
