@@ -21,6 +21,7 @@ import android.graphics.Bitmap;
 import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.Matrix3f;
+import android.renderscript.RSInvalidStateException;
 import android.renderscript.RenderScript;
 import android.renderscript.ScriptIntrinsicBlur;
 import android.renderscript.ScriptIntrinsicColorMatrix;
@@ -39,12 +40,13 @@ public class ImageBlurrer {
     public ImageBlurrer(Context context) {
         mRS = RenderScript.create(context);
         mSIBlur = ScriptIntrinsicBlur.create(mRS, Element.U8_4(mRS));
-        mSIGrey = ScriptIntrinsicColorMatrix.create(mRS);
+        // NOTE: ScriptIntrinsicColorMatrix.create(RenderScript) only supports API19+
+        mSIGrey = ScriptIntrinsicColorMatrix.create(mRS, Element.U8_4(mRS));
     }
 
     public Bitmap blurBitmap(Bitmap src, float radius, float desaturateAmount) {
         Bitmap dest = Bitmap.createBitmap(src);
-        if ((int) radius == 0) {
+        if (radius == 0f && desaturateAmount == 0f) {
             return dest;
         }
 
@@ -52,38 +54,52 @@ public class ImageBlurrer {
             mTmp1.destroy();
         }
         if (mTmp2 != null) {
-            mTmp2.destroy();
+            try {
+                mTmp2.destroy();
+            } catch (RSInvalidStateException e) {
+                // Ignore 'Object already destroyed' exceptions
+            }
         }
 
         mTmp1 = Allocation.createFromBitmap(mRS, src);
         mTmp2 = Allocation.createFromBitmap(mRS, dest);
 
-        mSIBlur.setRadius((int) radius);
-        mSIBlur.setInput(mTmp1);
-        mSIBlur.forEach(mTmp2);
-
-        if (desaturateAmount > 0) {
-            desaturateAmount = MathUtil.constrain(0, 1, desaturateAmount);
-            Matrix3f m = new Matrix3f(new float[]{
-                    MathUtil.interpolate(1, 0.299f, desaturateAmount),
-                    MathUtil.interpolate(0, 0.299f, desaturateAmount),
-                    MathUtil.interpolate(0, 0.299f, desaturateAmount),
-
-                    MathUtil.interpolate(0, 0.587f, desaturateAmount),
-                    MathUtil.interpolate(1, 0.587f, desaturateAmount),
-                    MathUtil.interpolate(0, 0.587f, desaturateAmount),
-
-                    MathUtil.interpolate(0, 0.114f, desaturateAmount),
-                    MathUtil.interpolate(0, 0.114f, desaturateAmount),
-                    MathUtil.interpolate(1, 0.114f, desaturateAmount),
-            });
-            mSIGrey.setColorMatrix(m);
-            mSIGrey.forEach(mTmp2, mTmp1);
+        if (radius > 0f && desaturateAmount > 0f) {
+            doBlur(radius, mTmp1, mTmp2);
+            doDesaturate(MathUtil.constrain(0, 1, desaturateAmount), mTmp2, mTmp1);
             mTmp1.copyTo(dest);
+        } else if (radius > 0f) {
+            doBlur(radius, mTmp1, mTmp2);
+            mTmp2.copyTo(dest);
         } else {
+            doDesaturate(MathUtil.constrain(0, 1, desaturateAmount), mTmp1, mTmp2);
             mTmp2.copyTo(dest);
         }
         return dest;
+    }
+
+    private void doBlur(float amount, Allocation input, Allocation output) {
+        mSIBlur.setRadius(amount);
+        mSIBlur.setInput(input);
+        mSIBlur.forEach(output);
+    }
+
+    private void doDesaturate(float normalizedAmount, Allocation input, Allocation output) {
+        Matrix3f m = new Matrix3f(new float[]{
+                MathUtil.interpolate(1, 0.299f, normalizedAmount),
+                MathUtil.interpolate(0, 0.299f, normalizedAmount),
+                MathUtil.interpolate(0, 0.299f, normalizedAmount),
+
+                MathUtil.interpolate(0, 0.587f, normalizedAmount),
+                MathUtil.interpolate(1, 0.587f, normalizedAmount),
+                MathUtil.interpolate(0, 0.587f, normalizedAmount),
+
+                MathUtil.interpolate(0, 0.114f, normalizedAmount),
+                MathUtil.interpolate(0, 0.114f, normalizedAmount),
+                MathUtil.interpolate(1, 0.114f, normalizedAmount),
+        });
+        mSIGrey.setColorMatrix(m);
+        mSIGrey.forEach(input, output);
     }
 
     public void destroy() {

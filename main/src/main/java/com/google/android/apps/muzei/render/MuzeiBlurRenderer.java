@@ -341,15 +341,35 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
                 // Create the GLPicture objects
                 ImageBlurrer blurrer = new ImageBlurrer(mContext);
                 mPictures[0] = new GLPicture(bitmapRegionLoader, mHeight);
-                if (mMaxPrescaledBlurPixels == 0) {
+                if (mMaxPrescaledBlurPixels == 0 && mMaxGrey == 0) {
                     for (int f = 1; f <= mBlurKeyframes; f++) {
                         mPictures[f] = mPictures[0];
                     }
                 } else {
+                    int sampleSizeTargetHeight, scaledHeight, scaledWidth;
+                    if (mMaxPrescaledBlurPixels > 0) {
+                        sampleSizeTargetHeight = mHeight / mBlurredSampleSize;
+
+                        // Note that image width should be a multiple of 4 to avoid
+                        // issues with RenderScript allocations.
+                        scaledHeight = Math.max(2, MathUtil.floorEven(
+                                mHeight / mBlurredSampleSize));
+                        scaledWidth = Math.max(4, MathUtil.roundMult4(
+                                (int) (scaledHeight * mBitmapAspectRatio)));
+                    } else {
+                        sampleSizeTargetHeight = mHeight;
+
+                        // Note that image width should be a multiple of 4 to avoid
+                        // issues with RenderScript allocations.
+                        scaledHeight = Math.max(2, MathUtil.floorEven(mHeight));
+                        scaledWidth = Math.max(4, MathUtil.roundMult4(
+                                (int) (scaledHeight * mBitmapAspectRatio)));
+                    }
+
                     // To blur, first load the entire bitmap region, but at a very large
                     // sample size that's appropriate for the final blurred image
                     options.inSampleSize = ImageUtil.calculateSampleSize(
-                            originalHeight, mHeight / mBlurredSampleSize);
+                            originalHeight, sampleSizeTargetHeight);
                     rect.set(0, 0, originalWidth, originalHeight);
                     tempBitmap = bitmapRegionLoader.decodeRegion(rect, options);
 
@@ -360,10 +380,6 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
 
                     // Note that image width should be a multiple of 4 to avoid
                     // issues with RenderScript allocations.
-                    int scaledHeight = Math.max(2, MathUtil.floorEven(
-                            mHeight / mBlurredSampleSize));
-                    int scaledWidth = Math.max(4, MathUtil.roundMult4(
-                            (int) (scaledHeight * mBitmapAspectRatio)));
                     Bitmap scaledBitmap = Bitmap.createScaledBitmap(
                             tempBitmap, scaledWidth, scaledHeight, true);
 
@@ -372,8 +388,12 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
                     // And finally, create a blurred copy for each keyframe.
                     for (int f = 1; f <= mBlurKeyframes; f++) {
                         float desaturateAmount = mMaxGrey / 500f * f / mBlurKeyframes;
+                        float blurRadius = 0f;
+                        if (mMaxPrescaledBlurPixels > 0) {
+                            blurRadius = blurRadiusAtFrame(f);
+                        }
                         Bitmap blurredBitmap = blurrer.blurBitmap(
-                                scaledBitmap, blurRadiusAtFrame(f), desaturateAmount);
+                                scaledBitmap, blurRadius, desaturateAmount);
                         mPictures[f] = new GLPicture(blurredBitmap);
                         blurredBitmap.recycle();
                     }
