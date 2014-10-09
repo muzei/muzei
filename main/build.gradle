@@ -19,11 +19,11 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.12.+'
+        classpath 'com.android.tools.build:gradle:0.13.+'
     }
 }
 
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 project.archivesBaseName = "muzei"
 
@@ -43,7 +43,7 @@ dependencies {
 
 android {
     compileSdkVersion 20
-    buildToolsVersion "19.1.0"
+    buildToolsVersion "20.0.0"
 
     def Properties versionProps = new Properties()
     versionProps.load(new FileInputStream(file('version.properties')))
