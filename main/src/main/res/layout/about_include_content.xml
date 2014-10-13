@@ -37,15 +37,15 @@
     <View android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_marginTop="16dp"
-        android:layout_marginLeft="32dp"
-        android:layout_marginRight="32dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
         android:background="#1fff" />
 
     <ScrollView android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:paddingLeft="32dp"
-        android:paddingRight="32dp"
+        android:paddingStart="32dp"
+        android:paddingEnd="32dp"
         android:paddingTop="16dp"
         android:paddingBottom="16dp"
         android:clipToPadding="false">

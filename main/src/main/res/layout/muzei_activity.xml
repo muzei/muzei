@@ -59,8 +59,8 @@
             android:textStyle="italic"
             android:textSize="16sp"
             android:layout_marginTop="32dp"
-            android:layout_marginLeft="48dp"
-            android:layout_marginRight="48dp"
+            android:layout_marginStart="48dp"
+            android:layout_marginEnd="48dp"
             android:textColor="#cfff"
             android:text="@string/error_easter_egg"/>
 
@@ -70,8 +70,8 @@
             android:layout_gravity="center"
             android:background="?android:selectableItemBackground"
             android:paddingTop="24dp"
-            android:paddingLeft="24dp"
-            android:paddingRight="24dp"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
             android:paddingBottom="16dp"
             android:drawableTop="@drawable/grumpy_mcpuzzles"
             android:text="@string/retry"
@@ -117,8 +117,8 @@
                     android:paddingBottom="@dimen/art_detail_title_bottom_padding"
                     android:layout_marginBottom="@dimen/art_detail_title_byline_margin"
                     android:paddingTop="@dimen/art_detail_metadata_margin"
-                    android:paddingLeft="@dimen/art_detail_metadata_margin"
-                    android:paddingRight="16dp" />
+                    android:paddingStart="@dimen/art_detail_metadata_margin"
+                    android:paddingEnd="16dp" />
 
                 <com.google.android.apps.muzei.util.ShadowDipsTextView
                     android:id="@+id/byline"
@@ -131,9 +131,9 @@
                     app:shadowDx="0dp"
                     app:shadowDy="1dp"
                     app:shadowRadius="3dp"
-                    android:paddingLeft="@dimen/art_detail_metadata_margin"
+                    android:paddingStart="@dimen/art_detail_metadata_margin"
                     android:paddingBottom="@dimen/art_detail_metadata_margin_bottom"
-                    android:paddingRight="16dp" />
+                    android:paddingEnd="16dp" />
             </LinearLayout>
         </FrameLayout>
 

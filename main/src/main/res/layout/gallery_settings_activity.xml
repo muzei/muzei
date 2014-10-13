@@ -25,8 +25,8 @@
         android:stretchMode="columnWidth"
         android:scrollbarStyle="outsideOverlay"
         android:clipToPadding="false"
-        android:paddingLeft="32dp"
-        android:paddingRight="32dp"
+        android:paddingStart="32dp"
+        android:paddingEnd="32dp"
         android:drawSelectorOnTop="true"
         android:horizontalSpacing="@dimen/gallery_settings_chosen_photo_grid_spacing"
         android:verticalSpacing="@dimen/gallery_settings_chosen_photo_grid_spacing" />
