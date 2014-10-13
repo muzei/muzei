@@ -21,7 +21,7 @@
     android:orientation="horizontal">
 
     <TextView android:id="@+id/blur_amount_label"
-        android:layout_gravity="fill_vertical|right"
+        android:layout_gravity="fill_vertical|end"
         android:gravity="center_vertical"
         android:textSize="@dimen/settings_text_size_normal"
         android:fontFamily="sans-serif-condensed"
@@ -40,7 +40,7 @@
         android:layout_columnSpan="2"/>
 
     <TextView android:id="@+id/dim_amount_label"
-        android:layout_gravity="fill_vertical|right"
+        android:layout_gravity="fill_vertical|end"
         android:gravity="center_vertical"
         android:textSize="@dimen/settings_text_size_normal"
         android:fontFamily="sans-serif-condensed"
@@ -59,7 +59,7 @@
         android:layout_columnSpan="2" />
 
     <TextView android:id="@+id/grey_amount_label"
-        android:layout_gravity="fill_vertical|right"
+        android:layout_gravity="fill_vertical|end"
         android:gravity="center_vertical"
         android:textSize="@dimen/settings_text_size_normal"
         android:fontFamily="sans-serif-condensed"
@@ -80,8 +80,10 @@
         android:textSize="@dimen/settings_text_size_normal"
         android:fontFamily="sans-serif-condensed"
         android:textColor="#fff"
-        android:paddingLeft="4dp"
-        android:text="@string/settings_notify_new_wallpaper" />
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:text="@string/settings_notify_new_wallpaper"
+        />
 
     <CheckBox android:id="@+id/blur_on_lockscreen_checkbox"
         android:layout_column="1"
@@ -90,7 +92,8 @@
         android:textSize="@dimen/settings_text_size_normal"
         android:fontFamily="sans-serif-condensed"
         android:textColor="#fff"
-        android:paddingLeft="4dp"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
         android:text="@string/settings_blur_on_lockscreen" />
 
 </GridLayout>
