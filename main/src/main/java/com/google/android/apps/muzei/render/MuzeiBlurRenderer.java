@@ -339,13 +339,13 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
                 tempBitmap.recycle();
 
                 // Create the GLPicture objects
-                ImageBlurrer blurrer = new ImageBlurrer(mContext);
                 mPictures[0] = new GLPicture(bitmapRegionLoader, mHeight);
                 if (mMaxPrescaledBlurPixels == 0) {
                     for (int f = 1; f <= mBlurKeyframes; f++) {
                         mPictures[f] = mPictures[0];
                     }
                 } else {
+                    ImageBlurrer blurrer = new ImageBlurrer(mContext);
                     // To blur, first load the entire bitmap region, but at a very large
                     // sample size that's appropriate for the final blurred image
                     options.inSampleSize = ImageUtil.calculateSampleSize(
@@ -379,8 +379,8 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
                     }
 
                     scaledBitmap.recycle();
+                    blurrer.destroy();
                 }
-                blurrer.destroy();
             }
 
             recomputeTransformMatrices();
