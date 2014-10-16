@@ -17,7 +17,7 @@
 <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:columnCount="2"
+    android:columnCount="3"
     android:orientation="horizontal">
 
     <TextView android:id="@+id/blur_amount_label"
@@ -33,11 +33,12 @@
     <SeekBar style="@style/Settings.Widget.SeekBar.BlurAmount"
         android:id="@+id/blur_amount"
         android:layout_gravity="center_vertical|fill_horizontal"
+        android:layout_columnSpan="2"
         android:max="500" />
 
     <Space
         android:layout_height="16dp"
-        android:layout_columnSpan="2"/>
+        android:layout_columnSpan="3"/>
 
     <TextView android:id="@+id/dim_amount_label"
         android:layout_gravity="fill_vertical|end"
@@ -52,11 +53,12 @@
     <SeekBar style="@style/Settings.Widget.SeekBar.DimAmount"
         android:id="@+id/dim_amount"
         android:layout_gravity="center_vertical|fill_horizontal"
+        android:layout_columnSpan="2"
         android:max="255" />
 
     <Space
         android:layout_height="16dp"
-        android:layout_columnSpan="2" />
+        android:layout_columnSpan="3" />
 
     <TextView android:id="@+id/grey_amount_label"
         android:layout_gravity="fill_vertical|end"
@@ -71,12 +73,12 @@
     <SeekBar style="@style/Settings.Widget.SeekBar.GreyAmount"
         android:id="@+id/grey_amount"
         android:layout_gravity="center_vertical|fill_horizontal"
+        android:layout_columnSpan="2"
         android:max="500" />
 
     <CheckBox android:id="@+id/notify_new_wallpaper_checkbox"
         android:layout_column="1"
         android:layout_marginTop="24dp"
-        android:layout_gravity="fill_horizontal"
         android:textSize="@dimen/settings_text_size_normal"
         android:fontFamily="sans-serif-condensed"
         android:textColor="#fff"
@@ -88,7 +90,6 @@
     <CheckBox android:id="@+id/blur_on_lockscreen_checkbox"
         android:layout_column="1"
         android:layout_marginTop="16dp"
-        android:layout_gravity="fill_horizontal"
         android:textSize="@dimen/settings_text_size_normal"
         android:fontFamily="sans-serif-condensed"
         android:textColor="#fff"
