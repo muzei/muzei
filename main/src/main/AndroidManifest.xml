@@ -34,7 +34,8 @@
     <application android:name="com.google.android.apps.muzei.MuzeiApplication"
         android:allowBackup="true"
         android:label="@string/app_name"
-        android:icon="@drawable/ic_launcher">
+        android:icon="@drawable/ic_launcher"
+        android:supportsRtl="true">
 
         <activity
             android:name="com.google.android.apps.muzei.MuzeiActivity"
