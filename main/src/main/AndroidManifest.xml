@@ -15,11 +15,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="net.nurik.roman.muzei"
-    android:versionCode="1"
-    android:versionName="See version.properties">
-
-    <uses-sdk android:minSdkVersion="17" android:targetSdkVersion="19" />
+    package="net.nurik.roman.muzei">
 
     <uses-feature android:name="android.software.live_wallpaper" android:required="true" />
     <uses-feature android:glEsVersion="0x00020000" android:required="true" />
