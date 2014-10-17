@@ -115,6 +115,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
 
         NotificationCompat.Builder nb = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.ic_stat_muzei)
+                .setColor(context.getResources().getColor(R.color.notification))
                 .setPriority(Notification.PRIORITY_MIN)
                 .setAutoCancel(true)
                 .setContentTitle(artwork.getTitle())
@@ -127,14 +128,34 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
                         new Intent(context, NewWallpaperNotificationReceiver.class)
                                 .setAction(ACTION_MARK_NOTIFICATION_READ),
                         PendingIntent.FLAG_UPDATE_CURRENT));
-        NotificationCompat.BigPictureStyle style = new NotificationCompat.BigPictureStyle(nb)
+        NotificationCompat.BigPictureStyle style = new NotificationCompat.BigPictureStyle()
                 .bigLargeIcon(null)
                 .setBigContentTitle(artwork.getTitle())
                 .setSummaryText(artwork.getByline())
                 .bigPicture(largeIcon);
+        nb.setStyle(style);
+
+        // Hide the image and artwork title for the public version
+        NotificationCompat.Builder publicBuilder = new NotificationCompat.Builder(context)
+                .setSmallIcon(R.drawable.ic_stat_muzei)
+                .setColor(context.getResources().getColor(R.color.notification))
+                .setPriority(Notification.PRIORITY_MIN)
+                .setAutoCancel(true)
+                .setContentTitle(context.getString(R.string.app_name))
+                .setContentText(context.getString(R.string.notification_new_wallpaper))
+                .setContentIntent(PendingIntent.getActivity(context, 0,
+                        Intent.makeMainActivity(new ComponentName(context, MuzeiActivity.class)),
+                        PendingIntent.FLAG_UPDATE_CURRENT))
+                .setDeleteIntent(PendingIntent.getBroadcast(context, 0,
+                        new Intent(context, NewWallpaperNotificationReceiver.class)
+                                .setAction(ACTION_MARK_NOTIFICATION_READ),
+                        PendingIntent.FLAG_UPDATE_CURRENT));
+        nb.setPublicVersion(publicBuilder.build());
+
+
         NotificationManager nm = (NotificationManager) context.getSystemService(
                 Context.NOTIFICATION_SERVICE);
-        nm.notify(NOTIFICATION_ID, style.build());
+        nm.notify(NOTIFICATION_ID, nb.build());
 
         // Clear any last-seen notification
         sp.edit().remove(PREF_LAST_SEEN_NOTIFICATION_IMAGE_URI).apply();
