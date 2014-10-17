@@ -37,20 +37,20 @@ dependencies {
     compile ('de.greenrobot:eventbus:2.2.0') {
         exclude group:'com.google.android', module: 'support-v4' // already included below
     }
-    compile 'com.android.support:support-v4:19.0.+'
+    compile 'com.android.support:support-v4:21.0.0'
     compile project(':api')
 }
 
 android {
-    compileSdkVersion 20
-    buildToolsVersion "20.0.0"
+    compileSdkVersion 21
+    buildToolsVersion "21.0.0"
 
     def Properties versionProps = new Properties()
     versionProps.load(new FileInputStream(file('version.properties')))
 
     defaultConfig {
         minSdkVersion 17
-        targetSdkVersion 19
+        targetSdkVersion 21
 
         versionName versionProps['name']
         versionCode versionProps['code'].toInteger()
