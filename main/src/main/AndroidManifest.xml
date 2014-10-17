@@ -103,7 +103,8 @@
         <activity android:name="com.google.android.apps.muzei.gallery.GallerySettingsActivity"
             android:label="@string/gallery_source_settings_title"
             android:parentActivityName="com.google.android.apps.muzei.settings.SettingsActivity"
-            android:theme="@style/Theme.Muzei.GallerySettings" />
+            android:theme="@style/Theme.Muzei.GallerySettings"
+            android:exported="true" />
 
         <!-- Target for "Set As" intent -->
 
