@@ -118,7 +118,7 @@ public class GallerySettingsActivity extends Activity
             @Override
             public void onGlobalLayout() {
                 int width = mGridView.getWidth()
-                        - mGridView.getPaddingLeft() - mGridView.getPaddingRight();
+                        - mGridView.getPaddingStart() - mGridView.getPaddingEnd();
                 if (width == lastWidth || width <= 0) {
                     return;
                 }
