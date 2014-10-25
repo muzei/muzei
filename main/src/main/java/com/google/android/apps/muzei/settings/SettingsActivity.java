@@ -21,6 +21,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.Notification;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -77,16 +78,18 @@ public class SettingsActivity extends Activity implements SettingsChooseSourceFr
     private int mStartSection = START_SECTION_SOURCE;
 
     private ObjectAnimator mBackgroundAnimator;
-    private View mContainerView;
     private boolean mPaused;
     private boolean mRenderLocally;
 
     public void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_ACTION_BAR);
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.settings_activity);
-        mContainerView = findViewById(R.id.content_container);
+
+        if (getIntent() != null && getIntent().getCategories() != null &&
+                getIntent().getCategories().contains(Notification.INTENT_CATEGORY_NOTIFICATION_PREFERENCES)) {
+            mStartSection = START_SECTION_ADVANCED;
+        }
 
         // Set up UI widgets
         setupActionBar();

@@ -63,7 +63,12 @@
         <activity android:name="com.google.android.apps.muzei.settings.SettingsActivity"
             android:label="@string/settings_title"
             android:theme="@style/Theme.Muzei.Settings"
-            android:exported="true" />
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.NOTIFICATION_PREFERENCES" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name="com.google.android.apps.muzei.settings.AboutActivity"
