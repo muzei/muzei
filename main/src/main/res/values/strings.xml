@@ -65,6 +65,8 @@
     <string name="action_previous_artwork">Previous artwork</string>
     <string name="action_next_artwork">Next artwork</string>
     <string name="action_next_artwork_condensed">Next</string>
+    <string name="action_user_command">More</string>
+    <string name="action_user_command_prompt">Choose action</string>
     <string name="action_open_details">Details</string>
 
     <string name="done">Done</string>
