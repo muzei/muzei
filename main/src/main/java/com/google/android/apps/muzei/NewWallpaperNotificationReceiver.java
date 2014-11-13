@@ -156,12 +156,15 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
         options.inSampleSize = ImageUtil.calculateSampleSize(height, 400);
         Bitmap background = bitmapRegionLoader.decodeRegion(rect, options);
 
+        String title = TextUtils.isEmpty(artwork.getTitle())
+                ? context.getString(R.string.app_name)
+                : artwork.getTitle();
         NotificationCompat.Builder nb = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.ic_stat_muzei)
                 .setColor(context.getResources().getColor(R.color.notification))
                 .setPriority(Notification.PRIORITY_MIN)
                 .setAutoCancel(true)
-                .setContentTitle(artwork.getTitle())
+                .setContentTitle(title)
                 .setContentText(context.getString(R.string.notification_new_wallpaper))
                 .setLargeIcon(largeIcon)
                 .setContentIntent(PendingIntent.getActivity(context, 0,
@@ -173,7 +176,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
                         PendingIntent.FLAG_UPDATE_CURRENT));
         NotificationCompat.BigPictureStyle style = new NotificationCompat.BigPictureStyle()
                 .bigLargeIcon(null)
-                .setBigContentTitle(artwork.getTitle())
+                .setBigContentTitle(title)
                 .setSummaryText(artwork.getByline())
                 .bigPicture(background);
         nb.setStyle(style);
