@@ -198,7 +198,9 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
                 extender.addAction(new NotificationCompat.Action.Builder(
                         R.drawable.ic_notif_full_next_artwork,
                         context.getString(R.string.action_next_artwork_condensed),
-                        nextPendingIntent).build());
+                        nextPendingIntent)
+                        .extend(new NotificationCompat.Action.WearableExtender().setAvailableOffline(false))
+                        .build());
             } else {
                 customActions.add(action.getTitle());
             }
@@ -217,7 +219,9 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
             extender.addAction(new NotificationCompat.Action.Builder(
                     R.drawable.ic_notif_full_user_command,
                     context.getString(R.string.action_user_command),
-                    userCommandPendingIntent).addRemoteInput(remoteInput).build());
+                    userCommandPendingIntent).addRemoteInput(remoteInput)
+                    .extend(new NotificationCompat.Action.WearableExtender().setAvailableOffline(false))
+                    .build());
         }
         Intent viewIntent = artwork.getViewIntent();
         if (viewIntent != null) {
@@ -234,7 +238,9 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
             extender.addAction(new NotificationCompat.Action.Builder(
                     R.drawable.ic_notif_full_open_details,
                     context.getString(R.string.action_open_details),
-                    nextPendingIntent).build());
+                    nextPendingIntent)
+                    .extend(new NotificationCompat.Action.WearableExtender().setAvailableOffline(false))
+                    .build());
         }
         nb.extend(extender);
 
