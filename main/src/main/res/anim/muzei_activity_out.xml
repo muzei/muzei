@@ -14,11 +14,8 @@
   limitations under the License.
   -->
 
-<ImageButton xmlns:android="http://schemas.android.com/apk/res/android"
-    style="?android:actionButtonStyle"
-    android:id="@+id/actionbar_done"
-    android:background="@drawable/white_selectable_item_background"
-    android:layout_width="wrap_content"
-    android:src="@drawable/ic_action_done"
-    android:contentDescription="@string/done"
-    android:layout_height="match_parent" />
+<alpha xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="@android:integer/config_shortAnimTime"
+    android:fromAlpha="1.0"
+    android:interpolator="@android:interpolator/decelerate_quad"
+    android:toAlpha="1.0" />

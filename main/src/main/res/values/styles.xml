@@ -19,20 +19,21 @@
     <!-- Muzei activity -->
 
     <style name="Theme.MuzeiActivity" parent="Theme.Muzei.Wallpaper">
-        <item name="android:windowActionBar">false</item>
-        <item name="android:windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowAnimationStyle">@style/WindowAnimation.MuzeiActivity</item>
+    </style>
+
+    <style name="WindowAnimation.MuzeiActivity" parent="android:Animation.Activity">
+        <item name="android:windowEnterAnimation">@anim/muzei_activity_in</item>
+        <item name="android:windowExitAnimation">@null</item>
+        <item name="android:windowShowAnimation">@anim/muzei_activity_in</item>
+        <item name="android:windowHideAnimation">@null</item>
     </style>
 
     <!-- Settings activity -->
 
     <style name="Theme.Muzei.Settings" parent="Theme.Muzei.Wallpaper">
-        <item name="android:actionBarStyle">@style/Settings.ActionBar</item>
-        <item name="android:windowActionBarOverlay">true</item>
-    </style>
-
-    <style name="Settings.ActionBar" parent="android:Widget.Holo.ActionBar">
-        <item name="android:background">@null</item>
-        <item name="android:displayOptions">disableHome|showCustom</item>
+        <item name="windowActionBar">false</item>
     </style>
 
     <style name="Settings.Widget.SeekBar.BlurAmount" parent="Widget.Muzei.SeekBar">
@@ -65,24 +66,14 @@
     <!-- About -->
 
     <style name="Theme.Muzei.About" parent="Theme.Muzei.Wallpaper">
-        <item name="android:actionBarStyle">@style/About.ActionBar</item>
-        <item name="android:windowActionBarOverlay">true</item>
-    </style>
-
-    <style name="About.ActionBar" parent="android:Widget.Holo.ActionBar">
-        <item name="android:background">@null</item>
-        <item name="android:titleTextStyle">?android:textAppearanceMedium</item>
-        <item name="android:icon">@drawable/ic_ab_muzei</item>
-        <item name="android:displayOptions">homeAsUp|showTitle|showHome</item>
+        <item name="windowActionBar">false</item>
     </style>
 
     <!-- Global -->
 
-    <style name="Theme.Muzei" parent="android:Theme.Holo">
+    <style name="Theme.Muzei.Base" parent="Theme.AppCompat">
         <item name="android:windowBackground">@android:color/black</item>
         <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowTranslucentNavigation">true</item>
         <item name="android:actionModeBackground">@drawable/cab_background</item>
         <item name="android:actionModeStyle">@style/Widget.Muzei.ActionMode</item>
         <item name="android:actionOverflowButtonStyle">@style/Widget.Muzei.ActionButton.Overflow</item>
@@ -94,6 +85,11 @@
         <item name="android:popupMenuStyle">@style/Widget.Muzei.PopupMenu</item>
         <item name="android:textAppearanceMedium">@style/TextAppearance.Muzei.Medium</item>
         <item name="android:textAppearanceLargePopupMenu">@style/TextAppearance.Muzei.LargePopupMenu</item>
+    </style>
+
+    <style name="Theme.Muzei" parent="Theme.Muzei.Base"> <!-- pre-Lollipop -->
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
     </style>
 
     <style name="Theme.Muzei.Wallpaper" parent="Theme.Muzei">

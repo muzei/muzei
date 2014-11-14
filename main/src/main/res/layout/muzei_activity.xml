@@ -83,12 +83,18 @@
 
     </FrameLayout>
 
+    <View android:id="@+id/statusbar_scrim"
+        android:layout_width="match_parent"
+        android:layout_height="96dp"
+        android:layout_gravity="top"
+        android:background="@drawable/statusbar_scrim" />
+
     <LinearLayout android:id="@+id/chrome_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="bottom"
         android:layout_gravity="bottom"
-        android:background="@drawable/metadata_background_protection"
+        android:background="@drawable/metadata_scrim"
         android:orientation="horizontal">
 
         <FrameLayout android:layout_width="0dp"
@@ -109,7 +115,6 @@
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/art_detail_title_text_size"
                     android:textColor="#fff"
-                    android:lineSpacingMultiplier="0.7"
                     app:shadowColor="#8000"
                     app:shadowDx="0dp"
                     app:shadowDy="1dp"
@@ -118,7 +123,7 @@
                     android:layout_marginBottom="@dimen/art_detail_title_byline_margin"
                     android:paddingTop="@dimen/art_detail_metadata_margin"
                     android:paddingStart="@dimen/art_detail_metadata_margin"
-                    android:paddingEnd="16dp" />
+                    android:paddingEnd="@dimen/art_detail_metadata_margin" />
 
                 <com.google.android.apps.muzei.util.ShadowDipsTextView
                     android:id="@+id/byline"
@@ -126,14 +131,13 @@
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/art_detail_byline_text_size"
                     android:textColor="#fff"
-                    android:lineSpacingMultiplier="0.8"
                     app:shadowColor="#8000"
                     app:shadowDx="0dp"
                     app:shadowDy="1dp"
                     app:shadowRadius="3dp"
                     android:paddingStart="@dimen/art_detail_metadata_margin"
                     android:paddingBottom="@dimen/art_detail_metadata_margin_bottom"
-                    android:paddingEnd="16dp" />
+                    android:paddingEnd="@dimen/art_detail_metadata_margin" />
             </LinearLayout>
         </FrameLayout>
 

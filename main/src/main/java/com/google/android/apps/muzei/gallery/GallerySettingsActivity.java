@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.ActionBarActivity;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
 import android.view.ActionMode;
@@ -63,7 +64,7 @@ import static com.google.android.apps.muzei.gallery.GalleryArtSource.ACTION_REMO
 import static com.google.android.apps.muzei.gallery.GalleryArtSource.EXTRA_FORCE_URI;
 import static com.google.android.apps.muzei.gallery.GalleryArtSource.EXTRA_URIS;
 
-public class GallerySettingsActivity extends Activity
+public class GallerySettingsActivity extends ActionBarActivity
         implements AdapterView.OnItemClickListener {
     private static final int REQUEST_CHOOSE_PHOTOS = 1;
 

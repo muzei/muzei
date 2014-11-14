@@ -38,6 +38,7 @@ dependencies {
         exclude group:'com.google.android', module: 'support-v4' // already included below
     }
     compile 'com.android.support:support-v4:21.0.0'
+    compile 'com.android.support:appcompat-v7:21.+'
     compile project(':api')
 }
 

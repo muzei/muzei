@@ -14,16 +14,9 @@
   limitations under the License.
   -->
 
-<resources>
-    <color name="theme_primary">#3c6caf</color>
-    <color name="theme_accent">#f2be19</color>
-r
-    <color name="notification">@color/theme_primary</color>
-
-    <color name="gallery_settings_empty_state_dark">#394a43</color>
-    <color name="gallery_settings_empty_state_light">#639680</color>
-
-    <color name="gallery_settings_window_background">#111</color>
-    <color name="gallery_settings_inset_shade">#a111</color>
-    <color name="gallery_settings_chosen_photo_placeholder">#5666</color>
-</resources>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient android:startColor="#0000"
+        android:endColor="#4000"
+        android:angle="90" />
+</shape>
