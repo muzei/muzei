@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.squareup.retrofit:retrofit:1.3.0'
+    compile 'com.squareup.retrofit:retrofit:1.7.1'
     //compile 'com.google.android.apps.muzei:muzei-api:+'
     compile project(':api')
 }

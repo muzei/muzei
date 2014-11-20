@@ -66,7 +66,7 @@ public class FiveHundredPxExampleArtSource extends RemoteMuzeiArtSource {
                     @Override
                     public Throwable handleError(RetrofitError retrofitError) {
                         int statusCode = retrofitError.getResponse().getStatus();
-                        if (retrofitError.isNetworkError()
+                        if (retrofitError.getKind() == RetrofitError.Kind.NETWORK
                                 || (500 <= statusCode && statusCode < 600)) {
                             return new RetryException();
                         }
