@@ -26,6 +26,10 @@
 
     <dimen name="intro_activate_button_size">100dp</dimen>
 
+    <dimen name="keyline_1">16dp</dimen>
+    <dimen name="keyline_2">72dp</dimen>
+    <dimen name="keyline_2_minus_16dp">56dp</dimen>
+
     <dimen name="tutorial_content_margin">32dp</dimen>
 
     <dimen name="settings_choose_source_item_width">200dp</dimen>
@@ -36,5 +40,11 @@
 
     <dimen name="gallery_settings_chosen_photo_grid_max_item_size">200dp</dimen>
     <dimen name="gallery_settings_chosen_photo_grid_spacing">2dp</dimen>
+    <dimen name="gallery_settings_fab_space">96dp</dimen>
+
+    <!-- height + top/bottom padding -->
+
+    <dimen name="header_elevation">4dp</dimen>
+    <dimen name="fab_elevation">8dp</dimen>
 
 </resources>

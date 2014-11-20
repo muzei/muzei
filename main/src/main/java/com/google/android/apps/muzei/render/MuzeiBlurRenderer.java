@@ -54,6 +54,7 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
     public static final int DEFAULT_BLUR = 250; // max 500
     public static final int DEFAULT_GREY = 0; // max 500
     public static final int DEMO_DIM = 64;
+    public static final int DEMO_GREY = 0;
     public static final int DEFAULT_MAX_DIM = 128; // technical max 255
     public static final float DIM_RANGE = 0.5f; // percent of max dim
 
@@ -141,8 +142,10 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
     }
 
     public void recomputeGreyAmount() {
-        mMaxGrey = PreferenceManager
-                .getDefaultSharedPreferences(mContext).getInt("grey_amount", DEFAULT_GREY);
+        mMaxGrey = mDemoMode
+                ? DEMO_GREY
+                : PreferenceManager.getDefaultSharedPreferences(mContext)
+                .getInt("grey_amount", DEFAULT_GREY);
     }
 
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
@@ -294,6 +297,7 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
 
     public void setDemoMode(boolean demoMode) {
         mDemoMode = demoMode;
+        recomputeGreyAmount();
     }
     public void setIsPreview(boolean preview) {
         mPreview = preview;

@@ -14,10 +14,10 @@
   limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
-        android:orderInCategory="10000"
-        app:showAsAction="never" />
-</menu>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="#3000">
+    <item android:id="@android:id/mask">
+        <shape android:shape="oval">
+            <solid android:color="#fff" />
+        </shape>
+    </item>
+</ripple>

@@ -79,6 +79,7 @@
     <string name="action_rotate_interval_72h">Every 3 days</string>
     <string name="action_share_artwork">Share artwork</string>
 
+    <string name="action_force_now">Set as wallpaper now</string>
     <string name="action_remove">Remove</string>
 
     <string name="set_as_wallpaper_using_muzei">Wallpaper (using Muzei)</string>

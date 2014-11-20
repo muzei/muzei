@@ -14,8 +14,14 @@
   limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/action_force_now"
+        android:icon="@drawable/ic_action_play"
+        android:title="@string/action_force_now"
+        app:showAsAction="always" />
     <item android:id="@+id/action_remove"
+        android:icon="@drawable/ic_action_remove"
         android:title="@string/action_remove"
-        android:showAsAction="always" />
+        app:showAsAction="always" />
 </menu>

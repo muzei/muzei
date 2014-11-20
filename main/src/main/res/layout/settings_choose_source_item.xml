@@ -57,12 +57,12 @@
         android:maxLines="4" />
 
     <ImageButton android:id="@+id/source_settings_button"
-        android:background="?android:selectableItemBackground"
+        android:background="?selectableItemBackgroundBorderless"
         android:src="@drawable/ic_source_settings"
         android:scaleType="center"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_marginTop="8dp"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="16dp"
         android:contentDescription="@string/action_source_settings"
         android:visibility="gone" />
 

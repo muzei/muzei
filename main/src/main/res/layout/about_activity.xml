@@ -33,10 +33,10 @@
         <android.support.v7.widget.Toolbar
             android:background="@android:color/transparent"
             android:id="@+id/app_bar"
-            app:navigationContentDescription="@string/done"
-            app:navigationIcon="@drawable/ic_action_done"
             android:layout_width="match_parent"
-            android:layout_height="?actionBarSize" />
+            android:layout_height="?actionBarSize"
+            app:contentInsetStart="@dimen/keyline_2"
+            app:navigationIcon="@drawable/ic_ab_up" />
 
         <include
             layout="@layout/about_include_content"

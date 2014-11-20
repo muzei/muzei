@@ -35,8 +35,8 @@
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
             android:background="@android:color/transparent"
-            app:navigationContentDescription="@string/done"
-            app:navigationIcon="@drawable/ic_action_done" />
+            app:contentInsetStart="@dimen/keyline_2"
+            app:navigationIcon="@drawable/ic_ab_up" />
 
         <FrameLayout
             android:layout_width="match_parent"

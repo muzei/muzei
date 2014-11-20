@@ -19,7 +19,6 @@ package com.google.android.apps.muzei;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.WallpaperManager;
@@ -73,7 +72,6 @@ import net.nurik.roman.muzei.R;
 import de.greenrobot.event.EventBus;
 
 import static com.google.android.apps.muzei.util.LogUtil.LOGE;
-import static com.google.android.apps.muzei.util.LogUtil.LOGW;
 
 public class MuzeiActivity extends ActionBarActivity {
     private static final String TAG = LogUtil.makeLogTag(MuzeiActivity.class);
@@ -761,26 +759,6 @@ public class MuzeiActivity extends ActionBarActivity {
         super.onPostResume();
         mPaused = false;
         mConsecutiveLoadErrorCount = 0;
-//
-//        mChromeContainerView.setVisibility((mUiMode == UI_MODE_ART_DETAIL)
-//                ? View.VISIBLE : View.GONE);
-//        if (mStatusBarScrimView != null) {
-//            mStatusBarScrimView.setVisibility((mUiMode == UI_MODE_ART_DETAIL)
-//                    ? View.VISIBLE : View.GONE);
-//        }
-//        if (mUiMode == UI_MODE_ART_DETAIL) {
-//            mChromeContainerView.setAlpha(0);
-//            mChromeContainerView.animate().alpha(1).setDuration(1000);
-//            if (mStatusBarScrimView != null) {
-//                mStatusBarScrimView.setAlpha(0);
-//                mStatusBarScrimView.animate().alpha(1).setDuration(1000);
-//            }
-//        } else {
-//            mChromeContainerView.setAlpha(1);
-//            if (mStatusBarScrimView != null) {
-//                mStatusBarScrimView.setAlpha(1);
-//            }
-//        }
 
         // update intro mode UI to latest wallpaper active state
         WallpaperActiveStateChangedEvent e = EventBus.getDefault()
@@ -792,6 +770,13 @@ public class MuzeiActivity extends ActionBarActivity {
         }
 
         updateUiMode();
+        mChromeContainerView.setVisibility((mUiMode == UI_MODE_ART_DETAIL)
+                ? View.VISIBLE : View.GONE);
+        if (mStatusBarScrimView != null) {
+            mStatusBarScrimView.setVisibility((mUiMode == UI_MODE_ART_DETAIL)
+                    ? View.VISIBLE : View.GONE);
+        }
+
         maybeUpdateArtDetailOpenedClosed();
 
         NewWallpaperNotificationReceiver.markNotificationRead(this);

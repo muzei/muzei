@@ -34,6 +34,7 @@
 
     <style name="Theme.Muzei.Settings" parent="Theme.Muzei.Wallpaper">
         <item name="windowActionBar">false</item>
+        <item name="colorControlActivated">#fff</item>
     </style>
 
     <style name="Settings.Widget.SeekBar.BlurAmount" parent="Widget.Muzei.SeekBar">
@@ -51,16 +52,12 @@
     <!-- Gallery source settings -->
 
     <style name="Theme.Muzei.GallerySettings" parent="Theme.Muzei">
+        <item name="windowActionBar">false</item>
         <item name="android:windowBackground">@color/gallery_settings_window_background</item>
-        <item name="android:actionBarStyle">@style/GallerySettings.ActionBar</item>
-        <item name="android:windowActionBarOverlay">true</item>
-    </style>
 
-    <style name="GallerySettings.ActionBar" parent="android:Widget.Holo.ActionBar">
-        <item name="android:background">@null</item>
-        <item name="android:titleTextStyle">?android:textAppearanceMedium</item>
-        <item name="android:icon">@drawable/ic_ab_gallery</item>
-        <item name="android:displayOptions">homeAsUp|showTitle|showHome</item>
+        <item name="colorPrimaryDark">@color/gallery_settings_theme_dark</item>
+        <item name="colorPrimary">@color/gallery_settings_theme</item>
+        <item name="colorAccent">@color/gallery_settings_theme</item>
     </style>
 
     <!-- About -->
@@ -74,17 +71,25 @@
     <style name="Theme.Muzei.Base" parent="Theme.AppCompat">
         <item name="android:windowBackground">@android:color/black</item>
         <item name="android:windowContentOverlay">@null</item>
-        <item name="android:actionModeBackground">@drawable/cab_background</item>
-        <item name="android:actionModeStyle">@style/Widget.Muzei.ActionMode</item>
-        <item name="android:actionOverflowButtonStyle">@style/Widget.Muzei.ActionButton.Overflow</item>
+        <!--<item name="android:actionModeBackground">@drawable/cab_background</item>-->
+        <!--<item name="android:actionModeStyle">@style/Widget.Muzei.ActionMode</item>-->
+        <!--<item name="android:actionOverflowButtonStyle">@style/Widget.Muzei.ActionButton.Overflow</item>-->
         <item name="android:selectableItemBackground">@drawable/white_selectable_item_background</item>
+        <item name="android:seekBarStyle">@style/Widget.Muzei.SeekBar</item>
         <item name="android:spinnerStyle">@style/Widget.Muzei.Spinner</item>
         <item name="android:dropDownListViewStyle">@style/Widget.Muzei.ListView.DropDown</item>
-        <item name="android:seekBarStyle">@style/Widget.Muzei.SeekBar</item>
-        <item name="android:listChoiceIndicatorMultiple">@drawable/btn_check</item>
         <item name="android:popupMenuStyle">@style/Widget.Muzei.PopupMenu</item>
+        <item name="actionOverflowMenuStyle">@style/Widget.Muzei.PopupMenu.Overflow</item>
         <item name="android:textAppearanceMedium">@style/TextAppearance.Muzei.Medium</item>
         <item name="android:textAppearanceLargePopupMenu">@style/TextAppearance.Muzei.LargePopupMenu</item>
+
+        <item name="colorPrimary">@color/theme_primary</item>
+        <item name="colorAccent">@color/theme_accent</item>
+    </style>
+
+    <style name="ThemeOverlay.Muzei.Toolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:dropDownListViewStyle">@style/Widget.Muzei.ListView.DropDown</item>
+        <item name="android:popupMenuStyle">@style/Widget.Muzei.PopupMenu</item>
     </style>
 
     <style name="Theme.Muzei" parent="Theme.Muzei.Base"> <!-- pre-Lollipop -->
@@ -92,22 +97,22 @@
         <item name="android:windowTranslucentNavigation">true</item>
     </style>
 
+    <style name="TextAppearance.ActionBar.Title" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">#fff</item>
+    </style>
+
     <style name="Theme.Muzei.Wallpaper" parent="Theme.Muzei">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowShowWallpaper">true</item>
     </style>
 
-    <style name="Widget.Muzei.ActionButton.Overflow" parent="android:Widget.Holo.ActionButton.Overflow">
-        <item name="android:src">@drawable/ic_ab_overflow</item>
+    <style name="Widget.Muzei.PopupMenu" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:popupBackground">@drawable/popup_background</item>
     </style>
 
-    <style name="Widget.Muzei.ActionMode" parent="android:Widget.Holo.ActionMode">
-        <item name="android:titleTextStyle">?android:textAppearanceMedium</item>
-    </style>
-
-    <style name="Widget.Muzei.PopupMenu" parent="android:Widget.Holo.Light.ListPopupWindow">
-        <item name="android:popupBackground">@drawable/popup_bg</item>
-        <item name="android:dropDownSelector">?android:selectableItemBackground</item>
+    <style name="Widget.Muzei.PopupMenu.Overflow" parent="Widget.AppCompat.PopupMenu.Overflow">
+        <item name="android:popupBackground">@drawable/popup_background</item>
     </style>
 
     <style name="Muzei.SimpleFadeFragmentAnimation" parent="">
@@ -121,22 +126,23 @@
         <item name="android:thumb">@drawable/scrubber_control_selector</item>
     </style>
 
-    <style name="Widget.Muzei.Spinner" parent="android:Widget.Holo.Spinner">
-        <item name="android:popupBackground">@drawable/popup_bg</item>
-        <item name="android:dropDownSelector">?android:selectableItemBackground</item>
+    <style name="Widget.Muzei.Spinner" parent="Widget.AppCompat.Spinner">
+        <item name="android:popupBackground">@drawable/popup_background</item>
+        <item name="android:dropDownVerticalOffset">4dp</item>
     </style>
 
     <!-- https://code.google.com/p/android/issues/detail?id=24922 -->
-    <style name="Widget.Muzei.ListView.DropDown" parent="android:Widget.Holo.ListView.DropDown">
+    <style name="Widget.Muzei.ListView.DropDown" parent="Widget.AppCompat.ListView.DropDown">
+        <item name="android:popupBackground">@drawable/popup_bg</item>
         <item name="android:listSelector">?android:selectableItemBackground</item>
+        <item name="android:dropDownVerticalOffset">-4dp</item>
     </style>
 
-    <style name="TextAppearance.Muzei.Medium" parent="android:TextAppearance.Holo.Medium">
-        <item name="android:fontFamily">sans-serif-condensed</item>
+    <style name="TextAppearance.Muzei.Medium" parent="TextAppearance.AppCompat.Medium">
         <item name="android:textColor">#fff</item>
     </style>
 
-    <style name="TextAppearance.Muzei.LargePopupMenu" parent="TextAppearance.Muzei.Medium">
+    <style name="TextAppearance.Muzei.LargePopupMenu" parent="TextAppearance.AppCompat.Widget.PopupMenu.Large">
         <item name="android:textColor">#eee</item>
     </style>
 

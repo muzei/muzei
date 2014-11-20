@@ -122,7 +122,7 @@ public class SettingsActivity extends ActionBarActivity
         mAppBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
+                onNavigateUp();
             }
         });
 
@@ -196,6 +196,8 @@ public class SettingsActivity extends ActionBarActivity
             }
         });
 
+        sectionSpinner.setSelection(mStartSection);
+
         mAppBar.inflateMenu(R.menu.settings);
         mAppBar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
@@ -223,7 +225,6 @@ public class SettingsActivity extends ActionBarActivity
                 return false;
             }
         });
-        sectionSpinner.setSelection(mStartSection);
     }
 
     public static void preferPackageForIntent(Context context, Intent intent, String packageName) {
