@@ -37,6 +37,10 @@
             android:name="com.google.android.apps.muzei.MuzeiActivity"
             android:theme="@style/Theme.MuzeiActivity"
             android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
 
         <service
@@ -60,10 +64,6 @@
             android:theme="@style/Theme.Muzei.Settings"
             android:exported="true"
             android:parentActivityName="com.google.android.apps.muzei.MuzeiActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.NOTIFICATION_PREFERENCES" />
