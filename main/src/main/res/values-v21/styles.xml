@@ -22,4 +22,9 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 
+    <style name="Widget.Muzei.SeekBar" parent="android:Widget.Material.SeekBar">
+        <item name="android:progressDrawable">@drawable/scrubber_progress_horizontal</item>
+        <item name="android:indeterminateDrawable">@drawable/scrubber_progress_horizontal</item>
+    </style>
+
 </resources>

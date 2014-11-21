@@ -20,5 +20,5 @@
             <solid android:color="#fff" />
         </shape>
     </item>
-    <item android:drawable="@drawable/gray_selectable_item_background_circle" />
+    <item android:drawable="@drawable/grey_selectable_item_background_circle" />
 </layer-list>
