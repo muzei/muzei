@@ -16,14 +16,16 @@
 
 package com.google.android.apps.muzei.settings;
 
-import android.app.Activity;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.google.android.apps.muzei.render.MuzeiRendererFragment;
@@ -32,7 +34,7 @@ import com.google.android.apps.muzei.util.LogUtil;
 
 import net.nurik.roman.muzei.R;
 
-public class AboutActivity extends Activity {
+public class AboutActivity extends ActionBarActivity {
     private static final String TAG = LogUtil.makeLogTag(AboutActivity.class);
 
     private static final String VERSION_UNAVAILABLE = "N/A";
@@ -42,6 +44,18 @@ public class AboutActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.about_activity);
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+
+        ((Toolbar) findViewById(R.id.app_bar)).setNavigationOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onNavigateUp();
+                    }
+                });
 
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()

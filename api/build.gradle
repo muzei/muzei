@@ -28,7 +28,7 @@ props.load(new FileInputStream(file('../local.properties')))
 
 def android = [
         sdk: props["sdk.dir"],
-        target: 'android-19'
+        target: 'android-21'
 ]
 
 allprojects { ext."signing.keyId" = props["signing.keyId"] }

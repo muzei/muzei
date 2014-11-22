@@ -28,9 +28,11 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 
+import com.google.android.apps.muzei.LockScreenVisibleReceiver;
 import com.google.android.apps.muzei.NewWallpaperNotificationReceiver;
 import com.google.android.apps.muzei.event.BlurAmountChangedEvent;
 import com.google.android.apps.muzei.event.DimAmountChangedEvent;
+import com.google.android.apps.muzei.event.GreyAmountChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
 
 import net.nurik.roman.muzei.R;
@@ -44,7 +46,9 @@ public class SettingsAdvancedFragment extends Fragment {
     private Handler mHandler = new Handler();
     private SeekBar mBlurSeekBar;
     private SeekBar mDimSeekBar;
+    private SeekBar mGreySeekBar;
     private CheckBox mNotifyNewWallpaperCheckBox;
+    private CheckBox mBlurOnLockScreenCheckBox;
 
     public SettingsAdvancedFragment() {
     }
@@ -96,6 +100,27 @@ public class SettingsAdvancedFragment extends Fragment {
             }
         });
 
+        mGreySeekBar = (SeekBar) rootView.findViewById(R.id.grey_amount);
+        mGreySeekBar.setProgress(getSharedPreferences().getInt("grey_amount",
+                MuzeiBlurRenderer.DEFAULT_GREY));
+        mGreySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int value, boolean fromUser) {
+                if (fromUser) {
+                    mHandler.removeCallbacks(mUpdateGreyRunnable);
+                    mHandler.postDelayed(mUpdateGreyRunnable, 750);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+
         mNotifyNewWallpaperCheckBox = (CheckBox) rootView.findViewById(
                 R.id.notify_new_wallpaper_checkbox);
         mNotifyNewWallpaperCheckBox.setOnCheckedChangeListener(
@@ -111,6 +136,21 @@ public class SettingsAdvancedFragment extends Fragment {
                 });
         mNotifyNewWallpaperCheckBox.setChecked(getSharedPreferences()
                 .getBoolean(NewWallpaperNotificationReceiver.PREF_ENABLED, true));
+
+        mBlurOnLockScreenCheckBox = (CheckBox) rootView.findViewById(
+                R.id.blur_on_lockscreen_checkbox);
+        mBlurOnLockScreenCheckBox.setOnCheckedChangeListener(
+                new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton button, boolean checked) {
+                        getSharedPreferences().edit()
+                                .putBoolean(LockScreenVisibleReceiver.PREF_ENABLED, !checked)
+                                .apply();
+                    }
+                }
+        );
+        mBlurOnLockScreenCheckBox.setChecked(!getSharedPreferences()
+                .getBoolean(LockScreenVisibleReceiver.PREF_ENABLED, false));
         return rootView;
     }
 
@@ -143,4 +183,15 @@ public class SettingsAdvancedFragment extends Fragment {
             EventBus.getDefault().post(new DimAmountChangedEvent());
         }
     };
+
+    private Runnable mUpdateGreyRunnable = new Runnable() {
+        @Override
+        public void run() {
+            getSharedPreferences().edit()
+                    .putInt("grey_amount", mGreySeekBar.getProgress())
+                    .apply();
+            EventBus.getDefault().post(new GreyAmountChangedEvent());
+        }
+    };
+
 }

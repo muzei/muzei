@@ -288,7 +288,6 @@ public class SettingsChooseSourceFragment extends Fragment {
             float alpha = selected ? 1f : ALPHA_UNSELECTED;
             source.rootView.animate()
                     .alpha(alpha)
-                    .withLayer()
                     .setDuration(mAnimationDuration);
 
             if (selected) {
@@ -296,30 +295,8 @@ public class SettingsChooseSourceFragment extends Fragment {
                 updateSourceStatusUi(source, state);
             }
 
-            View settingsButton = source.rootView.findViewById(R.id.source_settings_button);
-            CheatSheet.setup(settingsButton);
-
-            if (selected && source.settingsActivity != null) {
-                settingsButton.setVisibility(View.VISIBLE);
-                settingsButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        try {
-                            startActivity(new Intent()
-                                    .setComponent(source.settingsActivity)
-                                    .putExtra(MuzeiArtSource.EXTRA_FROM_MUZEI_SETTINGS, true)
-                                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET));
-                        } catch (ActivityNotFoundException e) {
-                            LOGE(TAG, "Can't launch source settings.", e);
-                        } catch (SecurityException e) {
-                            LOGE(TAG, "Can't launch source settings.", e);
-                        }
-                    }
-                });
-            } else {
-                settingsButton.setVisibility(View.INVISIBLE);
-                settingsButton.setOnClickListener(null);
-            }
+            animateSettingsButton(source.settingsButton,
+                    selected && source.settingsActivity != null, true);
         }
 
         if (mSelectedSourceIndex >= 0 && scrollTo) {
@@ -333,6 +310,27 @@ public class SettingsChooseSourceFragment extends Fragment {
             mCurrentScroller.setDuration(mAnimationDuration);
             mCurrentScroller.start();
         }
+    }
+
+    private void animateSettingsButton(final View settingsButton, final boolean show,
+                                       boolean allowAnimate) {
+        settingsButton.setVisibility(View.VISIBLE);
+        settingsButton.animate()
+                .translationY(show ? 0 : (-getResources().getDimensionPixelSize(
+                        R.dimen.settings_choose_source_settings_button_animate_distance)))
+                .alpha(show ? 1f : 0f)
+                .rotation(show ? 0 : -90)
+                .setDuration(allowAnimate ? 300 : 0)
+                .setStartDelay((show && allowAnimate) ? 200 : 0)
+                .withLayer()
+                .withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!show) {
+                            settingsButton.setVisibility(View.INVISIBLE);
+                        }
+                    }
+                });
     }
 
     @Override
@@ -434,7 +432,9 @@ public class SettingsChooseSourceFragment extends Fragment {
         for (final Source source : mSources) {
             source.rootView = LayoutInflater.from(getActivity()).inflate(
                     R.layout.settings_choose_source_item, mSourceContainerView, false);
-            source.rootView.setOnClickListener(new View.OnClickListener() {
+
+            source.selectSourceButton = source.rootView.findViewById(R.id.source_image);
+            source.selectSourceButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if (source.componentName.equals(mSelectedSource)) {
@@ -445,7 +445,7 @@ public class SettingsChooseSourceFragment extends Fragment {
                 }
             });
 
-            source.rootView.setOnLongClickListener(new View.OnLongClickListener() {
+            source.selectSourceButton.setOnLongClickListener(new View.OnLongClickListener() {
 
                 @Override
                 public boolean onLongClick(View v) {
@@ -467,9 +467,8 @@ public class SettingsChooseSourceFragment extends Fragment {
 
             source.rootView.setAlpha(ALPHA_UNSELECTED);
 
-            View sourceImageButton = source.rootView.findViewById(R.id.source_image);
             source.icon.setColorFilter(source.color, PorterDuff.Mode.SRC_ATOP);
-            sourceImageButton.setBackground(source.icon);
+            source.selectSourceButton.setBackground(source.icon);
 
             TextView titleView = (TextView) source.rootView.findViewById(R.id.source_title);
             titleView.setText(source.label);
@@ -477,6 +476,26 @@ public class SettingsChooseSourceFragment extends Fragment {
 
             SourceState state = mSourceManager.getSourceState(source.componentName);
             updateSourceStatusUi(source, state);
+
+            source.settingsButton = source.rootView.findViewById(R.id.source_settings_button);
+            CheatSheet.setup(source.settingsButton);
+            source.settingsButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    try {
+                        startActivity(new Intent()
+                                .setComponent(source.settingsActivity)
+                                .putExtra(MuzeiArtSource.EXTRA_FROM_MUZEI_SETTINGS, true)
+                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET));
+                    } catch (ActivityNotFoundException e) {
+                        LOGE(TAG, "Can't launch source settings.", e);
+                    } catch (SecurityException e) {
+                        LOGE(TAG, "Can't launch source settings.", e);
+                    }
+                }
+            });
+
+            animateSettingsButton(source.settingsButton, false, false);
 
             mSourceContainerView.addView(source.rootView);
         }
@@ -545,6 +564,8 @@ public class SettingsChooseSourceFragment extends Fragment {
         public ComponentName componentName;
         public String description;
         public ComponentName settingsActivity;
+        public View selectSourceButton;
+        public View settingsButton;
     }
 
     public interface Callbacks {

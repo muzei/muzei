@@ -21,10 +21,14 @@
     <dimen name="art_detail_metadata_margin_bottom">20dp</dimen>
     <dimen name="art_detail_title_text_size">28sp</dimen>
     <dimen name="art_detail_title_bottom_padding">16sp</dimen>
-    <dimen name="art_detail_title_byline_margin">-8sp</dimen>
+    <dimen name="art_detail_title_byline_margin">-16sp</dimen>
     <dimen name="art_detail_byline_text_size">22sp</dimen>
 
     <dimen name="intro_activate_button_size">100dp</dimen>
+
+    <dimen name="keyline_1">16dp</dimen>
+    <dimen name="keyline_2">72dp</dimen>
+    <dimen name="keyline_2_minus_16dp">56dp</dimen>
 
     <dimen name="tutorial_content_margin">32dp</dimen>
 
@@ -32,9 +36,22 @@
     <dimen name="settings_choose_source_item_image_size">100dp</dimen>
     <dimen name="settings_choose_source_item_estimated_height">220dp</dimen>
     <dimen name="settings_choose_source_min_side_padding">64dp</dimen>
-    <dimen name="settings_text_size_normal">18sp</dimen>
+    <dimen name="settings_choose_source_settings_button_animate_distance">24dp</dimen>
+    <dimen name="settings_text_size_large">20sp</dimen>
+    <dimen name="settings_text_size_normal">16sp</dimen>
+    <dimen name="settings_text_size_small">14sp</dimen>
+
+    <dimen name="settings_advanced_checkbox_margin_start">0dp</dimen>
+    <integer name="settings_advanced_checkbox_column">0</integer>
+    <integer name="settings_advanced_checkbox_column_span">3</integer>
 
     <dimen name="gallery_settings_chosen_photo_grid_max_item_size">200dp</dimen>
     <dimen name="gallery_settings_chosen_photo_grid_spacing">2dp</dimen>
+    <dimen name="gallery_settings_fab_space">96dp</dimen>
+
+    <!-- height + top/bottom padding -->
+
+    <dimen name="header_elevation">4dp</dimen>
+    <dimen name="fab_elevation">8dp</dimen>
 
 </resources>

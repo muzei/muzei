@@ -19,7 +19,6 @@ package com.google.android.apps.muzei;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.WallpaperManager;
@@ -33,6 +32,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBarActivity;
 import android.util.SparseIntArray;
 import android.util.TypedValue;
 import android.view.KeyEvent;
@@ -73,7 +73,7 @@ import de.greenrobot.event.EventBus;
 
 import static com.google.android.apps.muzei.util.LogUtil.LOGE;
 
-public class MuzeiActivity extends Activity {
+public class MuzeiActivity extends ActionBarActivity {
     private static final String TAG = LogUtil.makeLogTag(MuzeiActivity.class);
 
     private static final String PREF_SEEN_TUTORIAL = "seen_tutorial";
@@ -123,6 +123,7 @@ public class MuzeiActivity extends Activity {
 
     // Normal mode UI
     private View mChromeContainerView;
+    private View mStatusBarScrimView;
     private View mMetadataView;
     private View mLoadingContainerView;
     private View mLoadErrorContainerView;
@@ -167,6 +168,8 @@ public class MuzeiActivity extends Activity {
                 }
             }
         });
+
+        showHideChrome(true);
 
         mSourceManager = SourceManager.getInstance(this);
 
@@ -415,6 +418,7 @@ public class MuzeiActivity extends Activity {
 
     private void setupArtDetailModeUi() {
         mChromeContainerView = findViewById(R.id.chrome_container);
+        mStatusBarScrimView = findViewById(R.id.statusbar_scrim);
 
         mMetadataView = findViewById(R.id.metadata);
 
@@ -429,8 +433,9 @@ public class MuzeiActivity extends Activity {
                             mGestureFlagSystemUiBecameVisible = true;
                         }
 
+                        boolean showArtDetailChrome = (mUiMode == UI_MODE_ART_DETAIL);
                         mChromeContainerView.setVisibility(
-                                (mUiMode != UI_MODE_ART_DETAIL) ? View.GONE : View.VISIBLE);
+                                showArtDetailChrome ? View.VISIBLE : View.GONE);
                         mChromeContainerView.animate()
                                 .alpha(visible ? 1f : 0f)
                                 .translationY(visible ? 0 : metadataSlideDistance)
@@ -443,6 +448,22 @@ public class MuzeiActivity extends Activity {
                                         }
                                     }
                                 });
+
+                        if (mStatusBarScrimView != null) {
+                            mStatusBarScrimView.setVisibility(
+                                    showArtDetailChrome ? View.VISIBLE : View.GONE);
+                            mStatusBarScrimView.animate()
+                                    .alpha(visible ? 1f : 0f)
+                                    .setDuration(200)
+                                    .withEndAction(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if (!visible) {
+                                                mStatusBarScrimView.setVisibility(View.GONE);
+                                            }
+                                        }
+                                    });
+                        }
                     }
                 });
 
@@ -504,7 +525,7 @@ public class MuzeiActivity extends Activity {
                             return;
                         }
 
-                        showHideChrome(zoomedOut);
+                        //showHideChrome(zoomedOut);
                     }
                 });
 
@@ -521,6 +542,11 @@ public class MuzeiActivity extends Activity {
                 startService(TaskQueueService.getDownloadCurrentArtworkIntent(MuzeiActivity.this));
             }
         });
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            mStatusBarScrimView.setVisibility(View.GONE);
+            mStatusBarScrimView = null;
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
@@ -734,15 +760,6 @@ public class MuzeiActivity extends Activity {
         mPaused = false;
         mConsecutiveLoadErrorCount = 0;
 
-        mChromeContainerView.setVisibility((mUiMode == UI_MODE_ART_DETAIL)
-                ? View.VISIBLE : View.GONE);
-        if (mUiMode == UI_MODE_ART_DETAIL) {
-            mChromeContainerView.setAlpha(0);
-            mChromeContainerView.animate().alpha(1).setDuration(1000);
-        } else {
-            mChromeContainerView.setAlpha(1);
-        }
-
         // update intro mode UI to latest wallpaper active state
         WallpaperActiveStateChangedEvent e = EventBus.getDefault()
                 .getStickyEvent(WallpaperActiveStateChangedEvent.class);
@@ -753,6 +770,13 @@ public class MuzeiActivity extends Activity {
         }
 
         updateUiMode();
+        mChromeContainerView.setVisibility((mUiMode == UI_MODE_ART_DETAIL)
+                ? View.VISIBLE : View.GONE);
+        if (mStatusBarScrimView != null) {
+            mStatusBarScrimView.setVisibility((mUiMode == UI_MODE_ART_DETAIL)
+                    ? View.VISIBLE : View.GONE);
+        }
+
         maybeUpdateArtDetailOpenedClosed();
 
         NewWallpaperNotificationReceiver.markNotificationRead(this);

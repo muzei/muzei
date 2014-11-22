@@ -18,15 +18,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <GridView android:id="@+id/photo_grid"
+    <android.support.v7.widget.RecyclerView android:id="@+id/photo_grid"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
         android:stretchMode="columnWidth"
         android:scrollbarStyle="outsideOverlay"
+        android:scrollbars="vertical"
         android:clipToPadding="false"
-        android:paddingLeft="32dp"
-        android:paddingRight="32dp"
+        android:padding="2dp"
         android:drawSelectorOnTop="true"
         android:horizontalSpacing="@dimen/gallery_settings_chosen_photo_grid_spacing"
         android:verticalSpacing="@dimen/gallery_settings_chosen_photo_grid_spacing" />
@@ -36,6 +36,16 @@
         app:insetBackground="@color/gallery_settings_inset_shade"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
+        <android.support.v7.widget.Toolbar
+            android:background="@color/gallery_settings_inset_shade"
+            android:id="@+id/app_bar"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            app:titleTextAppearance="@style/TextAppearance.ActionBar.Title"
+            app:contentInsetStart="@dimen/keyline_2"
+            app:title="@string/gallery_source_settings_title"
+            app:navigationIcon="@drawable/ic_ab_up" />
 
         <FrameLayout android:id="@android:id/empty"
             android:layout_width="match_parent"
@@ -59,7 +69,7 @@
                     android:textSize="22sp"
                     android:fontFamily="sans-serif-condensed"
                     android:textStyle="italic"
-                    android:textColor="@color/gallery_settings_empty_state_light"
+                    android:textColor="@color/gallery_settings_theme"
                     android:text="@string/gallery_source_settings_empty" />
             </LinearLayout>
 
@@ -70,19 +80,42 @@
                 android:textSize="16sp"
                 android:fontFamily="sans-serif-condensed"
                 android:textStyle="italic"
-                android:textColor="@color/gallery_settings_empty_state_dark"
+                android:textColor="@color/gallery_settings_theme_dark"
                 android:text="@string/gallery_source_settings_empty_subtitle" />
 
         </FrameLayout>
 
         <ImageButton android:id="@+id/add_photos_button"
             android:background="@drawable/white_circle_button"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
             android:layout_gravity="bottom|center_horizontal"
             android:layout_marginBottom="16dp"
             android:contentDescription="@string/action_add_photos"
+            android:elevation="@dimen/fab_elevation"
+            android:tint="@color/gallery_settings_theme"
             android:src="@drawable/ic_add_photos" />
 
     </com.google.android.apps.muzei.util.DrawInsetsFrameLayout>
+
+    <LinearLayout
+        android:id="@+id/selection_toolbar_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="invisible"
+        android:background="@color/gallery_settings_theme_dark"
+        android:elevation="@dimen/header_elevation">
+
+        <android.support.v7.widget.Toolbar
+            android:background="@color/gallery_settings_theme"
+            android:id="@+id/selection_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            app:titleTextAppearance="@style/TextAppearance.ActionBar.Title"
+            app:contentInsetStart="@dimen/keyline_2"
+            app:title="@string/gallery_source_settings_title"
+            app:navigationIcon="@drawable/ic_ab_up" />
+
+    </LinearLayout>
 </FrameLayout>

@@ -21,7 +21,9 @@
     <string name="settings_title">Muzei Settings</string>
     <string name="settings_blur_amount_title">Blur</string>
     <string name="settings_dim_amount_title">Dim</string>
+    <string name="settings_grey_amount_title">Grey</string>
     <string name="settings_notify_new_wallpaper">New wallpaper notifications</string>
+    <string name="settings_blur_on_lockscreen">Apply blur on lockscreen</string>
 
     <string name="notification_new_wallpaper">New wallpaper</string>
 
@@ -62,6 +64,10 @@
 
     <string name="action_previous_artwork">Previous artwork</string>
     <string name="action_next_artwork">Next artwork</string>
+    <string name="action_next_artwork_condensed">Next</string>
+    <string name="action_user_command">More</string>
+    <string name="action_user_command_prompt">Choose action</string>
+    <string name="action_open_details">Details</string>
 
     <string name="done">Done</string>
     <string name="retry">Retry</string>
@@ -69,14 +75,24 @@
     <string name="action_clear_photos">Remove all photos</string>
     <string name="action_add_photos">Add photos</string>
     <string name="action_rotate_interval">Change interval</string>
+    <string name="action_rotate_interval_none">Don\'t change wallpaper</string>
+    <string name="action_rotate_interval_1h">Every hour</string>
+    <string name="action_rotate_interval_3h">Every 3 hours</string>
+    <string name="action_rotate_interval_6h">Every 6 hours</string>
+    <string name="action_rotate_interval_24h">Every 24 hours</string>
+    <string name="action_rotate_interval_72h">Every 3 days</string>
     <string name="action_share_artwork">Share artwork</string>
 
+    <string name="action_force_now">Set as wallpaper now</string>
     <string name="action_remove">Remove</string>
 
     <string name="set_as_wallpaper_using_muzei">Wallpaper (using Muzei)</string>
 
     <string name="tutorial_main">Open the Muzei app to see your wallpaper.</string>
     <string name="tutorial_subtitle">Double touch the blurred wallpaper on your home screen to temporarily focus.</string>
+
+    <string name="get_more_sources">Get more sources</string>
+    <string name="play_store_not_found">Unable to open Play Store.</string>
 
     <string name="about_title">About Muzei</string>
     <string name="about_body"><![CDATA[
@@ -102,5 +118,6 @@
         <i>by Robert Green, Mark F. Guerra, and others</i><br><br>
     ]]></string>
     <string name="about_version_template">v%1$s</string>
+    <string name="app_author">Roman Nurik</string>
 
 </resources>

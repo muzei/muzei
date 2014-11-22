@@ -21,6 +21,7 @@ import android.os.AsyncTask;
 
 import com.google.android.apps.muzei.event.BlurAmountChangedEvent;
 import com.google.android.apps.muzei.event.DimAmountChangedEvent;
+import com.google.android.apps.muzei.event.GreyAmountChangedEvent;
 
 import de.greenrobot.event.EventBus;
 
@@ -52,6 +53,11 @@ public abstract class RenderController {
 
     public void onEventMainThread(DimAmountChangedEvent e) {
         mRenderer.recomputeMaxDimAmount();
+        reloadCurrentArtwork(true);
+    }
+
+    public void onEventMainThread(GreyAmountChangedEvent e) {
+        mRenderer.recomputeGreyAmount();
         reloadCurrentArtwork(true);
     }
 

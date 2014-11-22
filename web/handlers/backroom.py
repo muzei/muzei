@@ -68,9 +68,19 @@ def maybe_process_image(image_url, base_name):
 
   # main image
   image_gcs_path = CLOUD_STORAGE_BASE_PATH + '/fullres/' + filename
+  # resize to max width 4000 or max height 2000
+  image_contents = image_result.content
+  image = images.Image(image_contents)
+  if image.height > 2000:
+    image.resize(width=(thumb.width * 2000 / thumb.height), height=2000)
+    image_contents = image.execute_transforms(output_encoding=images.JPEG, quality=80)
+  elif image.width > 4000:
+    image.resize(width=4000, height=(thumb.height * 4000 / thumb.thumb.width))
+    image_contents = image.execute_transforms(output_encoding=images.JPEG, quality=80)
+
   # upload with default ACLs set on the bucket  # or use options={'x-goog-acl': 'public-read'})
   gcs_file = gcs.open(image_gcs_path, 'w', content_type='image/jpeg')
-  gcs_file.write(image_result.content)
+  gcs_file.write(image_contents)
   gcs_file.close()
 
   # thumb

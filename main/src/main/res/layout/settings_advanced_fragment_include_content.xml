@@ -14,66 +14,67 @@
   limitations under the License.
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:columnCount="3"
+    android:orientation="horizontal">
 
     <TextView android:id="@+id/blur_amount_label"
-        android:layout_width="wrap_content"
-        android:layout_height="32dp"
-        android:gravity="center_vertical|right"
-        android:textSize="@dimen/settings_text_size_normal"
-        android:fontFamily="sans-serif-condensed"
-        android:textAllCaps="true"
-        android:textColor="#fff"
-        android:textStyle="bold"
+        style="@style/Widget.Muzei.TextView.SettingsAdvancedSeekBarLabel"
+        android:layout_gravity="fill_vertical|end"
         android:text="@string/settings_blur_amount_title" />
 
     <SeekBar style="@style/Settings.Widget.SeekBar.BlurAmount"
         android:id="@+id/blur_amount"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/blur_amount_label"
-        android:layout_alignParentRight="true"
-        android:layout_alignTop="@id/blur_amount_label"
+        android:layout_gravity="center_vertical|fill_horizontal"
+        android:layout_columnSpan="2"
         android:max="500" />
 
+    <Space
+        android:layout_height="16dp"
+        android:layout_columnSpan="3"/>
+
     <TextView android:id="@+id/dim_amount_label"
-        android:layout_width="wrap_content"
-        android:layout_height="32dp"
-        android:layout_marginTop="16dp"
-        android:layout_below="@id/blur_amount_label"
-        android:layout_alignLeft="@id/blur_amount_label"
-        android:layout_alignRight="@id/blur_amount_label"
-        android:gravity="center_vertical|right"
-        android:textSize="@dimen/settings_text_size_normal"
-        android:fontFamily="sans-serif-condensed"
-        android:textAllCaps="true"
-        android:textColor="#fff"
-        android:textStyle="bold"
+        style="@style/Widget.Muzei.TextView.SettingsAdvancedSeekBarLabel"
+        android:layout_gravity="fill_vertical|end"
         android:text="@string/settings_dim_amount_title" />
 
     <SeekBar style="@style/Settings.Widget.SeekBar.DimAmount"
         android:id="@+id/dim_amount"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@id/blur_amount"
-        android:layout_alignRight="@id/blur_amount"
-        android:layout_alignTop="@id/dim_amount_label"
+        android:layout_gravity="center_vertical|fill_horizontal"
+        android:layout_columnSpan="2"
         android:max="255" />
 
-    <CheckBox android:id="@+id/notify_new_wallpaper_checkbox"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:layout_marginLeft="8dp"
-        android:layout_alignLeft="@id/dim_amount"
-        android:layout_alignRight="@id/dim_amount"
-        android:layout_below="@id/dim_amount"
-        android:textSize="@dimen/settings_text_size_normal"
-        android:fontFamily="sans-serif-condensed"
-        android:textColor="#fff"
-        android:paddingLeft="4dp"
-        android:text="@string/settings_notify_new_wallpaper" />
+    <Space
+        android:layout_height="16dp"
+        android:layout_columnSpan="3" />
 
-</RelativeLayout>
+    <TextView android:id="@+id/grey_amount_label"
+        style="@style/Widget.Muzei.TextView.SettingsAdvancedSeekBarLabel"
+        android:layout_gravity="fill_vertical|end"
+        android:text="@string/settings_grey_amount_title" />
+
+    <SeekBar style="@style/Settings.Widget.SeekBar.GreyAmount"
+        android:id="@+id/grey_amount"
+        android:layout_gravity="center_vertical|fill_horizontal"
+        android:layout_columnSpan="2"
+        android:max="500" />
+
+    <CheckBox android:id="@+id/notify_new_wallpaper_checkbox"
+        style="@style/Widget.Muzei.CheckBox.SettingsAdvanced"
+        android:text="@string/settings_notify_new_wallpaper"
+        android:layout_column="@integer/settings_advanced_checkbox_column"
+        android:layout_columnSpan="@integer/settings_advanced_checkbox_column_span"
+        android:layout_marginLeft="@dimen/settings_advanced_checkbox_margin_start"
+        android:layout_marginTop="24dp" />
+
+    <CheckBox android:id="@+id/blur_on_lockscreen_checkbox"
+        style="@style/Widget.Muzei.CheckBox.SettingsAdvanced"
+        android:text="@string/settings_blur_on_lockscreen"
+        android:layout_column="@integer/settings_advanced_checkbox_column"
+        android:layout_columnSpan="@integer/settings_advanced_checkbox_column_span"
+        android:layout_marginLeft="@dimen/settings_advanced_checkbox_margin_start"
+        android:layout_marginTop="16dp" />
+
+</GridLayout>
