@@ -271,7 +271,7 @@ html, body {
   font-size: 16px;
   font-family: 'alegreya sans';
   font-weight: 500;
-  color: rgba(255,255,255,1);
+  color: #fff;
 }
 
 .days .cell.today,
