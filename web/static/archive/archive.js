@@ -30,7 +30,7 @@ var TODAY = new Date();
 var TODAY_MONTH = [TODAY.getFullYear(), TODAY.getMonth() + 1];
 var NUM_CAROUSEL_PAGES = monthDistance(START_MONTH, TODAY_MONTH) + 1;
 
-var MONTH_SPACING_WIDE = 120; // pixels
+var MONTH_SPACING_WIDE = 80; // pixels
 var MONTH_SPACING_NARROW = 40; // pixels
 
 var ARCHIVE_BASE_URL = 'http://storage.googleapis.com/muzeifeaturedart/archivemeta/';
@@ -42,15 +42,18 @@ var selectedMonth;
 
 
 (function() {
-  if (document.location.hash) {
-    selectMonth(monthFromKey(document.location.hash.substring(1)));
+  var m = document.location.href.match(/\/archive\/(.+)/);
+  if (m && isMonthInValidRange(monthFromUrlPath(m[1]))) {
+    selectMonth(monthFromUrlPath(m[1])); //document.location.hash.substring(1)));
   } else {
     selectMonth(TODAY_MONTH);
   }
 
-  $(window).on('hashchange', function() {
-    selectMonth(monthFromKey(document.location.hash.substring(1)));
-  });
+  // $(window).on('hashchange', function(e) {
+  //   selectMonth(monthFromKey(document.location.hash.substring(1)));
+  //   e.preventDefault();
+  //   return false;
+  // });
 })();
 
 $(window).resize(function() {
@@ -123,7 +126,9 @@ function selectMonth(month) {
   $month.toggleClass('active', true);
   selectedMonth = month;
 
-  document.location.replace('#' + monthKey(month));
+  var newUrl = '/archive/' + monthUrlPath(month);
+  window.history.replaceState('', '', newUrl);
+  //document.location.replace('#' + monthKey(month));
   renderMonth(prevMonth(month));
   renderMonth(nextMonth(month));
 }
@@ -153,6 +158,16 @@ function monthKey(month) {
 function monthFromKey(key) {
   return [parseInt(key.substring(0, 4), 10),
           parseInt(key.substring(4, 6), 10)];
+}
+
+function monthUrlPath(month) {
+  return month[0] + '/' + month[1];
+}
+
+function monthFromUrlPath(path) {
+  var m = path.match(/(\d+)(\/(\d+))?/);
+  return [parseInt(m[1], 10),
+          parseInt(m[3] || 1, 10)];
 }
 
 function monthFromId(id) {
@@ -303,7 +318,7 @@ function renderMonthContents(month) {
         if (dayMonth < month[1] - 1) {
           classes += 'before ';
         } else {
-          classes += 'after ';
+          break;
         }
       } else if (date < START_DATE) {
         skipDay = true;
@@ -351,13 +366,6 @@ function renderMonthContents(month) {
     }
   }
 
-  // pad some extra filler cells
-  for (var i = 0; i < 5; i++) {
-    var $dayCell = $('<div>')
-        .addClass('cell skipped after')
-        .appendTo($daysRow);
-  }
-
   // fetch archive data
   var archiveKey = dayKey(today);
   if (monthEnded) {
@@ -400,7 +408,7 @@ function loadArchiveData(archiveKey) {
       var itemMeta = itemsMeta[i];
       var date = new Date(itemMeta.publish_date);
       $dayCell = dayNode(date);
-      $dayCell.find('.meta').text(itemMeta.title);
+      $dayCell.find('.meta').text(itemMeta.byline);
       $dayCell.find('.overlay-link').attr('href', itemMeta.details_url);
     }
   };
