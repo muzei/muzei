@@ -1,1 +1,1 @@
-include ':api', ':provider', ':main', ':example-source-500px', 'example-contract-widget'
+include ':api', ':provider', ':main', ':wearable', ':example-source-500px', 'example-contract-widget'

@@ -23,6 +23,7 @@ import com.google.android.apps.muzei.ArtworkCache;
 import com.google.android.apps.muzei.NewWallpaperNotificationReceiver;
 import com.google.android.apps.muzei.SourceManager;
 import com.google.android.apps.muzei.TaskQueueService;
+import com.google.android.apps.muzei.WearableController;
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.api.internal.SourceState;
@@ -105,6 +106,7 @@ public class RealRenderController extends RenderController {
             mContext.getContentResolver().insert(MuzeiContract.Artwork.CONTENT_URI, currentArtwork.toContentValues());
             NewWallpaperNotificationReceiver
                     .maybeShowNewArtworkNotification(mContext, currentArtwork, loader);
+            WearableController.updateDataLayer(mContext, currentArtwork, loader);
             mLastLoadedPath = file.getAbsolutePath();
             return loader;
         } catch (FileNotFoundException e) {
