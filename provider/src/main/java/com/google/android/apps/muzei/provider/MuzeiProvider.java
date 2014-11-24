@@ -198,6 +198,9 @@ public class MuzeiProvider extends ContentProvider {
         }
         String currentArtworkLocation = PreferenceManager.getDefaultSharedPreferences(getContext())
                 .getString(CURRENT_ARTWORK_LOCATION, null);
+        if (currentArtworkLocation == null) {
+            throw new FileNotFoundException("No artwork image is set");
+        }
         File file = new File(currentArtworkLocation);
         if (!file.exists()) {
             throw new FileNotFoundException("File " + currentArtworkLocation + " does not exist");

@@ -74,7 +74,7 @@ public class MuzeiWearableListenerService extends WearableListenerService {
             return;
         }
         final Artwork artwork = Artwork.fromBundle(artworkDataMap.toBundle());
-        final Asset asset = dataMapItem.getDataMap().getAsset("asset");
+        final Asset asset = dataMapItem.getDataMap().getAsset("image");
         if (asset == null) {
             Log.w(TAG, "No image asset in datamap.");
             return;
