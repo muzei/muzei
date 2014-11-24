@@ -16,8 +16,10 @@
 
 package com.google.android.apps.muzei.api;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -276,6 +278,56 @@ public class Artwork {
         } catch (URISyntaxException ignored) {
         }
 
+        return builder.build();
+    }
+
+    /**
+     * Serializes this artwork object to a {@link ContentValues} representation.
+     */
+    public ContentValues toContentValues() {
+        ContentValues values = new ContentValues();
+        values.put(MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI, (mImageUri != null)
+                ? mImageUri.toString() : null);
+        values.put(MuzeiContract.Artwork.COLUMN_NAME_TITLE, mTitle);
+        values.put(MuzeiContract.Artwork.COLUMN_NAME_BYLINE, mByline);
+        values.put(MuzeiContract.Artwork.COLUMN_NAME_TOKEN, mToken);
+        values.put(MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT, (mViewIntent != null)
+                ? mViewIntent.toUri(Intent.URI_INTENT_SCHEME) : null);
+        return values;
+    }
+
+
+    /**
+     * Deserializes an artwork object from a {@link Cursor}.
+     */
+    public static Artwork fromCursor(Cursor cursor) {
+        Builder builder = new Builder();
+        int imageUriColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI);
+        if (imageUriColumnIndex != -1) {
+            builder.imageUri(Uri.parse(cursor.getString(imageUriColumnIndex)));
+        }
+        int titleColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_TITLE);
+        if (titleColumnIndex != -1) {
+            builder.title(cursor.getString(titleColumnIndex));
+        }
+        int bylineColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_BYLINE);
+        if (bylineColumnIndex != -1) {
+            builder.byline(cursor.getString(bylineColumnIndex));
+        }
+        int tokenColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_TOKEN);
+        if (tokenColumnIndex != -1) {
+            builder.token(cursor.getString(tokenColumnIndex));
+        }
+        int viewIntentColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT);
+        if (viewIntentColumnIndex != -1) {
+            try {
+                String viewIntent = cursor.getString(viewIntentColumnIndex);
+                if (!TextUtils.isEmpty(viewIntent)) {
+                    builder.viewIntent(Intent.parseUri(viewIntent, Intent.URI_INTENT_SCHEME));
+                }
+            } catch (URISyntaxException ignored) {
+            }
+        }
         return builder.build();
     }
 }

@@ -19,44 +19,21 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.14.1'
+        classpath 'com.android.tools.build:gradle:0.14.4'
     }
 }
 
 apply plugin: 'com.android.application'
 
-project.archivesBaseName = "muzei"
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    compile 'com.squareup.okhttp:okhttp:1.2.1'
-    compile 'com.squareup.picasso:picasso:2.1.1'
-    compile 'com.google.android.gms:play-services:6.1.71'
-    compile ('de.greenrobot:eventbus:2.2.0') {
-        exclude group:'com.google.android', module: 'support-v4' // already included below
-    }
-    compile 'com.android.support:support-v4:21.0.0'
-    compile 'com.android.support:appcompat-v7:21.+'
-    compile 'com.android.support:recyclerview-v7:21.+'
-
-    // :api is included as a transitive dependency from :provider
-    // compile project(':api')
-    compile project(':provider')
-    wearApp project(':wearable')
-}
-
 android {
     compileSdkVersion 21
-    buildToolsVersion "21.1"
+    buildToolsVersion "21.1.1"
 
     def Properties versionProps = new Properties()
     versionProps.load(new FileInputStream(file('version.properties')))
 
     defaultConfig {
-        minSdkVersion 17
+        minSdkVersion 20
         targetSdkVersion 21
 
         versionName versionProps['name']
@@ -100,4 +77,10 @@ android {
             versionNameSuffix " Debug " + versionProps['betaNumber']
         }
     }
+}
+
+dependencies {
+    compile 'com.google.android.support:wearable:1.0.0'
+    compile 'com.google.android.gms:play-services-wearable:6.1.71'
+    compile project(':provider')
 }
