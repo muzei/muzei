@@ -31,7 +31,7 @@ public class MuzeiContract {
     /**
      * Base authority for this content provider
      */
-    public static final String AUTHORITY = "net.nurik.roman.muzei";
+    public static final String AUTHORITY = "com.google.android.apps.muzei";
     /**
      * The scheme part for this provider's URI
      */
@@ -87,7 +87,7 @@ public class MuzeiContract {
         /**
          * The MIME type of {@link #CONTENT_URI} providing a directory of contractions.
          */
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.nurik.roman.muzei.artwork";
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.android.apps.muzei.artwork";
         /**
          * The table name offered by this provider
          */
@@ -109,7 +109,7 @@ public class MuzeiContract {
          * ContentProvider is updated with data and should be considered the signal that you can retrieve the new
          * artwork
          */
-        public static final String ACTION_ARTWORK_CHANGED = "net.nurik.roman.muzei.ACTION_ARTWORK_CHANGED";
+        public static final String ACTION_ARTWORK_CHANGED = "com.google.android.apps.muzei.ACTION_ARTWORK_CHANGED";
 
         /**
          * Returns the current Muzei Artwork

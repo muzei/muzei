@@ -17,15 +17,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.nurik.roman.muzei.provider">
 
-    <permission android:name="net.nurik.roman.muzei.WRITE_PROVIDER" android:protectionLevel="signature"/>
-    <uses-permission android:name="net.nurik.roman.muzei.WRITE_PROVIDER" />
+    <permission android:name="com.google.android.apps.muzei.WRITE_PROVIDER" android:protectionLevel="signature"/>
+    <uses-permission android:name="com.google.android.apps.muzei.WRITE_PROVIDER" />
 
     <application>
         <provider
             android:name="com.google.android.apps.muzei.provider.MuzeiProvider"
-            android:authorities="net.nurik.roman.muzei"
+            android:authorities="com.google.android.apps.muzei"
             android:exported="true"
-            android:writePermission="net.nurik.roman.muzei.WRITE_PROVIDER">
+            android:writePermission="com.google.android.apps.muzei.WRITE_PROVIDER">
             <grant-uri-permission android:pathPattern=".*"/>
         </provider>
     </application>

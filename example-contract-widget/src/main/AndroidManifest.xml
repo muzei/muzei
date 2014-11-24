@@ -36,7 +36,7 @@
             android:enabled="false"
             tools:ignore="ExportedReceiver">
             <intent-filter>
-                <action android:name="net.nurik.roman.muzei.ACTION_ARTWORK_CHANGED"/>
+                <action android:name="com.google.android.apps.muzei.ACTION_ARTWORK_CHANGED"/>
             </intent-filter>
         </receiver>
         <!-- Service which actually updates the widget(s) -->
