@@ -25,22 +25,56 @@ buildscript {
 
 apply plugin: 'com.android.application'
 
-
 android {
     compileSdkVersion 21
     buildToolsVersion "21.1.1"
 
+    def Properties versionProps = new Properties()
+    versionProps.load(new FileInputStream(file('version.properties')))
+
     defaultConfig {
         minSdkVersion 20
         targetSdkVersion 21
-        versionCode 1
-        versionName "1.0"
+
+        versionName versionProps['name']
+        versionCode versionProps['code'].toInteger()
+    }
+
+    signingConfigs {
+        release {
+            def Properties localProps = new Properties()
+            localProps.load(new FileInputStream(file('../local.properties')))
+            def Properties keyProps = new Properties()
+            if (localProps['keystore.props.file'] != null) {
+                keyProps.load(new FileInputStream(file(localProps['keystore.props.file'])))
+            }
+            storeFile keyProps["store"] != null ? file(keyProps["store"]) : null
+            keyAlias keyProps["alias"]
+            storePassword keyProps["storePass"]
+            keyPassword keyProps["pass"]
+        }
     }
 
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), file('proguard-project.txt')
+            signingConfig signingConfigs.release
+        }
+
+        publicBeta.initWith(buildTypes.release)
+        publicBeta {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), file('proguard-project.txt')
+            versionNameSuffix " " + versionProps['betaNumber']
+        }
+
+        publicDebug.initWith(buildTypes.publicBeta)
+        publicDebug {
+            debuggable true
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), file('proguard-project.txt')
+            versionNameSuffix " Debug " + versionProps['betaNumber']
         }
     }
 }
