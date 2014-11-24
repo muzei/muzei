@@ -35,6 +35,7 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.SparseIntArray;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -65,6 +66,7 @@ import com.google.android.apps.muzei.util.CheatSheet;
 import com.google.android.apps.muzei.util.DrawInsetsFrameLayout;
 import com.google.android.apps.muzei.util.LogUtil;
 import com.google.android.apps.muzei.util.PanScaleProxyView;
+import com.google.android.apps.muzei.util.ScrimUtil;
 import com.google.android.apps.muzei.util.TypefaceUtil;
 
 import net.nurik.roman.muzei.R;
@@ -420,6 +422,17 @@ public class MuzeiActivity extends ActionBarActivity {
         mChromeContainerView = findViewById(R.id.chrome_container);
         mStatusBarScrimView = findViewById(R.id.statusbar_scrim);
 
+        mChromeContainerView.setBackground(ScrimUtil.makeCubicGradientScrimDrawable(
+                0xaa000000, 8, Gravity.BOTTOM));
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            mStatusBarScrimView.setVisibility(View.GONE);
+            mStatusBarScrimView = null;
+        } else {
+            mStatusBarScrimView.setBackground(ScrimUtil.makeCubicGradientScrimDrawable(
+                    0x44000000, 8, Gravity.TOP));
+        }
+
         mMetadataView = findViewById(R.id.metadata);
 
         final float metadataSlideDistance = TypedValue.applyDimension(
@@ -542,11 +555,6 @@ public class MuzeiActivity extends ActionBarActivity {
                 startService(TaskQueueService.getDownloadCurrentArtworkIntent(MuzeiActivity.this));
             }
         });
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            mStatusBarScrimView.setVisibility(View.GONE);
-            mStatusBarScrimView = null;
-        }
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)

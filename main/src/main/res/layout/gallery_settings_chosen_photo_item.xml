@@ -18,7 +18,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="2dp"
-    android:foreground="?android:selectableItemBackground">
+    android:foreground="?selectableItemBackground">
 
     <ImageView
         android:id="@+id/thumbnail"

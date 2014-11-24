@@ -133,8 +133,8 @@
 
     <!-- https://code.google.com/p/android/issues/detail?id=24922 -->
     <style name="Widget.Muzei.ListView.DropDown" parent="Widget.AppCompat.ListView.DropDown">
-        <item name="android:popupBackground">@drawable/popup_bg</item>
-        <item name="android:listSelector">?android:selectableItemBackground</item>
+        <item name="android:popupBackground">@drawable/popup_background</item>
+        <item name="android:listSelector">?selectableItemBackground</item>
         <item name="android:dropDownVerticalOffset">-4dp</item>
     </style>
 

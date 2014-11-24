@@ -68,7 +68,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:background="?android:selectableItemBackground"
+            android:background="?selectableItemBackground"
             android:paddingTop="24dp"
             android:paddingStart="24dp"
             android:paddingEnd="24dp"
@@ -85,26 +85,26 @@
 
     <View android:id="@+id/statusbar_scrim"
         android:layout_width="match_parent"
-        android:layout_height="96dp"
+        android:layout_height="160dp"
         android:layout_gravity="top"
-        android:background="@drawable/statusbar_scrim" />
+        android:background="@android:color/transparent" />
 
     <LinearLayout android:id="@+id/chrome_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="bottom"
         android:layout_gravity="bottom"
-        android:background="@drawable/metadata_scrim"
         android:orientation="horizontal">
 
         <FrameLayout android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:paddingTop="192dp"> <!-- extend gradient -->
 
             <LinearLayout android:id="@+id/metadata"
                 android:clickable="true"
                 android:focusable="true"
-                android:background="?android:selectableItemBackground"
+                android:background="?selectableItemBackground"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
