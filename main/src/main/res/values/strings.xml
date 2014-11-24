@@ -46,6 +46,7 @@
     <string name="featuredart_source_title">Featured art</string>
     <string name="featuredart_source_description">A new painting every day</string>
     <string name="featuredart_source_error_no_artwork_to_share">No artwork to share.</string>
+    <string name="featuredart_source_action_view_archive">View archive</string>
 
     <string name="webstream_source_title">From the web</string>
     <string name="webstream_source_description">Artwork from the web</string>
@@ -67,7 +68,7 @@
     <string name="action_next_artwork_condensed">Next</string>
     <string name="action_user_command">More</string>
     <string name="action_user_command_prompt">Choose action</string>
-    <string name="action_open_details">Details</string>
+    <string name="action_open_details">More info</string>
 
     <string name="done">Done</string>
     <string name="retry">Retry</string>

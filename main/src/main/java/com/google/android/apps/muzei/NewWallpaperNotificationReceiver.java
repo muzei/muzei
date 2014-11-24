@@ -233,13 +233,13 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
                     viewIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
             nb.addAction(
-                    R.drawable.ic_notif_open_details,
+                    R.drawable.ic_notif_info,
                     context.getString(R.string.action_open_details),
                     nextPendingIntent);
             // Android Wear uses larger action icons so we build a
             // separate action
             extender.addAction(new NotificationCompat.Action.Builder(
-                    R.drawable.ic_notif_full_open_details,
+                    R.drawable.ic_notif_full_info,
                     context.getString(R.string.action_open_details),
                     nextPendingIntent)
                     .extend(new NotificationCompat.Action.WearableExtender().setAvailableOffline(false))
