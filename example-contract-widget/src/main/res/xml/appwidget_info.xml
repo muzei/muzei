@@ -15,13 +15,13 @@
   -->
 
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-                    android:initialKeyguardLayout="@layout/widget"
-                    android:initialLayout="@layout/widget"
-                    android:minHeight="110dp"
-                    android:minWidth="180dp"
-                    android:minResizeHeight="40dp"
-                    android:minResizeWidth="40dp"
-                    android:previewImage="@drawable/preview"
-                    android:resizeMode="horizontal|vertical"
-                    android:updatePeriodMillis="0"
-                    android:widgetCategory="home_screen|keyguard" />
+    android:initialKeyguardLayout="@layout/widget"
+    android:initialLayout="@layout/widget"
+    android:minHeight="110dp"
+    android:minWidth="180dp"
+    android:minResizeHeight="40dp"
+    android:minResizeWidth="40dp"
+    android:previewImage="@drawable/preview"
+    android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen|keyguard" />

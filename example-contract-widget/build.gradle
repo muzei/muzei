@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-    //compile 'com.google.android.apps.muzei:muzei-api:+'
+    //compile 'com.google.android.apps.muzei:muzei-api:2.+'
     compile project(':api')
 }
 

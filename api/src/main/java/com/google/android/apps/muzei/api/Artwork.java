@@ -280,6 +280,7 @@ public class Artwork {
 
         return builder.build();
     }
+
     /**
      * Serializes this artwork object to a {@link ContentValues} representation.
      */
