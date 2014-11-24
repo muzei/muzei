@@ -1,1 +1,1 @@
-include ':api', ':main', ':example-source-500px'
+include ':api', ':provider', ':main', ':example-source-500px'

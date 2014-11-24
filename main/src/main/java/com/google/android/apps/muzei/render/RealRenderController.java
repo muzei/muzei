@@ -24,8 +24,10 @@ import com.google.android.apps.muzei.NewWallpaperNotificationReceiver;
 import com.google.android.apps.muzei.SourceManager;
 import com.google.android.apps.muzei.TaskQueueService;
 import com.google.android.apps.muzei.api.Artwork;
+import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.api.internal.SourceState;
 import com.google.android.apps.muzei.event.CurrentArtworkDownloadedEvent;
+import com.google.android.apps.muzei.provider.MuzeiProvider;
 import com.google.android.apps.muzei.util.LogUtil;
 
 import java.io.File;
@@ -99,6 +101,8 @@ public class RealRenderController extends RenderController {
         try {
             BitmapRegionLoader loader = BitmapRegionLoader.newInstance(
                     new FileInputStream(file), rotation);
+            MuzeiProvider.saveCurrentArtworkLocation(mContext, file);
+            mContext.getContentResolver().insert(MuzeiContract.Artwork.CONTENT_URI, currentArtwork.toContentValues());
             NewWallpaperNotificationReceiver
                     .maybeShowNewArtworkNotification(mContext, currentArtwork, loader);
             mLastLoadedPath = file.getAbsolutePath();
