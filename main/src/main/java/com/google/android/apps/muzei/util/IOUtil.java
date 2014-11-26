@@ -25,6 +25,7 @@ import android.support.v4.os.EnvironmentCompat;
 import android.text.TextUtils;
 
 import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.OkUrlFactory;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -103,7 +104,7 @@ public class IOUtil {
             int responseCode = 0;
             String responseMessage = null;
             try {
-                conn = client.open(new URL(uri.toString()));
+                conn = new OkUrlFactory(client).open(new URL(uri.toString()));
                 conn.setConnectTimeout(DEFAULT_CONNECT_TIMEOUT);
                 conn.setReadTimeout(DEFAULT_READ_TIMEOUT);
                 responseCode = conn.getResponseCode();
@@ -270,7 +271,7 @@ public class IOUtil {
 
         try {
             OkHttpClient client = new OkHttpClient();
-            HttpURLConnection conn = client.open(url);
+            HttpURLConnection conn = new OkUrlFactory(client).open(url);
             conn.setConnectTimeout(DEFAULT_CONNECT_TIMEOUT);
             conn.setReadTimeout(DEFAULT_READ_TIMEOUT);
             in = conn.getInputStream();

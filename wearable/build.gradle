@@ -25,6 +25,13 @@ buildscript {
 
 apply plugin: 'com.android.application'
 
+dependencies {
+    compile 'com.google.android.support:wearable:1.0.0'
+    compile 'com.google.android.gms:play-services-wearable:6.1.71'
+    compile project(':provider')
+}
+
+
 android {
     compileSdkVersion 21
     buildToolsVersion "21.1.1"
@@ -77,10 +84,4 @@ android {
             versionNameSuffix " Debug " + versionProps['betaNumber']
         }
     }
-}
-
-dependencies {
-    compile 'com.google.android.support:wearable:1.0.0'
-    compile 'com.google.android.gms:play-services-wearable:6.1.71'
-    compile project(':provider')
 }

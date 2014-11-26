@@ -25,6 +25,10 @@ buildscript {
 
 apply plugin: 'com.android.library'
 
+dependencies {
+    compile project(':api')
+}
+
 android {
     compileSdkVersion 21
     buildToolsVersion "21.1.1"
@@ -33,8 +37,4 @@ android {
         minSdkVersion 4
         targetSdkVersion 21
     }
-}
-
-dependencies {
-    compile project(':api')
 }
