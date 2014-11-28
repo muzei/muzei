@@ -30,10 +30,12 @@ import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.internal.SourceState;
 import com.google.android.apps.muzei.event.ArtworkLoadingStateChangedEvent;
 import com.google.android.apps.muzei.event.CurrentArtworkDownloadedEvent;
+import com.google.android.apps.muzei.render.BitmapRegionLoader;
 import com.google.android.apps.muzei.util.IOUtil;
 import com.google.android.apps.muzei.util.LogUtil;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Comparator;
@@ -124,8 +126,10 @@ public class ArtworkCache {
             if (!tempFile.renameTo(destFile)) {
                 throw new IOException("Couldn't move temp artwork file to final cache location.");
             }
+            // Attempt to parse the newly downloaded file as an image, ensuring it is in a valid format
+            BitmapRegionLoader.newInstance(new FileInputStream(destFile));
         } catch (IOException e) {
-            LOGE(TAG, "Error loading and caching current artwork.", e);
+            LOGE(TAG, "Error caching and loading the current artwork. URI: " + currentArtwork.getImageUri(), e);
             destFile.delete();
             EventBus.getDefault().postSticky(new ArtworkLoadingStateChangedEvent(false, true));
             scheduleRetryArtworkDownload();

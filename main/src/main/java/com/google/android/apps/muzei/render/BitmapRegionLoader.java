@@ -21,19 +21,15 @@ import android.graphics.BitmapRegionDecoder;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 
-import com.google.android.apps.muzei.util.LogUtil;
-
 import java.io.IOException;
 import java.io.InputStream;
 
 import static android.graphics.BitmapFactory.Options;
-import static com.google.android.apps.muzei.util.LogUtil.LOGE;
 
 /**
  * Wrapper for {@link BitmapRegionDecoder} with some extra functionality.
  */
 public class BitmapRegionLoader {
-    private static final String TAG = LogUtil.makeLogTag(BitmapRegionLoader.class);
     private boolean mValid = false;
     private int mRotation = 0;
     private int mOriginalWidth;
@@ -43,11 +39,11 @@ public class BitmapRegionLoader {
     private volatile BitmapRegionDecoder mBitmapRegionDecoder;
     private Matrix mRotateMatrix;
 
-    public static BitmapRegionLoader newInstance(InputStream in) {
+    public static BitmapRegionLoader newInstance(InputStream in) throws IOException {
         return newInstance(in, 0);
     }
 
-    public static BitmapRegionLoader newInstance(InputStream in, int rotation) {
+    public static BitmapRegionLoader newInstance(InputStream in, int rotation) throws IOException {
         if (in == null) {
             return null;
         }
@@ -65,15 +61,13 @@ public class BitmapRegionLoader {
         return null;
     }
 
-    private BitmapRegionLoader(InputStream in) {
+    private BitmapRegionLoader(InputStream in) throws IOException {
         mInputStream = in;
-        try {
-            mBitmapRegionDecoder = BitmapRegionDecoder.newInstance(in, false);
+        mBitmapRegionDecoder = BitmapRegionDecoder.newInstance(in, false);
+        if (mBitmapRegionDecoder != null) {
             mOriginalWidth = mBitmapRegionDecoder.getWidth();
             mOriginalHeight = mBitmapRegionDecoder.getHeight();
             mValid = true;
-        } catch (IOException e) {
-            LOGE(TAG, "Couldn't create bitmap loader.", e);
         }
     }
 
