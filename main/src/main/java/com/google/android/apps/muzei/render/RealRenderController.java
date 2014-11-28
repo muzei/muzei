@@ -112,6 +112,9 @@ public class RealRenderController extends RenderController {
         } catch (FileNotFoundException e) {
             LOGE(TAG, "Couldn't load artwork: " + file.getAbsolutePath(), e);
             return null;
+        } catch (IOException e) {
+            LOGE(TAG, "Error loading image: " + file.getAbsolutePath() + " from " + currentArtwork.getImageUri(), e);
+            return null;
         }
     }
 }
