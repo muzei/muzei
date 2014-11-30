@@ -33,8 +33,6 @@ import android.view.View;
 import android.widget.EdgeEffect;
 import android.widget.OverScroller;
 
-import net.nurik.roman.muzei.BuildConfig;
-
 /**
  * View which supports panning around an image larger than the screen size. Supports both scrolling
  * and flinging
@@ -250,32 +248,32 @@ public class PanView extends View {
             float offsetX = mOffsetX;
             float offsetY = mOffsetY;
             setOffset(mOffsetX - distanceX, mOffsetY - distanceY);
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "Scrolling to " + mOffsetX + ", " + mOffsetY);
+            if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                Log.v(TAG, "Scrolling to " + mOffsetX + ", " + mOffsetY);
             }
             if (mWidth != mScaledImage.getWidth() && mOffsetX < offsetX - distanceX) {
-                if (BuildConfig.DEBUG) {
+                if (Log.isLoggable(TAG, Log.VERBOSE)) {
                     Log.v(TAG, "Left edge pulled " + -distanceX);
                 }
                 mEdgeEffectLeft.onPull(-distanceX * 1f / mWidth);
                 mEdgeEffectLeftActive = true;
             }
             if (mHeight != mScaledImage.getHeight() && mOffsetY < offsetY - distanceY) {
-                if (BuildConfig.DEBUG) {
+                if (Log.isLoggable(TAG, Log.VERBOSE)) {
                     Log.v(TAG, "Top edge pulled " + distanceY);
                 }
                 mEdgeEffectTop.onPull(-distanceY * 1f / mHeight);
                 mEdgeEffectTopActive = true;
             }
             if (mHeight != mScaledImage.getHeight() && mOffsetY > offsetY - distanceY) {
-                if (BuildConfig.DEBUG) {
+                if (Log.isLoggable(TAG, Log.VERBOSE)) {
                     Log.v(TAG, "Bottom edge pulled " + -distanceY);
                 }
                 mEdgeEffectBottom.onPull(distanceY * 1f / mHeight);
                 mEdgeEffectBottomActive = true;
             }
             if (mWidth != mScaledImage.getWidth() && mOffsetX > offsetX - distanceX) {
-                if (BuildConfig.DEBUG) {
+                if (Log.isLoggable(TAG, Log.VERBOSE)) {
                     Log.v(TAG, "Right edge pulled " + distanceX);
                 }
                 mEdgeEffectRight.onPull(distanceX * 1f / mWidth);
@@ -333,7 +331,7 @@ public class PanView extends View {
                 if (mWidth != mScaledImage.getWidth() && mOffsetX < mScroller.getCurrX()
                         && mEdgeEffectLeft.isFinished()
                         && !mEdgeEffectLeftActive) {
-                    if (BuildConfig.DEBUG) {
+                    if (Log.isLoggable(TAG, Log.VERBOSE)) {
                         Log.v(TAG, "Left edge absorbing " + mScroller.getCurrVelocity());
                     }
                     mEdgeEffectLeft.onAbsorb((int) mScroller.getCurrVelocity());
@@ -341,7 +339,7 @@ public class PanView extends View {
                 } else if (mWidth != mScaledImage.getWidth() && mOffsetX > mScroller.getCurrX()
                         && mEdgeEffectRight.isFinished()
                         && !mEdgeEffectRightActive) {
-                    if (BuildConfig.DEBUG) {
+                    if (Log.isLoggable(TAG, Log.VERBOSE)) {
                         Log.v(TAG, "Right edge absorbing " + mScroller.getCurrVelocity());
                     }
                     mEdgeEffectRight.onAbsorb((int) mScroller.getCurrVelocity());
@@ -351,7 +349,7 @@ public class PanView extends View {
                 if (mHeight != mScaledImage.getHeight() && mOffsetY < mScroller.getCurrX()
                         && mEdgeEffectTop.isFinished()
                         && !mEdgeEffectTopActive) {
-                    if (BuildConfig.DEBUG) {
+                    if (Log.isLoggable(TAG, Log.VERBOSE)) {
                         Log.v(TAG, "Top edge absorbing " + mScroller.getCurrVelocity());
                     }
                     mEdgeEffectTop.onAbsorb((int) mScroller.getCurrVelocity());
@@ -359,15 +357,15 @@ public class PanView extends View {
                 } else if (mHeight != mScaledImage.getHeight() && mOffsetY > mScroller.getCurrY()
                         && mEdgeEffectBottom.isFinished()
                         && !mEdgeEffectBottomActive) {
-                    if (BuildConfig.DEBUG) {
+                    if (Log.isLoggable(TAG, Log.VERBOSE)) {
                         Log.v(TAG, "Bottom edge absorbing " + mScroller.getCurrVelocity());
                     }
                     mEdgeEffectBottom.onAbsorb((int) mScroller.getCurrVelocity());
                     mEdgeEffectBottomActive = true;
                 }
 
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "Flinging to " + mOffsetX + ", " + mOffsetY);
+                if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                    Log.v(TAG, "Flinging to " + mOffsetX + ", " + mOffsetY);
                 }
                 needsInvalidate = true;
             }
