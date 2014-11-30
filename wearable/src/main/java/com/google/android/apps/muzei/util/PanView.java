@@ -30,6 +30,7 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.EdgeEffect;
 import android.widget.OverScroller;
 
 import net.nurik.roman.muzei.BuildConfig;
@@ -74,6 +75,17 @@ public class PanView extends View {
      */
     private Handler mHandler = new Handler();
 
+    // Edge effect / overscroll tracking objects.
+    private EdgeEffect mEdgeEffectTop;
+    private EdgeEffect mEdgeEffectBottom;
+    private EdgeEffect mEdgeEffectLeft;
+    private EdgeEffect mEdgeEffectRight;
+
+    private boolean mEdgeEffectTopActive;
+    private boolean mEdgeEffectBottomActive;
+    private boolean mEdgeEffectLeftActive;
+    private boolean mEdgeEffectRightActive;
+
     public PanView(Context context) {
         this(context, null, 0);
     }
@@ -88,6 +100,10 @@ public class PanView extends View {
         // Sets up interactions
         mGestureDetector = new GestureDetector(context, new ScrollFlingGestureListener());
         mScroller = new OverScroller(context);
+        mEdgeEffectLeft = new EdgeEffect(context);
+        mEdgeEffectTop = new EdgeEffect(context);
+        mEdgeEffectRight = new EdgeEffect(context);
+        mEdgeEffectBottom = new EdgeEffect(context);
     }
 
     /**
@@ -132,6 +148,67 @@ public class PanView extends View {
         if (mScaledImage != null) {
             canvas.drawBitmap(mScaledImage, mOffsetX, mOffsetY, null);
         }
+        drawEdgeEffects(canvas);
+    }
+
+    /**
+     * Draws the overscroll "glow" at the four edges, if necessary
+     *
+     * @see EdgeEffect
+     */
+    private void drawEdgeEffects(Canvas canvas) {
+        // The methods below rotate and translate the canvas as needed before drawing the glow,
+        // since EdgeEffect always draws a top-glow at 0,0.
+
+        boolean needsInvalidate = false;
+
+        if (!mEdgeEffectTop.isFinished()) {
+            final int restoreCount = canvas.save();
+            mEdgeEffectTop.setSize(mWidth, mHeight);
+            if (mEdgeEffectTop.draw(canvas)) {
+                needsInvalidate = true;
+            }
+            canvas.restoreToCount(restoreCount);
+        }
+
+        if (!mEdgeEffectBottom.isFinished()) {
+            final int restoreCount = canvas.save();
+            canvas.translate(-mWidth, mHeight);
+            canvas.rotate(180, mWidth, 0);
+            mEdgeEffectBottom.setSize(mWidth, mHeight);
+            if (mEdgeEffectBottom.draw(canvas)) {
+                needsInvalidate = true;
+            }
+            canvas.restoreToCount(restoreCount);
+        }
+
+        if (!mEdgeEffectLeft.isFinished()) {
+            final int restoreCount = canvas.save();
+            canvas.translate(0, mHeight);
+            canvas.rotate(-90, 0, 0);
+            //noinspection SuspiciousNameCombination
+            mEdgeEffectLeft.setSize(mHeight, mWidth);
+            if (mEdgeEffectLeft.draw(canvas)) {
+                needsInvalidate = true;
+            }
+            canvas.restoreToCount(restoreCount);
+        }
+
+        if (!mEdgeEffectRight.isFinished()) {
+            final int restoreCount = canvas.save();
+            canvas.translate(mWidth, 0);
+            canvas.rotate(90, 0, 0);
+            //noinspection SuspiciousNameCombination
+            mEdgeEffectRight.setSize(mHeight, mWidth);
+            if (mEdgeEffectRight.draw(canvas)) {
+                needsInvalidate = true;
+            }
+            canvas.restoreToCount(restoreCount);
+        }
+
+        if (needsInvalidate) {
+            invalidate();
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -162,15 +239,47 @@ public class PanView extends View {
     private class ScrollFlingGestureListener extends GestureDetector.SimpleOnGestureListener {
         @Override
         public boolean onDown(MotionEvent e) {
+            releaseEdgeEffects();
             mScroller.forceFinished(true);
+            invalidate();
             return true;
         }
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            float offsetX = mOffsetX;
+            float offsetY = mOffsetY;
             setOffset(mOffsetX - distanceX, mOffsetY - distanceY);
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Scrolling to " + mOffsetX + ", " + mOffsetY);
+            }
+            if (mWidth != mScaledImage.getWidth() && mOffsetX < offsetX - distanceX) {
+                if (BuildConfig.DEBUG) {
+                    Log.v(TAG, "Left edge pulled " + -distanceX);
+                }
+                mEdgeEffectLeft.onPull(-distanceX * 1f / mWidth);
+                mEdgeEffectLeftActive = true;
+            }
+            if (mHeight != mScaledImage.getHeight() && mOffsetY < offsetY - distanceY) {
+                if (BuildConfig.DEBUG) {
+                    Log.v(TAG, "Top edge pulled " + distanceY);
+                }
+                mEdgeEffectTop.onPull(-distanceY * 1f / mHeight);
+                mEdgeEffectTopActive = true;
+            }
+            if (mHeight != mScaledImage.getHeight() && mOffsetY > offsetY - distanceY) {
+                if (BuildConfig.DEBUG) {
+                    Log.v(TAG, "Bottom edge pulled " + -distanceY);
+                }
+                mEdgeEffectBottom.onPull(distanceY * 1f / mHeight);
+                mEdgeEffectBottomActive = true;
+            }
+            if (mWidth != mScaledImage.getWidth() && mOffsetX > offsetX - distanceX) {
+                if (BuildConfig.DEBUG) {
+                    Log.v(TAG, "Right edge pulled " + distanceX);
+                }
+                mEdgeEffectRight.onPull(distanceX * 1f / mWidth);
+                mEdgeEffectRightActive = true;
             }
             invalidate();
             return true;
@@ -178,6 +287,7 @@ public class PanView extends View {
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            releaseEdgeEffects();
             mScroller.forceFinished(true);
             mScroller.fling(
                     (int) mOffsetX,
@@ -191,6 +301,18 @@ public class PanView extends View {
             postAnimateTick();
             invalidate();
             return true;
+        }
+
+        private void releaseEdgeEffects() {
+            mEdgeEffectLeftActive
+                    = mEdgeEffectTopActive
+                    = mEdgeEffectRightActive
+                    = mEdgeEffectBottomActive
+                    = false;
+            mEdgeEffectLeft.onRelease();
+            mEdgeEffectTop.onRelease();
+            mEdgeEffectRight.onRelease();
+            mEdgeEffectBottom.onRelease();
         }
     }
 
@@ -207,6 +329,42 @@ public class PanView extends View {
             if (mScroller.computeScrollOffset()) {
                 // The scroller isn't finished, meaning a fling is currently active.
                 setOffset(mScroller.getCurrX(), mScroller.getCurrY());
+
+                if (mWidth != mScaledImage.getWidth() && mOffsetX < mScroller.getCurrX()
+                        && mEdgeEffectLeft.isFinished()
+                        && !mEdgeEffectLeftActive) {
+                    if (BuildConfig.DEBUG) {
+                        Log.v(TAG, "Left edge absorbing " + mScroller.getCurrVelocity());
+                    }
+                    mEdgeEffectLeft.onAbsorb((int) mScroller.getCurrVelocity());
+                    mEdgeEffectLeftActive = true;
+                } else if (mWidth != mScaledImage.getWidth() && mOffsetX > mScroller.getCurrX()
+                        && mEdgeEffectRight.isFinished()
+                        && !mEdgeEffectRightActive) {
+                    if (BuildConfig.DEBUG) {
+                        Log.v(TAG, "Right edge absorbing " + mScroller.getCurrVelocity());
+                    }
+                    mEdgeEffectRight.onAbsorb((int) mScroller.getCurrVelocity());
+                    mEdgeEffectRightActive = true;
+                }
+
+                if (mHeight != mScaledImage.getHeight() && mOffsetY < mScroller.getCurrX()
+                        && mEdgeEffectTop.isFinished()
+                        && !mEdgeEffectTopActive) {
+                    if (BuildConfig.DEBUG) {
+                        Log.v(TAG, "Top edge absorbing " + mScroller.getCurrVelocity());
+                    }
+                    mEdgeEffectTop.onAbsorb((int) mScroller.getCurrVelocity());
+                    mEdgeEffectTopActive = true;
+                } else if (mHeight != mScaledImage.getHeight() && mOffsetY > mScroller.getCurrY()
+                        && mEdgeEffectBottom.isFinished()
+                        && !mEdgeEffectBottomActive) {
+                    if (BuildConfig.DEBUG) {
+                        Log.v(TAG, "Bottom edge absorbing " + mScroller.getCurrVelocity());
+                    }
+                    mEdgeEffectBottom.onAbsorb((int) mScroller.getCurrVelocity());
+                    mEdgeEffectBottomActive = true;
+                }
 
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "Flinging to " + mOffsetX + ", " + mOffsetY);
