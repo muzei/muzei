@@ -30,7 +30,7 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Scroller;
+import android.widget.OverScroller;
 
 import net.nurik.roman.muzei.BuildConfig;
 
@@ -68,7 +68,7 @@ public class PanView extends View {
 
     // State objects and values related to gesture tracking.
     private GestureDetector mGestureDetector;
-    private Scroller mScroller;
+    private OverScroller mScroller;
     /**
      * Handler for posting fling animation updates
      */
@@ -87,7 +87,7 @@ public class PanView extends View {
 
         // Sets up interactions
         mGestureDetector = new GestureDetector(context, new ScrollFlingGestureListener());
-        mScroller = new Scroller(context);
+        mScroller = new OverScroller(context);
     }
 
     /**
@@ -145,6 +145,17 @@ public class PanView extends View {
         return mGestureDetector.onTouchEvent(event) || super.onTouchEvent(event);
     }
 
+    private void setOffset(float offsetX, float offsetY) {
+        // Constrain between mWidth - mScaledImage.getWidth() and 0
+        // mWidth - mScaledImage.getWidth() -> right edge visible
+        // 0 -> left edge visible
+        mOffsetX = Math.min(0, Math.max(mWidth - mScaledImage.getWidth(), offsetX));
+        // Constrain between mHeight - mScaledImage.getHeight() and 0
+        // mHeight - mScaledImage.getHeight() -> bottom edge visible
+        // 0 -> top edge visible
+        mOffsetY = Math.min(0, Math.max(mHeight - mScaledImage.getHeight(), offsetY));
+    }
+
     /**
      * The gesture listener, used for handling simple gestures such as scrolls and flings.
      */
@@ -157,14 +168,7 @@ public class PanView extends View {
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            // Constrain between mWidth - mImage.getWidth() and 0
-            // mWidth - mScaledImage.getWidth() -> right edge visible
-            // 0 -> left edge visible
-            mOffsetX = Math.min(0, Math.max(mWidth - mScaledImage.getWidth(), mOffsetX - distanceX));
-            // Constrain between mHeight - mScaledImage.getHeight() and 0
-            // mHeight - mImage.getHeight() -> bottom edge visible
-            // 0 -> top edge visible
-            mOffsetY = Math.min(0, Math.max(mHeight - mScaledImage.getHeight(), mOffsetY - distanceY));
+            setOffset(mOffsetX - distanceX, mOffsetY - distanceY);
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Scrolling to " + mOffsetX + ", " + mOffsetY);
             }
@@ -181,7 +185,9 @@ public class PanView extends View {
                     (int) velocityX,
                     (int) velocityY,
                     mWidth - mScaledImage.getWidth(), 0, // mWidth - mScaledImage.getWidth() is negative
-                    mHeight - mScaledImage.getHeight(), 0); // mHeight - mScaledImage.getHeight() is negative
+                    mHeight - mScaledImage.getHeight(), 0, // mHeight - mScaledImage.getHeight() is negative
+                    mScaledImage.getWidth() / 2,
+                    mScaledImage.getHeight() / 2);
             postAnimateTick();
             invalidate();
             return true;
@@ -200,8 +206,7 @@ public class PanView extends View {
 
             if (mScroller.computeScrollOffset()) {
                 // The scroller isn't finished, meaning a fling is currently active.
-                mOffsetX = mScroller.getCurrX();
-                mOffsetY = mScroller.getCurrY();
+                setOffset(mScroller.getCurrX(), mScroller.getCurrY());
 
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "Flinging to " + mOffsetX + ", " + mOffsetY);
