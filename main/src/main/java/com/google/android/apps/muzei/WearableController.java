@@ -61,13 +61,13 @@ public class WearableController {
         Rect rect = new Rect();
         int width = bitmapRegionLoader.getWidth();
         int height = bitmapRegionLoader.getHeight();
-        if (width > height) {
-            rect.set((width - height) / 2, 0, (width + height) / 2, height);
-        } else {
-            rect.set(0, (height - width) / 2, width, (height + width) / 2);
-        }
+        rect.set(0, 0, width, height);
         BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inSampleSize = ImageUtil.calculateSampleSize(height, 320);
+        if (width > height) {
+            options.inSampleSize = ImageUtil.calculateSampleSize(height, 320);
+        } else {
+            options.inSampleSize = ImageUtil.calculateSampleSize(width, 320);
+        }
         Bitmap image = bitmapRegionLoader.decodeRegion(rect, options);
         final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         image.compress(Bitmap.CompressFormat.PNG, 100, byteStream);
