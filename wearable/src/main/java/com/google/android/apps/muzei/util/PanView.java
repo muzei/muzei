@@ -42,6 +42,7 @@ public class PanView extends View {
     private static final String TAG = PanView.class.getSimpleName();
 
     private Bitmap mImage;
+    private Bitmap mScaledImage;
     /**
      * Horizontal offset for painting the image. As this is used in a canvas.drawBitmap it ranges
      * from a negative value mWidth-image.getWidth() (remember the view is smaller than the image)
@@ -96,13 +97,7 @@ public class PanView extends View {
      */
     public void setImage(Bitmap image) {
         mImage = image;
-        if (mImage == null) {
-            return;
-        }
-        // Center the image
-        mOffsetX = (mWidth - mImage.getWidth()) / 2;
-        mOffsetY = (mHeight - mImage.getHeight()) / 2;
-        invalidate();
+        updateScaledImage();
     }
 
     @Override
@@ -110,18 +105,32 @@ public class PanView extends View {
         super.onSizeChanged(w, h, oldw, oldh);
         mWidth = Math.max(1, w);
         mHeight = Math.max(1, h);
-        if (mImage != null) {
-            // Center the image
-            mOffsetX = (mWidth - mImage.getWidth()) / 2;
-            mOffsetY = (mHeight - mImage.getHeight()) / 2;
-            invalidate();
+        updateScaledImage();
+    }
+
+    private void updateScaledImage() {
+        if (mImage == null) {
+            return;
         }
+        int width = mImage.getWidth();
+        int height = mImage.getHeight();
+        if (width > height) {
+            float scalingFactor = mHeight * 1f / height;
+            mScaledImage = Bitmap.createScaledBitmap(mImage, (int)(scalingFactor * width), mHeight, true);
+        } else {
+            float scalingFactor = mWidth * 1f / width;
+            mScaledImage = Bitmap.createScaledBitmap(mImage, mWidth, (int)(scalingFactor * height), true);
+        }
+        // Center the image
+        mOffsetX = (mWidth - mScaledImage.getWidth()) / 2;
+        mOffsetY = (mHeight - mScaledImage.getHeight()) / 2;
+        invalidate();
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if (mImage != null) {
-            canvas.drawBitmap(mImage, mOffsetX, mOffsetY, null);
+        if (mScaledImage != null) {
+            canvas.drawBitmap(mScaledImage, mOffsetX, mOffsetY, null);
         }
     }
 
@@ -149,13 +158,13 @@ public class PanView extends View {
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             // Constrain between mWidth - mImage.getWidth() and 0
-            // mWidth - mImage.getWidth() -> right edge visible
+            // mWidth - mScaledImage.getWidth() -> right edge visible
             // 0 -> left edge visible
-            mOffsetX = Math.min(0, Math.max(mWidth - mImage.getWidth(), mOffsetX - distanceX));
-            // Constrain between mHeight - mImage.getHeight() and 0
+            mOffsetX = Math.min(0, Math.max(mWidth - mScaledImage.getWidth(), mOffsetX - distanceX));
+            // Constrain between mHeight - mScaledImage.getHeight() and 0
             // mHeight - mImage.getHeight() -> bottom edge visible
             // 0 -> top edge visible
-            mOffsetY = Math.min(0, Math.max(mHeight - mImage.getHeight(), mOffsetY - distanceY));
+            mOffsetY = Math.min(0, Math.max(mHeight - mScaledImage.getHeight(), mOffsetY - distanceY));
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Scrolling to " + mOffsetX + ", " + mOffsetY);
             }
@@ -171,8 +180,8 @@ public class PanView extends View {
                     (int) mOffsetY,
                     (int) velocityX,
                     (int) velocityY,
-                    mWidth - mImage.getWidth(), 0, // mWidth - mImage.getWidth() is negative
-                    mHeight - mImage.getHeight(), 0); // mHeight - mImage.getHeight() is negative
+                    mWidth - mScaledImage.getWidth(), 0, // mWidth - mScaledImage.getWidth() is negative
+                    mHeight - mScaledImage.getHeight(), 0); // mHeight - mScaledImage.getHeight() is negative
             postAnimateTick();
             invalidate();
             return true;
