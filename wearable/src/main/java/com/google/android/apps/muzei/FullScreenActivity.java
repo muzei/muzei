@@ -24,11 +24,16 @@ import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.wearable.view.CardScrollView;
 import android.support.wearable.view.DismissOverlayView;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.MotionEvent;
+import android.view.View;
+import android.widget.TextView;
 
+import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.util.PanView;
 
@@ -40,8 +45,13 @@ public class FullScreenActivity extends Activity implements LoaderManager.Loader
     private static final String TAG = FullScreenActivity.class.getSimpleName();
 
     private PanView mPanView;
+    private CardScrollView mCardLayout;
+    private TextView mTitle;
+    private TextView mByline;
     private DismissOverlayView mDismissOverlay;
     private GestureDetector mDetector;
+
+    private Artwork mArtwork;
 
     public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
@@ -49,11 +59,30 @@ public class FullScreenActivity extends Activity implements LoaderManager.Loader
         mPanView = (PanView) findViewById(R.id.pan_view);
         getLoaderManager().initLoader(0, null, this);
 
+        mCardLayout = (CardScrollView) findViewById(R.id.card_layout);
+        mCardLayout.setCardGravity(Gravity.BOTTOM);
+        mTitle = (TextView) findViewById(R.id.title);
+        mByline = (TextView) findViewById(R.id.byline);
+
         // Configure the DismissOverlayView element
         mDismissOverlay = (DismissOverlayView) findViewById(R.id.dismiss_overlay);
         mDismissOverlay.setIntroText(R.string.dismiss_overlay_intro);
         mDismissOverlay.showIntroIfNecessary();
         mDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+                if (mDismissOverlay.getVisibility() == View.VISIBLE) {
+                    return false;
+                }
+                if (mCardLayout.getVisibility() == View.VISIBLE) {
+                    mCardLayout.setVisibility(View.GONE);
+                } else {
+                    mCardLayout.setVisibility(View.VISIBLE);
+                }
+                return true;
+            }
+
+            @Override
             public void onLongPress(MotionEvent ev) {
                 mDismissOverlay.show();
             }
@@ -92,6 +121,7 @@ public class FullScreenActivity extends Activity implements LoaderManager.Loader
             @Override
             public Bitmap loadInBackground() {
                 try {
+                    mArtwork = MuzeiContract.Artwork.getCurrentArtwork(FullScreenActivity.this);
                     mImage = MuzeiContract.Artwork.getCurrentArtworkBitmap(FullScreenActivity.this);
                     return mImage;
                 } catch (FileNotFoundException e) {
@@ -117,6 +147,8 @@ public class FullScreenActivity extends Activity implements LoaderManager.Loader
             return;
         }
         mPanView.setImage(image);
+        mTitle.setText(mArtwork.getTitle());
+        mByline.setText(mArtwork.getByline());
     }
 
     @Override
