@@ -29,6 +29,7 @@
 
         <activity
             android:name="com.google.android.apps.muzei.FullScreenActivity"
+            android:enabled="false"
             android:theme="@style/FullScreenTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
