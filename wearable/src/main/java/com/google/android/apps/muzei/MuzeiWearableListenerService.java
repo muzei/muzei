@@ -16,6 +16,8 @@
 
 package com.google.android.apps.muzei;
 
+import android.content.ComponentName;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Binder;
@@ -118,7 +120,18 @@ public class MuzeiWearableListenerService extends WearableListenerService {
                 Log.e(TAG, "Error closing local cache file", e);
             }
         }
+        enableComponents(FullScreenActivity.class);
         MuzeiProvider.saveCurrentArtworkLocation(MuzeiWearableListenerService.this, localCache);
         getContentResolver().insert(MuzeiContract.Artwork.CONTENT_URI, artwork.toContentValues());
+    }
+
+    private void enableComponents(Class<?>... components) {
+        PackageManager packageManager = getPackageManager();
+        for (Class<?> component : components) {
+            ComponentName componentName = new ComponentName(this, component);
+            packageManager.setComponentEnabledSetting(componentName,
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                    PackageManager.DONT_KILL_APP);
+        }
     }
 }
