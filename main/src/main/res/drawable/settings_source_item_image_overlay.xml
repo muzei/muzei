@@ -14,7 +14,9 @@
   limitations under the License.
   -->
 
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:enterFadeDuration="100"
+    android:exitFadeDuration="100">
     <item android:state_pressed="true">
         <shape android:shape="oval">
             <solid android:color="#3000" />

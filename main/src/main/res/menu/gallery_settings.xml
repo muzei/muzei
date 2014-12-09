@@ -14,32 +14,33 @@
   limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_rotate_interval"
         android:title="@string/action_rotate_interval"
         android:icon="@drawable/ic_action_rotate_interval"
-        android:showAsAction="ifRoom">
+        app:showAsAction="ifRoom">
         <menu>
             <group android:checkableBehavior="single">
                 <item
                     android:id="@+id/action_rotate_interval_none"
-                    android:title="Don't change wallpaper" />
+                    android:title="@string/action_rotate_interval_none" />
                 <item
                     android:id="@+id/action_rotate_interval_1h"
-                    android:title="Every hour" />
+                    android:title="@string/action_rotate_interval_1h" />
                 <item
                     android:id="@+id/action_rotate_interval_3h"
-                    android:title="Every 3 hours" />
+                    android:title="@string/action_rotate_interval_3h" />
                 <item
                     android:id="@+id/action_rotate_interval_6h"
-                    android:title="Every 6 hours" />
+                    android:title="@string/action_rotate_interval_6h" />
                 <item
                     android:id="@+id/action_rotate_interval_24h"
-                    android:title="Every 24 hours" />
+                    android:title="@string/action_rotate_interval_24h" />
                 <item
                     android:id="@+id/action_rotate_interval_72h"
-                    android:title="Every 3 days" />
+                    android:title="@string/action_rotate_interval_72h" />
             </group>
         </menu>
     </item>
@@ -47,5 +48,5 @@
         android:id="@+id/action_clear_photos"
         android:title="@string/action_clear_photos"
         android:orderInCategory="10000"
-        android:showAsAction="never" />
+        app:showAsAction="never" />
 </menu>

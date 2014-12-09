@@ -21,14 +21,14 @@ apply plugin: 'java'
 
 jar.baseName = 'muzei-api'
 group = 'com.google.android.apps.muzei'
-version = '1.0'
+version = '2.0'
 
 def Properties props = new Properties()
 props.load(new FileInputStream(file('../local.properties')))
 
 def android = [
         sdk: props["sdk.dir"],
-        target: 'android-20'
+        target: 'android-21'
 ]
 
 allprojects { ext."signing.keyId" = props["signing.keyId"] }

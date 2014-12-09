@@ -14,20 +14,11 @@
   limitations under the License.
   -->
 
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_pressed="true">
-        <shape android:shape="oval">
-            <solid android:color="#cfff" />
-        </shape>
-    </item>
-    <item android:state_focused="true">
-        <shape android:shape="oval">
-            <solid android:color="#afff" />
-        </shape>
-    </item>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape android:shape="oval">
             <solid android:color="#fff" />
         </shape>
     </item>
-</selector>
+    <item android:drawable="@drawable/grey_selectable_item_background_circle" />
+</layer-list>

@@ -15,18 +15,44 @@
   -->
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <FrameLayout android:id="@+id/local_render_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
     <FrameLayout
-        android:id="@+id/content_container"
-        android:fitsSystemWindows="true"
+        android:id="@+id/local_render_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        android:orientation="vertical">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/app_bar"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            app:contentInsetStart="@dimen/keyline_2_minus_16dp"
+            app:theme="@style/ThemeOverlay.Muzei.Toolbar"
+            app:popupTheme="@style/ThemeOverlay.Muzei.Toolbar"
+            app:navigationIcon="@drawable/ic_ab_done"
+            app:navigationContentDescription="@string/done">
+
+            <Spinner
+                android:id="@+id/section_spinner"
+                android:background="?selectableItemBackground"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+
+        </android.support.v7.widget.Toolbar>
+
+        <FrameLayout
+            android:id="@+id/content_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+    </LinearLayout>
 </FrameLayout>
 

@@ -48,9 +48,9 @@ public class ImageUtil {
     private ImageUtil() {
     }
 
-    public static int calculateSampleSize(int rawHeight, int targetHeight) {
+    public static int calculateSampleSize(int rawSize, int targetSize) {
         int sampleSize = 1;
-        while (rawHeight / (sampleSize << 1) > targetHeight) {
+        while (rawSize / (sampleSize << 1) > targetSize) {
             sampleSize <<= 1;
         }
         return sampleSize;

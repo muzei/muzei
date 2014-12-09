@@ -21,17 +21,23 @@
     <dimen name="art_detail_metadata_margin_bottom">40dp</dimen>
     <dimen name="art_detail_title_text_size">34sp</dimen>
     <dimen name="art_detail_title_bottom_padding">16sp</dimen>
-    <dimen name="art_detail_title_byline_margin">-4sp</dimen>
+    <dimen name="art_detail_title_byline_margin">-8sp</dimen>
     <dimen name="art_detail_byline_text_size">26sp</dimen>
 
     <dimen name="intro_activate_button_size">140dp</dimen>
+
+    <dimen name="keyline_1">24dp</dimen>
+    <dimen name="keyline_2">80dp</dimen>
+    <dimen name="keyline_2_minus_16dp">64dp</dimen>
 
     <dimen name="tutorial_content_margin">0dp</dimen>
 
     <dimen name="settings_choose_source_item_width">280dp</dimen>
     <dimen name="settings_choose_source_item_image_size">140dp</dimen>
     <dimen name="settings_choose_source_item_estimated_height">300dp</dimen>
+    <dimen name="settings_text_size_large">24sp</dimen>
     <dimen name="settings_text_size_normal">20sp</dimen>
+    <dimen name="settings_text_size_small">16sp</dimen>
 
     <dimen name="gallery_settings_chosen_photo_grid_max_item_size">300dp</dimen>
     <dimen name="gallery_settings_chosen_photo_grid_spacing">2dp</dimen>

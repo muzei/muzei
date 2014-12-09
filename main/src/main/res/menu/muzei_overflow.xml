@@ -14,9 +14,10 @@
   limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/action_settings"
         android:title="@string/action_settings"
         android:orderInCategory="10000"
-        android:showAsAction="never" />
+        app:showAsAction="never" />
 </menu>

@@ -22,47 +22,19 @@ html, body {
 
 body {
   background-color: #fff;
-  min-width: 690px;
-  min-height: 640px;
-
-  display: -webkit-flex;
-  -webkit-justify-content: center;
-  -webkit-align-items: center;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-  body.withvignette {
-    background-image: radial-gradient(circle at 50% 50%, #fff 60%, #ddd);
-  }
-
-#container {
-  position: relative;
-  margin: 70px;
-  width: 550px;
-  height: 500px;
 }
 
 #logo {
-  position: absolute;
-  left: 0;
-  top: 60px;
-  width: 250px;
-  height: 102px;
   background-image: url(muzei.png);
   background-repeat: no-repeat;
   background-size: contain;
   opacity: 0.7;
   z-index: 100;
+  width: 250px;
+  height: 102px;
 }
 
 #text {
-  position: absolute;
-  left: 0;
-  top: 200px;
-  width: 240px;
   font-family: 'Alegreya Sans';
   font-weight: 300;
   font-size: 20px;
@@ -72,9 +44,7 @@ body {
 }
 
 #playlink {
-  position: absolute;
-  left: 0;
-  bottom: 100px;
+  display: block;
   width: 113px;
   height: 33px;
   padding: 15px 20px;
@@ -99,32 +69,18 @@ body {
   }
 
   #playlink:active {
-    bottom: 99px;
     box-shadow: 0 0 0;
   }
 
 #device-frame {
-  position: absolute;
-  right: -70px;
-  top: 0;
-  width: 420px;
-  height: 500px;
-  background-image: url(tilted_fallback.jpg);
-  background-size: cover;
   -webkit-user-select: none;
   -moz-user-select: none;
 }
 
   #device-frame:after {
+    pointer-events: none;
     content: '';
     display: block;
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 420px;
-    height: 500px;
-    background: url(tilted_fore.png);
-    background-size: cover;
   }
 
   #device-frame.artdetailopen {
@@ -133,21 +89,8 @@ body {
 
 #device-screen {
   display: none;
-  position: absolute;
-  left: 146px;
-  top: 49px;
-  width: 360px;
-  height: 640px;
   background-color: #000;
   color: white;
-  -webkit-transform-origin: 0% 0%;
-  -webkit-transform: perspective(2100px) rotateZ(-5.2deg) rotateY(-42.6deg) rotateX(31deg) scale(0.6);
-  -moz-transform-origin: 0% 0%;
-  -moz-transform: perspective(2100px) rotateZ(-5.2deg) rotateY(-42.6deg) rotateX(31deg) scale(0.6);
-  -ms-transform-origin: 0% 0%;
-  -ms-transform: perspective(2100px) rotateZ(-5.2deg) rotateY(-42.6deg) rotateX(31deg) scale(0.6);
-  transform-origin: 0% 0%;
-  transform: perspective(2100px) rotateZ(-5.2deg) rotateY(-42.6deg) rotateX(31deg) scale(0.6);
   overflow: hidden;
 }
 
@@ -173,13 +116,171 @@ body {
     transition-duration: 0.5s;
   }
 
+@media (min-width: 700px) {
+  body {
+    min-width: 690px;
+    min-height: 640px;
+
+    display: -webkit-flex;
+    -webkit-justify-content: center;
+    -webkit-align-items: center;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #container {
+    position: relative;
+    margin: 70px;
+    width: 550px;
+    height: 500px;
+  }
+
+  #logo {
+    position: absolute;
+    left: 0;
+    top: 60px;
+  }
+
+  #text {
+    position: absolute;
+    left: 0;
+    top: 200px;
+    width: 240px;
+  }
+
+  #playlink {
+    position: absolute;
+    left: 0;
+    bottom: 100px;
+  }
+
+    #playlink:active {
+      bottom: 99px;
+    }
+
+  #device-frame {
+    position: absolute;
+    right: -70px;
+    top: 0;
+    width: 420px;
+    height: 500px;
+    background-image: url(fakeui/device_tilted_fallback.jpg);
+    background-size: cover;
+  }
+
+    #device-frame.frameonly {
+      background-image: url(fakeui/device_tilted.png);
+    }
+
+    #device-frame:after {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 420px;
+      height: 500px;
+      background: url(fakeui/device_tilted_fore.png);
+      background-size: cover;
+    }
+
+  #device-screen {
+    position: absolute;
+    left: 146px;
+    top: 49px;
+    width: 360px;
+    height: 640px;
+    -webkit-transform-origin: 0% 0%;
+    -webkit-transform: perspective(2100px) rotateZ(-5.2deg) rotateY(-42.6deg) rotateX(31deg) scale(0.6);
+    -moz-transform-origin: 0% 0%;
+    -moz-transform: perspective(2100px) rotateZ(-5.2deg) rotateY(-42.6deg) rotateX(31deg) scale(0.6);
+    transform-origin: 0% 0%;
+    transform: perspective(2100px) rotateZ(-5.2deg) rotateY(-42.6deg) rotateX(31deg) scale(0.6);
+  }
+}
+
+@media (max-width: 699px) {
+  body {
+    display: block;
+  }
+
+  #container {
+    width: 296px;
+    margin: 16px auto;
+    position: relative;
+  }
+
+  #logo {
+    width: 130px;
+    height: 54px;
+  }
+
+  #text {
+    position: absolute;
+    left: 120px;
+    top: 8px;
+    width: 180px;
+    font-size: 15px;
+    line-height: 16px;
+    display: none;
+  }
+
+  #playlink {
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 8px 12px 4px 12px;
+  }
+
+  #device-frame {
+    position: relative;
+    margin-top: 16px;
+    left: -28px;
+    width: 470px;
+    height: 802px;
+    background-image: url(fakeui/device_flat_fallback.jpg);
+    background-size: cover;
+    -webkit-transform-origin: 0% 0%;
+    -webkit-transform: scale(0.75);
+    -moz-transform-origin: 0% 0%;
+    -moz-transform: scale(0.75);
+    transform-origin: 0% 0%;
+    transform: scale(0.75);
+  }
+
+    #device-frame.frameonly {
+      background-image: url(fakeui/device_flat.png);
+    }
+
+    #device-frame:after {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 470px;
+      height: 802px;
+      background: url(fakeui/device_flat_fore.png);
+      background-size: cover;
+    }
+
+  #device-screen {
+    position: absolute;
+    left: 54px;
+    top: 65px;
+    width: 360px;
+    height: 640px;
+    -webkit-transform: translateZ(0);
+    -moz-transform: translateZ(0);
+    transform: translateZ(0);;
+  }
+}
+
 #layer-wall, #layer-wall-blurred {
   background-size: cover;
   background-position: 50% 50%;
 }
 
   #layer-wall-blurred {
-    -webkit-filter: blur(20px);
+    -webkit-filter: blur(10px);
     filter: url(#blur-filter);
     opacity: 0.6;
   }
@@ -191,18 +292,18 @@ body {
   }
 
 #layer-sysui {
-  background: url(systemui.png);
+  background: url(fakeui/systemui.png);
 }
 
 #layer-home {
-  background: url(home.png);
+  background: url(fakeui/home.png);
 }
 
 #layer-artdetail {
   position: absolute;
   left: 0;
   bottom: 0;
-  width: 320px;
+  width: 321px;
   padding: 40px 20px 60px 20px;
   background: -webkit-gradient(linear, left bottom, left top, color-stop(0%,rgba(0,0,0,0.8)), color-stop(100%,rgba(0,0,0,0)));
   background: -moz-gradient(linear, left bottom, left top, color-stop(0%,rgba(0,0,0,0.8)), color-stop(100%,rgba(0,0,0,0)));
@@ -211,17 +312,17 @@ body {
 
   @-webkit-keyframes slideup {
     from { opacity: 0; bottom: -20px; }
-    to   { opacity: 1; bottom: 0px; }
+    to   { opacity: 1; bottom: -1px; }
   }
 
   @-moz-keyframes slideup {
     from { opacity: 0; bottom: -20px; }
-    to   { opacity: 1; bottom: 0px; }
+    to   { opacity: 1; bottom: -1px; }
   }
 
   @keyframes slideup {
     from { opacity: 0; bottom: -20px; }
-    to   { opacity: 1; bottom: 0px; }
+    to   { opacity: 1; bottom: -1px; }
   }
 
   .artdetailopen #layer-artdetail {
@@ -243,7 +344,7 @@ body {
     bottom: 65px;
     width: 7px;
     height: 23px;
-    background: url(overflow.png);
+    background: url(fakeui/overflow.png);
   }
 
   #layer-artdetail .title,
@@ -267,19 +368,58 @@ body {
     line-height: 26px;
   }
 
+#layer-artdetail-topscrim {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 361px;
+  height: 100px;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0%,rgba(0,0,0,0)), color-stop(100%,rgba(0,0,0,0.3)));
+  background: -moz-gradient(linear, left bottom, left top, color-stop(0%,rgba(0,0,0,0)), color-stop(100%,rgba(0,0,0,0.3)));
+  background: linear-gradient(to top, rgba(0,0,0,0), rgba(0,0,0,0.3));
+}
+
+  @-webkit-keyframes topscrim-fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  @-moz-keyframes topscrim-fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  @keyframes topscrim-fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  .artdetailopen #layer-artdetail-topscrim {
+    opacity: 0;
+    -webkit-animation: topscrim-fadein 0.5s;
+    -webkit-animation-delay: 0.75s;
+    -webkit-animation-fill-mode: forwards;
+    -moz-animation: topscrim-fadein 0.5s;
+    -moz-animation-delay: 0.75s;
+    -moz-animation-fill-mode: forwards;
+    animation: topscrim-fadein 0.5s;
+    animation-delay: 0.75s;
+    animation-fill-mode: forwards;
+  }
+
 @-webkit-keyframes bulge {
-  from {  }
-  to { -webkit-transform: scale(1.4); }
+  from { opacity: 0.4; }
+  to { opacity: 0.8; -webkit-transform: scale(1.4); }
 }
 
 @-moz-keyframes bulge {
-  from {  }
-  to { -moz-transform: scale(1.4); }
+  from { opacity: 0.4; }
+  to { opacity: 0.8; -moz-transform: scale(1.4); }
 }
 
 @keyframes bulge {
-  from {  }
-  to { transform: scale(1.4); }
+  from { opacity: 0.4; }
+  to { opacity: 0.8; transform: scale(1.4); }
 }
 
 #layer-openindicator {

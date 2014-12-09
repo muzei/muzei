@@ -16,8 +16,9 @@
 
 package com.google.android.apps.muzei.gallery;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.ClipData;
 import android.content.Intent;
 import android.graphics.Rect;
@@ -26,55 +27,62 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.SparseBooleanArray;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.SparseIntArray;
-import android.view.ActionMode;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.apps.muzei.event.GalleryChosenUrisChangedEvent;
 import com.google.android.apps.muzei.util.CheatSheet;
 import com.google.android.apps.muzei.util.DrawInsetsFrameLayout;
-import com.google.android.apps.muzei.util.MultiSelectionUtil;
-
+import com.google.android.apps.muzei.util.MathUtil;
+import com.google.android.apps.muzei.util.MultiSelectionController;
 import com.squareup.picasso.Picasso;
 
 import net.nurik.roman.muzei.R;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import de.greenrobot.event.EventBus;
 
-import static android.widget.AbsListView.MultiChoiceModeListener;
 import static com.google.android.apps.muzei.gallery.GalleryArtSource.ACTION_ADD_CHOSEN_URIS;
 import static com.google.android.apps.muzei.gallery.GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM;
 import static com.google.android.apps.muzei.gallery.GalleryArtSource.ACTION_REMOVE_CHOSEN_URIS;
 import static com.google.android.apps.muzei.gallery.GalleryArtSource.EXTRA_FORCE_URI;
 import static com.google.android.apps.muzei.gallery.GalleryArtSource.EXTRA_URIS;
 
-public class GallerySettingsActivity extends Activity
-        implements AdapterView.OnItemClickListener {
+public class GallerySettingsActivity extends ActionBarActivity {
     private static final int REQUEST_CHOOSE_PHOTOS = 1;
+    private static final String STATE_SELECTION = "selection";
 
     private GalleryStore mStore;
     private List<Uri> mChosenUris;
 
+    private Toolbar mSelectionToolbar;
+
     private Handler mHandler = new Handler();
-    private GridView mGridView;
+    private RecyclerView mPhotoGridView;
     private int mItemSize = 10;
 
-    private MultiSelectionUtil.Controller mMultiSelectionController;
+    private MultiSelectionController<Uri> mMultiSelectionController
+            = new MultiSelectionController<Uri>(STATE_SELECTION);
 
     private ColorDrawable mPlaceholderDrawable;
 
@@ -93,33 +101,43 @@ public class GallerySettingsActivity extends Activity
         }
     }
 
+    private boolean mLastSelectionUpdateFromUser;
+    private int mUpdatePosition = -1;
+    private View mAddButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gallery_settings_activity);
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+        setupAppBar();
 
         mStore = GalleryStore.getInstance(this);
         mChosenUris = new ArrayList<Uri>(mStore.getChosenUris());
+        onDataSetChanged();
 
         mPlaceholderDrawable = new ColorDrawable(getResources().getColor(
                 R.color.gallery_settings_chosen_photo_placeholder));
 
-        mGridView = (GridView) findViewById(R.id.photo_grid);
-        mGridView.setAdapter(mChosenPhotosAdapter);
-        mGridView.setEmptyView(findViewById(android.R.id.empty));
-        mGridView.setOnItemClickListener(this);
-        mMultiSelectionController = MultiSelectionUtil.attachMultiSelectionController(
-                mGridView, this, mMultiChoiceModeListener);
+        mPhotoGridView = (RecyclerView) findViewById(R.id.photo_grid);
+        mPhotoGridView.setItemAnimator(new DefaultItemAnimator());
+        mPhotoGridView.setHasFixedSize(true);
+        setupMultiSelect();
 
-        final ViewTreeObserver vto = mGridView.getViewTreeObserver();
+        final GridLayoutManager gridLayoutManager = new GridLayoutManager(
+                GallerySettingsActivity.this, 1);
+        mPhotoGridView.setLayoutManager(gridLayoutManager);
+
+        final ViewTreeObserver vto = mPhotoGridView.getViewTreeObserver();
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            int lastWidth = -1;
-
             @Override
             public void onGlobalLayout() {
-                int width = mGridView.getWidth()
-                        - mGridView.getPaddingLeft() - mGridView.getPaddingRight();
-                if (width == lastWidth || width <= 0) {
+                int width = mPhotoGridView.getWidth()
+                        - mPhotoGridView.getPaddingStart() - mPhotoGridView.getPaddingEnd();
+                if (width <= 0) {
                     return;
                 }
 
@@ -138,9 +156,13 @@ public class GallerySettingsActivity extends Activity
                 int spacing = getResources().getDimensionPixelSize(
                         R.dimen.gallery_settings_chosen_photo_grid_spacing);
                 mItemSize = (width - spacing * (numColumns - 1)) / numColumns;
-                mGridView.setNumColumns(numColumns);
 
-                mGridView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                // Complete setup
+                gridLayoutManager.setSpanCount(numColumns);
+                mPhotoGridView.setAdapter(mChosenPhotosAdapter);
+
+                mPhotoGridView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                tryUpdateSelection(false, false);
             }
         });
 
@@ -149,114 +171,340 @@ public class GallerySettingsActivity extends Activity
         insetsLayout.setOnInsetsCallback(new DrawInsetsFrameLayout.OnInsetsCallback() {
             @Override
             public void onInsetsChanged(Rect insets) {
-                mGridView.setPadding(insets.left, insets.top, insets.right, insets.bottom);
                 insetsLayout.setPadding(insets.left, insets.top, insets.right, insets.bottom);
+
+                TypedValue tv = new TypedValue();
+                getTheme().resolveAttribute(R.attr.actionBarSize, tv, true);
+                mPhotoGridView.setPadding(
+                        insets.left,
+                        insets.top + (int) tv.getDimension(getResources().getDisplayMetrics()),
+                        insets.right,
+                        insets.bottom + getResources().getDimensionPixelSize(
+                                R.dimen.gallery_settings_fab_space));
+
+                findViewById(R.id.selection_toolbar_container).setPadding(
+                        insets.left, insets.top, insets.right, 0);
             }
         });
 
-        View addButton = findViewById(R.id.add_photos_button);
-        addButton.setOnClickListener(new View.OnClickListener() {
+        mAddButton = findViewById(R.id.add_photos_button);
+        mAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 chooseMorePhotos();
             }
         });
-        CheatSheet.setup(addButton);
+        CheatSheet.setup(mAddButton);
 
         EventBus.getDefault().register(this);
+    }
+
+    private void setupAppBar() {
+        Toolbar appBar = (Toolbar) findViewById(R.id.app_bar);
+        appBar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onNavigateUp();
+            }
+        });
+
+        appBar.inflateMenu(R.menu.gallery_settings);
+
+        int rotateIntervalMin = GalleryArtSource.getSharedPreferences(this)
+                .getInt(GalleryArtSource.PREF_ROTATE_INTERVAL_MIN,
+                        GalleryArtSource.DEFAULT_ROTATE_INTERVAL_MIN);
+        int menuId = sRotateMenuIdsByMin.get(rotateIntervalMin);
+        if (menuId != 0) {
+            MenuItem item = appBar.getMenu().findItem(menuId);
+            if (item != null) {
+                item.setChecked(true);
+            }
+        }
+
+        appBar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                int itemId = item.getItemId();
+                int rotateMin = sRotateMinsByMenuId.get(itemId, -1);
+                if (rotateMin != -1) {
+                    GalleryArtSource.getSharedPreferences(GallerySettingsActivity.this).edit()
+                            .putInt(GalleryArtSource.PREF_ROTATE_INTERVAL_MIN, rotateMin)
+                            .apply();
+                    item.setChecked(true);
+                    return true;
+                }
+
+                switch (itemId) {
+                    case R.id.action_clear_photos:
+                        startService(new Intent(GallerySettingsActivity.this, GalleryArtSource.class)
+                                .setAction(ACTION_REMOVE_CHOSEN_URIS));
+                        return true;
+                }
+
+                return false;
+            }
+        });
+    }
+
+    private int mLastTouchPosition;
+    private int mLastTouchX, mLastTouchY;
+
+    private void setupMultiSelect() {
+        // Set up toolbar
+        mSelectionToolbar = (Toolbar) findViewById(R.id.selection_toolbar);
+
+        mSelectionToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mMultiSelectionController.reset(true);
+            }
+        });
+
+        mSelectionToolbar.inflateMenu(R.menu.gallery_settings_selection);
+        mSelectionToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.action_force_now:
+                        Set<Uri> selection = mMultiSelectionController.getSelection();
+                        if (selection.size() > 0) {
+                            startService(
+                                    new Intent(GallerySettingsActivity.this, GalleryArtSource.class)
+                                    .setAction(ACTION_PUBLISH_NEXT_GALLERY_ITEM)
+                                    .putExtra(EXTRA_FORCE_URI, selection.iterator().next()));
+                            Toast.makeText(GallerySettingsActivity.this,
+                                    R.string.gallery_source_temporary_force_image,
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                        mMultiSelectionController.reset(true);
+                        return true;
+
+                    case R.id.action_remove:
+                        final ArrayList<Uri> removeUris = new ArrayList<Uri>(
+                                mMultiSelectionController.getSelection());
+
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                startService(
+                                        new Intent(GallerySettingsActivity.this, GalleryArtSource.class)
+                                                .setAction(ACTION_REMOVE_CHOSEN_URIS)
+                                                .putParcelableArrayListExtra(EXTRA_URIS, removeUris));
+                            }
+                        });
+
+                        mMultiSelectionController.reset(true);
+                        return true;
+                }
+                return false;
+            }
+        });
+
+        // Set up controller
+        mMultiSelectionController.setCallbacks(new MultiSelectionController.Callbacks() {
+            @Override
+            public void onSelectionChanged(boolean restored, boolean fromUser) {
+                tryUpdateSelection(!restored, fromUser);
+            }
+        });
+    }
+
+    private void tryUpdateSelection(boolean allowAnimate, boolean fromUser) {
+        mLastSelectionUpdateFromUser = fromUser;
+        final View selectionToolbarContainer = findViewById(R.id.selection_toolbar_container);
+
+        if (mUpdatePosition >= 0) {
+            mChosenPhotosAdapter.notifyItemChanged(mUpdatePosition);
+            mUpdatePosition = -1;
+        } else {
+            mChosenPhotosAdapter.notifyDataSetChanged();
+        }
+
+        int selectedCount = mMultiSelectionController.getSelectedCount();
+        final boolean toolbarVisible = selectedCount > 0;
+        mSelectionToolbar.getMenu().findItem(R.id.action_force_now).setVisible(
+                selectedCount < 2);
+
+        Boolean previouslyVisible = (Boolean) selectionToolbarContainer.getTag(0xDEADBEEF);
+        if (previouslyVisible == null) {
+            previouslyVisible = Boolean.FALSE;
+        }
+
+        if (previouslyVisible != toolbarVisible) {
+            selectionToolbarContainer.setTag(0xDEADBEEF, toolbarVisible);
+
+            int duration = allowAnimate
+                    ? getResources().getInteger(android.R.integer.config_shortAnimTime)
+                    : 0;
+            if (toolbarVisible) {
+                selectionToolbarContainer.setVisibility(View.VISIBLE);
+                selectionToolbarContainer.setTranslationY(
+                        -selectionToolbarContainer.getHeight());
+                selectionToolbarContainer.animate()
+                        .translationY(0f)
+                        .setDuration(duration)
+                        .withEndAction(null);
+
+                mAddButton.animate()
+                        .scaleX(0f)
+                        .scaleY(0f)
+                        .setDuration(duration)
+                        .withEndAction(new Runnable() {
+                            @Override
+                            public void run() {
+                                mAddButton.setVisibility(View.INVISIBLE);
+                            }
+                        });
+            } else {
+                selectionToolbarContainer.animate()
+                        .translationY(-selectionToolbarContainer.getHeight())
+                        .setDuration(duration)
+                        .withEndAction(new Runnable() {
+                            @Override
+                            public void run() {
+                                selectionToolbarContainer.setVisibility(View.INVISIBLE);
+                            }
+                        });
+
+                mAddButton.setVisibility(View.VISIBLE);
+                mAddButton.animate()
+                        .scaleY(1f)
+                        .scaleX(1f)
+                        .setDuration(duration)
+                        .withEndAction(null);
+            }
+        }
+
+        if (toolbarVisible) {
+            mSelectionToolbar.setTitle(Integer.toString(selectedCount));
+        }
+    }
+
+    private void onDataSetChanged() {
+        findViewById(android.R.id.empty)
+                .setVisibility(mChosenUris.size() > 0 ? View.GONE : View.VISIBLE);
     }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        mMultiSelectionController.tryRestoreInstanceState(savedInstanceState);
+        mMultiSelectionController.restoreInstanceState(savedInstanceState);
     }
 
-    private BaseAdapter mChosenPhotosAdapter = new BaseAdapter() {
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        View mRootView;
+        ImageView mThumbView;
+        View mCheckedOverlayView;
+
+        public ViewHolder(View root) {
+            super(root);
+            mRootView = root;
+            mThumbView = (ImageView) root.findViewById(R.id.thumbnail);
+            mCheckedOverlayView = root.findViewById(R.id.checked_overlay);
+        }
+    }
+
+    private RecyclerView.Adapter<ViewHolder> mChosenPhotosAdapter
+            = new RecyclerView.Adapter<ViewHolder>() {
         @Override
-        public int getCount() {
-            return mChosenUris.size();
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(GallerySettingsActivity.this)
+                    .inflate(R.layout.gallery_settings_chosen_photo_item, parent, false);
+            final ViewHolder vh = new ViewHolder(v);
+
+            v.getLayoutParams().height = mItemSize;
+            v.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    if (motionEvent.getActionMasked() != MotionEvent.ACTION_CANCEL) {
+                        mLastTouchPosition = vh.getPosition();
+                        mLastTouchX = (int) motionEvent.getX();
+                        mLastTouchY = (int) motionEvent.getY();
+                    }
+                    return false;
+                }
+            });
+            v.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mUpdatePosition = vh.getPosition();
+                    mMultiSelectionController.toggle(mChosenUris.get(mUpdatePosition), true);
+                }
+            });
+
+            return vh;
         }
 
         @Override
-        public Uri getItem(int position) {
-            return mChosenUris.get(position);
+        public void onBindViewHolder(final ViewHolder vh, int position) {
+            Uri imageUri = mChosenUris.get(position);
+            File storedFile = GalleryArtSource.getStoredFileForUri(
+                    getApplicationContext(), imageUri);
+            Picasso.with(GallerySettingsActivity.this)
+                    .load(Uri.fromFile(storedFile))
+                    .resize(mItemSize, mItemSize)
+                    .centerCrop()
+                    .placeholder(mPlaceholderDrawable)
+                    .into(vh.mThumbView);
+            final boolean checked = mMultiSelectionController.isSelected(imageUri);
+            vh.mRootView.setTag(R.id.viewtag_position, position);
+            if (mLastTouchPosition == vh.getPosition()
+                    && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                new Handler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (checked) {
+                            vh.mCheckedOverlayView.setVisibility(View.VISIBLE);
+                        }
+
+                        // find the smallest radius that'll cover the item
+                        int width = vh.mRootView.getWidth();
+                        int height = vh.mRootView.getHeight();
+                        float coverRadius = 0;
+                        coverRadius = Math.max(coverRadius,
+                                MathUtil.dist(mLastTouchX, mLastTouchY));
+                        coverRadius = Math.max(coverRadius,
+                                MathUtil.dist(width - mLastTouchX, mLastTouchY));
+                        coverRadius = Math.max(coverRadius,
+                                MathUtil.dist(mLastTouchX, height - mLastTouchY));
+                        coverRadius = Math.max(coverRadius,
+                                MathUtil.dist(width - mLastTouchX, height - mLastTouchY));
+
+                        Animator revealAnim = ViewAnimationUtils.createCircularReveal(
+                                vh.mCheckedOverlayView,
+                                mLastTouchX,
+                                mLastTouchY,
+                                checked ? 0 : coverRadius,
+                                checked ? coverRadius : 0)
+                                .setDuration(150);
+
+                        if (!checked) {
+                            revealAnim.addListener(new AnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    vh.mCheckedOverlayView.setVisibility(View.GONE);
+                                }
+                            });
+                        }
+                        revealAnim.start();
+                    }
+                });
+            } else {
+                vh.mCheckedOverlayView.setVisibility(
+                        checked ? View.VISIBLE : View.GONE);
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return mChosenUris.size();
         }
 
         @Override
         public long getItemId(int position) {
             return mChosenUris.get(position).hashCode();
         }
-
-        @Override
-        public boolean hasStableIds() {
-            return true;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup container) {
-            if (convertView == null) {
-                convertView = LayoutInflater.from(GallerySettingsActivity.this)
-                        .inflate(R.layout.gallery_settings_chosen_photo_item, container, false);
-                convertView.getLayoutParams().height = mItemSize;
-            }
-
-            File storedFile = GalleryArtSource.getStoredFileForUri(
-                    getApplicationContext(), getItem(position));
-            ImageView thumbnailView = (ImageView) convertView.findViewById(R.id.thumbnail);
-            Picasso.with(GallerySettingsActivity.this)
-                    .load(Uri.fromFile(storedFile))
-                    .resize(mItemSize, mItemSize)
-                    .centerCrop()
-                    .placeholder(mPlaceholderDrawable)
-                    .into(thumbnailView);
-            convertView.setTag(R.id.viewtag_position, position);
-            return convertView;
-        }
     };
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        int rotateIntervalMin = GalleryArtSource.getSharedPreferences(this)
-                .getInt(GalleryArtSource.PREF_ROTATE_INTERVAL_MIN,
-                        GalleryArtSource.DEFAULT_ROTATE_INTERVAL_MIN);
-        int menuId = sRotateMenuIdsByMin.get(rotateIntervalMin);
-        if (menuId != 0) {
-            MenuItem item = menu.findItem(menuId);
-            if (item != null) {
-                item.setChecked(true);
-            }
-        }
-
-        return super.onPrepareOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.gallery_settings, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int itemId = item.getItemId();
-        int rotateMin = sRotateMinsByMenuId.get(itemId, -1);
-        if (rotateMin != -1) {
-            GalleryArtSource.getSharedPreferences(this).edit()
-                    .putInt(GalleryArtSource.PREF_ROTATE_INTERVAL_MIN, rotateMin)
-                    .apply();
-            invalidateOptionsMenu();
-            return true;
-        }
-        switch (itemId) {
-            case R.id.action_clear_photos:
-                startService(new Intent(GallerySettingsActivity.this, GalleryArtSource.class)
-                        .setAction(ACTION_REMOVE_CHOSEN_URIS));
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     private void chooseMorePhotos() {
@@ -309,77 +557,55 @@ public class GallerySettingsActivity extends Activity
     }
 
     public void onEventMainThread(GalleryChosenUrisChangedEvent e) {
+        // Figure out what was removed and what was added.
+        // Only support structural change events for appends and removes for now.
+        List<Uri> newChosenUris = new ArrayList<Uri>(mStore.getChosenUris());
+        if (newChosenUris.size() >= mChosenUris.size()) {
+            // items added or equal
+            int i;
+
+            boolean isAppend = true;
+            for (i = 0; i < mChosenUris.size(); i++) {
+                if (!mChosenUris.get(i).equals(newChosenUris.get(i))) {
+                    isAppend = false;
+                }
+            }
+
+            if (isAppend) {
+                mChosenPhotosAdapter.notifyItemRangeInserted(mChosenUris.size(),
+                        newChosenUris.size() - mChosenUris.size());
+            } else {
+                // not an append, don't handle this case intelligently
+                mChosenPhotosAdapter.notifyDataSetChanged();
+            }
+        } else {
+            // TODO: handle case where 2 items removed, 1 added
+            // items removed
+            Set<Uri> currentUris = new HashSet<Uri>(mChosenUris);
+            Set<Uri> removedUris = currentUris;
+            removedUris.removeAll(newChosenUris);
+            List<Integer> indices = new ArrayList<Integer>();
+            for (Uri uri : removedUris) {
+                int index = mChosenUris.indexOf(uri);
+                if (index >= 0) {
+                    indices.add(index);
+                }
+            }
+
+            Collections.sort(indices);
+            Collections.reverse(indices);
+            for (Integer index : indices) {
+                mChosenPhotosAdapter.notifyItemRemoved(index);
+            }
+        }
+
         mChosenUris = new ArrayList<Uri>(mStore.getChosenUris());
-        mChosenPhotosAdapter.notifyDataSetChanged();
+        onDataSetChanged();
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (mMultiSelectionController != null) {
-            mMultiSelectionController.saveInstanceState(outState);
-        }
+        mMultiSelectionController.saveInstanceState(outState);
     }
-
-    @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-        Uri imageUri = mChosenUris.get(position);
-        startService(new Intent(GallerySettingsActivity.this, GalleryArtSource.class)
-                .setAction(ACTION_PUBLISH_NEXT_GALLERY_ITEM)
-                .putExtra(EXTRA_FORCE_URI, imageUri));
-        Toast.makeText(this, R.string.gallery_source_temporary_force_image, Toast.LENGTH_SHORT).show();
-    }
-
-    private MultiChoiceModeListener mMultiChoiceModeListener = new MultiChoiceModeListener() {
-        @Override
-        public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-            getMenuInflater().inflate(R.menu.gallery_settings_selection, menu);
-            return true;
-        }
-
-        @Override
-        public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-            switch (menuItem.getItemId()) {
-                case R.id.action_remove:
-                    SparseBooleanArray checkedPositionsBool = mGridView.getCheckedItemPositions();
-                    final ArrayList<Uri> removeUris = new ArrayList<Uri>();
-                    for (int i = checkedPositionsBool.size() - 1; i >= 0; i--) {
-                        int pos = checkedPositionsBool.keyAt(i);
-                        if (checkedPositionsBool.valueAt(i) && pos < mChosenUris.size()) {
-                            removeUris.add(mChosenUris.get(pos));
-                            mGridView.setItemChecked(pos, false); // Workaround for AbsListView bug
-                        }
-                    }
-
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            startService(
-                                    new Intent(GallerySettingsActivity.this, GalleryArtSource.class)
-                                            .setAction(ACTION_REMOVE_CHOSEN_URIS)
-                                            .putParcelableArrayListExtra(EXTRA_URIS, removeUris));
-                        }
-                    });
-
-                    actionMode.finish();
-                    return true;
-            }
-            return false;
-        }
-
-        @Override
-        public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-            return false;
-        }
-
-        @Override
-        public void onDestroyActionMode(ActionMode actionMode) {
-        }
-
-        @Override
-        public void onItemCheckedStateChanged(ActionMode actionMode, int position, long itemId,
-                boolean checked) {
-            actionMode.setTitle(Integer.toString(mGridView.getCheckedItemCount()));
-        }
-    };
 }

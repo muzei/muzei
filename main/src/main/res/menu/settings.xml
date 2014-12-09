@@ -14,12 +14,13 @@
   limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/action_get_more_sources"
         android:title="@string/get_more_sources"
-        android:showAsAction="never" />
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_about"
         android:title="@string/about_title"
-        android:showAsAction="never" />
+        app:showAsAction="never" />
 </menu>

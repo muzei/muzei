@@ -14,11 +14,32 @@
   limitations under the License.
   -->
 
-<com.google.android.apps.muzei.util.CheckableImageView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/thumbnail"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:scaleType="centerCrop"
-    app:checkedOverlayDrawable="@drawable/gallery_settings_chosen_photo_selected_overlay" />
+    android:layout_margin="2dp"
+    android:foreground="?selectableItemBackground">
+
+    <ImageView
+        android:id="@+id/thumbnail"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop" />
+
+    <FrameLayout
+        android:id="@+id/checked_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#bfff"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/gallery_settings_chosen_photo_selected"
+            android:tint="@color/gallery_settings_theme_dark" />
+
+    </FrameLayout>
+
+</FrameLayout>

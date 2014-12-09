@@ -52,6 +52,7 @@
     <string name="featuredart_source_title">Featured art</string>
     <string name="featuredart_source_description">A new painting every day</string>
     <string name="featuredart_source_error_no_artwork_to_share">No artwork to share.</string>
+    <string name="featuredart_source_action_view_archive">View archive</string>
 
     <string name="webstream_source_title">From the web</string>
     <string name="webstream_source_description">Artwork from the web</string>
@@ -70,6 +71,10 @@
 
     <string name="action_previous_artwork">Previous artwork</string>
     <string name="action_next_artwork">Next artwork</string>
+    <string name="action_next_artwork_condensed">Next</string>
+    <string name="action_user_command">More</string>
+    <string name="action_user_command_prompt">Choose action</string>
+    <string name="action_open_details">More info</string>
 
     <string name="done">Done</string>
     <string name="retry">Retry</string>
@@ -77,8 +82,15 @@
     <string name="action_clear_photos">Remove all photos</string>
     <string name="action_add_photos">Add photos</string>
     <string name="action_rotate_interval">Change interval</string>
+    <string name="action_rotate_interval_none">Don\'t change wallpaper</string>
+    <string name="action_rotate_interval_1h">Every hour</string>
+    <string name="action_rotate_interval_3h">Every 3 hours</string>
+    <string name="action_rotate_interval_6h">Every 6 hours</string>
+    <string name="action_rotate_interval_24h">Every 24 hours</string>
+    <string name="action_rotate_interval_72h">Every 3 days</string>
     <string name="action_share_artwork">Share artwork</string>
 
+    <string name="action_force_now">Set as wallpaper now</string>
     <string name="action_remove">Remove</string>
 
     <string name="set_as_wallpaper_using_muzei">Wallpaper (using Muzei)</string>

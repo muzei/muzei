@@ -59,8 +59,8 @@
             android:textStyle="italic"
             android:textSize="16sp"
             android:layout_marginTop="32dp"
-            android:layout_marginLeft="48dp"
-            android:layout_marginRight="48dp"
+            android:layout_marginStart="48dp"
+            android:layout_marginEnd="48dp"
             android:textColor="#cfff"
             android:text="@string/error_easter_egg"/>
 
@@ -68,10 +68,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:background="?android:selectableItemBackground"
+            android:background="?selectableItemBackground"
             android:paddingTop="24dp"
-            android:paddingLeft="24dp"
-            android:paddingRight="24dp"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
             android:paddingBottom="16dp"
             android:drawableTop="@drawable/grumpy_mcpuzzles"
             android:text="@string/retry"
@@ -83,22 +83,28 @@
 
     </FrameLayout>
 
+    <View android:id="@+id/statusbar_scrim"
+        android:layout_width="match_parent"
+        android:layout_height="160dp"
+        android:layout_gravity="top"
+        android:background="@android:color/transparent" />
+
     <LinearLayout android:id="@+id/chrome_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="bottom"
         android:layout_gravity="bottom"
-        android:background="@drawable/metadata_background_protection"
         android:orientation="horizontal">
 
         <FrameLayout android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:paddingTop="192dp"> <!-- extend gradient -->
 
             <LinearLayout android:id="@+id/metadata"
                 android:clickable="true"
                 android:focusable="true"
-                android:background="?android:selectableItemBackground"
+                android:background="?selectableItemBackground"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
@@ -109,7 +115,6 @@
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/art_detail_title_text_size"
                     android:textColor="#fff"
-                    android:lineSpacingMultiplier="0.7"
                     app:shadowColor="#8000"
                     app:shadowDx="0dp"
                     app:shadowDy="1dp"
@@ -117,8 +122,8 @@
                     android:paddingBottom="@dimen/art_detail_title_bottom_padding"
                     android:layout_marginBottom="@dimen/art_detail_title_byline_margin"
                     android:paddingTop="@dimen/art_detail_metadata_margin"
-                    android:paddingLeft="@dimen/art_detail_metadata_margin"
-                    android:paddingRight="16dp" />
+                    android:paddingStart="@dimen/art_detail_metadata_margin"
+                    android:paddingEnd="@dimen/art_detail_metadata_margin" />
 
                 <com.google.android.apps.muzei.util.ShadowDipsTextView
                     android:id="@+id/byline"
@@ -126,21 +131,20 @@
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/art_detail_byline_text_size"
                     android:textColor="#fff"
-                    android:lineSpacingMultiplier="0.8"
                     app:shadowColor="#8000"
                     app:shadowDx="0dp"
                     app:shadowDy="1dp"
                     app:shadowRadius="3dp"
-                    android:paddingLeft="@dimen/art_detail_metadata_margin"
+                    android:paddingStart="@dimen/art_detail_metadata_margin"
                     android:paddingBottom="@dimen/art_detail_metadata_margin_bottom"
-                    android:paddingRight="16dp" />
+                    android:paddingEnd="@dimen/art_detail_metadata_margin" />
             </LinearLayout>
         </FrameLayout>
 
         <ImageButton android:id="@+id/next_button"
             android:layout_width="@dimen/art_detail_button_width"
             android:layout_height="@dimen/art_detail_button_height"
-            android:background="?android:selectableItemBackground"
+            android:background="?selectableItemBackgroundBorderless"
             android:src="@drawable/ic_skip"
             android:scaleType="center"
             android:contentDescription="@string/action_next_artwork"
@@ -149,7 +153,7 @@
         <ImageButton android:id="@+id/overflow_button"
             android:layout_width="@dimen/art_detail_button_width"
             android:layout_height="@dimen/art_detail_button_height"
-            android:background="?android:selectableItemBackground"
+            android:background="?selectableItemBackgroundBorderless"
             android:src="@drawable/ic_overflow"
             android:scaleType="center"
             android:contentDescription="@string/contentdesc_overflow" />

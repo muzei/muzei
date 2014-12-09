@@ -16,15 +16,16 @@
 
 package com.google.android.apps.muzei.util;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.os.EnvironmentCompat;
 import android.text.TextUtils;
 
 import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.OkUrlFactory;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -103,7 +104,7 @@ public class IOUtil {
             int responseCode = 0;
             String responseMessage = null;
             try {
-                conn = client.open(new URL(uri.toString()));
+                conn = new OkUrlFactory(client).open(new URL(uri.toString()));
                 conn.setConnectTimeout(DEFAULT_CONNECT_TIMEOUT);
                 conn.setReadTimeout(DEFAULT_READ_TIMEOUT);
                 responseCode = conn.getResponseCode();
@@ -229,54 +230,36 @@ public class IOUtil {
         return new String(out.toByteArray(), "UTF-8");
     }
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     public static File getBestAvailableCacheRoot(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            // In KitKat we can query multiple devices.
-            // TODO: optimize for stability instead of picking first one
-            File[] roots = context.getExternalCacheDirs();
-            if (roots != null) {
-                for (File root : roots) {
-                    if (root == null) {
-                        continue;
-                    }
+        File[] roots = ContextCompat.getExternalCacheDirs(context);
+        if (roots != null) {
+            for (File root : roots) {
+                if (root == null) {
+                    continue;
+                }
 
-                    if (Environment.MEDIA_MOUNTED.equals(Environment.getStorageState(root))) {
-                        return root;
-                    }
+                if (Environment.MEDIA_MOUNTED.equals(EnvironmentCompat.getStorageState(root))) {
+                    return root;
                 }
             }
-
-        } else if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            // Pre-KitKat, only one external storage device was addressable
-            return context.getExternalCacheDir();
         }
 
         // Worst case, resort to internal storage
         return context.getCacheDir();
     }
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     public static File getBestAvailableFilesRoot(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            // In KitKat we can query multiple devices.
-            // TODO: optimize for stability instead of picking first one
-            File[] roots = context.getExternalFilesDirs(null);
-            if (roots != null) {
-                for (File root : roots) {
-                    if (root == null) {
-                        continue;
-                    }
+        File[] roots = ContextCompat.getExternalFilesDirs(context, null);
+        if (roots != null) {
+            for (File root : roots) {
+                if (root == null) {
+                    continue;
+                }
 
-                    if (Environment.MEDIA_MOUNTED.equals(Environment.getStorageState(root))) {
-                        return root;
-                    }
+                if (Environment.MEDIA_MOUNTED.equals(EnvironmentCompat.getStorageState(root))) {
+                    return root;
                 }
             }
-
-        } else if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            // Pre-KitKat, only one external storage device was addressable
-            return context.getExternalFilesDir(null);
         }
 
         // Worst case, resort to internal storage
@@ -288,7 +271,7 @@ public class IOUtil {
 
         try {
             OkHttpClient client = new OkHttpClient();
-            HttpURLConnection conn = client.open(url);
+            HttpURLConnection conn = new OkUrlFactory(client).open(url);
             conn.setConnectTimeout(DEFAULT_CONNECT_TIMEOUT);
             conn.setReadTimeout(DEFAULT_READ_TIMEOUT);
             in = conn.getInputStream();

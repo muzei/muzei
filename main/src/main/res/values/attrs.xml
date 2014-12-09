@@ -37,6 +37,7 @@
 
     <declare-styleable name="CheckableImageView">
         <attr name="checkedOverlayDrawable" format="reference|color" />
+        <attr name="foregroundDrawable" format="reference|color" />
     </declare-styleable>
 
 </resources>

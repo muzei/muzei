@@ -1,0 +1,3 @@
+Alegreya has been modified using fontbakery-fix-vertical-metrics.py [1] to have a descender of -100.
+
+[1] https://github.com/googlefonts/fontbakery/blob/master/tools/fontbakery-fix-vertical-metrics.py

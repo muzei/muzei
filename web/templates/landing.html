@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <!--
   Copyright 2014 Google Inc.
 
@@ -17,14 +17,17 @@
 -->
 <head>
   <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="theme-color" content="#3c6caf">
+
   <link href="http://fonts.googleapis.com/css?family=Alegreya:400italic,900italic|Alegreya+Sans:300" rel="stylesheet">
   <link href="http://yui.yahooapis.com/2.8.0r4/build/reset/reset-min.css" rel="stylesheet">
   <link href="static/landing.css" rel="stylesheet">
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-  <script src="static/modernizr.custom.14469.js"></script>
+  <script src="static/lib/modernizr.custom.14469.js"></script>
   <title>Muzei Live Wallpaper for Android</title>
   <meta name="description" content="Muzei Live Wallpaper for Android. A living museum for your Android home screen.">
-  <meta name="viewport" content="width=690">
+  <meta name="viewport" content="width=device-width">
 </head>
 <body>
 
@@ -45,6 +48,7 @@
       <div id="layer-wall-blurred" class="whenartdetailclosed fullscreenlayer"></div>
       <div id="layer-wall" class="whenartdetailopen fullscreenlayer"></div>
       <div id="layer-home" class="whenartdetailclosed fullscreenlayer"></div>
+      <div id="layer-artdetail-topscrim" class="whenartdetailopen"></div>
       <div id="layer-artdetail" class="whenartdetailopen">
         <div class="overflow"></div>
         <div class="title"></div>
@@ -52,7 +56,7 @@
       </div>
       <div id="layer-sysui" class="fullscreenlayer"></div>
       <svg id="layer-openindicator" width="100" height="100" class="whenartdetailclosed">
-        <circle cx="50" cy="50" r="30" fill="#33b5e5" stroke="none">
+        <circle cx="50" cy="50" r="30" fill="rgba(255,255,255,1)" stroke="none">
       </svg>
       <svg>
         <filter id="blur-filter"><feGaussianBlur stdDeviation="20"></filter>
@@ -72,7 +76,7 @@ if (Modernizr.cssanimations &&
 
   // progressive enhancement
   $('#device-screen').css('display', 'block');
-  $('#device-frame').css('background-image', 'url(static/tilted.png)');
+  $('#device-frame').addClass('frameonly');
   $('#opentarget').css('visibility', 'visible');
   $('body').addClass('withvignette');
 

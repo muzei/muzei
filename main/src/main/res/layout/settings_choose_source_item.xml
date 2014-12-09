@@ -16,16 +16,15 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:clickable="true"
-    android:focusable="true"
     android:layout_width="@dimen/settings_choose_source_item_width"
     android:layout_height="match_parent"
     android:gravity="center_horizontal">
 
     <FrameLayout
         android:id="@+id/source_image"
+        android:clickable="true"
+        android:focusable="true"
         android:foreground="@drawable/settings_source_item_image_overlay"
-        android:duplicateParentState="true"
         android:layout_width="@dimen/settings_choose_source_item_image_size"
         android:layout_height="@dimen/settings_choose_source_item_image_size"
         android:layout_marginBottom="16dp" />
@@ -33,11 +32,11 @@
     <TextView android:id="@+id/source_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
         android:layout_marginBottom="8dp"
         android:fontFamily="sans-serif-condensed"
-        android:textSize="@dimen/settings_text_size_normal"
+        android:textSize="@dimen/settings_text_size_large"
         android:lineSpacingMultiplier="0.8"
         android:textStyle="bold"
         android:textAllCaps="true"
@@ -47,23 +46,23 @@
     <TextView android:id="@+id/source_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:fontFamily="sans-serif-condensed"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
         android:textSize="@dimen/settings_text_size_normal"
+        android:lineSpacingMultiplier="1.1"
         android:textStyle="italic"
         android:gravity="center_horizontal"
         android:textColor="#fff"
         android:maxLines="4" />
 
     <ImageButton android:id="@+id/source_settings_button"
-        android:background="?android:selectableItemBackground"
+        android:background="?selectableItemBackgroundBorderless"
         android:src="@drawable/ic_source_settings"
         android:scaleType="center"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_marginTop="8dp"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="16dp"
         android:contentDescription="@string/action_source_settings"
-        android:visibility="gone" />
+        android:visibility="invisible" />
 
 </LinearLayout>

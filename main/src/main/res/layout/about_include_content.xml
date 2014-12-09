@@ -14,50 +14,50 @@
   limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginBottom="16dp"
+    android:layout_marginTop="16dp"
+    android:fadingEdgeLength="32dp"
     android:fitsSystemWindows="true"
-    android:gravity="center">
+    android:overScrollMode="never"
+    android:scrollbars="none"
+    android:paddingEnd="32dp"
+    android:paddingStart="32dp"
+    android:requiresFadingEdge="vertical">
 
-    <fragment android:name="com.google.android.apps.muzei.util.AnimatedMuzeiLogoFragment"
-        android:id="@+id/animated_logo_fragment"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_width="wrap_content" />
+        android:gravity="center"
+        android:orientation="vertical">
 
-    <TextView android:id="@+id/app_version"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:textColor="#afff"
-        android:fontFamily="sans-serif-condensed"
-        android:textSize="@dimen/settings_text_size_normal" />
+        <fragment
+            android:id="@+id/animated_logo_fragment"
+            android:name="com.google.android.apps.muzei.util.AnimatedMuzeiLogoFragment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
-    <View android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginLeft="32dp"
-        android:layout_marginRight="32dp"
-        android:background="#1fff" />
+        <TextView
+            android:id="@+id/app_version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="sans-serif-condensed"
+            android:textColor="#afff"
+            android:textSize="@dimen/settings_text_size_normal" />
 
-    <ScrollView android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:paddingLeft="32dp"
-        android:paddingRight="32dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp"
-        android:clipToPadding="false">
-
-        <TextView android:id="@+id/about_body"
+        <TextView
+            android:id="@+id/about_body"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:fontFamily="sans-serif-condensed"
+            android:lineSpacingMultiplier="1.1"
             android:textColor="#afff"
             android:textColorLink="#fff"
-            android:fontFamily="sans-serif-condensed"
-            android:textSize="@dimen/settings_text_size_normal"
-            android:lineSpacingMultiplier="1.1" />
-    </ScrollView>
+            android:textSize="@dimen/settings_text_size_normal" />
+    </LinearLayout>
+</ScrollView>
 
-</LinearLayout>

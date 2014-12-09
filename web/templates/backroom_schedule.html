@@ -260,7 +260,7 @@
     </div>
   </div>
   <div id="editor-buttons">
-    <button id="editor-addfromwikipaintingsurl" style="margin-right: 30px">Add from WikiPaintings URL</button>
+    <button id="editor-addfromwikiarturl" style="margin-right: 30px">Add from WikiArt URL</button>
     <button id="editor-cancel">Cancel</button>
     <button id="editor-save">Save</button>
   </div>
@@ -285,11 +285,15 @@ var DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'S
 var DAY_MILLIS = 24 * 60 * 60 * 1000;
 
 
-function reloadArtworks() {
+function reloadArtworksForCurrentMonth() {
   $.ajax({
     type: 'get',
     dataType: 'json',
-    url: 's/list'
+    url: 's/list',
+    data: {
+      month: g_month,
+      year: g_year
+    }
   }).done(function(artworks) {
     g_artworks = {};
     if (!artworks) {
@@ -310,7 +314,7 @@ function removeArtwork(id, callback) {
     url: 's/remove',
     data: { id: id }
   }).done(function() {
-    setTimeout(reloadArtworks, 500);
+    setTimeout(reloadArtworksForCurrentMonth, 500);
     callback();
   }).fail(function() {
     alert('error removing');
@@ -324,7 +328,7 @@ function moveArtwork(id, publishDate, callback) {
     url: 's/move',
     data: { id: id, publishDate: publishDate }
   }).done(function() {
-    setTimeout(reloadArtworks, 500);
+    setTimeout(reloadArtworksForCurrentMonth, 500);
     callback();
   }).fail(function() {
     alert('error moving');
@@ -338,21 +342,21 @@ function addArtwork(json, callback) {
     url: 's/add',
     data: { json: json }
   }).done(function() {
-    setTimeout(reloadArtworks, 500);
+    setTimeout(reloadArtworksForCurrentMonth, 500);
     callback();
   }).fail(function() {
     alert('error adding');
   });
 }
 
-function addArtworkFromWikiPaintingsUrl(url, publishDate, callback) {
+function addArtworkFromWikiArtUrl(url, publishDate, callback) {
   callback = callback || function(){};
   $.ajax({
     type: 'post',
-    url: 's/addfromwikipaintings',
-    data: { wikiPaintingsUrl: url, publishDate: publishDate }
+    url: 's/addfromwikiart',
+    data: { wikiArtUrl: url, publishDate: publishDate }
   }).done(function() {
-    setTimeout(reloadArtworks, 500);
+    setTimeout(reloadArtworksForCurrentMonth, 500);
     callback();
   }).fail(function() {
     alert('error adding');
@@ -366,7 +370,7 @@ function editArtwork(id, json, callback) {
     url: 's/edit',
     data: { id: id, json: json}
   }).done(function() {
-    setTimeout(reloadArtworks, 500);
+    setTimeout(reloadArtworksForCurrentMonth, 500);
     callback();
   }).fail(function() {
     alert('error editing');
@@ -390,6 +394,7 @@ function renderCalendar() {
           g_month = 11;
           --g_year;
         }
+        reloadArtworksForCurrentMonth();
         renderCalendar();
       })
       .appendTo($headerRow);
@@ -433,6 +438,7 @@ function renderCalendar() {
           g_month = 0;
           ++g_year;
         }
+        reloadArtworksForCurrentMonth();
         renderCalendar();
       })
       .appendTo($headerRow);
@@ -604,18 +610,20 @@ function renderCalendar() {
   var $thumburlvisit = $('#editor-thumburl-visit');
   var $json = $('#editor-json');
   var $save = $('#editor-save');
-  var $addfromwikipaintingsurl = $('#editor-addfromwikipaintingsurl')
+  var $addfromwikiarturl = $('#editor-addfromwikiarturl')
 
   function setupEditor() {
     $('#editor-cancel').click(function() {
       hideEditor();
     });
 
-    $addfromwikipaintingsurl.click(function() {
-      var url = window.prompt('Enter WikiPaintings detail URL');
-      addArtworkFromWikiPaintingsUrl(url, g_editorState.publishDate, function() {
-        hideEditor();
-      });
+    $addfromwikiarturl.click(function() {
+      var url = window.prompt('Enter WikiArt detail URL');
+      if (url) {
+        addArtworkFromWikiArtUrl(url, g_editorState.publishDate, function() {
+          hideEditor();
+        });
+      }
     });
 
     $save.click(function() {
@@ -760,10 +768,10 @@ function renderCalendar() {
       delete clonedArtwork.publishDate;
       delete clonedArtwork.id;
       $json.val(JSON.stringify(clonedArtwork, null, 2));
-      $addfromwikipaintingsurl.hide();
+      $addfromwikiarturl.hide();
     } else {
       editorFieldsToJson();
-      $addfromwikipaintingsurl.show();
+      $addfromwikiarturl.show();
     }
 
     updateEditorState();
@@ -787,7 +795,7 @@ function renderCalendar() {
 $(document).ready(function() {
   renderCalendar();
   setupEditor();
-  reloadArtworks();
+  reloadArtworksForCurrentMonth();
 });
 
 </script>

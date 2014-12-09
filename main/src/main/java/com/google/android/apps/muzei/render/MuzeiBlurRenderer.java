@@ -54,6 +54,7 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
     public static final int DEFAULT_BLUR = 250; // max 500
     public static final int DEFAULT_GREY = 0; // max 500
     public static final int DEMO_DIM = 64;
+    public static final int DEMO_GREY = 0;
     public static final int DEFAULT_MAX_DIM = 128; // technical max 255
     public static final float DIM_RANGE = 0.5f; // percent of max dim
 
@@ -141,8 +142,10 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
     }
 
     public void recomputeGreyAmount() {
-        mMaxGrey = PreferenceManager
-                .getDefaultSharedPreferences(mContext).getInt("grey_amount", DEFAULT_GREY);
+        mMaxGrey = mDemoMode
+                ? DEMO_GREY
+                : PreferenceManager.getDefaultSharedPreferences(mContext)
+                .getInt("grey_amount", DEFAULT_GREY);
     }
 
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
@@ -294,6 +297,7 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
 
     public void setDemoMode(boolean demoMode) {
         mDemoMode = demoMode;
+        recomputeGreyAmount();
     }
     public void setIsPreview(boolean preview) {
         mPreview = preview;
@@ -339,17 +343,31 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
                 tempBitmap.recycle();
 
                 // Create the GLPicture objects
-                ImageBlurrer blurrer = new ImageBlurrer(mContext);
                 mPictures[0] = new GLPicture(bitmapRegionLoader, mHeight);
-                if (mMaxPrescaledBlurPixels == 0) {
+                if (mMaxPrescaledBlurPixels == 0 && mMaxGrey == 0) {
                     for (int f = 1; f <= mBlurKeyframes; f++) {
                         mPictures[f] = mPictures[0];
                     }
                 } else {
+                    ImageBlurrer blurrer = new ImageBlurrer(mContext);
+                    int sampleSizeTargetHeight, scaledHeight, scaledWidth;
+                    if (mMaxPrescaledBlurPixels > 0) {
+                        sampleSizeTargetHeight = mHeight / mBlurredSampleSize;
+                    } else {
+                        sampleSizeTargetHeight = mHeight;
+                    }
+
+                    // Note that image width should be a multiple of 4 to avoid
+                    // issues with RenderScript allocations.
+                    scaledHeight = Math.max(2, MathUtil.floorEven(
+                            sampleSizeTargetHeight));
+                    scaledWidth = Math.max(4, MathUtil.roundMult4(
+                            (int) (scaledHeight * mBitmapAspectRatio)));
+
                     // To blur, first load the entire bitmap region, but at a very large
                     // sample size that's appropriate for the final blurred image
                     options.inSampleSize = ImageUtil.calculateSampleSize(
-                            originalHeight, mHeight / mBlurredSampleSize);
+                            originalHeight, sampleSizeTargetHeight);
                     rect.set(0, 0, originalWidth, originalHeight);
                     tempBitmap = bitmapRegionLoader.decodeRegion(rect, options);
 
@@ -360,10 +378,6 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
 
                     // Note that image width should be a multiple of 4 to avoid
                     // issues with RenderScript allocations.
-                    int scaledHeight = Math.max(2, MathUtil.floorEven(
-                            mHeight / mBlurredSampleSize));
-                    int scaledWidth = Math.max(4, MathUtil.roundMult4(
-                            (int) (scaledHeight * mBitmapAspectRatio)));
                     Bitmap scaledBitmap = Bitmap.createScaledBitmap(
                             tempBitmap, scaledWidth, scaledHeight, true);
 
@@ -372,15 +386,19 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
                     // And finally, create a blurred copy for each keyframe.
                     for (int f = 1; f <= mBlurKeyframes; f++) {
                         float desaturateAmount = mMaxGrey / 500f * f / mBlurKeyframes;
+                        float blurRadius = 0f;
+                        if (mMaxPrescaledBlurPixels > 0) {
+                            blurRadius = blurRadiusAtFrame(f);
+                        }
                         Bitmap blurredBitmap = blurrer.blurBitmap(
-                                scaledBitmap, blurRadiusAtFrame(f), desaturateAmount);
+                                scaledBitmap, blurRadius, desaturateAmount);
                         mPictures[f] = new GLPicture(blurredBitmap);
                         blurredBitmap.recycle();
                     }
 
                     scaledBitmap.recycle();
+                    blurrer.destroy();
                 }
-                blurrer.destroy();
             }
 
             recomputeTransformMatrices();
@@ -389,19 +407,27 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
 
         private void recomputeTransformMatrices() {
             float screenToBitmapAspectRatio = mAspectRatio / mBitmapAspectRatio;
+            if (screenToBitmapAspectRatio == 0) {
+                return;
+            }
 
             // Ensure the bitmap is wider than the screen relatively by applying zoom
             // if necessary. Vary width but keep height the same.
             float zoom = Math.max(1f, 1.15f * screenToBitmapAspectRatio);
 
             // Total scale factors in both zoom and scale due to aspect ratio.
-            float totalScale = zoom / screenToBitmapAspectRatio;
+            float scaledBitmapToScreenAspectRatio = zoom / screenToBitmapAspectRatio;
 
-            mCurrentViewport.left = MathUtil.interpolate(
-                    -1f * Math.min(1f, screenToBitmapAspectRatio), // remove screenToBitmapAspectRatio to unconstrain panning amount
-                    1f * Math.min(1f, screenToBitmapAspectRatio),
-                    mNormalOffsetX * (totalScale - 1) / totalScale);
-            mCurrentViewport.right = mCurrentViewport.left + 2f / totalScale;
+            // At most pan across 2 screenfuls
+            // TODO: if we know the number of home screen pages, use that number here
+            float maxPanScreenWidths = Math.min(2, scaledBitmapToScreenAspectRatio);
+
+            mCurrentViewport.left = MathUtil.interpolate(-1f, 1f,
+                    MathUtil.interpolate(
+                            (1 - maxPanScreenWidths / scaledBitmapToScreenAspectRatio) / 2,
+                            (1 + (maxPanScreenWidths - 2) / scaledBitmapToScreenAspectRatio) / 2,
+                            mNormalOffsetX));
+            mCurrentViewport.right = mCurrentViewport.left + 2f / scaledBitmapToScreenAspectRatio;
             mCurrentViewport.bottom = -1f / zoom;
             mCurrentViewport.top = 1f / zoom;
 

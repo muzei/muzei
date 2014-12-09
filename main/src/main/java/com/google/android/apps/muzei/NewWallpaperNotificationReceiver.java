@@ -17,7 +17,6 @@
 package com.google.android.apps.muzei;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -27,17 +26,24 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.app.RemoteInput;
 import android.text.TextUtils;
 
 import com.google.android.apps.muzei.api.Artwork;
+import com.google.android.apps.muzei.api.MuzeiArtSource;
+import com.google.android.apps.muzei.api.UserCommand;
 import com.google.android.apps.muzei.api.internal.SourceState;
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
 import com.google.android.apps.muzei.render.BitmapRegionLoader;
 import com.google.android.apps.muzei.render.ImageUtil;
 
 import net.nurik.roman.muzei.R;
+
+import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
@@ -51,12 +57,43 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
     private static final String ACTION_MARK_NOTIFICATION_READ
             = "com.google.android.apps.muzei.action.NOTIFICATION_DELETED";
 
+    private static final String ACTION_NEXT_ARTWORK
+            = "com.google.android.apps.muzei.action.NOTIFICATION_NEXT_ARTWORK";
+
+    private static final String ACTION_USER_COMMAND
+            = "com.google.android.apps.muzei.action.NOTIFICATION_USER_COMMAND";
+
+    private static final String EXTRA_USER_COMMAND
+            = "com.google.android.apps.muzei.extra.USER_COMMAND";
+
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent != null) {
             String action = intent.getAction();
             if (ACTION_MARK_NOTIFICATION_READ.equals(action)) {
                 markNotificationRead(context);
+            } else if (ACTION_NEXT_ARTWORK.equals(action)) {
+                SourceManager sm = SourceManager.getInstance(context);
+                sm.sendAction(MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK);
+            } else if (ACTION_USER_COMMAND.equals(action)) {
+                triggerUserCommandFromRemoteInput(context, intent);
+            }
+        }
+    }
+
+    private void triggerUserCommandFromRemoteInput(Context context, Intent intent) {
+        Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
+        if (remoteInput == null) {
+            return;
+        }
+        String selectedCommand = remoteInput.getCharSequence(EXTRA_USER_COMMAND).toString();
+        SourceManager sm = SourceManager.getInstance(context);
+        SourceState state = sm.getSelectedSourceState();
+        for (int i = 0; i < state.getNumUserCommands(); i++) {
+            UserCommand action = state.getUserCommandAt(i);
+            if (TextUtils.equals(selectedCommand, action.getTitle())) {
+                sm.sendAction(action.getId());
+                break;
             }
         }
     }
@@ -73,8 +110,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
         sp.edit().putString(PREF_LAST_SEEN_NOTIFICATION_IMAGE_URI,
                 currentArtwork.getImageUri().toString()).apply();
 
-        NotificationManager nm = (NotificationManager) context.getSystemService(
-                Context.NOTIFICATION_SERVICE);
+        NotificationManagerCompat nm = NotificationManagerCompat.from(context);
         nm.cancel(NOTIFICATION_ID);
     }
 
@@ -110,14 +146,25 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
         }
 
         BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inSampleSize = ImageUtil.calculateSampleSize(height, 256);
+        int largeIconHeight = context.getResources()
+                .getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
+        options.inSampleSize = ImageUtil.calculateSampleSize(height, largeIconHeight);
         Bitmap largeIcon = bitmapRegionLoader.decodeRegion(rect, options);
 
+        // Use the suggested 400x400 for Android Wear background images per
+        // http://developer.android.com/training/wearables/notifications/creating.html#AddWearableFeatures
+        options.inSampleSize = ImageUtil.calculateSampleSize(height, 400);
+        Bitmap background = bitmapRegionLoader.decodeRegion(rect, options);
+
+        String title = TextUtils.isEmpty(artwork.getTitle())
+                ? context.getString(R.string.app_name)
+                : artwork.getTitle();
         NotificationCompat.Builder nb = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.ic_stat_muzei)
+                .setColor(context.getResources().getColor(R.color.notification))
                 .setPriority(Notification.PRIORITY_MIN)
                 .setAutoCancel(true)
-                .setContentTitle(artwork.getTitle())
+                .setContentTitle(title)
                 .setContentText(context.getString(R.string.notification_new_wallpaper))
                 .setLargeIcon(largeIcon)
                 .setContentIntent(PendingIntent.getActivity(context, 0,
@@ -127,14 +174,99 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
                         new Intent(context, NewWallpaperNotificationReceiver.class)
                                 .setAction(ACTION_MARK_NOTIFICATION_READ),
                         PendingIntent.FLAG_UPDATE_CURRENT));
-        NotificationCompat.BigPictureStyle style = new NotificationCompat.BigPictureStyle(nb)
+        NotificationCompat.BigPictureStyle style = new NotificationCompat.BigPictureStyle()
                 .bigLargeIcon(null)
-                .setBigContentTitle(artwork.getTitle())
+                .setBigContentTitle(title)
                 .setSummaryText(artwork.getByline())
-                .bigPicture(largeIcon);
-        NotificationManager nm = (NotificationManager) context.getSystemService(
-                Context.NOTIFICATION_SERVICE);
-        nm.notify(NOTIFICATION_ID, style.build());
+                .bigPicture(background);
+        nb.setStyle(style);
+
+        NotificationCompat.WearableExtender extender = new NotificationCompat.WearableExtender();
+        SourceManager sm = SourceManager.getInstance(context);
+        SourceState state = sm.getSelectedSourceState();
+        ArrayList<String> customActions = new ArrayList<String>();
+        for (int i = 0; i < state.getNumUserCommands(); i++) {
+            UserCommand action = state.getUserCommandAt(i);
+            if (action.getId() == MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK) {
+                PendingIntent nextPendingIntent = PendingIntent.getBroadcast(context, 0,
+                        new Intent(context, NewWallpaperNotificationReceiver.class)
+                                .setAction(ACTION_NEXT_ARTWORK),
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+                nb.addAction(
+                        R.drawable.ic_notif_next_artwork,
+                        context.getString(R.string.action_next_artwork_condensed),
+                        nextPendingIntent);
+                // Android Wear uses larger action icons so we build a
+                // separate action
+                extender.addAction(new NotificationCompat.Action.Builder(
+                        R.drawable.ic_notif_full_next_artwork,
+                        context.getString(R.string.action_next_artwork_condensed),
+                        nextPendingIntent)
+                        .extend(new NotificationCompat.Action.WearableExtender().setAvailableOffline(false))
+                        .build());
+            } else {
+                customActions.add(action.getTitle());
+            }
+        }
+        // Show custom actions as a selectable list on Android Wear devices
+        if (!customActions.isEmpty()) {
+            PendingIntent userCommandPendingIntent = PendingIntent.getBroadcast(context, 0,
+                    new Intent(context, NewWallpaperNotificationReceiver.class)
+                            .setAction(ACTION_USER_COMMAND),
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+            RemoteInput remoteInput = new RemoteInput.Builder(EXTRA_USER_COMMAND)
+                    .setAllowFreeFormInput(false)
+                    .setLabel(context.getString(R.string.action_user_command_prompt))
+                    .setChoices(customActions.toArray(new String[customActions.size()]))
+                    .build();
+            extender.addAction(new NotificationCompat.Action.Builder(
+                    R.drawable.ic_notif_full_user_command,
+                    context.getString(R.string.action_user_command),
+                    userCommandPendingIntent).addRemoteInput(remoteInput)
+                    .extend(new NotificationCompat.Action.WearableExtender().setAvailableOffline(false))
+                    .build());
+        }
+        Intent viewIntent = artwork.getViewIntent();
+        if (viewIntent != null) {
+            viewIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            PendingIntent nextPendingIntent = PendingIntent.getActivity(context, 0,
+                    viewIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+            nb.addAction(
+                    R.drawable.ic_notif_info,
+                    context.getString(R.string.action_open_details),
+                    nextPendingIntent);
+            // Android Wear uses larger action icons so we build a
+            // separate action
+            extender.addAction(new NotificationCompat.Action.Builder(
+                    R.drawable.ic_notif_full_info,
+                    context.getString(R.string.action_open_details),
+                    nextPendingIntent)
+                    .extend(new NotificationCompat.Action.WearableExtender().setAvailableOffline(false))
+                    .build());
+        }
+        nb.extend(extender);
+
+        // Hide the image and artwork title for the public version
+        NotificationCompat.Builder publicBuilder = new NotificationCompat.Builder(context)
+                .setSmallIcon(R.drawable.ic_stat_muzei)
+                .setColor(context.getResources().getColor(R.color.notification))
+                .setPriority(Notification.PRIORITY_MIN)
+                .setAutoCancel(true)
+                .setContentTitle(context.getString(R.string.app_name))
+                .setContentText(context.getString(R.string.notification_new_wallpaper))
+                .setContentIntent(PendingIntent.getActivity(context, 0,
+                        Intent.makeMainActivity(new ComponentName(context, MuzeiActivity.class)),
+                        PendingIntent.FLAG_UPDATE_CURRENT))
+                .setDeleteIntent(PendingIntent.getBroadcast(context, 0,
+                        new Intent(context, NewWallpaperNotificationReceiver.class)
+                                .setAction(ACTION_MARK_NOTIFICATION_READ),
+                        PendingIntent.FLAG_UPDATE_CURRENT));
+        nb.setPublicVersion(publicBuilder.build());
+
+
+        NotificationManagerCompat nm = NotificationManagerCompat.from(context);
+        nm.notify(NOTIFICATION_ID, nb.build());
 
         // Clear any last-seen notification
         sp.edit().remove(PREF_LAST_SEEN_NOTIFICATION_IMAGE_URI).apply();

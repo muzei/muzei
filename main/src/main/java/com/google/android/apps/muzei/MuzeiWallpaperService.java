@@ -180,7 +180,7 @@ public class MuzeiWallpaperService extends GLWallpaperService {
         }
 
         public void onEventMainThread(LockScreenVisibleChangedEvent e) {
-            final boolean blur = e.isLockScreenVisible();
+            final boolean blur = !e.isLockScreenVisible();
             cancelDelayedBlur();
             queueEvent(new Runnable() {
                 @Override

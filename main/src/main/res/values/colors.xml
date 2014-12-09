@@ -15,8 +15,16 @@
   -->
 
 <resources>
-    <color name="gallery_settings_empty_state_dark">#394a43</color>
-    <color name="gallery_settings_empty_state_light">#639680</color>
+    <color name="theme_primary">#3c6caf</color>
+    <color name="theme_accent">#f2be19</color>
+
+    <color name="notification">@color/theme_primary</color>
+
+    <color name="gallery_settings_theme_dark">#00796B</color>
+    <color name="gallery_settings_theme">#009688</color>
+    <color name="gallery_settings_theme_light">#4DB6AC</color>
+    <color name="gallery_settings_empty_state_dark">@color/gallery_settings_theme_dark</color>
+    <color name="gallery_settings_empty_state_light">@color/gallery_settings_theme_light</color>
 
     <color name="gallery_settings_window_background">#111</color>
     <color name="gallery_settings_inset_shade">#a111</color>

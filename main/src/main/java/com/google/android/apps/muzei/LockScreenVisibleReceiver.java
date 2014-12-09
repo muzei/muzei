@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei;
 
+import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -47,9 +48,14 @@ public class LockScreenVisibleReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (intent != null) {
             if (Intent.ACTION_USER_PRESENT.equals(intent.getAction())) {
-                EventBus.getDefault().post(new LockScreenVisibleChangedEvent(true));
-            } else if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
                 EventBus.getDefault().post(new LockScreenVisibleChangedEvent(false));
+            } else if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
+                EventBus.getDefault().post(new LockScreenVisibleChangedEvent(true));
+            } else if (Intent.ACTION_SCREEN_ON.equals(intent.getAction())) {
+                KeyguardManager kgm = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
+                if (!kgm.inKeyguardRestrictedInputMode()) {
+                    EventBus.getDefault().post(new LockScreenVisibleChangedEvent(false));
+                }
             }
         }
     }
@@ -58,6 +64,7 @@ public class LockScreenVisibleReceiver extends BroadcastReceiver {
         IntentFilter presentFilter = new IntentFilter();
         presentFilter.addAction(Intent.ACTION_USER_PRESENT);
         presentFilter.addAction(Intent.ACTION_SCREEN_OFF);
+        presentFilter.addAction(Intent.ACTION_SCREEN_ON);
         return presentFilter;
     }
 

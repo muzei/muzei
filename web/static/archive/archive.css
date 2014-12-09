@@ -1,0 +1,380 @@
+/**
+ * Copyright 2014 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background-color: #fff;
+  -webkit-font-smoothing: antialiased;
+  color: #333;
+}
+
+#container {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  height: 100%;
+}
+
+.main-strip, .month-carousel {
+  width: 600px;
+}
+
+.main-strip {
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+  opacity: 0.3;
+}
+
+.header img {
+  height: 24px;
+}
+
+.header .logo-icon {
+  display: none;
+}
+
+.header .logo-text {
+  margin-right: 4px;
+}
+
+.header span {
+  font-family: 'alegreya sans';
+  font-size: 24px;
+  font-weight: 300;
+  text-transform:uppercase;
+}
+
+.header {
+  margin-top: 20px;
+  margin-bottom: 8px;
+}
+
+.month-carousel-container {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+  -webkit-align-items: center;
+  -webkit-flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  flex: 1 1 auto;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.month-carousel {
+  position: relative;
+  margin: 0 auto;
+  -webkit-flex: 1 0 auto;
+  flex: 1 0 auto;
+}
+
+.month-carousel.animate {
+  -webkit-transition: -webkit-transform 0.2s;
+  transition: transform 0.2s;
+}
+
+.month {
+  position: absolute;
+  overflow-x: visible;
+  overflow-y: visible;
+  width: 100%;
+  height: 100%;
+  -webkit-user-select: none;
+  -webkit-transition: opacity 0.2s;
+  user-select: none;
+  transition: opacity 0.2s;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+
+  /* inactive */
+  opacity: 0.15;
+}
+
+.month .click-screen {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+.month.active {
+  opacity: 1;
+  cursor: default;
+}
+
+.month.active .click-screen {
+  display: none;
+}
+
+/* month contents */
+
+.month-row {
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.month-row.month-header {
+  font-family: 'alegreya sans';
+  font-weight: 800;
+  font-size: 28px;
+  text-align: center;
+}
+
+.month-row.weekday-labels {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  width: 100%;
+  margin-top: 8px;
+  margin-bottom: 4px;
+  font-family: 'alegreya sans';
+  font-weight: 700;
+  font-size: 12px;
+  text-align: center;
+  color: rgba(0,0,0,0.25);
+  text-transform: uppercase;
+}
+
+.days {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: row;
+  -webkit-flex-wrap: wrap;
+  -webkit-flex: 1 1 auto;
+  -webkit-align-content: flex-start;
+  flex-direction: row;
+  flex-wrap: wrap;
+  flex: 1 1 auto;
+  align-content: flex-start;
+  width: 100%;
+  padding: 0 8px 32px 8px;
+  margin-left: -8px;
+  margin-right: -8px;
+  overflow-y: scroll;
+  margin-bottom: 0;
+}
+
+.cell {
+  width: 78px;
+  margin-right: 4px;
+}
+
+.days .cell {
+  position: relative;
+  left: 0;
+  top: 0;
+  height: 80px;
+  margin-bottom: 4px;
+}
+
+.days .cell .image {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+}
+
+.days .cell .meta {
+  visibility: hidden;
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  padding: 4px 8px;
+  z-index: 1;
+  background-color: #111;
+  border-bottom: 4px solid white;
+  color: #fff;
+  font-family: 'alegreya sans';
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 13px;
+  pointer-events: none;
+  box-sizing: border-box;
+  opacity: 0;
+  -webkit-transition: opacity 0.2s, top 0.2s;
+  transition: opacity 0.2s, top 0.2s;
+}
+
+.days .cell:hover {
+  z-index: 1;
+}
+
+.days .cell:hover .meta {
+  visibility: visible;
+  opacity: 1;
+  top: 100%;
+}
+
+.days .cell:hover .image {
+  z-index: 3;
+}
+
+.days .cell .overlay-link {
+  display: none;
+  text-decoration: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.4);
+  -webkit-transition: opacity 0.2s;
+  transition: opacity 0.2s;
+}
+
+.days .cell:hover .overlay-link {
+  opacity: 0;
+  z-index: 3;
+}
+
+
+.days .cell.today .overlay-link,
+.days .cell.past .overlay-link {
+  display: -webkit-flex;
+  display: flex;
+}
+
+.days .cell .date {
+  margin-top: 4px;
+  margin-left: 8px;
+  font-size: 16px;
+  font-family: 'alegreya sans';
+  font-weight: 500;
+  color: #fff;
+}
+
+.days .cell.today,
+.days .cell.past {
+  background-color: #333;
+  color: white;
+}
+
+.days .cell.today .image {
+  -webkit-filter: grayscale(100%);
+  filter: grayscale(100%);
+}
+
+.days .cell.today:hover .image {
+  -webkit-filter: none;
+  filter: none;
+}
+
+.days .cell.today .overlay-link {
+  background-color: rgba(242,190,25,0.7);
+}
+
+.days .cell.today .date {
+  font-weight: 800;
+  color: rgba(72, 48, 0, 1);
+  text-shadow: 0 0 1px white, 0 0 1px white, 0 0 1px white, 0 0 1px white, 0 0 1px white;
+}
+
+/*.days .cell.today:after {
+  content: 'today';
+  font-family: 'alegreya sans';
+  font-size: 13px;
+  font-weight: 800;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.1);
+  text-transform: uppercase;
+  text-align: center;
+  pointer-events: none;
+  position: absolute;
+  bottom: 0;
+  z-index: 100;
+  width: 100%;
+  height: auto;
+  box-sizing: border-box;
+  padding: 4px 2px;
+  background-color: rgba(242,190,25,1);
+}*/
+
+@media (max-width: 800px) {
+  .month-row.month-header {
+    font-size: 16px;
+    margin-bottom: 0px;
+  }
+
+  .header {
+    margin-top: 8px;
+    margin-bottom: 0px;
+  }
+
+  .header img {
+    height: 16px;
+  }
+
+  .header span {
+    font-size: 16px;
+    font-weight: 400;
+    display: none;
+  }
+
+  .header img {
+    height: 24px;
+  }
+
+  .header .logo-icon {
+    display: inline;
+  }
+
+  .header .logo-text {
+    display: none;
+  }
+
+  .main-strip, .month-carousel {
+    width: 320px;
+  }
+
+  .month-row.weekday-labels {
+    display: none;
+  }
+
+  .days .cell.skipped.before {
+    display: none;
+  }
+
+  .cell {
+    width: 76px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-strip, .month-carousel {
+    width: 260px;
+  }
+
+  .cell {
+    width: 82px;
+  }
+}

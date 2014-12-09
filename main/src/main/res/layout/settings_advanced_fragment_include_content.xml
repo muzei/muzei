@@ -14,162 +14,93 @@
   limitations under the License.
   -->
 
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:columnCount="3"
+    android:orientation="horizontal">
 
-    <TableRow
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView android:id="@+id/blur_amount_label"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical|right"
-            android:layout_column="0"
-            android:layout_weight="0"
-            android:textSize="@dimen/settings_text_size_normal"
-            android:fontFamily="sans-serif-condensed"
-            android:textAllCaps="true"
-            android:textColor="#fff"
-            android:textStyle="bold"
-            android:text="@string/settings_blur_amount_title" />
+    <TextView android:id="@+id/blur_amount_label"
+        style="@style/Widget.Muzei.TextView.SettingsAdvancedSeekBarLabel"
+        android:layout_gravity="fill_vertical|end"
+        android:text="@string/settings_blur_amount_title" />
 
-        <SeekBar style="@style/Settings.Widget.SeekBar.BlurAmount"
-            android:id="@+id/blur_amount"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_column="1"
-            android:layout_weight="1"
-            android:max="500" />
-    </TableRow>
-    <TableRow
-        android:layout_width="match_parent"
+    <SeekBar style="@style/Settings.Widget.SeekBar.BlurAmount"
+        android:id="@+id/blur_amount"
+        android:layout_gravity="center_vertical|fill_horizontal"
+        android:layout_columnSpan="2"
+        android:max="500" />
+
+    <Space
+        android:layout_height="16dp"
+        android:layout_columnSpan="3"/>
+
+    <TextView android:id="@+id/dim_amount_label"
+        style="@style/Widget.Muzei.TextView.SettingsAdvancedSeekBarLabel"
+        android:layout_gravity="fill_vertical|end"
+        android:text="@string/settings_dim_amount_title" />
+
+    <SeekBar style="@style/Settings.Widget.SeekBar.DimAmount"
+        android:id="@+id/dim_amount"
+        android:layout_gravity="center_vertical|fill_horizontal"
+        android:layout_columnSpan="2"
+        android:max="255" />
+
+    <Space
+        android:layout_height="16dp"
+        android:layout_columnSpan="3" />
+
+    <TextView android:id="@+id/grey_amount_label"
+        style="@style/Widget.Muzei.TextView.SettingsAdvancedSeekBarLabel"
+        android:layout_gravity="fill_vertical|end"
+        android:text="@string/settings_grey_amount_title" />
+
+    <SeekBar style="@style/Settings.Widget.SeekBar.GreyAmount"
+        android:id="@+id/grey_amount"
+        android:layout_gravity="center_vertical|fill_horizontal"
+        android:layout_columnSpan="2"
+        android:max="500" />
+
+    <TextView android:id="@+id/advanced_settings_doubletapaction_label"
+        style="@style/Widget.Muzei.TextView.SettingsAdvancedSeekBarLabel"
+        android:layout_gravity="fill_vertical|end"
+        android:text="@string/settings_doubletap_action_title" />
+
+    <Spinner
+        android:id="@+id/advanced_settings_doubletapaction_spinner"
+        android:layout_gravity="center_vertical|fill_horizontal"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp">
-        <TextView android:id="@+id/dim_amount_label"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_column="0"
-            android:layout_weight="0"
-            android:gravity="center_vertical|right"
-            android:textSize="@dimen/settings_text_size_normal"
-            android:fontFamily="sans-serif-condensed"
-            android:textAllCaps="true"
-            android:textColor="#fff"
-            android:textStyle="bold"
-            android:text="@string/settings_dim_amount_title" />
+        android:layout_columnSpan="2"
+        />
 
-        <SeekBar style="@style/Settings.Widget.SeekBar.DimAmount"
-            android:id="@+id/dim_amount"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_column="1"
-            android:layout_weight="1"
-            android:max="255" />
-    </TableRow>
+    <TextView android:id="@+id/advanced_settings_threefingeraction_label"
+        style="@style/Widget.Muzei.TextView.SettingsAdvancedSeekBarLabel"
+        android:layout_gravity="fill_vertical|end"
+        android:text="@string/settings_threefinger_action_title" />
 
-    <TableRow
-        android:layout_width="match_parent"
+    <Spinner
+        android:id="@+id/advanced_settings_threefingertapaction_spinner"
+        android:layout_gravity="center_vertical|fill_horizontal"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp">
-        <TextView android:id="@+id/grey_amount_label"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_column="0"
-            android:layout_weight="0"
-            android:gravity="center_vertical|right"
-            android:textSize="@dimen/settings_text_size_normal"
-            android:fontFamily="sans-serif-condensed"
-            android:textAllCaps="true"
-            android:textColor="#fff"
-            android:textStyle="bold"
-            android:text="@string/settings_grey_amount_title" />
+        android:layout_columnSpan="2"
+        />
 
-        <SeekBar style="@style/Settings.Widget.SeekBar.GreyAmount"
-            android:id="@+id/grey_amount"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_column="1"
-            android:layout_weight="1"
-            android:max="500" />
-    </TableRow>
+    <CheckBox android:id="@+id/notify_new_wallpaper_checkbox"
+        style="@style/Widget.Muzei.CheckBox.SettingsAdvanced"
+        android:text="@string/settings_notify_new_wallpaper"
+        android:layout_column="@integer/settings_advanced_checkbox_column"
+        android:layout_columnSpan="@integer/settings_advanced_checkbox_column_span"
+        android:layout_marginLeft="@dimen/settings_advanced_checkbox_margin_start"
+        android:layout_marginTop="24dp" />
 
-    <TableRow
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp">
-        <TextView android:id="@+id/advanced_settings_doubletapaction_label"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_column="0"
-            android:layout_weight="0"
-            android:gravity="center_vertical|right"
-            android:textSize="@dimen/settings_text_size_normal"
-            android:fontFamily="sans-serif-condensed"
-            android:textAllCaps="true"
-            android:textColor="#fff"
-            android:textStyle="bold"
-            android:text="@string/settings_doubletap_action_title" />
-        <Spinner
-            android:id="@+id/advanced_settings_doubletapaction_spinner"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_column="1"
-            android:layout_weight="1"
-            />
-    </TableRow>
+    <CheckBox android:id="@+id/blur_on_lockscreen_checkbox"
+        style="@style/Widget.Muzei.CheckBox.SettingsAdvanced"
+        android:text="@string/settings_blur_on_lockscreen"
+        android:layout_column="@integer/settings_advanced_checkbox_column"
+        android:layout_columnSpan="@integer/settings_advanced_checkbox_column_span"
+        android:layout_marginLeft="@dimen/settings_advanced_checkbox_margin_start"
+        android:layout_marginTop="16dp" />
 
-    <TableRow
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp">
-
-        <TextView android:id="@+id/advanced_settings_threefingeraction_label"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_column="0"
-            android:layout_weight="0"
-            android:gravity="center_vertical|right"
-            android:textSize="@dimen/settings_text_size_normal"
-            android:fontFamily="sans-serif-condensed"
-            android:textAllCaps="true"
-            android:textColor="#fff"
-            android:textStyle="bold"
-            android:text="@string/settings_threefinger_action_title" />
-
-        <Spinner
-            android:id="@+id/advanced_settings_threefingertapaction_spinner"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_column="1"
-            android:layout_weight="1"
-            />
-    </TableRow>
-
-    <TableRow>
-        <CheckBox android:id="@+id/notify_new_wallpaper_checkbox"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_column="1"
-            android:layout_weight="1"
-            android:textSize="@dimen/settings_text_size_normal"
-            android:fontFamily="sans-serif-condensed"
-            android:textColor="#fff"
-            android:paddingLeft="4dp"
-            android:text="@string/settings_notify_new_wallpaper" />
-    </TableRow>
-
-    <TableRow>
-        <CheckBox android:id="@+id/blur_on_lockscreen_checkbox"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_column="1"
-            android:layout_weight="1"
-            android:textSize="@dimen/settings_text_size_normal"
-            android:fontFamily="sans-serif-condensed"
-            android:textColor="#fff"
-            android:paddingLeft="4dp"
-            android:text="@string/settings_blur_on_lockscreen" />
-    </TableRow>
-
-</TableLayout>
+</GridLayout>
