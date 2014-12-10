@@ -48,6 +48,9 @@ public class RealRenderController extends RenderController {
     public RealRenderController(Context context, MuzeiBlurRenderer renderer,
             Callbacks callbacks) {
         super(context, renderer, callbacks);
+        if (MuzeiContract.Artwork.getCurrentArtwork(context) == null) {
+            reloadCurrentArtwork(true);
+        }
     }
 
     public void onEventMainThread(CurrentArtworkDownloadedEvent e) {

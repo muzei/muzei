@@ -17,4 +17,5 @@
 <resources>
     <string name="app_name">Muzei</string>
     <string name="dismiss_overlay_intro">Long press anywhere to exit</string>
+    <string name="activate_notification_text">Activate to sync your background</string>
 </resources>

@@ -21,7 +21,7 @@ import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
-import net.nurik.roman.muzei.R;
+import net.nurik.roman.muzei.androidclientcommon.R;
 
 public class ShadowDipsTextView extends TextView {
     public ShadowDipsTextView(Context context) {

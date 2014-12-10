@@ -19,6 +19,7 @@ package com.google.android.apps.muzei.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -42,6 +43,11 @@ public class PanView extends View {
 
     private Bitmap mImage;
     private Bitmap mScaledImage;
+
+    private Bitmap mBlurredImage;
+    private float mBlurAmount = 0f;
+    private Paint mDrawBlurredPaint;
+
     /**
      * Horizontal offset for painting the image. As this is used in a canvas.drawBitmap it ranges
      * from a negative value mWidth-image.getWidth() (remember the view is smaller than the image)
@@ -102,6 +108,9 @@ public class PanView extends View {
         mEdgeEffectTop = new EdgeEffect(context);
         mEdgeEffectRight = new EdgeEffect(context);
         mEdgeEffectBottom = new EdgeEffect(context);
+
+        mDrawBlurredPaint = new Paint();
+        mDrawBlurredPaint.setDither(true);
     }
 
     /**
@@ -135,16 +144,33 @@ public class PanView extends View {
             float scalingFactor = mWidth * 1f / width;
             mScaledImage = Bitmap.createScaledBitmap(mImage, mWidth, (int)(scalingFactor * height), true);
         }
+        ImageBlurrer blurrer = new ImageBlurrer(getContext());
+        mBlurredImage = blurrer.blurBitmap(mScaledImage,
+                ImageBlurrer.MAX_SUPPORTED_BLUR_PIXELS, 0f);
+        blurrer.destroy();
         // Center the image
         mOffsetX = (mWidth - mScaledImage.getWidth()) / 2;
         mOffsetY = (mHeight - mScaledImage.getHeight()) / 2;
         invalidate();
     }
 
+    public void setBlurAmount(float blurAmount) {
+        mBlurAmount = blurAmount;
+        postInvalidateOnAnimation();
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
-        if (mScaledImage != null) {
-            canvas.drawBitmap(mScaledImage, mOffsetX, mOffsetY, null);
+        if (mBlurAmount < 1f) {
+            if (mScaledImage != null) {
+                canvas.drawBitmap(mScaledImage, mOffsetX, mOffsetY, null);
+            }
+        }
+        if (mBlurAmount > 0f) {
+            if (mBlurredImage != null) {
+                mDrawBlurredPaint.setAlpha((int) (mBlurAmount * 255));
+                canvas.drawBitmap(mBlurredImage, mOffsetX, mOffsetY, mDrawBlurredPaint);
+            }
         }
         drawEdgeEffects(canvas);
     }
@@ -221,6 +247,10 @@ public class PanView extends View {
     }
 
     private void setOffset(float offsetX, float offsetY) {
+        if (mScaledImage == null) {
+            return;
+        }
+
         // Constrain between mWidth - mScaledImage.getWidth() and 0
         // mWidth - mScaledImage.getWidth() -> right edge visible
         // 0 -> left edge visible
@@ -245,6 +275,10 @@ public class PanView extends View {
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            if (mScaledImage == null) {
+                return true;
+            }
+
             float offsetX = mOffsetX;
             float offsetY = mOffsetY;
             setOffset(mOffsetX - distanceX, mOffsetY - distanceY);
@@ -285,6 +319,10 @@ public class PanView extends View {
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            if (mScaledImage == null) {
+                return true;
+            }
+
             releaseEdgeEffects();
             mScroller.forceFinished(true);
             mScroller.fling(
@@ -346,7 +384,7 @@ public class PanView extends View {
                     mEdgeEffectRightActive = true;
                 }
 
-                if (mHeight != mScaledImage.getHeight() && mOffsetY < mScroller.getCurrX()
+                if (mHeight != mScaledImage.getHeight() && mOffsetY < mScroller.getCurrY()
                         && mEdgeEffectTop.isFinished()
                         && !mEdgeEffectTopActive) {
                     if (Log.isLoggable(TAG, Log.VERBOSE)) {

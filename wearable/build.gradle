@@ -19,18 +19,11 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.14.4'
+        classpath 'com.android.tools.build:gradle:1.0.0'
     }
 }
 
 apply plugin: 'com.android.application'
-
-dependencies {
-    compile 'com.google.android.support:wearable:1.0.0'
-    compile 'com.google.android.gms:play-services-wearable:6.1.71'
-    compile project(':provider')
-}
-
 
 android {
     compileSdkVersion 21
@@ -38,6 +31,8 @@ android {
 
     def Properties versionProps = new Properties()
     versionProps.load(new FileInputStream(file('version.properties')))
+
+    publishNonDefault true
 
     defaultConfig {
         minSdkVersion 20
@@ -62,26 +57,31 @@ android {
         }
     }
 
+    productFlavors {
+        dev {
+            // dev utilizes minSDKVersion = 21 to allow the Android gradle plugin
+            // to pre-dex each module and produce an APK that can be tested on
+            // Android Lollipop without time consuming dex merging processes.
+            minSdkVersion 21
+            multiDexEnabled true
+        }
+
+        prod {
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), file('proguard-project.txt')
             signingConfig signingConfigs.release
         }
-
-        publicBeta.initWith(buildTypes.release)
-        publicBeta {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), file('proguard-project.txt')
-            versionNameSuffix " " + versionProps['betaNumber']
-        }
-
-        publicDebug.initWith(buildTypes.publicBeta)
-        publicDebug {
-            debuggable true
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), file('proguard-project.txt')
-            versionNameSuffix " Debug " + versionProps['betaNumber']
-        }
     }
+}
+
+dependencies {
+    compile 'com.google.android.support:wearable:1.1.0'
+    compile 'com.google.android.gms:play-services-wearable:6.5.87'
+    compile project(':android-client-common')
 }

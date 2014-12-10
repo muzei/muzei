@@ -15,7 +15,10 @@
   -->
 
 <resources>
-    <style name="FullScreenTheme" parent="android:Theme.DeviceDefault">
+    <style name="BaseTheme" parent="android:Theme.DeviceDefault" />
+
+    <style name="FullScreenTheme" parent="BaseTheme">
         <item name="android:windowSwipeToDismiss">false</item>
+        <item name="android:windowBackground">@android:color/black</item>
     </style>
 </resources>

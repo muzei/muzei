@@ -118,7 +118,7 @@ public class BitmapRegionLoader {
                     bitmap, 0, 0,
                     mTempRect.width() / sampleSize,
                     mTempRect.height() / sampleSize);
-            if (bitmap != options.inBitmap) {
+            if (bitmap != options.inBitmap && bitmap != subBitmap) {
                 bitmap.recycle();
             }
             bitmap = subBitmap;
@@ -126,10 +126,11 @@ public class BitmapRegionLoader {
 
         if (mRotateMatrix != null) {
             // Rotate decoded bitmap
-            Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0,
+            Bitmap rotatedBitmap = Bitmap.createBitmap(
+                    bitmap, 0, 0,
                     bitmap.getWidth(), bitmap.getHeight(),
                     mRotateMatrix, true);
-            if (options == null || bitmap != options.inBitmap) {
+            if ((options == null || bitmap != options.inBitmap) && bitmap != rotatedBitmap) {
                 bitmap.recycle();
             }
             bitmap = rotatedBitmap;

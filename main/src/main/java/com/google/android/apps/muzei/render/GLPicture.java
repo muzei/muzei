@@ -153,9 +153,11 @@ class GLPicture {
                 }
                 rect.intersect(0, 0, originalWidth, originalHeight);
                 Bitmap useBitmap = bitmapRegionLoader.decodeRegion(rect, options);
-                mTextureHandles[y * mCols + x] = GLUtil.loadTexture(useBitmap);
-                if (useBitmap != tileBitmap) {
-                    useBitmap.recycle();
+                if (useBitmap != null) {
+                    mTextureHandles[y * mCols + x] = GLUtil.loadTexture(useBitmap);
+                    if (useBitmap != tileBitmap) {
+                        useBitmap.recycle();
+                    }
                 }
             }
         }

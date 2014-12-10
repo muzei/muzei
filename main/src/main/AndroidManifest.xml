@@ -15,6 +15,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="net.nurik.roman.muzei">
 
     <uses-feature android:name="android.software.live_wallpaper" android:required="true" />
@@ -26,6 +27,9 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
         <!-- android:maxSdkVersion="18" /> ... has issues on some devices -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Permissions required by the wearable app -->
+    <uses-permission android:name="com.google.android.permission.PROVIDE_BACKGROUND" />
 
     <application android:name="com.google.android.apps.muzei.MuzeiApplication"
         android:allowBackup="true"
@@ -140,6 +144,13 @@
         <!-- New wallpaper notification receiver -->
 
         <receiver android:name="com.google.android.apps.muzei.NewWallpaperNotificationReceiver" />
+
+        <service android:name="com.google.android.apps.muzei.MuzeiWearableListenerService"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.BIND_LISTENER" />
+            </intent-filter>
+        </service>
 
     </application>
 </manifest>

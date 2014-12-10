@@ -20,6 +20,10 @@
 
     <uses-feature android:name="android.hardware.type.watch"/>
 
+    <!-- Required to act as a custom watch face. -->
+    <uses-permission android:name="com.google.android.permission.PROVIDE_BACKGROUND" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
     <application
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name">
@@ -43,5 +47,28 @@
                 <action android:name="com.google.android.gms.wearable.BIND_LISTENER" />
             </intent-filter>
         </service>
+
+        <service
+            android:name="com.google.android.apps.muzei.MuzeiWatchFace"
+            android:allowEmbedded="true"
+            android:taskAffinity=""
+            android:permission="android.permission.BIND_WALLPAPER" >
+            <meta-data
+                android:name="android.service.wallpaper"
+                android:resource="@xml/watch_face" />
+            <meta-data
+                android:name="com.google.android.wearable.watchface.preview"
+                android:resource="@drawable/preview" />
+            <meta-data
+                android:name="com.google.android.wearable.watchface.preview_circular"
+                android:resource="@drawable/preview_circular" />
+            <intent-filter>
+                <action android:name="android.service.wallpaper.WallpaperService" />
+                <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE" />
+            </intent-filter>
+        </service>
+
+        <service android:name="com.google.android.apps.muzei.ActivateMuzeiIntentService" />
+        <activity android:name="android.support.wearable.activity.ConfirmationActivity" />
     </application>
 </manifest>

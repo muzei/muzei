@@ -36,6 +36,7 @@ import android.view.animation.Interpolator;
 import com.google.android.apps.muzei.ArtDetailViewport;
 import com.google.android.apps.muzei.event.ArtworkSizeChangedEvent;
 import com.google.android.apps.muzei.event.SwitchingPhotosStateChangedEvent;
+import com.google.android.apps.muzei.util.ImageBlurrer;
 import com.google.android.apps.muzei.util.LogUtil;
 import com.google.android.apps.muzei.util.MathUtil;
 import com.google.android.apps.muzei.util.TickingFloatAnimator;

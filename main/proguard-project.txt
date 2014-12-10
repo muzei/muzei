@@ -27,6 +27,14 @@
 
 -dontobfuscate
 
+# okhttp
+
+-dontwarn com.squareup.okhttp.**
+
+# okio
+
+-dontwarn okio.**
+
 # Play Services
 
 -keep class * extends java.util.ListResourceBundle {

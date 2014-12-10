@@ -16,19 +16,22 @@
 
 package com.google.android.apps.muzei;
 
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.LoaderManager;
 import android.content.AsyncTaskLoader;
 import android.content.Loader;
 import android.database.ContentObserver;
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.wearable.view.CardScrollView;
 import android.support.wearable.view.DismissOverlayView;
 import android.util.Log;
 import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
@@ -36,6 +39,7 @@ import android.widget.TextView;
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.util.PanView;
+import com.google.android.apps.muzei.util.TypefaceUtil;
 
 import net.nurik.roman.muzei.R;
 
@@ -45,13 +49,18 @@ public class FullScreenActivity extends Activity implements LoaderManager.Loader
     private static final String TAG = FullScreenActivity.class.getSimpleName();
 
     private PanView mPanView;
-    private CardScrollView mCardLayout;
-    private TextView mTitle;
-    private TextView mByline;
+    private View mLoadingIndicatorView;
+    private View mScrimView;
+    private View mMetadataContainerView;
+    private TextView mTitleView;
+    private TextView mBylineView;
     private DismissOverlayView mDismissOverlay;
     private GestureDetector mDetector;
+    private Animator mBlurAnimator;
+    private Handler mHandler = new Handler();
 
     private Artwork mArtwork;
+    private boolean mMetadataVisible = false;
 
     public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
@@ -59,10 +68,21 @@ public class FullScreenActivity extends Activity implements LoaderManager.Loader
         mPanView = (PanView) findViewById(R.id.pan_view);
         getLoaderManager().initLoader(0, null, this);
 
-        mCardLayout = (CardScrollView) findViewById(R.id.card_layout);
-        mCardLayout.setCardGravity(Gravity.BOTTOM);
-        mTitle = (TextView) findViewById(R.id.title);
-        mByline = (TextView) findViewById(R.id.byline);
+        mScrimView = findViewById(R.id.scrim);
+        mLoadingIndicatorView = findViewById(R.id.loading_indicator);
+        mHandler.postDelayed(mShowLoadingIndicatorRunnable, 500);
+
+        mMetadataContainerView = findViewById(R.id.metadata_container);
+        mTitleView = (TextView) findViewById(R.id.title);
+        mBylineView = (TextView) findViewById(R.id.byline);
+
+        Typeface tf = TypefaceUtil.getAndCache(this, "Alegreya-BlackItalic.ttf");
+        mTitleView = (TextView) findViewById(R.id.title);
+        mTitleView.setTypeface(tf);
+
+        tf = TypefaceUtil.getAndCache(this, "Alegreya-Italic.ttf");
+        mBylineView = (TextView) findViewById(R.id.byline);
+        mBylineView.setTypeface(tf);
 
         // Configure the DismissOverlayView element
         mDismissOverlay = (DismissOverlayView) findViewById(R.id.dismiss_overlay);
@@ -74,19 +94,48 @@ public class FullScreenActivity extends Activity implements LoaderManager.Loader
                 if (mDismissOverlay.getVisibility() == View.VISIBLE) {
                     return false;
                 }
-                if (mCardLayout.getVisibility() == View.VISIBLE) {
-                    mCardLayout.setVisibility(View.GONE);
+
+                if (mMetadataVisible) {
+                    setMetadataVisible(false);
                 } else {
-                    mCardLayout.setVisibility(View.VISIBLE);
+                    setMetadataVisible(true);
                 }
                 return true;
             }
 
             @Override
             public void onLongPress(MotionEvent ev) {
+                if (mDismissOverlay.getVisibility() == View.VISIBLE) {
+                    return;
+                }
                 mDismissOverlay.show();
             }
         });
+    }
+
+    private Runnable mShowLoadingIndicatorRunnable = new Runnable() {
+        @Override
+        public void run() {
+            mLoadingIndicatorView.setVisibility(View.VISIBLE);
+        }
+    };
+
+    private void setMetadataVisible(boolean metadataVisible) {
+        mMetadataVisible = metadataVisible;
+        if (mBlurAnimator != null) {
+            mBlurAnimator.cancel();
+        }
+
+        AnimatorSet set = new AnimatorSet();
+        set
+                .play(ObjectAnimator.ofFloat(mPanView, "blurAmount", metadataVisible? 1f : 0f))
+                .with(ObjectAnimator.ofFloat(mScrimView, View.ALPHA, metadataVisible ? 1f : 0f))
+                .with(ObjectAnimator.ofFloat(mMetadataContainerView, View.ALPHA,
+                        metadataVisible ? 1f : 0f));
+        set.setDuration(getResources().getInteger(android.R.integer.config_shortAnimTime));
+
+        mBlurAnimator = set;
+        mBlurAnimator.start();
     }
 
     @Override
@@ -146,9 +195,13 @@ public class FullScreenActivity extends Activity implements LoaderManager.Loader
         if (image == null) {
             return;
         }
+
+        mHandler.removeCallbacks(mShowLoadingIndicatorRunnable);
+        mLoadingIndicatorView.setVisibility(View.GONE);
+        mPanView.setVisibility(View.VISIBLE);
         mPanView.setImage(image);
-        mTitle.setText(mArtwork.getTitle());
-        mByline.setText(mArtwork.getByline());
+        mTitleView.setText(mArtwork.getTitle());
+        mBylineView.setText(mArtwork.getByline());
     }
 
     @Override

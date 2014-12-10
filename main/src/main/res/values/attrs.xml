@@ -28,13 +28,6 @@
         <attr name="insetBackground" format="reference|color" />
     </declare-styleable>
 
-    <declare-styleable name="ShadowDipsTextView">
-        <attr name="shadowDx" format="dimension" />
-        <attr name="shadowDy" format="dimension" />
-        <attr name="shadowRadius" format="dimension" />
-        <attr name="shadowColor" format="color" />
-    </declare-styleable>
-
     <declare-styleable name="CheckableImageView">
         <attr name="checkedOverlayDrawable" format="reference|color" />
         <attr name="foregroundDrawable" format="reference|color" />
