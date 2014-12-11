@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -43,6 +44,7 @@ import android.widget.Toast;
 
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiRendererFragment;
+import com.google.android.apps.muzei.util.DrawInsetsFrameLayout;
 import com.google.android.apps.muzei.util.LogUtil;
 
 import net.nurik.roman.muzei.R;
@@ -86,6 +88,10 @@ public class SettingsActivity extends ActionBarActivity
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
         setContentView(R.layout.settings_activity);
 
         if (getIntent() != null && getIntent().getCategories() != null &&
@@ -95,6 +101,21 @@ public class SettingsActivity extends ActionBarActivity
 
         // Set up UI widgets
         setupAppBar();
+
+        ((DrawInsetsFrameLayout) findViewById(R.id.draw_insets_frame_layout)).setOnInsetsCallback(
+                new DrawInsetsFrameLayout.OnInsetsCallback() {
+                    @Override
+                    public void onInsetsChanged(Rect insets) {
+                        View container = findViewById(R.id.container);
+                        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)
+                                container.getLayoutParams();
+                        lp.leftMargin = insets.left;
+                        lp.topMargin = insets.top;
+                        lp.rightMargin = insets.right;
+                        lp.bottomMargin = insets.bottom;
+                        container.setLayoutParams(lp);
+                    }
+                });
 
         if (mBackgroundAnimator != null) {
             mBackgroundAnimator.cancel();
@@ -259,8 +280,8 @@ public class SettingsActivity extends ActionBarActivity
     }
 
     private void updateRenderLocallyToLatestActiveState() {
-        WallpaperActiveStateChangedEvent e = (WallpaperActiveStateChangedEvent)
-                EventBus.getDefault().getStickyEvent(WallpaperActiveStateChangedEvent.class);
+        WallpaperActiveStateChangedEvent e = EventBus.getDefault().getStickyEvent(
+                WallpaperActiveStateChangedEvent.class);
         if (e != null) {
             onEventMainThread(e);
         } else {
@@ -275,6 +296,7 @@ public class SettingsActivity extends ActionBarActivity
 
         mRenderLocally = renderLocally;
 
+        final View uiContainer = findViewById(R.id.container);
         final ViewGroup localRenderContainer = (ViewGroup)
                 findViewById(R.id.local_render_container);
 
@@ -295,6 +317,7 @@ public class SettingsActivity extends ActionBarActivity
                     .alpha(1)
                     .setDuration(2000)
                     .withEndAction(null);
+            uiContainer.setBackgroundColor(0x00000000); // for ripple touch feedback
         } else {
             if (localRenderFragment != null) {
                 fm.beginTransaction()
@@ -310,6 +333,7 @@ public class SettingsActivity extends ActionBarActivity
                             localRenderContainer.setVisibility(View.GONE);
                         }
                     });
+            uiContainer.setBackground(null);
         }
     }
 
