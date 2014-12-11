@@ -26,8 +26,6 @@ import android.renderscript.RenderScript;
 import android.renderscript.ScriptIntrinsicBlur;
 import android.renderscript.ScriptIntrinsicColorMatrix;
 
-import com.google.android.apps.muzei.util.MathUtil;
-
 public class ImageBlurrer {
     public static final int MAX_SUPPORTED_BLUR_PIXELS = 25;
     private RenderScript mRS;
@@ -45,6 +43,10 @@ public class ImageBlurrer {
     }
 
     public Bitmap blurBitmap(Bitmap src, float radius, float desaturateAmount) {
+        if (src == null) {
+            return null;
+        }
+
         Bitmap dest = Bitmap.createBitmap(src);
         if (radius == 0f && desaturateAmount == 0f) {
             return dest;

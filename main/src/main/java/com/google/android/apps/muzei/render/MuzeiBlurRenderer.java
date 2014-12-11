@@ -46,6 +46,8 @@ import javax.microedition.khronos.opengles.GL10;
 
 import de.greenrobot.event.EventBus;
 
+import static com.google.android.apps.muzei.util.LogUtil.LOGE;
+
 public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
     private static final String TAG = LogUtil.makeLogTag(MuzeiBlurRenderer.class);
 
@@ -341,7 +343,9 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
                 mDimAmount = mDemoMode
                         ? DEMO_DIM
                         : (int) (mMaxDim * ((1 - DIM_RANGE) + DIM_RANGE * Math.sqrt(darkness)));
-                tempBitmap.recycle();
+                if (tempBitmap != null) {
+                    tempBitmap.recycle();
+                }
 
                 // Create the GLPicture objects
                 mPictures[0] = new GLPicture(bitmapRegionLoader, mHeight);
@@ -372,33 +376,43 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
                     rect.set(0, 0, originalWidth, originalHeight);
                     tempBitmap = bitmapRegionLoader.decodeRegion(rect, options);
 
-                    // Next, create a scaled down version of the bitmap so that the blur radius
-                    // looks appropriate (tempBitmap will likely be bigger than the final blurred
-                    // bitmap, and thus the blur may look smaller if we just used tempBitmap as
-                    // the final blurred bitmap).
+                    if (tempBitmap != null) {
+                        // Next, create a scaled down version of the bitmap so that the blur radius
+                        // looks appropriate (tempBitmap will likely be bigger than the final
+                        // blurred bitmap, and thus the blur may look smaller if we just used
+                        // tempBitmap as the final blurred bitmap).
 
-                    // Note that image width should be a multiple of 4 to avoid
-                    // issues with RenderScript allocations.
-                    Bitmap scaledBitmap = Bitmap.createScaledBitmap(
-                            tempBitmap, scaledWidth, scaledHeight, true);
+                        // Note that image width should be a multiple of 4 to avoid
+                        // issues with RenderScript allocations.
+                        Bitmap scaledBitmap = Bitmap.createScaledBitmap(
+                                tempBitmap, scaledWidth, scaledHeight, true);
 
-                    tempBitmap.recycle();
+                        tempBitmap.recycle();
 
-                    // And finally, create a blurred copy for each keyframe.
-                    for (int f = 1; f <= mBlurKeyframes; f++) {
-                        float desaturateAmount = mMaxGrey / 500f * f / mBlurKeyframes;
-                        float blurRadius = 0f;
-                        if (mMaxPrescaledBlurPixels > 0) {
-                            blurRadius = blurRadiusAtFrame(f);
+                        // And finally, create a blurred copy for each keyframe.
+                        for (int f = 1; f <= mBlurKeyframes; f++) {
+                            float desaturateAmount = mMaxGrey / 500f * f / mBlurKeyframes;
+                            float blurRadius = 0f;
+                            if (mMaxPrescaledBlurPixels > 0) {
+                                blurRadius = blurRadiusAtFrame(f);
+                            }
+                            Bitmap blurredBitmap = blurrer.blurBitmap(
+                                    scaledBitmap, blurRadius, desaturateAmount);
+                            mPictures[f] = new GLPicture(blurredBitmap);
+                            if (blurredBitmap != null) {
+                                blurredBitmap.recycle();
+                            }
                         }
-                        Bitmap blurredBitmap = blurrer.blurBitmap(
-                                scaledBitmap, blurRadius, desaturateAmount);
-                        mPictures[f] = new GLPicture(blurredBitmap);
-                        blurredBitmap.recycle();
-                    }
 
-                    scaledBitmap.recycle();
-                    blurrer.destroy();
+                        scaledBitmap.recycle();
+                        blurrer.destroy();
+                    } else {
+                        LOGE(TAG, "BitmapRegionLoader failed to decode the region, rect="
+                                + rect.toShortString());
+                        for (int f = 1; f <= mBlurKeyframes; f++) {
+                            mPictures[f] = null;
+                        }
+                    }
                 }
             }
 
