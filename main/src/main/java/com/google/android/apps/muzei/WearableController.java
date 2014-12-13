@@ -56,7 +56,7 @@ public class WearableController {
                 .build();
         ConnectionResult connectionResult = googleApiClient.blockingConnect(30, TimeUnit.SECONDS);
         if (!connectionResult.isSuccess()) {
-            if (connectionResult.getErrorCode() != ConnectionResult.API_UNAVAILABLE) {
+            if (connectionResult.getErrorCode() == ConnectionResult.API_UNAVAILABLE) {
                 LOGV(TAG, "Wearable API unavailable, cancelling updateDataLayer request");
             } else {
                 LOGW(TAG, "onConnectionFailed: " + connectionResult);
