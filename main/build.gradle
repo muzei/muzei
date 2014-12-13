@@ -41,6 +41,8 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 21
+        renderscriptTargetApi 21
+        renderscriptSupportModeEnabled true
 
         versionName versionProps['name']
         versionCode versionProps['code'].toInteger()
@@ -93,6 +95,7 @@ android {
         publicDebug.initWith(buildTypes.publicBeta)
         publicDebug {
             debuggable true
+            renderscriptDebuggable true
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), file('proguard-project.txt')
