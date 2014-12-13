@@ -121,8 +121,9 @@ public class MuzeiWearableListenerService extends WearableListenerService {
             }
         }
         enableComponents(FullScreenActivity.class);
-        MuzeiProvider.saveCurrentArtworkLocation(MuzeiWearableListenerService.this, localCache);
-        getContentResolver().insert(MuzeiContract.Artwork.CONTENT_URI, artwork.toContentValues());
+        if (MuzeiProvider.saveCurrentArtworkLocation(MuzeiWearableListenerService.this, localCache)) {
+            getContentResolver().insert(MuzeiContract.Artwork.CONTENT_URI, artwork.toContentValues());
+        }
     }
 
     private void enableComponents(Class<?>... components) {
