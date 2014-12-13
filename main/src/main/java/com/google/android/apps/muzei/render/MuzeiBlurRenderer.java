@@ -503,9 +503,17 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
                 // Nothing to draw
             } else if (lo == hi) {
                 // Just draw one
+                if (mPictures[lo] == null) {
+                    return;
+                }
+
                 mPictures[lo].draw(mMVPMatrix, globalAlpha);
             } else if (globalAlpha == 1) {
                 // Simple drawing
+                if (mPictures[lo] == null || mPictures[hi] == null) {
+                    return;
+                }
+
                 mPictures[lo].draw(mMVPMatrix, 1);
                 mPictures[hi].draw(mMVPMatrix, localHiAlpha);
             } else {
@@ -516,6 +524,10 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
                 // The math, where a1,a2 are previous alphas and b1,b2 are new alphas:
                 //   b1 = a1 * (a2 - 1) / (a1 * a2 - 1)
                 //   b2 = a1 * a2
+                if (mPictures[lo] == null || mPictures[hi] == null) {
+                    return;
+                }
+
                 float newLocalLoAlpha = globalAlpha * (localHiAlpha - 1)
                         / (globalAlpha * localHiAlpha - 1);
                 float newLocalHiAlpha = globalAlpha * localHiAlpha;
