@@ -37,6 +37,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.android.apps.muzei.util.LogUtil.LOGW;
+import static com.google.android.apps.muzei.util.LogUtil.LOGV;
 
 /**
  * Controller for working with the Android Wear API. Also in charge of dealing with
@@ -55,7 +56,11 @@ public class WearableController {
                 .build();
         ConnectionResult connectionResult = googleApiClient.blockingConnect(30, TimeUnit.SECONDS);
         if (!connectionResult.isSuccess()) {
-            LOGW(TAG, "onConnectionFailed: " + connectionResult);
+            if (connectionResult.getErrorCode() == ConnectionResult.API_UNAVAILABLE) {
+                LOGV(TAG, "Wearable API unavailable, cancelling updateDataLayer request");
+            } else {
+                LOGW(TAG, "onConnectionFailed: " + connectionResult);
+            }
             return;
         }
         Rect rect = new Rect();
