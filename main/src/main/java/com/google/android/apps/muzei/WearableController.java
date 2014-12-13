@@ -69,13 +69,15 @@ public class WearableController {
             options.inSampleSize = ImageUtil.calculateSampleSize(width, 320);
         }
         Bitmap image = bitmapRegionLoader.decodeRegion(rect, options);
-        final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-        image.compress(Bitmap.CompressFormat.PNG, 100, byteStream);
-        Asset asset = Asset.createFromBytes(byteStream.toByteArray());
-        PutDataMapRequest dataMapRequest = PutDataMapRequest.create("/artwork");
-        dataMapRequest.getDataMap().putDataMap("artwork", DataMap.fromBundle(artwork.toBundle()));
-        dataMapRequest.getDataMap().putAsset("image", asset);
-        Wearable.DataApi.putDataItem(googleApiClient, dataMapRequest.asPutDataRequest()).await();
+        if (image != null) {
+            final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+            image.compress(Bitmap.CompressFormat.PNG, 100, byteStream);
+            Asset asset = Asset.createFromBytes(byteStream.toByteArray());
+            PutDataMapRequest dataMapRequest = PutDataMapRequest.create("/artwork");
+            dataMapRequest.getDataMap().putDataMap("artwork", DataMap.fromBundle(artwork.toBundle()));
+            dataMapRequest.getDataMap().putAsset("image", asset);
+            Wearable.DataApi.putDataItem(googleApiClient, dataMapRequest.asPutDataRequest()).await();
+        }
         googleApiClient.disconnect();
     }
 }

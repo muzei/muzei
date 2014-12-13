@@ -31,6 +31,7 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
+import android.util.Log;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
 
@@ -42,6 +43,7 @@ import java.util.HashMap;
  * Provides access to a the most recent artwork
  */
 public class MuzeiProvider extends ContentProvider {
+    private static final String TAG = MuzeiProvider.class.getSimpleName();
     /**
      * Shared Preference key for the current artwork location used in openFile
      */
@@ -78,12 +80,14 @@ public class MuzeiProvider extends ContentProvider {
      * @param context        Any valid Context
      * @param currentArtwork File pointing to the current artwork
      */
-    public static void saveCurrentArtworkLocation(Context context, File currentArtwork) {
+    public static boolean saveCurrentArtworkLocation(Context context, File currentArtwork) {
         if (currentArtwork == null || !currentArtwork.exists()) {
-            throw new IllegalArgumentException("File " + currentArtwork + " is not valid");
+            Log.w(TAG, "File " + currentArtwork + " is not valid");
+            return false;
         }
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         sharedPreferences.edit().putString(CURRENT_ARTWORK_LOCATION, currentArtwork.getAbsolutePath()).commit();
+        return true;
     }
 
     /**
