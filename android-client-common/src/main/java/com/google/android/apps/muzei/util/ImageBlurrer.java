@@ -18,13 +18,13 @@ package com.google.android.apps.muzei.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.renderscript.Allocation;
-import android.renderscript.Element;
-import android.renderscript.Matrix3f;
-import android.renderscript.RSInvalidStateException;
-import android.renderscript.RenderScript;
-import android.renderscript.ScriptIntrinsicBlur;
-import android.renderscript.ScriptIntrinsicColorMatrix;
+import android.support.v8.renderscript.Allocation;
+import android.support.v8.renderscript.Element;
+import android.support.v8.renderscript.Matrix3f;
+import android.support.v8.renderscript.RSInvalidStateException;
+import android.support.v8.renderscript.RenderScript;
+import android.support.v8.renderscript.ScriptIntrinsicBlur;
+import android.support.v8.renderscript.ScriptIntrinsicColorMatrix;
 
 public class ImageBlurrer {
     public static final int MAX_SUPPORTED_BLUR_PIXELS = 25;
@@ -38,7 +38,6 @@ public class ImageBlurrer {
     public ImageBlurrer(Context context) {
         mRS = RenderScript.create(context);
         mSIBlur = ScriptIntrinsicBlur.create(mRS, Element.U8_4(mRS));
-        // NOTE: ScriptIntrinsicColorMatrix.create(RenderScript) only supports API19+
         mSIGrey = ScriptIntrinsicColorMatrix.create(mRS, Element.U8_4(mRS));
     }
 

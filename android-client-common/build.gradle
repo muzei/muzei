@@ -36,5 +36,7 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 21
+        renderscriptTargetApi 21
+        renderscriptSupportModeEnabled true
     }
 }
