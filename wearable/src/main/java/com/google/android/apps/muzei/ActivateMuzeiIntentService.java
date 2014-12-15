@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.preference.PreferenceManager;
 import android.support.wearable.activity.ConfirmationActivity;
 import android.text.TextUtils;
@@ -36,6 +37,7 @@ import com.google.android.gms.wearable.Wearable;
 
 import net.nurik.roman.muzei.R;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -46,7 +48,7 @@ public class ActivateMuzeiIntentService extends IntentService {
     private static final String ACTION_MARK_NOTIFICATION_READ =
             "com.google.android.apps.muzei.action.NOTIFICATION_DELETED";
 
-    public static void maybeShowActivateMuzeiNotification(Context context, Bitmap background) {
+    public static void maybeShowActivateMuzeiNotification(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         if (preferences.getBoolean(ACTIVATE_MUZEI_NOTIF_SHOWN_PREF_KEY, false)) {
             return;
@@ -67,6 +69,12 @@ public class ActivateMuzeiIntentService extends IntentService {
                 .extend(new Notification.Action.WearableExtender()
                         .setAvailableOffline(false))
                 .build());
+        Bitmap background = null;
+        try {
+            background = BitmapFactory.decodeStream(context.getAssets().open("starrynight.jpg"));
+        } catch (IOException e) {
+            Log.e(TAG, "Error reading default background asset", e);
+        }
         builder.extend(new Notification.WearableExtender()
                 .setContentAction(0)
                 .setBackground(background));

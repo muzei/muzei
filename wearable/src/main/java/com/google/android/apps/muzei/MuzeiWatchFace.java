@@ -97,8 +97,11 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
                 if (bitmap == null) {
                     try {
                         bitmap = BitmapFactory.decodeStream(getAssets().open("starrynight.jpg"));
-                        ActivateMuzeiIntentService.maybeShowActivateMuzeiNotification(
-                                MuzeiWatchFace.this, bitmap);
+                        // Try to download the artwork from the DataLayer, showing a notification
+                        // to activate Muzei if it isn't found
+                        Intent intent = new Intent(MuzeiWatchFace.this, ArtworkCacheIntentService.class);
+                        intent.putExtra(ArtworkCacheIntentService.SHOW_ACTIVATE_NOTIFICATION_EXTRA, true);
+                        startService(intent);
                     } catch (IOException e) {
                         Log.e(TAG, "Error opening starry night asset", e);
                     }
