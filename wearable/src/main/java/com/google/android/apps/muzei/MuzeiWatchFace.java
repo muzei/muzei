@@ -108,7 +108,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
                 }
                 if (bitmap != null && !bitmap.sameAs(mBackgroundBitmap)) {
                     mBackgroundBitmap = bitmap;
-                    mBackgroundScaledBitmap = null;
+                    createScaledBitmap();
                     postInvalidate();
                 }
             }
@@ -165,6 +165,8 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
         boolean mMute;
         Time mTime;
         Rect mCardBounds = new Rect();
+        int mWidth = 0;
+        int mHeight = 0;
         /**
          * Whether the display supports fewer bits for each color in ambient mode. When true, we
          * disable anti-aliasing in ambient mode.
@@ -231,6 +233,40 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
         public void onDestroy() {
             mUpdateTimeHandler.removeMessages(MSG_UPDATE_TIME);
             super.onDestroy();
+        }
+
+        @Override
+        public void onSurfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+            super.onSurfaceChanged(holder, format, width, height);
+            mWidth = width;
+            mHeight = height;
+            createScaledBitmap();
+        }
+
+        private void createScaledBitmap() {
+            if (mWidth == 0 || mHeight == 0) {
+                // Wait for the surface to be created
+                return;
+            }
+            if (mBackgroundBitmap == null) {
+                // Wait for callback with the artwork image
+                return;
+            }
+            if (mBackgroundBitmap.getWidth() > mBackgroundBitmap.getHeight()) {
+                float scalingFactor = mHeight * 1f / mBackgroundBitmap.getHeight();
+                mBackgroundScaledBitmap = Bitmap.createScaledBitmap(
+                        mBackgroundBitmap,
+                        (int)(scalingFactor * mBackgroundBitmap.getWidth()),
+                        mHeight,
+                        true /* filter */);
+            } else {
+                float scalingFactor = mWidth * 1f / mBackgroundBitmap.getWidth();
+                mBackgroundScaledBitmap = Bitmap.createScaledBitmap(
+                        mBackgroundBitmap,
+                        mWidth,
+                        (int) (scalingFactor * mBackgroundBitmap.getHeight()),
+                        true /* filter */);
+            }
         }
 
         @Override
@@ -403,26 +439,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
             if (mAmbient || mBackgroundBitmap == null) {
                 canvas.drawRect(0, 0, width, height, mBackgroundPaint);
             } else {
-                // Draw the background, scaled to fit.
-                if (mBackgroundScaledBitmap == null
-                        || (mBackgroundScaledBitmap.getWidth() != width
-                        && mBackgroundScaledBitmap.getHeight() != height)) {
-                    if (mBackgroundBitmap.getWidth() > mBackgroundBitmap.getHeight()) {
-                        float scalingFactor = height * 1f / mBackgroundBitmap.getHeight();
-                        mBackgroundScaledBitmap = Bitmap.createScaledBitmap(
-                                mBackgroundBitmap,
-                                (int)(scalingFactor * mBackgroundBitmap.getWidth()),
-                                height,
-                                true /* filter */);
-                    } else {
-                        float scalingFactor = width * 1f / mBackgroundBitmap.getWidth();
-                        mBackgroundScaledBitmap = Bitmap.createScaledBitmap(
-                                mBackgroundBitmap,
-                                width,
-                                (int) (scalingFactor * mBackgroundBitmap.getHeight()),
-                                true /* filter */);
-                    }
-                }
+                // Draw the scaled background
                 canvas.drawBitmap(mBackgroundScaledBitmap,
                         (width - mBackgroundScaledBitmap.getWidth()) / 2,
                         (height - mBackgroundScaledBitmap.getHeight()) / 2, null);
