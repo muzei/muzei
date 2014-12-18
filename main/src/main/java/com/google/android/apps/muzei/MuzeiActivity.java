@@ -785,6 +785,18 @@ public class MuzeiActivity extends ActionBarActivity {
                     ? View.VISIBLE : View.GONE);
         }
 
+        // Note: normally should use window animations for this, but there's a bug
+        // on Samsung devices where the wallpaper is animated along with the window for
+        // windows showing the wallpaper (the wallpaper _should_ be static, not part of
+        // the animation).
+        View decorView = getWindow().getDecorView();
+        decorView.setAlpha(0f);
+        decorView.animate().cancel();
+        decorView.animate()
+                .setStartDelay(500)
+                .alpha(1f)
+                .setDuration(300);
+
         maybeUpdateArtDetailOpenedClosed();
 
         NewWallpaperNotificationReceiver.markNotificationRead(this);

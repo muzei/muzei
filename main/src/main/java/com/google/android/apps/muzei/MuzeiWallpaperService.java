@@ -172,6 +172,7 @@ public class MuzeiWallpaperService extends GLWallpaperService {
         @Override
         public Bundle onCommand(String action, int x, int y, int z, Bundle extras,
                 boolean resultRequested) {
+            // mValidDoubleTap previously set in the gesture listener
             if (WallpaperManager.COMMAND_TAP.equals(action) && mValidDoubleTap) {
                 // Temporarily toggle focused/blurred
                 queueEvent(new Runnable() {
@@ -201,7 +202,6 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             @Override
             public void run() {
                 queueEvent(new Runnable() {
-
                     @Override
                     public void run() {
                         mValidDoubleTap = false;
@@ -209,12 +209,6 @@ public class MuzeiWallpaperService extends GLWallpaperService {
                 });
             }
         };
-
-        private void validateDoubleTap() {
-            mMainThreadHandler.removeCallbacks(mDoubleTapTimeout);
-            final int timeout = ViewConfiguration.getDoubleTapTimeout();
-            mMainThreadHandler.postDelayed(mDoubleTapTimeout, timeout);
-        }
 
         private final GestureDetector.OnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener() {
             @Override
@@ -224,13 +218,17 @@ public class MuzeiWallpaperService extends GLWallpaperService {
 
             @Override
             public boolean onDoubleTap(MotionEvent e) {
-                mValidDoubleTap = true;
                 if (mArtDetailMode) {
                     // The main activity is visible, so discard any double touches since focus
                     // should be forced on
                     return true;
                 }
-                validateDoubleTap();
+
+                mValidDoubleTap = true; // processed in onCommand/COMMAND_TAP
+
+                mMainThreadHandler.removeCallbacks(mDoubleTapTimeout);
+                final int timeout = ViewConfiguration.getDoubleTapTimeout();
+                mMainThreadHandler.postDelayed(mDoubleTapTimeout, timeout);
                 return true;
             }
         };
