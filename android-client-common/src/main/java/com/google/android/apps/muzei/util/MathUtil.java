@@ -50,6 +50,13 @@ public class MathUtil {
         return num % 2 == 0;
     }
 
+    // divide two integers but round up
+    // see http://stackoverflow.com/a/7446742/102703
+    public static int intDivideRoundUp(int num, int divisor) {
+        int sign = (num > 0 ? 1 : -1) * (divisor > 0 ? 1 : -1);
+        return sign * (Math.abs(num) + Math.abs(divisor) - 1) / Math.abs(divisor);
+    }
+
     private MathUtil() {
     }
 }

@@ -508,21 +508,12 @@ public class GallerySettingsActivity extends ActionBarActivity {
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     private void chooseMorePhotos() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            // Documents API
-            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType("image/*");
-            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-            startActivityForResult(intent, REQUEST_CHOOSE_PHOTOS);
-
-        } else {
-            // Older API
-            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-            intent.setType("image/*");
-            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-            startActivityForResult(intent, REQUEST_CHOOSE_PHOTOS);
-        }
+        // NOTE: No need to use the Document Storage framework (OPEN_DOCUMENT)
+        // since we only need temporary access to the photo (we make a copy).
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        startActivityForResult(intent, REQUEST_CHOOSE_PHOTOS);
     }
 
     @Override

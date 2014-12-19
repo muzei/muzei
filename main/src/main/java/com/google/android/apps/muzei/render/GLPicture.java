@@ -21,6 +21,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.opengl.GLES20;
 
+import com.google.android.apps.muzei.util.MathUtil;
+
 import java.nio.FloatBuffer;
 
 class GLPicture {
@@ -130,8 +132,8 @@ class GLPicture {
         int leftoverHeight = originalHeight % unsampledTileSize;
 
         // Load m x n textures
-        mCols = mWidth / (mTileSize + 1) + 1;
-        mRows = mHeight / (mTileSize + 1) + 1;
+        mCols = MathUtil.intDivideRoundUp(mWidth, mTileSize);
+        mRows = MathUtil.intDivideRoundUp(mHeight, mTileSize);
 
         mTextureHandles = new int[mCols * mRows];
 
@@ -168,7 +170,7 @@ class GLPicture {
             return;
         }
 
-        mTileSize = sMaxTextureSize;
+        mTileSize = Math.min(512, sMaxTextureSize);
         mHasContent = true;
         mVertexBuffer = GLUtil.newFloatBuffer(mVertices.length);
         mTextureCoordsBuffer = GLUtil.asFloatBuffer(SQUARE_TEXTURE_VERTICES);
@@ -178,8 +180,8 @@ class GLPicture {
         int leftoverHeight = mHeight % mTileSize;
 
         // Load m x n textures
-        mCols = mWidth / (mTileSize + 1) + 1;
-        mRows = mHeight / (mTileSize + 1) + 1;
+        mCols = MathUtil.intDivideRoundUp(mWidth, mTileSize);
+        mRows = MathUtil.intDivideRoundUp(mHeight, mTileSize);
 
         mTextureHandles = new int[mCols * mRows];
         if (mCols == 1 && mRows == 1) {

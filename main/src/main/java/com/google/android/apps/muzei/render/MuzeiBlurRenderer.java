@@ -433,9 +433,9 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
             // Total scale factors in both zoom and scale due to aspect ratio.
             float scaledBitmapToScreenAspectRatio = zoom / screenToBitmapAspectRatio;
 
-            // At most pan across 2 screenfuls
+            // At most pan across 1.8 screenfuls (2 screenfuls + some parallax)
             // TODO: if we know the number of home screen pages, use that number here
-            float maxPanScreenWidths = Math.min(2, scaledBitmapToScreenAspectRatio);
+            float maxPanScreenWidths = Math.min(1.8f, scaledBitmapToScreenAspectRatio);
 
             mCurrentViewport.left = MathUtil.interpolate(-1f, 1f,
                     MathUtil.interpolate(
