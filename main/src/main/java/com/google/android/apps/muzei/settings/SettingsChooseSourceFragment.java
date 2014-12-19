@@ -485,8 +485,7 @@ public class SettingsChooseSourceFragment extends Fragment {
                     try {
                         startActivity(new Intent()
                                 .setComponent(source.settingsActivity)
-                                .putExtra(MuzeiArtSource.EXTRA_FROM_MUZEI_SETTINGS, true)
-                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET));
+                                .putExtra(MuzeiArtSource.EXTRA_FROM_MUZEI_SETTINGS, true));
                     } catch (ActivityNotFoundException e) {
                         LOGE(TAG, "Can't launch source settings.", e);
                     } catch (SecurityException e) {

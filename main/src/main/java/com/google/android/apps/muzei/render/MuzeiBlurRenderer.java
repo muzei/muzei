@@ -36,6 +36,7 @@ import android.view.animation.Interpolator;
 import com.google.android.apps.muzei.ArtDetailViewport;
 import com.google.android.apps.muzei.event.ArtworkSizeChangedEvent;
 import com.google.android.apps.muzei.event.SwitchingPhotosStateChangedEvent;
+import com.google.android.apps.muzei.settings.Prefs;
 import com.google.android.apps.muzei.util.ImageBlurrer;
 import com.google.android.apps.muzei.util.LogUtil;
 import com.google.android.apps.muzei.util.MathUtil;
@@ -128,7 +129,7 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
     public void recomputeMaxPrescaledBlurPixels() {
         // Compute blur sizes
         float maxBlurRadiusOverScreenHeight = PreferenceManager
-                .getDefaultSharedPreferences(mContext).getInt("blur_amount", DEFAULT_BLUR)
+                .getDefaultSharedPreferences(mContext).getInt(Prefs.PREF_BLUR_AMOUNT, DEFAULT_BLUR)
                 * 0.0001f;
         DisplayMetrics dm = mContext.getResources().getDisplayMetrics();
         int maxBlurPx = (int) (dm.heightPixels * maxBlurRadiusOverScreenHeight);
@@ -141,14 +142,15 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
 
     public void recomputeMaxDimAmount() {
         mMaxDim = PreferenceManager
-                .getDefaultSharedPreferences(mContext).getInt("dim_amount", DEFAULT_MAX_DIM);
+                .getDefaultSharedPreferences(mContext).getInt(
+                        Prefs.PREF_DIM_AMOUNT, DEFAULT_MAX_DIM);
     }
 
     public void recomputeGreyAmount() {
         mMaxGrey = mDemoMode
                 ? DEMO_GREY
                 : PreferenceManager.getDefaultSharedPreferences(mContext)
-                .getInt("grey_amount", DEFAULT_GREY);
+                .getInt(Prefs.PREF_GREY_AMOUNT, DEFAULT_GREY);
     }
 
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {

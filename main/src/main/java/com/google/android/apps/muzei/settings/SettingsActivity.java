@@ -32,7 +32,6 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -198,6 +197,8 @@ public class SettingsActivity extends ActionBarActivity
                     return;
                 }
 
+                inflateMenuFromFragment(0);
+
                 try {
                     Fragment newFragment = fragmentClass.newInstance();
                     getFragmentManager().beginTransaction()
@@ -219,7 +220,7 @@ public class SettingsActivity extends ActionBarActivity
 
         sectionSpinner.setSelection(mStartSection);
 
-        mAppBar.inflateMenu(R.menu.settings);
+        inflateMenuFromFragment(0);
         mAppBar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -228,7 +229,7 @@ public class SettingsActivity extends ActionBarActivity
                         try {
                             Intent playStoreIntent = new Intent(Intent.ACTION_VIEW,
                                     Uri.parse("http://play.google.com/store/search?q=Muzei&c=apps"))
-                                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
                             preferPackageForIntent(SettingsActivity.this,
                                     playStoreIntent, PLAY_STORE_PACKAGE_NAME);
                             startActivity(playStoreIntent);
@@ -241,6 +242,14 @@ public class SettingsActivity extends ActionBarActivity
                     case R.id.action_about:
                         startActivity(new Intent(SettingsActivity.this, AboutActivity.class));
                         return true;
+                }
+
+                Fragment currentFragment = getFragmentManager().findFragmentById(
+                        R.id.content_container);
+                if (currentFragment != null
+                        && currentFragment instanceof SettingsActivityMenuListener) {
+                    ((SettingsActivityMenuListener) currentFragment)
+                            .onSettingsActivityMenuItemClick(item);
                 }
 
                 return false;
@@ -340,5 +349,21 @@ public class SettingsActivity extends ActionBarActivity
     @Override
     public void onRequestCloseActivity() {
         finish();
+    }
+
+    void inflateMenuFromFragment(int menuResId) {
+        if (mAppBar == null) {
+            return;
+        }
+
+        mAppBar.getMenu().clear();
+        if (menuResId != 0) {
+            mAppBar.inflateMenu(menuResId);
+        }
+        mAppBar.inflateMenu(R.menu.settings);
+    }
+
+    public static interface SettingsActivityMenuListener {
+        public void onSettingsActivityMenuItemClick(MenuItem item);
     }
 }

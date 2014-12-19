@@ -588,8 +588,7 @@ public class MuzeiActivity extends ActionBarActivity {
 
                 switch (menuItem.getItemId()) {
                     case R.id.action_settings:
-                        startActivity(new Intent(MuzeiActivity.this, SettingsActivity.class)
-                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET));
+                        startActivity(new Intent(MuzeiActivity.this, SettingsActivity.class));
                         return true;
                 }
                 return false;
