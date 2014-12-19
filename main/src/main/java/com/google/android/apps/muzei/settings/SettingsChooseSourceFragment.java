@@ -248,7 +248,7 @@ public class SettingsChooseSourceFragment extends Fragment {
         updateSelectedItem(true);
     }
 
-    private void updateSelectedItem(boolean scrollTo) {
+    private void updateSelectedItem(boolean allowAnimate) {
         ComponentName previousSelectedSource = mSelectedSource;
         mSelectedSource = mSourceManager.getSelectedSource();
         if (previousSelectedSource != null && previousSelectedSource.equals(mSelectedSource)) {
@@ -296,10 +296,10 @@ public class SettingsChooseSourceFragment extends Fragment {
             }
 
             animateSettingsButton(source.settingsButton,
-                    selected && source.settingsActivity != null, true);
+                    selected && source.settingsActivity != null, allowAnimate);
         }
 
-        if (mSelectedSourceIndex >= 0 && scrollTo) {
+        if (mSelectedSourceIndex >= 0 && allowAnimate) {
             if (mCurrentScroller != null) {
                 mCurrentScroller.cancel();
             }
@@ -485,8 +485,7 @@ public class SettingsChooseSourceFragment extends Fragment {
                     try {
                         startActivity(new Intent()
                                 .setComponent(source.settingsActivity)
-                                .putExtra(MuzeiArtSource.EXTRA_FROM_MUZEI_SETTINGS, true)
-                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET));
+                                .putExtra(MuzeiArtSource.EXTRA_FROM_MUZEI_SETTINGS, true));
                     } catch (ActivityNotFoundException e) {
                         LOGE(TAG, "Can't launch source settings.", e);
                     } catch (SecurityException e) {

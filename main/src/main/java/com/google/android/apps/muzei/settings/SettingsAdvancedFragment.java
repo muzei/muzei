@@ -16,12 +16,14 @@
 
 package com.google.android.apps.muzei.settings;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -49,7 +51,9 @@ import de.greenrobot.event.EventBus;
 /**
  * Fragment for allowing the user to configure advanced settings.
  */
-public class SettingsAdvancedFragment extends Fragment {
+public class SettingsAdvancedFragment extends Fragment
+        implements SettingsActivity.SettingsActivityMenuListener {
+
     private Handler mHandler = new Handler();
     private SeekBar mBlurSeekBar;
     private SeekBar mDimSeekBar;
@@ -68,7 +72,7 @@ public class SettingsAdvancedFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.settings_advanced_fragment, container, false);
 
         mBlurSeekBar = (SeekBar) rootView.findViewById(R.id.blur_amount);
-        mBlurSeekBar.setProgress(getSharedPreferences().getInt("blur_amount",
+        mBlurSeekBar.setProgress(getSharedPreferences().getInt(Prefs.PREF_BLUR_AMOUNT,
                 MuzeiBlurRenderer.DEFAULT_BLUR));
         mBlurSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -89,7 +93,7 @@ public class SettingsAdvancedFragment extends Fragment {
         });
 
         mDimSeekBar = (SeekBar) rootView.findViewById(R.id.dim_amount);
-        mDimSeekBar.setProgress(getSharedPreferences().getInt("dim_amount",
+        mDimSeekBar.setProgress(getSharedPreferences().getInt(Prefs.PREF_DIM_AMOUNT,
                 MuzeiBlurRenderer.DEFAULT_MAX_DIM));
         mDimSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -110,7 +114,7 @@ public class SettingsAdvancedFragment extends Fragment {
         });
 
         mGreySeekBar = (SeekBar) rootView.findViewById(R.id.grey_amount);
-        mGreySeekBar.setProgress(getSharedPreferences().getInt("grey_amount",
+        mGreySeekBar.setProgress(getSharedPreferences().getInt(Prefs.PREF_GREY_AMOUNT,
                 MuzeiBlurRenderer.DEFAULT_GREY));
         mGreySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -213,7 +217,6 @@ public class SettingsAdvancedFragment extends Fragment {
                                 .putBoolean(NewWallpaperNotificationReceiver.PREF_ENABLED, checked)
                                 .apply();
                         EventBus.getDefault().post(new BlurAmountChangedEvent());
-
                     }
                 }
         );
@@ -255,6 +258,12 @@ public class SettingsAdvancedFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(Activity activity) {
+        ((SettingsActivity) activity).inflateMenuFromFragment(R.menu.settings_advanced);
+        super.onAttach(activity);
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         mHandler.removeCallbacksAndMessages(null);
@@ -268,7 +277,7 @@ public class SettingsAdvancedFragment extends Fragment {
         @Override
         public void run() {
             getSharedPreferences().edit()
-                    .putInt("blur_amount", mBlurSeekBar.getProgress())
+                    .putInt(Prefs.PREF_BLUR_AMOUNT, mBlurSeekBar.getProgress())
                     .apply();
             EventBus.getDefault().post(new BlurAmountChangedEvent());
         }
@@ -278,7 +287,7 @@ public class SettingsAdvancedFragment extends Fragment {
         @Override
         public void run() {
             getSharedPreferences().edit()
-                    .putInt("dim_amount", mDimSeekBar.getProgress())
+                    .putInt(Prefs.PREF_DIM_AMOUNT, mDimSeekBar.getProgress())
                     .apply();
             EventBus.getDefault().post(new DimAmountChangedEvent());
         }
@@ -288,12 +297,28 @@ public class SettingsAdvancedFragment extends Fragment {
         @Override
         public void run() {
             getSharedPreferences().edit()
-                    .putInt("grey_amount", mGreySeekBar.getProgress())
+                    .putInt(Prefs.PREF_GREY_AMOUNT, mGreySeekBar.getProgress())
                     .apply();
             EventBus.getDefault().post(new GreyAmountChangedEvent());
         }
     };
 
+    @Override
+    public void onSettingsActivityMenuItemClick(MenuItem item) {
+        if (item.getItemId() == R.id.action_reset_defaults) {
+            getSharedPreferences().edit()
+                    .putInt(Prefs.PREF_BLUR_AMOUNT, MuzeiBlurRenderer.DEFAULT_BLUR)
+                    .putInt(Prefs.PREF_DIM_AMOUNT, MuzeiBlurRenderer.DEFAULT_MAX_DIM)
+                    .putInt(Prefs.PREF_GREY_AMOUNT, MuzeiBlurRenderer.DEFAULT_GREY)
+                    .apply();
+            mBlurSeekBar.setProgress(MuzeiBlurRenderer.DEFAULT_BLUR);
+            mDimSeekBar.setProgress(MuzeiBlurRenderer.DEFAULT_MAX_DIM);
+            mGreySeekBar.setProgress(MuzeiBlurRenderer.DEFAULT_GREY);
+            EventBus.getDefault().post(new BlurAmountChangedEvent());
+            EventBus.getDefault().post(new DimAmountChangedEvent());
+            EventBus.getDefault().post(new GreyAmountChangedEvent());
+        }
+    }
 
     public class TapActionEntry
     {

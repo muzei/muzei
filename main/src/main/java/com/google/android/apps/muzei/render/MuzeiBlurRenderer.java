@@ -36,6 +36,7 @@ import android.view.animation.Interpolator;
 import com.google.android.apps.muzei.ArtDetailViewport;
 import com.google.android.apps.muzei.event.ArtworkSizeChangedEvent;
 import com.google.android.apps.muzei.event.SwitchingPhotosStateChangedEvent;
+import com.google.android.apps.muzei.settings.Prefs;
 import com.google.android.apps.muzei.util.ImageBlurrer;
 import com.google.android.apps.muzei.util.LogUtil;
 import com.google.android.apps.muzei.util.MathUtil;
@@ -45,6 +46,8 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import de.greenrobot.event.EventBus;
+
+import static com.google.android.apps.muzei.util.LogUtil.LOGE;
 
 public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
     private static final String TAG = LogUtil.makeLogTag(MuzeiBlurRenderer.class);
@@ -126,7 +129,7 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
     public void recomputeMaxPrescaledBlurPixels() {
         // Compute blur sizes
         float maxBlurRadiusOverScreenHeight = PreferenceManager
-                .getDefaultSharedPreferences(mContext).getInt("blur_amount", DEFAULT_BLUR)
+                .getDefaultSharedPreferences(mContext).getInt(Prefs.PREF_BLUR_AMOUNT, DEFAULT_BLUR)
                 * 0.0001f;
         DisplayMetrics dm = mContext.getResources().getDisplayMetrics();
         int maxBlurPx = (int) (dm.heightPixels * maxBlurRadiusOverScreenHeight);
@@ -139,14 +142,15 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
 
     public void recomputeMaxDimAmount() {
         mMaxDim = PreferenceManager
-                .getDefaultSharedPreferences(mContext).getInt("dim_amount", DEFAULT_MAX_DIM);
+                .getDefaultSharedPreferences(mContext).getInt(
+                        Prefs.PREF_DIM_AMOUNT, DEFAULT_MAX_DIM);
     }
 
     public void recomputeGreyAmount() {
         mMaxGrey = mDemoMode
                 ? DEMO_GREY
                 : PreferenceManager.getDefaultSharedPreferences(mContext)
-                .getInt("grey_amount", DEFAULT_GREY);
+                .getInt(Prefs.PREF_GREY_AMOUNT, DEFAULT_GREY);
     }
 
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
@@ -341,7 +345,9 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
                 mDimAmount = mDemoMode
                         ? DEMO_DIM
                         : (int) (mMaxDim * ((1 - DIM_RANGE) + DIM_RANGE * Math.sqrt(darkness)));
-                tempBitmap.recycle();
+                if (tempBitmap != null) {
+                    tempBitmap.recycle();
+                }
 
                 // Create the GLPicture objects
                 mPictures[0] = new GLPicture(bitmapRegionLoader, mHeight);
@@ -372,33 +378,43 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
                     rect.set(0, 0, originalWidth, originalHeight);
                     tempBitmap = bitmapRegionLoader.decodeRegion(rect, options);
 
-                    // Next, create a scaled down version of the bitmap so that the blur radius
-                    // looks appropriate (tempBitmap will likely be bigger than the final blurred
-                    // bitmap, and thus the blur may look smaller if we just used tempBitmap as
-                    // the final blurred bitmap).
+                    if (tempBitmap != null) {
+                        // Next, create a scaled down version of the bitmap so that the blur radius
+                        // looks appropriate (tempBitmap will likely be bigger than the final
+                        // blurred bitmap, and thus the blur may look smaller if we just used
+                        // tempBitmap as the final blurred bitmap).
 
-                    // Note that image width should be a multiple of 4 to avoid
-                    // issues with RenderScript allocations.
-                    Bitmap scaledBitmap = Bitmap.createScaledBitmap(
-                            tempBitmap, scaledWidth, scaledHeight, true);
+                        // Note that image width should be a multiple of 4 to avoid
+                        // issues with RenderScript allocations.
+                        Bitmap scaledBitmap = Bitmap.createScaledBitmap(
+                                tempBitmap, scaledWidth, scaledHeight, true);
 
-                    tempBitmap.recycle();
+                        tempBitmap.recycle();
 
-                    // And finally, create a blurred copy for each keyframe.
-                    for (int f = 1; f <= mBlurKeyframes; f++) {
-                        float desaturateAmount = mMaxGrey / 500f * f / mBlurKeyframes;
-                        float blurRadius = 0f;
-                        if (mMaxPrescaledBlurPixels > 0) {
-                            blurRadius = blurRadiusAtFrame(f);
+                        // And finally, create a blurred copy for each keyframe.
+                        for (int f = 1; f <= mBlurKeyframes; f++) {
+                            float desaturateAmount = mMaxGrey / 500f * f / mBlurKeyframes;
+                            float blurRadius = 0f;
+                            if (mMaxPrescaledBlurPixels > 0) {
+                                blurRadius = blurRadiusAtFrame(f);
+                            }
+                            Bitmap blurredBitmap = blurrer.blurBitmap(
+                                    scaledBitmap, blurRadius, desaturateAmount);
+                            mPictures[f] = new GLPicture(blurredBitmap);
+                            if (blurredBitmap != null) {
+                                blurredBitmap.recycle();
+                            }
                         }
-                        Bitmap blurredBitmap = blurrer.blurBitmap(
-                                scaledBitmap, blurRadius, desaturateAmount);
-                        mPictures[f] = new GLPicture(blurredBitmap);
-                        blurredBitmap.recycle();
-                    }
 
-                    scaledBitmap.recycle();
-                    blurrer.destroy();
+                        scaledBitmap.recycle();
+                        blurrer.destroy();
+                    } else {
+                        LOGE(TAG, "BitmapRegionLoader failed to decode the region, rect="
+                                + rect.toShortString());
+                        for (int f = 1; f <= mBlurKeyframes; f++) {
+                            mPictures[f] = null;
+                        }
+                    }
                 }
             }
 
@@ -419,9 +435,9 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
             // Total scale factors in both zoom and scale due to aspect ratio.
             float scaledBitmapToScreenAspectRatio = zoom / screenToBitmapAspectRatio;
 
-            // At most pan across 2 screenfuls
+            // At most pan across 1.8 screenfuls (2 screenfuls + some parallax)
             // TODO: if we know the number of home screen pages, use that number here
-            float maxPanScreenWidths = Math.min(2, scaledBitmapToScreenAspectRatio);
+            float maxPanScreenWidths = Math.min(1.8f, scaledBitmapToScreenAspectRatio);
 
             mCurrentViewport.left = MathUtil.interpolate(-1f, 1f,
                     MathUtil.interpolate(
@@ -489,9 +505,17 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
                 // Nothing to draw
             } else if (lo == hi) {
                 // Just draw one
+                if (mPictures[lo] == null) {
+                    return;
+                }
+
                 mPictures[lo].draw(mMVPMatrix, globalAlpha);
             } else if (globalAlpha == 1) {
                 // Simple drawing
+                if (mPictures[lo] == null || mPictures[hi] == null) {
+                    return;
+                }
+
                 mPictures[lo].draw(mMVPMatrix, 1);
                 mPictures[hi].draw(mMVPMatrix, localHiAlpha);
             } else {
@@ -502,6 +526,10 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
                 // The math, where a1,a2 are previous alphas and b1,b2 are new alphas:
                 //   b1 = a1 * (a2 - 1) / (a1 * a2 - 1)
                 //   b2 = a1 * a2
+                if (mPictures[lo] == null || mPictures[hi] == null) {
+                    return;
+                }
+
                 float newLocalLoAlpha = globalAlpha * (localHiAlpha - 1)
                         / (globalAlpha * localHiAlpha - 1);
                 float newLocalHiAlpha = globalAlpha * localHiAlpha;

@@ -105,8 +105,9 @@ public class RealRenderController extends RenderController {
         try {
             BitmapRegionLoader loader = BitmapRegionLoader.newInstance(
                     new FileInputStream(file), rotation);
-            MuzeiProvider.saveCurrentArtworkLocation(mContext, file);
-            mContext.getContentResolver().insert(MuzeiContract.Artwork.CONTENT_URI, currentArtwork.toContentValues());
+            if (MuzeiProvider.saveCurrentArtworkLocation(mContext, file)) {
+                mContext.getContentResolver().insert(MuzeiContract.Artwork.CONTENT_URI, currentArtwork.toContentValues());
+            }
             NewWallpaperNotificationReceiver
                     .maybeShowNewArtworkNotification(mContext, currentArtwork, loader);
             WearableController.updateDataLayer(mContext, currentArtwork, loader);

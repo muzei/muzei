@@ -25,6 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:saveEnabled="false"
+        android:overScrollMode="never"
         android:scrollbars="none">
 
         <LinearLayout

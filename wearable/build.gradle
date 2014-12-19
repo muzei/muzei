@@ -37,6 +37,8 @@ android {
     defaultConfig {
         minSdkVersion 20
         targetSdkVersion 21
+        renderscriptTargetApi 21
+        renderscriptSupportModeEnabled true
 
         versionName versionProps['name']
         versionCode versionProps['code'].toInteger()

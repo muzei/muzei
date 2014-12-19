@@ -18,6 +18,8 @@ package com.google.android.apps.muzei.render;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Message;
 
 import com.google.android.apps.muzei.event.BlurAmountChangedEvent;
 import com.google.android.apps.muzei.event.DimAmountChangedEvent;
@@ -48,18 +50,30 @@ public abstract class RenderController {
 
     public void onEventMainThread(BlurAmountChangedEvent e) {
         mRenderer.recomputeMaxPrescaledBlurPixels();
-        reloadCurrentArtwork(true);
+        throttledForceReloadCurrentArtwork();
     }
 
     public void onEventMainThread(DimAmountChangedEvent e) {
         mRenderer.recomputeMaxDimAmount();
-        reloadCurrentArtwork(true);
+        throttledForceReloadCurrentArtwork();
     }
 
     public void onEventMainThread(GreyAmountChangedEvent e) {
         mRenderer.recomputeGreyAmount();
-        reloadCurrentArtwork(true);
+        throttledForceReloadCurrentArtwork();
     }
+
+    private void throttledForceReloadCurrentArtwork() {
+        mThrottledForceReloadHandler.removeMessages(0);
+        mThrottledForceReloadHandler.sendEmptyMessageDelayed(0, 250);
+    }
+
+    private Handler mThrottledForceReloadHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            reloadCurrentArtwork(true);
+        }
+    };
 
     protected abstract BitmapRegionLoader openDownloadedCurrentArtwork(boolean forceReload);
 

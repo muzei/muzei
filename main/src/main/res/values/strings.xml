@@ -99,11 +99,13 @@
     <string name="tutorial_subtitle">Double touch the blurred wallpaper on your home screen to temporarily focus.</string>
 
     <string name="get_more_sources">Get more sources</string>
+    <string name="reset_advanced_settings_defaults">Reset sliders</string>
     <string name="play_store_not_found">Unable to open Play Store.</string>
 
     <string name="about_title">About Muzei</string>
     <string name="about_body"><![CDATA[
-        Made in New York by Roman Nurik. <i>Muzei</i> is a transliteration of the Russian word
+        Made in New York by Roman Nurik, with many <a href="http://code.muzei.co">contributions
+        from the community</a>. <i>Muzei</i> is a transliteration of the Russian word
         <a href="http://translate.google.com/#en/ru/museum"><i>музей</i></a>, which means
         &#8220;museum.&#8221;<br><br>
 

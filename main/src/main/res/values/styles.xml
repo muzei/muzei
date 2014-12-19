@@ -20,14 +20,9 @@
 
     <style name="Theme.MuzeiActivity" parent="Theme.Muzei.Wallpaper">
         <item name="windowActionBar">false</item>
-        <item name="android:windowAnimationStyle">@style/WindowAnimation.MuzeiActivity</item>
-    </style>
-
-    <style name="WindowAnimation.MuzeiActivity" parent="android:Animation.Activity">
-        <item name="android:windowEnterAnimation">@anim/muzei_activity_in</item>
-        <item name="android:windowExitAnimation">@null</item>
-        <item name="android:windowShowAnimation">@anim/muzei_activity_in</item>
-        <item name="android:windowHideAnimation">@null</item>
+        <!-- on Samsung devices, window animations between windows showing
+             the wallpaper seem to be broken, so don't use them. -->
+        <!--<item name="android:windowAnimationStyle">@style/WindowAnimation.MuzeiActivity</item>-->
     </style>
 
     <!-- Settings activity -->

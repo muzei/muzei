@@ -48,6 +48,8 @@
             </intent-filter>
         </service>
 
+        <service android:name="com.google.android.apps.muzei.ArtworkCacheIntentService" />
+
         <service
             android:name="com.google.android.apps.muzei.MuzeiWatchFace"
             android:allowEmbedded="true"

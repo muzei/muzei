@@ -14,29 +14,13 @@
  * limitations under the License.
  */
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:1.0.0'
-    }
-}
+package com.google.android.apps.muzei.settings;
 
-apply plugin: 'com.android.library'
-
-dependencies {
-    compile project(':api')
-}
-
-android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.1"
-
-    defaultConfig {
-        minSdkVersion 17
-        targetSdkVersion 21
-        renderscriptTargetApi 21
-        renderscriptSupportModeEnabled true
-    }
+/**
+ * Preference constants/helpers.
+ */
+public interface Prefs {
+    public static final String PREF_GREY_AMOUNT = "grey_amount";
+    public static final String PREF_DIM_AMOUNT = "dim_amount";
+    public static final String PREF_BLUR_AMOUNT = "blur_amount";
 }

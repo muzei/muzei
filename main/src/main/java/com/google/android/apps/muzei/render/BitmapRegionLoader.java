@@ -72,7 +72,7 @@ public class BitmapRegionLoader {
     }
 
     /**
-     * Key difference, aside from support for ration, from
+     * Key difference, aside from support for rotation, from
      * {@link BitmapRegionDecoder#decodeRegion(Rect, Options)} in this implementation is that even
      * if <code>inBitmap</code> is given, a sub-bitmap might be returned.
      */
@@ -110,6 +110,10 @@ public class BitmapRegionLoader {
         }
 
         Bitmap bitmap = mBitmapRegionDecoder.decodeRegion(mTempRect, options);
+        if (bitmap == null) {
+            return null;
+        }
+
         if (options != null && options.inBitmap != null &&
                 ((mTempRect.width() != unsampledInBitmapWidth
                         || mTempRect.height() != unsampledInBitmapHeight))) {
