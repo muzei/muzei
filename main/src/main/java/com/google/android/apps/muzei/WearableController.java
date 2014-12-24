@@ -20,6 +20,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
+import android.os.Build;
 
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.render.BitmapRegionLoader;
@@ -48,13 +49,14 @@ public class WearableController {
 
     public static synchronized void updateDataLayer(Context context,
                                                     Artwork artwork, BitmapRegionLoader bitmapRegionLoader) {
-        if (ConnectionResult.SUCCESS != GooglePlayServicesUtil.isGooglePlayServicesAvailable(context)) {
+        if (ConnectionResult.SUCCESS != GooglePlayServicesUtil.isGooglePlayServicesAvailable(context)
+                || Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             return;
         }
         GoogleApiClient googleApiClient = new GoogleApiClient.Builder(context)
                 .addApi(Wearable.API)
                 .build();
-        ConnectionResult connectionResult = googleApiClient.blockingConnect(30, TimeUnit.SECONDS);
+        ConnectionResult connectionResult = googleApiClient.blockingConnect(5, TimeUnit.SECONDS);
         if (!connectionResult.isSuccess()) {
             if (connectionResult.getErrorCode() == ConnectionResult.API_UNAVAILABLE) {
                 LOGV(TAG, "Wearable API unavailable, cancelling updateDataLayer request");
