@@ -122,9 +122,8 @@
         pointer-events: none;
       }
 
-    /* editor popup */
-    #editor {
-      z-index: 1000;
+    /* editor and cropper popups */
+    .popup {
       position: fixed;
       left: 0;
       top: 0;
@@ -134,6 +133,36 @@
       padding: 20px;
       display: flex;
       flex-direction: column;
+    }
+    .button-row {
+      margin-top: 4px;
+      display: flex;
+      flex-shrink: 0;
+    }
+      .button-row button {
+        flex: 1 1 0px;
+        font-size: 24px;
+        padding: 10px 15px;
+        min-height: 50px;
+        background-color: #888;
+        color: #fff;
+        border: 0;
+        border-radius: 4px;
+        margin-right: 4px;
+      }
+      .button-row button:last-child {
+        margin-right: 0;
+      }
+      .button-row button:active {
+        opacity: 0.8;
+      }
+    .popup button[disabled] {
+      opacity: 0.3;
+    }
+
+    /* editor popup */
+    #editor {
+      z-index: 1000;
     }
       #editor-form {
         flex-grow: 1;
@@ -197,26 +226,74 @@
       #editor #editor-json {
         height: 400px;
       }
-    #editor-buttons {
-      display: flex;
-      flex-shrink: 0;
+
+    /* cropper popup */
+    #cropper {
+      z-index: 2000;
     }
-      #editor-buttons button {
+      #cropper-work-area {
         flex-grow: 1;
-        font-size: 24px;
-        padding: 10px 15px;
-        min-height: 50px;
-        background-color: #888;
-        color: #fff;
-        border: 0;
-        border-radius: 4px;
+        position: relative;
+        -webkit-user-select: none;
       }
-      #editor-buttons button:active {
-        opacity: 0.8;
+      #cropper-image {
+        position: absolute;
+        pointer-events: none;
       }
-    #editor button[disabled] {
-      opacity: 0.3;
-    }
+      .cropper-handle {
+        z-index: 10;
+        position: absolute;
+        background: rgba(0,0,0,0.3);
+      }
+        .cropper-handle span {
+          position: absolute;
+          color: red;
+          font-size: 11px;
+          font-weight: bold;
+          pointer-events: none;
+          text-align: center;
+          display: block;
+          width: 40px;
+          height: 20px;
+          line-height: 20px;
+          text-shadow: 0 0 1px #000, 0 0 1px #000, 0 0 1px #000, 0 0 1px #000, 0 0 1px #000;
+        }
+      #cropper-handle-left {
+        border-right: 1px solid rgba(255,0,0,0.7);
+        cursor: e-resize;
+      }
+        #cropper-handle-left span {
+          top: 50%;
+          right: 0;
+          margin-top: -10px;
+        }
+      #cropper-handle-top {
+        border-bottom: 1px solid rgba(255,0,0,0.7);
+        cursor: s-resize;
+      }
+        #cropper-handle-top span {
+          left: 50%;
+          bottom: 0;
+          margin-left: -20px;
+        }
+      #cropper-handle-right {
+        border-left: 1px solid rgba(255,0,0,0.7);
+        cursor: w-resize;
+      }
+        #cropper-handle-right span {
+          top: 50%;
+          left: 0;
+          margin-top: -10px;
+        }
+      #cropper-handle-bottom {
+        border-top: 1px solid rgba(255,0,0,0.7);
+        cursor: n-resize;
+      }
+        #cropper-handle-bottom span {
+          left: 50%;
+          top: 0;
+          margin-left: -20px;
+        }
   </style>
 </head>
 <body>
@@ -224,7 +301,7 @@
 <div id="calendar">
 </div>
 
-<div id="editor">
+<div id="editor" class="popup">
   <div id="editor-form">
     <div class="editor-row">
       <label for="editor-title">Title</label>
@@ -245,6 +322,7 @@
     <div class="editor-row">
       <label for="editor-imageurl">Image URL</label>
       <input id="editor-imageurl" class="editor-value">
+      <button id="editor-crop" tabindex="-1" class="editor-secondary-button">Crop</button>
       <button id="editor-imageurl-visit" tabindex="-1" class="editor-secondary-button">View</button>
     </div>
 
@@ -259,10 +337,23 @@
       <textarea id="editor-json" class="editor-value"></textarea>
     </div>
   </div>
-  <div id="editor-buttons">
-    <button id="editor-addfromwikiarturl" style="margin-right: 30px">Add from WikiArt URL</button>
+  <div class="button-row">
+    <button id="editor-addfromwikiarturl" style="margin-right: 50px">Add from WikiArt URL</button>
     <button id="editor-cancel">Cancel</button>
     <button id="editor-save">Save</button>
+  </div>
+</div>
+
+<div id="cropper" class="popup">
+  <div id="cropper-work-area">
+    <img id="cropper-image">
+    <div id="cropper-handle-top" data-edge="t" class="cropper-handle"><span></span></div>
+    <div id="cropper-handle-bottom" data-edge="b" class="cropper-handle"><span></span></div>
+    <div id="cropper-handle-left" data-edge="l" class="cropper-handle"><span></span></div>
+    <div id="cropper-handle-right" data-edge="r" class="cropper-handle"><span></span></div>
+  </div>
+  <div class="button-row">
+    <button id="cropper-close">Close</button>
   </div>
 </div>
 
@@ -270,7 +361,7 @@
 
 jQuery.event.props.push('dataTransfer');
 
-$('#editor').hide();
+$('.popup').hide();
 
 var g_artworks = {};
 var g_month = new Date().getUTCMonth();
@@ -335,12 +426,12 @@ function moveArtwork(id, publishDate, callback) {
   });
 }
 
-function addArtwork(json, callback) {
+function addArtwork(artwork, crop, callback) {
   callback = callback || function(){};
   $.ajax({
     type: 'post',
     url: 's/add',
-    data: { json: json }
+    data: { json: JSON.stringify(artwork), crop: JSON.stringify(crop) }
   }).done(function() {
     setTimeout(reloadArtworksForCurrentMonth, 500);
     callback();
@@ -363,12 +454,12 @@ function addArtworkFromWikiArtUrl(url, publishDate, callback) {
   });
 }
 
-function editArtwork(id, json, callback) {
+function editArtwork(id, artwork, crop, callback) {
   callback = callback || function(){};
   $.ajax({
     type: 'post',
     url: 's/edit',
-    data: { id: id, json: json}
+    data: { id: id, json: JSON.stringify(artwork), crop: JSON.stringify(crop) }
   }).done(function() {
     setTimeout(reloadArtworksForCurrentMonth, 500);
     callback();
@@ -606,10 +697,11 @@ function renderCalendar() {
   var $detailsurlvisit = $('#editor-detailsurl-visit');
   var $imageurl = $('#editor-imageurl');
   var $imageurlvisit = $('#editor-imageurl-visit');
+  var $cropperbutton = $('#editor-crop');
   var $thumburl = $('#editor-thumburl');
   var $thumburlvisit = $('#editor-thumburl-visit');
   var $json = $('#editor-json');
-  var $save = $('#editor-save');
+  var $editorsave = $('#editor-save');
   var $addfromwikiarturl = $('#editor-addfromwikiarturl')
 
   function setupEditor() {
@@ -626,20 +718,24 @@ function renderCalendar() {
       }
     });
 
-    $save.click(function() {
+    $editorsave.click(function() {
       if (g_editorState.action == 'add') {
         var artwork = JSON.parse($json.val());
         artwork.publishDate = g_editorState.publishDate;
-        addArtwork(JSON.stringify(artwork), function() {
+        addArtwork(artwork, g_editorState.crop, function() {
           hideEditor();
         });
 
       } else if (g_editorState.action == 'edit') {
         var artwork = JSON.parse($json.val());
-        editArtwork(g_editorState.id, JSON.stringify(artwork), function() {
+        editArtwork(g_editorState.id, artwork, g_editorState.crop, function() {
           hideEditor();
         });
       }
+    });
+
+    $cropperbutton.click(function() {
+      showCropper();
     });
 
     $('#editor input')
@@ -722,7 +818,11 @@ function renderCalendar() {
     $detailsurlvisit[isEmpty($detailsurl.val()) ? 'attr' : 'removeAttr']('disabled', '');
     $imageurl.toggleClass('error', isEmpty($imageurl.val()));
     $imageurlvisit[isEmpty($imageurl.val()) ? 'attr' : 'removeAttr']('disabled', '');
+    $cropperbutton[isEmpty($imageurl.val()) ? 'attr' : 'removeAttr']('disabled', '');
     $imageurlvisit.css('background-image', 'url("' + $imageurl.val() + '")');
+
+    g_editorState.imageUrl = $imageurl.val();
+
     $thumburlvisit[isEmpty($thumburl.val()) ? 'attr' : 'removeAttr']('disabled', '');
     $thumburlvisit.css('background-image', 'url("' + $thumburl.val() + '")');
 
@@ -739,7 +839,7 @@ function renderCalendar() {
       $json.addClass('error');
     }
 
-    $save[($('#editor .error').length > 0) ? 'attr' : 'removeAttr']('disabled', '');
+    $editorsave[($('#editor .error').length > 0) ? 'attr' : 'removeAttr']('disabled', '');
   }
 
   function hideEditor() {
@@ -750,6 +850,7 @@ function renderCalendar() {
 
   function showEditor(args) {
     g_editorState = args;
+    g_editorState.crop = [0, 0, 1, 1];
 
     $('#editor input, #editor textarea').val('');
 
@@ -784,17 +885,168 @@ function renderCalendar() {
   $('body').keydown(function(e){
     var code = e.keyCode || e.which;
     if (code == 27 && g_editorState) {
-      hideEditor();
+      if (g_editorState.cropping) {
+        hideCropper();
+      } else {
+        hideEditor();
+      }
     }
   });
 
+  // setup cropper
+  var $cropper = $('#cropper');
+  var $cropperworkarea = $('#cropper-work-area');
+  var $cropperimage = $('#cropper-image');
+  var $cropperhandleleft = $('#cropper-handle-left');
+  var $cropperhandlelefttext = $('#cropper-handle-left span');
+  var $cropperhandletop = $('#cropper-handle-top');
+  var $cropperhandletoptext = $('#cropper-handle-top span');
+  var $cropperhandleright = $('#cropper-handle-right');
+  var $cropperhandlerighttext = $('#cropper-handle-right span');
+  var $cropperhandlebottom = $('#cropper-handle-bottom');
+  var $cropperhandlebottomtext = $('#cropper-handle-bottom span');
+
+  function setupCropper() {
+    $('#cropper-close').click(function() {
+      hideCropper();
+    });
+
+    $(window).resize(function() {
+      layoutCropper();
+    });
+
+    $cropperimage.on('load', function() {
+      var img = $(this).get(0);
+      g_editorState.cropperImageSize = {
+        w: img.naturalWidth,
+        h: img.naturalHeight
+      };
+      layoutCropper();
+    });
+
+    // drag+drop for crop
+    var startX, startY;
+    var startCrop = [];
+    var edge = '';
+    $('.cropper-handle')
+        .on('mousedown', function(e) {
+          $(this).data('down', true);
+          edge = $(this).data('edge');
+          startX = e.screenX;
+          startY = e.screenY;
+          startCrop = [
+              g_editorState.crop[0], g_editorState.crop[1],
+              g_editorState.crop[2], g_editorState.crop[3]];
+        })
+        .on('mousemove', function(e) {
+          if ($(this).data('down')) {
+            var idx = 0;
+            var cropDelta = 0;
+            if (edge == 'l' || edge == 'r') {
+              var dx = e.screenX - startX;
+              cropDelta = dx / (g_editorState.cropperBBox.r - g_editorState.cropperBBox.l);
+              idx = (edge == 'l') ? 0 : 2;
+            } else {
+              var dy = e.screenY - startY;
+              cropDelta = dy / (g_editorState.cropperBBox.b - g_editorState.cropperBBox.t);
+              idx = (edge == 't') ? 1 : 3;
+            }
+            g_editorState.crop[idx] = Math.max(0, Math.min(1, startCrop[idx] + cropDelta));
+            layoutCropper();
+          }
+        })
+        .on('mouseup', function(e) {
+          $('.cropper-handle').data('down', false);
+        });
+  }
+
+  function layoutCropper() {
+    var isz = g_editorState.cropperImageSize;
+    var wsz = {
+      w: $cropperworkarea.width(),
+      h: $cropperworkarea.height()
+    };
+
+    if (!isz || !isz.w || !isz.h ||
+        !wsz || !wsz.w || !wsz.h) {
+      return;
+    }
+
+    var uiMargin = 20;
+    var bbox = { l: 0, t: 0, r: 0, b: 0 };
+    // center image in the work area
+    if (wsz.w / wsz.h > isz.w / isz.h) {
+      var sw = (isz.w / isz.h) * wsz.h; // scaled width
+      bbox = { l: (wsz.w - sw) / 2, t: 0, r: (wsz.w + sw) / 2, b: wsz.h };
+    } else {
+      var sh = (isz.h / isz.w) * wsz.w; // scaled height
+      bbox = { l: 0, t: (wsz.h - sh) / 2, r: wsz.w, b: (wsz.h + sh) / 2 };
+    }
+
+    $cropperhandlelefttext.text((100 * g_editorState.crop[0]).toFixed(1) + '%');
+    $cropperhandleleft.css({
+      left: bbox.l + 'px',
+      top: bbox.t + 'px',
+      width: (uiMargin + g_editorState.crop[0] * (bbox.r - bbox.l)) + 'px',
+      height: (bbox.b - bbox.t) + 'px'
+    });
+    $cropperhandletoptext.text((100 * g_editorState.crop[1]).toFixed(1) + '%');
+    $cropperhandletop.css({
+      left: bbox.l + 'px',
+      top: bbox.t + 'px',
+      width: (bbox.r - bbox.l) + 'px',
+      height: (uiMargin + g_editorState.crop[1] * (bbox.b - bbox.t)) + 'px'
+    });
+    var w = (uiMargin + (1 - g_editorState.crop[2]) * (bbox.r - bbox.l));
+    $cropperhandlerighttext.text((100 * (1 - g_editorState.crop[2])).toFixed(1) + '%');
+    $cropperhandleright.css({
+      left: (bbox.r - w) + 'px',
+      top: bbox.t + 'px',
+      width: w + 'px',
+      height: (bbox.b - bbox.t) + 'px'
+    });
+    var h = (uiMargin + (1 - g_editorState.crop[3]) * (bbox.b - bbox.t));
+    $cropperhandlebottomtext.text((100 * (1 - g_editorState.crop[3])).toFixed(1) + '%');
+    $cropperhandlebottom.css({
+      left: bbox.l + 'px',
+      top: (bbox.b - h) + 'px',
+      width: (bbox.r - bbox.l) + 'px',
+      height: h + 'px'
+    });
+
+    $cropperimage.css({
+      left: (bbox.l + uiMargin) + 'px',
+      top: (bbox.t + uiMargin) + 'px',
+      width: (bbox.r - bbox.l - uiMargin * 2) + 'px',
+      height: (bbox.b - bbox.t - uiMargin * 2) + 'px'
+    });
+
+    g_editorState.cropperBBox = bbox;
+  }
+
+  function showCropper() {
+    $editor.hide();
+    $cropper.show();
+    g_editorState.cropping = true;
+
+    $cropperimage.attr('src', g_editorState.imageUrl);
+  }
+
+  function hideCropper() {
+    $cropper.hide();
+    $editor.show();
+    g_editorState.cropping = false;
+  }
+
   window.setupEditor = setupEditor;
+  window.setupCropper = setupCropper;
   window.showEditor = showEditor;
 })();
 
 $(document).ready(function() {
   renderCalendar();
   setupEditor();
+  setupCropper();
   reloadArtworksForCurrentMonth();
 });
 

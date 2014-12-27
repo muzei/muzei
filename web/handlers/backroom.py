@@ -31,6 +31,9 @@ from handlers.common import *
 from models import FeaturedArtwork
 
 
+THUMB_HEIGHT=600
+NO_CROP_TUPLE=(0, 0, 1, 1)
+
 
 class ServiceListHandler(BaseHandler):
   def get(self):
@@ -56,8 +59,8 @@ class ServiceListHandler(BaseHandler):
         for a in queue])
 
 
-def maybe_process_image(image_url, base_name):
-  if CLOUD_STORAGE_ROOT_URL in image_url:
+def maybe_process_image(image_url, crop_tuple, base_name):
+  if CLOUD_STORAGE_ROOT_URL in image_url and crop_tuple == NO_CROP_TUPLE:
     return (image_url, None)
 
   image_result = urlfetch.fetch(image_url)
@@ -71,11 +74,19 @@ def maybe_process_image(image_url, base_name):
   # resize to max width 4000 or max height 2000
   image_contents = image_result.content
   image = images.Image(image_contents)
+  edited = False
   if image.height > 2000:
-    image.resize(width=(thumb.width * 2000 / thumb.height), height=2000)
-    image_contents = image.execute_transforms(output_encoding=images.JPEG, quality=80)
+    image.resize(width=(image.width * 2000 / image.height), height=2000)
+    edited = True
   elif image.width > 4000:
-    image.resize(width=4000, height=(thumb.height * 4000 / thumb.thumb.width))
+    image.resize(width=4000, height=(image.height * 4000 / image.width))
+    edited = True
+
+  if crop_tuple != NO_CROP_TUPLE:
+    image.crop(*crop_tuple)
+    edited = True
+
+  if edited:
     image_contents = image.execute_transforms(output_encoding=images.JPEG, quality=80)
 
   # upload with default ACLs set on the bucket  # or use options={'x-goog-acl': 'public-read'})
@@ -86,7 +97,12 @@ def maybe_process_image(image_url, base_name):
   # thumb
   thumb_gcs_path = CLOUD_STORAGE_BASE_PATH + '/thumbs/' + filename
   thumb = images.Image(image_result.content)
-  thumb.resize(width=(thumb.width * 600 / thumb.height), height=600)
+  thumb.resize(width=(thumb.width * THUMB_HEIGHT / thumb.height), height=THUMB_HEIGHT)
+
+  if crop_tuple != NO_CROP_TUPLE:
+    thumb.crop(*crop_tuple)
+    edited = True
+
   thumb_contents = thumb.execute_transforms(output_encoding=images.JPEG, quality=40)
   gcs_file = gcs.open(thumb_gcs_path, 'w', content_type='image/jpeg')
   gcs_file.write(thumb_contents)
@@ -99,9 +115,18 @@ def maybe_process_image(image_url, base_name):
 class ServiceAddHandler(BaseHandler):
   def post(self):
     artwork_json = json.loads(self.request.get('json'))
+    crop_tuple = tuple(float(x) for x in json.loads(self.request.get('crop')))
+    publish_date = (datetime.datetime
+        .utcfromtimestamp(artwork_json['publishDate'] / 1000)
+        .date())
+
     new_image_url, new_thumb_url = maybe_process_image(
         artwork_json['imageUri'],
-        artwork_json['title'] + ' ' + artwork_json['byline'])
+        crop_tuple,
+        publish_date.strftime('%Y%m%d') + ' '
+            + artwork_json['title'] + ' '
+            + artwork_json['byline'])
+
     if not new_thumb_url and 'thumbUri' in artwork_json:
       new_thumb_url = artwork_json['thumbUri']
     new_artwork = FeaturedArtwork(
@@ -110,9 +135,7 @@ class ServiceAddHandler(BaseHandler):
         image_url=new_image_url,
         thumb_url=new_thumb_url,
         details_url=artwork_json['detailsUri'],
-        publish_date=datetime.datetime
-            .utcfromtimestamp(artwork_json['publishDate'] / 1000)
-            .date())
+        publish_date=publish_date)
     new_artwork.save()
     self.response.set_status(200)
 
@@ -145,7 +168,12 @@ class ServiceAddFromWikiArtHandler(BaseHandler):
       self.response.set_status(500)
       return
 
-    image_url, thumb_url = maybe_process_image(image_url, title + ' ' + byline)
+    publish_date = (datetime.datetime
+        .utcfromtimestamp(int(self.request.get('publishDate')) / 1000)
+        .date())
+    image_url, thumb_url = maybe_process_image(image_url,
+        NO_CROP_TUPLE,
+        publish_date.strftime('%Y%m%d') + ' ' + title + ' ' + byline)
 
     # create the artwork entry
     new_artwork = FeaturedArtwork(
@@ -154,9 +182,7 @@ class ServiceAddFromWikiArtHandler(BaseHandler):
         image_url=image_url,
         thumb_url=thumb_url,
         details_url=details_url,
-        publish_date=datetime.datetime
-            .utcfromtimestamp(int(self.request.get('publishDate')) / 1000)
-            .date())
+        publish_date=publish_date)
     new_artwork.save()
     self.response.set_status(200)
 
@@ -165,6 +191,7 @@ class ServiceEditHandler(BaseHandler):
   def post(self):
     id = long(self.request.get('id'))
     artwork_json = json.loads(self.request.get('json'))
+    crop_tuple = tuple(float(x) for x in json.loads(self.request.get('crop')))
     target_artwork = FeaturedArtwork.get_by_id(id)
     if not target_artwork:
       self.response.set_status(404)
@@ -175,7 +202,10 @@ class ServiceEditHandler(BaseHandler):
 
     new_image_url, new_thumb_url = maybe_process_image(
         artwork_json['imageUri'],
-        artwork_json['title'] + ' ' + artwork_json['byline'])
+        crop_tuple,
+        target_artwork.publish_date.strftime('%Y%m%d') + ' '
+            + artwork_json['title'] + ' '
+            + artwork_json['byline'])
     if not new_thumb_url and 'thumbUri' in artwork_json:
       new_thumb_url = artwork_json['thumbUri']
 
