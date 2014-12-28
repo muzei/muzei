@@ -1029,7 +1029,7 @@ function renderCalendar() {
     $cropper.show();
     g_editorState.cropping = true;
 
-    $cropperimage.attr('src', g_editorState.imageUrl);
+    $cropperimage.attr('src', g_editorState.imageUrl + '?cachebust=' + Math.random());
   }
 
   function hideCropper() {
