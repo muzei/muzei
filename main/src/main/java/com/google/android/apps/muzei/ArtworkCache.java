@@ -180,7 +180,7 @@ public class ArtworkCache {
             return;
         }
 
-        SortedSet<Pair<Long, File>> latestFiles = new TreeSet<Pair<Long, File>>(
+        SortedSet<Pair<Long, File>> latestFiles = new TreeSet<>(
                 new Comparator<Pair<Long, File>>() {
                     @Override
                     public int compare(Pair<Long, File> p1, Pair<Long, File> p2) {
@@ -189,7 +189,7 @@ public class ArtworkCache {
                 });
 
         for (File file : cacheFiles) {
-            latestFiles.add(new Pair<Long, File>(file.lastModified(), file));
+            latestFiles.add(new Pair<>(file.lastModified(), file));
         }
 
         // Remove everything but the first MAX_CACHE_SIZE files in the latest files set

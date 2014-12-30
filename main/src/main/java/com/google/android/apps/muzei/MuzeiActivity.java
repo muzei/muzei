@@ -624,11 +624,7 @@ public class MuzeiActivity extends ActionBarActivity {
                         viewIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         try {
                             startActivity(viewIntent);
-                        } catch (ActivityNotFoundException e) {
-                            Toast.makeText(MuzeiActivity.this, R.string.error_view_details,
-                                    Toast.LENGTH_SHORT).show();
-                            LOGE(TAG, "Error viewing artwork details.", e);
-                        } catch (SecurityException e) {
+                        } catch (ActivityNotFoundException | SecurityException e) {
                             Toast.makeText(MuzeiActivity.this, R.string.error_view_details,
                                     Toast.LENGTH_SHORT).show();
                             LOGE(TAG, "Error viewing artwork details.", e);

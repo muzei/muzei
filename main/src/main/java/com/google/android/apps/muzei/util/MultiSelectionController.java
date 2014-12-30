@@ -16,7 +16,6 @@
 
 package com.google.android.apps.muzei.util;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 
@@ -28,7 +27,7 @@ import java.util.Set;
  */
 public class MultiSelectionController<T extends Parcelable> {
     private String mStateKey;
-    private Set<T> mSelection = new HashSet<T>();
+    private Set<T> mSelection = new HashSet<>();
     private Callbacks mCallbacks = DUMMY_CALLBACKS;
 
     public MultiSelectionController(String stateKey) {
@@ -68,7 +67,7 @@ public class MultiSelectionController<T extends Parcelable> {
     }
 
     public Set<T> getSelection() {
-        return new HashSet<T>(mSelection);
+        return new HashSet<>(mSelection);
     }
 
     public int getSelectedCount() {

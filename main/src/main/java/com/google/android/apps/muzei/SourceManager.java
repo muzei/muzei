@@ -65,8 +65,7 @@ public class SourceManager {
 
     private ComponentName mSelectedSource;
     private String mSelectedSourceToken;
-    private Map<ComponentName, SourceState> mSourceStates
-            = new HashMap<ComponentName, SourceState>();
+    private Map<ComponentName, SourceState> mSourceStates = new HashMap<>();
 
     private static SourceManager sInstance;
 
@@ -170,7 +169,7 @@ public class SourceManager {
 
             try {
                 StringBuilder sb = new StringBuilder();
-                Set<String> sourceStates = new HashSet<String>();
+                Set<String> sourceStates = new HashSet<>();
                 for (ComponentName source : mSourceStates.keySet()) {
                     SourceState sourceState = mSourceStates.get(source);
                     if (sourceState == null) {

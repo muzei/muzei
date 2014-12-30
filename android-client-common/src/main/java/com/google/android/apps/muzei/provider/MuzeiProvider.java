@@ -96,7 +96,7 @@ public class MuzeiProvider extends ContentProvider {
      * @return The all column projection map
      */
     private static HashMap<String, String> buildAllColumnProjectionMap() {
-        final HashMap<String, String> allColumnProjectionMap = new HashMap<String, String>();
+        final HashMap<String, String> allColumnProjectionMap = new HashMap<>();
         allColumnProjectionMap.put(BaseColumns._ID, BaseColumns._ID);
         allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI,
                 MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI);

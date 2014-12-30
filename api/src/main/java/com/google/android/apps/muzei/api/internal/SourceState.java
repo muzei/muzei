@@ -36,7 +36,7 @@ public class SourceState {
     private Artwork mCurrentArtwork;
     private String mDescription;
     private boolean mWantsNetworkAvailable;
-    private List<UserCommand> mUserCommands = new ArrayList<UserCommand>();
+    private List<UserCommand> mUserCommands = new ArrayList<>();
 
     public Artwork getCurrentArtwork() {
         return mCurrentArtwork;
@@ -71,7 +71,7 @@ public class SourceState {
     }
 
     public void setUserCommands(int... userCommands) {
-        mUserCommands = new ArrayList<UserCommand>();
+        mUserCommands = new ArrayList<>();
         if (userCommands != null) {
             for (int command : userCommands) {
                 mUserCommands.add(new UserCommand(command));
@@ -80,14 +80,14 @@ public class SourceState {
     }
 
     public void setUserCommands(UserCommand... userCommands) {
-        mUserCommands = new ArrayList<UserCommand>();
+        mUserCommands = new ArrayList<>();
         if (userCommands != null) {
             Collections.addAll(mUserCommands, userCommands);
         }
     }
 
     public void setUserCommands(List<UserCommand> userCommands) {
-        mUserCommands = new ArrayList<UserCommand>();
+        mUserCommands = new ArrayList<>();
         if (userCommands != null) {
             for (UserCommand command : userCommands) {
                 mUserCommands.add(command);

@@ -44,9 +44,9 @@ public class SelectionBuilder {
     private static final String TAG = LogUtil.makeLogTag(SelectionBuilder.class);
 
     private String mTable = null;
-    private Map<String, String> mProjectionMap = new HashMap<String, String>();
+    private Map<String, String> mProjectionMap = new HashMap<>();
     private StringBuilder mSelection = new StringBuilder();
-    private ArrayList<String> mSelectionArgs = new ArrayList<String>();
+    private ArrayList<String> mSelectionArgs = new ArrayList<>();
 
     /**
      * Reset any internal state, allowing this builder to be recycled.

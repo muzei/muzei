@@ -24,7 +24,7 @@ import java.util.Map;
 
 // See https://code.google.com/p/android/issues/detail?id=9904
 public class TypefaceUtil {
-    private static final Map<String, Typeface> sTypefaceCache = new HashMap<String, Typeface>();
+    private static final Map<String, Typeface> sTypefaceCache = new HashMap<>();
 
     public static Typeface getAndCache(Context context, String assetPath) {
         synchronized (sTypefaceCache) {

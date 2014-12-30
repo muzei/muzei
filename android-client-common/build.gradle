@@ -39,4 +39,9 @@ android {
         renderscriptTargetApi 21
         renderscriptSupportModeEnabled true
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
 }

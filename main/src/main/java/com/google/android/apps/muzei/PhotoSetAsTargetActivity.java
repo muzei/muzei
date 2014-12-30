@@ -45,7 +45,7 @@ public class PhotoSetAsTargetActivity extends Activity {
         // Add and publish the chosen photo
         startService(new Intent(this, GalleryArtSource.class)
                 .setAction(GalleryArtSource.ACTION_ADD_CHOSEN_URIS)
-                .putExtra(GalleryArtSource.EXTRA_URIS, new ArrayList<Uri>(Arrays.asList(photoUri)))
+                .putExtra(GalleryArtSource.EXTRA_URIS, new ArrayList<>(Arrays.asList(photoUri)))
                 .putExtra(GalleryArtSource.EXTRA_ALLOW_PUBLISH, false));
         startService(new Intent(this, GalleryArtSource.class)
                 .setAction(GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM)

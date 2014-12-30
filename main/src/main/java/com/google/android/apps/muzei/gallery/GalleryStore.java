@@ -69,7 +69,7 @@ public class GalleryStore {
     }
 
     public synchronized List<Uri> getChosenUris() {
-        List<Uri> uris = new ArrayList<Uri>();
+        List<Uri> uris = new ArrayList<>();
         SQLiteDatabase db = mDatabase.getReadableDatabase();
         Cursor cursor = new SelectionBuilder()
                 .table(Tables.CHOSEN_PHOTOS)

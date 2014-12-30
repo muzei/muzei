@@ -206,9 +206,7 @@ public class SettingsActivity extends ActionBarActivity
                             .setTransitionStyle(R.style.Muzei_SimpleFadeFragmentAnimation)
                             .replace(R.id.content_container, newFragment)
                             .commitAllowingStateLoss();
-                } catch (InstantiationException e) {
-                    throw new RuntimeException(e);
-                } catch (IllegalAccessException e) {
+                } catch (InstantiationException | IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
             }
