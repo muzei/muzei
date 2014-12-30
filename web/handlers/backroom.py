@@ -42,8 +42,9 @@ class ServiceListHandler(BaseHandler):
 
   def render(self):
     start = datetime.date(day=1,
-        month=int(self.request.get('month')),
+        month=int(self.request.get('month')) + 1,
         year=int(self.request.get('year')))
+    start -= datetime.timedelta(weeks=2)
     queue = (FeaturedArtwork.all()
         .filter('publish_date >=', start)
         .order('publish_date')
