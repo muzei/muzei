@@ -35,11 +35,16 @@
         android:allowBackup="true"
         android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher"
-        android:supportsRtl="true">
+        android:supportsRtl="true"
+        android:backupAgent="com.google.android.apps.muzei.settings.SettingsBackupAgent">
 
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+
+        <meta-data
+            android:name="com.google.android.backup.api_key"
+            android:value="REPLACE_ME" />
 
         <activity
             android:name="com.google.android.apps.muzei.MuzeiActivity"
