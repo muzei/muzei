@@ -19,7 +19,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.0.0'
+        classpath rootProject.ext.gradleClasspath
     }
 }
 
@@ -32,16 +32,16 @@ repositories {
 }
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.1"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     def Properties versionProps = new Properties()
     versionProps.load(new FileInputStream(file('version.properties')))
 
     defaultConfig {
         minSdkVersion 17
-        targetSdkVersion 21
-        renderscriptTargetApi 21
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        renderscriptTargetApi rootProject.ext.targetSdkVersion
         renderscriptSupportModeEnabled true
 
         versionName versionProps['name']
