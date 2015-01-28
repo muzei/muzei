@@ -315,7 +315,7 @@ function renderMonthContents(month) {
         // previous month
         skipDay = true;
         classes += 'skipped ';
-        if (dayMonth < month[1] - 1) {
+        if ((dayMonth < month[1] - 1) || (month[1] == 1 && dayMonth == 11)) {
           classes += 'before ';
         } else {
           break;

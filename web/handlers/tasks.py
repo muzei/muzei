@@ -148,8 +148,7 @@ class UpdateArchiveTaskHandler(BaseHandler):
         archive_name = '%04d%02d' % archive
         next_month = datetime.date(archive[0], archive[1], 1)
         if next_month.month == 12:
-          next_month = next_month.replace(year=next_month.year + 1)
-          next_month.month = 1
+          next_month = next_month.replace(year=next_month.year + 1, month=1)
         else:
           next_month = next_month.replace(month=next_month.month + 1)
         query_to = next_month - datetime.timedelta(days=1)

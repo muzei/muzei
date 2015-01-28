@@ -13,7 +13,7 @@
 # limitations under the License.
 
 application: muzeiapi
-version: 8
+version: 9
 runtime: python27
 api_version: 1
 threadsafe: false
