@@ -17,13 +17,17 @@
 package com.google.android.apps.muzei;
 
 import android.app.WallpaperManager;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.ViewConfiguration;
+import android.widget.Toast;
 
+import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
 import com.google.android.apps.muzei.event.LockScreenVisibleChangedEvent;
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
@@ -38,6 +42,7 @@ import de.greenrobot.event.EventBus;
 
 public class MuzeiWallpaperService extends GLWallpaperService {
     private LockScreenVisibleReceiver mLockScreenVisibleReceiver;
+    private SourceManager mSourceManager;
 
     @Override
     public Engine onCreateEngine() {
@@ -49,6 +54,8 @@ public class MuzeiWallpaperService extends GLWallpaperService {
         super.onCreate();
         mLockScreenVisibleReceiver = new LockScreenVisibleReceiver();
         mLockScreenVisibleReceiver.setupRegisterDeregister(this);
+
+        mSourceManager = SourceManager.getInstance(this);
     }
 
     @Override
@@ -174,15 +181,24 @@ public class MuzeiWallpaperService extends GLWallpaperService {
                 boolean resultRequested) {
             // mValidDoubleTap previously set in the gesture listener
             if (WallpaperManager.COMMAND_TAP.equals(action) && mValidDoubleTap) {
-                // Temporarily toggle focused/blurred
-                queueEvent(new Runnable() {
-                    @Override
-                    public void run() {
-                        mRenderer.setIsBlurred(!mRenderer.isBlurred(), false);
-                        // Schedule a re-blur
-                        delayedBlur();
-                    }
-                });
+                SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                //If double click to refresh is enabled, refresh. Otherwise, blur
+                Boolean refresh = mPrefs.getBoolean("double_click_refresh_enabled", true);
+
+                if (refresh){
+                    //Go to next wallpaper
+                    refresh();
+                } else {
+                    // Temporarily toggle focused/blurred
+                    queueEvent(new Runnable() {
+                        @Override
+                        public void run() {
+                            mRenderer.setIsBlurred(!mRenderer.isBlurred(), false);
+                            // Schedule a re-blur
+                            delayedBlur();
+                        }
+                    });
+                }
                 // Reset the flag
                 mValidDoubleTap = false;
             }
@@ -244,6 +260,12 @@ public class MuzeiWallpaperService extends GLWallpaperService {
 
             cancelDelayedBlur();
             mMainThreadHandler.postDelayed(mBlurRunnable, TEMPORARY_FOCUS_DURATION_MILLIS);
+        }
+
+        private void refresh(){
+            //Announce that the wallpaper is refreshing to avoid multiple refreshes
+            Toast.makeText(getApplicationContext(), "Refreshing...", Toast.LENGTH_SHORT).show();
+            mSourceManager.sendAction(MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK);
         }
 
         private Runnable mBlurRunnable = new Runnable() {

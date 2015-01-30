@@ -69,6 +69,14 @@
         android:layout_marginLeft="@dimen/settings_advanced_checkbox_margin_start"
         android:layout_marginTop="24dp" />
 
+    <CheckBox android:id="@+id/refresh_on_double_click"
+        style="@style/Widget.Muzei.CheckBox.SettingsAdvanced"
+        android:text="@string/action_refresh_string"
+        android:layout_column="@integer/settings_advanced_checkbox_column"
+        android:layout_columnSpan="@integer/settings_advanced_checkbox_column_span"
+        android:layout_marginLeft="@dimen/settings_advanced_checkbox_margin_start"
+        android:layout_marginTop="16dp"/>
+
     <CheckBox android:id="@+id/blur_on_lockscreen_checkbox"
         style="@style/Widget.Muzei.CheckBox.SettingsAdvanced"
         android:text="@string/settings_blur_on_lockscreen"

@@ -53,6 +53,7 @@ public class SettingsAdvancedFragment extends Fragment
     private SeekBar mGreySeekBar;
     private CheckBox mNotifyNewWallpaperCheckBox;
     private CheckBox mBlurOnLockScreenCheckBox;
+    private CheckBox mRefreshOnDoubleClickCheckBox;
 
     public SettingsAdvancedFragment() {
     }
@@ -154,6 +155,18 @@ public class SettingsAdvancedFragment extends Fragment
         );
         mBlurOnLockScreenCheckBox.setChecked(!getSharedPreferences()
                 .getBoolean(LockScreenVisibleReceiver.PREF_ENABLED, false));
+        mRefreshOnDoubleClickCheckBox = (CheckBox) rootView.findViewById(R.id.refresh_on_double_click);
+        mRefreshOnDoubleClickCheckBox.setOnCheckedChangeListener(
+                new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean checked) {
+                        getSharedPreferences().edit()
+                                .putBoolean("double_click_refresh_enabled", checked)
+                                .apply();
+                    }
+                }
+        );
+        mRefreshOnDoubleClickCheckBox.setChecked(getSharedPreferences().getBoolean("double_click_refresh_enabled", true));
         return rootView;
     }
 
