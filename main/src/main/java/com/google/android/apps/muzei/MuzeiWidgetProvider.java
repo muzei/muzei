@@ -34,12 +34,12 @@ public class MuzeiWidgetProvider extends AppWidgetProvider {
         if (ACTION_NEXT_CLICKED.equals(intent.getAction())) {
             // Request next artwork
             SourceManager.getInstance(context).sendAction(MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK);
-        } else if (ACTION_LAUNCHER_CLICKED.equals(intent.getAction())) {
-            // Launch activity
-            Intent launcher = new Intent(context, getClass());
-            launcher.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(launcher);
-        }
+        }/* else if (ACTION_LAUNCHER_CLICKED.equals(intent.getAction())) {
+             Launch activity
+             Intent launcher = new Intent(context, getClass());
+             launcher.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+             context.startActivity(launcher);
+        }*/
     }
 
     /**

@@ -1,0 +1,338 @@
+-- Merging decision tree log ---
+manifest
+ADDED from AndroidManifest.xml:17:1
+	xmlns:tools
+		ADDED from AndroidManifest.xml:18:5
+	xmlns:android
+		ADDED from AndroidManifest.xml:17:11
+	package
+		ADDED from AndroidManifest.xml:19:5
+	android:versionName
+		INJECTED from AndroidManifest.xml:0:0
+		INJECTED from AndroidManifest.xml:0:0
+	android:versionCode
+		INJECTED from AndroidManifest.xml:0:0
+		INJECTED from AndroidManifest.xml:0:0
+uses-feature#android.software.live_wallpaper
+ADDED from AndroidManifest.xml:21:5
+	android:required
+		ADDED from AndroidManifest.xml:21:66
+	android:name
+		ADDED from AndroidManifest.xml:21:19
+uses-feature#0x00020000
+ADDED from AndroidManifest.xml:22:5
+	android:required
+		ADDED from AndroidManifest.xml:22:52
+	android:glEsVersion
+		ADDED from AndroidManifest.xml:22:19
+uses-permission#android.permission.INTERNET
+ADDED from AndroidManifest.xml:24:5
+	android:name
+		ADDED from AndroidManifest.xml:24:22
+uses-permission#android.permission.WAKE_LOCK
+ADDED from AndroidManifest.xml:25:5
+	android:name
+		ADDED from AndroidManifest.xml:25:22
+uses-permission#android.permission.READ_EXTERNAL_STORAGE
+ADDED from AndroidManifest.xml:26:5
+	android:name
+		ADDED from AndroidManifest.xml:26:22
+uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
+ADDED from AndroidManifest.xml:27:5
+	android:name
+		ADDED from AndroidManifest.xml:27:22
+uses-permission#android.permission.ACCESS_NETWORK_STATE
+ADDED from AndroidManifest.xml:29:5
+	android:name
+		ADDED from AndroidManifest.xml:29:22
+uses-permission#com.google.android.permission.PROVIDE_BACKGROUND
+ADDED from AndroidManifest.xml:32:5
+	android:name
+		ADDED from AndroidManifest.xml:32:22
+application
+ADDED from AndroidManifest.xml:34:5
+MERGED from com.google.android.gms:play-services-wearable:6.5.87:19:5
+MERGED from com.google.android.gms:play-services-base:6.5.87:20:5
+MERGED from com.android.support:support-v4:21.0.3:16:5
+MERGED from com.android.support:appcompat-v7:21.0.3:16:5
+MERGED from com.android.support:support-v4:21.0.3:16:5
+MERGED from com.android.support:recyclerview-v7:21.0.2:17:5
+MERGED from com.android.support:support-v4:21.0.3:16:5
+MERGED from muzei:android-client-common:unspecified:30:5
+MERGED from AndroidManifest.xml:4:5
+	android:supportsRtl
+		ADDED from AndroidManifest.xml:38:9
+	android:label
+		ADDED from AndroidManifest.xml:36:9
+	android:allowBackup
+		ADDED from AndroidManifest.xml:35:9
+	android:icon
+		ADDED from AndroidManifest.xml:37:9
+	android:name
+		ADDED from AndroidManifest.xml:34:18
+meta-data#com.google.android.gms.version
+ADDED from AndroidManifest.xml:40:9
+MERGED from com.google.android.gms:play-services-base:6.5.87:21:9
+	android:name
+		ADDED from AndroidManifest.xml:41:13
+	android:value
+		ADDED from AndroidManifest.xml:42:13
+activity#com.google.android.apps.muzei.MuzeiActivity
+ADDED from AndroidManifest.xml:44:9
+	android:theme
+		ADDED from AndroidManifest.xml:46:13
+	android:name
+		ADDED from AndroidManifest.xml:45:13
+	android:launchMode
+		ADDED from AndroidManifest.xml:47:13
+intent-filter#android.intent.action.MAIN+android.intent.category.LAUNCHER
+ADDED from AndroidManifest.xml:48:13
+action#android.intent.action.MAIN
+ADDED from AndroidManifest.xml:49:17
+	android:name
+		ADDED from AndroidManifest.xml:49:25
+category#android.intent.category.LAUNCHER
+ADDED from AndroidManifest.xml:50:17
+	android:name
+		ADDED from AndroidManifest.xml:50:27
+service#com.google.android.apps.muzei.MuzeiWallpaperService
+ADDED from AndroidManifest.xml:54:9
+	android:permission
+		ADDED from AndroidManifest.xml:56:13
+	android:name
+		ADDED from AndroidManifest.xml:55:13
+intent-filter#android.service.wallpaper.WallpaperService
+ADDED from AndroidManifest.xml:57:13
+action#android.service.wallpaper.WallpaperService
+ADDED from AndroidManifest.xml:58:17
+	android:name
+		ADDED from AndroidManifest.xml:58:25
+meta-data#android.service.wallpaper
+ADDED from AndroidManifest.xml:60:13
+	android:resource
+		ADDED from AndroidManifest.xml:62:17
+	android:name
+		ADDED from AndroidManifest.xml:61:17
+service#com.google.android.apps.muzei.SourceSubscriberService
+ADDED from AndroidManifest.xml:65:9
+	android:exported
+		ADDED from AndroidManifest.xml:66:13
+	android:name
+		ADDED from AndroidManifest.xml:65:18
+service#com.google.android.apps.muzei.TaskQueueService
+ADDED from AndroidManifest.xml:68:9
+	android:name
+		ADDED from AndroidManifest.xml:68:18
+activity#com.google.android.apps.muzei.settings.SettingsActivity
+ADDED from AndroidManifest.xml:70:9
+	android:label
+		ADDED from AndroidManifest.xml:71:13
+	android:theme
+		ADDED from AndroidManifest.xml:72:13
+	android:exported
+		ADDED from AndroidManifest.xml:73:13
+	android:parentActivityName
+		ADDED from AndroidManifest.xml:74:13
+	android:name
+		ADDED from AndroidManifest.xml:70:19
+intent-filter#android.intent.action.MAIN+android.intent.category.NOTIFICATION_PREFERENCES
+ADDED from AndroidManifest.xml:75:13
+category#android.intent.category.NOTIFICATION_PREFERENCES
+ADDED from AndroidManifest.xml:77:17
+	android:name
+		ADDED from AndroidManifest.xml:77:27
+activity#com.google.android.apps.muzei.settings.AboutActivity
+ADDED from AndroidManifest.xml:81:9
+	android:label
+		ADDED from AndroidManifest.xml:83:13
+	android:theme
+		ADDED from AndroidManifest.xml:84:13
+	android:parentActivityName
+		ADDED from AndroidManifest.xml:85:13
+	android:name
+		ADDED from AndroidManifest.xml:82:13
+receiver#com.google.android.apps.muzei.NetworkChangeReceiver
+ADDED from AndroidManifest.xml:87:9
+	android:name
+		ADDED from AndroidManifest.xml:87:19
+intent-filter#android.net.conn.CONNECTIVITY_CHANGE
+ADDED from AndroidManifest.xml:88:13
+action#android.net.conn.CONNECTIVITY_CHANGE
+ADDED from AndroidManifest.xml:89:17
+	android:name
+		ADDED from AndroidManifest.xml:89:25
+receiver#com.google.android.apps.muzei.MuzeiWidgetProvider
+ADDED from AndroidManifest.xml:93:9
+	android:name
+		ADDED from AndroidManifest.xml:93:19
+intent-filter#android.appwidget.action.APPWIDGET_UPDATE
+ADDED from AndroidManifest.xml:94:13
+action#android.appwidget.action.APPWIDGET_UPDATE
+ADDED from AndroidManifest.xml:95:17
+	android:name
+		ADDED from AndroidManifest.xml:95:25
+meta-data#android.appwidget.provider
+ADDED from AndroidManifest.xml:97:13
+	android:resource
+		ADDED from AndroidManifest.xml:99:17
+	android:name
+		ADDED from AndroidManifest.xml:98:17
+service#com.google.android.apps.muzei.featuredart.FeaturedArtSource
+ADDED from AndroidManifest.xml:103:9
+	android:label
+		ADDED from AndroidManifest.xml:104:13
+	android:icon
+		ADDED from AndroidManifest.xml:106:13
+	android:description
+		ADDED from AndroidManifest.xml:105:13
+	android:name
+		ADDED from AndroidManifest.xml:103:18
+intent-filter#com.google.android.apps.muzei.api.MuzeiArtSource
+ADDED from AndroidManifest.xml:107:13
+action#com.google.android.apps.muzei.api.MuzeiArtSource
+ADDED from AndroidManifest.xml:108:17
+	android:name
+		ADDED from AndroidManifest.xml:108:25
+meta-data#color
+ADDED from AndroidManifest.xml:110:13
+	android:name
+		ADDED from AndroidManifest.xml:110:24
+	android:value
+		ADDED from AndroidManifest.xml:110:45
+service#com.google.android.apps.muzei.gallery.GalleryArtSource
+ADDED from AndroidManifest.xml:113:9
+	android:label
+		ADDED from AndroidManifest.xml:114:13
+	android:icon
+		ADDED from AndroidManifest.xml:116:13
+	android:description
+		ADDED from AndroidManifest.xml:115:13
+	android:name
+		ADDED from AndroidManifest.xml:113:18
+meta-data#settingsActivity
+ADDED from AndroidManifest.xml:120:13
+	android:name
+		ADDED from AndroidManifest.xml:120:24
+	android:value
+		ADDED from AndroidManifest.xml:121:17
+activity#com.google.android.apps.muzei.gallery.GallerySettingsActivity
+ADDED from AndroidManifest.xml:125:9
+	android:label
+		ADDED from AndroidManifest.xml:126:13
+	android:theme
+		ADDED from AndroidManifest.xml:128:13
+	android:exported
+		ADDED from AndroidManifest.xml:129:13
+	android:parentActivityName
+		ADDED from AndroidManifest.xml:127:13
+	android:name
+		ADDED from AndroidManifest.xml:125:19
+activity#com.google.android.apps.muzei.PhotoSetAsTargetActivity
+ADDED from AndroidManifest.xml:133:9
+	android:theme
+		ADDED from AndroidManifest.xml:134:13
+	android:name
+		ADDED from AndroidManifest.xml:133:19
+intent-filter#android.intent.action.ATTACH_DATA+android.intent.category.DEFAULT
+ADDED from AndroidManifest.xml:135:13
+	android:label
+		ADDED from AndroidManifest.xml:135:28
+action#android.intent.action.ATTACH_DATA
+ADDED from AndroidManifest.xml:136:17
+	android:name
+		ADDED from AndroidManifest.xml:136:25
+category#android.intent.category.DEFAULT
+ADDED from AndroidManifest.xml:137:17
+	android:name
+		ADDED from AndroidManifest.xml:137:27
+data
+ADDED from AndroidManifest.xml:138:17
+	android:mimeType
+		ADDED from AndroidManifest.xml:138:23
+receiver#com.google.android.apps.muzei.SourcePackageChangeReceiver
+ADDED from AndroidManifest.xml:144:9
+	android:name
+		ADDED from AndroidManifest.xml:144:19
+intent-filter#android.intent.action.PACKAGE_CHANGED+android.intent.action.PACKAGE_REMOVED+android.intent.action.PACKAGE_REPLACED
+ADDED from AndroidManifest.xml:145:13
+action#android.intent.action.PACKAGE_CHANGED
+ADDED from AndroidManifest.xml:146:17
+	android:name
+		ADDED from AndroidManifest.xml:146:25
+action#android.intent.action.PACKAGE_REPLACED
+ADDED from AndroidManifest.xml:147:17
+	android:name
+		ADDED from AndroidManifest.xml:147:25
+action#android.intent.action.PACKAGE_REMOVED
+ADDED from AndroidManifest.xml:148:17
+	android:name
+		ADDED from AndroidManifest.xml:148:25
+receiver#com.google.android.apps.muzei.NewWallpaperNotificationReceiver
+ADDED from AndroidManifest.xml:155:9
+	android:name
+		ADDED from AndroidManifest.xml:155:19
+service#com.google.android.apps.muzei.MuzeiWearableListenerService
+ADDED from AndroidManifest.xml:157:9
+	android:name
+		ADDED from AndroidManifest.xml:157:18
+	tools:ignore
+		ADDED from AndroidManifest.xml:158:13
+intent-filter#com.google.android.gms.wearable.BIND_LISTENER
+ADDED from AndroidManifest.xml:159:13
+action#com.google.android.gms.wearable.BIND_LISTENER
+ADDED from AndroidManifest.xml:160:17
+	android:name
+		ADDED from AndroidManifest.xml:160:25
+uses-sdk
+INJECTED from AndroidManifest.xml:0:0 reason: use-sdk injection requested
+MERGED from com.google.android.gms:play-services-wearable:6.5.87:18:5
+MERGED from com.google.android.gms:play-services-base:6.5.87:18:5
+MERGED from com.android.support:support-v4:21.0.3:15:5
+MERGED from com.android.support:appcompat-v7:21.0.3:15:5
+MERGED from com.android.support:support-v4:21.0.3:15:5
+MERGED from com.android.support:recyclerview-v7:21.0.2:15:5
+MERGED from com.android.support:support-v4:21.0.3:15:5
+MERGED from muzei:android-client-common:unspecified:20:5
+MERGED from AndroidManifest.xml:3:13
+	android:targetSdkVersion
+		INJECTED from AndroidManifest.xml:0:0
+		INJECTED from AndroidManifest.xml:0:0
+	android:minSdkVersion
+		INJECTED from AndroidManifest.xml:0:0
+		INJECTED from AndroidManifest.xml:0:0
+activity#android.support.v7.widget.TestActivity
+ADDED from com.android.support:recyclerview-v7:21.0.2:18:9
+	android:label
+		ADDED from com.android.support:recyclerview-v7:21.0.2:18:19
+	android:name
+		ADDED from com.android.support:recyclerview-v7:21.0.2:18:60
+permission#com.google.android.apps.muzei.WRITE_PROVIDER
+ADDED from muzei:android-client-common:unspecified:24:5
+	android:protectionLevel
+		ADDED from muzei:android-client-common:unspecified:26:9
+	android:name
+		ADDED from muzei:android-client-common:unspecified:25:9
+uses-permission#com.google.android.apps.muzei.WRITE_PROVIDER
+ADDED from muzei:android-client-common:unspecified:28:5
+	android:name
+		ADDED from muzei:android-client-common:unspecified:28:22
+provider#com.google.android.apps.muzei.provider.MuzeiProvider
+ADDED from muzei:android-client-common:unspecified:31:9
+	android:exported
+		ADDED from muzei:android-client-common:unspecified:34:13
+	android:authorities
+		ADDED from muzei:android-client-common:unspecified:33:13
+	android:name
+		ADDED from muzei:android-client-common:unspecified:32:13
+	android:writePermission
+		ADDED from muzei:android-client-common:unspecified:35:13
+grant-uri-permission
+ADDED from muzei:android-client-common:unspecified:36:13
+	android:pathPattern
+		ADDED from muzei:android-client-common:unspecified:36:35
+meta-data#com.google.android.wearable.beta.app
+ADDED from AndroidManifest.xml:5:9
+	android:resource
+		ADDED from AndroidManifest.xml:6:20
+	android:name
+		ADDED from AndroidManifest.xml:5:20
