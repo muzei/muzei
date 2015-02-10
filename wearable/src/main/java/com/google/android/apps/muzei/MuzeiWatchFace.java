@@ -436,7 +436,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
             int height = canvas.getHeight();
 
             // Draw the background
-            if (mAmbient || mBackgroundBitmap == null) {
+            if (mAmbient || mBackgroundScaledBitmap == null) {
                 canvas.drawRect(0, 0, width, height, mBackgroundPaint);
             } else {
                 // Draw the scaled background

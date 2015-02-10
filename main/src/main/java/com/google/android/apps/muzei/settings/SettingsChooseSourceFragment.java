@@ -83,7 +83,7 @@ public class SettingsChooseSourceFragment extends Fragment {
 
     private SourceManager mSourceManager;
     private ComponentName mSelectedSource;
-    private List<Source> mSources = new ArrayList<Source>();
+    private List<Source> mSources = new ArrayList<>();
 
     private Handler mHandler = new Handler();
 
@@ -486,9 +486,7 @@ public class SettingsChooseSourceFragment extends Fragment {
                         startActivity(new Intent()
                                 .setComponent(source.settingsActivity)
                                 .putExtra(MuzeiArtSource.EXTRA_FROM_MUZEI_SETTINGS, true));
-                    } catch (ActivityNotFoundException e) {
-                        LOGE(TAG, "Can't launch source settings.", e);
-                    } catch (SecurityException e) {
+                    } catch (ActivityNotFoundException | SecurityException e) {
                         LOGE(TAG, "Can't launch source settings.", e);
                     }
                 }

@@ -83,7 +83,7 @@ public class GalleryArtSource extends MuzeiArtSource {
 
     private static File sImageStorageRoot;
 
-    private static final Set<String> sOmitCountryCodes = new HashSet<String>();
+    private static final Set<String> sOmitCountryCodes = new HashSet<>();
     static {
         sOmitCountryCodes.add("US");
     }
@@ -139,7 +139,7 @@ public class GalleryArtSource extends MuzeiArtSource {
 
     private void handleAddChosenUris(ArrayList<Uri> addUris, boolean allowPublishNewArtwork) {
         // Filter out duplicates
-        Set<Uri> current = new HashSet<Uri>(mStore.getChosenUris());
+        Set<Uri> current = new HashSet<>(mStore.getChosenUris());
         addUris.removeAll(current);
 
         for (Uri uri : addUris) {
@@ -149,10 +149,7 @@ public class GalleryArtSource extends MuzeiArtSource {
             try {
                 in = IOUtil.openUri(this, uri, null);
                 IOUtil.readFullyWriteToFile(in, destFile);
-            } catch (IOUtil.OpenUriException e) {
-                LOGE(TAG, "Error downloading gallery image.", e);
-                return;
-            } catch (IOException e) {
+            } catch (IOUtil.OpenUriException | IOException e) {
                 LOGE(TAG, "Error downloading gallery image.", e);
                 return;
             }
@@ -411,12 +408,10 @@ public class GalleryArtSource extends MuzeiArtSource {
 
                 tempImageFile.delete();
                 store.putCachedMetadata(imageUri, metadata);
-            } catch (IOUtil.OpenUriException e) {
+            } catch (IOUtil.OpenUriException | ParseException e) {
                 LOGW(TAG, "Couldn't read image metadata.", e);
             } catch (IOException e) {
                 LOGW(TAG, "Couldn't write temporary image file.", e);
-            } catch (ParseException e) {
-                LOGW(TAG, "Couldn't read image metadata.", e);
             }
         }
 

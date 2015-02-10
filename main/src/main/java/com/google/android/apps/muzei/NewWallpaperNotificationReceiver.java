@@ -194,7 +194,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
         NotificationCompat.WearableExtender extender = new NotificationCompat.WearableExtender();
         SourceManager sm = SourceManager.getInstance(context);
         SourceState state = sm.getSelectedSourceState();
-        ArrayList<String> customActions = new ArrayList<String>();
+        ArrayList<String> customActions = new ArrayList<>();
         for (int i = 0; i < state.getNumUserCommands(); i++) {
             UserCommand action = state.getUserCommandAt(i);
             if (action.getId() == MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK) {

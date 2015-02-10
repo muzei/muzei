@@ -67,9 +67,7 @@ public class IOUtil {
         if ("content".equals(scheme)) {
             try {
                 in = context.getContentResolver().openInputStream(uri);
-            } catch (FileNotFoundException e) {
-                throw new OpenUriException(false, e);
-            } catch (SecurityException e) {
+            } catch (FileNotFoundException | SecurityException e) {
                 throw new OpenUriException(false, e);
             }
 
@@ -105,6 +103,11 @@ public class IOUtil {
             String responseMessage = null;
             try {
                 conn = new OkUrlFactory(client).open(new URL(uri.toString()));
+            } catch (MalformedURLException e) {
+                throw new OpenUriException(false, e);
+            }
+
+            try {
                 conn.setConnectTimeout(DEFAULT_CONNECT_TIMEOUT);
                 conn.setReadTimeout(DEFAULT_READ_TIMEOUT);
                 responseCode = conn.getResponseCode();
@@ -114,17 +117,15 @@ public class IOUtil {
                 }
                 if (reqContentTypeSubstring != null) {
                     String contentType = conn.getContentType();
-                    if (contentType == null || contentType.indexOf(reqContentTypeSubstring) < 0) {
+                    if (contentType == null || !contentType.contains(reqContentTypeSubstring)) {
                         throw new IOException("HTTP content type '" + contentType
                                 + "' didn't match '" + reqContentTypeSubstring + "'.");
                     }
                 }
                 in = conn.getInputStream();
 
-            } catch (MalformedURLException e) {
-                throw new OpenUriException(false, e);
             } catch (IOException e) {
-                if (conn != null && responseCode > 0) {
+                if (responseCode > 0) {
                     throw new OpenUriException(
                             500 <= responseCode && responseCode < 600,
                             responseMessage, e);
@@ -162,9 +163,7 @@ public class IOUtil {
                     filename.append(Integer.toHexString(0xFF & b));
                 }
             }
-        } catch (NoSuchAlgorithmException e) {
-            filename.append(uri.toString().hashCode());
-        } catch (UnsupportedEncodingException e) {
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
             filename.append(uri.toString().hashCode());
         }
 

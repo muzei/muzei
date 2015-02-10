@@ -82,7 +82,7 @@ public class GallerySettingsActivity extends ActionBarActivity {
     private int mItemSize = 10;
 
     private MultiSelectionController<Uri> mMultiSelectionController
-            = new MultiSelectionController<Uri>(STATE_SELECTION);
+            = new MultiSelectionController<>(STATE_SELECTION);
 
     private ColorDrawable mPlaceholderDrawable;
 
@@ -116,7 +116,7 @@ public class GallerySettingsActivity extends ActionBarActivity {
         setupAppBar();
 
         mStore = GalleryStore.getInstance(this);
-        mChosenUris = new ArrayList<Uri>(mStore.getChosenUris());
+        mChosenUris = new ArrayList<>(mStore.getChosenUris());
         onDataSetChanged();
 
         mPlaceholderDrawable = new ColorDrawable(getResources().getColor(
@@ -280,7 +280,7 @@ public class GallerySettingsActivity extends ActionBarActivity {
                         return true;
 
                     case R.id.action_remove:
-                        final ArrayList<Uri> removeUris = new ArrayList<Uri>(
+                        final ArrayList<Uri> removeUris = new ArrayList<>(
                                 mMultiSelectionController.getSelection());
 
                         mHandler.post(new Runnable() {
@@ -528,7 +528,7 @@ public class GallerySettingsActivity extends ActionBarActivity {
         }
 
         // Add chosen items
-        ArrayList<Uri> uris = new ArrayList<Uri>();
+        ArrayList<Uri> uris = new ArrayList<>();
         if (result.getData() != null) {
             uris.add(result.getData());
         } else {
@@ -550,7 +550,7 @@ public class GallerySettingsActivity extends ActionBarActivity {
     public void onEventMainThread(GalleryChosenUrisChangedEvent e) {
         // Figure out what was removed and what was added.
         // Only support structural change events for appends and removes for now.
-        List<Uri> newChosenUris = new ArrayList<Uri>(mStore.getChosenUris());
+        List<Uri> newChosenUris = new ArrayList<>(mStore.getChosenUris());
         if (newChosenUris.size() >= mChosenUris.size()) {
             // items added or equal
             int i;
@@ -572,10 +572,10 @@ public class GallerySettingsActivity extends ActionBarActivity {
         } else {
             // TODO: handle case where 2 items removed, 1 added
             // items removed
-            Set<Uri> currentUris = new HashSet<Uri>(mChosenUris);
+            Set<Uri> currentUris = new HashSet<>(mChosenUris);
             Set<Uri> removedUris = currentUris;
             removedUris.removeAll(newChosenUris);
-            List<Integer> indices = new ArrayList<Integer>();
+            List<Integer> indices = new ArrayList<>();
             for (Uri uri : removedUris) {
                 int index = mChosenUris.indexOf(uri);
                 if (index >= 0) {
@@ -590,7 +590,7 @@ public class GallerySettingsActivity extends ActionBarActivity {
             }
         }
 
-        mChosenUris = new ArrayList<Uri>(mStore.getChosenUris());
+        mChosenUris = new ArrayList<>(mStore.getChosenUris());
         onDataSetChanged();
     }
 

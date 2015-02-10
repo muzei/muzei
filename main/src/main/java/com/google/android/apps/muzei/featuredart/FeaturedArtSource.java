@@ -79,7 +79,7 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
 
     @Override
     protected void onUpdate(int reason) {
-        List<UserCommand> commands = new ArrayList<UserCommand>();
+        List<UserCommand> commands = new ArrayList<>();
         if (reason == UPDATE_REASON_INITIAL) {
             // Show initial photo (starry night)
             publishArtwork(new Artwork.Builder()
@@ -194,10 +194,7 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
         try {
             jsonObject = IOUtil.fetchJsonObject(QUERY_URL);
             artwork = Artwork.fromJson(jsonObject);
-        } catch (JSONException e) {
-            LOGE(TAG, "Error reading JSON", e);
-            throw new RetryException(e);
-        } catch (IOException e) {
+        } catch (JSONException | IOException e) {
             LOGE(TAG, "Error reading JSON", e);
             throw new RetryException(e);
         }
@@ -221,13 +218,13 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
             }
             try {
                 nextTime = sDateFormatTZ.parse(nextTimeStr);
-            } catch (ParseException ignored) {
+            } catch (ParseException e) {
                 try {
                     sDateFormatLocal.setTimeZone(TimeZone.getDefault());
                     nextTime = sDateFormatLocal.parse(nextTimeStr);
-                } catch (ParseException e) {
+                } catch (ParseException e2) {
                     LOGE(TAG, "Can't schedule update; "
-                            + "invalid date format '" + nextTimeStr + "'", e);
+                            + "invalid date format '" + nextTimeStr + "'", e2);
                 }
             }
         }

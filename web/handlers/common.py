@@ -23,10 +23,13 @@ from google.appengine.ext.webapp import template
 
 START_TIME = time(1, 55, 0, tzinfo=None) # 1:55am UTC
 
-CLOUD_STORAGE_ROOT_URL = 'http://storage.googleapis.com'
-CLOUD_STORAGE_BASE_PATH = '/muzeifeaturedart'
-
 IS_DEVELOPMENT = ('Development' in os.environ['SERVER_SOFTWARE'])
+
+CLOUD_STORAGE_BASE_PATH = '/muzeifeaturedart'
+if not IS_DEVELOPMENT:
+  CLOUD_STORAGE_ROOT_URL = 'http://storage.googleapis.com'
+else:
+  CLOUD_STORAGE_ROOT_URL = 'http://%s/_ah/gcs' % os.environ['HTTP_HOST']
 
 
 #http://stackoverflow.com/questions/8777753#8778548

@@ -716,7 +716,7 @@ public abstract class MuzeiArtSource extends IntentService {
     }
 
     private synchronized void loadSubscriptions() {
-        mSubscriptions = new HashMap<ComponentName, String>();
+        mSubscriptions = new HashMap<>();
         Set<String> serializedSubscriptions = mSharedPrefs.getStringSet(PREF_SUBSCRIPTIONS, null);
         if (serializedSubscriptions != null) {
             for (String serializedSubscription : serializedSubscriptions) {
@@ -729,7 +729,7 @@ public abstract class MuzeiArtSource extends IntentService {
     }
 
     private synchronized void saveSubscriptions() {
-        Set<String> serializedSubscriptions = new HashSet<String>();
+        Set<String> serializedSubscriptions = new HashSet<>();
         for (ComponentName subscriber : mSubscriptions.keySet()) {
             serializedSubscriptions.add(subscriber.flattenToShortString() + "|"
                     + mSubscriptions.get(subscriber));
