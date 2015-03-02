@@ -53,9 +53,9 @@ android {
                 keyProps.load(new FileInputStream(file(localProps['keystore.props.file'])))
             }
             storeFile keyProps["store"] != null ? file(keyProps["store"]) : null
-            keyAlias keyProps["alias"]
-            storePassword keyProps["storePass"]
-            keyPassword keyProps["pass"]
+            keyAlias keyProps["alias"] ?: ""
+            storePassword keyProps["storePass"] ?: ""
+            keyPassword keyProps["pass"] ?: ""
         }
     }
 
