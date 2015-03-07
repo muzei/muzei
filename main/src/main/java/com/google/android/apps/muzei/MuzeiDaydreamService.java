@@ -6,7 +6,9 @@ import android.opengl.GLSurfaceView;
 import android.os.Handler;
 import android.os.IBinder;
 import android.service.dreams.DreamService;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
 import com.google.android.apps.muzei.event.LockScreenVisibleChangedEvent;
@@ -15,6 +17,12 @@ import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
 import com.google.android.apps.muzei.render.RealRenderController;
 import com.google.android.apps.muzei.render.RenderController;
+import com.google.android.apps.muzei.util.ShadowDipsTextView;
+
+import net.nurik.roman.muzei.R;
+
+import android.text.format.DateFormat;
+import java.util.Date;
 
 import de.greenrobot.event.EventBus;
 
@@ -23,8 +31,13 @@ public class MuzeiDaydreamService extends DreamService implements
         MuzeiBlurRenderer.Callbacks {
 
     private static final long TEMPORARY_FOCUS_DURATION_MILLIS = 3000;
+    private static final long TIMER_INTERVAL = 10000;
 
+    private View mContent;
     private GLSurfaceView mGLView;
+    private ShadowDipsTextView mTimeTextView;
+    private ShadowDipsTextView mDateTextView;
+
     private RenderController mRenderController;
     private MuzeiBlurRenderer mRenderer;
     private boolean mArtDetailMode = false;
@@ -37,22 +50,28 @@ public class MuzeiDaydreamService extends DreamService implements
     public void onCreate() {
         super.onCreate();
 
-        mGLView = new GLSurfaceView(this);
         mRenderer = new MuzeiBlurRenderer(MuzeiDaydreamService.this, this);
         mRenderer.setIsPreview(false);
-        mGLView.setEGLContextClientVersion(2);
-        mGLView.setRenderer(mRenderer);
         mRenderController = new RealRenderController(MuzeiDaydreamService.this,
                 mRenderer, this);
-        mGLView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
         EventBus.getDefault().postSticky(new WallpaperActiveStateChangedEvent(true));
         EventBus.getDefault().registerSticky(this);
+
+        mContent = View.inflate(getApplicationContext(), R.layout.daydream_view, null);
+        mGLView = (GLSurfaceView) mContent.findViewById(R.id.textureView);
+        mTimeTextView = (ShadowDipsTextView) mContent.findViewById(R.id.txTime);
+        mDateTextView = (ShadowDipsTextView) mContent.findViewById(R.id.txDate);
+
+        mGLView.setEGLContextClientVersion(2);
+        mGLView.setRenderer(mRenderer);
+        mGLView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+
+        mMainThreadHandler.postDelayed(updateTimerThread, TIMER_INTERVAL);
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         EventBus.getDefault().unregister(this);
         EventBus.getDefault().postSticky(new WallpaperActiveStateChangedEvent(false));
 
@@ -65,13 +84,14 @@ public class MuzeiDaydreamService extends DreamService implements
             }
         });
         mRenderController.destroy();
+        super.onDestroy();
     }
     @Override
     public void onAttachedToWindow() {
         super.onAttachedToWindow();
 
         setFullscreen(true);
-        setContentView(mGLView);
+        setContentView(mContent);
 
         mRenderController.reloadCurrentArtwork(true);
         requestRender();
@@ -157,18 +177,24 @@ public class MuzeiDaydreamService extends DreamService implements
     }
 
     public void onEventMainThread(ArtDetailViewport e) {
+        Update();
+    }
+
+    private void Update() {
+        java.util.Date curdate = new java.util.Date();
+        mTimeTextView.setText(DateFormat.getTimeFormat(getApplicationContext()).format(curdate));
+        mDateTextView.setText(DateFormat.getLongDateFormat(getApplicationContext()).format(curdate));
+
         requestRender();
     }
 
-    public void onEventMainThread(LockScreenVisibleChangedEvent e) {
-        final boolean blur = !e.isLockScreenVisible();
-        cancelDelayedBlur();
-        mGLView.queueEvent(new Runnable() {
-            @Override
-            public void run() {
-                mRenderer.setIsBlurred(blur, false);
-            }
-        });
-    }
+    private Runnable updateTimerThread = new Runnable() {
+
+        public void run() {
+            EventBus.getDefault().post(ArtDetailViewport.getInstance());
+            mMainThreadHandler.postDelayed(this, TIMER_INTERVAL);
+        }
+
+    };
 
 }

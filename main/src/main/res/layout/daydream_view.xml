@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <android.opengl.GLSurfaceView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/textureView"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:orientation="vertical"
+        android:layout_margin="20dp"
+        >
+
+        <com.google.android.apps.muzei.util.ShadowDipsTextView
+            android:text="11:52"
+            android:id="@+id/txTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="72sp"
+            android:textColor="#fff"
+            app:shadowColor="#8000"
+            app:shadowDx="3sp"
+            app:shadowDy="7sp"
+            app:shadowRadius="3dp"
+            android:layout_gravity="center_horizontal" />
+
+        <com.google.android.apps.muzei.util.ShadowDipsTextView
+            android:text="Sam 7 mar 2015"
+            android:id="@+id/txDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="30sp"
+            android:textColor="#fff"
+            app:shadowColor="#8000"
+            app:shadowDx="0dp"
+            app:shadowDy="1dp"
+            app:shadowRadius="3dp" />
+
+    </LinearLayout>
+</RelativeLayout>
