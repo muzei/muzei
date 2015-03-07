@@ -17,6 +17,7 @@
 <resources>
     <string name="app_name">Muzei</string>
     <string name="app_description">Muzei Live Wallpaper</string>
+    <string name="daydream_description">Muzei Daydream</string>
 
     <string name="settings_title">Muzei Settings</string>
     <string name="settings_blur_amount_title">Blur</string>
