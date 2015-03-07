@@ -16,19 +16,19 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:orientation="vertical"
-        android:layout_margin="20dp"
-        >
+        android:layout_margin="10sp"
+        android:id="@+id/linearLayout">
 
         <com.google.android.apps.muzei.util.ShadowDipsTextView
             android:text="11:52"
             android:id="@+id/txTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="72sp"
+            android:textSize="60sp"
             android:textColor="#fff"
             app:shadowColor="#8000"
-            app:shadowDx="3sp"
-            app:shadowDy="7sp"
+            app:shadowDx="2sp"
+            app:shadowDy="5sp"
             app:shadowRadius="3dp"
             android:layout_gravity="center_horizontal" />
 
@@ -37,12 +37,51 @@
             android:id="@+id/txDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="30sp"
+            android:textSize="25sp"
             android:textColor="#fff"
             app:shadowColor="#8000"
             app:shadowDx="0dp"
-            app:shadowDy="1dp"
-            app:shadowRadius="3dp" />
+            app:shadowDy="0dp"
+            app:shadowRadius="3dp"
+            android:textStyle="italic" />
 
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="false"
+        android:orientation="vertical"
+        android:layout_margin="10sp"
+        android:layout_alignParentStart="true">
+
+        <com.google.android.apps.muzei.util.ShadowDipsTextView
+            android:text="This is the Title"
+            android:id="@+id/txTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="30sp"
+            android:textColor="#fff"
+            app:shadowColor="#8000"
+            app:shadowDx="1sp"
+            app:shadowDy="1sp"
+            app:shadowRadius="3dp"
+            android:layout_gravity="left" />
+
+        <com.google.android.apps.muzei.util.ShadowDipsTextView
+            android:text="John Doe"
+            android:id="@+id/txAuthor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textColor="#fff"
+            app:shadowColor="#8000"
+            app:shadowDx="0dp"
+            app:shadowDy="0dp"
+            app:shadowRadius="3dp"
+            android:textStyle="italic" />
+
+    </LinearLayout>
+
 </RelativeLayout>

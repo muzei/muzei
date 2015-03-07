@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.google.android.apps.muzei.api.Artwork;
+import com.google.android.apps.muzei.api.internal.SourceState;
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
 import com.google.android.apps.muzei.event.LockScreenVisibleChangedEvent;
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
@@ -37,6 +39,8 @@ public class MuzeiDaydreamService extends DreamService implements
     private GLSurfaceView mGLView;
     private ShadowDipsTextView mTimeTextView;
     private ShadowDipsTextView mDateTextView;
+    private ShadowDipsTextView mTitleTextView;
+    private ShadowDipsTextView mAuthorTextView;
 
     private RenderController mRenderController;
     private MuzeiBlurRenderer mRenderer;
@@ -62,6 +66,8 @@ public class MuzeiDaydreamService extends DreamService implements
         mGLView = (GLSurfaceView) mContent.findViewById(R.id.textureView);
         mTimeTextView = (ShadowDipsTextView) mContent.findViewById(R.id.txTime);
         mDateTextView = (ShadowDipsTextView) mContent.findViewById(R.id.txDate);
+        mTitleTextView = (ShadowDipsTextView) mContent.findViewById(R.id.txTitle);
+        mAuthorTextView = (ShadowDipsTextView) mContent.findViewById(R.id.txAuthor);
 
         mGLView.setEGLContextClientVersion(2);
         mGLView.setRenderer(mRenderer);
@@ -184,6 +190,20 @@ public class MuzeiDaydreamService extends DreamService implements
         java.util.Date curdate = new java.util.Date();
         mTimeTextView.setText(DateFormat.getTimeFormat(getApplicationContext()).format(curdate));
         mDateTextView.setText(DateFormat.getLongDateFormat(getApplicationContext()).format(curdate));
+
+        SourceManager sm = SourceManager.getInstance(getApplicationContext());
+        SourceState selectedSourceState = sm.getSelectedSourceState();
+        Artwork currentArtwork = selectedSourceState != null
+                ? selectedSourceState.getCurrentArtwork() : null;
+
+        mTitleTextView.setText("");
+        mAuthorTextView.setText("");
+        if (currentArtwork != null) {
+            if (!currentArtwork.getTitle().isEmpty())
+                mTitleTextView.setText(currentArtwork.getTitle());
+            if (!currentArtwork.getByline().isEmpty())
+                mAuthorTextView.setText(currentArtwork.getByline());
+        }
 
         requestRender();
     }
