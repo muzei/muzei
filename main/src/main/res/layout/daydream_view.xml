@@ -71,7 +71,7 @@
 
         <com.google.android.apps.muzei.util.ShadowDipsTextView
             android:text="John Doe"
-            android:id="@+id/txAuthor"
+            android:id="@+id/txByline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20sp"

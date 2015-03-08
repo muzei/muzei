@@ -1,30 +1,26 @@
 package com.google.android.apps.muzei;
 
-import android.app.Service;
-import android.content.Intent;
+import android.graphics.Typeface;
 import android.opengl.GLSurfaceView;
 import android.os.Handler;
-import android.os.IBinder;
 import android.service.dreams.DreamService;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.TextView;
 
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.internal.SourceState;
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
-import com.google.android.apps.muzei.event.LockScreenVisibleChangedEvent;
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
 import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
 import com.google.android.apps.muzei.render.RealRenderController;
 import com.google.android.apps.muzei.render.RenderController;
 import com.google.android.apps.muzei.util.ShadowDipsTextView;
+import com.google.android.apps.muzei.util.TypefaceUtil;
 
 import net.nurik.roman.muzei.R;
 
 import android.text.format.DateFormat;
-import java.util.Date;
 
 import de.greenrobot.event.EventBus;
 
@@ -40,7 +36,7 @@ public class MuzeiDaydreamService extends DreamService implements
     private ShadowDipsTextView mTimeTextView;
     private ShadowDipsTextView mDateTextView;
     private ShadowDipsTextView mTitleTextView;
-    private ShadowDipsTextView mAuthorTextView;
+    private ShadowDipsTextView mBylineTextView;
 
     private RenderController mRenderController;
     private MuzeiBlurRenderer mRenderer;
@@ -66,8 +62,14 @@ public class MuzeiDaydreamService extends DreamService implements
         mGLView = (GLSurfaceView) mContent.findViewById(R.id.textureView);
         mTimeTextView = (ShadowDipsTextView) mContent.findViewById(R.id.txTime);
         mDateTextView = (ShadowDipsTextView) mContent.findViewById(R.id.txDate);
+
+        Typeface tf = TypefaceUtil.getAndCache(this, "Alegreya-BlackItalic.ttf");
         mTitleTextView = (ShadowDipsTextView) mContent.findViewById(R.id.txTitle);
-        mAuthorTextView = (ShadowDipsTextView) mContent.findViewById(R.id.txAuthor);
+        mTitleTextView.setTypeface(tf);
+
+        tf = TypefaceUtil.getAndCache(this, "Alegreya-Italic.ttf");
+        mBylineTextView = (ShadowDipsTextView) mContent.findViewById(R.id.txByline);
+        mBylineTextView.setTypeface(tf);
 
         mGLView.setEGLContextClientVersion(2);
         mGLView.setRenderer(mRenderer);
@@ -197,12 +199,12 @@ public class MuzeiDaydreamService extends DreamService implements
                 ? selectedSourceState.getCurrentArtwork() : null;
 
         mTitleTextView.setText("");
-        mAuthorTextView.setText("");
+        mBylineTextView.setText("");
         if (currentArtwork != null) {
             if (!currentArtwork.getTitle().isEmpty())
                 mTitleTextView.setText(currentArtwork.getTitle());
             if (!currentArtwork.getByline().isEmpty())
-                mAuthorTextView.setText(currentArtwork.getByline());
+                mBylineTextView.setText(currentArtwork.getByline());
         }
 
         requestRender();
