@@ -32,7 +32,7 @@ public class MuzeiDaydreamService extends DreamService implements
     private static final long TIMER_INTERVAL = 10000;
 
     private View mContent;
-    private GLSurfaceView mGLView;
+    private GLSurfaceView mGLView = null;
     private ShadowDipsTextView mTimeTextView;
     private ShadowDipsTextView mDateTextView;
     private ShadowDipsTextView mTitleTextView;
@@ -76,6 +76,11 @@ public class MuzeiDaydreamService extends DreamService implements
         mGLView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
         mMainThreadHandler.postDelayed(updateTimerThread, TIMER_INTERVAL);
+
+        // Full picture quality
+        mRenderer.setDim(0);
+        mRenderer.setGrey(0);
+        mRenderer.setIsBlurred(false, false);
     }
 
     @Override
@@ -141,7 +146,8 @@ public class MuzeiDaydreamService extends DreamService implements
 
     @Override
     public void requestRender() {
-        mGLView.requestRender();
+        if (mGLView != null)
+            mGLView.requestRender();
     }
 
     private void cancelDelayedBlur() {
