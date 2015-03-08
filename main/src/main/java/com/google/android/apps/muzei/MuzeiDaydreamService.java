@@ -107,6 +107,7 @@ public class MuzeiDaydreamService extends DreamService implements
         setContentView(mContent);
 
         mRenderController.reloadCurrentArtwork(true);
+        mRenderController.setVisible(true);
         requestRender();
     }
 
@@ -128,15 +129,13 @@ public class MuzeiDaydreamService extends DreamService implements
     @Override
     public void onDreamingStarted() {
         super.onDreamingStarted();
-
-        mRenderController.setVisible(true);
+        mContent.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onDreamingStopped() {
         super.onDreamingStopped();
-
-        mRenderController.setVisible(false);
+        mContent.setVisibility(View.GONE);
     }
 
     @Override
