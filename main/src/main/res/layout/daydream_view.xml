@@ -16,7 +16,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:orientation="vertical"
-        android:layout_margin="10sp"
+        android:layout_margin="15sp"
         android:id="@+id/linearLayout">
 
         <com.google.android.apps.muzei.util.ShadowDipsTextView
@@ -53,7 +53,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="false"
         android:orientation="vertical"
-        android:layout_margin="10sp"
+        android:layout_margin="15sp"
         android:layout_alignParentStart="true">
 
         <com.google.android.apps.muzei.util.ShadowDipsTextView

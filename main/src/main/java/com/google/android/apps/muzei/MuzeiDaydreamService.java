@@ -211,7 +211,10 @@ public class MuzeiDaydreamService extends DreamService implements
     private Runnable updateTimerThread = new Runnable() {
 
         public void run() {
-            EventBus.getDefault().post(ArtDetailViewport.getInstance());
+            java.util.Date curdate = new java.util.Date();
+            mTimeTextView.setText(DateFormat.getTimeFormat(getApplicationContext()).format(curdate));
+            mDateTextView.setText(DateFormat.getLongDateFormat(getApplicationContext()).format(curdate));
+
             mMainThreadHandler.postDelayed(this, TIMER_INTERVAL);
         }
 
