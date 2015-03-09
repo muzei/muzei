@@ -236,6 +236,15 @@ public class MuzeiActivity extends ActionBarActivity {
                 }
             }
         });
+        findViewById(R.id.setup_muzei_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    startActivity(new Intent(MuzeiActivity.this, SettingsActivity.class));
+                } catch (ActivityNotFoundException e) {
+                }
+            }
+        });
     }
 
     private void setupTutorialModeUi() {
@@ -316,7 +325,9 @@ public class MuzeiActivity extends ActionBarActivity {
         // Special work
         if (newUiMode == UI_MODE_INTRO) {
             final View activateButton = findViewById(R.id.activate_muzei_button);
+            final View setupButton = findViewById(R.id.setup_muzei_button);
             activateButton.setAlpha(0);
+            setupButton.setAlpha(0);
             final AnimatedMuzeiLogoFragment logoFragment = (AnimatedMuzeiLogoFragment)
                     getFragmentManager().findFragmentById(R.id.animated_logo_fragment);
             logoFragment.reset();
@@ -324,6 +335,7 @@ public class MuzeiActivity extends ActionBarActivity {
                 @Override
                 public void run() {
                     activateButton.animate().alpha(1f).setDuration(500);
+                    setupButton.animate().alpha(1f).setDuration(500);
                 }
             });
             mHandler.postDelayed(new Runnable() {
