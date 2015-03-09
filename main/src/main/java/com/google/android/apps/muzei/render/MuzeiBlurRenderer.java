@@ -584,6 +584,16 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
         mCallbacks.requestRender();
     }
 
+    public void setDim(int newDim) {
+        mMaxDim = newDim;
+        mCallbacks.requestRender();
+    }
+
+    public void setGrey(int newGrey) {
+        mMaxGrey = newGrey;
+        mCallbacks.requestRender();
+    }
+
     public static interface Callbacks {
         void requestRender();
     }

@@ -51,6 +51,18 @@
             android:textColor="#333"
             android:id="@+id/activate_muzei_button" />
 
+        <Button android:background="@drawable/white_circle_button"
+            android:layout_height="@dimen/intro_activate_button_size"
+            android:layout_width="@dimen/intro_activate_button_size"
+            android:layout_marginStart="48dp"
+            android:text="@string/action_settings"
+            android:textAllCaps="true"
+            android:fontFamily="sans-serif-condensed"
+            android:textStyle="bold"
+            android:textSize="18dp"
+            android:textColor="#333"
+            android:id="@+id/setup_muzei_button" />
+
     </LinearLayout>
 </FrameLayout>
 
