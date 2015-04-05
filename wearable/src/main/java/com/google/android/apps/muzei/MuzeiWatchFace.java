@@ -72,6 +72,8 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
 
     private static final String FORMAT_12_HR = "%l:%M";
     private static final String FORMAT_24_HR = "%H:%M";
+    private static final String FORMAT_DATE_MONTH_FIRST = "%m/%d";
+    private static final String FORMAT_DATE_DAY_FIRST = "%d-%m";
 
     @Override
     public Engine onCreateEngine() {
@@ -122,11 +124,19 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
                 mTime.setToNow();
             }
         };
+        final BroadcastReceiver mLocaleChangedReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                recomputeDateMonthFirst();
+                invalidate();
+            }
+        };
 
         HandlerThread mLoadImageHandlerThread;
         Handler mLoadImageHandler;
         ContentObserver mLoadImageContentObserver;
         boolean mRegisteredTimeZoneReceiver = false;
+        boolean mRegisteredLocaleChangedReceiver = false;
         Paint mBackgroundPaint;
         /**
          * How often {@link #mUpdateTimeHandler} ticks in milliseconds.
@@ -137,6 +147,10 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
         Paint mClockAmbientShadowPaint;
         Paint mClockPaint;
         float mClockTextHeight;
+        Paint mDatePaint;
+        Paint mDateAmbientShadowPaint;
+        float mDateTextHeight;
+        boolean mDateMonthFirst;
         /**
          * Handler to update the time periodically in interactive mode.
          */
@@ -209,11 +223,49 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
             mClockAmbientShadowPaint.setShadowLayer(
                     8f * densityMultiplier, 0, 3f * densityMultiplier,
                     0x66000000);
+
+            mDatePaint = new Paint();
+            mDatePaint.setColor(Color.WHITE);
+            mDatePaint.setShadowLayer(
+                    1f * densityMultiplier, 0, 0.5f * densityMultiplier, 0xcc000000);
+            mDatePaint.setAntiAlias(true);
+            mDatePaint.setTypeface(mLightTypeface);
+            // Square watch face as defaults, will be changed in onApplyWindowInsets() if needed
+            mDatePaint.setTextAlign(Paint.Align.RIGHT);
+            mDatePaint.setTextSize(getResources().getDimension(R.dimen.date_text_size));
+            recomputeDateTextHeight();
+
+            mDateAmbientShadowPaint = new Paint(mDatePaint);
+            mDateAmbientShadowPaint.setColor(Color.TRANSPARENT);
+            mDateAmbientShadowPaint.setShadowLayer(
+                    8f * densityMultiplier, 0, 3f * densityMultiplier,
+                    0x66000000);
+            recomputeDateMonthFirst();
         }
 
         private void recomputeClockTextHeight() {
             Paint.FontMetrics fm = mClockPaint.getFontMetrics();
             mClockTextHeight = -fm.top;
+        }
+
+        private void recomputeDateTextHeight() {
+            Paint.FontMetrics fm = mDatePaint.getFontMetrics();
+            mDateTextHeight = -fm.top;
+        }
+
+        private void recomputeDateMonthFirst() {
+            char[] dateFormatOrder = DateFormat.getDateFormatOrder(MuzeiWatchFace.this);
+            for (char current : dateFormatOrder) {
+                if (current == 'd') {
+                    // Found the day first
+                    mDateMonthFirst = false;
+                    break;
+                } else if (current == 'M') {
+                    // Found the month first
+                    mDateMonthFirst = true;
+                    break;
+                }
+            }
         }
 
         private void updateWatchFaceStyle() {
@@ -276,12 +328,19 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
             Paint.Align textAlign = mIsRound ? Paint.Align.CENTER : Paint.Align.RIGHT;
             mClockPaint.setTextAlign(textAlign);
             mClockAmbientShadowPaint.setTextAlign(textAlign);
+            mDatePaint.setTextAlign(textAlign);
             float textSize = getResources().getDimension(mIsRound
                     ? R.dimen.clock_text_size_round
                     : R.dimen.clock_text_size);
             mClockPaint.setTextSize(textSize);
             mClockAmbientShadowPaint.setTextSize(textSize);
             recomputeClockTextHeight();
+            float dateTextSize = getResources().getDimension(mIsRound
+                    ? R.dimen.date_text_size_round
+                    : R.dimen.date_text_size);
+            mDatePaint.setTextSize(dateTextSize);
+            mDateAmbientShadowPaint.setTextSize(dateTextSize);
+            recomputeDateTextHeight();
             updateWatchFaceStyle();
         }
 
@@ -328,14 +387,20 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
             mRegisteredTimeZoneReceiver = true;
             IntentFilter filter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
             MuzeiWatchFace.this.registerReceiver(mTimeZoneReceiver, filter);
+            mRegisteredLocaleChangedReceiver = true;
+            IntentFilter localeFilter = new IntentFilter(Intent.ACTION_LOCALE_CHANGED);
+            MuzeiWatchFace.this.registerReceiver(mLocaleChangedReceiver, localeFilter);
         }
 
         private void unregisterReceiver() {
-            if (!mRegisteredTimeZoneReceiver) {
-                return;
+            if (mRegisteredTimeZoneReceiver) {
+                mRegisteredTimeZoneReceiver = false;
+                MuzeiWatchFace.this.unregisterReceiver(mTimeZoneReceiver);
             }
-            mRegisteredTimeZoneReceiver = false;
-            MuzeiWatchFace.this.unregisterReceiver(mTimeZoneReceiver);
+            if (mRegisteredLocaleChangedReceiver) {
+                mRegisteredLocaleChangedReceiver = false;
+                MuzeiWatchFace.this.unregisterReceiver(mLocaleChangedReceiver);
+            }
         }
 
         @Override
@@ -394,6 +459,8 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
                     boolean antiAlias = !inAmbientMode;
                     mClockPaint.setAntiAlias(antiAlias);
                     mClockAmbientShadowPaint.setAntiAlias(antiAlias);
+                    mDatePaint.setAntiAlias(antiAlias);
+                    mDateAmbientShadowPaint.setAntiAlias(antiAlias);
                 }
                 invalidate();
             }
@@ -445,7 +512,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
                         (height - mBackgroundScaledBitmap.getHeight()) / 2, null);
             }
 
-            // Draw the text
+            // Draw the time
             String formattedTime = mTime.format(DateFormat.is24HourFormat(MuzeiWatchFace.this)
                     ? FORMAT_24_HR
                     : FORMAT_12_HR);
@@ -464,6 +531,22 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
                     xOffset,
                     yOffset,
                     mClockPaint);
+
+            // Draw the date
+            String formattedDate = mTime.format(mDateMonthFirst
+                    ? FORMAT_DATE_MONTH_FIRST
+                    : FORMAT_DATE_DAY_FIRST);
+            float yDateOffset = mIsRound
+                    ? yOffset - mClockTextHeight - mClockMargin // date above centered time
+                    : yOffset + mDateTextHeight + mClockMargin; // date below top|right time
+            canvas.drawText(formattedDate,
+                    xOffset,
+                    yDateOffset,
+                    mDateAmbientShadowPaint);
+            canvas.drawText(formattedDate,
+                    xOffset,
+                    yDateOffset,
+                    mDatePaint);
         }
 
 
