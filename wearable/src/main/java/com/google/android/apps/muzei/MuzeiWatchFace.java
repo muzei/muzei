@@ -423,7 +423,6 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
 
         @Override
         public void onPeekCardPositionUpdate(Rect bounds) {
-            super.onPeekCardPositionUpdate(bounds);
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "onPeekCardPositionUpdate: " + bounds);
             }
