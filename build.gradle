@@ -15,7 +15,7 @@
  */
 
 ext {
-    gradleClasspath = 'com.android.tools.build:gradle:1.0.1'
+    gradleClasspath = 'com.android.tools.build:gradle:1.1.0'
     compileSdkVersion = 21
     buildToolsVersion = "21.1.2"
     targetSdkVersion = compileSdkVersion

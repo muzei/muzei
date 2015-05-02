@@ -53,9 +53,9 @@ android {
                 keyProps.load(new FileInputStream(file(localProps['keystore.props.file'])))
             }
             storeFile keyProps["store"] != null ? file(keyProps["store"]) : null
-            keyAlias keyProps["alias"]
-            storePassword keyProps["storePass"]
-            keyPassword keyProps["pass"]
+            keyAlias keyProps["alias"] ?: ""
+            storePassword keyProps["storePass"] ?: ""
+            keyPassword keyProps["pass"] ?: ""
         }
     }
 
@@ -89,6 +89,6 @@ android {
 
 dependencies {
     compile 'com.google.android.support:wearable:1.1.0'
-    compile 'com.google.android.gms:play-services-wearable:6.5.87'
+    compile 'com.google.android.gms:play-services-wearable:7.0.0'
     compile project(':android-client-common')
 }

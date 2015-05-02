@@ -57,9 +57,9 @@ android {
                 keyProps.load(new FileInputStream(file(localProps['keystore.props.file'])))
             }
             storeFile keyProps["store"] != null ? file(keyProps["store"]) : null
-            keyAlias keyProps["alias"]
-            storePassword keyProps["storePass"]
-            keyPassword keyProps["pass"]
+            keyAlias keyProps["alias"] ?: ""
+            storePassword keyProps["storePass"] ?: ""
+            keyPassword keyProps["pass"] ?: ""
         }
     }
 
@@ -117,7 +117,7 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp:2.1.0'
     compile 'com.squareup.okhttp:okhttp-urlconnection:2.1.0'
     compile 'com.squareup.picasso:picasso:2.4.0'
-    compile 'com.google.android.gms:play-services-wearable:6.5.87'
+    compile 'com.google.android.gms:play-services-wearable:7.0.0'
     compile 'de.greenrobot:eventbus:2.4.0'
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile 'com.android.support:recyclerview-v7:21.0.2'

@@ -18,6 +18,8 @@
     <dimen name="clock_text_size">30sp</dimen>
     <dimen name="clock_text_size_round">34sp</dimen>
     <dimen name="clock_margin">16dp</dimen>
+    <dimen name="date_text_size">16sp</dimen>
+    <dimen name="date_text_size_round">18sp</dimen>
 
     <dimen name="art_detail_metadata_margin">12dp</dimen>
     <dimen name="art_detail_metadata_margin_bottom">@dimen/art_detail_metadata_margin</dimen>
