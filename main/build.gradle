@@ -121,7 +121,7 @@ dependencies {
     compile 'de.greenrobot:eventbus:2.4.0'
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile 'com.android.support:recyclerview-v7:21.0.2'
-
+    compile 'com.actionlauncher:action3-api:1.+'
     // :api is included as a transitive dependency from :android-client-common
     // compile project(':api')
     compile project(':android-client-common')

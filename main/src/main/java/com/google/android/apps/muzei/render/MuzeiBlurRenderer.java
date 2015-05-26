@@ -33,6 +33,7 @@ import android.util.DisplayMetrics;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 
+import com.actionlauncher.api.LiveWallpaperSource;
 import com.google.android.apps.muzei.ArtDetailViewport;
 import com.google.android.apps.muzei.event.ArtworkSizeChangedEvent;
 import com.google.android.apps.muzei.event.SwitchingPhotosStateChangedEvent;
@@ -400,6 +401,24 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
                             }
                             Bitmap blurredBitmap = blurrer.blurBitmap(
                                     scaledBitmap, blurRadius, desaturateAmount);
+
+                            try {
+                                LiveWallpaperSource.with(mContext)
+                                        .loggingEnabled(true)
+                                        .setBitmapSynchronous(blurredBitmap)
+                                        .run();
+                            } catch (OutOfMemoryError outOfMemoryError) {
+                                // Palette generation was unable to process the Bitmap passed in to
+                                // setBitmapSynchronous(). Consider using a smaller image.
+                                // See ActionPalette.DEFAULT_RESIZE_BITMAP_MAX_DIMENSION
+                                LogUtil.LOGE("Wallpaper", "failed to load", outOfMemoryError);
+                            } catch (IllegalArgumentException illegalArgumentEx) {
+                                // Raised during palette generation. Check your Bitmap.
+                                LogUtil.LOGE("Wallpaper", "failed to load", illegalArgumentEx);
+                            } catch (IllegalStateException illegalStateException) {
+                                // Raised during palette generation. Check your Bitmap.
+                                LogUtil.LOGE("Wallpaper", "failed to load", illegalStateException);
+                            }
                             mPictures[f] = new GLPicture(blurredBitmap);
                             if (blurredBitmap != null) {
                                 blurredBitmap.recycle();

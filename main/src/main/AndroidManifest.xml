@@ -148,5 +148,12 @@
             </intent-filter>
         </service>
 
+        <service android:name="com.actionlauncher.api.LiveWallpaperSource"
+            android:label="LiveWallpaperSource"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.actionlauncher.api.action.LiveWallpaperSource" />
+            </intent-filter>
+        </service>
     </application>
 </manifest>
