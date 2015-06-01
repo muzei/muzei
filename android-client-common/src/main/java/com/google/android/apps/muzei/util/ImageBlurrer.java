@@ -32,8 +32,8 @@ public class ImageBlurrer {
 
     private ScriptIntrinsicBlur mSIBlur;
     private ScriptIntrinsicColorMatrix mSIGrey;
-    private Allocation mTmp1;
-    private Allocation mTmp2;
+    private Allocation allocationSrc;
+    private Allocation allocationDest;
 
     public ImageBlurrer(Context context) {
         mRS = RenderScript.create(context);
@@ -51,30 +51,27 @@ public class ImageBlurrer {
             return dest;
         }
 
-        if (mTmp1 != null) {
-            mTmp1.destroy();
+        if (allocationSrc == null) {
+            allocationSrc = Allocation.createFromBitmap(mRS, src);
+        } else {
+            allocationSrc.copyFrom(src);
         }
-        if (mTmp2 != null) {
-            try {
-                mTmp2.destroy();
-            } catch (RSInvalidStateException e) {
-                // Ignore 'Object already destroyed' exceptions
-            }
+        if (allocationDest == null) {
+            allocationDest = Allocation.createFromBitmap(mRS, dest);
+        } else {
+            allocationDest.copyFrom(dest);
         }
-
-        mTmp1 = Allocation.createFromBitmap(mRS, src);
-        mTmp2 = Allocation.createFromBitmap(mRS, dest);
 
         if (radius > 0f && desaturateAmount > 0f) {
-            doBlur(radius, mTmp1, mTmp2);
-            doDesaturate(MathUtil.constrain(0, 1, desaturateAmount), mTmp2, mTmp1);
-            mTmp1.copyTo(dest);
+            doBlur(radius, allocationSrc, allocationDest);
+            doDesaturate(MathUtil.constrain(0, 1, desaturateAmount), allocationDest, allocationSrc);
+            allocationSrc.copyTo(dest);
         } else if (radius > 0f) {
-            doBlur(radius, mTmp1, mTmp2);
-            mTmp2.copyTo(dest);
+            doBlur(radius, allocationSrc, allocationDest);
+            allocationDest.copyTo(dest);
         } else {
-            doDesaturate(MathUtil.constrain(0, 1, desaturateAmount), mTmp1, mTmp2);
-            mTmp2.copyTo(dest);
+            doDesaturate(MathUtil.constrain(0, 1, desaturateAmount), allocationSrc, allocationDest);
+            allocationDest.copyTo(dest);
         }
         return dest;
     }
@@ -105,11 +102,11 @@ public class ImageBlurrer {
 
     public void destroy() {
         mSIBlur.destroy();
-        if (mTmp1 != null) {
-            mTmp1.destroy();
+        if (allocationSrc != null) {
+            allocationSrc.destroy();
         }
-        if (mTmp2 != null) {
-            mTmp2.destroy();
+        if (allocationDest != null) {
+            allocationDest.destroy();
         }
         mRS.destroy();
     }
