@@ -19,7 +19,6 @@
     <!-- Muzei activity -->
 
     <style name="Theme.MuzeiActivity" parent="Theme.Muzei.Wallpaper">
-        <item name="windowActionBar">false</item>
         <!-- on Samsung devices, window animations between windows showing
              the wallpaper seem to be broken, so don't use them. -->
         <!--<item name="android:windowAnimationStyle">@style/WindowAnimation.MuzeiActivity</item>-->
@@ -28,7 +27,6 @@
     <!-- Settings activity -->
 
     <style name="Theme.Muzei.Settings" parent="Theme.Muzei.Wallpaper">
-        <item name="windowActionBar">false</item>
         <item name="colorControlActivated">#fff</item>
     </style>
 
@@ -47,7 +45,6 @@
     <!-- Gallery source settings -->
 
     <style name="Theme.Muzei.GallerySettings" parent="Theme.Muzei">
-        <item name="windowActionBar">false</item>
         <item name="android:windowBackground">@color/gallery_settings_window_background</item>
 
         <item name="colorPrimaryDark">@color/gallery_settings_theme_dark</item>
@@ -58,12 +55,11 @@
     <!-- About -->
 
     <style name="Theme.Muzei.About" parent="Theme.Muzei.Wallpaper">
-        <item name="windowActionBar">false</item>
     </style>
 
     <!-- Global -->
 
-    <style name="Theme.Muzei.Base" parent="Theme.AppCompat">
+    <style name="Theme.Muzei.Base" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowBackground">@android:color/black</item>
         <item name="android:windowContentOverlay">@null</item>
         <!--<item name="android:actionModeBackground">@drawable/cab_background</item>-->
