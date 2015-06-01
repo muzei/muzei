@@ -32,13 +32,14 @@ import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.CapabilityApi;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.Wearable;
 
 import net.nurik.roman.muzei.R;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class ActivateMuzeiIntentService extends IntentService {
@@ -108,7 +109,9 @@ public class ActivateMuzeiIntentService extends IntentService {
             Log.e(TAG, "Failed to connect to GoogleApiClient.");
             return;
         }
-        List<Node> nodes =  Wearable.NodeApi.getConnectedNodes(googleApiClient).await().getNodes();
+        Set<Node> nodes =  Wearable.CapabilityApi.getCapability(googleApiClient, "activate_muzei",
+                CapabilityApi.FILTER_REACHABLE).await()
+                .getCapability().getNodes();
         if (!nodes.isEmpty()) {
             // Show the open on phone animation
             Intent openOnPhoneIntent = new Intent(this, ConfirmationActivity.class);
