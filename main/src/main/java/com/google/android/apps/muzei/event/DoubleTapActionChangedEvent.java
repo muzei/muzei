@@ -15,9 +15,6 @@
  */
 package com.google.android.apps.muzei.event;
 
-/**
- * Created by devmil on 15.02.14.
- */
 public class DoubleTapActionChangedEvent {
 
     private TapAction mNewAction;

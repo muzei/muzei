@@ -15,9 +15,6 @@
  */
 package com.google.android.apps.muzei.event;
 
-/**
- * Created by devmil on 16.02.14.
- */
 public enum TapAction
 {
     Nothing(0),

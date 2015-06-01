@@ -15,9 +15,6 @@
  */
 package com.google.android.apps.muzei.event;
 
-/**
- * Created by devmil on 16.02.14.
- */
 public class ThreeFingerActionChangedEvent {
 
     private TapAction mNewAction;

@@ -25,7 +25,7 @@
     <string name="settings_notify_new_wallpaper">New wallpaper notifications</string>
     <string name="settings_blur_on_lockscreen">Apply blur on lockscreen</string>
     <string name="settings_doubletap_action_title">2-Tap</string>
-    <string name="settings_threefinger_action_title">3-Fng</string>
+    <string name="settings_threefinger_action_title">3-Finger</string>
     <string name="settings_tap_action_nothing">Nothing</string>
     <string name="settings_tap_action_showoriginal">Show Original Artwork</string>
     <string name="settings_tap_action_next">Next Artwork</string>
