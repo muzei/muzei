@@ -17,14 +17,16 @@ package com.google.android.apps.muzei.event;
 
 public class DoubleTapActionChangedEvent {
 
-    private TapAction mNewAction;
+    @TapAction.Value
+    private int mNewAction;
 
-    public DoubleTapActionChangedEvent(TapAction newAction)
+    public DoubleTapActionChangedEvent(@TapAction.Value int newAction)
     {
         mNewAction = newAction;
     }
 
-    public TapAction getNewAction() {
+    @TapAction.Value
+    public int getNewAction() {
         return mNewAction;
     }
 }

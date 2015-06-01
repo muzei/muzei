@@ -139,10 +139,10 @@ public class SettingsAdvancedFragment extends Fragment
         mDoubleTapActionSpinner = (Spinner)rootView.findViewById(R.id.advanced_settings_doubletapaction_spinner);
 
         TapActionEntry[] entries = new TapActionEntry[] {
-                new TapActionEntry(getString(R.string.settings_tap_action_nothing), TapAction.Nothing),
-                new TapActionEntry(getString(R.string.settings_tap_action_showoriginal), TapAction.ShowOriginalArtwork),
-                new TapActionEntry(getString(R.string.settings_tap_action_next), TapAction.NextArtwork),
-                new TapActionEntry(getString(R.string.settings_tap_action_view), TapAction.ViewArtwork)
+                new TapActionEntry(getString(R.string.settings_tap_action_nothing), TapAction.NOTHING),
+                new TapActionEntry(getString(R.string.settings_tap_action_showoriginal), TapAction.SHOW_ORIGINAL_ARTWORK),
+                new TapActionEntry(getString(R.string.settings_tap_action_next), TapAction.NEXT_ARTWORK),
+                new TapActionEntry(getString(R.string.settings_tap_action_view), TapAction.VIEW_ARTWORK)
         };
 
         ArrayAdapter<TapActionEntry> doubleTapActionSpinnerAdapter =
@@ -151,10 +151,10 @@ public class SettingsAdvancedFragment extends Fragment
                         R.layout.settings_ab_spinner_list_item_dropdown,
                         entries);
 
-        TapAction currentDoubleTapAction = TapAction.fromCode(
-                getSharedPreferences().getInt(
-                        MuzeiWallpaperService.PREF_DOUBLETAPACTION,
-                        TapAction.ShowOriginalArtwork.getCode()));
+        @TapAction.Value
+        int currentDoubleTapAction = getSharedPreferences().getInt(
+                MuzeiWallpaperService.PREF_DOUBLETAPACTION,
+                TapAction.SHOW_ORIGINAL_ARTWORK);
 
         initTapActionSpinner(mDoubleTapActionSpinner, doubleTapActionSpinnerAdapter, entries, currentDoubleTapAction);
 
@@ -162,9 +162,9 @@ public class SettingsAdvancedFragment extends Fragment
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 TapActionEntry entry = (TapActionEntry)parent.getSelectedItem();
-                TapAction newAction = entry.getTapAction();
+                @TapAction.Value int newAction = entry.getTapAction();
                 getSharedPreferences().edit()
-                        .putInt(MuzeiWallpaperService.PREF_DOUBLETAPACTION, newAction.getCode())
+                        .putInt(MuzeiWallpaperService.PREF_DOUBLETAPACTION, newAction)
                         .apply();
                 EventBus.getDefault().post(new DoubleTapActionChangedEvent(newAction));
             }
@@ -184,10 +184,10 @@ public class SettingsAdvancedFragment extends Fragment
                         R.layout.settings_ab_spinner_list_item_dropdown,
                         entries);
 
-        TapAction currentThreeFingerAction = TapAction.fromCode(
-                getSharedPreferences().getInt(
-                        MuzeiWallpaperService.PREF_THREEFINGERACTION,
-                        TapAction.Nothing.getCode()));
+        @TapAction.Value
+        int currentThreeFingerAction = getSharedPreferences().getInt(
+                MuzeiWallpaperService.PREF_THREEFINGERACTION,
+                TapAction.NOTHING);
 
         initTapActionSpinner(mThreeFingerActionSpinner, threeFingerActionSpinnerAdapter, entries, currentThreeFingerAction);
 
@@ -195,9 +195,10 @@ public class SettingsAdvancedFragment extends Fragment
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 TapActionEntry entry = (TapActionEntry)parent.getSelectedItem();
-                TapAction newAction = entry.getTapAction();
+                @TapAction.Value
+                int newAction = entry.getTapAction();
                 getSharedPreferences().edit()
-                        .putInt(MuzeiWallpaperService.PREF_THREEFINGERACTION, newAction.getCode())
+                        .putInt(MuzeiWallpaperService.PREF_THREEFINGERACTION, newAction)
                         .apply();
                 EventBus.getDefault().post(new ThreeFingerActionChangedEvent(newAction));
             }
@@ -240,7 +241,7 @@ public class SettingsAdvancedFragment extends Fragment
         return rootView;
     }
 
-    private void initTapActionSpinner(Spinner tapActionSpinner, ArrayAdapter<TapActionEntry> arrayAdapter, TapActionEntry[] entries, TapAction currentTapAction) {
+    private void initTapActionSpinner(Spinner tapActionSpinner, ArrayAdapter<TapActionEntry> arrayAdapter, TapActionEntry[] entries, @TapAction.Value int currentTapAction) {
         tapActionSpinner.setAdapter(arrayAdapter);
 
         //Search the current action in the provided entries
@@ -323,9 +324,10 @@ public class SettingsAdvancedFragment extends Fragment
     public class TapActionEntry
     {
         private String mName;
-        private TapAction mAction;
+        @TapAction.Value
+        private int mAction;
 
-        public TapActionEntry(String name, TapAction action)
+        public TapActionEntry(String name, @TapAction.Value int action)
         {
             mName = name;
             mAction = action;
@@ -336,7 +338,8 @@ public class SettingsAdvancedFragment extends Fragment
             return mName;
         }
 
-        public TapAction getTapAction()
+        @TapAction.Value
+        public int getTapAction()
         {
             return mAction;
         }

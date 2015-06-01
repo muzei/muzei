@@ -17,14 +17,16 @@ package com.google.android.apps.muzei.event;
 
 public class ThreeFingerActionChangedEvent {
 
-    private TapAction mNewAction;
+    @TapAction.Value
+    private int mNewAction;
 
-    public ThreeFingerActionChangedEvent(TapAction newAction)
+    public ThreeFingerActionChangedEvent(@TapAction.Value int newAction)
     {
         mNewAction = newAction;
     }
 
-    public TapAction getNewAction() {
+    @TapAction.Value
+    public int getNewAction() {
         return mNewAction;
     }
 }

@@ -15,40 +15,19 @@
  */
 package com.google.android.apps.muzei.event;
 
-public enum TapAction
+import android.support.annotation.IntDef;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+public abstract class TapAction
 {
-    Nothing(0),
-    ShowOriginalArtwork(1),
-    NextArtwork(2),
-    ViewArtwork(3);
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({NOTHING, SHOW_ORIGINAL_ARTWORK, NEXT_ARTWORK, VIEW_ARTWORK})
+    public @interface Value {}
 
-
-    //Enum implementation
-
-    private int mCode;
-
-    private TapAction(int code)
-    {
-        mCode = code;
-    }
-
-    public int getCode()
-    {
-        return mCode;
-    }
-
-    public static TapAction fromCode(int code)
-    {
-        switch(code)
-        {
-            case 1:
-                return ShowOriginalArtwork;
-            case 2:
-                return NextArtwork;
-            case 3:
-                return ViewArtwork;
-            default:
-                return Nothing;
-        }
-    }
+    public static final int NOTHING = 0;
+    public static final int SHOW_ORIGINAL_ARTWORK = 1;
+    public static final int NEXT_ARTWORK = 2;
+    public static final int VIEW_ARTWORK = 3;
 }
