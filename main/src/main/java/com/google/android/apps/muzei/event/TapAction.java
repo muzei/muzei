@@ -20,8 +20,12 @@ import android.support.annotation.IntDef;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-public abstract class TapAction
+public final class TapAction
 {
+    private TapAction()
+    {
+    }
+
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({NOTHING, SHOW_ORIGINAL_ARTWORK, NEXT_ARTWORK, VIEW_ARTWORK})
     public @interface Value {}
