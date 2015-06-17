@@ -158,7 +158,7 @@ class ServiceAddFromWikiArtHandler(BaseHandler):
     soup = BeautifulSoup(html)
 
     details_url = re.sub(r'#.+', '', url, re.I | re.S) + '?utm_source=Muzei&utm_campaign=Muzei'
-    title = soup.find(itemprop='name').get_text()
+    title = soup.select('h1 span')[0].get_text()
     author = soup.find(itemprop='author').get_text()
     completion_year_el = soup.find(itemprop='dateCreated')
     byline = author + ((', ' + completion_year_el.get_text()) if completion_year_el else '')
