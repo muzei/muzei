@@ -35,6 +35,17 @@ THUMB_HEIGHT=600
 NO_CROP_TUPLE=(0, 0, 1, 1)
 
 
+def artwork_dict(a):
+  return dict(
+      id=a.key().id(),
+      title=a.title,
+      byline=a.byline,
+      imageUri=a.image_url,
+      thumbUri=a.thumb_url,
+      detailsUri=a.details_url,
+      publishDate=date_to_timestamp(a.publish_date),)
+
+
 class ServiceListHandler(BaseHandler):
   def get(self):
     self.response.headers['Content-Type'] = 'application/json'
@@ -49,15 +60,7 @@ class ServiceListHandler(BaseHandler):
         .filter('publish_date >=', start)
         .order('publish_date')
         .fetch(1000))
-    return json.dumps([dict(
-        id=a.key().id(),
-        title=a.title,
-        byline=a.byline,
-        imageUri=a.image_url,
-        thumbUri=a.thumb_url,
-        detailsUri=a.details_url,
-        publishDate=date_to_timestamp(a.publish_date),)
-        for a in queue])
+    return json.dumps([artwork_dict(a) for a in queue])
 
 
 def maybe_process_image(image_url, crop_tuple, base_name):
@@ -141,28 +144,41 @@ class ServiceAddHandler(BaseHandler):
     self.response.set_status(200)
 
 
-class ServiceAddFromWikiArtHandler(BaseHandler):
+class ServiceAddFromExternalArtworkUrlHandler(BaseHandler):
   def post(self):
-    wikiart_url = self.request.get('wikiArtUrl')
-    result = urlfetch.fetch(wikiart_url)
+    external_artwork_url = self.request.get('externalArtworkUrl')
+    result = urlfetch.fetch(external_artwork_url)
     if result.status_code < 200 or result.status_code >= 300:
       self.response.out.write('Error processing URL: HTTP %d. Content: %s'
           % (result.status_code, result.content))
       self.response.set_status(500)
       return
 
-    self.process_html(wikiart_url, result.content)
+    self.process_html(external_artwork_url, result.content)
 
 
   def process_html(self, url, html):
     soup = BeautifulSoup(html)
 
-    details_url = re.sub(r'#.+', '', url, re.I | re.S) + '?utm_source=Muzei&utm_campaign=Muzei'
-    title = soup.select('h1 span')[0].get_text()
-    author = soup.find(itemprop='author').get_text()
-    completion_year_el = soup.find(itemprop='dateCreated')
-    byline = author + ((', ' + completion_year_el.get_text()) if completion_year_el else '')
-    image_url = soup.find(id='paintingImage')['href']
+    if re.search(r'wikiart.org', url, re.I):
+      details_url = re.sub(r'#.+', '', url, re.I | re.S) + '?utm_source=Muzei&utm_campaign=Muzei'
+      title = soup.select('h1 span')[0].get_text()
+      author = soup.find(itemprop='author').get_text()
+      completion_year_el = soup.find(itemprop='dateCreated')
+      byline = author + ((', ' + completion_year_el.get_text()) if completion_year_el else '')
+      image_url = soup.find(id='paintingImage')['href']
+    elif re.search(r'metmuseum.org', url, re.I):
+      details_url = re.sub(r'[#?].+', '', url, re.I | re.S) + '?utm_source=Muzei&utm_campaign=Muzei'
+      title = soup.find('h2').get_text()
+      author = unicode(soup.find(text='Artist:').parent.next_sibling).strip()
+      author = re.sub(r'\s*\(.*', '', author)
+      completion_year_el = unicode(soup.find(text='Date:').parent.next_sibling).strip()
+      byline = author + ((', ' + completion_year_el) if completion_year_el else '')
+      image_url = soup.find('a', class_='download').attrs['href']
+    else:
+      self.response.out.write('Unrecognized URL')
+      self.response.set_status(500)
+      return      
 
     if not title or not author or not image_url:
       self.response.out.write('Could not parse HTML')
@@ -185,7 +201,9 @@ class ServiceAddFromWikiArtHandler(BaseHandler):
         details_url=details_url,
         publish_date=publish_date)
     new_artwork.save()
+
     self.response.set_status(200)
+    self.response.out.write(json.dumps(artwork_dict(new_artwork)))
 
 
 class ServiceEditHandler(BaseHandler):
@@ -214,7 +232,9 @@ class ServiceEditHandler(BaseHandler):
     target_artwork.thumb_url = new_thumb_url
     target_artwork.details_url = artwork_json['detailsUri']
     target_artwork.save()
+
     self.response.set_status(200)
+    self.response.out.write(json.dumps(artwork_dict(target_artwork)))
 
 
 class ServiceMoveHandler(BaseHandler):
@@ -268,7 +288,7 @@ class ScheduleHandler(BaseHandler):
 app = webapp2.WSGIApplication([
     ('/backroom/s/list', ServiceListHandler),
     ('/backroom/s/add', ServiceAddHandler),
-    ('/backroom/s/addfromwikiart', ServiceAddFromWikiArtHandler),
+    ('/backroom/s/addfromexternal', ServiceAddFromExternalArtworkUrlHandler),
     ('/backroom/s/edit', ServiceEditHandler),
     ('/backroom/s/remove', ServiceRemoveHandler),
     ('/backroom/s/move', ServiceMoveHandler),

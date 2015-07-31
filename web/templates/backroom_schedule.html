@@ -338,7 +338,7 @@
     </div>
   </div>
   <div class="button-row">
-    <button id="editor-addfromwikiarturl" style="margin-right: 50px">Add from WikiArt URL</button>
+    <button id="editor-addfromexternal" style="margin-right: 50px">Add from WikiArt or MET URL</button>
     <button id="editor-cancel">Cancel</button>
     <button id="editor-save">Save</button>
   </div>
@@ -431,24 +431,26 @@ function addArtwork(artwork, crop, callback) {
   $.ajax({
     type: 'post',
     url: 's/add',
-    data: { json: JSON.stringify(artwork), crop: JSON.stringify(crop) }
-  }).done(function() {
+    data: { json: JSON.stringify(artwork), crop: JSON.stringify(crop) },
+    dataType: 'json'
+  }).done(function(artwork) {
     setTimeout(reloadArtworksForCurrentMonth, 500);
-    callback();
+    callback(artwork);
   }).fail(function() {
     alert('error adding');
   });
 }
 
-function addArtworkFromWikiArtUrl(url, publishDate, callback) {
+function addArtworkFromExternalArtworkUrl(url, publishDate, callback) {
   callback = callback || function(){};
   $.ajax({
     type: 'post',
-    url: 's/addfromwikiart',
-    data: { wikiArtUrl: url, publishDate: publishDate }
-  }).done(function() {
+    url: 's/addfromexternal',
+    data: { externalArtworkUrl: url, publishDate: publishDate },
+    dataType: 'json'
+  }).done(function(artwork) {
     setTimeout(reloadArtworksForCurrentMonth, 500);
-    callback();
+    callback(artwork);
   }).fail(function() {
     alert('error adding');
   });
@@ -702,18 +704,24 @@ function renderCalendar() {
   var $thumburlvisit = $('#editor-thumburl-visit');
   var $json = $('#editor-json');
   var $editorsave = $('#editor-save');
-  var $addfromwikiarturl = $('#editor-addfromwikiarturl')
+  var $addfromexternal = $('#editor-addfromexternal')
 
   function setupEditor() {
     $('#editor-cancel').click(function() {
       hideEditor();
     });
 
-    $addfromwikiarturl.click(function() {
-      var url = window.prompt('Enter WikiArt detail URL');
+    $addfromexternal.click(function() {
+      var url = window.prompt('Enter artwork detail URL (must be WikiArt or MET)');
       if (url) {
-        addArtworkFromWikiArtUrl(url, g_editorState.publishDate, function() {
-          hideEditor();
+        addArtworkFromExternalArtworkUrl(url, g_editorState.publishDate, function(artwork) {
+          console.log(artwork);
+          //hideEditor();
+          showEditor({
+            action: 'edit',
+            id: artwork.id,
+            artwork: artwork
+          });
         });
       }
     });
@@ -869,10 +877,10 @@ function renderCalendar() {
       delete clonedArtwork.publishDate;
       delete clonedArtwork.id;
       $json.val(JSON.stringify(clonedArtwork, null, 2));
-      $addfromwikiarturl.hide();
+      $addfromexternal.hide();
     } else {
       editorFieldsToJson();
-      $addfromwikiarturl.show();
+      $addfromexternal.show();
     }
 
     updateEditorState();
