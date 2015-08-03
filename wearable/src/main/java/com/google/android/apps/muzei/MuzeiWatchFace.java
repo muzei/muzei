@@ -328,6 +328,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
             Paint.Align textAlign = mIsRound ? Paint.Align.CENTER : Paint.Align.RIGHT;
             mClockPaint.setTextAlign(textAlign);
             mClockAmbientShadowPaint.setTextAlign(textAlign);
+            mDateAmbientShadowPaint.setTextAlign(textAlign);
             mDatePaint.setTextAlign(textAlign);
             float textSize = getResources().getDimension(mIsRound
                     ? R.dimen.clock_text_size_round
