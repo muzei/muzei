@@ -221,7 +221,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
             mClockAmbientShadowPaint = new Paint(mClockPaint);
             mClockAmbientShadowPaint.setColor(Color.TRANSPARENT);
             mClockAmbientShadowPaint.setShadowLayer(
-                    8f * densityMultiplier, 0, 3f * densityMultiplier,
+                    6f * densityMultiplier, 0, 2f * densityMultiplier,
                     0x66000000);
 
             mDatePaint = new Paint();
@@ -238,7 +238,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
             mDateAmbientShadowPaint = new Paint(mDatePaint);
             mDateAmbientShadowPaint.setColor(Color.TRANSPARENT);
             mDateAmbientShadowPaint.setShadowLayer(
-                    8f * densityMultiplier, 0, 3f * densityMultiplier,
+                    4f * densityMultiplier, 0, 2f * densityMultiplier,
                     0x66000000);
             recomputeDateMonthFirst();
         }
