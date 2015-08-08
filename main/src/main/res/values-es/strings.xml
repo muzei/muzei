@@ -1,0 +1,122 @@
+<!--
+  Copyright 2014 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+
+    <string name="settings_title">Ajustes de Muzei</string>
+    <string name="settings_blur_amount_title">Desenfoque</string>
+    <string name="settings_dim_amount_title">Oscurecimiento</string>
+    <string name="settings_grey_amount_title">Gris</string>
+    <string name="settings_notify_new_wallpaper">Notificaciones de nuevo fondo de pantalla</string>
+    <string name="settings_blur_on_lockscreen">Aplicar desenfoque en la pantalla de bloqueo</string>
+
+    <string name="notification_new_wallpaper">Nuevo fondo de pantalla</string>
+
+    <string name="gallery_source_title">Mis fotos</string>
+    <string name="gallery_source_description">Fotos de la cámara aleatorias</string>
+    <plurals name="gallery_source_description_choice_template">
+        <item quantity="one">1 foto</item>
+        <item quantity="other">%1$d fotos</item>
+    </plurals>
+    <string name="gallery_source_settings_title">Mis Fotos</string>
+    <string name="gallery_source_settings_empty">Fotos de la cámara aleatorias</string>
+    <string name="gallery_source_settings_empty_subtitle">Selecciona fotos específicas</string>
+    <string name="gallery_source_temporary_force_image">Imagen seleccionada aplicada como fondo de pantalla.</string>
+    <string name="gallery_source_from_gallery">De tu galería</string>
+    <string name="gallery_source_touch_to_view">Toca para ver</string>
+
+    <string name="dummy_source_title">Fuente de ejemplo</string>
+    <string name="dummy_source_description">Obras de ejemplo</string>
+
+    <string name="featuredart_source_title">Arte destacado</string>
+    <string name="featuredart_source_description">Un nuevo cuadro cada día</string>
+    <string name="featuredart_source_error_no_artwork_to_share">Ninguna obra para compartir.</string>
+    <string name="featuredart_source_action_view_archive">Ver archivo</string>
+
+    <string name="webstream_source_title">De la web</string>
+    <string name="webstream_source_description">Obras de Internet</string>
+
+    <string name="action_activate">Activar</string>
+    <string name="action_settings">Personalizar</string>
+    <string name="action_source_settings">Personalizar fuente</string>
+
+    <string name="contentdesc_overflow">Más opciones</string>
+    <string name="error_view_details">No se han podido ver los detalles de la obra.</string>
+    <string name="error_easter_egg">Hmm, parece que esta imagen no se está cargando. Grumpy McPuzzles lo siente mucho, y recomienda probar una fuente distinta.</string>
+    <string name="error_wallpaper_chooser">No se ha podido abrir el selector de fondos de pantalla. Puedes activar Muzei seleccionando \'Fondos animados\' en el selector de fondos de la pantalla principal.</string>
+
+    <string name="section_choose_source">Fuentes</string>
+    <string name="section_advanced">Avanzado</string>
+
+    <string name="action_previous_artwork">Obra anterior</string>
+    <string name="action_next_artwork">Obra siguiente</string>
+    <string name="action_next_artwork_condensed">Siguiente</string>
+    <string name="action_user_command">Más</string>
+    <string name="action_user_command_prompt">Seleccionar acción</string>
+    <string name="action_open_details">Más información</string>
+
+    <string name="done">Hecho</string>
+    <string name="retry">Reintentar</string>
+
+    <string name="action_clear_photos">Borrar todas las fotos</string>
+    <string name="action_add_photos">Añadir fotos</string>
+    <string name="action_rotate_interval">Ajustar intervalo</string>
+    <string name="action_rotate_interval_none">No cambiar fondo de pantalla</string>
+    <string name="action_rotate_interval_1h">Cada hora</string>
+    <string name="action_rotate_interval_3h">Cada 3 horas</string>
+    <string name="action_rotate_interval_6h">Cada 6 horas</string>
+    <string name="action_rotate_interval_24h">Cada 24 horas</string>
+    <string name="action_rotate_interval_72h">Cada 3 días</string>
+    <string name="action_share_artwork">Compartir obra</string>
+
+    <string name="action_force_now">Usar como fondo de pantalla ahora</string>
+    <string name="action_remove">Borrar</string>
+
+    <string name="set_as_wallpaper_using_muzei">Fondo de pantalla (usando Muzei)</string>
+
+    <string name="tutorial_main">Abre la aplicación Muzei para ver tu fondo de pantalla.</string>
+    <string name="tutorial_subtitle">Haz doble clic sobre el fondo desenfocado en la pantalla de inicio para verlo en alta calidad.</string>
+
+    <string name="get_more_sources">Conseguir más fuentes</string>
+    <string name="reset_advanced_settings_defaults">Resetear ajustes de imagen</string>
+    <string name="play_store_not_found">No se pudo abrir Play Store.</string>
+
+    <string name="about_title">Acerca de Muzei</string>
+        <string name="about_body"><![CDATA[
+        Desarrollado en Nueva York por Roman Nurik, con muchas <a href="http://code.muzei.co">contribuciones
+        de la comunidad</a>. <i>Muzei</i> es una transliteración de la palabra rusa
+        <a href="http://translate.google.com/#es/ru/museo"><i>музей</i></a>, que significa
+        &#8220;museo&#8221;.<br><br>
+
+        Copyright 2013&ndash;2014 Google Inc.<br>
+        Todos los Derechos Reservados.<br><br>
+
+        <a href="http://m.google.com/utos">Términos de Servicio</a>,
+        <a href="http://www.google.com/policies/privacy/">Política de Privacidad</a>&nbsp;<br><br>
+
+        Muchas gracias a estos proyectos de software libre:<br><br>
+
+        <b><a href="http://square.github.io/okhttp/">OkHttp</a> y <a href="http://square.github.io/picasso/">Picasso</a>&nbsp;</b><br>
+        <i>de Square</i><br><br>
+
+        <b><a href="https://github.com/greenrobot/EventBus">EventBus</a>&nbsp;</b><br>
+        <i>de greenrobot</i><br><br>
+
+        <b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a>&nbsp;</b><br>
+        <i>de Robert Green, Mark F. Guerra, and others</i><br><br>
+    ]]></string>
+
+</resources>
