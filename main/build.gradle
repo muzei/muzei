@@ -36,7 +36,7 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
 
     def Properties versionProps = new Properties()
-    versionProps.load(new FileInputStream(file('version.properties')))
+    versionProps.load(new FileInputStream(file('../version.properties')))
 
     defaultConfig {
         minSdkVersion 17
