@@ -20,6 +20,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -32,6 +33,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
@@ -43,6 +45,7 @@ import android.view.SurfaceHolder;
 import android.view.WindowInsets;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
+import com.google.android.apps.muzei.util.ImageBlurrer;
 
 import net.nurik.roman.muzei.R;
 
@@ -61,10 +64,15 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
     private static final String TAG = "MuzeiWatchFace";
 
     /**
+     * Preference key for saving whether the watch face is blurred
+     */
+    private static final String BLURRED_PREF_KEY = "BLURRED";
+
+
+    /**
      * Update rate in milliseconds for normal (not ambient and not mute) mode.
      */
     private static final long NORMAL_UPDATE_RATE_MS = TimeUnit.MINUTES.toMillis(1);
-
     /**
      * Update rate in milliseconds for mute mode. We update every minute, like in ambient mode.
      */
@@ -172,6 +180,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
                 }
             }
         };
+        Bitmap mBackgroundScaledBlurredBitmap;
         Bitmap mBackgroundScaledBitmap;
         Bitmap mBackgroundBitmap;
         float mClockMargin;
@@ -188,6 +197,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
          */
         boolean mLowBitAmbient;
         boolean mIsRound;
+        boolean mBlurred;
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -197,6 +207,9 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
             super.onCreate(holder);
 
             mMute = getInterruptionFilter() == WatchFaceService.INTERRUPTION_FILTER_NONE;
+            SharedPreferences preferences =
+                    PreferenceManager.getDefaultSharedPreferences(MuzeiWatchFace.this);
+            mBlurred = preferences.getBoolean(BLURRED_PREF_KEY, false);
             updateWatchFaceStyle();
 
             mTime = new Time();
@@ -274,11 +287,13 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
             setWatchFaceStyle(new WatchFaceStyle.Builder(MuzeiWatchFace.this)
                     .setBackgroundVisibility(WatchFaceStyle.BACKGROUND_VISIBILITY_INTERRUPTIVE)
                     .setCardPeekMode(WatchFaceStyle.PEEK_MODE_VARIABLE)
-                    .setPeekOpacityMode(WatchFaceStyle.PEEK_OPACITY_MODE_TRANSLUCENT)
+                    .setPeekOpacityMode(mBlurred ? WatchFaceStyle.PEEK_OPACITY_MODE_TRANSLUCENT
+                            : WatchFaceStyle.PEEK_OPACITY_MODE_OPAQUE)
                     .setStatusBarGravity(Gravity.TOP | Gravity.START)
                     .setHotwordIndicatorGravity(Gravity.TOP | Gravity.START)
-                    .setViewProtection(WatchFaceStyle.PROTECT_HOTWORD_INDICATOR |
+                    .setViewProtectionMode(mBlurred ? 0 : WatchFaceStyle.PROTECT_HOTWORD_INDICATOR |
                             WatchFaceStyle.PROTECT_STATUS_BAR)
+                    .setAcceptsTapEvents(true)
                     .setShowUnreadCountIndicator(!mMute)
                     .build());
         }
@@ -321,6 +336,10 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
                         (int) (scalingFactor * mBackgroundBitmap.getHeight()),
                         true /* filter */);
             }
+            ImageBlurrer blurrer = new ImageBlurrer(MuzeiWatchFace.this);
+            mBackgroundScaledBlurredBitmap = blurrer.blurBitmap(mBackgroundScaledBitmap,
+                    ImageBlurrer.MAX_SUPPORTED_BLUR_PIXELS / 2, 0f);
+            blurrer.destroy();
         }
 
         @Override
@@ -449,6 +468,23 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
         }
 
         @Override
+        public void onTapCommand(@TapType int tapType, int x, int y, long eventTime) {
+            switch (tapType) {
+                case WatchFaceService.TAP_TYPE_TAP:
+                    mBlurred = !mBlurred;
+                    SharedPreferences preferences =
+                            PreferenceManager.getDefaultSharedPreferences(MuzeiWatchFace.this);
+                    preferences.edit().putBoolean(BLURRED_PREF_KEY, mBlurred).apply();
+                    updateWatchFaceStyle();
+                    invalidate();
+                    break;
+                default:
+                    super.onTapCommand(tapType, x, y, eventTime);
+                    break;
+            }
+        }
+
+        @Override
         public void onAmbientModeChanged(boolean inAmbientMode) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "onAmbientModeChanged: " + inAmbientMode);
@@ -505,13 +541,19 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
             int height = canvas.getHeight();
 
             // Draw the background
-            if (mAmbient || mBackgroundScaledBitmap == null) {
+            Bitmap background = mBlurred
+                    ? mBackgroundScaledBlurredBitmap
+                    : mBackgroundScaledBitmap;
+            if (mAmbient || background == null) {
                 canvas.drawRect(0, 0, width, height, mBackgroundPaint);
             } else {
                 // Draw the scaled background
-                canvas.drawBitmap(mBackgroundScaledBitmap,
-                        (width - mBackgroundScaledBitmap.getWidth()) / 2,
-                        (height - mBackgroundScaledBitmap.getHeight()) / 2, null);
+                canvas.drawBitmap(background,
+                        (width - background.getWidth()) / 2,
+                        (height - background.getHeight()) / 2, null);
+                if (mBlurred) {
+                    canvas.drawColor(Color.argb(68, 0, 0, 0));
+                }
             }
 
             // Draw the time
@@ -525,10 +567,12 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
                     ? Math.min((height + mClockTextHeight) / 2,
                     (mCardBounds.top == 0 ? height : mCardBounds.top) - mClockMargin)
                     : mClockTextHeight + mClockMargin;
-            canvas.drawText(formattedTime,
-                    xOffset,
-                    yOffset,
-                    mClockAmbientShadowPaint);
+            if (!mBlurred) {
+                canvas.drawText(formattedTime,
+                        xOffset,
+                        yOffset,
+                        mClockAmbientShadowPaint);
+            }
             canvas.drawText(formattedTime,
                     xOffset,
                     yOffset,
@@ -552,10 +596,12 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
                 float yDateOffset = mIsRound
                         ? yOffset - mClockTextHeight - mClockMargin // date above centered time
                         : yOffset + mDateTextHeight + mClockMargin; // date below top|right time
-                canvas.drawText(formattedDate,
-                        xOffset,
-                        yDateOffset,
-                        mDateAmbientShadowPaint);
+                if (!mBlurred) {
+                    canvas.drawText(formattedDate,
+                            xOffset,
+                            yDateOffset,
+                            mDateAmbientShadowPaint);
+                }
                 canvas.drawText(formattedDate,
                         xOffset,
                         yDateOffset,
