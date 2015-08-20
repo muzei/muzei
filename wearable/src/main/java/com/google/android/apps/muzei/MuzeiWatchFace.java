@@ -175,6 +175,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
         Bitmap mBackgroundScaledBitmap;
         Bitmap mBackgroundBitmap;
         float mClockMargin;
+        float mDateMinAvailableMargin;
         boolean mAmbient;
         boolean mMute;
         Time mTime;
@@ -200,6 +201,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
 
             mTime = new Time();
             mClockMargin = getResources().getDimension(R.dimen.clock_margin);
+            mDateMinAvailableMargin = getResources().getDimension(R.dimen.date_min_available_margin);
             mBackgroundPaint = new Paint();
             mBackgroundPaint.setColor(Color.BLACK);
             mHeavyTypeface = Typeface.createFromAsset(getAssets(), "NunitoClock-Bold.ttf");
@@ -532,23 +534,33 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
                     yOffset,
                     mClockPaint);
 
-            // Draw the date
-            String formattedDate = mTime.format(mDateMonthFirst
-                    ? FORMAT_DATE_MONTH_FIRST
-                    : FORMAT_DATE_DAY_FIRST);
-            float yDateOffset = mIsRound
-                    ? yOffset - mClockTextHeight - mClockMargin // date above centered time
-                    : yOffset + mDateTextHeight + mClockMargin; // date below top|right time
-            canvas.drawText(formattedDate,
-                    xOffset,
-                    yDateOffset,
-                    mDateAmbientShadowPaint);
-            canvas.drawText(formattedDate,
-                    xOffset,
-                    yDateOffset,
-                    mDatePaint);
+            // If no card is visible, we have the entire screen.
+            // Otherwise, only the space above the card is available
+            float spaceAvailable = mCardBounds.top == 0 ? height : mCardBounds.top;
+            // Compute the height of the clock and date
+            float clockHeight = mClockTextHeight + mClockMargin;
+            float dateHeight = mDateTextHeight + mClockMargin;
+
+            // Only show the date if the height of the clock + date + margin fits in the
+            // available space Otherwise it may be obstructed by an app icon (square)
+            // or unread notification / charging indicator (round)
+            if (clockHeight + dateHeight + mDateMinAvailableMargin < spaceAvailable) {
+                // Draw the date
+                String formattedDate = mTime.format(mDateMonthFirst
+                        ? FORMAT_DATE_MONTH_FIRST
+                        : FORMAT_DATE_DAY_FIRST);
+                float yDateOffset = mIsRound
+                        ? yOffset - mClockTextHeight - mClockMargin // date above centered time
+                        : yOffset + mDateTextHeight + mClockMargin; // date below top|right time
+                canvas.drawText(formattedDate,
+                        xOffset,
+                        yDateOffset,
+                        mDateAmbientShadowPaint);
+                canvas.drawText(formattedDate,
+                        xOffset,
+                        yDateOffset,
+                        mDatePaint);
+            }
         }
-
-
     }
 }
