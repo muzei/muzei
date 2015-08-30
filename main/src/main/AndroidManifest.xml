@@ -45,6 +45,16 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter android:label="Muzei">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Accepts URIs that begin with "muzei://main" -->
+                <data
+                    android:host="main"
+                    android:scheme="muzei" />
+            </intent-filter>
         </activity>
 
         <service
@@ -113,7 +123,18 @@
             android:label="@string/gallery_source_settings_title"
             android:parentActivityName="com.google.android.apps.muzei.settings.SettingsActivity"
             android:theme="@style/Theme.Muzei.GallerySettings"
-            android:exported="true" />
+            android:exported="true">
+            <intent-filter android:label="Muzei">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Accepts URIs that begin with "muzei://settings" -->
+                <data
+                    android:host="settings"
+                    android:scheme="muzei" />
+            </intent-filter>
+        </activity>
 
         <!-- Target for "Set As" intent -->
 
