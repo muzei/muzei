@@ -158,7 +158,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
         Paint mDatePaint;
         Paint mDateAmbientShadowPaint;
         float mDateTextHeight;
-        String mDateFormat;
+        SimpleDateFormat mDateFormat;
 
         /**
          * Handler to update the time periodically in interactive mode.
@@ -270,7 +270,8 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
         }
 
         private void recomputeDateFormat() {
-            mDateFormat = DateFormat.getBestDateTimePattern(Locale.getDefault(), "Md");
+            String bestPattern = DateFormat.getBestDateTimePattern(Locale.getDefault(), "Md");
+            mDateFormat = new SimpleDateFormat(bestPattern, Locale.getDefault());
         }
 
         private void updateWatchFaceStyle() {
@@ -580,8 +581,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
             // or unread notification / charging indicator (round)
             if (clockHeight + dateHeight + mDateMinAvailableMargin < spaceAvailable) {
                 // Draw the date
-                java.text.DateFormat sdf = new SimpleDateFormat(mDateFormat, Locale.getDefault());
-                String formattedDate = sdf.format(mTime.toMillis(false));
+                String formattedDate = mDateFormat.format(mTime.toMillis(false));
                 float yDateOffset = mIsRound
                         ? yOffset - mClockTextHeight - mClockMargin // date above centered time
                         : yOffset + mDateTextHeight + mClockMargin; // date below top|right time
