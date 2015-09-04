@@ -51,6 +51,8 @@ import net.nurik.roman.muzei.R;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -80,8 +82,6 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
 
     private static final String FORMAT_12_HR = "%l:%M";
     private static final String FORMAT_24_HR = "%H:%M";
-    private static final String FORMAT_DATE_MONTH_FIRST = "%m/%d";
-    private static final String FORMAT_DATE_DAY_FIRST = "%d-%m";
 
     @Override
     public Engine onCreateEngine() {
@@ -135,7 +135,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
         final BroadcastReceiver mLocaleChangedReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                recomputeDateMonthFirst();
+                recomputeDateFormat();
                 invalidate();
             }
         };
@@ -158,7 +158,8 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
         Paint mDatePaint;
         Paint mDateAmbientShadowPaint;
         float mDateTextHeight;
-        boolean mDateMonthFirst;
+        SimpleDateFormat mDateFormat;
+
         /**
          * Handler to update the time periodically in interactive mode.
          */
@@ -255,7 +256,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
             mDateAmbientShadowPaint.setShadowLayer(
                     4f * densityMultiplier, 0, 2f * densityMultiplier,
                     0x66000000);
-            recomputeDateMonthFirst();
+            recomputeDateFormat();
         }
 
         private void recomputeClockTextHeight() {
@@ -268,19 +269,9 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
             mDateTextHeight = -fm.top;
         }
 
-        private void recomputeDateMonthFirst() {
-            char[] dateFormatOrder = DateFormat.getDateFormatOrder(MuzeiWatchFace.this);
-            for (char current : dateFormatOrder) {
-                if (current == 'd') {
-                    // Found the day first
-                    mDateMonthFirst = false;
-                    break;
-                } else if (current == 'M') {
-                    // Found the month first
-                    mDateMonthFirst = true;
-                    break;
-                }
-            }
+        private void recomputeDateFormat() {
+            String bestPattern = DateFormat.getBestDateTimePattern(Locale.getDefault(), "Md");
+            mDateFormat = new SimpleDateFormat(bestPattern, Locale.getDefault());
         }
 
         private void updateWatchFaceStyle() {
@@ -590,9 +581,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
             // or unread notification / charging indicator (round)
             if (clockHeight + dateHeight + mDateMinAvailableMargin < spaceAvailable) {
                 // Draw the date
-                String formattedDate = mTime.format(mDateMonthFirst
-                        ? FORMAT_DATE_MONTH_FIRST
-                        : FORMAT_DATE_DAY_FIRST);
+                String formattedDate = mDateFormat.format(mTime.toMillis(false));
                 float yDateOffset = mIsRound
                         ? yOffset - mClockTextHeight - mClockMargin // date above centered time
                         : yOffset + mDateTextHeight + mClockMargin; // date below top|right time
