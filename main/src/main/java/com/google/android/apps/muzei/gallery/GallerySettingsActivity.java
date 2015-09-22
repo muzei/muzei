@@ -531,13 +531,14 @@ public class GallerySettingsActivity extends ActionBarActivity {
         ArrayList<Uri> uris = new ArrayList<>();
         if (result.getData() != null) {
             uris.add(result.getData());
-        } else {
-            ClipData clipData = result.getClipData();
-            if (clipData != null) {
-                int count = clipData.getItemCount();
-                for (int i = 0; i < count; i++) {
-                    uris.add(clipData.getItemAt(i).getUri());
-                }
+        }
+        // When selecting multiple images, "Photos" returns the first URI in getData and all URIs
+        // in getClipData.
+        ClipData clipData = result.getClipData();
+        if (clipData != null) {
+            int count = clipData.getItemCount();
+            for (int i = 0; i < count; i++) {
+                uris.add(clipData.getItemAt(i).getUri());
             }
         }
 
