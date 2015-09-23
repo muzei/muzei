@@ -528,7 +528,7 @@ public class GallerySettingsActivity extends ActionBarActivity {
         }
 
         // Add chosen items
-        ArrayList<Uri> uris = new ArrayList<>();
+        Set<Uri> uris = new HashSet<>();
         if (result.getData() != null) {
             uris.add(result.getData());
         }
@@ -545,7 +545,7 @@ public class GallerySettingsActivity extends ActionBarActivity {
         // Update chosen URIs
         startService(new Intent(GallerySettingsActivity.this, GalleryArtSource.class)
                 .setAction(ACTION_ADD_CHOSEN_URIS)
-                .putParcelableArrayListExtra(EXTRA_URIS, uris));
+                .putParcelableArrayListExtra(EXTRA_URIS, new ArrayList<>(uris)));
     }
 
     public void onEventMainThread(GalleryChosenUrisChangedEvent e) {
