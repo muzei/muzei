@@ -67,7 +67,7 @@ def maybe_process_image(image_url, crop_tuple, base_name):
   if CLOUD_STORAGE_ROOT_URL in image_url and crop_tuple == NO_CROP_TUPLE:
     return (image_url, None)
 
-  image_result = urlfetch.fetch(image_url)
+  image_result = urlfetch.fetch(image_url, deadline=20)
   if image_result.status_code < 200 or image_result.status_code >= 300:
     raise IOError('Error downloading image: HTTP %d.' % image_result.status_code)
 

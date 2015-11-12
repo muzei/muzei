@@ -388,8 +388,9 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
                         // issues with RenderScript allocations.
                         Bitmap scaledBitmap = Bitmap.createScaledBitmap(
                                 tempBitmap, scaledWidth, scaledHeight, true);
-
-                        tempBitmap.recycle();
+                        if (tempBitmap != scaledBitmap) {
+                            tempBitmap.recycle();
+                        }
 
                         // And finally, create a blurred copy for each keyframe.
                         for (int f = 1; f <= mBlurKeyframes; f++) {
