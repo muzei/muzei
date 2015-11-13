@@ -18,6 +18,8 @@ import org.gradle.api.artifacts.maven.MavenDeployment
 apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'java'
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 
 jar.baseName = 'muzei-api'
 group = 'com.google.android.apps.muzei'
