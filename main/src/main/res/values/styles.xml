@@ -78,6 +78,10 @@
         <item name="colorAccent">@color/theme_accent</item>
     </style>
 
+    <style name="Theme.Muzei.Dialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/theme_primary</item>
+    </style>
+
     <style name="ThemeOverlay.Muzei.Toolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="android:dropDownListViewStyle">@style/Widget.Muzei.ListView.DropDown</item>
         <item name="android:popupMenuStyle">@style/Widget.Muzei.PopupMenu</item>

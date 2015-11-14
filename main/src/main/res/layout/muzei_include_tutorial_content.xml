@@ -21,44 +21,58 @@
     android:layout_height="match_parent"
     android:gravity="center">
 
-    <FrameLayout android:layout_width="wrap_content"
+    <RelativeLayout android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:layout_marginTop="@dimen/tutorial_content_margin">
 
-        <LinearLayout android:id="@+id/tutorial_icon_affordance"
-            android:orientation="vertical"
+        <ImageView
+            android:id="@+id/tutorial_icon_emanate"
+            android:layout_width="144dp"
+            android:layout_height="144dp"
+            android:layout_centerInParent="true" />
+
+        <FrameLayout
+            android:id="@+id/tutorial_icon_affordance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
             android:clickable="true"
-            android:focusable="true"
-            android:layout_gravity="center"
-            android:gravity="center">
+            android:focusable="true">
 
-            <ImageView android:layout_width="wrap_content"
+            <ImageView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/tutorial_icon"
                 android:contentDescription="@string/app_name"
-                android:duplicateParentState="true" />
+                android:src="@drawable/tutorial_icon" />
 
-            <com.google.android.apps.muzei.util.ShadowDipsTextView
-                android:layout_width="match_parent"
+            <ImageView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="-8dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="16dp"
-                android:fontFamily="sans-serif-condensed"
-                android:textColor="#fff"
-                android:textSize="16sp"
-                android:gravity="center_horizontal"
-                app:shadowColor="#8000"
-                app:shadowDx="0dp"
-                app:shadowDy="1dp"
-                app:shadowRadius="3dp"
-                android:text="@string/app_name" />
+                android:duplicateParentState="true"
+                android:stateListAnimator="@animator/tutorial_icon_overlay_state_list"
+                android:src="@drawable/tutorial_icon_on_overlay" />
+        </FrameLayout>
 
-        </LinearLayout>
-    </FrameLayout>
+        <com.google.android.apps.muzei.util.ShadowDipsTextView
+            android:id="@+id/tutorial_icon_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-8dp"
+            android:layout_below="@id/tutorial_icon_affordance"
+            android:layout_centerHorizontal="true"
+            android:paddingTop="4dp"
+            android:paddingBottom="16dp"
+            android:fontFamily="sans-serif-condensed"
+            android:textColor="#fff"
+            android:textSize="16sp"
+            app:shadowColor="#8000"
+            app:shadowDx="0dp"
+            app:shadowDy="1dp"
+            app:shadowRadius="3dp"
+            android:text="@string/app_name" />
+
+    </RelativeLayout>
 
     <com.google.android.apps.muzei.util.ShadowDipsTextView
         android:id="@+id/tutorial_main_text"

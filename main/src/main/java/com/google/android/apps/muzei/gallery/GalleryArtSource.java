@@ -20,12 +20,15 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Address;
 import android.location.Geocoder;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 
@@ -35,6 +38,7 @@ import com.google.android.apps.muzei.event.GalleryChosenUrisChangedEvent;
 import com.google.android.apps.muzei.util.IOUtil;
 import com.google.android.apps.muzei.util.LogUtil;
 
+import net.nurik.roman.muzei.Manifest;
 import net.nurik.roman.muzei.R;
 
 import java.io.File;
@@ -268,6 +272,12 @@ public class GalleryArtSource extends MuzeiArtSource {
 
         } else {
             useStoredFile = false;
+            if (ContextCompat.checkSelfPermission(this,
+                    android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                LOGW(TAG, "Missing read external storage permission.");
+                return;
+            }
             Cursor cursor = getContentResolver().query(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                     ImagesQuery.PROJECTION,

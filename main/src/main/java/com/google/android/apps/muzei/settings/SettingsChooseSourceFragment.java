@@ -16,13 +16,16 @@
 
 package com.google.android.apps.muzei.settings;
 
+import android.Manifest;
 import android.animation.ObjectAnimator;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -38,9 +41,13 @@ import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,6 +60,7 @@ import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.api.internal.SourceState;
 import com.google.android.apps.muzei.event.SelectedSourceChangedEvent;
 import com.google.android.apps.muzei.event.SelectedSourceStateChangedEvent;
+import com.google.android.apps.muzei.gallery.GalleryArtSource;
 import com.google.android.apps.muzei.util.CheatSheet;
 import com.google.android.apps.muzei.util.LogUtil;
 import com.google.android.apps.muzei.util.ObservableHorizontalScrollView;
@@ -104,6 +112,9 @@ public class SettingsChooseSourceFragment extends Fragment {
     private Drawable mSelectedSourceImage;
     private int mSelectedSourceIndex;
 
+    private ComponentName mGalleryArtSourceComponentName;
+    private static final int REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 1;
+
     public SettingsChooseSourceFragment() {
     }
 
@@ -120,6 +131,8 @@ public class SettingsChooseSourceFragment extends Fragment {
 
         mSourceManager = SourceManager.getInstance(getActivity());
         EventBus.getDefault().register(this);
+
+        mGalleryArtSourceComponentName = new ComponentName(getActivity(), GalleryArtSource.class);
 
         prepareGenerateSourceImages();
     }
@@ -439,6 +452,8 @@ public class SettingsChooseSourceFragment extends Fragment {
                 public void onClick(View view) {
                     if (source.componentName.equals(mSelectedSource)) {
                         ((Callbacks) getActivity()).onRequestCloseActivity();
+                    } else if (source.componentName.equals(mGalleryArtSourceComponentName)) {
+                        trySelectGalleryArtSource();
                     } else {
                         mSourceManager.selectSource(source.componentName);
                     }
@@ -498,6 +513,68 @@ public class SettingsChooseSourceFragment extends Fragment {
         }
 
         updateSelectedItem(false);
+    }
+
+    private void trySelectGalleryArtSource() {
+        Context context = getActivity();
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED) {
+            mSourceManager.selectSource(mGalleryArtSourceComponentName);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    @Override
+    @TargetApi(Build.VERSION_CODES.M)
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode != REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE) {
+            return;
+        }
+
+        final Activity activity = getActivity();
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            trySelectGalleryArtSource();
+        } else if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permissions[0])) {
+            new AlertDialog.Builder(activity, R.style.Theme_Muzei_Dialog)
+                    .setMessage(R.string.gallery_permission_dialog_soft_message)
+                    .setPositiveButton(
+                            R.string.gallery_permission_dialog_soft_positive_action_title,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    requestPermissions(
+                                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                                            REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
+                                }
+                            })
+                    .setNegativeButton(
+                            R.string.gallery_permission_dialog_soft_negative_action_title, null)
+                    .show();
+        } else {
+            new AlertDialog.Builder(activity, R.style.Theme_Muzei_Dialog)
+                    .setTitle(R.string.gallery_permission_dialog_hard_title)
+                    .setMessage(R.string.gallery_permission_dialog_hard_message)
+                    .setPositiveButton(
+                            R.string.gallery_permission_dialog_hard_positive_title,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent intent = new Intent(
+                                            Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                    Uri uri = Uri.fromParts(
+                                            "package", activity.getPackageName(), null);
+                                    intent.setData(uri);
+                                    startActivity(intent);
+                                }
+                            })
+                    .setNegativeButton(
+                            R.string.gallery_permission_dialog_hard_negative_title, null)
+                    .show();
+        }
     }
 
     private void updateSourceStatusUi(Source source, SourceState state) {

@@ -45,11 +45,11 @@ body {
 
 #playlink {
   display: block;
-  width: 113px;
-  height: 33px;
+  width: 140px;
+  height: 34px;
   padding: 15px 20px;
   border-radius: 4px;
-  border: 1px solid #ccc;
+  box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 3px 1px -2px rgba(0, 0, 0, 0.12);
   background-origin: content-box;
   background-color: #fff;
   background-image: url(onplay.png);
@@ -57,19 +57,19 @@ body {
   background-size: cover;
   background-position: 50% 0%;
   text-decoration: none;
-  box-shadow: 0 1px 0px rgba(0,0,0,0.25);
   -webkit-user-select: none;
   -moz-user-select: none;
+  user-select: none;
   z-index: 100;
+  transition: box-shadow 0.15s ease;
 }
 
   #playlink:hover {
-    background-color: #eee;
-    background-position: 50% 100%;
+    box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12);
   }
 
   #playlink:active {
-    box-shadow: 0 0 0;
+    box-shadow: 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12);
   }
 
 #device-frame {
@@ -156,10 +156,6 @@ body {
     bottom: 100px;
   }
 
-    #playlink:active {
-      bottom: 99px;
-    }
-
   #device-frame {
     position: absolute;
     right: -70px;
@@ -192,8 +188,6 @@ body {
     height: 640px;
     -webkit-transform-origin: 0% 0%;
     -webkit-transform: perspective(2100px) rotateZ(-5.2deg) rotateY(-42.6deg) rotateX(31deg) scale(0.6);
-    -moz-transform-origin: 0% 0%;
-    -moz-transform: perspective(2100px) rotateZ(-5.2deg) rotateY(-42.6deg) rotateX(31deg) scale(0.6);
     transform-origin: 0% 0%;
     transform: perspective(2100px) rotateZ(-5.2deg) rotateY(-42.6deg) rotateX(31deg) scale(0.6);
   }
@@ -228,8 +222,10 @@ body {
   #playlink {
     position: absolute;
     right: 0;
-    top: 0;
-    padding: 8px 12px 4px 12px;
+    top: 11px;
+    width: 105px;
+    height: 26px;
+    padding: 8px 16px 8px 16px;
   }
 
   #device-frame {
@@ -242,8 +238,6 @@ body {
     background-size: cover;
     -webkit-transform-origin: 0% 0%;
     -webkit-transform: scale(0.75);
-    -moz-transform-origin: 0% 0%;
-    -moz-transform: scale(0.75);
     transform-origin: 0% 0%;
     transform: scale(0.75);
   }
@@ -269,7 +263,6 @@ body {
     width: 360px;
     height: 640px;
     -webkit-transform: translateZ(0);
-    -moz-transform: translateZ(0);
     transform: translateZ(0);;
   }
 }
@@ -282,6 +275,7 @@ body {
   #layer-wall-blurred {
     -webkit-filter: blur(10px);
     filter: url(#blur-filter);
+    filter: blur(10px);
     opacity: 0.6;
   }
 
@@ -299,6 +293,32 @@ body {
   background: url(fakeui/home.png);
 }
 
+#layer-muzei-icon {
+  background: url(fakeui/muzei_icon.png);
+  position: absolute;
+  left: 288px;
+  top: 525px;
+  width: 57px;
+  height: 57px;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+#layer-muzei-icon-active-state {
+  position: absolute;
+  left: 288px;
+  top: 525px;
+  width: 55px;
+  height: 55px;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.mousedown #layer-muzei-icon-active-state {
+  opacity: 1;
+}
+
 #layer-artdetail {
   position: absolute;
   left: 0;
@@ -306,16 +326,10 @@ body {
   width: 321px;
   padding: 40px 20px 60px 20px;
   background: -webkit-gradient(linear, left bottom, left top, color-stop(0%,rgba(0,0,0,0.8)), color-stop(100%,rgba(0,0,0,0)));
-  background: -moz-gradient(linear, left bottom, left top, color-stop(0%,rgba(0,0,0,0.8)), color-stop(100%,rgba(0,0,0,0)));
   background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0));
 }
 
   @-webkit-keyframes slideup {
-    from { opacity: 0; bottom: -20px; }
-    to   { opacity: 1; bottom: -1px; }
-  }
-
-  @-moz-keyframes slideup {
     from { opacity: 0; bottom: -20px; }
     to   { opacity: 1; bottom: -1px; }
   }
@@ -330,9 +344,6 @@ body {
     -webkit-animation: slideup 0.5s;
     -webkit-animation-delay: 0.75s;
     -webkit-animation-fill-mode: forwards;
-    -moz-animation: slideup 0.5s;
-    -moz-animation-delay: 0.75s;
-    -moz-animation-fill-mode: forwards;
     animation: slideup 0.5s;
     animation-delay: 0.75s;
     animation-fill-mode: forwards;
@@ -375,16 +386,10 @@ body {
   width: 361px;
   height: 100px;
   background: -webkit-gradient(linear, left bottom, left top, color-stop(0%,rgba(0,0,0,0)), color-stop(100%,rgba(0,0,0,0.3)));
-  background: -moz-gradient(linear, left bottom, left top, color-stop(0%,rgba(0,0,0,0)), color-stop(100%,rgba(0,0,0,0.3)));
   background: linear-gradient(to top, rgba(0,0,0,0), rgba(0,0,0,0.3));
 }
 
   @-webkit-keyframes topscrim-fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-  }
-
-  @-moz-keyframes topscrim-fadein {
     from { opacity: 0; }
     to   { opacity: 1; }
   }
@@ -399,45 +404,87 @@ body {
     -webkit-animation: topscrim-fadein 0.5s;
     -webkit-animation-delay: 0.75s;
     -webkit-animation-fill-mode: forwards;
-    -moz-animation: topscrim-fadein 0.5s;
-    -moz-animation-delay: 0.75s;
-    -moz-animation-fill-mode: forwards;
     animation: topscrim-fadein 0.5s;
     animation-delay: 0.75s;
     animation-fill-mode: forwards;
   }
 
-@-webkit-keyframes bulge {
-  from { opacity: 0.4; }
-  to { opacity: 0.8; -webkit-transform: scale(1.4); }
+@-webkit-keyframes pulsate1 {
+  from {
+    opacity: 0.4;
+    -webkit-transform: scale(0);
+    stroke-width: 15px;
+  }
+  to {
+    opacity: 0;
+    -webkit-transform: scale(1);
+    stroke-width: 0px;
+  }
 }
 
-@-moz-keyframes bulge {
-  from { opacity: 0.4; }
-  to { opacity: 0.8; -moz-transform: scale(1.4); }
+@keyframes pulsate1 {
+  from {
+    opacity: 0.4;
+    transform: scale(0);
+    stroke-width: 15px;
+  }
+  to {
+    opacity: 0;
+    transform: scale(1);
+    stroke-width: 0px;
+  }
 }
 
-@keyframes bulge {
-  from { opacity: 0.4; }
-  to { opacity: 0.8; transform: scale(1.4); }
-}
-
-#layer-openindicator {
+.openindicatorwave {
   position: absolute;
-  left: 266px;
-  top: 503px;
-  -webkit-animation: bulge 0.5s;
+  left: 244px;
+  top: 481px;
+  width: 144px;
+  height: 144px;
+  -webkit-animation: pulsate1 2s;
+  -webkit-animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
   -webkit-animation-iteration-count: infinite;
-  -webkit-animation-direction: alternate;
-  -moz-animation: bulge 0.5s;
-  -moz-animation-iteration-count: infinite;
-  -moz-animation-direction: alternate;
-  animation: bulge 0.5s;
+  -webkit-animation-direction: normal;
+  -webkit-animation-fill-mode: backwards;
+  animation: pulsate1 2s;
+  animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
   animation-iteration-count: infinite;
-  animation-direction: alternate;
+  animation-direction: normal;
+  animation-fill-mode: backwards;
   opacity: 0.8;
-  cursor: pointer;
-  z-index: 1000;
+}
+
+@-webkit-keyframes pulsate2 {
+  from {
+    opacity: 0.6;
+    -webkit-transform: scale(0);
+    stroke-width: 5px;
+  }
+  to {
+    opacity: 0;
+    -webkit-transform: scale(0.85);
+    stroke-width: 0px;
+  }
+}
+
+@keyframes pulsate2 {
+  from {
+    opacity: 0.6;
+    transform: scale(0);
+    stroke-width: 5px;
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.85);
+    stroke-width: 0px;
+  }
+}
+
+#layer-openindicator-wave2 {
+  -webkit-animation-name: pulsate2;
+  -webkit-animation-delay: 0.4s;
+  animation-name: pulsate2;
+  animation-delay: 0.4s;
 }
 
 /* additional click target for firefox */
@@ -452,7 +499,7 @@ body {
   visibility: hidden;
 }
 
-  .artdetailopen #layer-openindicator,
+  .artdetailopen .openindicatorwave,
   .artdetailopen #opentarget {
     display: none;
   }

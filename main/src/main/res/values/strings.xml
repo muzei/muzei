@@ -123,4 +123,15 @@
     <string name="about_version_template">v%1$s</string>
     <string name="app_author">Roman Nurik</string>
 
+    <!-- Marshmallow permissions -->
+    <string name="gallery_permission_dialog_soft_message">The My Photos source requires access to your photo library.</string>
+    <string name="gallery_permission_dialog_soft_positive_action_title">Allow access</string>
+    <string name="gallery_permission_dialog_soft_negative_action_title">Cancel</string>
+
+    <string name="gallery_permission_dialog_hard_title">No access to photo library</string>
+    <string name="gallery_permission_dialog_hard_message">The My Photos source requires access to your photo library.
+    If you\'ve disabled Muzei\'s access to the <b>Storage</b> permission, you can re-enable it in Settings.</string>
+    <string name="gallery_permission_dialog_hard_positive_title">Edit App Permissions</string>
+    <string name="gallery_permission_dialog_hard_negative_title">Cancel</string>
+
 </resources>

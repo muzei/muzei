@@ -23,10 +23,14 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-        <!-- android:maxSdkVersion="18" /> ... has issues on some devices -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Needed for gallery source; requested at runtime on Marshmallow -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <!-- Don't request this starting with Marshmallow (we only write to the app's cache folder) -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="22" />
 
     <!-- Permissions required by the wearable app -->
     <uses-permission android:name="com.google.android.permission.PROVIDE_BACKGROUND" />

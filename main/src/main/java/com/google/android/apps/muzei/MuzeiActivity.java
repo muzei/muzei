@@ -16,6 +16,9 @@
 
 package com.google.android.apps.muzei;
 
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
@@ -28,6 +31,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.graphics.drawable.AnimatedVectorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -43,6 +47,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 import android.view.animation.OvershootInterpolator;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -360,9 +365,13 @@ public class MuzeiActivity extends ActionBarActivity {
             subTextView.setAlpha(0);
             subTextView.setTranslationY(-animateDistance / 5);
 
-            View affordanceView = findViewById(R.id.tutorial_icon_affordance);
+            final View affordanceView = findViewById(R.id.tutorial_icon_affordance);
             affordanceView.setAlpha(0);
             affordanceView.setTranslationY(animateDistance);
+
+            View iconTextView = findViewById(R.id.tutorial_icon_text);
+            iconTextView.setAlpha(0);
+            iconTextView.setTranslationY(animateDistance);
 
             AnimatorSet set = new AnimatorSet();
             set.setStartDelay(500);
@@ -378,13 +387,31 @@ public class MuzeiActivity extends ActionBarActivity {
             // Bug in older versions where set.setInterpolator didn't work
             Interpolator interpolator = new OvershootInterpolator();
             ObjectAnimator a1 = ObjectAnimator.ofFloat(affordanceView, View.TRANSLATION_Y, 0);
-            ObjectAnimator a2 = ObjectAnimator.ofFloat(mainTextView, View.TRANSLATION_Y, 0);
-            ObjectAnimator a3 = ObjectAnimator.ofFloat(subTextView, View.TRANSLATION_Y, 0);
+            ObjectAnimator a2 = ObjectAnimator.ofFloat(iconTextView, View.TRANSLATION_Y, 0);
+            ObjectAnimator a3 = ObjectAnimator.ofFloat(mainTextView, View.TRANSLATION_Y, 0);
+            ObjectAnimator a4 = ObjectAnimator.ofFloat(subTextView, View.TRANSLATION_Y, 0);
             a1.setInterpolator(interpolator);
             a2.setInterpolator(interpolator);
             a3.setInterpolator(interpolator);
+            a4.setInterpolator(interpolator);
             set.setDuration(500).playTogether(
-                    ObjectAnimator.ofFloat(affordanceView, View.ALPHA, 1f), a1, a2, a3);
+                    ObjectAnimator.ofFloat(affordanceView, View.ALPHA, 1f),
+                    ObjectAnimator.ofFloat(iconTextView, View.ALPHA, 1f),
+                    a1, a2, a3, a4);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                set.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        ImageView emanateView = (ImageView) findViewById(R.id.tutorial_icon_emanate);
+                        AnimatedVectorDrawable avd = (AnimatedVectorDrawable)
+                                getResources().getDrawable(
+                                        R.drawable.avd_tutorial_icon_emanate,
+                                        getTheme());
+                        emanateView.setImageDrawable(avd);
+                        avd.start();
+                    }
+                });
+            }
             set.start();
         }
 
