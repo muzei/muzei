@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-PLATFORM=android-17
+PLATFORM=android-23
 OUT_PATH=../build/javadoc
 
 cd `dirname $0`
@@ -24,11 +24,11 @@ javadoc -linkoffline http://developer.android.com/reference ${ANDROID_SDK}/docs/
         -classpath ${ANDROID_SDK}/platforms/${PLATFORM}/android.jar:${ANDROID_SDK}/tools/support/annotations.jar \
         -d ${OUT_PATH} \
         -notree -nonavbar -noindex -notree -nohelp -nodeprecated \
-        -stylesheetfile javadoc_stylesheet.css \
         -windowtitle "Muzei API" \
         -doctitle "Muzei API" \
         com.google.android.apps.muzei.api
 
 cp prettify* ${OUT_PATH}/resources/
+cp javadoc_stylesheet.css ${OUT_PATH}/resources/
 
 python tweak_javadoc_html.py ${OUT_PATH}/

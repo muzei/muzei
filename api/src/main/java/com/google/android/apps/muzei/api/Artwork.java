@@ -134,7 +134,7 @@ public class Artwork {
          * <li><code>content://...</code>. Content URIs must be public (i.e. not require
          * permissions). To build a file-based content provider, see the
          * <a href="https://developer.android.com/reference/android/support/v4/content/FileProvider.html">FileProvider</a>
-         * class in the Android support library.</a></li>
+         * class in the Android support library.</li>
          * <li><code>http://...</code> or <code>https://...</code>. These URLs must be
          * publicly accessible (i.e. not require authentication of any kind).</li>
          * </ul>

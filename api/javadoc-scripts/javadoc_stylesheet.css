@@ -25,13 +25,38 @@ body {
   margin: 60px 80px;
   font-family: roboto;
   font-size: 16px;
-  line-height: 140%;
+  line-height: 24px;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Headings */
-h2 {
-  font-size: 200%;
+h1, h2 {
+  color: #333 !important;
+  font-size: 32px;
+  line-height: 40px;
   font-weight: 300;
+}
+
+h3 {
+  font-size: 20px;
+  line-height: 32px;
+  font-weight: 700;
+  margin: 32px 0 8px 0 !important;
+  background-color: transparent !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+
+h4 {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 700;
+  margin: 32px 0 8px 0 !important;
+  background-color: transparent !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-top: 1px solid #ccc !important;
+  padding-top: 16px !important;
 }
 
 /* Table colors */
@@ -40,56 +65,108 @@ h2 {
 .TableRowColor         { background: #FFFFFF; color:#000000 }*/
 
 table, td, tr, th {
-  border:0;
+  border: 0 !important;
 }
 
 hr {
   margin: 20px 0;
-  border: 1px solid #09c;
+  border: 0;
+  border-bottom: 1px solid #5081c6;
+}
+
+table {
+  border: 1px solid rgba(0,0,0,0.1) !important;
 }
 
 th {
-  background-color: #eee;
-  border-bottom: 1px solid #ccc;
+  background-color: transparent !important;
 }
 
-td {
-  padding: 6px;
+th, td {
+  padding: 8px 12px !important;
 }
 
 table {
   margin-top: 20px;
 }
 
+table caption {
+  display: none;
+}
+
 td {
-  border-bottom: 1px solid #eee;
+  border-top: 1px solid rgba(0,0,0,0.1) !important;
+}
+
+tr.altColor {
+  background-color: transparent;
 }
 
 pre, code {
-  font-family: inconsolata;
-  font-size: 110%;
+  font-family: 'roboto mono';
+  font-size: 100%;
 }
 
 code {
-  color: #096;
+  color: #009688;
 }
 
 pre.prettyprint {
-  background: #eee;
-  border: 1px solid #ccc;
+  background: #263238;
   border-radius: 4px;
   padding: 20px 10px;
+  margin: 20px 0 20px 40px;
 }
 
-a, a code {
-  color: #09c;
+a, a:link, a:visited, a code {
+  color: #5081c6;
   text-decoration: none;
 }
 
-a {
-  border-bottom: 1px dotted #09c;
+a, a:link, a:visited {
+  border-bottom: 1px solid rgba(80, 129, 198, 0.3);
 }
 
-a:hover {
-  border-bottom: 1px solid #09c;
+a:hover, a:focus, a:active {
+  border-bottom: 1px solid #5081c6;
+}
+
+a:hover, a:focus, a:active, a:hover code {
+  color: #36629e;
+}
+
+dt {
+  color: #333 !important;
+  font-size: 100% !important;
+}
+
+.header .subTitle {
+  margin-bottom: 16px;
+}
+
+
+.header .subTitle a {
+  border: 0;
+  font-size: 14px;
+  line-height: 14px;
+  color: #fff;
+  background-color: #5081c6;
+  display: inline-flex;
+  padding: 8px 8px;
+  border-radius: 4px;
+}
+
+.header .subTitle a:hover {
+  background-color: #36629e;
+}
+
+.header .subTitle .material-icons {
+  font-size: 14px;
+  margin-right: 6px;
+}
+
+ul.blockList, li.blockList {
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
 }

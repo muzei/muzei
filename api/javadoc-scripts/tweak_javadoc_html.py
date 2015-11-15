@@ -18,6 +18,8 @@ import os
 import sys
 import shutil
 
+from bs4 import BeautifulSoup
+
 
 PACKAGE_NAME = 'com.google.android.apps.muzei.api'
 
@@ -47,18 +49,32 @@ def main():
 
 
 def process(toroot, html):
-  re_flags = re.I | re.M | re.S
-  html = re.sub(r'<HR>\s+<HR>', '', html, 0, re_flags)
-  html = re.sub(r'windowTitle\(\);', 'windowTitle();prettyPrint();', html, 0, re_flags)
-  html = re.sub(r'\s+</PRE>', '</PRE>', html, 0, re_flags)
-  html = re.sub(PACKAGE_NAME + '</font>', '<A HREF="package-summary.html" STYLE="border:0">' + PACKAGE_NAME + '</A></FONT>', html, 0, re_flags)
-  html = re.sub(r'<HEAD>', '''<HEAD>
-<LINK REL="stylesheet" TYPE="text/css" HREF="http://fonts.googleapis.com/css?family=Roboto:400,700,300|Inconsolata">
-<LINK REL="stylesheet" TYPE="text/css" HREF="%(root)sresources/prettify.css">
-<SCRIPT SRC="%(root)sresources/prettify.js"></SCRIPT>
-''' % dict(root=toroot), html, 0, re_flags)
-  #html = re.sub(r'<HR>\s+<HR>', '', html, re.I | re.M | re.S)
-  return html
+  soup = BeautifulSoup(html, 'html.parser')
+  try:
+    subTitle = soup.find(class_='header').find(class_='subTitle')
+    link = soup.new_tag('a', href='package-summary.html')
+    link.string = subTitle.encode_contents(formatter='html')
+    backIcon = soup.new_tag('i', **{'class':'material-icons'})
+    backIcon.string = 'arrow_back'
+    link.insert(0, backIcon)
+    subTitle.clear()
+    subTitle.append(link)
+  except:
+    pass
+
+  prettyprints = soup.find_all('pre', class_='prettyprint')
+  for p in prettyprints:
+    p.string = re.sub(r'\s+$', '', p.string, re.M | re.S | re.I)
+  soup.head.append(soup.new_tag('link', rel='stylesheet', href='http://fonts.googleapis.com/css?family=Roboto:400,700,300|Roboto+Mono'))
+  soup.head.append(soup.new_tag('link', rel='stylesheet', href='https://fonts.googleapis.com/icon?family=Material+Icons'))
+  soup.head.append(soup.new_tag('link', rel='stylesheet', href=toroot + 'resources/prettify.css'))
+  soup.head.append(soup.new_tag('link', rel='stylesheet', href=toroot + 'resources/javadoc_stylesheet.css'))
+  soup.head.append(soup.new_tag('script', src=toroot + 'resources/prettify.js'))
+  if soup.body:
+    script = soup.new_tag('script')
+    script.string = 'prettyPrint();'
+    soup.body.append(script)
+  return soup.encode_contents(formatter='html')
 
 
 def process_package_summary(toroot, html):
