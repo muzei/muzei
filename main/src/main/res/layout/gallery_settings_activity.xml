@@ -26,7 +26,6 @@
         android:scrollbarStyle="outsideOverlay"
         android:scrollbars="vertical"
         android:clipToPadding="false"
-        android:padding="2dp"
         android:drawSelectorOnTop="true"
         android:horizontalSpacing="@dimen/gallery_settings_chosen_photo_grid_spacing"
         android:verticalSpacing="@dimen/gallery_settings_chosen_photo_grid_spacing" />

@@ -28,6 +28,7 @@ import android.widget.Toast;
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.RemoteMuzeiArtSource;
 import com.google.android.apps.muzei.api.UserCommand;
+import com.google.android.apps.muzei.util.ExternalLinkUtil;
 import com.google.android.apps.muzei.util.IOUtil;
 import com.google.android.apps.muzei.util.LogUtil;
 
@@ -156,13 +157,7 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
             startActivity(shareIntent);
 
         } else if (COMMAND_ID_VIEW_ARCHIVE == id) {
-            Intent viewArchiveIntent = new Intent(Intent.ACTION_VIEW, ARCHIVE_URI);
-            viewArchiveIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-            try {
-                startActivity(viewArchiveIntent);
-            } catch (ActivityNotFoundException ignored) {
-            }
+            ExternalLinkUtil.openLinkInBrowser(this, ARCHIVE_URI);
 
         } else if (COMMAND_ID_DEBUG_INFO == id) {
             long nextUpdateTimeMillis = getSharedPreferences()

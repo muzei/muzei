@@ -27,7 +27,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -68,7 +68,7 @@ import static com.google.android.apps.muzei.gallery.GalleryArtSource.ACTION_REMO
 import static com.google.android.apps.muzei.gallery.GalleryArtSource.EXTRA_FORCE_URI;
 import static com.google.android.apps.muzei.gallery.GalleryArtSource.EXTRA_URIS;
 
-public class GallerySettingsActivity extends ActionBarActivity {
+public class GallerySettingsActivity extends AppCompatActivity {
     private static final int REQUEST_CHOOSE_PHOTOS = 1;
     private static final String STATE_SELECTION = "selection";
 
@@ -101,7 +101,6 @@ public class GallerySettingsActivity extends ActionBarActivity {
         }
     }
 
-    private boolean mLastSelectionUpdateFromUser;
     private int mUpdatePosition = -1;
     private View mAddButton;
 
@@ -123,7 +122,9 @@ public class GallerySettingsActivity extends ActionBarActivity {
                 R.color.gallery_settings_chosen_photo_placeholder));
 
         mPhotoGridView = (RecyclerView) findViewById(R.id.photo_grid);
-        mPhotoGridView.setItemAnimator(new DefaultItemAnimator());
+        DefaultItemAnimator itemAnimator = new DefaultItemAnimator();
+        itemAnimator.setSupportsChangeAnimations(false);
+        mPhotoGridView.setItemAnimator(itemAnimator);
         mPhotoGridView.setHasFixedSize(true);
         setupMultiSelect();
 
@@ -159,6 +160,7 @@ public class GallerySettingsActivity extends ActionBarActivity {
 
                 // Complete setup
                 gridLayoutManager.setSpanCount(numColumns);
+                mChosenPhotosAdapter.setHasStableIds(true);
                 mPhotoGridView.setAdapter(mChosenPhotosAdapter);
 
                 mPhotoGridView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
@@ -173,13 +175,16 @@ public class GallerySettingsActivity extends ActionBarActivity {
             public void onInsetsChanged(Rect insets) {
                 insetsLayout.setPadding(insets.left, insets.top, insets.right, insets.bottom);
 
-                TypedValue tv = new TypedValue();
-                getTheme().resolveAttribute(R.attr.actionBarSize, tv, true);
+                TypedValue actionBarSizeValue = new TypedValue();
+                getTheme().resolveAttribute(R.attr.actionBarSize, actionBarSizeValue, true);
+                int gridSpacing = getResources()
+                        .getDimensionPixelSize(R.dimen.gallery_settings_chosen_photo_grid_spacing);
                 mPhotoGridView.setPadding(
-                        insets.left,
-                        insets.top + (int) tv.getDimension(getResources().getDisplayMetrics()),
-                        insets.right,
-                        insets.bottom + getResources().getDimensionPixelSize(
+                        insets.left + gridSpacing,
+                        insets.top + gridSpacing + (int) actionBarSizeValue.getDimension(
+                                getResources().getDisplayMetrics()),
+                        insets.right + gridSpacing,
+                        insets.bottom + gridSpacing + getResources().getDimensionPixelSize(
                                 R.dimen.gallery_settings_fab_space));
 
                 findViewById(R.id.selection_toolbar_container).setPadding(
@@ -310,7 +315,6 @@ public class GallerySettingsActivity extends ActionBarActivity {
     }
 
     private void tryUpdateSelection(boolean allowAnimate, boolean fromUser) {
-        mLastSelectionUpdateFromUser = fromUser;
         final View selectionToolbarContainer = findViewById(R.id.selection_toolbar_container);
 
         if (mUpdatePosition >= 0) {
@@ -417,7 +421,7 @@ public class GallerySettingsActivity extends ActionBarActivity {
                 @Override
                 public boolean onTouch(View view, MotionEvent motionEvent) {
                     if (motionEvent.getActionMasked() != MotionEvent.ACTION_CANCEL) {
-                        mLastTouchPosition = vh.getPosition();
+                        mLastTouchPosition = vh.getAdapterPosition();
                         mLastTouchX = (int) motionEvent.getX();
                         mLastTouchY = (int) motionEvent.getY();
                     }
@@ -427,7 +431,7 @@ public class GallerySettingsActivity extends ActionBarActivity {
             v.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mUpdatePosition = vh.getPosition();
+                    mUpdatePosition = vh.getAdapterPosition();
                     mMultiSelectionController.toggle(mChosenUris.get(mUpdatePosition), true);
                 }
             });
@@ -448,7 +452,7 @@ public class GallerySettingsActivity extends ActionBarActivity {
                     .into(vh.mThumbView);
             final boolean checked = mMultiSelectionController.isSelected(imageUri);
             vh.mRootView.setTag(R.id.viewtag_position, position);
-            if (mLastTouchPosition == vh.getPosition()
+            if (mLastTouchPosition == vh.getAdapterPosition()
                     && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 new Handler().post(new Runnable() {
                     @Override
@@ -458,17 +462,9 @@ public class GallerySettingsActivity extends ActionBarActivity {
                         }
 
                         // find the smallest radius that'll cover the item
-                        int width = vh.mRootView.getWidth();
-                        int height = vh.mRootView.getHeight();
-                        float coverRadius = 0;
-                        coverRadius = Math.max(coverRadius,
-                                MathUtil.dist(mLastTouchX, mLastTouchY));
-                        coverRadius = Math.max(coverRadius,
-                                MathUtil.dist(width - mLastTouchX, mLastTouchY));
-                        coverRadius = Math.max(coverRadius,
-                                MathUtil.dist(mLastTouchX, height - mLastTouchY));
-                        coverRadius = Math.max(coverRadius,
-                                MathUtil.dist(width - mLastTouchX, height - mLastTouchY));
+                        float coverRadius = MathUtil.maxDistanceToCorner(
+                                mLastTouchX, mLastTouchY,
+                                0, 0, vh.mRootView.getWidth(), vh.mRootView.getHeight());
 
                         Animator revealAnim = ViewAnimationUtils.createCircularReveal(
                                 vh.mCheckedOverlayView,

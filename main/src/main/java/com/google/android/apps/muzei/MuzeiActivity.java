@@ -37,6 +37,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.SparseIntArray;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -80,7 +81,7 @@ import de.greenrobot.event.EventBus;
 
 import static com.google.android.apps.muzei.util.LogUtil.LOGE;
 
-public class MuzeiActivity extends ActionBarActivity {
+public class MuzeiActivity extends AppCompatActivity {
     private static final String TAG = LogUtil.makeLogTag(MuzeiActivity.class);
 
     private static final String PREF_SEEN_TUTORIAL = "seen_tutorial";

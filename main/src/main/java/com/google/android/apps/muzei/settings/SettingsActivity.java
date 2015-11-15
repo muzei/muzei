@@ -29,7 +29,7 @@ import android.content.pm.ResolveInfo;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -54,7 +54,7 @@ import de.greenrobot.event.EventBus;
  * The primary widget configuration activity. Serves as an interstitial when adding the widget, and
  * shows when pressing the settings button in the widget.
  */
-public class SettingsActivity extends ActionBarActivity
+public class SettingsActivity extends AppCompatActivity
         implements SettingsChooseSourceFragment.Callbacks {
     private static final String TAG = LogUtil.makeLogTag(SettingsActivity.class);
 

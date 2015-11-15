@@ -25,6 +25,7 @@
     android:scrollbars="none"
     android:paddingEnd="32dp"
     android:paddingStart="32dp"
+    android:paddingBottom="32dp"
     android:requiresFadingEdge="vertical">
 
     <LinearLayout
@@ -54,10 +55,22 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             android:fontFamily="sans-serif-condensed"
-            android:lineSpacingMultiplier="1.1"
+            android:lineSpacingMultiplier="1.2"
             android:textColor="#afff"
             android:textColorLink="#fff"
             android:textSize="@dimen/settings_text_size_normal" />
+
+        <ImageButton
+            android:id="@+id/android_experiment_link"
+            android:layout_marginTop="32dp"
+            android:paddingLeft="24dp"
+            android:paddingRight="24dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
+            android:background="?selectableItemBackground"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/about_android_experiment" />
     </LinearLayout>
 </ScrollView>
 

@@ -16,25 +16,28 @@
 
 package com.google.android.apps.muzei.settings;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.google.android.apps.muzei.render.MuzeiRendererFragment;
 import com.google.android.apps.muzei.util.AnimatedMuzeiLogoFragment;
+import com.google.android.apps.muzei.util.ExternalLinkUtil;
 import com.google.android.apps.muzei.util.LogUtil;
 
 import net.nurik.roman.muzei.R;
 
-public class AboutActivity extends ActionBarActivity {
+public class AboutActivity extends AppCompatActivity {
     private static final String TAG = LogUtil.makeLogTag(AboutActivity.class);
 
     private static final String VERSION_UNAVAILABLE = "N/A";
@@ -83,6 +86,14 @@ public class AboutActivity extends ActionBarActivity {
         TextView aboutBodyView = (TextView) findViewById(R.id.about_body);
         aboutBodyView.setText(Html.fromHtml(getString(R.string.about_body)));
         aboutBodyView.setMovementMethod(new LinkMovementMethod());
+
+        findViewById(R.id.android_experiment_link).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ExternalLinkUtil.openLinkInBrowser(AboutActivity.this,
+                        "https://www.androidexperiments.com/experiment/muzei");
+            }
+        });
     }
 
     @Override

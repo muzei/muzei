@@ -103,22 +103,14 @@
         <a href="http://translate.google.com/#en/ru/museum"><i>музей</i></a>, which means
         &#8220;museum.&#8221;<br><br>
 
-        Copyright 2013&ndash;2014 Google Inc.<br>
-        All Rights Reserved.<br><br>
-
+        Copyright 2013&ndash;2015 Google Inc. All Rights Reserved.
         <a href="http://m.google.com/utos">Terms of Service</a>,
         <a href="http://www.google.com/policies/privacy/">Privacy Policy</a>&nbsp;<br><br>
 
-        Many thanks to these open source projects:<br><br>
-
-        <b><a href="http://square.github.io/okhttp/">OkHttp</a> and <a href="http://square.github.io/picasso/">Picasso</a>&nbsp;</b><br>
-        <i>by Square</i><br><br>
-
-        <b><a href="https://github.com/greenrobot/EventBus">EventBus</a>&nbsp;</b><br>
-        <i>by greenrobot</i><br><br>
-
-        <b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a>&nbsp;</b><br>
-        <i>by Robert Green, Mark F. Guerra, and others</i><br><br>
+        Many thanks to these open source projects:<br>
+        &bull; <b><a href="http://square.github.io/okhttp/">OkHttp</a> and <a href="http://square.github.io/picasso/">Picasso</a></b> by Square<br>
+        &bull; <b><a href="https://github.com/greenrobot/EventBus">EventBus</a></b> by greenrobot<br>
+        &bull; <b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a></b> by Robert Green, Mark F. Guerra, and others
     ]]></string>
     <string name="about_version_template">v%1$s</string>
     <string name="app_author">Roman Nurik</string>

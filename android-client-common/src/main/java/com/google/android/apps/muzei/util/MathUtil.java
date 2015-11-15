@@ -32,10 +32,6 @@ public class MathUtil {
         return (v - x1) / (x2 - x1);
     }
 
-    public static float dist(float x, float y) {
-        return (float) Math.sqrt(x * x + y * y);
-    }
-
     public static int floorEven(int num) {
         return num & ~0x01;
     }
@@ -53,6 +49,15 @@ public class MathUtil {
     public static int intDivideRoundUp(int num, int divisor) {
         int sign = (num > 0 ? 1 : -1) * (divisor > 0 ? 1 : -1);
         return sign * (Math.abs(num) + Math.abs(divisor) - 1) / Math.abs(divisor);
+    }
+
+    public static float maxDistanceToCorner(int x, int y, int left, int top, int right, int bottom) {
+        float maxDistance = 0;
+        maxDistance = Math.max(maxDistance, (float) Math.hypot(x - left, y - top));
+        maxDistance = Math.max(maxDistance, (float) Math.hypot(x - right, y - top));
+        maxDistance = Math.max(maxDistance, (float) Math.hypot(x - left, y - bottom));
+        maxDistance = Math.max(maxDistance, (float) Math.hypot(x - right, y - bottom));
+        return maxDistance;
     }
 
     private MathUtil() {
