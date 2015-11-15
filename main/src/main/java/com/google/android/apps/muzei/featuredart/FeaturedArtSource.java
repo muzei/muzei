@@ -16,7 +16,6 @@
 
 package com.google.android.apps.muzei.featuredart;
 
-import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.net.Uri;

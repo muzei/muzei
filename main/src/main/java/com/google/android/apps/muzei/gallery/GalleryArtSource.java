@@ -26,7 +26,6 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.media.ExifInterface;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
@@ -38,7 +37,6 @@ import com.google.android.apps.muzei.event.GalleryChosenUrisChangedEvent;
 import com.google.android.apps.muzei.util.IOUtil;
 import com.google.android.apps.muzei.util.LogUtil;
 
-import net.nurik.roman.muzei.Manifest;
 import net.nurik.roman.muzei.R;
 
 import java.io.File;
