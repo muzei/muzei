@@ -19,6 +19,7 @@ package com.google.android.apps.muzei.api;
 import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -26,7 +27,9 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
@@ -58,7 +61,7 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA
 /**
  * Base class for a Muzei Live Wallpaper artwork source. Art sources are a way for other apps to
  * feed wallpapers (called {@linkplain Artwork artworks}) to the Muzei Live Wallpaper. Art sources
- * are specialized {@link IntentService} classes.
+ * are specialized {@link IntentService}-like classes.
  *
  * <p> Only one source can be selected at a time. When the user chooses a source, the Muzei app
  * <em>subscribes</em> to the source for updates. When a different source is chosen, Muzei
@@ -187,7 +190,7 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA
  *
  * @see RemoteMuzeiArtSource
  */
-public abstract class MuzeiArtSource extends IntentService {
+public abstract class MuzeiArtSource extends Service {
     private static final String TAG = "MuzeiArtSource";
 
     /**
@@ -255,25 +258,36 @@ public abstract class MuzeiArtSource extends IntentService {
 
     private static final String URI_SCHEME_COMMAND = "muzeicommand";
 
-    private static final int MSG_PUBLISH_CURRENT_STATE = 1;
-
     private SharedPreferences mSharedPrefs;
-
-    private final String mName;
 
     private Map<ComponentName, String> mSubscriptions;
     private SourceState mCurrentState;
 
-    private Handler mHandler = new Handler() {
+    private Runnable mPublishStateRunnable = new Runnable() {
         @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            if (msg.what == MSG_PUBLISH_CURRENT_STATE) {
-                publishCurrentState();
-                saveState();
-            }
+        public void run() {
+            publishCurrentState();
+            saveState();
         }
     };
+
+    // From IntentService
+    private String mName;
+    private boolean mRedelivery;
+    private volatile Looper mServiceLooper;
+    private volatile ServiceHandler mServiceHandler;
+
+    private final class ServiceHandler extends Handler {
+        public ServiceHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            onHandleIntent((Intent) msg.obj);
+            stopSelf(msg.arg1);
+        }
+    }
 
     /**
      * Remember to call this constructor from an empty constructor!
@@ -283,16 +297,58 @@ public abstract class MuzeiArtSource extends IntentService {
      *             storing preferences} and in system log output.
      */
     public MuzeiArtSource(String name) {
-        super(name);
+        super();
         mName = name;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
+
+        HandlerThread thread = new HandlerThread("IntentService[" + mName + "]");
+        thread.start();
+        mServiceLooper = thread.getLooper();
+        mServiceHandler = new ServiceHandler(mServiceLooper);
+
         mSharedPrefs = getSharedPreferences();
         loadSubscriptions();
         loadState();
+    }
+
+    /**
+     * @see IntentService#onStart(Intent, int)
+     */
+    @Override
+    public void onStart(Intent intent, int startId) {
+        Message msg = mServiceHandler.obtainMessage();
+        msg.arg1 = startId;
+        msg.obj = intent;
+        mServiceHandler.sendMessage(msg);
+    }
+
+    /**
+     * @see IntentService#onStartCommand(Intent, int, int)
+     */
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        onStart(intent, startId);
+        return mRedelivery ? START_REDELIVER_INTENT : START_NOT_STICKY;
+    }
+
+    /**
+     * @see IntentService#onDestroy()
+     */
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mServiceLooper.quit();
+    }
+
+    /**
+     * @see IntentService#setIntentRedelivery(boolean)
+     */
+    public void setIntentRedelivery(boolean enabled) {
+        mRedelivery = enabled;
     }
 
     /**
@@ -376,8 +432,8 @@ public abstract class MuzeiArtSource extends IntentService {
      */
     protected final void publishArtwork(Artwork artwork) {
         mCurrentState.setCurrentArtwork(artwork);
-        mHandler.removeMessages(MSG_PUBLISH_CURRENT_STATE);
-        mHandler.sendEmptyMessage(MSG_PUBLISH_CURRENT_STATE);
+        mServiceHandler.removeCallbacks(mPublishStateRunnable);
+        mServiceHandler.post(mPublishStateRunnable);
     }
 
     /**
@@ -387,8 +443,8 @@ public abstract class MuzeiArtSource extends IntentService {
      */
     protected final void setDescription(String description) {
         mCurrentState.setDescription(description);
-        mHandler.removeMessages(MSG_PUBLISH_CURRENT_STATE);
-        mHandler.sendEmptyMessage(MSG_PUBLISH_CURRENT_STATE);
+        mServiceHandler.removeCallbacks(mPublishStateRunnable);
+        mServiceHandler.post(mPublishStateRunnable);
     }
 
     /**
@@ -403,8 +459,8 @@ public abstract class MuzeiArtSource extends IntentService {
      */
     protected final void setUserCommands(UserCommand... commands) {
         mCurrentState.setUserCommands(Arrays.asList(commands));
-        mHandler.removeMessages(MSG_PUBLISH_CURRENT_STATE);
-        mHandler.sendEmptyMessage(MSG_PUBLISH_CURRENT_STATE);
+        mServiceHandler.removeCallbacks(mPublishStateRunnable);
+        mServiceHandler.post(mPublishStateRunnable);
     }
 
     /**
@@ -417,8 +473,8 @@ public abstract class MuzeiArtSource extends IntentService {
      */
     protected final void setUserCommands(List<UserCommand> commands) {
         mCurrentState.setUserCommands(commands);
-        mHandler.removeMessages(MSG_PUBLISH_CURRENT_STATE);
-        mHandler.sendEmptyMessage(MSG_PUBLISH_CURRENT_STATE);
+        mServiceHandler.removeCallbacks(mPublishStateRunnable);
+        mServiceHandler.post(mPublishStateRunnable);
     }
 
     /**
@@ -431,8 +487,8 @@ public abstract class MuzeiArtSource extends IntentService {
      */
     protected final void setUserCommands(int... commands) {
         mCurrentState.setUserCommands(commands);
-        mHandler.removeMessages(MSG_PUBLISH_CURRENT_STATE);
-        mHandler.sendEmptyMessage(MSG_PUBLISH_CURRENT_STATE);
+        mServiceHandler.removeCallbacks(mPublishStateRunnable);
+        mServiceHandler.post(mPublishStateRunnable);
     }
 
     /**
@@ -442,8 +498,8 @@ public abstract class MuzeiArtSource extends IntentService {
      */
     protected final void removeAllUserCommands() {
         mCurrentState.setUserCommands((int[]) null);
-        mHandler.removeMessages(MSG_PUBLISH_CURRENT_STATE);
-        mHandler.sendEmptyMessage(MSG_PUBLISH_CURRENT_STATE);
+        mServiceHandler.removeCallbacks(mPublishStateRunnable);
+        mServiceHandler.post(mPublishStateRunnable);
     }
 
     /**
@@ -455,8 +511,8 @@ public abstract class MuzeiArtSource extends IntentService {
      */
     protected final void setWantsNetworkAvailable(boolean wantsNetworkAvailable) {
         mCurrentState.setWantsNetworkAvailable(wantsNetworkAvailable);
-        mHandler.removeMessages(MSG_PUBLISH_CURRENT_STATE);
-        mHandler.sendEmptyMessage(MSG_PUBLISH_CURRENT_STATE);
+        mServiceHandler.removeCallbacks(mPublishStateRunnable);
+        mServiceHandler.post(mPublishStateRunnable);
     }
 
     /**
@@ -527,7 +583,9 @@ public abstract class MuzeiArtSource extends IntentService {
         return getSharedPreferences(this, mName);
     }
 
-    @Override
+    /**
+     * @see IntentService#onHandleIntent(Intent)
+     */
     protected void onHandleIntent(Intent intent) {
         if (intent == null) {
             return;
@@ -703,7 +761,7 @@ public abstract class MuzeiArtSource extends IntentService {
                 Log.e(TAG, "Update wasn't published because subscriber no longer exists"
                         + ", id=" + mName);
                 // Unsubscribe the now-defunct subscriber
-                mHandler.post(new Runnable() {
+                mServiceHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         processSubscribe(subscriber, null);
