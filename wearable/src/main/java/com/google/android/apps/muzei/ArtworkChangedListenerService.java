@@ -17,19 +17,18 @@
 package com.google.android.apps.muzei;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
 
-import com.google.android.gms.wearable.MessageEvent;
+import com.google.android.gms.wearable.DataEvent;
+import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.WearableListenerService;
 
-public class MuzeiWearableListenerService extends WearableListenerService {
+/**
+ * WearableListenerService responsible to receiving Data Layer changes with updated artwork
+ */
+public class ArtworkChangedListenerService extends WearableListenerService {
     @Override
-    public void onMessageReceived(MessageEvent messageEvent) {
-        String path = messageEvent.getPath();
-        if (path.equals("notification/open")) {
-            PackageManager packageManager = getPackageManager();
-            Intent mainIntent = packageManager.getLaunchIntentForPackage(getPackageName());
-            startActivity(mainIntent);
-        }
+    public void onDataChanged(final DataEventBuffer dataEvents) {
+        // Only artwork changes trigger this WearableListenerService
+        startService(new Intent(this, ArtworkCacheIntentService.class));
     }
 }

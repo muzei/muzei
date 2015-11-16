@@ -145,10 +145,11 @@
 
         <receiver android:name="com.google.android.apps.muzei.NewWallpaperNotificationReceiver" />
 
-        <service android:name="com.google.android.apps.muzei.MuzeiWearableListenerService"
+        <service android:name="com.google.android.apps.muzei.wearable.NotificationOpenListenerService"
             tools:ignore="ExportedService">
             <intent-filter>
-                <action android:name="com.google.android.gms.wearable.BIND_LISTENER" />
+                <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/notification/open" />
             </intent-filter>
         </service>
 
