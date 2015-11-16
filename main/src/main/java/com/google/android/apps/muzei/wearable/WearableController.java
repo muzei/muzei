@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei;
+package com.google.android.apps.muzei.wearable;
 
 import android.content.Context;
 import android.graphics.Bitmap;

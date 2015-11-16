@@ -23,7 +23,7 @@ import com.google.android.apps.muzei.ArtworkCache;
 import com.google.android.apps.muzei.NewWallpaperNotificationReceiver;
 import com.google.android.apps.muzei.SourceManager;
 import com.google.android.apps.muzei.TaskQueueService;
-import com.google.android.apps.muzei.WearableController;
+import com.google.android.apps.muzei.wearable.WearableController;
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.api.internal.SourceState;
@@ -33,7 +33,6 @@ import com.google.android.apps.muzei.util.LogUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import static com.google.android.apps.muzei.util.LogUtil.LOGD;

@@ -38,7 +38,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.google.android.apps.muzei.MuzeiWearableListenerService"
+        <service android:name="com.google.android.apps.muzei.wearable.MuzeiWearableListenerService"
                  tools:ignore="ExportedService">
             <intent-filter>
                 <action android:name="com.google.android.gms.wearable.BIND_LISTENER" />
