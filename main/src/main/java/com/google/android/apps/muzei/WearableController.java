@@ -83,7 +83,7 @@ public class WearableController {
             PutDataMapRequest dataMapRequest = PutDataMapRequest.create("/artwork");
             dataMapRequest.getDataMap().putDataMap("artwork", DataMap.fromBundle(artwork.toBundle()));
             dataMapRequest.getDataMap().putAsset("image", asset);
-            Wearable.DataApi.putDataItem(googleApiClient, dataMapRequest.asPutDataRequest()).await();
+            Wearable.DataApi.putDataItem(googleApiClient, dataMapRequest.asPutDataRequest().setUrgent()).await();
         }
         googleApiClient.disconnect();
     }
