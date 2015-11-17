@@ -37,18 +37,23 @@ import java.net.URISyntaxException;
  * <p> To create an instance, use the {@link Artwork.Builder} class.
  */
 public class Artwork {
+    public static final String FONT_TYPE_DEFAULT = "";
+    public static final String FONT_TYPE_ELEGANT = "elegant";
+
     private static final String KEY_IMAGE_URI = "imageUri";
     private static final String KEY_TITLE = "title";
     private static final String KEY_BYLINE = "byline";
     private static final String KEY_TOKEN = "token";
     private static final String KEY_VIEW_INTENT = "viewIntent";
     private static final String KEY_DETAILS_URI = "detailsUri";
+    private static final String KEY_META_FONT = "metaFont";
 
     private Uri mImageUri;
     private String mTitle;
     private String mByline;
     private String mToken;
     private Intent mViewIntent;
+    private String mMetaFont;
 
     private Artwork() {
     }
@@ -102,9 +107,73 @@ public class Artwork {
     }
 
     /**
+     * Returns the font type to use for showing metadata.
+     *
+     * @see Artwork.Builder#metaFont(String)
+     */
+    public String getMetaFont() {
+        return mMetaFont;
+    }
+
+    /**
+     * Sets the artwork's image URI.
+     *
+     * @see Artwork.Builder#imageUri(Uri)
+     */
+    public void setImageUri(Uri imageUri) {
+        mImageUri = imageUri;
+    }
+
+    /**
+     * Sets the artwork's user-visible title.
+     *
+     * @see Artwork.Builder#title(String)
+     */
+    public void setTitle(String title) {
+        mTitle = title;
+    }
+
+    /**
+     * Sets the artwork's user-visible byline (e.g. author and date).
+     *
+     * @see Artwork.Builder#byline(String)
+     */
+    public void setByline(String byline) {
+        mByline = byline;
+    }
+
+    /**
+     * Sets the artwork's opaque application-specific identifier.
+     *
+     * @see Artwork.Builder#token(String)
+     */
+    public void setToken(String token) {
+        mToken = token;
+    }
+
+    /**
+     * Sets the activity {@link Intent} that will be started when the user clicks
+     * for more details about the artwork.
+     *
+     * @see Artwork.Builder#viewIntent(Intent)
+     */
+    public void setViewIntent(Intent viewIntent) {
+        mViewIntent = viewIntent;
+    }
+
+    /**
+     * Sets the font type to use for showing metadata.
+     *
+     * @see Artwork.Builder#metaFont(String)
+     */
+    public void setMetaFont(String metaFont) {
+        mMetaFont = metaFont;
+    }
+
+    /**
      * A <a href="http://en.wikipedia.org/wiki/Builder_pattern">builder</a>-style, <a
      * href="http://en.wikipedia.org/wiki/Fluent_interface">fluent interface</a> for creating {@link
-     * Artwork} objects. Example usage is below
+     * Artwork} objects. Example usage is below.
      *
      * <pre class="prettyprint">
      * Artwork artwork = new Artwork.Builder()
@@ -192,6 +261,17 @@ public class Artwork {
         }
 
         /**
+         * Sets the font type to use to show metadata for the artwork.
+         *
+         * @see #FONT_TYPE_DEFAULT
+         * @see #FONT_TYPE_ELEGANT
+         */
+        public Builder metaFont(String metaFont) {
+            mArtwork.mMetaFont = metaFont;
+            return this;
+        }
+
+        /**
          * Creates and returns the final Artwork object. Once this method is called, it is not valid
          * to further use this {@link Artwork.Builder} object.
          */
@@ -211,6 +291,7 @@ public class Artwork {
         bundle.putString(KEY_TOKEN, mToken);
         bundle.putString(KEY_VIEW_INTENT, (mViewIntent != null)
                 ? mViewIntent.toUri(Intent.URI_INTENT_SCHEME) : null);
+        bundle.putString(KEY_META_FONT, mMetaFont);
         return bundle;
     }
 
@@ -221,7 +302,8 @@ public class Artwork {
         Builder builder = new Builder()
                 .title(bundle.getString(KEY_TITLE))
                 .byline(bundle.getString(KEY_BYLINE))
-                .token(bundle.getString(KEY_TOKEN));
+                .token(bundle.getString(KEY_TOKEN))
+                .metaFont(bundle.getString(KEY_META_FONT));
 
         String imageUri = bundle.getString(KEY_IMAGE_URI);
         if (!TextUtils.isEmpty(imageUri)) {
@@ -250,6 +332,7 @@ public class Artwork {
         jsonObject.put(KEY_TOKEN, mToken);
         jsonObject.put(KEY_VIEW_INTENT, (mViewIntent != null)
                 ? mViewIntent.toUri(Intent.URI_INTENT_SCHEME) : null);
+        jsonObject.put(KEY_META_FONT, mMetaFont);
         return jsonObject;
     }
 
@@ -260,7 +343,8 @@ public class Artwork {
         Builder builder = new Builder()
                 .title(jsonObject.optString(KEY_TITLE))
                 .byline(jsonObject.optString(KEY_BYLINE))
-                .token(jsonObject.optString(KEY_TOKEN));
+                .token(jsonObject.optString(KEY_TOKEN))
+                .metaFont(jsonObject.optString(KEY_META_FONT));
 
         String imageUri = jsonObject.optString(KEY_IMAGE_URI);
         if (!TextUtils.isEmpty(imageUri)) {
@@ -293,9 +377,9 @@ public class Artwork {
         values.put(MuzeiContract.Artwork.COLUMN_NAME_TOKEN, mToken);
         values.put(MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT, (mViewIntent != null)
                 ? mViewIntent.toUri(Intent.URI_INTENT_SCHEME) : null);
+        values.put(MuzeiContract.Artwork.COLUMN_NAME_META_FONT, mMetaFont);
         return values;
     }
-
 
     /**
      * Deserializes an artwork object from a {@link Cursor}.
@@ -327,6 +411,10 @@ public class Artwork {
                 }
             } catch (URISyntaxException ignored) {
             }
+        }
+        int metaFontColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_META_FONT);
+        if (metaFontColumnIndex != -1) {
+            builder.byline(cursor.getString(metaFontColumnIndex));
         }
         return builder.build();
     }

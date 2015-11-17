@@ -130,6 +130,11 @@ public class MuzeiContract {
          */
         public static final String COLUMN_NAME_VIEW_INTENT = "viewIntent";
         /**
+         * Column name for the font type to use to display artwork meta info.
+         * <p>Type: TEXT
+         */
+        public static final String COLUMN_NAME_META_FONT = "metaFont";
+        /**
          * The MIME type of {@link #CONTENT_URI} providing artwork.
          */
         public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.android.apps.muzei.artwork";

@@ -59,7 +59,7 @@ public class MuzeiProvider extends ContentProvider {
     /**
      * The database version
      */
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     /**
      * A UriMatcher instance
      */
@@ -108,6 +108,8 @@ public class MuzeiProvider extends ContentProvider {
                 MuzeiContract.Artwork.COLUMN_NAME_TOKEN);
         allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT,
                 MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT);
+        allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_META_FONT,
+                MuzeiContract.Artwork.COLUMN_NAME_META_FONT);
         return allColumnProjectionMap;
     }
 
@@ -240,6 +242,7 @@ public class MuzeiProvider extends ContentProvider {
                     + " TEXT," + MuzeiContract.Artwork.COLUMN_NAME_TITLE + " TEXT,"
                     + MuzeiContract.Artwork.COLUMN_NAME_BYLINE + " TEXT,"
                     + MuzeiContract.Artwork.COLUMN_NAME_TOKEN + " TEXT,"
+                    + MuzeiContract.Artwork.COLUMN_NAME_META_FONT + " TEXT,"
                     + MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT + " TEXT);");
         }
 

@@ -508,13 +508,8 @@ public class MuzeiActivity extends AppCompatActivity {
                     }
                 });
 
-        Typeface tf = TypefaceUtil.getAndCache(this, "Alegreya-BlackItalic.ttf");
         mTitleView = (TextView) findViewById(R.id.title);
-        mTitleView.setTypeface(tf);
-
-        tf = TypefaceUtil.getAndCache(this, "Alegreya-Italic.ttf");
         mBylineView = (TextView) findViewById(R.id.byline);
-        mBylineView.setTypeface(tf);
 
         setupOverflowButton();
 
@@ -640,7 +635,17 @@ public class MuzeiActivity extends AppCompatActivity {
 
     private void updateArtDetailUi() {
         if (mCurrentArtwork != null) {
+            String titleFont = "AlegreyaSans-Black.ttf";
+            String bylineFont = "AlegreyaSans-Medium.ttf";
+            if (Artwork.FONT_TYPE_ELEGANT.equals(mCurrentArtwork.getMetaFont())) {
+                titleFont = "Alegreya-BlackItalic.ttf";
+                bylineFont = "Alegreya-Italic.ttf";
+            }
+
+            mTitleView.setTypeface(TypefaceUtil.getAndCache(this, titleFont));
             mTitleView.setText(mCurrentArtwork.getTitle());
+
+            mBylineView.setTypeface(TypefaceUtil.getAndCache(this, bylineFont));
             mBylineView.setText(mCurrentArtwork.getByline());
 
             final Intent viewIntent = mCurrentArtwork.getViewIntent();

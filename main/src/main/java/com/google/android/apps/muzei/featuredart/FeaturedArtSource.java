@@ -89,6 +89,7 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
                     .byline("Vincent van Gogh, 1889.\nMuzei shows a new painting every day.")
                     .viewIntent(new Intent(Intent.ACTION_VIEW,
                             Uri.parse("http://www.wikipaintings.org/en/vincent-van-gogh/the-starry-night-1889")))
+                    .metaFont(Artwork.FONT_TYPE_ELEGANT)
                     .build());
             commands.add(new UserCommand(BUILTIN_COMMAND_ID_NEXT_ARTWORK));
             // show the latest photo in 15 minutes
@@ -199,6 +200,7 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
         } else {
             LOGD(TAG, "Publishing artwork update: " + artwork);
             if (artwork != null && jsonObject != null) {
+                artwork.setMetaFont(Artwork.FONT_TYPE_ELEGANT);
                 publishArtwork(artwork);
             }
         }
@@ -246,6 +248,7 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
                     .byline(intent.getStringExtra("byline"))
                     .viewIntent(new Intent(Intent.ACTION_VIEW,
                             Uri.parse(intent.getStringExtra("details"))))
+                    .metaFont(Artwork.FONT_TYPE_ELEGANT)
                     .build());
             removeAllUserCommands();
         }
