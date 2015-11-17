@@ -38,10 +38,11 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.google.android.apps.muzei.MuzeiWearableListenerService"
+        <service android:name="com.google.android.apps.muzei.ArtworkChangedListenerService"
                  tools:ignore="ExportedService">
             <intent-filter>
-                <action android:name="com.google.android.gms.wearable.BIND_LISTENER" />
+                <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/artwork" />
             </intent-filter>
         </service>
 
