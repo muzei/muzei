@@ -136,6 +136,10 @@ public class IOUtil {
             }
         }
 
+        if (in == null) {
+            throw new OpenUriException(false, "Null input stream for URI: " + uri, null);
+        }
+
         return in;
     }
 
@@ -207,6 +211,10 @@ public class IOUtil {
 
     public static void readFullyWriteToOutputStream(InputStream in, OutputStream out)
             throws IOException {
+        if (in == null) {
+            throw new IOException("Null input stream");
+        }
+
         try {
             byte[] buffer = new byte[1024];
             int bytesRead;
@@ -220,6 +228,10 @@ public class IOUtil {
     }
 
     public static String readFullyPlainText(InputStream in) throws IOException {
+        if (in == null) {
+            throw new IOException("Null input stream");
+        }
+
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];
         int bytesRead;
