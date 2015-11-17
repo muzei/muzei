@@ -23,7 +23,6 @@ from bs4 import BeautifulSoup
 
 PACKAGE_NAME = 'com.google.android.apps.muzei.api'
 
-
 def main():
   root = sys.argv[1]
   for path, _, files in os.walk(root):
@@ -78,11 +77,6 @@ def process(toroot, html):
 
 
 def process_package_summary(toroot, html):
-  re_flags = re.I | re.M | re.S
-  #html = re.sub(r'</H2>\s+.*?\n', '</H2>\n', html, 0, re_flags)
-  html = re.sub(r'<B>See:</B>\n<br>', '\n', html, 0, re_flags)
-  html = re.sub(r'&nbsp;&nbsp;(&nbsp;)+[^\n]+\n', '\n', html, 0, re_flags)
-  html = re.sub(r'\n[^\n]+\s+description\n', '\nDescription\n', html, 0, re_flags)
   return html
 
 
