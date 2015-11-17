@@ -40,6 +40,7 @@ def artwork_dict(a):
       id=a.key().id(),
       title=a.title,
       byline=a.byline,
+      attribution=a.attribution,
       imageUri=a.image_url,
       thumbUri=a.thumb_url,
       detailsUri=a.details_url,
@@ -136,6 +137,7 @@ class ServiceAddHandler(BaseHandler):
     new_artwork = FeaturedArtwork(
         title=artwork_json['title'],
         byline=artwork_json['byline'],
+        attribution=artwork_json['attribution'] if 'attribution' in artwork_json else None,
         image_url=new_image_url,
         thumb_url=new_thumb_url,
         details_url=artwork_json['detailsUri'],
@@ -159,8 +161,10 @@ class ServiceAddFromExternalArtworkUrlHandler(BaseHandler):
 
   def process_html(self, url, html):
     soup = BeautifulSoup(html)
+    attribution = None
 
     if re.search(r'wikiart.org', url, re.I):
+      attribution = 'wikiart.org'
       details_url = re.sub(r'#.+', '', url, re.I | re.S) + '?utm_source=Muzei&utm_campaign=Muzei'
       title = soup.select('h1 span')[0].get_text()
       author = soup.find(itemprop='author').get_text()
@@ -168,6 +172,7 @@ class ServiceAddFromExternalArtworkUrlHandler(BaseHandler):
       byline = author + ((', ' + completion_year_el.get_text()) if completion_year_el else '')
       image_url = soup.find(id='paintingImage')['href']
     elif re.search(r'metmuseum.org', url, re.I):
+      attribution = 'metmuseum.org'
       details_url = re.sub(r'[#?].+', '', url, re.I | re.S) + '?utm_source=Muzei&utm_campaign=Muzei'
       title = soup.find('h2').get_text()
       author = unicode(soup.find(text='Artist:').parent.next_sibling).strip()
@@ -196,6 +201,7 @@ class ServiceAddFromExternalArtworkUrlHandler(BaseHandler):
     new_artwork = FeaturedArtwork(
         title=title,
         byline=byline,
+        attribution=attribution,
         image_url=image_url,
         thumb_url=thumb_url,
         details_url=details_url,
@@ -218,6 +224,7 @@ class ServiceEditHandler(BaseHandler):
 
     target_artwork.title = artwork_json['title']
     target_artwork.byline = artwork_json['byline']
+    target_artwork.attribution = artwork_json['attribution']
 
     new_image_url, new_thumb_url = maybe_process_image(
         artwork_json['imageUri'],

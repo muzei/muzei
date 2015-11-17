@@ -314,6 +314,11 @@
     </div>
 
     <div class="editor-row">
+      <label for="editor-attribution">Attribution</label>
+      <input id="editor-attribution" class="editor-value">
+    </div>
+
+    <div class="editor-row">
       <label for="editor-detailsurl">Details URL</label>
       <input id="editor-detailsurl" class="editor-value">
       <button id="editor-detailsurl-visit" tabindex="-1" class="editor-secondary-button">View</button>
@@ -695,6 +700,7 @@ function renderCalendar() {
   var $editor = $('#editor');
   var $title = $('#editor-title');
   var $byline = $('#editor-byline');
+  var $attribution = $('#editor-attribution');
   var $detailsurl = $('#editor-detailsurl');
   var $detailsurlvisit = $('#editor-detailsurl-visit');
   var $imageurl = $('#editor-imageurl');
@@ -790,6 +796,7 @@ function renderCalendar() {
     var artwork = {
       title: $title.val(),
       byline: $byline.val(),
+      attribution: $attribution.val(),
       detailsUri: $detailsurl.val(),
       imageUri: $imageurl.val()
     };
@@ -806,6 +813,7 @@ function renderCalendar() {
       var artwork = JSON.parse($json.val());
       $title.val(artwork.title);
       $byline.val(artwork.byline);
+      $attribution.val(artwork.attribution);
       $detailsurl.val(artwork.detailsUri);
       $imageurl.val(artwork.imageUri);
       $thumburl.val(artwork.thumbUri);
@@ -871,6 +879,7 @@ function renderCalendar() {
       var clonedArtwork = JSON.parse(JSON.stringify(args.artwork));
       $title.val(clonedArtwork.title);
       $byline.val(clonedArtwork.byline);
+      $attribution.val(clonedArtwork.attribution);
       $detailsurl.val(clonedArtwork.detailsUri);
       $imageurl.val(clonedArtwork.imageUri);
       $thumburl.val(clonedArtwork.thumbUri);
