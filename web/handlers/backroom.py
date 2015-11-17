@@ -36,15 +36,17 @@ NO_CROP_TUPLE=(0, 0, 1, 1)
 
 
 def artwork_dict(a):
-  return dict(
+  d = dict(
       id=a.key().id(),
       title=a.title,
       byline=a.byline,
-      attribution=a.attribution,
       imageUri=a.image_url,
       thumbUri=a.thumb_url,
       detailsUri=a.details_url,
       publishDate=date_to_timestamp(a.publish_date),)
+  if a.attribution:
+      d['attribution'] = a.attribution
+  return d
 
 
 class ServiceListHandler(BaseHandler):
@@ -224,7 +226,7 @@ class ServiceEditHandler(BaseHandler):
 
     target_artwork.title = artwork_json['title']
     target_artwork.byline = artwork_json['byline']
-    target_artwork.attribution = artwork_json['attribution']
+    target_artwork.attribution = artwork_json['attribution'] if 'attribution' in artwork_json else None
 
     new_image_url, new_thumb_url = maybe_process_image(
         artwork_json['imageUri'],

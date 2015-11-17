@@ -59,6 +59,8 @@ class FeaturedArtworkHandler(BaseHandler):
           detailsUri=current.details_url)
       if current.thumb_url:
         ret_obj['thumbUri'] = current.thumb_url
+      if current.attribution:
+        ret_obj['attribution'] = current.attribution
 
       # The next update time is the next START_TIME
       next_start_time = datetime.combine(date.today(), START_TIME)

@@ -44,6 +44,7 @@ class FeaturedArtwork(db.Model):
 
   title = db.StringProperty()
   byline = db.StringProperty()
+  attribution = db.StringProperty()
   image_url = db.LinkProperty()
   thumb_url = db.LinkProperty()
   details_url = db.LinkProperty()

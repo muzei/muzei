@@ -796,10 +796,12 @@ function renderCalendar() {
     var artwork = {
       title: $title.val(),
       byline: $byline.val(),
-      attribution: $attribution.val(),
       detailsUri: $detailsurl.val(),
       imageUri: $imageurl.val()
     };
+    if ($attribution.val()) {
+      artwork.attribution = $attribution.val();
+    }
 
     if (!isEmpty($thumburl.val())) {
       artwork.thumbUri = $thumburl.val();
@@ -813,7 +815,7 @@ function renderCalendar() {
       var artwork = JSON.parse($json.val());
       $title.val(artwork.title);
       $byline.val(artwork.byline);
-      $attribution.val(artwork.attribution);
+      $attribution.val(artwork.attribution || '');
       $detailsurl.val(artwork.detailsUri);
       $imageurl.val(artwork.imageUri);
       $thumburl.val(artwork.thumbUri);
@@ -879,7 +881,7 @@ function renderCalendar() {
       var clonedArtwork = JSON.parse(JSON.stringify(args.artwork));
       $title.val(clonedArtwork.title);
       $byline.val(clonedArtwork.byline);
-      $attribution.val(clonedArtwork.attribution);
+      $attribution.val(clonedArtwork.attribution || '');
       $detailsurl.val(clonedArtwork.detailsUri);
       $imageurl.val(clonedArtwork.imageUri);
       $thumburl.val(clonedArtwork.thumbUri);
