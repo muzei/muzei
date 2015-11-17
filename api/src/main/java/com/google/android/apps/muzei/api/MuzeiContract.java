@@ -117,6 +117,11 @@ public class MuzeiContract {
          */
         public static final String COLUMN_NAME_BYLINE = "byline";
         /**
+         * Column name for the artwork's attribution info.
+         * <p>Type: TEXT
+         */
+        public static final String COLUMN_NAME_ATTRIBUTION = "attribution";
+        /**
          * Column name for the artwork's opaque application-specific identifier.
          * <p>Type: TEXT
          */

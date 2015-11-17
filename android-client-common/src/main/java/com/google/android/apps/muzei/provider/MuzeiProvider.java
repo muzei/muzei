@@ -104,6 +104,8 @@ public class MuzeiProvider extends ContentProvider {
                 MuzeiContract.Artwork.COLUMN_NAME_TITLE);
         allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_BYLINE,
                 MuzeiContract.Artwork.COLUMN_NAME_BYLINE);
+        allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_ATTRIBUTION,
+                MuzeiContract.Artwork.COLUMN_NAME_ATTRIBUTION);
         allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_TOKEN,
                 MuzeiContract.Artwork.COLUMN_NAME_TOKEN);
         allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT,
@@ -241,6 +243,7 @@ public class MuzeiProvider extends ContentProvider {
                     + " INTEGER PRIMARY KEY AUTOINCREMENT," + MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI
                     + " TEXT," + MuzeiContract.Artwork.COLUMN_NAME_TITLE + " TEXT,"
                     + MuzeiContract.Artwork.COLUMN_NAME_BYLINE + " TEXT,"
+                    + MuzeiContract.Artwork.COLUMN_NAME_ATTRIBUTION + " TEXT,"
                     + MuzeiContract.Artwork.COLUMN_NAME_TOKEN + " TEXT,"
                     + MuzeiContract.Artwork.COLUMN_NAME_META_FONT + " TEXT,"
                     + MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT + " TEXT);");

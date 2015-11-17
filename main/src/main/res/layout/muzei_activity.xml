@@ -110,6 +110,22 @@
                 android:orientation="vertical">
 
                 <com.google.android.apps.muzei.util.ShadowDipsTextView
+                    android:id="@+id/attribution"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/art_detail_attribution_text_size"
+                    android:textColor="#cfff"
+                    app:shadowColor="#8000"
+                    app:shadowDx="0dp"
+                    app:shadowDy="1dp"
+                    app:shadowRadius="3dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:paddingStart="@dimen/art_detail_metadata_margin"
+                    android:layout_marginBottom="@dimen/art_detail_attribution_title_margin"
+                    android:paddingTop="@dimen/art_detail_metadata_margin"
+                    android:paddingEnd="@dimen/art_detail_metadata_margin" />
+
+                <com.google.android.apps.muzei.util.ShadowDipsTextView
                     android:id="@+id/title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -138,6 +154,7 @@
                     android:paddingStart="@dimen/art_detail_metadata_margin"
                     android:paddingBottom="@dimen/art_detail_metadata_margin_bottom"
                     android:paddingEnd="@dimen/art_detail_metadata_margin" />
+
             </LinearLayout>
         </FrameLayout>
 

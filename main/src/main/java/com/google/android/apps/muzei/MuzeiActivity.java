@@ -38,6 +38,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.SparseIntArray;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -140,6 +141,7 @@ public class MuzeiActivity extends AppCompatActivity {
     private View mNextButton;
     private TextView mTitleView;
     private TextView mBylineView;
+    private TextView mAttributionView;
     private PanScaleProxyView mPanScaleProxyView;
     private boolean mArtworkLoading = false;
     private boolean mArtworkLoadingError = false;
@@ -510,6 +512,7 @@ public class MuzeiActivity extends AppCompatActivity {
 
         mTitleView = (TextView) findViewById(R.id.title);
         mBylineView = (TextView) findViewById(R.id.byline);
+        mAttributionView = (TextView) findViewById(R.id.attribution);
 
         setupOverflowButton();
 
@@ -647,6 +650,14 @@ public class MuzeiActivity extends AppCompatActivity {
 
             mBylineView.setTypeface(TypefaceUtil.getAndCache(this, bylineFont));
             mBylineView.setText(mCurrentArtwork.getByline());
+
+            String attribution = mCurrentArtwork.getAttribution();
+            if (!TextUtils.isEmpty(attribution)) {
+                mAttributionView.setText(attribution);
+                mAttributionView.setVisibility(View.VISIBLE);
+            } else {
+                mAttributionView.setVisibility(View.GONE);
+            }
 
             final Intent viewIntent = mCurrentArtwork.getViewIntent();
             mMetadataView.setEnabled(viewIntent != null);

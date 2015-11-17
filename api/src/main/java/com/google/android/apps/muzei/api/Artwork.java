@@ -43,6 +43,7 @@ public class Artwork {
     private static final String KEY_IMAGE_URI = "imageUri";
     private static final String KEY_TITLE = "title";
     private static final String KEY_BYLINE = "byline";
+    private static final String KEY_ATTRIBUTION = "attribution";
     private static final String KEY_TOKEN = "token";
     private static final String KEY_VIEW_INTENT = "viewIntent";
     private static final String KEY_DETAILS_URI = "detailsUri";
@@ -51,6 +52,7 @@ public class Artwork {
     private Uri mImageUri;
     private String mTitle;
     private String mByline;
+    private String mAttribution;
     private String mToken;
     private Intent mViewIntent;
     private String mMetaFont;
@@ -84,6 +86,15 @@ public class Artwork {
      */
     public String getByline() {
         return mByline;
+    }
+
+    /**
+     * Returns the artwork's user-visible attribution text, or null if it doesn't have any.
+     *
+     * @see Artwork.Builder#attribution(String)
+     */
+    public String getAttribution() {
+        return mAttribution;
     }
 
     /**
@@ -143,6 +154,15 @@ public class Artwork {
     }
 
     /**
+     * Sets the artwork's user-visible attribution text.
+     *
+     * @see Artwork.Builder#attribution(String)
+     */
+    public void setAttribution(String attribution) {
+        mAttribution = attribution;
+    }
+
+    /**
      * Sets the artwork's opaque application-specific identifier.
      *
      * @see Artwork.Builder#token(String)
@@ -180,6 +200,7 @@ public class Artwork {
      *         .imageUri(Uri.parse("http://example.com/image.jpg"))
      *         .title("Example image")
      *         .byline("Unknown person, c. 1980")
+     *         .attribution("Copyright (C) Unknown person, 1980")
      *         .viewIntent(new Intent(Intent.ACTION_VIEW,
      *                 Uri.parse("http://example.com/imagedetails.html")))
      *         .build();
@@ -236,6 +257,14 @@ public class Artwork {
         }
 
         /**
+         * Sets the artwork's user-visible attribution text.
+         */
+        public Builder attribution(String attribution) {
+            mArtwork.mAttribution = attribution;
+            return this;
+        }
+
+        /**
          * Sets the artwork's opaque application-specific identifier.
          */
         public Builder token(String token) {
@@ -288,6 +317,7 @@ public class Artwork {
         bundle.putString(KEY_IMAGE_URI, (mImageUri != null) ? mImageUri.toString() : null);
         bundle.putString(KEY_TITLE, mTitle);
         bundle.putString(KEY_BYLINE, mByline);
+        bundle.putString(KEY_ATTRIBUTION, mAttribution);
         bundle.putString(KEY_TOKEN, mToken);
         bundle.putString(KEY_VIEW_INTENT, (mViewIntent != null)
                 ? mViewIntent.toUri(Intent.URI_INTENT_SCHEME) : null);
@@ -302,6 +332,7 @@ public class Artwork {
         Builder builder = new Builder()
                 .title(bundle.getString(KEY_TITLE))
                 .byline(bundle.getString(KEY_BYLINE))
+                .attribution(bundle.getString(KEY_ATTRIBUTION))
                 .token(bundle.getString(KEY_TOKEN))
                 .metaFont(bundle.getString(KEY_META_FONT));
 
@@ -329,6 +360,7 @@ public class Artwork {
         jsonObject.put(KEY_IMAGE_URI, (mImageUri != null) ? mImageUri.toString() : null);
         jsonObject.put(KEY_TITLE, mTitle);
         jsonObject.put(KEY_BYLINE, mByline);
+        jsonObject.put(KEY_ATTRIBUTION, mAttribution);
         jsonObject.put(KEY_TOKEN, mToken);
         jsonObject.put(KEY_VIEW_INTENT, (mViewIntent != null)
                 ? mViewIntent.toUri(Intent.URI_INTENT_SCHEME) : null);
@@ -343,6 +375,7 @@ public class Artwork {
         Builder builder = new Builder()
                 .title(jsonObject.optString(KEY_TITLE))
                 .byline(jsonObject.optString(KEY_BYLINE))
+                .attribution(jsonObject.optString(KEY_ATTRIBUTION))
                 .token(jsonObject.optString(KEY_TOKEN))
                 .metaFont(jsonObject.optString(KEY_META_FONT));
 
@@ -374,6 +407,7 @@ public class Artwork {
                 ? mImageUri.toString() : null);
         values.put(MuzeiContract.Artwork.COLUMN_NAME_TITLE, mTitle);
         values.put(MuzeiContract.Artwork.COLUMN_NAME_BYLINE, mByline);
+        values.put(MuzeiContract.Artwork.COLUMN_NAME_ATTRIBUTION, mAttribution);
         values.put(MuzeiContract.Artwork.COLUMN_NAME_TOKEN, mToken);
         values.put(MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT, (mViewIntent != null)
                 ? mViewIntent.toUri(Intent.URI_INTENT_SCHEME) : null);
@@ -398,6 +432,10 @@ public class Artwork {
         if (bylineColumnIndex != -1) {
             builder.byline(cursor.getString(bylineColumnIndex));
         }
+        int attributionColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_ATTRIBUTION);
+        if (attributionColumnIndex != -1) {
+            builder.attribution(cursor.getString(attributionColumnIndex));
+        }
         int tokenColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_TOKEN);
         if (tokenColumnIndex != -1) {
             builder.token(cursor.getString(tokenColumnIndex));
@@ -414,7 +452,7 @@ public class Artwork {
         }
         int metaFontColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_META_FONT);
         if (metaFontColumnIndex != -1) {
-            builder.byline(cursor.getString(metaFontColumnIndex));
+            builder.metaFont(cursor.getString(metaFontColumnIndex));
         }
         return builder.build();
     }

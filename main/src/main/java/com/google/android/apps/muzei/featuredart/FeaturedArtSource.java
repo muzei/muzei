@@ -87,8 +87,9 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
                     .title("The Starry Night")
                     .token("initial")
                     .byline("Vincent van Gogh, 1889.\nMuzei shows a new painting every day.")
+                    .attribution("wikiart.org")
                     .viewIntent(new Intent(Intent.ACTION_VIEW,
-                            Uri.parse("http://www.wikipaintings.org/en/vincent-van-gogh/the-starry-night-1889")))
+                            Uri.parse("http://www.wikiart.org/en/vincent-van-gogh/the-starry-night-1889")))
                     .metaFont(Artwork.FONT_TYPE_ELEGANT)
                     .build());
             commands.add(new UserCommand(BUILTIN_COMMAND_ID_NEXT_ARTWORK));
@@ -246,9 +247,10 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
                     .title(intent.getStringExtra("title"))
                     .token(intent.getStringExtra("image"))
                     .byline(intent.getStringExtra("byline"))
+                    .attribution(intent.getStringExtra("attribution"))
                     .viewIntent(new Intent(Intent.ACTION_VIEW,
                             Uri.parse(intent.getStringExtra("details"))))
-                    .metaFont(Artwork.FONT_TYPE_ELEGANT)
+                    .metaFont(intent.getStringExtra("metafont"))
                     .build());
             removeAllUserCommands();
         }
