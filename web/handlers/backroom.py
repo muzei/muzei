@@ -49,7 +49,23 @@ def artwork_dict(a):
   return d
 
 
-class ServiceListHandler(BaseHandler):
+class BaseBackroomHandler(webapp2.RequestHandler):
+  def handle_exception(self, exception, debug):
+    # Log the error.
+    logging.exception(exception)
+
+    # Set a custom message.
+    self.response.write(exception.message)
+
+    # If the exception is a HTTPException, use its error code.
+    # Otherwise use a generic 500 error code.
+    if isinstance(exception, webapp2.HTTPException):
+      self.response.set_status(exception.code)
+    else:
+      self.response.set_status(500)
+
+
+class ServiceListHandler(BaseBackroomHandler):
   def get(self):
     self.response.headers['Content-Type'] = 'application/json'
     self.response.out.write(self.render())
@@ -119,13 +135,16 @@ def maybe_process_image(image_url, crop_tuple, base_name):
           CLOUD_STORAGE_ROOT_URL + thumb_gcs_path)
 
 
-class ServiceAddHandler(BaseHandler):
+class ServiceAddHandler(BaseBackroomHandler):
   def post(self):
-    artwork_json = json.loads(self.request.get('json'))
-    crop_tuple = tuple(float(x) for x in json.loads(self.request.get('crop')))
     publish_date = (datetime.datetime
         .utcfromtimestamp(artwork_json['publishDate'] / 1000)
         .date())
+    if FeaturedArtwork.all().filter('publish_date=', publish_date).get() != None:
+      webapp2.abort(409, message='Artwork already exists for this date.')
+
+    artwork_json = json.loads(self.request.get('json'))
+    crop_tuple = tuple(float(x) for x in json.loads(self.request.get('crop')))
 
     new_image_url, new_thumb_url = maybe_process_image(
         artwork_json['imageUri'],
@@ -148,21 +167,21 @@ class ServiceAddHandler(BaseHandler):
     self.response.set_status(200)
 
 
-class ServiceAddFromExternalArtworkUrlHandler(BaseHandler):
+class ServiceAddFromExternalArtworkUrlHandler(BaseBackroomHandler):
   def post(self):
-    external_artwork_url = self.request.get('externalArtworkUrl')
-    result = urlfetch.fetch(external_artwork_url)
+    publish_date = (datetime.datetime
+        .utcfromtimestamp(int(self.request.get('publishDate')) / 1000)
+        .date())
+    if FeaturedArtwork.all().filter('publish_date =', publish_date).get() != None:
+      webapp2.abort(409, message='Artwork already exists for this date.')
+
+    url = self.request.get('externalArtworkUrl')
+    result = urlfetch.fetch(url)
     if result.status_code < 200 or result.status_code >= 300:
-      self.response.out.write('Error processing URL: HTTP %d. Content: %s'
+      webapp2.abort(400, message='Error processing URL: HTTP %d. Content: %s'
           % (result.status_code, result.content))
-      self.response.set_status(500)
-      return
 
-    self.process_html(external_artwork_url, result.content)
-
-
-  def process_html(self, url, html):
-    soup = BeautifulSoup(html)
+    soup = BeautifulSoup(result.content)
     attribution = None
 
     if re.search(r'wikiart.org', url, re.I):
@@ -183,18 +202,11 @@ class ServiceAddFromExternalArtworkUrlHandler(BaseHandler):
       byline = author + ((', ' + completion_year_el) if completion_year_el else '')
       image_url = soup.find('a', class_='download').attrs['href']
     else:
-      self.response.out.write('Unrecognized URL')
-      self.response.set_status(500)
-      return      
+      webapp2.abort(400, message='Unrecognized URL')
 
     if not title or not author or not image_url:
-      self.response.out.write('Could not parse HTML')
-      self.response.set_status(500)
-      return
+      webapp2.abort(500, message='Could not parse HTML')
 
-    publish_date = (datetime.datetime
-        .utcfromtimestamp(int(self.request.get('publishDate')) / 1000)
-        .date())
     image_url, thumb_url = maybe_process_image(image_url,
         NO_CROP_TUPLE,
         publish_date.strftime('%Y%m%d') + ' ' + title + ' ' + byline)
@@ -214,15 +226,14 @@ class ServiceAddFromExternalArtworkUrlHandler(BaseHandler):
     self.response.out.write(json.dumps(artwork_dict(new_artwork)))
 
 
-class ServiceEditHandler(BaseHandler):
+class ServiceEditHandler(BaseBackroomHandler):
   def post(self):
     id = long(self.request.get('id'))
     artwork_json = json.loads(self.request.get('json'))
     crop_tuple = tuple(float(x) for x in json.loads(self.request.get('crop')))
     target_artwork = FeaturedArtwork.get_by_id(id)
     if not target_artwork:
-      self.response.set_status(404)
-      return
+      webapp2.abort(404)
 
     target_artwork.title = artwork_json['title']
     target_artwork.byline = artwork_json['byline']
@@ -246,7 +257,7 @@ class ServiceEditHandler(BaseHandler):
     self.response.out.write(json.dumps(artwork_dict(target_artwork)))
 
 
-class ServiceMoveHandler(BaseHandler):
+class ServiceMoveHandler(BaseBackroomHandler):
   def post(self):
     id = long(self.request.get('id'))
     publish_date = (datetime.datetime
@@ -254,8 +265,7 @@ class ServiceMoveHandler(BaseHandler):
         .date())
     target_artwork = FeaturedArtwork.get_by_id(id)
     if not target_artwork:
-      self.response.set_status(404)
-      return
+      webapp2.abort(404)
 
     # shift other artworks over
     self.move_artwork(target_artwork, publish_date, target_artwork.key().id())
@@ -271,18 +281,18 @@ class ServiceMoveHandler(BaseHandler):
     artwork.save()
 
 
-class ServiceRemoveHandler(BaseHandler):
+class ServiceRemoveHandler(BaseBackroomHandler):
   def post(self):
     id = long(self.request.get('id'))
     target_artwork = FeaturedArtwork.get_by_id(id)
     if not target_artwork:
-      self.response.set_status(404)
-      return
+      webapp2.abort(404)
+
     target_artwork.delete()
     self.response.set_status(200)
 
 
-class ScheduleHandler(BaseHandler):
+class ScheduleHandler(BaseBackroomHandler):
   def get(self):
     self.response.out.write(self.render())
 

@@ -412,9 +412,7 @@ function removeArtwork(id, callback) {
   }).done(function() {
     setTimeout(reloadArtworksForCurrentMonth, 500);
     callback();
-  }).fail(function() {
-    alert('error removing');
-  });
+  }).fail(ajaxErrorHandler());
 }
 
 function moveArtwork(id, publishDate, callback) {
@@ -426,9 +424,7 @@ function moveArtwork(id, publishDate, callback) {
   }).done(function() {
     setTimeout(reloadArtworksForCurrentMonth, 500);
     callback();
-  }).fail(function() {
-    alert('error moving');
-  });
+  }).fail(ajaxErrorHandler());
 }
 
 function addArtwork(artwork, crop, callback) {
@@ -441,9 +437,7 @@ function addArtwork(artwork, crop, callback) {
   }).done(function(artwork) {
     setTimeout(reloadArtworksForCurrentMonth, 500);
     callback(artwork);
-  }).fail(function() {
-    alert('error adding');
-  });
+  }).fail(ajaxErrorHandler());
 }
 
 function addArtworkFromExternalArtworkUrl(url, publishDate, callback) {
@@ -456,9 +450,7 @@ function addArtworkFromExternalArtworkUrl(url, publishDate, callback) {
   }).done(function(artwork) {
     setTimeout(reloadArtworksForCurrentMonth, 500);
     callback(artwork);
-  }).fail(function() {
-    alert('error adding');
-  });
+  }).fail(ajaxErrorHandler());
 }
 
 function editArtwork(id, artwork, crop, callback) {
@@ -470,9 +462,13 @@ function editArtwork(id, artwork, crop, callback) {
   }).done(function() {
     setTimeout(reloadArtworksForCurrentMonth, 500);
     callback();
-  }).fail(function() {
-    alert('error editing');
-  });
+  }).fail(ajaxErrorHandler());
+}
+
+function ajaxErrorHandler() {
+  return function(jqXHR, textStatus, errorThrown) {
+    alert('Error: ' + jqXHR.responseText || errorThrown || textStatus);
+  };
 }
 
 function renderCalendar() {
@@ -721,7 +717,6 @@ function renderCalendar() {
       var url = window.prompt('Enter artwork detail URL (must be WikiArt or MET)');
       if (url) {
         addArtworkFromExternalArtworkUrl(url, g_editorState.publishDate, function(artwork) {
-          console.log(artwork);
           //hideEditor();
           showEditor({
             action: 'edit',
