@@ -109,15 +109,20 @@
                 <action android:name="com.google.android.apps.muzei.api.MuzeiArtSource" />
             </intent-filter>
             <meta-data android:name="settingsActivity"
-                android:value="com.google.android.apps.muzei.gallery.GallerySettingsActivity" />
+                android:value="com.google.android.apps.muzei.gallery.GallerySettingsProxyActivity" />
+            <meta-data android:name="requiresSetup" android:value="true" />
             <meta-data android:name="color" android:value="#4db6ac" />
         </service>
+
+        <activity android:name="com.google.android.apps.muzei.gallery.GallerySettingsProxyActivity"
+            android:label="@string/gallery_source_settings_title"
+            android:theme="@style/Theme.Muzei.GallerySettingsProxy"
+            android:exported="true" />
 
         <activity android:name="com.google.android.apps.muzei.gallery.GallerySettingsActivity"
             android:label="@string/gallery_source_settings_title"
             android:parentActivityName="com.google.android.apps.muzei.settings.SettingsActivity"
-            android:theme="@style/Theme.Muzei.GallerySettings"
-            android:exported="true" />
+            android:theme="@style/Theme.Muzei.GallerySettings" />
 
         <!-- Target for "Set As" intent -->
 

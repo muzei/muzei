@@ -89,6 +89,8 @@ public class SettingsChooseSourceFragment extends Fragment {
 
     private static final float ALPHA_UNSELECTED = 0.4f;
 
+    private static final int REQUEST_EXTENSION_INITIAL_SETUP = 1;
+
     private SourceManager mSourceManager;
     private ComponentName mSelectedSource;
     private List<Source> mSources = new ArrayList<>();
@@ -112,8 +114,7 @@ public class SettingsChooseSourceFragment extends Fragment {
     private Drawable mSelectedSourceImage;
     private int mSelectedSourceIndex;
 
-    private ComponentName mGalleryArtSourceComponentName;
-    private static final int REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 1;
+    private ComponentName mCurrentInitialSetupSource;
 
     public SettingsChooseSourceFragment() {
     }
@@ -131,8 +132,6 @@ public class SettingsChooseSourceFragment extends Fragment {
 
         mSourceManager = SourceManager.getInstance(getActivity());
         EventBus.getDefault().register(this);
-
-        mGalleryArtSourceComponentName = new ComponentName(getActivity(), GalleryArtSource.class);
 
         prepareGenerateSourceImages();
     }
@@ -178,26 +177,26 @@ public class SettingsChooseSourceFragment extends Fragment {
         mRootView.setVisibility(View.INVISIBLE);
         mRootView.getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
-            int mPass = 0;
+                    int mPass = 0;
 
-            @Override
-            public void onGlobalLayout() {
-                if (mPass == 0) {
-                    // First pass
-                    updatePadding();
-                    ++mPass;
-                } else if (mPass == 1 & mSelectedSourceIndex >= 0) {
-                    // Second pass
-                    mSourceScrollerView.setScrollX(mItemWidth * mSelectedSourceIndex);
-                    showScrollbar();
-                    mRootView.setVisibility(View.VISIBLE);
-                    ++mPass;
-                } else {
-                    // Last pass, remove the listener
-                    mRootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                }
-            }
-        });
+                    @Override
+                    public void onGlobalLayout() {
+                        if (mPass == 0) {
+                            // First pass
+                            updatePadding();
+                            ++mPass;
+                        } else if (mPass == 1 & mSelectedSourceIndex >= 0) {
+                            // Second pass
+                            mSourceScrollerView.setScrollX(mItemWidth * mSelectedSourceIndex);
+                            showScrollbar();
+                            mRootView.setVisibility(View.VISIBLE);
+                            ++mPass;
+                        } else {
+                            // Last pass, remove the listener
+                            mRootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        }
+                    }
+                });
 
         mRootView.setAlpha(0);
         mRootView.animate().alpha(1f).setDuration(500);
@@ -276,6 +275,7 @@ public class SettingsChooseSourceFragment extends Fragment {
             return;
         }
 
+        // This is a newly selected source.
         boolean selected;
         int index = -1;
         for (final Source source : mSources) {
@@ -386,6 +386,7 @@ public class SettingsChooseSourceFragment extends Fragment {
                             ri.serviceInfo.packageName + "/" + settingsActivity);
                 }
 
+                source.requiresSetup = metaData.getBoolean("requiresSetup", false);
                 source.color = metaData.getInt("color", source.color);
 
                 try {
@@ -452,8 +453,9 @@ public class SettingsChooseSourceFragment extends Fragment {
                 public void onClick(View view) {
                     if (source.componentName.equals(mSelectedSource)) {
                         ((Callbacks) getActivity()).onRequestCloseActivity();
-                    } else if (source.componentName.equals(mGalleryArtSourceComponentName)) {
-                        trySelectGalleryArtSource();
+                    } else if (source.requiresSetup) {
+                        mCurrentInitialSetupSource = source.componentName;
+                        launchSourceSettings(source, true);
                     } else {
                         mSourceManager.selectSource(source.componentName);
                     }
@@ -497,13 +499,7 @@ public class SettingsChooseSourceFragment extends Fragment {
             source.settingsButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    try {
-                        startActivity(new Intent()
-                                .setComponent(source.settingsActivity)
-                                .putExtra(MuzeiArtSource.EXTRA_FROM_MUZEI_SETTINGS, true));
-                    } catch (ActivityNotFoundException | SecurityException e) {
-                        LOGE(TAG, "Can't launch source settings.", e);
-                    }
+                    launchSourceSettings(source, false);
                 }
             });
 
@@ -515,66 +511,34 @@ public class SettingsChooseSourceFragment extends Fragment {
         updateSelectedItem(false);
     }
 
-    private void trySelectGalleryArtSource() {
-        Context context = getActivity();
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED) {
-            mSourceManager.selectSource(mGalleryArtSourceComponentName);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestPermissions(
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
+    private void launchSourceSettings(Source source, boolean initialSetup) {
+        try {
+            Intent settingsIntent = new Intent()
+                    .setComponent(source.settingsActivity)
+                    .putExtra(MuzeiArtSource.EXTRA_FROM_MUZEI_SETTINGS, true);
+            if (initialSetup) {
+                settingsIntent.putExtra(MuzeiArtSource.EXTRA_INITIAL_SETUP, true);
+                startActivityForResult(settingsIntent, REQUEST_EXTENSION_INITIAL_SETUP);
+            } else {
+                startActivity(settingsIntent);
+            }
+        } catch (ActivityNotFoundException | SecurityException e) {
+            LOGE(TAG, "Can't launch source settings.", e);
         }
     }
 
     @Override
-    @TargetApi(Build.VERSION_CODES.M)
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode != REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_EXTENSION_INITIAL_SETUP) {
+            if (resultCode == Activity.RESULT_OK && mCurrentInitialSetupSource != null) {
+                mSourceManager.selectSource(mCurrentInitialSetupSource);
+            }
+
+            mCurrentInitialSetupSource = null;
             return;
         }
 
-        final Activity activity = getActivity();
-        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            trySelectGalleryArtSource();
-        } else if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permissions[0])) {
-            new AlertDialog.Builder(activity, R.style.Theme_Muzei_Dialog)
-                    .setMessage(R.string.gallery_permission_dialog_soft_message)
-                    .setPositiveButton(
-                            R.string.gallery_permission_dialog_soft_positive_action_title,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    requestPermissions(
-                                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                                            REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
-                                }
-                            })
-                    .setNegativeButton(
-                            R.string.gallery_permission_dialog_soft_negative_action_title, null)
-                    .show();
-        } else {
-            new AlertDialog.Builder(activity, R.style.Theme_Muzei_Dialog)
-                    .setTitle(R.string.gallery_permission_dialog_hard_title)
-                    .setMessage(R.string.gallery_permission_dialog_hard_message)
-                    .setPositiveButton(
-                            R.string.gallery_permission_dialog_hard_positive_title,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    Intent intent = new Intent(
-                                            Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                    Uri uri = Uri.fromParts(
-                                            "package", activity.getPackageName(), null);
-                                    intent.setData(uri);
-                                    startActivity(intent);
-                                }
-                            })
-                    .setNegativeButton(
-                            R.string.gallery_permission_dialog_hard_negative_title, null)
-                    .show();
-        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void updateSourceStatusUi(Source source, SourceState state) {
@@ -640,6 +604,7 @@ public class SettingsChooseSourceFragment extends Fragment {
         public ComponentName settingsActivity;
         public View selectSourceButton;
         public View settingsButton;
+        public boolean requiresSetup;
     }
 
     public interface Callbacks {
