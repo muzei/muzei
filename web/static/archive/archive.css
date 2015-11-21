@@ -40,11 +40,16 @@ html, body {
 
 .header {
   text-align: center;
+  z-index: 100;
+}
+
+.header span {
   opacity: 0.3;
 }
 
 .header img {
   height: 24px;
+  opacity: 0.3;
 }
 
 .header .logo-icon {
@@ -99,6 +104,7 @@ html, body {
   width: 100%;
   height: 100%;
   -webkit-user-select: none;
+  -moz-user-select: none;
   -webkit-transition: opacity 0.2s;
   user-select: none;
   transition: opacity 0.2s;
@@ -123,9 +129,21 @@ html, body {
   z-index: 1000;
 }
 
+.month-carousel-container {
+  cursor: -webkit-grab;
+  cursor: grab;
+}
+
 .month.active {
   opacity: 1;
-  cursor: default;
+  cursor: -webkit-grab;
+  cursor: grab;
+}
+
+.month-carousel-container.panning,
+.month-carousel-container.panning * {
+  cursor: -webkit-grabbing;
+  cursor: grabbing;
 }
 
 .month.active .click-screen {
@@ -137,14 +155,14 @@ html, body {
 .month-row {
   -webkit-flex-shrink: 0;
   flex-shrink: 0;
-  margin-top: 4px;
-  margin-bottom: 4px;
+  margin: 0;
 }
 
 .month-row.month-header {
   font-family: 'alegreya sans';
   font-weight: 800;
   font-size: 28px;
+  margin-top: 16px;
   text-align: center;
 }
 
@@ -154,8 +172,8 @@ html, body {
   -webkit-flex-direction: row;
   flex-direction: row;
   width: 100%;
-  margin-top: 8px;
-  margin-bottom: 4px;
+  margin-top: 24px;
+  margin-bottom: 8px;
   font-family: 'alegreya sans';
   font-weight: 700;
   font-size: 12px;
@@ -206,12 +224,10 @@ html, body {
 }
 
 .days .cell .meta {
-  visibility: hidden;
   position: absolute;
   top: 50%;
   width: 100%;
   padding: 4px 8px;
-  z-index: 1;
   background-color: #111;
   border-bottom: 4px solid white;
   color: #fff;
@@ -222,22 +238,22 @@ html, body {
   pointer-events: none;
   box-sizing: border-box;
   opacity: 0;
-  -webkit-transition: opacity 0.2s, top 0.2s;
-  transition: opacity 0.2s, top 0.2s;
+  z-index: 2;
+}
+
+.days .cell .meta .title {
+  display: none;
 }
 
 .days .cell:hover {
-  z-index: 1;
+  z-index: 10;
 }
 
 .days .cell:hover .meta {
-  visibility: visible;
   opacity: 1;
   top: 100%;
-}
-
-.days .cell:hover .image {
-  z-index: 3;
+  transition: opacity 0.2s, top 0.2s;
+  -webkit-transition: opacity 0.2s, top 0.2s;
 }
 
 .days .cell .overlay-link {
@@ -251,13 +267,12 @@ html, body {
   background-color: rgba(0,0,0,0.4);
   -webkit-transition: opacity 0.2s;
   transition: opacity 0.2s;
+  z-index: 1;
 }
 
 .days .cell:hover .overlay-link {
   opacity: 0;
-  z-index: 3;
 }
-
 
 .days .cell.today .overlay-link,
 .days .cell.past .overlay-link {
@@ -300,34 +315,18 @@ html, body {
   text-shadow: 0 0 1px white, 0 0 1px white, 0 0 1px white, 0 0 1px white, 0 0 1px white;
 }
 
-/*.days .cell.today:after {
-  content: 'today';
-  font-family: 'alegreya sans';
-  font-size: 13px;
-  font-weight: 800;
-  text-shadow: 0 1px 0 rgba(0,0,0,0.1);
-  text-transform: uppercase;
-  text-align: center;
-  pointer-events: none;
-  position: absolute;
-  bottom: 0;
-  z-index: 100;
-  width: 100%;
-  height: auto;
-  box-sizing: border-box;
-  padding: 4px 2px;
-  background-color: rgba(242,190,25,1);
-}*/
-
 @media (max-width: 800px) {
   .month-row.month-header {
     font-size: 16px;
-    margin-bottom: 0px;
+    line-height: 40px;
+    padding: 0;
+    margin: 0;
+    border-bottom: 1px solid rgba(0,0,0,0.2);
   }
 
   .header {
-    margin-top: 8px;
-    margin-bottom: 0px;
+    margin-top: 0;
+    margin-bottom: 0;
   }
 
   .header img {
@@ -345,7 +344,23 @@ html, body {
   }
 
   .header .logo-icon {
-    display: inline;
+    display: block;
+    position: absolute;
+    left: 8px;
+    top: 8px;
+  }
+
+  .header:before {
+    position: absolute;
+    display: block;
+    left: 0;
+    top: 0;
+    width: 80px;
+    height: 40px;
+    background: -moz-linear-gradient(left, white 50%, rgba(255,255,255,0) 100%);
+    background: -webkit-linear-gradient(left, white 50%, rgba(255,255,255,0) 100%);
+    background: linear-gradient(to right, white 50%, rgba(255,255,255,0) 100%);
+    content: '';
   }
 
   .header .logo-text {
@@ -353,7 +368,7 @@ html, body {
   }
 
   .main-strip, .month-carousel {
-    width: 320px;
+    width: 464px;
   }
 
   .month-row.weekday-labels {
@@ -364,17 +379,142 @@ html, body {
     display: none;
   }
 
+  /* cells */
+
+  .days {
+    padding-top: 16px;
+  }
+
+  .days .cell {
+    height: 64px;
+  }
+
+  .days .cell .image {
+    position: absolute;
+    left: 32px;
+    top: 0;
+    width: 64px;
+    height: 100%;
+    background-size: cover;
+  }
+
+  .days .cell .meta {
+    visibility: visible;
+    position: absolute;
+    left: 96px;
+    top: 0;
+    right: 0;
+    width: auto;
+    height: 100%;
+    padding: 6px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: transparent;
+    border-bottom: none;
+    color: #333;
+    font-size: 14px;
+    line-height: 16px;
+    box-sizing: border-box;
+    opacity: 1;
+  }
+
+  .days .cell .meta .byline {
+    white-space: nowrap;
+    width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+  .days .cell .meta .title {
+    display: block;
+    font-size: 16px;
+    line-height: 20px;
+    font-weight: 700;
+    width: 100%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+  .days .cell:hover .meta {
+    visibility: visible;
+    opacity: 1;
+    top: auto;
+  }
+
+  .days .cell .overlay-link {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+  }
+
+  .days .cell:hover .overlay-link {
+    opacity: 1;
+  }
+
+  .days .cell.today .overlay-link,
+  .days .cell.past .overlay-link {
+    display: -webkit-flex;
+    display: flex;
+  }
+
+  .days .cell .date {
+    position: absolute;
+    top: 50%;
+    left: 8px;
+    width: 16px;
+    text-align: center;
+    margin-top: -12px;
+    margin-left: 0;
+    font-size: 16px;
+    height: 24px;
+    line-height: 24px;
+    font-family: 'alegreya sans';
+    font-weight: 500;
+    color: #333;
+  }
+
+  .days .cell.today,
+  .days .cell.past {
+    background-color: transparent;
+    color: black;
+  }
+
+  .days .cell.today .image {
+    -webkit-filter: grayscale(100%);
+    filter: grayscale(100%);
+  }
+
+  .days .cell.today:hover .image {
+    -webkit-filter: none;
+    filter: none;
+  }
+
+  .days .cell.today .overlay-link {
+    background-color: rgba(242,190,25,0.7);
+  }
+
+  .days .cell.today .date {
+    font-weight: 800;
+    color: rgba(72, 48, 0, 1);
+    text-shadow: none;
+  }
+
   .cell {
-    width: 76px;
+    width: 100%;
   }
 }
 
 @media (max-width: 480px) {
   .main-strip, .month-carousel {
-    width: 260px;
+    width: 100%;
   }
 
-  .cell {
-    width: 82px;
+  .month {
+    padding: 0 0;
   }
 }

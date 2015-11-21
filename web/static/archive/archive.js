@@ -37,6 +37,8 @@ var ARCHIVE_BASE_URL = 'http://storage.googleapis.com/muzeifeaturedart/archiveme
 
 
 var $carousel = $('.month-carousel');
+var $carouselContainer = $('.month-carousel-container');
+
 var pageWidth = 0;
 var selectedMonth;
 
@@ -48,13 +50,8 @@ var selectedMonth;
   } else {
     selectMonth(TODAY_MONTH);
   }
-
-  // $(window).on('hashchange', function(e) {
-  //   selectMonth(monthFromKey(document.location.hash.substring(1)));
-  //   e.preventDefault();
-  //   return false;
-  // });
 })();
+
 
 $(window).resize(function() {
   var newPageWidth = $carousel.width();
@@ -63,6 +60,7 @@ $(window).resize(function() {
     relayout();
   }
 });
+
 
 $(document)
     .on('click', '.month .click-screen', function() {
@@ -75,6 +73,7 @@ $(document)
         selectMonth(nextMonth(selectedMonth));
       }
     });
+
 
 function renderMonth(month, force) {
   if (!isMonthInValidRange(month)) {
@@ -102,6 +101,7 @@ function renderMonth(month, force) {
   return $month;
 }
 
+
 function relayout() {
   $('.month').each(function() {
     var month = monthFromId($(this).attr('id'));
@@ -110,149 +110,113 @@ function relayout() {
   selectMonth(selectedMonth);
 }
 
-function selectMonth(month) {
+
+function selectMonth(month, move) {
+  if (move === undefined) {
+    move = true;
+  }
+
   if (!isMonthInValidRange(month)) {
-    selectMonth(selectedMonth);
+    selectMonth(selectedMonth, move);
     return;
   }
 
   renderMonth(month);
   $month = monthNode(month);
-  $carousel.addClass('animate');
-  $carousel.css({
-    'transform': 'translate3d(' + -($month.offset().left - $carousel.offset().left) + 'px,0,0)'
-  });
+
+  if (move) {
+    $carousel.addClass('animate');
+    $carousel.css({
+      'transform': 'translate3d(' + -($month.offset().left - $carousel.offset().left) + 'px,0,0)'
+    });
+
+    var newUrl = '/archive/' + monthUrlPath(month);
+    window.history.replaceState('', '', newUrl);
+    selectedMonth = month;
+  }
+
   $('.month').removeClass('active');
   $month.toggleClass('active', true);
-  selectedMonth = month;
 
-  var newUrl = '/archive/' + monthUrlPath(month);
-  window.history.replaceState('', '', newUrl);
-  //document.location.replace('#' + monthKey(month));
   renderMonth(prevMonth(month));
   renderMonth(nextMonth(month));
 }
 
-function clearMonth(month) {
-  monthNode(month).empty();
-}
-
-function isMonthInValidRange(month) {
-  return monthDistance(START_MONTH, month) >= 0 &&
-         monthDistance(month, TODAY_MONTH) >= 0;
-}
-
-function monthX(month) {
-  var monthSpacing = (pageWidth <= 320) ? MONTH_SPACING_NARROW : MONTH_SPACING_WIDE;
-  return -monthDistance(month, TODAY_MONTH) * (pageWidth + monthSpacing);
-}
-
-function monthNode(month) {
-  return $('#month-' + monthKey(month));
-}
-
-function monthKey(month) {
-  return month[0] + (month[1] < 10 ? '0' : '') + month[1];
-}
-
-function monthFromKey(key) {
-  return [parseInt(key.substring(0, 4), 10),
-          parseInt(key.substring(4, 6), 10)];
-}
-
-function monthUrlPath(month) {
-  return month[0] + '/' + month[1];
-}
-
-function monthFromUrlPath(path) {
-  var m = path.match(/(\d+)(\/(\d+))?/);
-  return [parseInt(m[1], 10),
-          parseInt(m[3] || 1, 10)];
-}
-
-function monthFromId(id) {
-  return [parseInt(id.substring(6, 10), 10),
-          parseInt(id.substring(10, 12), 10)];
-}
-
-function monthDistance(month1, month2) {
-  return (month2[0] - month1[0]) * 12 + (month2[1] - month1[1]);
-}
-
-function prevMonth(month) {
-  if (month[1] == 1) {
-    return [month[0] - 1, 12];
-  }
-
-  return [month[0], month[1] - 1];
-}
-
-function nextMonth(month) {
-  if (month[1] == 12) {
-    return [month[0] + 1, 1];
-  }
-
-  return [month[0], month[1] + 1];
-}
-
-// based on http://rawgit.com/EightMedia/hammer.js/1.1.3/tests/manual/carousel.html
-
-function handleHammer(ev) {
-  // disable browser scrolling
-  ev.gesture.preventDefault();
-
-  var currentPage = monthDistance(START_MONTH, selectedMonth);
-
-  switch (ev.type) {
-    case 'dragright':
-    case 'dragleft':
-      // stick to the finger
-      var monthOffset = monthX(selectedMonth);
-      var dragOffset = -ev.gesture.deltaX;
-
-      // slow down at the first and last pane
-      if ((currentPage == 0 && ev.gesture.direction == 'right') ||
-        (currentPage == NUM_CAROUSEL_PAGES - 1 && ev.gesture.direction == 'left')) {
-        dragOffset *= .4;
-      }
-
-      var offset = monthOffset + dragOffset;
-
-      $carousel.removeClass('animate');
-      $carousel.css({
-        'transform': 'translate3d(' + -offset + 'px,0,0)'
-      });
-      break;
-
-    case 'swipeleft':
-      selectMonth(nextMonth(selectedMonth));
-      ev.gesture.stopDetect();
-      break;
-
-    case 'swiperight':
-      selectMonth(prevMonth(selectedMonth));
-      ev.gesture.stopDetect();
-      break;
-
-    case 'release':
-      // more then 50% moved, navigate
-      if (Math.abs(ev.gesture.deltaX) > pageWidth / 2) {
-        if (ev.gesture.direction == 'right') {
-          selectMonth(prevMonth(selectedMonth));
-        } else {
-          selectMonth(nextMonth(selectedMonth));
-        }
-      } else {
-        selectMonth(selectedMonth);
-      }
-      break;
-  }
-}
 
 $(document).ready(function() {
-  new Hammer($carousel.get(0), { dragLockToAxis: true })
-      .on("release dragleft dragright swipeleft swiperight", handleHammer);
+  var hammer = new Hammer($carouselContainer.get(0), { dragLockToAxis: true });
+  var panning = false;
+  $carouselContainer.on('dragstart', function(ev) {
+    ev.preventDefault();
+  });
+  $carouselContainer.on('click', function(ev) {
+    if (panning) {
+      ev.preventDefault();
+    }
+  });
+  hammer.on('panend pan swipe', function(ev) {
+    // disable browser scrolling
+    ev.preventDefault();
+    ev.srcEvent.preventDefault();
+
+    var currentPage = monthDistance(START_MONTH, selectedMonth);
+    var right = ev.deltaX < 0;
+
+    switch (ev.type) {
+      case 'pan':
+        panning = true;
+        $carouselContainer.addClass('panning');
+
+        // stick to the finger
+        var monthOffset = monthX(selectedMonth);
+        var dragOffset = -ev.deltaX;
+
+        // slow down at the first and last pane
+        if ((currentPage == 0 && !right) ||
+          (currentPage == NUM_CAROUSEL_PAGES - 1 && right)) {
+          dragOffset *= .4;
+        }
+
+        var offset = monthOffset + dragOffset;
+
+        $carousel.removeClass('animate');
+        $carousel.css('transform', 'translate3d(' + -offset + 'px,0,0)');
+
+        // more then 50% moved, navigate
+        if (Math.abs(ev.deltaX) > pageWidth / 2) {
+          selectMonth((right ? nextMonth : prevMonth)(selectedMonth), false);
+        } else {
+          selectMonth(selectedMonth, false);
+        }
+        break;
+
+      case 'swipe':
+        right = (ev.direction & Hammer.DIRECTION_RIGHT) == 0;
+        $carouselContainer.removeClass('panning');
+        setTimeout(function() {
+          panning = false;
+        }, 0);
+        selectMonth((right ? nextMonth : prevMonth)(selectedMonth));
+        ev.srcEvent.stopPropagation();
+        hammer.stop(true);
+        break;
+
+      case 'panend':
+        $carouselContainer.removeClass('panning');
+        setTimeout(function() {
+          panning = false;
+        }, 0);
+        // more then 50% moved, navigate
+        if (Math.abs(ev.deltaX) > pageWidth / 2) {
+          selectMonth((right ? nextMonth : prevMonth)(selectedMonth));
+        } else {
+          selectMonth(selectedMonth);
+        }
+        break;
+    }
+  });
 });
+
 
 /*
  * Month page
@@ -375,6 +339,7 @@ function renderMonthContents(month) {
   loadArchiveData(archiveKey);
 }
 
+
 // loosely based on http://www.kylescholz.com/blog/2010/01/progressive_xmlhttprequest_1.html
 function loadArchiveData(archiveKey) {
   var xhr = new XMLHttpRequest();
@@ -408,7 +373,10 @@ function loadArchiveData(archiveKey) {
       var itemMeta = itemsMeta[i];
       var date = new Date(itemMeta.publish_date);
       $dayCell = dayNode(date);
-      $dayCell.find('.meta').text(itemMeta.byline);
+      $dayCell.find('.meta')
+          .empty()
+          .append($('<span>').addClass('title').text(itemMeta.title))
+          .append($('<span>').addClass('byline').text(itemMeta.byline));
       $dayCell.find('.overlay-link').attr('href', itemMeta.details_url);
     }
   };
@@ -458,9 +426,11 @@ function loadArchiveData(archiveKey) {
   xhr.send();
 }
 
+
 function dayNode(date) {
   return $('#day-' + dayKey(date));
 }
+
 
 function dayKey(date) {
   var y = date.getUTCFullYear();
@@ -468,3 +438,78 @@ function dayKey(date) {
   var d = date.getUTCDate();
   return y + (m < 10 ? '0' : '') + m + (d < 10 ? '0' : '') + d;
 }
+
+
+function clearMonth(month) {
+  monthNode(month).empty();
+}
+
+
+function isMonthInValidRange(month) {
+  return monthDistance(START_MONTH, month) >= 0 &&
+         monthDistance(month, TODAY_MONTH) >= 0;
+}
+
+
+function monthX(month) {
+  var monthSpacing = (pageWidth <= 320) ? MONTH_SPACING_NARROW : MONTH_SPACING_WIDE;
+  return -monthDistance(month, TODAY_MONTH) * (pageWidth + monthSpacing);
+}
+
+
+function monthNode(month) {
+  return $('#month-' + monthKey(month));
+}
+
+
+function monthKey(month) {
+  return month[0] + (month[1] < 10 ? '0' : '') + month[1];
+}
+
+
+function monthFromKey(key) {
+  return [parseInt(key.substring(0, 4), 10),
+          parseInt(key.substring(4, 6), 10)];
+}
+
+
+function monthUrlPath(month) {
+  return month[0] + '/' + month[1];
+}
+
+
+function monthFromUrlPath(path) {
+  var m = path.match(/(\d+)(\/(\d+))?/);
+  return [parseInt(m[1], 10),
+          parseInt(m[3] || 1, 10)];
+}
+
+
+function monthFromId(id) {
+  return [parseInt(id.substring(6, 10), 10),
+          parseInt(id.substring(10, 12), 10)];
+}
+
+
+function monthDistance(month1, month2) {
+  return (month2[0] - month1[0]) * 12 + (month2[1] - month1[1]);
+}
+
+
+function prevMonth(month) {
+  if (month[1] == 1) {
+    return [month[0] - 1, 12];
+  }
+
+  return [month[0], month[1] - 1];
+}
+
+
+function nextMonth(month) {
+  if (month[1] == 12) {
+    return [month[0] + 1, 1];
+  }
+
+  return [month[0], month[1] + 1];
+}
+
