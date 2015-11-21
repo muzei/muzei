@@ -137,13 +137,14 @@ def maybe_process_image(image_url, crop_tuple, base_name):
 
 class ServiceAddHandler(BaseBackroomHandler):
   def post(self):
+    artwork_json = json.loads(self.request.get('json'))
+
     publish_date = (datetime.datetime
         .utcfromtimestamp(artwork_json['publishDate'] / 1000)
         .date())
     if FeaturedArtwork.all().filter('publish_date=', publish_date).get() != None:
       webapp2.abort(409, message='Artwork already exists for this date.')
 
-    artwork_json = json.loads(self.request.get('json'))
     crop_tuple = tuple(float(x) for x in json.loads(self.request.get('crop')))
 
     new_image_url, new_thumb_url = maybe_process_image(
@@ -196,9 +197,17 @@ class ServiceAddFromExternalArtworkUrlHandler(BaseBackroomHandler):
       attribution = 'metmuseum.org'
       details_url = re.sub(r'[#?].+', '', url, re.I | re.S) + '?utm_source=Muzei&utm_campaign=Muzei'
       title = soup.find('h2').get_text()
-      author = unicode(soup.find(text='Artist:').parent.next_sibling).strip()
+      author = ''
+      try:
+        author = unicode(soup.find(text='Artist:').parent.next_sibling).strip()
+      except:
+        pass
       author = re.sub(r'\s*\(.*', '', author)
-      completion_year_el = unicode(soup.find(text='Date:').parent.next_sibling).strip()
+      completion_year_el = None
+      try:
+        completion_year_el = unicode(soup.find(text='Date:').parent.next_sibling).strip()
+      except:
+        pass
       byline = author + ((', ' + completion_year_el) if completion_year_el else '')
       image_url = soup.find('a', class_='download').attrs['href']
     else:
