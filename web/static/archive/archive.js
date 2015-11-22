@@ -36,6 +36,8 @@ var MONTH_SPACING_NARROW = 40; // pixels
 var ARCHIVE_BASE_URL = 'http://storage.googleapis.com/muzeifeaturedart/archivemeta/';
 
 
+var currentScrollX;
+
 var $carousel = $('.month-carousel');
 var $carouselContainer = $('.month-carousel-container');
 
@@ -61,6 +63,7 @@ $(window).resize(function() {
   }
 });
 
+var mousewheelSnapTimeout = 0;
 
 $(document)
     .on('click', '.month .click-screen', function() {
@@ -72,6 +75,19 @@ $(document)
       } else if (e.keyCode == 39) {
         selectMonth(nextMonth(selectedMonth));
       }
+    })
+    .on('wheel mousewheel', function(e) {
+      e.preventDefault();
+
+      scrollBy(e.originalEvent.deltaX);
+
+      if (mousewheelSnapTimeout) {
+        window.clearTimeout(mousewheelSnapTimeout);
+      }
+
+      mousewheelSnapTimeout = window.setTimeout(function() {
+        selectMonth(monthAtScrollPosition());
+      }, 100);
     });
 
 
@@ -125,14 +141,9 @@ function selectMonth(month, move) {
   $month = monthNode(month);
 
   if (move) {
-    $carousel.addClass('animate');
-    $carousel.css({
-      'transform': 'translate3d(' + -($month.offset().left - $carousel.offset().left) + 'px,0,0)'
-    });
-
+    scrollTo(($month.offset().left - $carousel.offset().left), true);
     var newUrl = '/archive/' + monthUrlPath(month);
     window.history.replaceState('', '', newUrl);
-    selectedMonth = month;
   }
 
   $('.month').removeClass('active');
@@ -140,6 +151,63 @@ function selectMonth(month, move) {
 
   renderMonth(prevMonth(month));
   renderMonth(nextMonth(month));
+  selectedMonth = month;
+}
+
+
+function scrollBy(deltaX) {
+  scrollTo(currentScrollX + deltaX, false);
+}
+
+
+function friction_(x, dampen, max) {
+  return Math.atan(x / ((max * dampen) / Math.PI * 2) / dampen) * (max / Math.PI * 2);
+}
+
+
+function scrollTo(position, animate) {
+  currentScrollX = position;
+  animate = !!animate;
+
+  var translatePosition = currentScrollX;
+
+  var minScrollX = monthX(START_MONTH);
+  var maxScrollX = monthX(TODAY_MONTH);
+
+  if (translatePosition < minScrollX) {
+    translatePosition = minScrollX - friction_(minScrollX - translatePosition, 2, pageWidth);
+  } else if (translatePosition > maxScrollX) {
+    translatePosition = maxScrollX + friction_(translatePosition - maxScrollX, 2, pageWidth);
+  }
+
+  $carousel
+      .toggleClass('animate', animate)
+      .css({
+        'transform': 'translate3d(' + -translatePosition + 'px,0,0)'
+      });
+
+  if (selectedMonth) {
+    var m = monthAtScrollPosition();
+    if (monthDistance(m, selectedMonth) != 0) {
+      selectMonth(monthAtScrollPosition(), false);
+    }
+  }
+}
+
+
+function monthAtScrollPosition() {
+  var minDistanceToScrollX = 999999;
+  var minDistanceMonth = null;
+
+  for (var month = START_MONTH; monthDistance(month, TODAY_MONTH) >= 0; month = nextMonth(month)) {
+    var monthDistanceToScrollX = Math.abs(monthX(month) - currentScrollX);
+    if (monthDistanceToScrollX < minDistanceToScrollX) {
+      minDistanceMonth = month;
+      minDistanceToScrollX = monthDistanceToScrollX;
+    }
+  }
+
+  return minDistanceMonth;
 }
 
 
@@ -154,6 +222,8 @@ $(document).ready(function() {
       ev.preventDefault();
     }
   });
+
+  var lastDeltaX = 0;
   hammer.on('panend pan swipe', function(ev) {
     // disable browser scrolling
     ev.preventDefault();
@@ -164,33 +234,15 @@ $(document).ready(function() {
 
     switch (ev.type) {
       case 'pan':
+        var deltaX = (ev.deltaX - lastDeltaX);
         panning = true;
         $carouselContainer.addClass('panning');
-
-        // stick to the finger
-        var monthOffset = monthX(selectedMonth);
-        var dragOffset = -ev.deltaX;
-
-        // slow down at the first and last pane
-        if ((currentPage == 0 && !right) ||
-          (currentPage == NUM_CAROUSEL_PAGES - 1 && right)) {
-          dragOffset *= .4;
-        }
-
-        var offset = monthOffset + dragOffset;
-
-        $carousel.removeClass('animate');
-        $carousel.css('transform', 'translate3d(' + -offset + 'px,0,0)');
-
-        // more then 50% moved, navigate
-        if (Math.abs(ev.deltaX) > pageWidth / 2) {
-          selectMonth((right ? nextMonth : prevMonth)(selectedMonth), false);
-        } else {
-          selectMonth(selectedMonth, false);
-        }
+        scrollBy(-deltaX);
+        lastDeltaX = ev.deltaX;
         break;
 
       case 'swipe':
+        lastDeltaX = 0;
         right = (ev.direction & Hammer.DIRECTION_RIGHT) == 0;
         $carouselContainer.removeClass('panning');
         setTimeout(function() {
@@ -202,21 +254,16 @@ $(document).ready(function() {
         break;
 
       case 'panend':
+        lastDeltaX = 0;
         $carouselContainer.removeClass('panning');
         setTimeout(function() {
           panning = false;
         }, 0);
-        // more then 50% moved, navigate
-        if (Math.abs(ev.deltaX) > pageWidth / 2) {
-          selectMonth((right ? nextMonth : prevMonth)(selectedMonth));
-        } else {
-          selectMonth(selectedMonth);
-        }
+        selectMonth(monthAtScrollPosition());
         break;
     }
   });
 });
-
 
 /*
  * Month page
