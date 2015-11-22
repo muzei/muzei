@@ -77,17 +77,19 @@ $(document)
       }
     })
     .on('wheel mousewheel', function(e) {
-      e.preventDefault();
+      if (Math.abs(e.originalEvent.deltaX) > Math.abs(e.originalEvent.deltaY)) {
+        e.preventDefault();
 
-      scrollBy(e.originalEvent.deltaX);
+        scrollBy(e.originalEvent.deltaX);
 
-      if (mousewheelSnapTimeout) {
-        window.clearTimeout(mousewheelSnapTimeout);
+        if (mousewheelSnapTimeout) {
+          window.clearTimeout(mousewheelSnapTimeout);
+        }
+
+        mousewheelSnapTimeout = window.setTimeout(function() {
+          selectMonth(monthAtScrollPosition());
+        }, 100);
       }
-
-      mousewheelSnapTimeout = window.setTimeout(function() {
-        selectMonth(monthAtScrollPosition());
-      }, 100);
     });
 
 
