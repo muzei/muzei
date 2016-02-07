@@ -22,7 +22,8 @@ var MONTHS = [
     'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
     'September', 'October', 'November', 'December'];
 var DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-var DAY_MILLIS = 24 * 60 * 60 * 1000;
+var HOUR_MILLIS = 60 * 60 * 1000;
+var DAY_MILLIS = 24 * HOUR_MILLIS;
 
 var START_DATE = new Date('2014-02-12');
 var START_MONTH = [START_DATE.getFullYear(), START_DATE.getMonth() + 1];
@@ -76,10 +77,11 @@ $(document)
         selectMonth(nextMonth(selectedMonth));
       }
     })
-    .on('wheel mousewheel', function(e) {
-      if (Math.abs(e.originalEvent.deltaX) > Math.abs(e.originalEvent.deltaY)) {
+    .on('wheel', function(e) {
+      if (Math.abs(e.originalEvent.deltaX)) {
         e.preventDefault();
-
+      }
+      if (Math.abs(e.originalEvent.deltaX) > Math.abs(e.originalEvent.deltaY)) {
         scrollBy(e.originalEvent.deltaX);
 
         if (mousewheelSnapTimeout) {
@@ -158,7 +160,7 @@ function selectMonth(month, move) {
 
 
 function scrollBy(deltaX) {
-  scrollTo(currentScrollX + deltaX, false);
+  return scrollTo(currentScrollX + deltaX, false);
 }
 
 
@@ -168,19 +170,20 @@ function friction_(x, dampen, max) {
 
 
 function scrollTo(position, animate) {
-  currentScrollX = position;
   animate = !!animate;
-
-  var translatePosition = currentScrollX;
 
   var minScrollX = monthX(START_MONTH);
   var maxScrollX = monthX(TODAY_MONTH);
 
-  if (translatePosition < minScrollX) {
-    translatePosition = minScrollX - friction_(minScrollX - translatePosition, 2, pageWidth);
-  } else if (translatePosition > maxScrollX) {
-    translatePosition = maxScrollX + friction_(translatePosition - maxScrollX, 2, pageWidth);
-  }
+  currentScrollX = Math.min(maxScrollX, Math.max(minScrollX, position));
+
+  var translatePosition = currentScrollX;
+
+  // if (translatePosition < minScrollX) {
+  //   translatePosition = minScrollX - friction_(minScrollX - translatePosition, 2, pageWidth);
+  // } else if (translatePosition > maxScrollX) {
+  //   translatePosition = maxScrollX + friction_(translatePosition - maxScrollX, 2, pageWidth);
+  // }
 
   $carousel
       .toggleClass('animate', animate)
@@ -194,6 +197,8 @@ function scrollTo(position, animate) {
       selectMonth(monthAtScrollPosition(), false);
     }
   }
+
+  return true;
 }
 
 
@@ -294,7 +299,7 @@ function renderMonthContents(month) {
   }
 
   // days
-  var today = new Date();
+  var today = new Date(Date.now() - 2 * HOUR_MILLIS); // new paintings at 2AM UTC
   var todayYear = today.getUTCFullYear();
   var todayMonth = today.getUTCMonth();
   var todayDate = today.getUTCDate();
