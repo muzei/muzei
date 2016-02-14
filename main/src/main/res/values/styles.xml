@@ -51,8 +51,12 @@
         <item name="colorPrimary">@color/gallery_settings_theme</item>
         <item name="colorAccent">@color/gallery_settings_theme</item>
     </style>
+    
+    <style name="ThemeOverlay.AppCompat.Dark.GallerySettingsColoredButton">
+        <item name="colorAccent">@color/gallery_settings_theme</item>
+    </style>
 
-    <style name="Theme.Muzei.GallerySettingsProxy">
+    <style name="Theme.Muzei.GallerySetup">
         <!-- Essentially replicate Theme.Translucent -->
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:colorBackgroundCacheHint">@null</item>

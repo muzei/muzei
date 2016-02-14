@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.api;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.PendingIntent;
@@ -109,10 +110,10 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA
  * <li><code>settingsActivity</code> (optional): if present, should be the qualified
  * component name for a configuration activity in the source's package that Muzei can offer
  * to the user for customizing the extension. This activity must be exported.</li>
- * <li><code>requiresSetup</code> (optional): if present and set to "true", requires that
- * the <code>settingsActivity</code> be launched and return <code>RESULT_OK</code> before this
- * source can be activated. During initial setup, {@link #EXTRA_INITIAL_SETUP} will be set to
- * true.</li>
+ * <li><code>setupActivity</code> (optional): if present, should be the qualified
+ * component name for an initial setup activity that must be ran before the source can be
+ * activated. It will be started with {@link Activity#startActivityForResult} and must return
+ * {@link Activity#RESULT_OK} for the source to be activated. This activity must be exported.</li>
  * </ul>
  *
  * <h3>Example</h3>
@@ -212,13 +213,6 @@ public abstract class MuzeiArtSource extends Service {
      */
     public static final String EXTRA_FROM_MUZEI_SETTINGS
             = "com.google.android.apps.muzei.api.extra.FROM_MUZEI_SETTINGS";
-
-    /**
-     * Boolean extra that will be set to true when Muzei starts source settings activities
-     * automatically for sources that set <code>requiresSetup</code> to true in the manifest.
-     */
-    public static final String EXTRA_INITIAL_SETUP
-            = "com.google.android.apps.muzei.api.extra.INITIAL_SETUP";
 
     private static final int FIRST_BUILTIN_COMMAND_ID = 1000;
 

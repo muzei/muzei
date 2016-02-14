@@ -116,10 +116,11 @@
     <string name="app_author">Roman Nurik</string>
 
     <!-- Marshmallow permissions -->
-    <string name="gallery_permission_dialog_hard_title">No access to photo library</string>
-    <string name="gallery_permission_dialog_hard_message">The My Photos source requires access to your photo library.
-    If you\'ve disabled Muzei\'s access to the <b>Storage</b> permission, you can re-enable it in Settings.</string>
-    <string name="gallery_permission_dialog_hard_positive_title">Edit App Permissions</string>
-    <string name="gallery_permission_dialog_hard_negative_title">Cancel</string>
+    <string name="gallery_source_settings_enable_random">Enable random camera photos</string>
+    <string name="gallery_source_settings_permission_rationale">Allow the storage permission to show random photos as
+        your background.</string>
+    <string name="gallery_source_settings_edit_settings">Edit App Permissions</string>
+    <string name="gallery_source_settings_denied_explanation">You must enable the <b>Storage</b> permission to use
+        random photos as your background.</string>
 
 </resources>
