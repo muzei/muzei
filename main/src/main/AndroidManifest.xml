@@ -109,14 +109,15 @@
                 <action android:name="com.google.android.apps.muzei.api.MuzeiArtSource" />
             </intent-filter>
             <meta-data android:name="settingsActivity"
-                android:value="com.google.android.apps.muzei.gallery.GallerySettingsProxyActivity" />
-            <meta-data android:name="requiresSetup" android:value="true" />
+                android:value="com.google.android.apps.muzei.gallery.GallerySettingsActivity" />
+            <meta-data android:name="setupActivity"
+                android:value="com.google.android.apps.muzei.gallery.GallerySetupActivity" />
             <meta-data android:name="color" android:value="#4db6ac" />
         </service>
 
-        <activity android:name="com.google.android.apps.muzei.gallery.GallerySettingsProxyActivity"
+        <activity android:name="com.google.android.apps.muzei.gallery.GallerySetupActivity"
             android:label="@string/gallery_source_settings_title"
-            android:theme="@style/Theme.Muzei.GallerySettingsProxy"
+            android:theme="@style/Theme.Muzei.GallerySetup"
             android:exported="true" />
 
         <activity android:name="com.google.android.apps.muzei.gallery.GallerySettingsActivity"

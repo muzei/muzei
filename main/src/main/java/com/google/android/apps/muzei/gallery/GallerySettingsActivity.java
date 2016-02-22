@@ -16,17 +16,23 @@
 
 package com.google.android.apps.muzei.gallery;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.ClipData;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
@@ -41,8 +47,11 @@ import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewAnimator;
 
 import com.google.android.apps.muzei.event.GalleryChosenUrisChangedEvent;
 import com.google.android.apps.muzei.util.CheatSheet;
@@ -70,6 +79,7 @@ import static com.google.android.apps.muzei.gallery.GalleryArtSource.EXTRA_URIS;
 
 public class GallerySettingsActivity extends AppCompatActivity {
     private static final int REQUEST_CHOOSE_PHOTOS = 1;
+    private static final int REQUEST_STORAGE_PERMISSION = 2;
     private static final String STATE_SELECTION = "selection";
 
     private GalleryStore mStore;
@@ -192,6 +202,24 @@ public class GallerySettingsActivity extends AppCompatActivity {
             }
         });
 
+        Button enableRandomImages = (Button) findViewById(R.id.gallery_enable_random);
+        enableRandomImages.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View view) {
+                ActivityCompat.requestPermissions(GallerySettingsActivity.this, new String[] {
+                        Manifest.permission.READ_EXTERNAL_STORAGE }, REQUEST_STORAGE_PERMISSION);
+            }
+        });
+        Button permissionSettings = (Button) findViewById(R.id.gallery_edit_permission_settings);
+        permissionSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View view) {
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.fromParts("package", getPackageName(), null));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
+        });
         mAddButton = findViewById(R.id.add_photos_button);
         mAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -202,6 +230,23 @@ public class GallerySettingsActivity extends AppCompatActivity {
         CheatSheet.setup(mAddButton);
 
         EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(final int requestCode,
+            @NonNull final String[] permissions, @NonNull final int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode != REQUEST_STORAGE_PERMISSION) {
+            return;
+        }
+        onDataSetChanged();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Permissions might have changed in the background
+        onDataSetChanged();
     }
 
     private void setupAppBar() {
@@ -385,8 +430,38 @@ public class GallerySettingsActivity extends AppCompatActivity {
     }
 
     private void onDataSetChanged() {
-        findViewById(android.R.id.empty)
-                .setVisibility(mChosenUris.size() > 0 ? View.GONE : View.VISIBLE);
+        View emptyView = findViewById(android.R.id.empty);
+        TextView emptyDescription = (TextView) findViewById(R.id.empty_description);
+        if (!mChosenUris.isEmpty()) {
+            emptyView.setVisibility(View.GONE);
+            // We have at least one image, so consider the Gallery source properly setup
+            setResult(RESULT_OK);
+        } else {
+            // No chosen images, show the empty View
+            emptyView.setVisibility(View.VISIBLE);
+            ViewAnimator animator = (ViewAnimator) findViewById(R.id.empty_animator);
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                // Permission is granted, we can show the random camera photos image
+                animator.setDisplayedChild(0);
+                emptyDescription.setText(R.string.gallery_source_settings_empty);
+                setResult(RESULT_OK);
+            } else {
+                // We have no images until they enable the permission
+                setResult(RESULT_CANCELED);
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    // We should show rationale on why they should enable the storage permission and
+                    // random camera photos
+                    animator.setDisplayedChild(1);
+                    emptyDescription.setText(R.string.gallery_source_settings_permission_rationale);
+                } else {
+                    // The user has permanently denied the storage permission. Give them a link to app settings
+                    animator.setDisplayedChild(2);
+                    emptyDescription.setText(R.string.gallery_source_settings_denied_explanation);
+                }
+            }
+        }
     }
 
     @Override

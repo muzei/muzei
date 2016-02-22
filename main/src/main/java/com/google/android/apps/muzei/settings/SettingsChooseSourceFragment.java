@@ -16,16 +16,13 @@
 
 package com.google.android.apps.muzei.settings;
 
-import android.Manifest;
 import android.animation.ObjectAnimator;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -41,13 +38,9 @@ import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -60,7 +53,6 @@ import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.api.internal.SourceState;
 import com.google.android.apps.muzei.event.SelectedSourceChangedEvent;
 import com.google.android.apps.muzei.event.SelectedSourceStateChangedEvent;
-import com.google.android.apps.muzei.gallery.GalleryArtSource;
 import com.google.android.apps.muzei.util.CheatSheet;
 import com.google.android.apps.muzei.util.LogUtil;
 import com.google.android.apps.muzei.util.ObservableHorizontalScrollView;
@@ -89,7 +81,7 @@ public class SettingsChooseSourceFragment extends Fragment {
 
     private static final float ALPHA_UNSELECTED = 0.4f;
 
-    private static final int REQUEST_EXTENSION_INITIAL_SETUP = 1;
+    private static final int REQUEST_EXTENSION_SETUP = 1;
 
     private SourceManager mSourceManager;
     private ComponentName mSelectedSource;
@@ -386,7 +378,12 @@ public class SettingsChooseSourceFragment extends Fragment {
                             ri.serviceInfo.packageName + "/" + settingsActivity);
                 }
 
-                source.requiresSetup = metaData.getBoolean("requiresSetup", false);
+                String setupActivity = metaData.getString("setupActivity");
+                if (!TextUtils.isEmpty(setupActivity)) {
+                    source.setupActivity = ComponentName.unflattenFromString(
+                            ri.serviceInfo.packageName + "/" + setupActivity);
+                }
+
                 source.color = metaData.getInt("color", source.color);
 
                 try {
@@ -453,9 +450,9 @@ public class SettingsChooseSourceFragment extends Fragment {
                 public void onClick(View view) {
                     if (source.componentName.equals(mSelectedSource)) {
                         ((Callbacks) getActivity()).onRequestCloseActivity();
-                    } else if (source.requiresSetup) {
+                    } else if (source.setupActivity != null) {
                         mCurrentInitialSetupSource = source.componentName;
-                        launchSourceSettings(source, true);
+                        launchSourceSetup(source);
                     } else {
                         mSourceManager.selectSource(source.componentName);
                     }
@@ -499,7 +496,7 @@ public class SettingsChooseSourceFragment extends Fragment {
             source.settingsButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    launchSourceSettings(source, false);
+                    launchSourceSettings(source);
                 }
             });
 
@@ -511,25 +508,31 @@ public class SettingsChooseSourceFragment extends Fragment {
         updateSelectedItem(false);
     }
 
-    private void launchSourceSettings(Source source, boolean initialSetup) {
+    private void launchSourceSettings(Source source) {
         try {
             Intent settingsIntent = new Intent()
                     .setComponent(source.settingsActivity)
                     .putExtra(MuzeiArtSource.EXTRA_FROM_MUZEI_SETTINGS, true);
-            if (initialSetup) {
-                settingsIntent.putExtra(MuzeiArtSource.EXTRA_INITIAL_SETUP, true);
-                startActivityForResult(settingsIntent, REQUEST_EXTENSION_INITIAL_SETUP);
-            } else {
-                startActivity(settingsIntent);
-            }
+            startActivity(settingsIntent);
         } catch (ActivityNotFoundException | SecurityException e) {
             LOGE(TAG, "Can't launch source settings.", e);
         }
     }
 
+    private void launchSourceSetup(Source source) {
+        try {
+            Intent setupIntent = new Intent()
+                    .setComponent(source.setupActivity)
+                    .putExtra(MuzeiArtSource.EXTRA_FROM_MUZEI_SETTINGS, true);
+            startActivityForResult(setupIntent, REQUEST_EXTENSION_SETUP);
+        } catch (ActivityNotFoundException | SecurityException e) {
+            LOGE(TAG, "Can't launch source setup.", e);
+        }
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_EXTENSION_INITIAL_SETUP) {
+        if (requestCode == REQUEST_EXTENSION_SETUP) {
             if (resultCode == Activity.RESULT_OK && mCurrentInitialSetupSource != null) {
                 mSourceManager.selectSource(mCurrentInitialSetupSource);
             }
@@ -604,7 +607,7 @@ public class SettingsChooseSourceFragment extends Fragment {
         public ComponentName settingsActivity;
         public View selectSourceButton;
         public View settingsButton;
-        public boolean requiresSetup;
+        public ComponentName setupActivity;
     }
 
     public interface Callbacks {
