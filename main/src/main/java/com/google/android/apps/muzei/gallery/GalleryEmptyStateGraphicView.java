@@ -22,6 +22,8 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
@@ -80,9 +82,9 @@ public class GalleryEmptyStateGraphicView extends View {
 
         final Resources res = getResources();
         mOffPaint.setAntiAlias(true);
-        mOffPaint.setColor(res.getColor(R.color.gallery_settings_empty_state_dark));
+        mOffPaint.setColor(ContextCompat.getColor(context, R.color.gallery_settings_empty_state_dark));
         mOnPaint.setAntiAlias(true);
-        mOnPaint.setColor(res.getColor(R.color.gallery_settings_empty_state_light));
+        mOnPaint.setColor(ContextCompat.getColor(context, R.color.gallery_settings_empty_state_light));
 
         mCellSpacing = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                 CELL_SPACING_DIP, res.getDisplayMetrics());
@@ -100,7 +102,7 @@ public class GalleryEmptyStateGraphicView extends View {
     }
 
     @Override
-    protected void onVisibilityChanged(View changedView, int visibility) {
+    protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
         super.onVisibilityChanged(changedView, visibility);
         if (isShown()) {
             postInvalidateOnAnimation();

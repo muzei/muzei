@@ -18,7 +18,6 @@ package com.google.android.apps.muzei;
 
 import android.content.Intent;
 
-import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.WearableListenerService;
 

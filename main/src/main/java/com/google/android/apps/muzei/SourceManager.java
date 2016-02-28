@@ -23,7 +23,6 @@ import android.content.SharedPreferences;
 import android.text.TextUtils;
 
 import com.google.android.apps.muzei.api.internal.SourceState;
-import com.google.android.apps.muzei.event.SelectedSourceChangedEvent;
 import com.google.android.apps.muzei.event.SelectedSourceStateChangedEvent;
 import com.google.android.apps.muzei.featuredart.FeaturedArtSource;
 import com.google.android.apps.muzei.util.LogUtil;
@@ -150,7 +149,6 @@ public class SourceManager {
             subscribeToSelectedSource();
         }
 
-        EventBus.getDefault().post(new SelectedSourceChangedEvent());
         EventBus.getDefault().post(new SelectedSourceStateChangedEvent());
     }
 

@@ -27,8 +27,6 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.google.android.apps.muzei.api.MuzeiArtSource;
 
-import net.nurik.roman.muzei.R;
-
 public class GallerySetupActivity extends AppCompatActivity {
     private static final int REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 1;
     private static final int REQUEST_CHOOSE_IMAGES = 2;

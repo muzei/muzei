@@ -31,6 +31,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.RemoteInput;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 
 import com.google.android.apps.muzei.api.Artwork;
@@ -171,7 +172,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
                 : artwork.getTitle();
         NotificationCompat.Builder nb = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.ic_stat_muzei)
-                .setColor(context.getResources().getColor(R.color.notification))
+                .setColor(ContextCompat.getColor(context, R.color.notification))
                 .setPriority(Notification.PRIORITY_MIN)
                 .setAutoCancel(true)
                 .setContentTitle(title)
@@ -260,7 +261,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
         // Hide the image and artwork title for the public version
         NotificationCompat.Builder publicBuilder = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.ic_stat_muzei)
-                .setColor(context.getResources().getColor(R.color.notification))
+                .setColor(ContextCompat.getColor(context, R.color.notification))
                 .setPriority(Notification.PRIORITY_MIN)
                 .setAutoCancel(true)
                 .setContentTitle(context.getString(R.string.app_name))

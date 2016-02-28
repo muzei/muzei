@@ -24,8 +24,6 @@ import net.nurik.roman.muzei.BuildConfig;
  * Helper methods that make logging more consistent throughout the app.
  */
 public class LogUtil {
-    private static final String TAG = makeLogTag(LogUtil.class);
-
     private static final String LOG_PREFIX = "muzei_";
     private static final int LOG_PREFIX_LENGTH = LOG_PREFIX.length();
     private static final int MAX_LOG_TAG_LENGTH = 23;

@@ -40,16 +40,10 @@
     <string name="gallery_source_from_gallery">From your gallery</string>
     <string name="gallery_source_touch_to_view">Touch to view</string>
 
-    <string name="dummy_source_title">Dummy source</string>
-    <string name="dummy_source_description">Sample artwork</string>
-
     <string name="featuredart_source_title">Featured art</string>
     <string name="featuredart_source_description">A new painting every day</string>
     <string name="featuredart_source_error_no_artwork_to_share">No artwork to share.</string>
     <string name="featuredart_source_action_view_archive">View archive</string>
-
-    <string name="webstream_source_title">From the web</string>
-    <string name="webstream_source_description">Artwork from the web</string>
 
     <string name="action_activate">Activate</string>
     <string name="action_settings">Customize</string>
@@ -63,7 +57,6 @@
     <string name="section_choose_source">Sources</string>
     <string name="section_advanced">Advanced</string>
 
-    <string name="action_previous_artwork">Previous artwork</string>
     <string name="action_next_artwork">Next artwork</string>
     <string name="action_next_artwork_condensed">Next</string>
     <string name="action_user_command">More</string>

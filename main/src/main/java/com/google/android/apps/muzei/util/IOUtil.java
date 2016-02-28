@@ -98,7 +98,7 @@ public class IOUtil {
 
         } else if ("http".equals(scheme) || "https".equals(scheme)) {
             OkHttpClient client = new OkHttpClient();
-            HttpURLConnection conn = null;
+            HttpURLConnection conn;
             int responseCode = 0;
             String responseMessage = null;
             try {

@@ -30,7 +30,6 @@ import android.view.animation.OvershootInterpolator;
 import net.nurik.roman.muzei.R;
 
 public class AnimatedMuzeiLogoFragment extends Fragment {
-    private View mRootView;
     private Runnable mOnFillStartedCallback;
     private View mSubtitleView;
     private AnimatedMuzeiLogoView mLogoView;
@@ -46,10 +45,10 @@ public class AnimatedMuzeiLogoFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        mRootView = inflater.inflate(R.layout.animated_logo_fragment, container, false);
-        mSubtitleView = mRootView.findViewById(R.id.logo_subtitle);
+        View rootView = inflater.inflate(R.layout.animated_logo_fragment, container, false);
+        mSubtitleView = rootView.findViewById(R.id.logo_subtitle);
 
-        mLogoView = (AnimatedMuzeiLogoView) mRootView.findViewById(R.id.animated_logo);
+        mLogoView = (AnimatedMuzeiLogoView) rootView.findViewById(R.id.animated_logo);
         mLogoView.setOnStateChangeListener(new AnimatedMuzeiLogoView.OnStateChangeListener() {
             @Override
             public void onStateChange(int state) {
@@ -77,7 +76,7 @@ public class AnimatedMuzeiLogoFragment extends Fragment {
             }
         });
         reset();
-        return mRootView;
+        return rootView;
     }
 
     public void start() {

@@ -23,7 +23,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PaintDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
-import android.util.FloatMath;
 import android.util.LruCache;
 import android.view.Gravity;
 
@@ -32,7 +31,7 @@ import android.view.Gravity;
  */
 public class ScrimUtil {
 
-    private static final LruCache<Integer, Drawable> cubicGradientScrimCache = new LruCache<Integer, Drawable>(10);
+    private static final LruCache<Integer, Drawable> cubicGradientScrimCache = new LruCache<>(10);
 
     private ScrimUtil() {
     }
