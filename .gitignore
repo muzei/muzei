@@ -14,7 +14,7 @@ gen/
 out/
 build/
 .gradle/
-
+.ART
 # Project files
 *.iml
 .idea
