@@ -128,7 +128,7 @@ public class GallerySettingsActivity extends AppCompatActivity {
         mChosenUris = new ArrayList<>(mStore.getChosenUris());
         onDataSetChanged();
 
-        mPlaceholderDrawable = new ColorDrawable(getResources().getColor(
+        mPlaceholderDrawable = new ColorDrawable(ContextCompat.getColor(this,
                 R.color.gallery_settings_chosen_photo_placeholder));
 
         mPhotoGridView = (RecyclerView) findViewById(R.id.photo_grid);

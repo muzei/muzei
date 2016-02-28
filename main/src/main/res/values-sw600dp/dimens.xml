@@ -28,7 +28,6 @@
 
     <dimen name="intro_activate_button_size">140dp</dimen>
 
-    <dimen name="keyline_1">24dp</dimen>
     <dimen name="keyline_2">80dp</dimen>
     <dimen name="keyline_2_minus_16dp">64dp</dimen>
 
@@ -39,7 +38,6 @@
     <dimen name="settings_choose_source_item_estimated_height">300dp</dimen>
     <dimen name="settings_text_size_large">24sp</dimen>
     <dimen name="settings_text_size_normal">20sp</dimen>
-    <dimen name="settings_text_size_small">16sp</dimen>
 
     <dimen name="gallery_settings_chosen_photo_grid_max_item_size">300dp</dimen>
     <dimen name="gallery_settings_chosen_photo_grid_spacing">2dp</dimen>

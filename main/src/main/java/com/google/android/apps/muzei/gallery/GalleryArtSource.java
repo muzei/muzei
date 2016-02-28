@@ -427,7 +427,7 @@ public class GalleryArtSource extends MuzeiArtSource {
     }
 
     private interface ImagesQuery {
-        static String[] PROJECTION = {
+        String[] PROJECTION = {
                 MediaStore.MediaColumns._ID,
                 MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME,
         };

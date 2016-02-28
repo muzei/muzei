@@ -35,8 +35,6 @@ import android.view.View;
 import android.widget.OverScroller;
 
 public class PanScaleProxyView extends View {
-    private static final String TAG = LogUtil.makeLogTag(PanScaleProxyView.class);
-
     /**
      * The current viewport. This rectangle represents the currently visible chart domain
      * and range. The currently visible chart X values are from this rectangle's left to its right.

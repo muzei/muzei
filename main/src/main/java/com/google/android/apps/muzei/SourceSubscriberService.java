@@ -28,8 +28,6 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_TOKEN;
 
 public class SourceSubscriberService extends IntentService {
-    private static final String TAG = LogUtil.makeLogTag(SourceSubscriberService.class);
-
     public SourceSubscriberService() {
         super("SourceSubscriberService");
     }

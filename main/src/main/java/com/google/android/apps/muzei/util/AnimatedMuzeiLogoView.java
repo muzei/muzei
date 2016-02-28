@@ -110,12 +110,6 @@ public class AnimatedMuzeiLogoView extends View {
         postInvalidateOnAnimation();
     }
 
-    public void setToFinishedFrame() {
-        mStartTime = 1;
-        changeState(STATE_FINISHED);
-        postInvalidateOnAnimation();
-    }
-
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);

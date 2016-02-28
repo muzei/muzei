@@ -34,7 +34,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.google.android.apps.muzei.util.ImageBlurrer;
-import com.google.android.apps.muzei.util.LogUtil;
 import com.google.android.apps.muzei.util.MathUtil;
 
 import com.squareup.picasso.Picasso;
@@ -43,8 +42,6 @@ import com.squareup.picasso.Target;
 public class MuzeiRendererFragment extends Fragment implements
         RenderController.Callbacks,
         MuzeiBlurRenderer.Callbacks {
-
-    private static final String TAG = LogUtil.makeLogTag(MuzeiRendererFragment.class);
 
     private static final String ARG_DEMO_MODE = "demo_mode";
     private static final String ARG_DEMO_FOCUS = "demo_focus";
@@ -148,10 +145,7 @@ public class MuzeiRendererFragment extends Fragment implements
         if (mView == null) {
             return;
         }
-
-        if (mView != null) {
-            mView.mRenderController.setVisible(!hidden);
-        }
+        mView.mRenderController.setVisible(!hidden);
     }
 
     @Override
