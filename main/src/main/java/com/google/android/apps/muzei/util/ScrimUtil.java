@@ -24,12 +24,16 @@ import android.graphics.drawable.PaintDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
 import android.util.FloatMath;
+import android.util.LruCache;
 import android.view.Gravity;
 
 /**
  * Utility methods for creating prettier gradient scrims.
  */
 public class ScrimUtil {
+
+    private static final LruCache<Integer, Drawable> cubicGradientScrimCache = new LruCache<Integer, Drawable>(10);
+
     private ScrimUtil() {
     }
 
@@ -39,6 +43,17 @@ public class ScrimUtil {
      * details.
      */
     public static Drawable makeCubicGradientScrimDrawable(int baseColor, int numStops, int gravity) {
+
+        // Generate a cache key by hashing together the inputs, based on the method described in the Effective Java book
+        int cacheKeyHash = baseColor;
+        cacheKeyHash = 31 * cacheKeyHash + numStops;
+        cacheKeyHash = 31 * cacheKeyHash + gravity;
+
+        Drawable cachedGradient = cubicGradientScrimCache.get(cacheKeyHash);
+        if (cachedGradient != null) {
+            return cachedGradient;
+        }
+
         numStops = Math.max(numStops, 2);
 
         PaintDrawable paintDrawable = new PaintDrawable();
@@ -83,6 +98,7 @@ public class ScrimUtil {
             }
         });
 
+        cubicGradientScrimCache.put(cacheKeyHash, paintDrawable);
         return paintDrawable;
     }
 }
