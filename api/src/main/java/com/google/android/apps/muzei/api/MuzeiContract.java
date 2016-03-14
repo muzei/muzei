@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.api;
 
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -204,5 +205,62 @@ public class MuzeiContract {
             ContentResolver contentResolver = context.getContentResolver();
             return BitmapFactory.decodeStream(contentResolver.openInputStream(CONTENT_URI));
         }
+    }
+
+    public static final class Sources implements BaseColumns {
+        /**
+         * Column name for the flattened {@link ComponentName} of this source
+         * <p>Type: TEXT in the format of {@link ComponentName#flattenToShortString()}
+         */
+        public static final String COLUMN_NAME_COMPONENT_NAME = "component_name";
+        /**
+         * Column name for the flag indicating if the source is currently selected
+         * <p>Type: INTEGER (boolean)
+         */
+        public static final String COLUMN_NAME_IS_SELECTED = "selected";
+        /**
+         * Column name for the source's description.
+         * <p>Type: TEXT
+         */
+        public static final String COLUMN_NAME_DESCRIPTION = "description";
+        /**
+         * Column name for the flag indicating if the source wants callbacks for network connectivity changes
+         * <p>Type: INTEGER (boolean)
+         */
+        public static final String COLUMN_NAME_WANTS_NETWORK_AVAILABLE = "network";
+        /**
+         * Column name for the commands the source supports
+         * <p>Type: TEXT
+         */
+        public static final String COLUMN_NAME_COMMANDS = "commands";
+        /**
+         * The MIME type of {@link #CONTENT_URI} providing sources.
+         */
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.android.apps.muzei.source";
+        /**
+         * The MIME type of {@link #CONTENT_URI} providing a single source.
+         */
+        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.google.android.apps.muzei.source";
+        /**
+         * The default sort order for this table
+         */
+        public static final String DEFAULT_SORT_ORDER = Sources.COLUMN_NAME_IS_SELECTED + " DESC" +
+                Sources.COLUMN_NAME_COMPONENT_NAME;
+        /**
+         * The table name offered by this provider.
+         */
+        public static final String TABLE_NAME = "sources";
+
+        /**
+         * This class cannot be instantiated
+         */
+        private Sources() {
+        }
+
+        /**
+         * The content:// style URL for this table.
+         */
+        public static final Uri CONTENT_URI = Uri.parse(MuzeiContract.SCHEME + MuzeiContract.AUTHORITY
+                + "/" + Sources.TABLE_NAME);
     }
 }
