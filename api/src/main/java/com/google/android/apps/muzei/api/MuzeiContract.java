@@ -250,7 +250,7 @@ public class MuzeiContract {
         /**
          * The default sort order for this table
          */
-        public static final String DEFAULT_SORT_ORDER = Sources.COLUMN_NAME_IS_SELECTED + " DESC" +
+        public static final String DEFAULT_SORT_ORDER = Sources.COLUMN_NAME_IS_SELECTED + " DESC," +
                 Sources.COLUMN_NAME_COMPONENT_NAME;
         /**
          * The table name offered by this provider.

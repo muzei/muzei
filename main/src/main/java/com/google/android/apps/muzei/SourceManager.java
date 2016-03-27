@@ -99,33 +99,41 @@ public class SourceManager {
     }
 
     private void loadStoredData() {
+        // Migrate data to the ContentProvider
+        migrateDataToContentProvider();
+
         // Load selected source info
-        String selectedSource = mSharedPrefs.getString(PREF_SELECTED_SOURCE, null);
-        if (selectedSource != null) {
-            mSelectedSource = ComponentName.unflattenFromString(selectedSource);
+        Cursor selectedSource = mContentResolver.query(MuzeiContract.Sources.CONTENT_URI,
+                new String[] {MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME},
+                MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED + "=1", null, null);
+        if (selectedSource != null && selectedSource.moveToFirst()) {
+            mSelectedSource = ComponentName.unflattenFromString(selectedSource.getString(0));
         } else {
             selectDefaultSource();
-            return;
+        }
+        if (selectedSource != null) {
+            selectedSource.close();
         }
 
         mSelectedSourceToken = mSharedPrefs.getString(PREF_SELECTED_SOURCE_TOKEN, null);
-        try {
-            String artworkJson = mSharedPrefs.getString(PREF_SELECTED_SOURCE_TOKEN, null);
-            if (!TextUtils.isEmpty(artworkJson)) {
-                mCurrentArtwork = Artwork.fromJson(new JSONObject(artworkJson));
-            }
-        } catch (JSONException e) {
-            LOGE(TAG, "Error loading current artwork", e);
+
+        // Get the current artwork
+        Cursor cursor = mContentResolver.query(MuzeiContract.Artwork.CONTENT_URI, null, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            mCurrentArtwork = Artwork.fromCursor(cursor);
         }
-        // Migrate data to the ContentProvider
-        migrateDataToContentProvider();
+        if (cursor != null) {
+            cursor.close();
+        }
     }
 
     private void migrateDataToContentProvider() {
+        String selectedSourceString = mSharedPrefs.getString(PREF_SELECTED_SOURCE, null);
         Set<String> sourceStates = mSharedPrefs.getStringSet(PREF_SOURCE_STATES, null);
-        if (sourceStates == null) {
+        if (selectedSourceString == null || sourceStates == null) {
             return;
         }
+        ComponentName selectedSource = ComponentName.unflattenFromString(selectedSourceString);
 
         final ArrayList<ContentProviderOperation> operations = new ArrayList<>();
         for (String sourceStatesPair : sourceStates) {
@@ -134,7 +142,7 @@ public class SourceManager {
                 ContentValues values = new ContentValues();
                 ComponentName source = ComponentName.unflattenFromString(pair[0]);
                 values.put(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, source.flattenToShortString());
-                values.put(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, source.equals(mSelectedSource));
+                values.put(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, source.equals(selectedSource));
                 JSONObject jsonObject = (JSONObject) new JSONTokener(pair[1]).nextValue();
                 values.put(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION, jsonObject.optString("description"));
                 values.put(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE,
@@ -149,7 +157,7 @@ public class SourceManager {
         }
         try {
             mContentResolver.applyBatch(MuzeiContract.AUTHORITY, operations);
-            mSharedPrefs.edit().remove(PREF_SOURCE_STATES).apply();
+            mSharedPrefs.edit().remove(PREF_SELECTED_SOURCE).remove(PREF_SOURCE_STATES).apply();
         } catch (RemoteException | OperationApplicationException e) {
             LOGE(TAG, "Error writing sources to ContentProvider", e);
         }
@@ -193,10 +201,10 @@ public class SourceManager {
             // Select the new source
             operations.add(ContentProviderOperation.newUpdate(MuzeiContract.Sources.CONTENT_URI)
                     .withValue(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME,
-                            mSelectedSource.flattenToShortString())
+                            source.flattenToShortString())
                     .withValue(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, false)
                     .withSelection(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + "=?",
-                            new String[] {mSelectedSource.flattenToShortString()})
+                            new String[] {source.flattenToShortString()})
                     .build());
 
             try {
@@ -280,9 +288,11 @@ public class SourceManager {
             return commands;
         }
         try {
-            JSONArray commandArray = new JSONArray(selectedSource.getString(0));
-            for (int h=0; h<commandArray.length(); h++) {
-                commands.add(UserCommand.deserialize(commandArray.getString(h)));
+            if (selectedSource.moveToFirst() && selectedSource.getString(0) != null) {
+                JSONArray commandArray = new JSONArray(selectedSource.getString(0));
+                for (int h=0; h<commandArray.length(); h++) {
+                    commands.add(UserCommand.deserialize(commandArray.getString(h)));
+                }
             }
         } catch (JSONException e) {
             LOGE(TAG, "Error parsing commands from " + mSelectedSource, e);
