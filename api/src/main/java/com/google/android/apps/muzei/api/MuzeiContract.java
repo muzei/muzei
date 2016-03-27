@@ -101,6 +101,12 @@ public class MuzeiContract {
      */
     public static final class Artwork implements BaseColumns {
         /**
+         * Column name for the flattened {@link ComponentName} of the source that is providing
+         * this wallpaper
+         * <p>Type: TEXT in the format of {@link ComponentName#flattenToShortString()}
+         */
+        public static final String COLUMN_NAME_SOURCE_COMPONENT_NAME = "sourceComponentName";
+        /**
          * Column name of the artwork image URI. In almost all cases you should use
          * {@link ContentResolver#openInputStream(Uri) ContentResolver.openInputStream(CONTENT_URI)}
          * to retrieve the already downloaded artwork.

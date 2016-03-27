@@ -26,7 +26,6 @@ import com.google.android.apps.muzei.TaskQueueService;
 import com.google.android.apps.muzei.wearable.WearableController;
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiContract;
-import com.google.android.apps.muzei.api.internal.SourceState;
 import com.google.android.apps.muzei.event.CurrentArtworkDownloadedEvent;
 import com.google.android.apps.muzei.provider.MuzeiProvider;
 import com.google.android.apps.muzei.util.LogUtil;
@@ -59,9 +58,7 @@ public class RealRenderController extends RenderController {
     @Override
     protected BitmapRegionLoader openDownloadedCurrentArtwork(boolean forceReload) {
         SourceManager sm = SourceManager.getInstance(mContext);
-        SourceState selectedSourceState = sm.getSelectedSourceState();
-        Artwork currentArtwork = selectedSourceState != null
-                ? selectedSourceState.getCurrentArtwork() : null;
+        Artwork currentArtwork = sm.getCurrentArtwork();
         if (currentArtwork == null) {
             return null;
         }

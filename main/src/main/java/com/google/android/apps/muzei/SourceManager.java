@@ -17,23 +17,35 @@
 package com.google.android.apps.muzei;
 
 import android.content.ComponentName;
+import android.content.ContentProviderOperation;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.RemoteException;
+import android.provider.BaseColumns;
 import android.text.TextUtils;
 
+import com.google.android.apps.muzei.api.Artwork;
+import com.google.android.apps.muzei.api.MuzeiContract;
+import com.google.android.apps.muzei.api.UserCommand;
 import com.google.android.apps.muzei.api.internal.SourceState;
 import com.google.android.apps.muzei.event.SelectedSourceStateChangedEvent;
 import com.google.android.apps.muzei.featuredart.FeaturedArtSource;
 import com.google.android.apps.muzei.util.LogUtil;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -57,14 +69,16 @@ public class SourceManager {
     private static final String PREF_SELECTED_SOURCE = "selected_source";
     private static final String PREF_SELECTED_SOURCE_TOKEN = "selected_source_token";
     private static final String PREF_SOURCE_STATES = "source_states";
+    private static final String PREF_CURRENT_ARTWORK = "current_artwork";
 
     private Context mApplicationContext;
     private ComponentName mSubscriberComponentName;
     private SharedPreferences mSharedPrefs;
+    private ContentResolver mContentResolver;
 
     private ComponentName mSelectedSource;
     private String mSelectedSourceToken;
-    private Map<ComponentName, SourceState> mSourceStates = new HashMap<>();
+    private Artwork mCurrentArtwork;
 
     private static SourceManager sInstance;
 
@@ -80,6 +94,7 @@ public class SourceManager {
         mApplicationContext = context.getApplicationContext();
         mSubscriberComponentName = new ComponentName(context, SourceSubscriberService.class);
         mSharedPrefs = context.getSharedPreferences("muzei_art_sources", 0);
+        mContentResolver = context.getContentResolver();
         loadStoredData();
     }
 
@@ -94,22 +109,49 @@ public class SourceManager {
         }
 
         mSelectedSourceToken = mSharedPrefs.getString(PREF_SELECTED_SOURCE_TOKEN, null);
-
-        // Load current source states
-        Set<String> sourceStates = mSharedPrefs.getStringSet(PREF_SOURCE_STATES, null);
-        mSourceStates.clear();
-        if (sourceStates != null) {
-            for (String sourceStatesPair : sourceStates) {
-                String[] pair = sourceStatesPair.split("\\|", 2);
-                try {
-                    mSourceStates.put(
-                            ComponentName.unflattenFromString(pair[0]),
-                            SourceState.fromJson(
-                                    (JSONObject) new JSONTokener(pair[1]).nextValue()));
-                } catch (JSONException e) {
-                    LOGE(TAG, "Error loading source state.", e);
-                }
+        try {
+            String artworkJson = mSharedPrefs.getString(PREF_SELECTED_SOURCE_TOKEN, null);
+            if (!TextUtils.isEmpty(artworkJson)) {
+                mCurrentArtwork = Artwork.fromJson(new JSONObject(artworkJson));
             }
+        } catch (JSONException e) {
+            LOGE(TAG, "Error loading current artwork", e);
+        }
+        // Migrate data to the ContentProvider
+        migrateDataToContentProvider();
+    }
+
+    private void migrateDataToContentProvider() {
+        Set<String> sourceStates = mSharedPrefs.getStringSet(PREF_SOURCE_STATES, null);
+        if (sourceStates == null) {
+            return;
+        }
+
+        final ArrayList<ContentProviderOperation> operations = new ArrayList<>();
+        for (String sourceStatesPair : sourceStates) {
+            String[] pair = sourceStatesPair.split("\\|", 2);
+            try {
+                ContentValues values = new ContentValues();
+                ComponentName source = ComponentName.unflattenFromString(pair[0]);
+                values.put(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, source.flattenToShortString());
+                values.put(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, source.equals(mSelectedSource));
+                JSONObject jsonObject = (JSONObject) new JSONTokener(pair[1]).nextValue();
+                values.put(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION, jsonObject.optString("description"));
+                values.put(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE,
+                        jsonObject.optBoolean("wantsNetworkAvailable"));
+                JSONArray commandsSerialized = jsonObject.optJSONArray("userCommands");
+                values.put(MuzeiContract.Sources.COLUMN_NAME_COMMANDS, commandsSerialized.toString());
+                operations.add(ContentProviderOperation.newInsert(MuzeiContract.Sources.CONTENT_URI)
+                    .withValues(values).build());
+            } catch (JSONException e) {
+                LOGE(TAG, "Error loading source state.", e);
+            }
+        }
+        try {
+            mContentResolver.applyBatch(MuzeiContract.AUTHORITY, operations);
+            mSharedPrefs.edit().remove(PREF_SOURCE_STATES).apply();
+        } catch (RemoteException | OperationApplicationException e) {
+            LOGE(TAG, "Error writing sources to ContentProvider", e);
         }
     }
 
@@ -130,21 +172,45 @@ public class SourceManager {
 
             LOGD(TAG, "Source " + source + " selected.");
 
+            final ArrayList<ContentProviderOperation> operations = new ArrayList<>();
             if (mSelectedSource != null) {
                 // unsubscribe from existing source
                 mApplicationContext.startService(new Intent(ACTION_SUBSCRIBE)
                         .setComponent(mSelectedSource)
                         .putExtra(EXTRA_SUBSCRIBER_COMPONENT, mSubscriberComponentName)
                         .putExtra(EXTRA_TOKEN, (String) null));
+
+                // Unselect the old source
+                operations.add(ContentProviderOperation.newUpdate(MuzeiContract.Sources.CONTENT_URI)
+                        .withValue(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME,
+                                mSelectedSource.flattenToShortString())
+                        .withValue(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, false)
+                        .withSelection(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + "=?",
+                                new String[] {mSelectedSource.flattenToShortString()})
+                        .build());
             }
 
-            // generate a new token and subscribe to new source
-            mSelectedSource = source;
-            mSelectedSourceToken = UUID.randomUUID().toString();
-            mSharedPrefs.edit()
-                    .putString(PREF_SELECTED_SOURCE, source.flattenToShortString())
-                    .putString(PREF_SELECTED_SOURCE_TOKEN, mSelectedSourceToken)
-                    .apply();
+            // Select the new source
+            operations.add(ContentProviderOperation.newUpdate(MuzeiContract.Sources.CONTENT_URI)
+                    .withValue(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME,
+                            mSelectedSource.flattenToShortString())
+                    .withValue(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, false)
+                    .withSelection(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + "=?",
+                            new String[] {mSelectedSource.flattenToShortString()})
+                    .build());
+
+            try {
+                mContentResolver.applyBatch(MuzeiContract.AUTHORITY, operations);
+                // generate a new token and subscribe to new source
+                mSelectedSource = source;
+                mSelectedSourceToken = UUID.randomUUID().toString();
+                mSharedPrefs.edit()
+                        .putString(PREF_SELECTED_SOURCE, source.flattenToShortString())
+                        .putString(PREF_SELECTED_SOURCE_TOKEN, mSelectedSourceToken)
+                        .apply();
+            } catch (RemoteException | OperationApplicationException e) {
+                LOGE(TAG, "Error writing sources to ContentProvider", e);
+            }
 
             subscribeToSelectedSource();
         }
@@ -159,47 +225,70 @@ public class SourceManager {
                 return;
             }
 
-            if (state == null) {
-                mSourceStates.remove(mSelectedSource);
+            ContentValues values = new ContentValues();
+            values.put(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, mSelectedSource.flattenToShortString());
+            values.put(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, true);
+            values.put(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION, state.getDescription());
+            values.put(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE, state.getWantsNetworkAvailable());
+            JSONArray commandsSerialized = new JSONArray();
+            int numSourceActions = state.getNumUserCommands();
+            for (int i = 0; i < numSourceActions; i++) {
+                commandsSerialized.put(state.getUserCommandAt(i).serialize());
+            }
+            values.put(MuzeiContract.Sources.COLUMN_NAME_COMMANDS, commandsSerialized.toString());
+            Cursor existingSource = mContentResolver.query(MuzeiContract.Sources.CONTENT_URI,
+                    new String[]{BaseColumns._ID},
+                    MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + "=?",
+                    new String[] {mSelectedSource.flattenToShortString()}, null, null);
+            if (existingSource != null && existingSource.moveToFirst()) {
+                Uri sourceUri = ContentUris.withAppendedId(MuzeiContract.Sources.CONTENT_URI,
+                        existingSource.getLong(0));
+                mContentResolver.update(sourceUri, values, null, null);
             } else {
-                mSourceStates.put(mSelectedSource, state);
+                mContentResolver.insert(MuzeiContract.Sources.CONTENT_URI, values);
+            }
+            if (existingSource != null) {
+                existingSource.close();
             }
 
+            mCurrentArtwork = state.getCurrentArtwork();
             try {
-                StringBuilder sb = new StringBuilder();
-                Set<String> sourceStates = new HashSet<>();
-                for (ComponentName source : mSourceStates.keySet()) {
-                    SourceState sourceState = mSourceStates.get(source);
-                    if (sourceState == null) {
-                        continue;
-                    }
-
-                    sb.setLength(0);
-                    sb.append(source.flattenToShortString())
-                            .append("|")
-                            .append(sourceState.toJson().toString());
-                    sourceStates.add(sb.toString());
-                }
-
-                mSharedPrefs.edit().putStringSet(PREF_SOURCE_STATES, sourceStates).apply();
+                mSharedPrefs.edit().putString(PREF_CURRENT_ARTWORK, mCurrentArtwork.toJson().toString()).apply();
             } catch (JSONException e) {
-                LOGE(TAG, "Error storing source status data.", e);
+                LOGE(TAG, "Error writing current artwork", e);
             }
         }
 
         EventBus.getDefault().post(new SelectedSourceStateChangedEvent());
     }
 
+    public synchronized Artwork getCurrentArtwork() {
+        return mCurrentArtwork;
+    }
+
     public synchronized ComponentName getSelectedSource() {
         return mSelectedSource;
     }
 
-    public synchronized SourceState getSourceState(ComponentName source) {
-        return mSourceStates.get(source);
-    }
-
-    public synchronized SourceState getSelectedSourceState() {
-        return mSourceStates.get(mSelectedSource);
+    public synchronized List<UserCommand> getSelectedSourceCommands() {
+        Cursor selectedSource = mContentResolver.query(MuzeiContract.Sources.CONTENT_URI,
+                new String[]{MuzeiContract.Sources.COLUMN_NAME_COMMANDS},
+                MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + "=?",
+                new String[] {mSelectedSource.flattenToShortString()}, null, null);
+        ArrayList<UserCommand> commands = new ArrayList<>();
+        if (selectedSource == null) {
+            return commands;
+        }
+        try {
+            JSONArray commandArray = new JSONArray(selectedSource.getString(0));
+            for (int h=0; h<commandArray.length(); h++) {
+                commands.add(UserCommand.deserialize(commandArray.getString(h)));
+            }
+        } catch (JSONException e) {
+            LOGE(TAG, "Error parsing commands from " + mSelectedSource, e);
+        }
+        selectedSource.close();
+        return commands;
     }
 
     public synchronized void sendAction(int id) {
@@ -220,8 +309,16 @@ public class SourceManager {
     }
 
     public synchronized void maybeDispatchNetworkAvailable() {
-        SourceState state = getSelectedSourceState();
-        if (state != null && state.getWantsNetworkAvailable()) {
+        Cursor selectedSource = mContentResolver.query(MuzeiContract.Sources.CONTENT_URI,
+                new String[]{MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE},
+                MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + "=?",
+                new String[] {mSelectedSource.flattenToShortString()}, null, null);
+        boolean wantsNetworkAvailable = selectedSource != null && selectedSource.moveToFirst() &&
+                selectedSource.getInt(0) != 0;
+        if (selectedSource != null) {
+            selectedSource.close();
+        }
+        if (wantsNetworkAvailable) {
             mApplicationContext.startService(new Intent(ACTION_NETWORK_AVAILABLE)
                     .setComponent(mSelectedSource)
                     .putExtra(EXTRA_SUBSCRIBER_COMPONENT, mSubscriberComponentName)

@@ -28,6 +28,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -51,7 +52,7 @@ import android.widget.TextView;
 
 import com.google.android.apps.muzei.SourceManager;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
-import com.google.android.apps.muzei.api.internal.SourceState;
+import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.event.SelectedSourceStateChangedEvent;
 import com.google.android.apps.muzei.util.CheatSheet;
 import com.google.android.apps.muzei.util.LogUtil;
@@ -257,8 +258,7 @@ public class SettingsChooseSourceFragment extends Fragment {
                 if (!source.componentName.equals(mSelectedSource) || source.rootView == null) {
                     continue;
                 }
-                SourceState state = mSourceManager.getSourceState(source.componentName);
-                updateSourceStatusUi(source, state);
+                updateSourceStatusUi(source);
             }
             return;
         }
@@ -292,8 +292,7 @@ public class SettingsChooseSourceFragment extends Fragment {
                     .setDuration(mAnimationDuration);
 
             if (selected) {
-                SourceState state = mSourceManager.getSourceState(source.componentName);
-                updateSourceStatusUi(source, state);
+                updateSourceStatusUi(source);
             }
 
             animateSettingsButton(source.settingsButton,
@@ -484,8 +483,7 @@ public class SettingsChooseSourceFragment extends Fragment {
             titleView.setText(source.label);
             titleView.setTextColor(source.color);
 
-            SourceState state = mSourceManager.getSourceState(source.componentName);
-            updateSourceStatusUi(source, state);
+            updateSourceStatusUi(source);
 
             source.settingsButton = source.rootView.findViewById(R.id.source_settings_button);
             CheatSheet.setup(source.settingsButton);
@@ -540,16 +538,21 @@ public class SettingsChooseSourceFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void updateSourceStatusUi(Source source, SourceState state) {
+    private void updateSourceStatusUi(Source source) {
         if (source.rootView == null) {
             return;
         }
-
+        Cursor state = getContext().getContentResolver().query(MuzeiContract.Sources.CONTENT_URI,
+                new String[] {MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION},
+                MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + "=?",
+                new String[] { source.componentName.flattenToShortString()},
+                null);
+        String description = state != null && state.moveToFirst() ? state.getString(0) : null;
+        if (state != null) {
+            state.close();
+        }
         ((TextView) source.rootView.findViewById(R.id.source_status)).setText(
-                (state != null &&
-                        !TextUtils.isEmpty(state.getDescription()))
-                        ? state.getDescription()
-                        : source.description);
+                !TextUtils.isEmpty(description) ? description : source.description);
     }
 
     private void prepareGenerateSourceImages() {

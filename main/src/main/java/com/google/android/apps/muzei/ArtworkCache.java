@@ -79,9 +79,7 @@ public class ArtworkCache {
     public synchronized void maybeDownloadCurrentArtworkSync() {
         SourceManager sm = SourceManager.getInstance(mApplicationContext);
         ComponentName selectedSource = sm.getSelectedSource();
-        SourceState selectedSourceState = sm.getSelectedSourceState();
-        Artwork currentArtwork = selectedSourceState != null
-                ? selectedSourceState.getCurrentArtwork() : null;
+        Artwork currentArtwork = sm.getCurrentArtwork();
         if (currentArtwork == null) {
             return;
         }

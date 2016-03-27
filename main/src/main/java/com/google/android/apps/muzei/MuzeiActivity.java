@@ -54,7 +54,6 @@ import android.widget.Toast;
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.api.UserCommand;
-import com.google.android.apps.muzei.api.internal.SourceState;
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
 import com.google.android.apps.muzei.event.ArtworkLoadingStateChangedEvent;
 import com.google.android.apps.muzei.event.ArtworkSizeChangedEvent;
@@ -75,6 +74,8 @@ import com.google.android.apps.muzei.util.TypefaceUtil;
 
 import net.nurik.roman.muzei.R;
 
+import java.util.List;
+
 import de.greenrobot.event.EventBus;
 
 import static com.google.android.apps.muzei.util.LogUtil.LOGE;
@@ -87,7 +88,6 @@ public class MuzeiActivity extends AppCompatActivity {
     // Controller/logic fields
     private SourceManager mSourceManager;
     private Artwork mCurrentArtwork;
-    private SourceState mSelectedSourceState;
     private int mCurrentViewportId = 0;
     private float mWallpaperAspectRatio;
     private float mArtworkAspectRatio;
@@ -211,11 +211,10 @@ public class MuzeiActivity extends AppCompatActivity {
             onEventMainThread(spsce);
         }
 
-        mSelectedSourceState = mSourceManager.getSelectedSourceState();
-        mCurrentArtwork = mSelectedSourceState != null
-                ? mSelectedSourceState.getCurrentArtwork() : null;
+        mCurrentArtwork = mSourceManager.getCurrentArtwork();
 
         updateArtDetailUi();
+        updateCommandsUi();
     }
 
     private void setupIntroModeUi() {
@@ -676,23 +675,25 @@ public class MuzeiActivity extends AppCompatActivity {
                 mMetadataView.setOnClickListener(null);
             }
         }
+    }
+
+    private void updateCommandsUi() {
 
         // Update overflow and next button
         boolean nextButtonVisible = false;
         mOverflowSourceActionMap.clear();
         mOverflowMenu.getMenu().clear();
         mOverflowMenu.inflate(R.menu.muzei_overflow);
-        if (mSelectedSourceState != null) {
-            int numSourceActions = Math.min(SOURCE_ACTION_IDS.length,
-                    mSelectedSourceState.getNumUserCommands());
-            for (int i = 0; i < numSourceActions; i++) {
-                UserCommand action = mSelectedSourceState.getUserCommandAt(i);
-                if (action.getId() == MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK) {
-                    nextButtonVisible = !mArtworkLoading;
-                } else {
-                    mOverflowSourceActionMap.put(SOURCE_ACTION_IDS[i], action.getId());
-                    mOverflowMenu.getMenu().add(0, SOURCE_ACTION_IDS[i], 0, action.getTitle());
-                }
+        List<UserCommand> commands = mSourceManager.getSelectedSourceCommands();
+        int numSourceActions = Math.min(SOURCE_ACTION_IDS.length,
+                commands.size());
+        for (int i = 0; i < numSourceActions; i++) {
+            UserCommand action = commands.get(i);
+            if (action.getId() == MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK) {
+                nextButtonVisible = !mArtworkLoading;
+            } else {
+                mOverflowSourceActionMap.put(SOURCE_ACTION_IDS[i], action.getId());
+                mOverflowMenu.getMenu().add(0, SOURCE_ACTION_IDS[i], 0, action.getTitle());
             }
         }
 
@@ -729,10 +730,9 @@ public class MuzeiActivity extends AppCompatActivity {
     }
 
     public void onEventMainThread(SelectedSourceStateChangedEvent e) {
-        mSelectedSourceState = mSourceManager.getSelectedSourceState();
-        mCurrentArtwork = mSelectedSourceState != null
-                ? mSelectedSourceState.getCurrentArtwork() : null;
+        mCurrentArtwork = mSourceManager.getCurrentArtwork();
         updateArtDetailUi();
+        updateCommandsUi();
     }
 
     public void onEventMainThread(WallpaperSizeChangedEvent wsce) {
@@ -856,8 +856,8 @@ public class MuzeiActivity extends AppCompatActivity {
                 mConsecutiveLoadErrorCount = 0;
             }
 
-            // Artwork no longer loading, update normal mode UI
-            updateArtDetailUi();
+            // Artwork no longer loading, update commands UI
+            updateCommandsUi();
         }
 
         if (mUiMode == UI_MODE_ART_DETAIL) {

@@ -37,7 +37,6 @@ import android.text.TextUtils;
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.api.UserCommand;
-import com.google.android.apps.muzei.api.internal.SourceState;
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
 import com.google.android.apps.muzei.render.BitmapRegionLoader;
 import com.google.android.apps.muzei.render.ImageUtil;
@@ -45,6 +44,7 @@ import com.google.android.apps.muzei.render.ImageUtil;
 import net.nurik.roman.muzei.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
@@ -89,9 +89,8 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
         }
         String selectedCommand = remoteInput.getCharSequence(EXTRA_USER_COMMAND).toString();
         SourceManager sm = SourceManager.getInstance(context);
-        SourceState state = sm.getSelectedSourceState();
-        for (int i = 0; i < state.getNumUserCommands(); i++) {
-            UserCommand action = state.getUserCommandAt(i);
+        List<UserCommand> commands = sm.getSelectedSourceCommands();
+        for (UserCommand action : commands) {
             if (TextUtils.equals(selectedCommand, action.getTitle())) {
                 sm.sendAction(action.getId());
                 break;
@@ -101,8 +100,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
 
     public static void markNotificationRead(Context context) {
         SourceManager sm = SourceManager.getInstance(context);
-        SourceState state = sm.getSelectedSourceState();
-        Artwork currentArtwork = (state == null) ? null : state.getCurrentArtwork();
+        Artwork currentArtwork = sm.getCurrentArtwork();
         if (currentArtwork == null || currentArtwork.getImageUri() == null) {
             return;
         }
@@ -194,10 +192,9 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
 
         NotificationCompat.WearableExtender extender = new NotificationCompat.WearableExtender();
         SourceManager sm = SourceManager.getInstance(context);
-        SourceState state = sm.getSelectedSourceState();
+        List<UserCommand> commands = sm.getSelectedSourceCommands();
         ArrayList<String> customActions = new ArrayList<>();
-        for (int i = 0; i < state.getNumUserCommands(); i++) {
-            UserCommand action = state.getUserCommandAt(i);
+        for (UserCommand action : commands) {
             if (action.getId() == MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK) {
                 PendingIntent nextPendingIntent = PendingIntent.getBroadcast(context, 0,
                         new Intent(context, NewWallpaperNotificationReceiver.class)

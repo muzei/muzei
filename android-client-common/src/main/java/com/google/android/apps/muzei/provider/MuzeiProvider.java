@@ -17,10 +17,13 @@
 package com.google.android.apps.muzei.provider;
 
 import android.content.ContentProvider;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.UriMatcher;
 import android.database.Cursor;
@@ -40,7 +43,10 @@ import com.google.android.apps.muzei.api.MuzeiContract;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 
 /**
  * Provides access to a the most recent artwork
@@ -89,6 +95,14 @@ public class MuzeiProvider extends ContentProvider {
      * Handle to a new DatabaseHelper.
      */
     private DatabaseHelper databaseHelper;
+    /**
+     * Whether we should hold notifyChange() calls due to an ongoing applyBatch operation
+     */
+    private boolean holdNotifyChange = false;
+    /**
+     * Set of Uris that should be applied when the ongoing applyBatch operation finishes
+     */
+    private LinkedHashSet<Uri> pendingNotifyChange = new LinkedHashSet<>();
 
     /**
      * Save the current artwork's local location so that third parties can use openFile to retrieve the already
@@ -115,6 +129,8 @@ public class MuzeiProvider extends ContentProvider {
     private static HashMap<String, String> buildAllArtworkColumnProjectionMap() {
         final HashMap<String, String> allColumnProjectionMap = new HashMap<>();
         allColumnProjectionMap.put(BaseColumns._ID, BaseColumns._ID);
+        allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME,
+                MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME);
         allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI,
                 MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI);
         allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_TITLE,
@@ -169,6 +185,34 @@ public class MuzeiProvider extends ContentProvider {
         return matcher;
     }
 
+    @NonNull
+    @Override
+    public ContentProviderResult[] applyBatch(@NonNull final ArrayList<ContentProviderOperation> operations)
+            throws OperationApplicationException {
+        holdNotifyChange = true;
+        try {
+            return super.applyBatch(operations);
+        } finally {
+            holdNotifyChange = false;
+            Iterator<Uri> iterator = pendingNotifyChange.iterator();
+            while (iterator.hasNext()) {
+                notifyChange(iterator.next());
+                iterator.remove();
+            }
+        }
+    }
+
+    private void notifyChange(Uri uri) {
+        if (holdNotifyChange) {
+            pendingNotifyChange.add(uri);
+        } else {
+            getContext().getContentResolver().notifyChange(uri, null);
+            if (MuzeiContract.Artwork.CONTENT_URI.equals(uri)) {
+                getContext().sendBroadcast(new Intent(MuzeiContract.Artwork.ACTION_ARTWORK_CHANGED));
+            }
+        }
+    }
+
     @Override
     public int delete(@NonNull final Uri uri, final String where, final String[] whereArgs) {
         throw new UnsupportedOperationException("Deletes are not supported");
@@ -209,6 +253,8 @@ public class MuzeiProvider extends ContentProvider {
         if (values == null) {
             throw new IllegalArgumentException("Invalid ContentValues: must not be null");
         }
+        if (!values.containsKey(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME))
+            throw new IllegalArgumentException("Initial values must contain component name " + values);
         final SQLiteDatabase db = databaseHelper.getWritableDatabase();
         final int countUpdated = db.update(MuzeiContract.Artwork.TABLE_NAME,
                 values, BaseColumns._ID + "=1", null);
@@ -219,28 +265,23 @@ public class MuzeiProvider extends ContentProvider {
                 throw new SQLException("Failed to insert row into " + uri);
             }
         }
-        getContext().getContentResolver().notifyChange(MuzeiContract.Artwork.CONTENT_URI, null);
-        getContext().sendBroadcast(new Intent(MuzeiContract.Artwork.ACTION_ARTWORK_CHANGED));
+
+        notifyChange(MuzeiContract.Artwork.CONTENT_URI);
         return MuzeiContract.Artwork.CONTENT_URI;
     }
 
     private Uri insertSource(@NonNull final Uri uri, final ContentValues initialValues) {
-        ContentValues values;
-        if (initialValues != null)
-            values = new ContentValues(initialValues);
-        else
-            values = new ContentValues();
-        if (!values.containsKey(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME))
+        if (!initialValues.containsKey(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME))
             throw new IllegalArgumentException("Initial values must contain component name " + initialValues);
         final SQLiteDatabase db = databaseHelper.getWritableDatabase();
         final long rowId = db.insert(MuzeiContract.Sources.TABLE_NAME,
-                MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, values);
+                MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, initialValues);
         // If the insert succeeded, the row ID exists.
         if (rowId > 0)
         {
             // Creates a URI with the source ID pattern and the new row ID appended to it.
             final Uri sourceUri = ContentUris.withAppendedId(MuzeiContract.Sources.CONTENT_URI, rowId);
-            getContext().getContentResolver().notifyChange(sourceUri, null);
+            notifyChange(sourceUri);
             return sourceUri;
         }
         // If the insert didn't succeed, then the rowID is <= 0
@@ -339,7 +380,7 @@ public class MuzeiProvider extends ContentProvider {
     private int updateSource(@NonNull final Uri uri, final ContentValues values, final String selection,
                              final String[] selectionArgs) {
         final SQLiteDatabase db = databaseHelper.getWritableDatabase();
-        int count = 0;
+        int count;
         switch (MuzeiProvider.uriMatcher.match(uri))
         {
             case SOURCES:
@@ -355,12 +396,16 @@ public class MuzeiProvider extends ContentProvider {
                 if (selection != null)
                     finalWhere = finalWhere + " AND " + selection;
                 count = db.update(MuzeiContract.Sources.TABLE_NAME, values, finalWhere, selectionArgs);
-                break;
+                notifyChange(uri);
+                return count;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
         if (count > 0) {
-            getContext().getContentResolver().notifyChange(uri, null);
+            notifyChange(uri);
+        } else if (values.containsKey(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME)) {
+            insertSource(MuzeiContract.Sources.CONTENT_URI, values);
+            count = 1;
         }
         return count;
     }
@@ -383,41 +428,39 @@ public class MuzeiProvider extends ContentProvider {
          */
         @Override
         public void onCreate(final SQLiteDatabase db) {
-            db.execSQL("CREATE TABLE " + MuzeiContract.Artwork.TABLE_NAME + " ("
-                    + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI + " TEXT,"
-                    + MuzeiContract.Artwork.COLUMN_NAME_TITLE + " TEXT,"
-                    + MuzeiContract.Artwork.COLUMN_NAME_BYLINE + " TEXT,"
-                    + MuzeiContract.Artwork.COLUMN_NAME_ATTRIBUTION + " TEXT,"
-                    + MuzeiContract.Artwork.COLUMN_NAME_TOKEN + " TEXT,"
-                    + MuzeiContract.Artwork.COLUMN_NAME_META_FONT + " TEXT,"
-                    + MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT + " TEXT);");
-            onCreateSourcesTable(db);
-        }
-
-        private void onCreateSourcesTable(final SQLiteDatabase db) {
-            db.execSQL("CREATE TABLE " + MuzeiContract.Artwork.TABLE_NAME + " ("
+            db.execSQL("CREATE TABLE " + MuzeiContract.Sources.TABLE_NAME + " ("
                     + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + " TEXT,"
                     + MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED + " INTEGER,"
                     + MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION + " TEXT,"
                     + MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE + " INTEGER,"
                     + MuzeiContract.Sources.COLUMN_NAME_COMMANDS + " TEXT);");
+            db.execSQL("CREATE TABLE " + MuzeiContract.Artwork.TABLE_NAME + " ("
+                    + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME + " TEXT,"
+                    + MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI + " TEXT,"
+                    + MuzeiContract.Artwork.COLUMN_NAME_TITLE + " TEXT,"
+                    + MuzeiContract.Artwork.COLUMN_NAME_BYLINE + " TEXT,"
+                    + MuzeiContract.Artwork.COLUMN_NAME_ATTRIBUTION + " TEXT,"
+                    + MuzeiContract.Artwork.COLUMN_NAME_TOKEN + " TEXT,"
+                    + MuzeiContract.Artwork.COLUMN_NAME_META_FONT + " TEXT,"
+                    + MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT + " TEXT,"
+                    + " CONSTRAINT fk_source_artwork FOREIGN KEY ("
+                    + MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME + ") REFERENCES "
+                    + MuzeiContract.Sources.TABLE_NAME + " ("
+                    + MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + ") ON DELETE CASCADE);");
         }
 
         /**
-         * Upgrades the database in place.
+         * Upgrades the database.
          */
         @Override
         public void onUpgrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
-            if (newVersion == 2) {
-                db.execSQL("DROP TABLE IF EXISTS " + MuzeiContract.Artwork.TABLE_NAME);
-                onCreate(db);
-                return;
-            }
             if (oldVersion < 3) {
-                // Add the sources table
-                onCreateSourcesTable(db);
+                // We can't ALTER TABLE to add a foreign key and we wouldn't know what the FK should be
+                // at this point anyways so we'll wipe and recreate the artwork table
+                db.execSQL("DROP TABLE " + MuzeiContract.Artwork.TABLE_NAME);
+                onCreate(db);
             }
         }
     }
