@@ -283,22 +283,15 @@ public class SourceManager {
                 new String[]{MuzeiContract.Sources.COLUMN_NAME_COMMANDS},
                 MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + "=?",
                 new String[] {mSelectedSource.flattenToShortString()}, null, null);
-        ArrayList<UserCommand> commands = new ArrayList<>();
         if (selectedSource == null) {
-            return commands;
+            return new ArrayList<>();
         }
-        try {
-            if (selectedSource.moveToFirst() && selectedSource.getString(0) != null) {
-                JSONArray commandArray = new JSONArray(selectedSource.getString(0));
-                for (int h=0; h<commandArray.length(); h++) {
-                    commands.add(UserCommand.deserialize(commandArray.getString(h)));
-                }
-            }
-        } catch (JSONException e) {
-            LOGE(TAG, "Error parsing commands from " + mSelectedSource, e);
+        String commandString = null;
+        if (selectedSource.moveToFirst()) {
+            commandString = selectedSource.getString(0);
         }
         selectedSource.close();
-        return commands;
+        return MuzeiContract.Sources.parseCommands(commandString);
     }
 
     public synchronized void sendAction(int id) {

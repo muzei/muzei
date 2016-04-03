@@ -25,8 +25,14 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Looper;
 import android.provider.BaseColumns;
+import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Contract between Muzei and applications, containing the definitions for all supported URIs and
@@ -268,5 +274,26 @@ public class MuzeiContract {
          */
         public static final Uri CONTENT_URI = Uri.parse(MuzeiContract.SCHEME + MuzeiContract.AUTHORITY
                 + "/" + Sources.TABLE_NAME);
+
+        /**
+         * Parse the commands found in the {@link #COLUMN_NAME_COMMANDS} field into a List of {@link UserCommand}s.
+         * @param commandsString The serialized commands found in {@link #COLUMN_NAME_COMMANDS}
+         * @return A deserialized List of {@link UserCommand}s
+         */
+        public static List<UserCommand> parseCommands(String commandsString) {
+            ArrayList<UserCommand> commands = new ArrayList<>();
+            if (commandsString == null) {
+                return commands;
+            }
+            try {
+                JSONArray commandArray = new JSONArray(commandsString);
+                for (int h=0; h<commandArray.length(); h++) {
+                    commands.add(UserCommand.deserialize(commandArray.getString(h)));
+                }
+            } catch (JSONException e) {
+                Log.e(MuzeiContract.Sources.class.getSimpleName(), "Error parsing commands from " + commandsString, e);
+            }
+            return commands;
+        }
     }
 }
