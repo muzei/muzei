@@ -23,6 +23,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
@@ -36,6 +37,7 @@ import android.text.TextUtils;
 
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
+import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.api.UserCommand;
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
 import com.google.android.apps.muzei.render.BitmapRegionLoader;
@@ -89,12 +91,20 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
         }
         String selectedCommand = remoteInput.getCharSequence(EXTRA_USER_COMMAND).toString();
         SourceManager sm = SourceManager.getInstance(context);
-        List<UserCommand> commands = sm.getSelectedSourceCommands();
-        for (UserCommand action : commands) {
-            if (TextUtils.equals(selectedCommand, action.getTitle())) {
-                sm.sendAction(action.getId());
-                break;
+        Cursor selectedSource = context.getContentResolver().query(MuzeiContract.Sources.CONTENT_URI,
+                new String[]{MuzeiContract.Sources.COLUMN_NAME_COMMANDS},
+                MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED + "=1", null, null, null);
+        if (selectedSource != null && selectedSource.moveToFirst()) {
+            List<UserCommand> commands = MuzeiContract.Sources.parseCommands(selectedSource.getString(0));
+            for (UserCommand action : commands) {
+                if (TextUtils.equals(selectedCommand, action.getTitle())) {
+                    sm.sendAction(action.getId());
+                    break;
+                }
             }
+        }
+        if (selectedSource != null) {
+            selectedSource.close();
         }
     }
 
@@ -191,11 +201,14 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
         nb.setStyle(style);
 
         NotificationCompat.WearableExtender extender = new NotificationCompat.WearableExtender();
-        SourceManager sm = SourceManager.getInstance(context);
-        List<UserCommand> commands = sm.getSelectedSourceCommands();
-        ArrayList<String> customActions = new ArrayList<>();
-        for (UserCommand action : commands) {
-            if (action.getId() == MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK) {
+
+        Cursor selectedSource = context.getContentResolver().query(MuzeiContract.Sources.CONTENT_URI,
+                new String[]{MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,
+                        MuzeiContract.Sources.COLUMN_NAME_COMMANDS},
+                MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED + "=1", null, null, null);
+        if (selectedSource != null && selectedSource.moveToFirst()) {
+            // Support Next Artwork
+            if (selectedSource.getInt(0) != 0) {
                 PendingIntent nextPendingIntent = PendingIntent.getBroadcast(context, 0,
                         new Intent(context, NewWallpaperNotificationReceiver.class)
                                 .setAction(ACTION_NEXT_ARTWORK),
@@ -212,27 +225,33 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
                         nextPendingIntent)
                         .extend(new NotificationCompat.Action.WearableExtender().setAvailableOffline(false))
                         .build());
-            } else {
-                customActions.add(action.getTitle());
+            }
+            List<UserCommand> commands = MuzeiContract.Sources.parseCommands(selectedSource.getString(1));
+            // Show custom actions as a selectable list on Android Wear devices
+            if (!commands.isEmpty()) {
+                String[] actions = new String[commands.size()];
+                for (int h=0; h<commands.size(); h++) {
+                    actions[h] = commands.get(h).getTitle();
+                }
+                PendingIntent userCommandPendingIntent = PendingIntent.getBroadcast(context, 0,
+                        new Intent(context, NewWallpaperNotificationReceiver.class)
+                                .setAction(ACTION_USER_COMMAND),
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+                RemoteInput remoteInput = new RemoteInput.Builder(EXTRA_USER_COMMAND)
+                        .setAllowFreeFormInput(false)
+                        .setLabel(context.getString(R.string.action_user_command_prompt))
+                        .setChoices(actions)
+                        .build();
+                extender.addAction(new NotificationCompat.Action.Builder(
+                        R.drawable.ic_notif_full_user_command,
+                        context.getString(R.string.action_user_command),
+                        userCommandPendingIntent).addRemoteInput(remoteInput)
+                        .extend(new NotificationCompat.Action.WearableExtender().setAvailableOffline(false))
+                        .build());
             }
         }
-        // Show custom actions as a selectable list on Android Wear devices
-        if (!customActions.isEmpty()) {
-            PendingIntent userCommandPendingIntent = PendingIntent.getBroadcast(context, 0,
-                    new Intent(context, NewWallpaperNotificationReceiver.class)
-                            .setAction(ACTION_USER_COMMAND),
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-            RemoteInput remoteInput = new RemoteInput.Builder(EXTRA_USER_COMMAND)
-                    .setAllowFreeFormInput(false)
-                    .setLabel(context.getString(R.string.action_user_command_prompt))
-                    .setChoices(customActions.toArray(new String[customActions.size()]))
-                    .build();
-            extender.addAction(new NotificationCompat.Action.Builder(
-                    R.drawable.ic_notif_full_user_command,
-                    context.getString(R.string.action_user_command),
-                    userCommandPendingIntent).addRemoteInput(remoteInput)
-                    .extend(new NotificationCompat.Action.WearableExtender().setAvailableOffline(false))
-                    .build());
+        if (selectedSource != null) {
+            selectedSource.close();
         }
         Intent viewIntent = artwork.getViewIntent();
         if (viewIntent != null) {

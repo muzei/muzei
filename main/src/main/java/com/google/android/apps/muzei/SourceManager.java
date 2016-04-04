@@ -32,6 +32,7 @@ import android.provider.BaseColumns;
 import android.text.TextUtils;
 
 import com.google.android.apps.muzei.api.Artwork;
+import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.api.UserCommand;
 import com.google.android.apps.muzei.api.internal.SourceState;
@@ -147,7 +148,20 @@ public class SourceManager {
                 values.put(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION, jsonObject.optString("description"));
                 values.put(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE,
                         jsonObject.optBoolean("wantsNetworkAvailable"));
-                JSONArray commandsSerialized = jsonObject.optJSONArray("userCommands");
+                // Parse out the UserCommands. This ensures it is properly formatted and extracts the
+                // Next Artwork built in command from the list
+                List<UserCommand> commands = MuzeiContract.Sources.parseCommands(
+                        jsonObject.optJSONArray("userCommands").toString());
+                JSONArray commandsSerialized = new JSONArray();
+                boolean supportsNextArtwork = false;
+                for (UserCommand command : commands) {
+                    if (command.getId() == MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK) {
+                        supportsNextArtwork = true;
+                    } else {
+                        commandsSerialized.put(command.serialize());
+                    }
+                }
+                values.put(MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND, supportsNextArtwork);
                 values.put(MuzeiContract.Sources.COLUMN_NAME_COMMANDS, commandsSerialized.toString());
                 operations.add(ContentProviderOperation.newInsert(MuzeiContract.Sources.CONTENT_URI)
                     .withValues(values).build());
@@ -240,9 +254,16 @@ public class SourceManager {
             values.put(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE, state.getWantsNetworkAvailable());
             JSONArray commandsSerialized = new JSONArray();
             int numSourceActions = state.getNumUserCommands();
+            boolean supportsNextArtwork = false;
             for (int i = 0; i < numSourceActions; i++) {
-                commandsSerialized.put(state.getUserCommandAt(i).serialize());
+                UserCommand command = state.getUserCommandAt(i);
+                if (command.getId() == MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK) {
+                    supportsNextArtwork = true;
+                } else {
+                    commandsSerialized.put(command.serialize());
+                }
             }
+            values.put(MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND, supportsNextArtwork);
             values.put(MuzeiContract.Sources.COLUMN_NAME_COMMANDS, commandsSerialized.toString());
             Cursor existingSource = mContentResolver.query(MuzeiContract.Sources.CONTENT_URI,
                     new String[]{BaseColumns._ID},
@@ -276,22 +297,6 @@ public class SourceManager {
 
     public synchronized ComponentName getSelectedSource() {
         return mSelectedSource;
-    }
-
-    public synchronized List<UserCommand> getSelectedSourceCommands() {
-        Cursor selectedSource = mContentResolver.query(MuzeiContract.Sources.CONTENT_URI,
-                new String[]{MuzeiContract.Sources.COLUMN_NAME_COMMANDS},
-                MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + "=?",
-                new String[] {mSelectedSource.flattenToShortString()}, null, null);
-        if (selectedSource == null) {
-            return new ArrayList<>();
-        }
-        String commandString = null;
-        if (selectedSource.moveToFirst()) {
-            commandString = selectedSource.getString(0);
-        }
-        selectedSource.close();
-        return MuzeiContract.Sources.parseCommands(commandString);
     }
 
     public synchronized void sendAction(int id) {

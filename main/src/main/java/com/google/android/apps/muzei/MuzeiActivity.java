@@ -28,6 +28,7 @@ import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Rect;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.os.Build;
@@ -53,6 +54,7 @@ import android.widget.Toast;
 
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
+import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.api.UserCommand;
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
 import com.google.android.apps.muzei.event.ArtworkLoadingStateChangedEvent;
@@ -684,19 +686,24 @@ public class MuzeiActivity extends AppCompatActivity {
         mOverflowSourceActionMap.clear();
         mOverflowMenu.getMenu().clear();
         mOverflowMenu.inflate(R.menu.muzei_overflow);
-        List<UserCommand> commands = mSourceManager.getSelectedSourceCommands();
-        int numSourceActions = Math.min(SOURCE_ACTION_IDS.length,
-                commands.size());
-        for (int i = 0; i < numSourceActions; i++) {
-            UserCommand action = commands.get(i);
-            if (action.getId() == MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK) {
-                nextButtonVisible = !mArtworkLoading;
-            } else {
+        Cursor selectedSource = getContentResolver().query(MuzeiContract.Sources.CONTENT_URI,
+                new String[]{MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,
+                        MuzeiContract.Sources.COLUMN_NAME_COMMANDS},
+                MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED + "=1", null, null, null);
+        if (selectedSource != null && selectedSource.moveToFirst()) {
+            nextButtonVisible = selectedSource.getInt(0) != 0 && !mArtworkLoading;
+            List<UserCommand> commands = MuzeiContract.Sources.parseCommands(selectedSource.getString(1));
+            int numSourceActions = Math.min(SOURCE_ACTION_IDS.length,
+                    commands.size());
+            for (int i = 0; i < numSourceActions; i++) {
+                UserCommand action = commands.get(i);
                 mOverflowSourceActionMap.put(SOURCE_ACTION_IDS[i], action.getId());
                 mOverflowMenu.getMenu().add(0, SOURCE_ACTION_IDS[i], 0, action.getTitle());
             }
         }
-
+        if (selectedSource != null) {
+            selectedSource.close();
+        }
         mNextButton.setVisibility(nextButtonVisible ? View.VISIBLE : View.GONE);
     }
 

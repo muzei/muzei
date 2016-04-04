@@ -164,6 +164,8 @@ public class MuzeiProvider extends ContentProvider {
                 MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION);
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE,
                 MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE);
+        allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,
+                MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND);
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_COMMANDS,
                 MuzeiContract.Sources.COLUMN_NAME_COMMANDS);
         return allColumnProjectionMap;
@@ -434,6 +436,7 @@ public class MuzeiProvider extends ContentProvider {
                     + MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED + " INTEGER,"
                     + MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION + " TEXT,"
                     + MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE + " INTEGER,"
+                    + MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND + " INTEGER,"
                     + MuzeiContract.Sources.COLUMN_NAME_COMMANDS + " TEXT);");
             db.execSQL("CREATE TABLE " + MuzeiContract.Artwork.TABLE_NAME + " ("
                     + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"

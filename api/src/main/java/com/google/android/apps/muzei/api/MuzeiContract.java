@@ -241,6 +241,11 @@ public class MuzeiContract {
          */
         public static final String COLUMN_NAME_WANTS_NETWORK_AVAILABLE = "network";
         /**
+         * Column name for the flag indicating if the source supports a 'Next Artwork' action
+         * <p>Type: INTEGER (boolean)
+         */
+        public static final String COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND = "supports_next_artwork";
+        /**
          * Column name for the commands the source supports
          * <p>Type: TEXT
          */
