@@ -35,6 +35,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.SparseIntArray;
@@ -59,7 +62,6 @@ import com.google.android.apps.muzei.api.UserCommand;
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
 import com.google.android.apps.muzei.event.ArtworkLoadingStateChangedEvent;
 import com.google.android.apps.muzei.event.ArtworkSizeChangedEvent;
-import com.google.android.apps.muzei.event.SelectedSourceStateChangedEvent;
 import com.google.android.apps.muzei.event.SwitchingPhotosStateChangedEvent;
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
 import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent;
@@ -89,10 +91,105 @@ public class MuzeiActivity extends AppCompatActivity {
 
     // Controller/logic fields
     private SourceManager mSourceManager;
-    private Artwork mCurrentArtwork;
     private int mCurrentViewportId = 0;
     private float mWallpaperAspectRatio;
     private float mArtworkAspectRatio;
+
+    public boolean mSupportsNextArtwork = false;
+    private LoaderManager.LoaderCallbacks<Cursor> mSourceLoaderCallbacks = new LoaderManager.LoaderCallbacks<Cursor>() {
+
+        @Override
+        public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
+            return new CursorLoader(MuzeiActivity.this, MuzeiContract.Sources.CONTENT_URI,
+                    new String[]{MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,
+                            MuzeiContract.Sources.COLUMN_NAME_COMMANDS},
+                    MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED + "=1", null, null);
+        }
+
+        @Override
+        public void onLoadFinished(final Loader<Cursor> loader, final Cursor data) {
+            // Update overflow and next button
+            mOverflowSourceActionMap.clear();
+            mOverflowMenu.getMenu().clear();
+            mOverflowMenu.inflate(R.menu.muzei_overflow);
+            if (data.moveToFirst()) {
+                mSupportsNextArtwork = data.getInt(0) != 0;
+                List<UserCommand> commands = MuzeiContract.Sources.parseCommands(data.getString(1));
+                int numSourceActions = Math.min(SOURCE_ACTION_IDS.length,
+                        commands.size());
+                for (int i = 0; i < numSourceActions; i++) {
+                    UserCommand action = commands.get(i);
+                    mOverflowSourceActionMap.put(SOURCE_ACTION_IDS[i], action.getId());
+                    mOverflowMenu.getMenu().add(0, SOURCE_ACTION_IDS[i], 0, action.getTitle());
+                }
+            }
+            mNextButton.setVisibility(mSupportsNextArtwork && !mArtworkLoading ? View.VISIBLE : View.GONE);
+        }
+
+        @Override
+        public void onLoaderReset(final Loader<Cursor> loader) {
+        }
+    };
+
+    private LoaderManager.LoaderCallbacks<Cursor> mArtworkLoaderCallbacks = new LoaderManager.LoaderCallbacks<Cursor>() {
+        @Override
+        public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
+            return new CursorLoader(MuzeiActivity.this, MuzeiContract.Artwork.CONTENT_URI,
+                    null, null, null, null);
+        }
+
+        @Override
+        public void onLoadFinished(final Loader<Cursor> loader, final Cursor data) {
+            if (!data.moveToFirst()) {
+                return;
+            }
+            Artwork currentArtwork = Artwork.fromCursor(data);
+            String titleFont = "AlegreyaSans-Black.ttf";
+            String bylineFont = "AlegreyaSans-Medium.ttf";
+            if (Artwork.FONT_TYPE_ELEGANT.equals(currentArtwork.getMetaFont())) {
+                titleFont = "Alegreya-BlackItalic.ttf";
+                bylineFont = "Alegreya-Italic.ttf";
+            }
+
+            mTitleView.setTypeface(TypefaceUtil.getAndCache(MuzeiActivity.this, titleFont));
+            mTitleView.setText(currentArtwork.getTitle());
+
+            mBylineView.setTypeface(TypefaceUtil.getAndCache(MuzeiActivity.this, bylineFont));
+            mBylineView.setText(currentArtwork.getByline());
+
+            String attribution = currentArtwork.getAttribution();
+            if (!TextUtils.isEmpty(attribution)) {
+                mAttributionView.setText(attribution);
+                mAttributionView.setVisibility(View.VISIBLE);
+            } else {
+                mAttributionView.setVisibility(View.GONE);
+            }
+
+            final Intent viewIntent = currentArtwork.getViewIntent();
+            mMetadataView.setEnabled(viewIntent != null);
+            if (viewIntent != null) {
+                mMetadataView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        viewIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        try {
+                            startActivity(viewIntent);
+                        } catch (ActivityNotFoundException | SecurityException e) {
+                            Toast.makeText(MuzeiActivity.this, R.string.error_view_details,
+                                    Toast.LENGTH_SHORT).show();
+                            LOGE(TAG, "Error viewing artwork details.", e);
+                        }
+                    }
+                });
+            } else {
+                mMetadataView.setOnClickListener(null);
+            }
+        }
+
+        @Override
+        public void onLoaderReset(final Loader<Cursor> loader) {
+        }
+    };
 
     // UI flags
     private int mUiMode = UI_MODE_ART_DETAIL;
@@ -213,10 +310,8 @@ public class MuzeiActivity extends AppCompatActivity {
             onEventMainThread(spsce);
         }
 
-        mCurrentArtwork = mSourceManager.getCurrentArtwork();
-
-        updateArtDetailUi();
-        updateCommandsUi();
+        getSupportLoaderManager().initLoader(0, null, mSourceLoaderCallbacks);
+        getSupportLoaderManager().initLoader(1, null, mArtworkLoaderCallbacks);
     }
 
     private void setupIntroModeUi() {
@@ -634,79 +729,6 @@ public class MuzeiActivity extends AppCompatActivity {
         return super.onKeyUp(keyCode, event);
     }
 
-    private void updateArtDetailUi() {
-        if (mCurrentArtwork != null) {
-            String titleFont = "AlegreyaSans-Black.ttf";
-            String bylineFont = "AlegreyaSans-Medium.ttf";
-            if (Artwork.FONT_TYPE_ELEGANT.equals(mCurrentArtwork.getMetaFont())) {
-                titleFont = "Alegreya-BlackItalic.ttf";
-                bylineFont = "Alegreya-Italic.ttf";
-            }
-
-            mTitleView.setTypeface(TypefaceUtil.getAndCache(this, titleFont));
-            mTitleView.setText(mCurrentArtwork.getTitle());
-
-            mBylineView.setTypeface(TypefaceUtil.getAndCache(this, bylineFont));
-            mBylineView.setText(mCurrentArtwork.getByline());
-
-            String attribution = mCurrentArtwork.getAttribution();
-            if (!TextUtils.isEmpty(attribution)) {
-                mAttributionView.setText(attribution);
-                mAttributionView.setVisibility(View.VISIBLE);
-            } else {
-                mAttributionView.setVisibility(View.GONE);
-            }
-
-            final Intent viewIntent = mCurrentArtwork.getViewIntent();
-            mMetadataView.setEnabled(viewIntent != null);
-            if (viewIntent != null) {
-                mMetadataView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        viewIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        try {
-                            startActivity(viewIntent);
-                        } catch (ActivityNotFoundException | SecurityException e) {
-                            Toast.makeText(MuzeiActivity.this, R.string.error_view_details,
-                                    Toast.LENGTH_SHORT).show();
-                            LOGE(TAG, "Error viewing artwork details.", e);
-                        }
-                    }
-                });
-            } else {
-                mMetadataView.setOnClickListener(null);
-            }
-        }
-    }
-
-    private void updateCommandsUi() {
-
-        // Update overflow and next button
-        boolean nextButtonVisible = false;
-        mOverflowSourceActionMap.clear();
-        mOverflowMenu.getMenu().clear();
-        mOverflowMenu.inflate(R.menu.muzei_overflow);
-        Cursor selectedSource = getContentResolver().query(MuzeiContract.Sources.CONTENT_URI,
-                new String[]{MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,
-                        MuzeiContract.Sources.COLUMN_NAME_COMMANDS},
-                MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED + "=1", null, null, null);
-        if (selectedSource != null && selectedSource.moveToFirst()) {
-            nextButtonVisible = selectedSource.getInt(0) != 0 && !mArtworkLoading;
-            List<UserCommand> commands = MuzeiContract.Sources.parseCommands(selectedSource.getString(1));
-            int numSourceActions = Math.min(SOURCE_ACTION_IDS.length,
-                    commands.size());
-            for (int i = 0; i < numSourceActions; i++) {
-                UserCommand action = commands.get(i);
-                mOverflowSourceActionMap.put(SOURCE_ACTION_IDS[i], action.getId());
-                mOverflowMenu.getMenu().add(0, SOURCE_ACTION_IDS[i], 0, action.getTitle());
-            }
-        }
-        if (selectedSource != null) {
-            selectedSource.close();
-        }
-        mNextButton.setVisibility(nextButtonVisible ? View.VISIBLE : View.GONE);
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -734,12 +756,6 @@ public class MuzeiActivity extends AppCompatActivity {
         super.onWindowFocusChanged(hasFocus);
         mWindowHasFocus = hasFocus;
         maybeUpdateArtDetailOpenedClosed();
-    }
-
-    public void onEventMainThread(SelectedSourceStateChangedEvent e) {
-        mCurrentArtwork = mSourceManager.getCurrentArtwork();
-        updateArtDetailUi();
-        updateCommandsUi();
     }
 
     public void onEventMainThread(WallpaperSizeChangedEvent wsce) {
@@ -862,10 +878,10 @@ public class MuzeiActivity extends AppCompatActivity {
             if (!mArtworkLoadingError) {
                 mConsecutiveLoadErrorCount = 0;
             }
-
-            // Artwork no longer loading, update commands UI
-            updateCommandsUi();
         }
+
+        // Artwork no longer loading, update the visibility of the next button
+        mNextButton.setVisibility(mSupportsNextArtwork && !mArtworkLoading ? View.VISIBLE : View.GONE);
 
         if (mUiMode == UI_MODE_ART_DETAIL) {
             maybeUpdateArtDetailOpenedClosed();
