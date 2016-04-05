@@ -18,7 +18,6 @@ package com.google.android.apps.muzei.settings;
 
 import android.animation.ObjectAnimator;
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -42,6 +41,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.content.res.ResourcesCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -53,7 +56,6 @@ import android.widget.TextView;
 import com.google.android.apps.muzei.SourceManager;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.api.MuzeiContract;
-import com.google.android.apps.muzei.event.SelectedSourceStateChangedEvent;
 import com.google.android.apps.muzei.util.CheatSheet;
 import com.google.android.apps.muzei.util.LogUtil;
 import com.google.android.apps.muzei.util.ObservableHorizontalScrollView;
@@ -75,7 +77,7 @@ import static com.google.android.apps.muzei.util.LogUtil.LOGW;
 /**
  * Fragment for allowing the user to choose the active source.
  */
-public class SettingsChooseSourceFragment extends Fragment {
+public class SettingsChooseSourceFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = LogUtil.makeLogTag(SettingsChooseSourceFragment.class);
 
     private static final int SCROLLBAR_HIDE_DELAY_MILLIS = 1000;
@@ -124,7 +126,6 @@ public class SettingsChooseSourceFragment extends Fragment {
                 R.dimen.settings_choose_source_item_image_size);
 
         mSourceManager = SourceManager.getInstance(getActivity());
-        EventBus.getDefault().register(this);
 
         prepareGenerateSourceImages();
     }
@@ -135,6 +136,28 @@ public class SettingsChooseSourceFragment extends Fragment {
         if (!(activity instanceof Callbacks)) {
             throw new ClassCastException("Activity must implement fragment callbacks.");
         }
+    }
+
+    @Override
+    public void onActivityCreated(final Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getLoaderManager().initLoader(0, null, this);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
+        return new CursorLoader(getContext(), MuzeiContract.Sources.CONTENT_URI,
+                new String[]{MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME},
+                MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED + "=1", null, null);
+    }
+
+    @Override
+    public void onLoadFinished(final Loader<Cursor> loader, final Cursor data) {
+        updateSelectedItem(true);
+    }
+
+    @Override
+    public void onLoaderReset(final Loader<Cursor> loader) {
     }
 
     @Override
@@ -243,10 +266,6 @@ public class SettingsChooseSourceFragment extends Fragment {
     public void onPause() {
         super.onPause();
         getActivity().unregisterReceiver(mPackagesChangedReceiver);
-    }
-
-    public void onEventMainThread(SelectedSourceStateChangedEvent e) {
-        updateSelectedItem(true);
     }
 
     private void updateSelectedItem(boolean allowAnimate) {

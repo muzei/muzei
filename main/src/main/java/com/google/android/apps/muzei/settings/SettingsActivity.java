@@ -17,9 +17,6 @@
 package com.google.android.apps.muzei.settings;
 
 import android.animation.ObjectAnimator;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.app.Notification;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -29,6 +26,9 @@ import android.content.pm.ResolveInfo;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -189,7 +189,7 @@ public class SettingsActivity extends AppCompatActivity
             @Override
             public void onItemSelected(AdapterView<?> spinner, View view, int position, long id) {
                 Class<? extends Fragment> fragmentClass = SECTION_FRAGMENTS[position];
-                Fragment currentFragment = getFragmentManager().findFragmentById(
+                Fragment currentFragment = getSupportFragmentManager().findFragmentById(
                         R.id.content_container);
                 if (currentFragment != null && fragmentClass.equals(currentFragment.getClass())) {
                     return;
@@ -199,12 +199,12 @@ public class SettingsActivity extends AppCompatActivity
 
                 try {
                     Fragment newFragment = fragmentClass.newInstance();
-                    getFragmentManager().beginTransaction()
+                    getSupportFragmentManager().beginTransaction()
                             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                             .setTransitionStyle(R.style.Muzei_SimpleFadeFragmentAnimation)
                             .replace(R.id.content_container, newFragment)
                             .commitAllowingStateLoss();
-                } catch (InstantiationException | IllegalAccessException e) {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }
@@ -240,7 +240,7 @@ public class SettingsActivity extends AppCompatActivity
                         return true;
                 }
 
-                Fragment currentFragment = getFragmentManager().findFragmentById(
+                Fragment currentFragment = getSupportFragmentManager().findFragmentById(
                         R.id.content_container);
                 if (currentFragment != null
                         && currentFragment instanceof SettingsActivityMenuListener) {
@@ -305,7 +305,7 @@ public class SettingsActivity extends AppCompatActivity
         final ViewGroup localRenderContainer = (ViewGroup)
                 findViewById(R.id.local_render_container);
 
-        FragmentManager fm = getFragmentManager();
+        FragmentManager fm = getSupportFragmentManager();
         Fragment localRenderFragment = fm.findFragmentById(R.id.local_render_container);
         if (mRenderLocally) {
             if (localRenderFragment == null) {

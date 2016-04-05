@@ -21,8 +21,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.app.WallpaperManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -35,6 +33,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -436,7 +436,7 @@ public class MuzeiActivity extends AppCompatActivity {
         }
 
         if (mUiMode == UI_MODE_INTRO || newUiMode == UI_MODE_INTRO) {
-            FragmentManager fm = getFragmentManager();
+            FragmentManager fm = getSupportFragmentManager();
             Fragment demoFragment = fm.findFragmentById(R.id.demo_view_container);
             if (newUiMode == UI_MODE_INTRO && demoFragment == null) {
                 fm.beginTransaction()

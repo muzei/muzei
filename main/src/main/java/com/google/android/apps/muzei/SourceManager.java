@@ -36,7 +36,6 @@ import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.api.UserCommand;
 import com.google.android.apps.muzei.api.internal.SourceState;
-import com.google.android.apps.muzei.event.SelectedSourceStateChangedEvent;
 import com.google.android.apps.muzei.featuredart.FeaturedArtSource;
 import com.google.android.apps.muzei.util.LogUtil;
 
@@ -49,8 +48,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-
-import de.greenrobot.event.EventBus;
 
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_HANDLE_COMMAND;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_NETWORK_AVAILABLE;
@@ -237,7 +234,8 @@ public class SourceManager {
             subscribeToSelectedSource();
         }
 
-        EventBus.getDefault().post(new SelectedSourceStateChangedEvent());
+        // Ensure the artwork from the newly selected source is downloaded
+        mApplicationContext.startService(TaskQueueService.getDownloadCurrentArtworkIntent(mApplicationContext));
     }
 
     public void handlePublishState(String token, SourceState state) {
@@ -288,7 +286,8 @@ public class SourceManager {
             }
         }
 
-        EventBus.getDefault().post(new SelectedSourceStateChangedEvent());
+        // Download the artwork contained from the newly published SourceState
+        mApplicationContext.startService(TaskQueueService.getDownloadCurrentArtworkIntent(mApplicationContext));
     }
 
     public synchronized Artwork getCurrentArtwork() {
