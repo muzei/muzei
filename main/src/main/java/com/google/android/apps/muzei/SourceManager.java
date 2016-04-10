@@ -38,6 +38,8 @@ import com.google.android.apps.muzei.api.UserCommand;
 import com.google.android.apps.muzei.api.internal.SourceState;
 import com.google.android.apps.muzei.featuredart.FeaturedArtSource;
 import com.google.android.apps.muzei.util.LogUtil;
+import com.google.android.apps.muzei.wearable.WearableController;
+import com.google.android.apps.muzei.wearable.WearableSourceUpdateService;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -169,6 +171,8 @@ public class SourceManager {
         try {
             mContentResolver.applyBatch(MuzeiContract.AUTHORITY, operations);
             mSharedPrefs.edit().remove(PREF_SELECTED_SOURCE).remove(PREF_SOURCE_STATES).apply();
+            mApplicationContext.startService(
+                    new Intent(mApplicationContext, WearableSourceUpdateService.class));
         } catch (RemoteException | OperationApplicationException e) {
             LOGE(TAG, "Error writing sources to ContentProvider", e);
         }
@@ -227,6 +231,8 @@ public class SourceManager {
                         .putString(PREF_SELECTED_SOURCE, source.flattenToShortString())
                         .putString(PREF_SELECTED_SOURCE_TOKEN, mSelectedSourceToken)
                         .apply();
+                mApplicationContext.startService(
+                        new Intent(mApplicationContext, WearableSourceUpdateService.class));
             } catch (RemoteException | OperationApplicationException e) {
                 LOGE(TAG, "Error writing sources to ContentProvider", e);
             }
@@ -274,6 +280,8 @@ public class SourceManager {
             } else {
                 mContentResolver.insert(MuzeiContract.Sources.CONTENT_URI, values);
             }
+            // We're already on a background thread, so it safe to call this directly
+            WearableController.updateSource(mApplicationContext);
             if (existingSource != null) {
                 existingSource.close();
             }

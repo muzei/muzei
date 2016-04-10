@@ -216,8 +216,46 @@ public class MuzeiProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(@NonNull final Uri uri, final String where, final String[] whereArgs) {
-        throw new UnsupportedOperationException("Deletes are not supported");
+    public int delete(@NonNull final Uri uri, final String selection, final String[] selectionArgs) {
+        if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK) {
+            throw new UnsupportedOperationException("Deletes are not supported");
+        } else if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCES ||
+                MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCE_ID) {
+            return deleteSource(uri, selection, selectionArgs);
+        } else {
+            throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+    }
+
+    private int deleteSource(@NonNull final Uri uri, final String selection, final String[] selectionArgs) {
+        // Opens the database object in "write" mode.
+        final SQLiteDatabase db = databaseHelper.getWritableDatabase();
+        int count;
+        // Does the delete based on the incoming URI pattern.
+        switch (MuzeiProvider.uriMatcher.match(uri)) {
+            case SOURCES:
+                // If the incoming pattern matches the general pattern for
+                // sources, does a delete based on the incoming "where"
+                // column and arguments.
+                count = db.delete(MuzeiContract.Sources.TABLE_NAME, selection, selectionArgs);
+                break;
+            case SOURCE_ID:
+                // If the incoming URI matches a single source ID, does the
+                // delete based on the incoming data, but modifies the where
+                // clause to restrict it to the particular source ID.
+                String finalWhere = BaseColumns._ID + " = " + uri.getPathSegments().get(1);
+                // If there were additional selection criteria, append them to the final WHERE clause
+                if (selection != null)
+                    finalWhere = finalWhere + " AND " + selection;
+                count = db.delete(MuzeiContract.Sources.TABLE_NAME, finalWhere, selectionArgs);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+        if (count > 0) {
+            notifyChange(uri);
+        }
+        return count;
     }
 
     @Override
