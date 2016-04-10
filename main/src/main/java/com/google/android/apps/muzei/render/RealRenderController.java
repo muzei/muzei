@@ -106,7 +106,7 @@ public class RealRenderController extends RenderController {
             }
             NewWallpaperNotificationReceiver
                     .maybeShowNewArtworkNotification(mContext, currentArtwork, loader);
-            WearableController.updateDataLayer(mContext, currentArtwork, loader);
+            WearableController.updateArtwork(mContext, currentArtwork, loader);
             mLastLoadedPath = file.getAbsolutePath();
             return loader;
         } catch (IOException e) {

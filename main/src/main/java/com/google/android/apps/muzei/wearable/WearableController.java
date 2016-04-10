@@ -47,8 +47,8 @@ import static com.google.android.apps.muzei.util.LogUtil.LOGV;
 public class WearableController {
     private static final String TAG = LogUtil.makeLogTag(WearableController.class);
 
-    public static synchronized void updateDataLayer(Context context,
-                                                    Artwork artwork, BitmapRegionLoader bitmapRegionLoader) {
+    public static synchronized void updateArtwork(Context context,
+                                                  Artwork artwork, BitmapRegionLoader bitmapRegionLoader) {
         if (ConnectionResult.SUCCESS != GooglePlayServicesUtil.isGooglePlayServicesAvailable(context)
                 || Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             return;
@@ -59,7 +59,7 @@ public class WearableController {
         ConnectionResult connectionResult = googleApiClient.blockingConnect(5, TimeUnit.SECONDS);
         if (!connectionResult.isSuccess()) {
             if (connectionResult.getErrorCode() == ConnectionResult.API_UNAVAILABLE) {
-                LOGV(TAG, "Wearable API unavailable, cancelling updateDataLayer request");
+                LOGV(TAG, "Wearable API unavailable, cancelling updateArtwork request");
             } else {
                 LOGW(TAG, "onConnectionFailed: " + connectionResult);
             }
