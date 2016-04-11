@@ -16,8 +16,6 @@
 
 package com.google.android.apps.muzei.settings;
 
-import android.content.ActivityNotFoundException;
-import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -33,13 +31,10 @@ import android.widget.TextView;
 import com.google.android.apps.muzei.render.MuzeiRendererFragment;
 import com.google.android.apps.muzei.util.AnimatedMuzeiLogoFragment;
 import com.google.android.apps.muzei.util.ExternalLinkUtil;
-import com.google.android.apps.muzei.util.LogUtil;
 
 import net.nurik.roman.muzei.R;
 
 public class AboutActivity extends AppCompatActivity {
-    private static final String TAG = LogUtil.makeLogTag(AboutActivity.class);
-
     private static final String VERSION_UNAVAILABLE = "N/A";
 
     private Handler mHandler = new Handler();

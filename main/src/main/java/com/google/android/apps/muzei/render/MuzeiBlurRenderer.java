@@ -356,7 +356,6 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
                         mPictures[f] = mPictures[0];
                     }
                 } else {
-                    ImageBlurrer blurrer = new ImageBlurrer(mContext);
                     int sampleSizeTargetHeight, scaledHeight, scaledWidth;
                     if (mMaxPrescaledBlurPixels > 0) {
                         sampleSizeTargetHeight = mHeight / mBlurredSampleSize;
@@ -393,6 +392,7 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
                         }
 
                         // And finally, create a blurred copy for each keyframe.
+                        ImageBlurrer blurrer = new ImageBlurrer(mContext);
                         for (int f = 1; f <= mBlurKeyframes; f++) {
                             float desaturateAmount = mMaxGrey / 500f * f / mBlurKeyframes;
                             float blurRadius = 0f;
@@ -406,9 +406,9 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
                                 blurredBitmap.recycle();
                             }
                         }
+                        blurrer.destroy();
 
                         scaledBitmap.recycle();
-                        blurrer.destroy();
                     } else {
                         LOGE(TAG, "BitmapRegionLoader failed to decode the region, rect="
                                 + rect.toShortString());
@@ -541,12 +541,10 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
 
         public void destroyPictures() {
             for (int i = 0; i < mPictures.length; i++) {
-                if (mPictures[i] == null) {
-                    continue;
+                if (mPictures[i] != null) {
+                    mPictures[i].destroy();
+                    mPictures[i] = null;
                 }
-
-                mPictures[i].destroy();
-                mPictures[i] = null;
             }
         }
     }

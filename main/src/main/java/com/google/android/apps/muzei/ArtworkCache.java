@@ -52,7 +52,6 @@ public class ArtworkCache {
     private static final String TAG = LogUtil.makeLogTag(ArtworkCache.class);
 
     private Context mApplicationContext;
-    private File mAppCacheRoot;
     private File mArtCacheRoot;
 
     private static final int MAX_CACHE_SIZE = 3; // 3 items per source
@@ -74,8 +73,7 @@ public class ArtworkCache {
 
         // TODO: instead of best available, optimize for stable location since these aren't
         // meant to be too temporary
-        mAppCacheRoot = IOUtil.getBestAvailableCacheRoot(mApplicationContext);
-        mArtCacheRoot = new File(mAppCacheRoot, "artcache");
+        mArtCacheRoot = new File(IOUtil.getBestAvailableCacheRoot(mApplicationContext), "artcache");
     }
 
     public synchronized void maybeDownloadCurrentArtworkSync() {

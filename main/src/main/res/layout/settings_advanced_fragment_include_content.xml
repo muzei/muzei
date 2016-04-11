@@ -20,7 +20,7 @@
     android:columnCount="3"
     android:orientation="horizontal">
 
-    <TextView android:id="@+id/blur_amount_label"
+    <TextView
         style="@style/Widget.Muzei.TextView.SettingsAdvancedSeekBarLabel"
         android:layout_gravity="fill_vertical|end"
         android:text="@string/settings_blur_amount_title" />
@@ -35,7 +35,7 @@
         android:layout_height="16dp"
         android:layout_columnSpan="3"/>
 
-    <TextView android:id="@+id/dim_amount_label"
+    <TextView
         style="@style/Widget.Muzei.TextView.SettingsAdvancedSeekBarLabel"
         android:layout_gravity="fill_vertical|end"
         android:text="@string/settings_dim_amount_title" />
@@ -50,7 +50,7 @@
         android:layout_height="16dp"
         android:layout_columnSpan="3" />
 
-    <TextView android:id="@+id/grey_amount_label"
+    <TextView
         style="@style/Widget.Muzei.TextView.SettingsAdvancedSeekBarLabel"
         android:layout_gravity="fill_vertical|end"
         android:text="@string/settings_grey_amount_title" />

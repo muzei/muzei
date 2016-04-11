@@ -49,6 +49,7 @@ public class ShadowDipsTextView extends TextView {
         if (shadowColor != 0) {
             setShadowLayer(shadowRadius, shadowDx, shadowDy, shadowColor);
         }
+        a.recycle();
     }
 }
 

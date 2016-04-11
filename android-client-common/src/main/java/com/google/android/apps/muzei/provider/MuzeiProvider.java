@@ -31,6 +31,7 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
@@ -128,12 +129,12 @@ public class MuzeiProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(final Uri uri, final String where, final String[] whereArgs) {
+    public int delete(@NonNull final Uri uri, final String where, final String[] whereArgs) {
         throw new UnsupportedOperationException("Deletes are not supported");
     }
 
     @Override
-    public String getType(final Uri uri) {
+    public String getType(@NonNull final Uri uri) {
         /**
          * Chooses the MIME type based on the incoming URI pattern
          */
@@ -147,7 +148,7 @@ public class MuzeiProvider extends ContentProvider {
     }
 
     @Override
-    public Uri insert(final Uri uri, final ContentValues values) {
+    public Uri insert(@NonNull final Uri uri, final ContentValues values) {
         // Validates the incoming URI. Only the full provider URI is allowed for inserts.
         if (MuzeiProvider.uriMatcher.match(uri) != MuzeiProvider.ARTWORK)
             throw new IllegalArgumentException("Unknown URI " + uri);
@@ -181,8 +182,8 @@ public class MuzeiProvider extends ContentProvider {
     }
 
     @Override
-    public Cursor query(final Uri uri, final String[] projection, final String selection, final String[] selectionArgs,
-                        final String sortOrder) {
+    public Cursor query(@NonNull final Uri uri, final String[] projection, final String selection,
+                        final String[] selectionArgs, final String sortOrder) {
         // Validates the incoming URI. Only the full provider URI is allowed for queries.
         if (MuzeiProvider.uriMatcher.match(uri) != MuzeiProvider.ARTWORK)
             throw new IllegalArgumentException("Unknown URI " + uri);
@@ -196,7 +197,7 @@ public class MuzeiProvider extends ContentProvider {
     }
 
     @Override
-    public ParcelFileDescriptor openFile(final Uri uri, final String mode) throws FileNotFoundException {
+    public ParcelFileDescriptor openFile(@NonNull final Uri uri, @NonNull final String mode) throws FileNotFoundException {
         // Validates the incoming URI. Only the full provider URI is allowed for openFile
         if (MuzeiProvider.uriMatcher.match(uri) != MuzeiProvider.ARTWORK) {
             throw new IllegalArgumentException("Unknown URI " + uri);
@@ -217,7 +218,7 @@ public class MuzeiProvider extends ContentProvider {
     }
 
     @Override
-    public int update(final Uri uri, final ContentValues values, final String selection, final String[] selectionArgs) {
+    public int update(@NonNull final Uri uri, final ContentValues values, final String selection, final String[] selectionArgs) {
         throw new UnsupportedOperationException("Updates are not allowed: insert does an insert or update operation");
     }
 

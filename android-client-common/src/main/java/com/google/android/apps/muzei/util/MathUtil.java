@@ -40,10 +40,6 @@ public class MathUtil {
         return (num + 2) & ~0x03;
     }
 
-    public static boolean isEven(int num) {
-        return num % 2 == 0;
-    }
-
     // divide two integers but round up
     // see http://stackoverflow.com/a/7446742/102703
     public static int intDivideRoundUp(int num, int divisor) {

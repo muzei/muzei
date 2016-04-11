@@ -41,6 +41,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.support.v4.content.res.ResourcesCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,7 +52,6 @@ import android.widget.TextView;
 import com.google.android.apps.muzei.SourceManager;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.api.internal.SourceState;
-import com.google.android.apps.muzei.event.SelectedSourceChangedEvent;
 import com.google.android.apps.muzei.event.SelectedSourceStateChangedEvent;
 import com.google.android.apps.muzei.util.CheatSheet;
 import com.google.android.apps.muzei.util.LogUtil;
@@ -242,10 +242,6 @@ public class SettingsChooseSourceFragment extends Fragment {
     public void onPause() {
         super.onPause();
         getActivity().unregisterReceiver(mPackagesChangedReceiver);
-    }
-
-    public void onEventMainThread(SelectedSourceChangedEvent e) {
-        updateSelectedItem(true);
     }
 
     public void onEventMainThread(SelectedSourceStateChangedEvent e) {
@@ -561,7 +557,7 @@ public class SettingsChooseSourceFragment extends Fragment {
         mImageFillPaint.setAntiAlias(true);
         mAlphaPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OUT));
         mSelectedSourceImage = new BitmapDrawable(getResources(),
-                generateSourceImage(getResources().getDrawable(R.drawable.ic_source_selected)));
+                generateSourceImage(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_source_selected, null)));
     }
 
     private Bitmap generateSourceImage(Drawable image) {

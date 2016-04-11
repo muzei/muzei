@@ -56,8 +56,6 @@ import de.greenrobot.event.EventBus;
  */
 public class SettingsActivity extends AppCompatActivity
         implements SettingsChooseSourceFragment.Callbacks {
-    private static final String TAG = LogUtil.makeLogTag(SettingsActivity.class);
-
     public static final String EXTRA_START_SECTION =
             "com.google.android.apps.muzei.settings.extra.START_SECTION";
 

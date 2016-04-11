@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.customtabs.CustomTabsIntent;
+import android.support.v4.content.ContextCompat;
 
 import net.nurik.roman.muzei.R;
 
@@ -29,7 +30,7 @@ public class ExternalLinkUtil {
         CustomTabsIntent cti = new CustomTabsIntent.Builder()
                 .setShowTitle(true)
                 .setToolbarColor(
-                        context.getResources().getColor(R.color.theme_primary))
+                        ContextCompat.getColor(context, R.color.theme_primary))
                 .build();
         Intent intent = cti.intent;
         intent.setData(uri);
