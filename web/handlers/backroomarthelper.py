@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import os
 import re
 import sys
@@ -41,17 +42,21 @@ def add_art_from_external_details_url(publish_date, url):
     webapp2.abort(400, message='Error processing URL: HTTP %d. Content: %s'
         % (result.status_code, result.content))
 
-  soup = BeautifulSoup(result.content)
+  soup = BeautifulSoup(result.content, 'html.parser')
   attribution = None
 
   if re.search(r'wikiart.org', url, re.I) or re.search(r'wikipaintings.org', url, re.I):
     attribution = 'wikiart.org'
     details_url = re.sub(r'#.+', '', url, re.I | re.S) + '?utm_source=Muzei&utm_campaign=Muzei'
-    title = soup.select('h1 span')[0].get_text()
-    author = soup.find(itemprop='author').get_text()
-    completion_year_el = soup.find(itemprop='dateCreated')
-    byline = author + ((', ' + completion_year_el.get_text()) if completion_year_el else '')
-    image_url = soup.find(id='paintingImage')['href']
+    title = soup.find('h1').get_text()
+    author = soup.find('a', class_='artist-name').get_text()
+    completion_year = None
+    try:
+      completion_year = unicode(soup.find(text='Date:').parent.next_sibling).strip()
+    except:
+      pass
+    byline = author + ((', ' + completion_year) if completion_year else '')
+    image_url = get_wikiart_image_url(soup)
   elif re.search(r'metmuseum.org', url, re.I):
     attribution = 'metmuseum.org'
     details_url = re.sub(r'[#?].+', '', url, re.I | re.S) + '?utm_source=Muzei&utm_campaign=Muzei'
@@ -62,12 +67,12 @@ def add_art_from_external_details_url(publish_date, url):
     except:
       pass
     author = re.sub(r'\s*\(.*', '', author)
-    completion_year_el = None
+    completion_year = None
     try:
-      completion_year_el = unicode(soup.find(text='Date:').parent.next_sibling).strip()
+      completion_year = unicode(soup.find(text='Date:').parent.next_sibling).strip()
     except:
       pass
-    byline = author + ((', ' + completion_year_el) if completion_year_el else '')
+    byline = author + ((', ' + completion_year) if completion_year else '')
     image_url = soup.find('a', class_='download').attrs['href']
   else:
     webapp2.abort(400, message='Unrecognized URL')
@@ -81,8 +86,8 @@ def add_art_from_external_details_url(publish_date, url):
 
   # create the artwork entry
   new_artwork = FeaturedArtwork(
-      title=title,
-      byline=byline,
+      title=title.strip(),
+      byline=byline.strip(),
       attribution=attribution,
       image_url=image_url,
       thumb_url=thumb_url,
@@ -91,6 +96,29 @@ def add_art_from_external_details_url(publish_date, url):
   new_artwork.save()
 
   return new_artwork
+
+
+def get_wikiart_image_url(soup):
+  # TODO: use a cleaner method :(
+  tmp = soup.find(class_='thumbnails_ref')['onclick']
+  thumb_html_url = re.search(r'(/en.+?)\'', tmp).group(1)
+  thumb_html_url = "http://www.wikiart.org%s" % thumb_html_url
+  result = urlfetch.fetch(thumb_html_url)
+  if result.status_code < 200 or result.status_code >= 300:
+    webapp2.abort(400, message='Error processing URL: HTTP %d. Content: %s'
+        % (result.status_code, result.content))
+
+  thumb_html = json.loads(result.content)
+  thumb_soup = BeautifulSoup(thumb_html, 'html.parser')
+  max_thumb_width = 0
+  max_thumb_url = None
+  for thumb_title_el in thumb_soup.select('.thumbnail_title'):
+    thumb_width = int(re.search(r'(\d+)x\d+', thumb_title_el.get_text()).group(1))
+    if thumb_width > max_thumb_width:
+      max_thumb_width = thumb_width
+      max_thumb_url = thumb_title_el.parent.find('a')['href']
+
+  return max_thumb_url
 
 
 def maybe_process_image(image_url, crop_tuple, base_name):
