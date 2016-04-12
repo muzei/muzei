@@ -19,6 +19,7 @@ package com.google.android.apps.muzei.provider;
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -196,10 +197,22 @@ public class MuzeiProvider extends ContentProvider {
             return super.applyBatch(operations);
         } finally {
             holdNotifyChange = false;
+            boolean broadcastSourceChanged = false;
+            ContentResolver contentResolver = getContext().getContentResolver();
             Iterator<Uri> iterator = pendingNotifyChange.iterator();
             while (iterator.hasNext()) {
-                notifyChange(iterator.next());
+                Uri uri = iterator.next();
+                contentResolver.notifyChange(uri, null);
+                if (MuzeiContract.Artwork.CONTENT_URI.equals(uri)) {
+                    getContext().sendBroadcast(new Intent(MuzeiContract.Artwork.ACTION_ARTWORK_CHANGED));
+                } else if (MuzeiProvider.uriMatcher.match(uri) == SOURCES ||
+                        MuzeiProvider.uriMatcher.match(uri) == SOURCE_ID) {
+                    broadcastSourceChanged = true;
+                }
                 iterator.remove();
+            }
+            if (broadcastSourceChanged) {
+                getContext().sendBroadcast(new Intent(MuzeiContract.Sources.ACTION_SOURCE_CHANGED));
             }
         }
     }
