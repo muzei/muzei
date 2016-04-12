@@ -279,6 +279,12 @@ public class MuzeiContract {
          */
         public static final Uri CONTENT_URI = Uri.parse(MuzeiContract.SCHEME + MuzeiContract.AUTHORITY
                 + "/" + Sources.TABLE_NAME);
+        /**
+         * Intent action that will be broadcast when the source info is changed. This happens immediately after the
+         * ContentProvider is updated with data and should be considered the signal that you can retrieve the new
+         * source info.
+         */
+        public static final String ACTION_SOURCE_CHANGED = "com.google.android.apps.muzei.ACTION_SOURCE_CHANGED";
 
         /**
          * Parse the commands found in the {@link #COLUMN_NAME_COMMANDS} field into a List of {@link UserCommand}s.

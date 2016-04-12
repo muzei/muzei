@@ -211,6 +211,9 @@ public class MuzeiProvider extends ContentProvider {
             getContext().getContentResolver().notifyChange(uri, null);
             if (MuzeiContract.Artwork.CONTENT_URI.equals(uri)) {
                 getContext().sendBroadcast(new Intent(MuzeiContract.Artwork.ACTION_ARTWORK_CHANGED));
+            } else if (MuzeiProvider.uriMatcher.match(uri) == SOURCES ||
+                    MuzeiProvider.uriMatcher.match(uri) == SOURCE_ID) {
+                getContext().sendBroadcast(new Intent(MuzeiContract.Sources.ACTION_SOURCE_CHANGED));
             }
         }
     }
