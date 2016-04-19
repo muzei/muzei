@@ -32,9 +32,6 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="22" />
 
-    <!-- Permissions required by the wearable app -->
-    <uses-permission android:name="com.google.android.permission.PROVIDE_BACKGROUND" />
-
     <application android:name="com.google.android.apps.muzei.MuzeiApplication"
         android:allowBackup="true"
         android:label="@string/app_name"

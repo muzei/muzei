@@ -21,7 +21,6 @@
     <uses-feature android:name="android.hardware.type.watch"/>
 
     <!-- Required to act as a custom watch face. -->
-    <uses-permission android:name="com.google.android.permission.PROVIDE_BACKGROUND" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
@@ -58,8 +57,6 @@
 
         <service
             android:name="com.google.android.apps.muzei.MuzeiWatchFace"
-            android:allowEmbedded="true"
-            android:taskAffinity=""
             android:permission="android.permission.BIND_WALLPAPER" >
             <meta-data
                 android:name="android.service.wallpaper"
