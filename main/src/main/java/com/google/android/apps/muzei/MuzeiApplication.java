@@ -18,10 +18,6 @@ package com.google.android.apps.muzei;
 
 import android.app.Application;
 
-import com.google.android.apps.muzei.event.SelectedSourceStateChangedEvent;
-
-import de.greenrobot.event.EventBus;
-
 /**
  * Note the goal of this application class is to do application-wide event wiring, NOT to
  * store any state or perform global logic. That's reserved for singletons such as
@@ -32,11 +28,5 @@ public class MuzeiApplication extends Application {
     public void onCreate() {
         super.onCreate();
         SourceManager.getInstance(this).subscribeToSelectedSource();
-        EventBus.getDefault().register(this);
-    }
-
-    public void onEvent(SelectedSourceStateChangedEvent e) {
-        // When the current artwork changes, kick off the download task service.
-        startService(TaskQueueService.getDownloadCurrentArtworkIntent(this));
     }
 }

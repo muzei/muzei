@@ -14,6 +14,21 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.event;
+package com.google.android.apps.muzei.wearable;
 
-public class SelectedSourceStateChangedEvent {}
+import android.app.IntentService;
+import android.content.Intent;
+
+/**
+ * IntentService responsible for updating Wearables with the latest source information
+ */
+public class WearableSourceUpdateService extends IntentService {
+    public WearableSourceUpdateService() {
+        super(WearableSourceUpdateService.class.getSimpleName());
+    }
+
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        WearableController.updateSource(this);
+    }
+}

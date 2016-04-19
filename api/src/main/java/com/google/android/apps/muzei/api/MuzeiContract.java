@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.api;
 
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -24,8 +25,14 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Looper;
 import android.provider.BaseColumns;
+import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Contract between Muzei and applications, containing the definitions for all supported URIs and
@@ -99,6 +106,12 @@ public class MuzeiContract {
      * other processing.
      */
     public static final class Artwork implements BaseColumns {
+        /**
+         * Column name for the flattened {@link ComponentName} of the source that is providing
+         * this wallpaper
+         * <p>Type: TEXT in the format of {@link ComponentName#flattenToShortString()}
+         */
+        public static final String COLUMN_NAME_SOURCE_COMPONENT_NAME = "sourceComponentName";
         /**
          * Column name of the artwork image URI. In almost all cases you should use
          * {@link ContentResolver#openInputStream(Uri) ContentResolver.openInputStream(CONTENT_URI)}
@@ -203,6 +216,95 @@ public class MuzeiContract {
             }
             ContentResolver contentResolver = context.getContentResolver();
             return BitmapFactory.decodeStream(contentResolver.openInputStream(CONTENT_URI));
+        }
+    }
+
+    public static final class Sources implements BaseColumns {
+        /**
+         * Column name for the flattened {@link ComponentName} of this source
+         * <p>Type: TEXT in the format of {@link ComponentName#flattenToShortString()}
+         */
+        public static final String COLUMN_NAME_COMPONENT_NAME = "component_name";
+        /**
+         * Column name for the flag indicating if the source is currently selected
+         * <p>Type: INTEGER (boolean)
+         */
+        public static final String COLUMN_NAME_IS_SELECTED = "selected";
+        /**
+         * Column name for the source's description.
+         * <p>Type: TEXT
+         */
+        public static final String COLUMN_NAME_DESCRIPTION = "description";
+        /**
+         * Column name for the flag indicating if the source wants callbacks for network connectivity changes
+         * <p>Type: INTEGER (boolean)
+         */
+        public static final String COLUMN_NAME_WANTS_NETWORK_AVAILABLE = "network";
+        /**
+         * Column name for the flag indicating if the source supports a 'Next Artwork' action
+         * <p>Type: INTEGER (boolean)
+         */
+        public static final String COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND = "supports_next_artwork";
+        /**
+         * Column name for the commands the source supports
+         * <p>Type: TEXT
+         */
+        public static final String COLUMN_NAME_COMMANDS = "commands";
+        /**
+         * The MIME type of {@link #CONTENT_URI} providing sources.
+         */
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.android.apps.muzei.source";
+        /**
+         * The MIME type of {@link #CONTENT_URI} providing a single source.
+         */
+        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.google.android.apps.muzei.source";
+        /**
+         * The default sort order for this table
+         */
+        public static final String DEFAULT_SORT_ORDER = Sources.COLUMN_NAME_IS_SELECTED + " DESC," +
+                Sources.COLUMN_NAME_COMPONENT_NAME;
+        /**
+         * The table name offered by this provider.
+         */
+        public static final String TABLE_NAME = "sources";
+
+        /**
+         * This class cannot be instantiated
+         */
+        private Sources() {
+        }
+
+        /**
+         * The content:// style URL for this table.
+         */
+        public static final Uri CONTENT_URI = Uri.parse(MuzeiContract.SCHEME + MuzeiContract.AUTHORITY
+                + "/" + Sources.TABLE_NAME);
+        /**
+         * Intent action that will be broadcast when the source info is changed. This happens immediately after the
+         * ContentProvider is updated with data and should be considered the signal that you can retrieve the new
+         * source info.
+         */
+        public static final String ACTION_SOURCE_CHANGED = "com.google.android.apps.muzei.ACTION_SOURCE_CHANGED";
+
+        /**
+         * Parse the commands found in the {@link #COLUMN_NAME_COMMANDS} field into a List of {@link UserCommand}s.
+         * @param commandsString The serialized commands found in {@link #COLUMN_NAME_COMMANDS}
+         * @return A deserialized List of {@link UserCommand}s
+         */
+        public static List<UserCommand> parseCommands(String commandsString) {
+            ArrayList<UserCommand> commands = new ArrayList<>();
+            if (commandsString == null) {
+                return commands;
+            }
+            try {
+                JSONArray commandArray = new JSONArray(commandsString);
+                for (int h=0; h<commandArray.length(); h++) {
+                    commands.add(UserCommand.deserialize(commandArray.getString(h)));
+                }
+            } catch (JSONException e) {
+                Log.e(MuzeiContract.Sources.class.getSimpleName(), "Error parsing commands from " + commandsString, e);
+            }
+            return commands;
         }
     }
 }

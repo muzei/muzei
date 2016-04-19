@@ -436,6 +436,7 @@ public abstract class MuzeiArtSource extends Service {
      * and to all future subscribers, until a new artwork is published.
      */
     protected final void publishArtwork(Artwork artwork) {
+        artwork.setComponentName(new ComponentName(this, getClass()));
         mCurrentState.setCurrentArtwork(artwork);
         mServiceHandler.removeCallbacks(mPublishStateRunnable);
         mServiceHandler.post(mPublishStateRunnable);

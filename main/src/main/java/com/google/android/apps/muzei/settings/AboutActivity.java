@@ -18,7 +18,6 @@ package com.google.android.apps.muzei.settings;
 
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -56,7 +55,7 @@ public class AboutActivity extends AppCompatActivity {
                 });
 
         if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction()
+            getSupportFragmentManager().beginTransaction()
                     .add(R.id.demo_view_container,
                             MuzeiRendererFragment.createInstance(true, false))
                     .commit();

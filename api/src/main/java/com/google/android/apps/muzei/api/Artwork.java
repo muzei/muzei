@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.api;
 
+import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -40,6 +41,7 @@ public class Artwork {
     public static final String FONT_TYPE_DEFAULT = "";
     public static final String FONT_TYPE_ELEGANT = "elegant";
 
+    private static final String KEY_COMPONENT_NAME = "componentName";
     private static final String KEY_IMAGE_URI = "imageUri";
     private static final String KEY_TITLE = "title";
     private static final String KEY_BYLINE = "byline";
@@ -49,6 +51,7 @@ public class Artwork {
     private static final String KEY_DETAILS_URI = "detailsUri";
     private static final String KEY_META_FONT = "metaFont";
 
+    private ComponentName mComponentName;
     private Uri mImageUri;
     private String mTitle;
     private String mByline;
@@ -58,6 +61,15 @@ public class Artwork {
     private String mMetaFont;
 
     private Artwork() {
+    }
+
+    /**
+     * Returns the {@link ComponentName} of the art source providing this artwork
+     *
+     * @see Artwork.Builder#componentName(ComponentName)
+     */
+    public ComponentName getComponentName() {
+        return mComponentName;
     }
 
     /**
@@ -124,6 +136,20 @@ public class Artwork {
      */
     public String getMetaFont() {
         return mMetaFont;
+    }
+
+    /**
+     * Sets the {@link ComponentName} of the {@link MuzeiArtSource} providing this artwork
+     */
+    public void setComponentName(Context context, Class<? extends MuzeiArtSource> source) {
+        mComponentName = new ComponentName(context, source);
+    }
+
+    /**
+     * Sets the {@link ComponentName} of the {@link MuzeiArtSource} providing this artwork
+     */
+    public void setComponentName(ComponentName source) {
+        mComponentName = source;
     }
 
     /**
@@ -214,6 +240,22 @@ public class Artwork {
 
         public Builder() {
             mArtwork = new Artwork();
+        }
+
+        /**
+         * Sets the {@link ComponentName} of the {@link MuzeiArtSource} providing this artwork
+         */
+        public Builder componentName(Context context, Class<? extends MuzeiArtSource> source) {
+            mArtwork.mComponentName = new ComponentName(context, source);
+            return this;
+        }
+
+        /**
+         * Sets the {@link ComponentName} of the {@link MuzeiArtSource} providing this artwork
+         */
+        public Builder componentName(ComponentName source) {
+            mArtwork.mComponentName = source;
+            return this;
         }
 
         /**
@@ -314,6 +356,7 @@ public class Artwork {
      */
     public Bundle toBundle() {
         Bundle bundle = new Bundle();
+        bundle.putString(KEY_COMPONENT_NAME, (mComponentName != null) ? mComponentName.flattenToShortString() : null);
         bundle.putString(KEY_IMAGE_URI, (mImageUri != null) ? mImageUri.toString() : null);
         bundle.putString(KEY_TITLE, mTitle);
         bundle.putString(KEY_BYLINE, mByline);
@@ -336,6 +379,11 @@ public class Artwork {
                 .token(bundle.getString(KEY_TOKEN))
                 .metaFont(bundle.getString(KEY_META_FONT));
 
+        String componentName = bundle.getString(KEY_COMPONENT_NAME);
+        if (!TextUtils.isEmpty(componentName)) {
+            builder.componentName(ComponentName.unflattenFromString(componentName));
+        }
+
         String imageUri = bundle.getString(KEY_IMAGE_URI);
         if (!TextUtils.isEmpty(imageUri)) {
             builder.imageUri(Uri.parse(imageUri));
@@ -357,6 +405,7 @@ public class Artwork {
      */
     public JSONObject toJson() throws JSONException {
         JSONObject jsonObject = new JSONObject();
+        jsonObject.put(KEY_COMPONENT_NAME, (mComponentName != null) ? mComponentName.flattenToShortString() : null);
         jsonObject.put(KEY_IMAGE_URI, (mImageUri != null) ? mImageUri.toString() : null);
         jsonObject.put(KEY_TITLE, mTitle);
         jsonObject.put(KEY_BYLINE, mByline);
@@ -378,6 +427,11 @@ public class Artwork {
                 .attribution(jsonObject.optString(KEY_ATTRIBUTION))
                 .token(jsonObject.optString(KEY_TOKEN))
                 .metaFont(jsonObject.optString(KEY_META_FONT));
+
+        String componentName = jsonObject.optString(KEY_COMPONENT_NAME);
+        if (!TextUtils.isEmpty(componentName)) {
+            builder.componentName(ComponentName.unflattenFromString(componentName));
+        }
 
         String imageUri = jsonObject.optString(KEY_IMAGE_URI);
         if (!TextUtils.isEmpty(imageUri)) {
@@ -403,6 +457,8 @@ public class Artwork {
      */
     public ContentValues toContentValues() {
         ContentValues values = new ContentValues();
+        values.put(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME, (mComponentName != null)
+                ? mComponentName.flattenToShortString() : null);
         values.put(MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI, (mImageUri != null)
                 ? mImageUri.toString() : null);
         values.put(MuzeiContract.Artwork.COLUMN_NAME_TITLE, mTitle);
@@ -420,6 +476,10 @@ public class Artwork {
      */
     public static Artwork fromCursor(Cursor cursor) {
         Builder builder = new Builder();
+        int componentNameColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME);
+        if (componentNameColumnIndex != -1) {
+            builder.componentName(ComponentName.unflattenFromString(cursor.getString(componentNameColumnIndex)));
+        }
         int imageUriColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI);
         if (imageUriColumnIndex != -1) {
             builder.imageUri(Uri.parse(cursor.getString(imageUriColumnIndex)));
