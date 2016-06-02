@@ -149,6 +149,21 @@ class SvgPathParser {
                     mCurrentPoint.set(tempPoint1);
                     break;
                 }
+                
+                case 'Q':
+                case 'q': {
+                    // curve command
+                    if (mCurrentPoint.x == Float.NaN) {
+                        throw new ParseException("Relative commands require current point", mIndex);
+                    }
+                    while (advanceToNextToken() == TOKEN_VALUE) {
+                        consumeAndTransformPoint(tempPoint1, relative);
+                        consumeAndTransformPoint(tempPoint2, relative);
+                        p.quadTo(tempPoint1.x, tempPoint1.y, tempPoint2.x, tempPoint2.y);
+                    }
+                    mCurrentPoint.set(tempPoint2);
+                    break;
+                }
 
                 case 'Z':
                 case 'z': {
