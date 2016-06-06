@@ -149,7 +149,7 @@ class SvgPathParser {
                     mCurrentPoint.set(tempPoint1);
                     break;
                 }
-                
+
                 case 'Q':
                 case 'q': {
                     // curve command
