@@ -76,6 +76,7 @@
     <string name="action_rotate_interval_24h">Every 24 hours</string>
     <string name="action_rotate_interval_72h">Every 3 days</string>
     <string name="action_share_artwork">Share artwork</string>
+    <string name="action_refresh_string">Refresh on double click</string>
 
     <string name="action_force_now">Set as wallpaper now</string>
     <string name="action_remove">Remove</string>

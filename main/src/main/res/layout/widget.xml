@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center">
+
+    <ImageButton
+        android:id="@+id/widget_launcher"
+        android:layout_width="@dimen/art_detail_button_width"
+        android:layout_height="@dimen/art_detail_button_height"
+        android:background="?android:selectableItemBackground"
+        android:contentDescription="@string/app_name"
+        android:scaleType="center"
+        android:src="@drawable/ic_launcher_trans" />
+
+    <ImageButton
+        android:id="@+id/widget_next"
+        android:layout_width="@dimen/art_detail_button_width"
+        android:layout_height="@dimen/art_detail_button_height"
+        android:background="?android:selectableItemBackground"
+        android:contentDescription="@string/action_next_artwork"
+        android:scaleType="center"
+        android:src="@drawable/ic_skip" />
+</LinearLayout>
