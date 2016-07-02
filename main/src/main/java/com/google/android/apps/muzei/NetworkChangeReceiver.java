@@ -23,7 +23,7 @@ import android.support.v4.content.WakefulBroadcastReceiver;
 
 import com.google.android.apps.muzei.event.GainedNetworkConnectivityEvent;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 public class NetworkChangeReceiver extends WakefulBroadcastReceiver {
     @Override

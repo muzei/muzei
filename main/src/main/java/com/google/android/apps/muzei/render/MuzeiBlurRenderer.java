@@ -45,7 +45,7 @@ import com.google.android.apps.muzei.util.TickingFloatAnimator;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 import static com.google.android.apps.muzei.util.LogUtil.LOGE;
 

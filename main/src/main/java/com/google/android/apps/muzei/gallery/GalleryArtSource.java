@@ -51,7 +51,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 import static com.google.android.apps.muzei.util.LogUtil.LOGE;
 import static com.google.android.apps.muzei.util.LogUtil.LOGW;

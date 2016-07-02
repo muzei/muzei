@@ -43,7 +43,7 @@ import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 import static com.google.android.apps.muzei.util.LogUtil.LOGE;
 import static com.google.android.apps.muzei.util.LogUtil.LOGW;

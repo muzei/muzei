@@ -68,7 +68,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 import static com.google.android.apps.muzei.api.MuzeiArtSource.ACTION_MUZEI_ART_SOURCE;
 import static com.google.android.apps.muzei.util.LogUtil.LOGE;

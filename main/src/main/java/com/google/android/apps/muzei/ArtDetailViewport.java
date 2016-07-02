@@ -18,7 +18,7 @@ package com.google.android.apps.muzei;
 
 import android.graphics.RectF;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 // Singleton that also behaves as an event
 public class ArtDetailViewport {

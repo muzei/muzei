@@ -25,7 +25,8 @@ import com.google.android.apps.muzei.event.BlurAmountChangedEvent;
 import com.google.android.apps.muzei.event.DimAmountChangedEvent;
 import com.google.android.apps.muzei.event.GreyAmountChangedEvent;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 public abstract class RenderController {
     protected Context mContext;
@@ -48,16 +49,19 @@ public abstract class RenderController {
         EventBus.getDefault().unregister(this);
     }
 
+    @Subscribe
     public void onEventMainThread(BlurAmountChangedEvent e) {
         mRenderer.recomputeMaxPrescaledBlurPixels();
         throttledForceReloadCurrentArtwork();
     }
 
+    @Subscribe
     public void onEventMainThread(DimAmountChangedEvent e) {
         mRenderer.recomputeMaxDimAmount();
         throttledForceReloadCurrentArtwork();
     }
 
+    @Subscribe
     public void onEventMainThread(GreyAmountChangedEvent e) {
         mRenderer.recomputeGreyAmount();
         throttledForceReloadCurrentArtwork();
