@@ -26,7 +26,7 @@ buildscript {
 apply plugin: 'com.android.application'
 
 dependencies {
-    compile 'com.google.android.support:wearable:1.1.0'
+    compile 'com.google.android.support:wearable:1.4.0'
     //compile 'com.google.android.apps.muzei:muzei-api:+'
     compile project(':api')
 }
