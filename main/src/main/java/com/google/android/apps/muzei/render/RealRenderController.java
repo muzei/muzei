@@ -30,6 +30,8 @@ import com.google.android.apps.muzei.event.CurrentArtworkDownloadedEvent;
 import com.google.android.apps.muzei.provider.MuzeiProvider;
 import com.google.android.apps.muzei.util.LogUtil;
 
+import org.greenrobot.eventbus.Subscribe;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -51,6 +53,7 @@ public class RealRenderController extends RenderController {
         }
     }
 
+    @Subscribe
     public void onEventMainThread(CurrentArtworkDownloadedEvent e) {
         reloadCurrentArtwork(false);
     }
