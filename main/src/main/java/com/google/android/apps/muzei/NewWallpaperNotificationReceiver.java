@@ -45,7 +45,6 @@ import com.google.android.apps.muzei.render.ImageUtil;
 
 import net.nurik.roman.muzei.R;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.greenrobot.eventbus.EventBus;

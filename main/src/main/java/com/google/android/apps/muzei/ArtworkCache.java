@@ -27,7 +27,6 @@ import android.preference.PreferenceManager;
 import android.util.Pair;
 
 import com.google.android.apps.muzei.api.Artwork;
-import com.google.android.apps.muzei.api.internal.SourceState;
 import com.google.android.apps.muzei.event.ArtworkLoadingStateChangedEvent;
 import com.google.android.apps.muzei.event.CurrentArtworkDownloadedEvent;
 import com.google.android.apps.muzei.render.BitmapRegionLoader;

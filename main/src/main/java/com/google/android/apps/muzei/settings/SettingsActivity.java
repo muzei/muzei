@@ -44,7 +44,6 @@ import android.widget.Toast;
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiRendererFragment;
 import com.google.android.apps.muzei.util.DrawInsetsFrameLayout;
-import com.google.android.apps.muzei.util.LogUtil;
 
 import net.nurik.roman.muzei.R;
 
