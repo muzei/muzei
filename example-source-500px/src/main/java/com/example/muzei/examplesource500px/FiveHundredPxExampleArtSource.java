@@ -24,12 +24,16 @@ import android.util.Log;
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.RemoteMuzeiArtSource;
 
+import java.io.IOException;
 import java.util.Random;
 
-import retrofit.ErrorHandler;
-import retrofit.RequestInterceptor;
-import retrofit.RestAdapter;
-import retrofit.RetrofitError;
+import okhttp3.HttpUrl;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.example.muzei.examplesource500px.FiveHundredPxService.Photo;
 import static com.example.muzei.examplesource500px.FiveHundredPxService.PhotosResponse;
@@ -54,30 +58,33 @@ public class FiveHundredPxExampleArtSource extends RemoteMuzeiArtSource {
     protected void onTryUpdate(int reason) throws RetryException {
         String currentToken = (getCurrentArtwork() != null) ? getCurrentArtwork().getToken() : null;
 
-        RestAdapter restAdapter = new RestAdapter.Builder()
-                .setEndpoint("https://api.500px.com")
-                .setRequestInterceptor(new RequestInterceptor() {
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .addInterceptor(new Interceptor() {
                     @Override
-                    public void intercept(RequestFacade request) {
-                        request.addQueryParam("consumer_key", Config.CONSUMER_KEY);
-                    }
-                })
-                .setErrorHandler(new ErrorHandler() {
-                    @Override
-                    public Throwable handleError(RetrofitError retrofitError) {
-                        int statusCode = retrofitError.getResponse().getStatus();
-                        if (retrofitError.getKind() == RetrofitError.Kind.NETWORK
-                                || (500 <= statusCode && statusCode < 600)) {
-                            return new RetryException();
-                        }
-                        scheduleUpdate(System.currentTimeMillis() + ROTATE_TIME_MILLIS);
-                        return retrofitError;
+                    public Response intercept(final Chain chain) throws IOException {
+                        Request request = chain.request();
+                        HttpUrl url = request.url().newBuilder()
+                                .addQueryParameter("consumer_key", Config.CONSUMER_KEY).build();
+                        request = request.newBuilder().url(url).build();
+                        return chain.proceed(request);
                     }
                 })
                 .build();
 
-        FiveHundredPxService service = restAdapter.create(FiveHundredPxService.class);
-        PhotosResponse response = service.getPopularPhotos();
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://api.500px.com/")
+                .client(okHttpClient)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        FiveHundredPxService service = retrofit.create(FiveHundredPxService.class);
+        PhotosResponse response;
+        try {
+            response = service.getPopularPhotos().execute().body();
+        } catch (IOException e) {
+            Log.w(TAG, "Error reading 500px response", e);
+            throw new RetryException();
+        }
 
         if (response == null || response.photos == null) {
             throw new RetryException();
