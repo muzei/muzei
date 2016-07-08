@@ -81,7 +81,7 @@ public class ArtworkCacheIntentService extends IntentService {
             DataItem dataItem = dataItemIterator.next();
             foundArtwork = foundArtwork || processDataItem(googleApiClient, dataItem);
         }
-        dataItemBuffer.close();
+        dataItemBuffer.release();
         if (!foundArtwork && intent != null &&
                 intent.getBooleanExtra(SHOW_ACTIVATE_NOTIFICATION_EXTRA, false)) {
             ActivateMuzeiIntentService.maybeShowActivateMuzeiNotification(this);

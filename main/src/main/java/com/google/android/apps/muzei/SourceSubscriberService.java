@@ -21,7 +21,6 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.apps.muzei.api.internal.SourceState;
-import com.google.android.apps.muzei.util.LogUtil;
 
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_PUBLISH_STATE;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_STATE;

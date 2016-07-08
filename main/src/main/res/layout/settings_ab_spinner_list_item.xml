@@ -28,7 +28,7 @@
         android:ellipsize="marquee"
         android:paddingLeft="16dp"
         android:paddingRight="4dp"
-        android:singleLine="true"
+        android:maxLines="1"
         android:textAppearance="@style/TextAppearance.ActionBar.Title" />
 
 </LinearLayout>

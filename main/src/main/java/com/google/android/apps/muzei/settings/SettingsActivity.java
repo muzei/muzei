@@ -44,11 +44,11 @@ import android.widget.Toast;
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiRendererFragment;
 import com.google.android.apps.muzei.util.DrawInsetsFrameLayout;
-import com.google.android.apps.muzei.util.LogUtil;
 
 import net.nurik.roman.muzei.R;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 /**
  * The primary widget configuration activity. Serves as an interstitial when adding the widget, and
@@ -276,6 +276,7 @@ public class SettingsActivity extends AppCompatActivity
         updateRenderLocallyToLatestActiveState();
     }
 
+    @Subscribe
     public void onEventMainThread(final WallpaperActiveStateChangedEvent e) {
         if (mPaused) {
             return;

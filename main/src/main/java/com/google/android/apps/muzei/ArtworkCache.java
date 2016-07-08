@@ -27,7 +27,6 @@ import android.preference.PreferenceManager;
 import android.util.Pair;
 
 import com.google.android.apps.muzei.api.Artwork;
-import com.google.android.apps.muzei.api.internal.SourceState;
 import com.google.android.apps.muzei.event.ArtworkLoadingStateChangedEvent;
 import com.google.android.apps.muzei.event.CurrentArtworkDownloadedEvent;
 import com.google.android.apps.muzei.render.BitmapRegionLoader;
@@ -43,7 +42,7 @@ import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 import static com.google.android.apps.muzei.util.LogUtil.LOGE;
 import static com.google.android.apps.muzei.util.LogUtil.LOGW;

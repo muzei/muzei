@@ -45,10 +45,9 @@ import com.google.android.apps.muzei.render.ImageUtil;
 
 import net.nurik.roman.muzei.R;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
     public static final String PREF_ENABLED = "new_wallpaper_notification_enabled";

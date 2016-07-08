@@ -69,7 +69,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import static com.google.android.apps.muzei.gallery.GalleryArtSource.ACTION_ADD_CHOSEN_URIS;
 import static com.google.android.apps.muzei.gallery.GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM;
@@ -619,6 +620,7 @@ public class GallerySettingsActivity extends AppCompatActivity {
                 .putParcelableArrayListExtra(EXTRA_URIS, new ArrayList<>(uris)));
     }
 
+    @Subscribe
     public void onEventMainThread(GalleryChosenUrisChangedEvent e) {
         // Figure out what was removed and what was added.
         // Only support structural change events for appends and removes for now.

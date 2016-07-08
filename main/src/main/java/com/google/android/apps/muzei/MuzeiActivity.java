@@ -80,7 +80,8 @@ import net.nurik.roman.muzei.R;
 
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import static com.google.android.apps.muzei.util.LogUtil.LOGE;
 
@@ -758,6 +759,7 @@ public class MuzeiActivity extends AppCompatActivity {
         maybeUpdateArtDetailOpenedClosed();
     }
 
+    @Subscribe
     public void onEventMainThread(WallpaperSizeChangedEvent wsce) {
         if (wsce.getHeight() > 0) {
             mWallpaperAspectRatio = wsce.getWidth() * 1f / wsce.getHeight();
@@ -768,6 +770,7 @@ public class MuzeiActivity extends AppCompatActivity {
         resetProxyViewport();
     }
 
+    @Subscribe
     public void onEventMainThread(ArtworkSizeChangedEvent ase) {
         mArtworkAspectRatio = ase.getWidth() * 1f / ase.getHeight();
         resetProxyViewport();
@@ -791,6 +794,7 @@ public class MuzeiActivity extends AppCompatActivity {
         }
     }
 
+    @Subscribe
     public void onEventMainThread(ArtDetailViewport e) {
         if (!e.isFromUser() && mPanScaleProxyView != null) {
             mGuardViewportChangeListener = true;
@@ -799,6 +803,7 @@ public class MuzeiActivity extends AppCompatActivity {
         }
     }
 
+    @Subscribe
     public void onEventMainThread(SwitchingPhotosStateChangedEvent spe) {
         mCurrentViewportId = spe.getCurrentId();
         mPanScaleProxyView.enablePanScale(!spe.isSwitchingPhotos());
@@ -861,6 +866,7 @@ public class MuzeiActivity extends AppCompatActivity {
         NewWallpaperNotificationReceiver.markNotificationRead(this);
     }
 
+    @Subscribe
     public void onEventMainThread(final WallpaperActiveStateChangedEvent e) {
         if (mPaused) {
             return;
@@ -870,6 +876,7 @@ public class MuzeiActivity extends AppCompatActivity {
         updateUiMode();
     }
 
+    @Subscribe
     public void onEventMainThread(ArtworkLoadingStateChangedEvent e) {
         mArtworkLoading = e.isLoading();
         mArtworkLoadingError = e.hadError();

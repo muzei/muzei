@@ -34,7 +34,8 @@ import com.google.android.apps.muzei.render.RenderController;
 
 import net.rbgrn.android.glwallpaperservice.GLWallpaperService;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 public class MuzeiWallpaperService extends GLWallpaperService {
     private LockScreenVisibleReceiver mLockScreenVisibleReceiver;
@@ -95,7 +96,7 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             }
             setTouchEventsEnabled(true);
             setOffsetNotificationsEnabled(true);
-            EventBus.getDefault().registerSticky(this);
+            EventBus.getDefault().register(this);
         }
 
         @Override
@@ -125,6 +126,7 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             mRenderController.destroy();
         }
 
+        @Subscribe
         public void onEventMainThread(final ArtDetailOpenedClosedEvent e) {
             if (e.isArtDetailOpened() == mArtDetailMode) {
                 return;
@@ -140,10 +142,12 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             });
         }
 
+        @Subscribe
         public void onEventMainThread(ArtDetailViewport e) {
             requestRender();
         }
 
+        @Subscribe
         public void onEventMainThread(LockScreenVisibleChangedEvent e) {
             final boolean blur = !e.isLockScreenVisible();
             cancelDelayedBlur();

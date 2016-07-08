@@ -24,14 +24,10 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.os.EnvironmentCompat;
 import android.text.TextUtils;
 
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.OkUrlFactory;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -40,16 +36,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class IOUtil {
-    private static final int DEFAULT_READ_TIMEOUT = 30 * 1000; // 30s
-    private static final int DEFAULT_CONNECT_TIMEOUT = 15 * 1000; // 15s
+    private static final int DEFAULT_READ_TIMEOUT = 30; // in seconds
+    private static final int DEFAULT_CONNECT_TIMEOUT = 15; // in seconds
 
     public static InputStream openUri(Context context, Uri uri, String reqContentTypeSubstring)
             throws OpenUriException {
@@ -97,32 +97,34 @@ public class IOUtil {
             }
 
         } else if ("http".equals(scheme) || "https".equals(scheme)) {
-            OkHttpClient client = new OkHttpClient();
-            HttpURLConnection conn;
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .connectTimeout(DEFAULT_CONNECT_TIMEOUT, TimeUnit.SECONDS)
+                    .readTimeout(DEFAULT_READ_TIMEOUT, TimeUnit.SECONDS)
+                    .build();
+            Request request;
             int responseCode = 0;
             String responseMessage = null;
             try {
-                conn = new OkUrlFactory(client).open(new URL(uri.toString()));
+                request = new Request.Builder().url(new URL(uri.toString())).build();
             } catch (MalformedURLException e) {
                 throw new OpenUriException(false, e);
             }
 
             try {
-                conn.setConnectTimeout(DEFAULT_CONNECT_TIMEOUT);
-                conn.setReadTimeout(DEFAULT_READ_TIMEOUT);
-                responseCode = conn.getResponseCode();
-                responseMessage = conn.getResponseMessage();
+                Response response = client.newCall(request).execute();
+                responseCode = response.code();
+                responseMessage = response.message();
                 if (!(responseCode >= 200 && responseCode < 300)) {
                     throw new IOException("HTTP error response.");
                 }
                 if (reqContentTypeSubstring != null) {
-                    String contentType = conn.getContentType();
+                    String contentType = response.header("Content-Type");
                     if (contentType == null || !contentType.contains(reqContentTypeSubstring)) {
                         throw new IOException("HTTP content type '" + contentType
                                 + "' didn't match '" + reqContentTypeSubstring + "'.");
                     }
                 }
-                in = conn.getInputStream();
+                in = response.body().byteStream();
 
             } catch (IOException e) {
                 if (responseCode > 0) {
@@ -227,20 +229,6 @@ public class IOUtil {
         }
     }
 
-    public static String readFullyPlainText(InputStream in) throws IOException {
-        if (in == null) {
-            throw new IOException("Null input stream");
-        }
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        byte[] buffer = new byte[1024];
-        int bytesRead;
-        while ((bytesRead = in.read(buffer)) > 0) {
-            out.write(buffer, 0, bytesRead);
-        }
-        return new String(out.toByteArray(), "UTF-8");
-    }
-
     public static File getBestAvailableCacheRoot(Context context) {
         File[] roots = ContextCompat.getExternalCacheDirs(context);
         if (roots != null) {
@@ -278,20 +266,14 @@ public class IOUtil {
     }
 
     static String fetchPlainText(URL url) throws IOException {
-        InputStream in = null;
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(DEFAULT_CONNECT_TIMEOUT, TimeUnit.SECONDS)
+                .readTimeout(DEFAULT_READ_TIMEOUT, TimeUnit.SECONDS)
+                .build();
 
-        try {
-            OkHttpClient client = new OkHttpClient();
-            HttpURLConnection conn = new OkUrlFactory(client).open(url);
-            conn.setConnectTimeout(DEFAULT_CONNECT_TIMEOUT);
-            conn.setReadTimeout(DEFAULT_READ_TIMEOUT);
-            in = conn.getInputStream();
-            return readFullyPlainText(in);
-
-        } finally {
-            if (in != null) {
-                in.close();
-            }
-        }
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        return client.newCall(request).execute().body().string();
     }
 }
