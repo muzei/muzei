@@ -16,7 +16,6 @@
 
 package com.google.android.apps.muzei.featuredart;
 
-import android.content.ComponentName;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
@@ -105,18 +104,6 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
             commands.add(new UserCommand(COMMAND_ID_DEBUG_INFO, "Debug info"));
         }
         setUserCommands(commands);
-    }
-
-    @Override
-    protected void onSubscriberAdded(ComponentName subscriber) {
-        super.onSubscriberAdded(subscriber);
-        Artwork currentArtwork = getCurrentArtwork();
-        if (currentArtwork != null && !"initial".equals(currentArtwork.getToken())) {
-            // TODO: is this really necessary?
-            // When a subscriber is added, manually try a fetch, unless this is the
-            // first update
-            onUpdate(UPDATE_REASON_OTHER);
-        }
     }
 
     @Override
