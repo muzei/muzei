@@ -126,6 +126,7 @@ dependencies {
     // :api is included as a transitive dependency from :android-client-common
     // compile project(':api')
     compile project(':android-client-common')
+    compile project(':source_featured_art')
     devWearApp project(path: ':wearable', configuration: 'devRelease')
     prodWearApp project(path: ':wearable', configuration: 'prodRelease')
 }

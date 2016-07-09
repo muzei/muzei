@@ -24,10 +24,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.os.EnvironmentCompat;
 import android.text.TextUtils;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -194,19 +190,6 @@ public class IOUtil {
         }
     }
 
-    public static JSONObject fetchJsonObject(String url) throws IOException, JSONException {
-        return readJsonObject(fetchPlainText(new URL(url)));
-    }
-
-    public static JSONObject readJsonObject(String json) throws IOException, JSONException {
-        JSONTokener tokener = new JSONTokener(json);
-        Object val = tokener.nextValue();
-        if (!(val instanceof JSONObject)) {
-            throw new JSONException("Expected JSON object.");
-        }
-        return (JSONObject) val;
-    }
-
     public static void readFullyWriteToFile(InputStream in, File file) throws IOException {
         readFullyWriteToOutputStream(in, new FileOutputStream(file));
     }
@@ -263,17 +246,5 @@ public class IOUtil {
 
         // Worst case, resort to internal storage
         return context.getFilesDir();
-    }
-
-    static String fetchPlainText(URL url) throws IOException {
-        OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(DEFAULT_CONNECT_TIMEOUT, TimeUnit.SECONDS)
-                .readTimeout(DEFAULT_READ_TIMEOUT, TimeUnit.SECONDS)
-                .build();
-
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-        return client.newCall(request).execute().body().string();
     }
 }

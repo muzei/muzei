@@ -21,21 +21,19 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.customtabs.CustomTabsIntent;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.RemoteMuzeiArtSource;
 import com.google.android.apps.muzei.api.UserCommand;
-import com.google.android.apps.muzei.util.ExternalLinkUtil;
-import com.google.android.apps.muzei.util.IOUtil;
-import com.google.android.apps.muzei.util.LogUtil;
-
-import net.nurik.roman.muzei.BuildConfig;
-import net.nurik.roman.muzei.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -46,12 +44,11 @@ import java.util.List;
 import java.util.Random;
 import java.util.TimeZone;
 
-import static com.google.android.apps.muzei.util.LogUtil.LOGD;
-import static com.google.android.apps.muzei.util.LogUtil.LOGE;
-import static com.google.android.apps.muzei.util.LogUtil.LOGW;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 
 public class FeaturedArtSource extends RemoteMuzeiArtSource {
-    private static final String TAG = LogUtil.makeLogTag(FeaturedArtSource.class);
+    private static final String TAG = "FeaturedArtSource";
     private static final String SOURCE_NAME = "FeaturedArt";
 
     private static final String QUERY_URL = "http://muzeiapi.appspot.com/featured?cachebust=1";
@@ -101,7 +98,7 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
             super.onUpdate(reason);
         }
 
-        commands.add(new UserCommand(COMMAND_ID_SHARE, getString(R.string.action_share_artwork)));
+        commands.add(new UserCommand(COMMAND_ID_SHARE, getString(R.string.featuredart_action_share_artwork)));
         commands.add(new UserCommand(COMMAND_ID_VIEW_ARCHIVE,
                 getString(R.string.featuredart_source_action_view_archive)));
         if (BuildConfig.DEBUG) {
@@ -128,7 +125,7 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
         if (COMMAND_ID_SHARE == id) {
             Artwork currentArtwork = getCurrentArtwork();
             if (currentArtwork == null) {
-                LOGW(TAG, "No current artwork, can't share.");
+                Log.w(TAG, "No current artwork, can't share.");
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
@@ -158,7 +155,16 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
             startActivity(shareIntent);
 
         } else if (COMMAND_ID_VIEW_ARCHIVE == id) {
-            ExternalLinkUtil.openLinkInBrowser(this, ARCHIVE_URI);
+            CustomTabsIntent cti = new CustomTabsIntent.Builder()
+                    .setShowTitle(true)
+                    .setToolbarColor(ContextCompat.getColor(this, R.color.featuredart_color))
+                    .build();
+            Intent intent = cti.intent;
+            intent.setData(ARCHIVE_URI);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            if (intent.resolveActivity(getPackageManager()) != null) {
+                startActivity(intent);
+            }
 
         } else if (COMMAND_ID_DEBUG_INFO == id) {
             long nextUpdateTimeMillis = getSharedPreferences()
@@ -188,18 +194,22 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
         Artwork artwork;
         JSONObject jsonObject;
         try {
-            jsonObject = IOUtil.fetchJsonObject(QUERY_URL);
+            jsonObject = fetchJsonObject(QUERY_URL);
             artwork = Artwork.fromJson(jsonObject);
         } catch (JSONException | IOException e) {
-            LOGE(TAG, "Error reading JSON", e);
+            Log.e(TAG, "Error reading JSON", e);
             throw new RetryException(e);
         }
 
         if (artwork != null && currentArtwork != null && artwork.getImageUri() != null &&
                 artwork.getImageUri().equals(currentArtwork.getImageUri())) {
-            LOGD(TAG, "Skipping update of same artwork.");
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Skipping update of same artwork.");
+            }
         } else {
-            LOGD(TAG, "Publishing artwork update: " + artwork);
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Publishing artwork update: " + artwork);
+            }
             if (artwork != null && jsonObject != null) {
                 artwork.setMetaFont(Artwork.FONT_TYPE_ELEGANT);
                 publishArtwork(artwork);
@@ -220,7 +230,7 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
                     sDateFormatLocal.setTimeZone(TimeZone.getDefault());
                     nextTime = sDateFormatLocal.parse(nextTimeStr);
                 } catch (ParseException e2) {
-                    LOGE(TAG, "Can't schedule update; "
+                    Log.e(TAG, "Can't schedule update; "
                             + "invalid date format '" + nextTimeStr + "'", e2);
                 }
             }
@@ -237,6 +247,21 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
             // No next time, default to checking in 12 hours
             scheduleUpdate(System.currentTimeMillis() + 12 * 60 * 60 * 1000);
         }
+    }
+
+    private JSONObject fetchJsonObject(final String url) throws IOException, JSONException {
+        OkHttpClient client = new OkHttpClient.Builder().build();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        String json = client.newCall(request).execute().body().string();
+        JSONTokener tokener = new JSONTokener(json);
+        Object val = tokener.nextValue();
+        if (!(val instanceof JSONObject)) {
+            throw new JSONException("Expected JSON object.");
+        }
+        return (JSONObject) val;
     }
 
     @Override
