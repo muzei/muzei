@@ -1,0 +1,8 @@
+<resources>
+    <string name="featuredart_source_title">Featured art</string>
+    <string name="featuredart_source_description">A new painting every day</string>
+    <string name="featuredart_source_error_no_artwork_to_share">No artwork to share.</string>
+    <string name="featuredart_source_action_view_archive">View archive</string>
+
+    <string name="featuredart_action_share_artwork">Share artwork</string>
+</resources>
