@@ -40,6 +40,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.TimeZone;
 
@@ -62,9 +63,9 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
     private static Random sRandom = new Random();
 
     private static final SimpleDateFormat sDateFormatTZ
-            = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+            = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US);
     private static final SimpleDateFormat sDateFormatLocal
-            = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+            = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
     static {
         sDateFormatTZ.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
