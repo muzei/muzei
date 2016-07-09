@@ -16,7 +16,6 @@
 
 package com.google.android.apps.muzei.featuredart;
 
-import android.content.ComponentName;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
@@ -41,6 +40,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.TimeZone;
 
@@ -63,9 +63,9 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
     private static Random sRandom = new Random();
 
     private static final SimpleDateFormat sDateFormatTZ
-            = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+            = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US);
     private static final SimpleDateFormat sDateFormatLocal
-            = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+            = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
     static {
         sDateFormatTZ.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
@@ -105,18 +105,6 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
             commands.add(new UserCommand(COMMAND_ID_DEBUG_INFO, "Debug info"));
         }
         setUserCommands(commands);
-    }
-
-    @Override
-    protected void onSubscriberAdded(ComponentName subscriber) {
-        super.onSubscriberAdded(subscriber);
-        Artwork currentArtwork = getCurrentArtwork();
-        if (currentArtwork != null && !"initial".equals(currentArtwork.getToken())) {
-            // TODO: is this really necessary?
-            // When a subscriber is added, manually try a fetch, unless this is the
-            // first update
-            onUpdate(UPDATE_REASON_OTHER);
-        }
     }
 
     @Override
