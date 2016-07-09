@@ -197,11 +197,7 @@ public class SourceManager {
 
             final ArrayList<ContentProviderOperation> operations = new ArrayList<>();
             if (mSelectedSource != null) {
-                // unsubscribe from existing source
-                mApplicationContext.startService(new Intent(ACTION_SUBSCRIBE)
-                        .setComponent(mSelectedSource)
-                        .putExtra(EXTRA_SUBSCRIBER_COMPONENT, mSubscriberComponentName)
-                        .putExtra(EXTRA_TOKEN, (String) null));
+                unsubscribeToSelectedSource();
 
                 // Unselect the old source
                 operations.add(ContentProviderOperation.newUpdate(MuzeiContract.Sources.CONTENT_URI)
@@ -320,6 +316,15 @@ public class SourceManager {
                     .setComponent(mSelectedSource)
                     .putExtra(EXTRA_SUBSCRIBER_COMPONENT, mSubscriberComponentName)
                     .putExtra(EXTRA_TOKEN, mSelectedSourceToken));
+        }
+    }
+
+    public synchronized void unsubscribeToSelectedSource() {
+        if (mSelectedSource != null) {
+            mApplicationContext.startService(new Intent(ACTION_SUBSCRIBE)
+                    .setComponent(mSelectedSource)
+                    .putExtra(EXTRA_SUBSCRIBER_COMPONENT, mSubscriberComponentName)
+                    .putExtra(EXTRA_TOKEN, (String) null));
         }
     }
 

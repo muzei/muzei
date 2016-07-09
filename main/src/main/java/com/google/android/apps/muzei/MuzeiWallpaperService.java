@@ -97,6 +97,7 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             setTouchEventsEnabled(true);
             setOffsetNotificationsEnabled(true);
             EventBus.getDefault().register(this);
+            SourceManager.getInstance(MuzeiWallpaperService.this).subscribeToSelectedSource();
         }
 
         @Override
@@ -111,6 +112,7 @@ public class MuzeiWallpaperService extends GLWallpaperService {
         @Override
         public void onDestroy() {
             super.onDestroy();
+            SourceManager.getInstance(MuzeiWallpaperService.this).unsubscribeToSelectedSource();
             EventBus.getDefault().unregister(this);
             if (!isPreview()) {
                 EventBus.getDefault().postSticky(new WallpaperActiveStateChangedEvent(false));
