@@ -38,7 +38,6 @@ import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.DateFormat;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.SurfaceHolder;
@@ -52,6 +51,7 @@ import net.nurik.roman.muzei.R;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
@@ -79,9 +79,6 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
      * Update rate in milliseconds for mute mode. We update every minute, like in ambient mode.
      */
     private static final long MUTE_UPDATE_RATE_MS = TimeUnit.MINUTES.toMillis(1);
-
-    private static final String FORMAT_12_HR = "%l:%M";
-    private static final String FORMAT_24_HR = "%H:%M";
 
     @Override
     public Engine onCreateEngine() {
@@ -128,8 +125,8 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
         final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                mTime.clear(intent.getStringExtra("time-zone"));
-                mTime.setToNow();
+                mCalendar.setTimeZone(TimeZone.getDefault());
+                invalidate();
             }
         };
         final BroadcastReceiver mLocaleChangedReceiver = new BroadcastReceiver() {
@@ -158,6 +155,8 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
         Paint mDatePaint;
         Paint mDateAmbientShadowPaint;
         float mDateTextHeight;
+        SimpleDateFormat m12hFormat;
+        SimpleDateFormat m24hFormat;
         SimpleDateFormat mDateFormat;
 
         /**
@@ -188,7 +187,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
         float mDateMinAvailableMargin;
         boolean mAmbient;
         boolean mMute;
-        Time mTime;
+        Calendar mCalendar;
         Rect mCardBounds = new Rect();
         int mWidth = 0;
         int mHeight = 0;
@@ -213,7 +212,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
             mBlurred = preferences.getBoolean(BLURRED_PREF_KEY, false);
             updateWatchFaceStyle();
 
-            mTime = new Time();
+            mCalendar = Calendar.getInstance();
             mClockMargin = getResources().getDimension(R.dimen.clock_margin);
             mDateMinAvailableMargin = getResources().getDimension(R.dimen.date_min_available_margin);
             mBackgroundPaint = new Paint();
@@ -270,6 +269,8 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
         }
 
         private void recomputeDateFormat() {
+            m12hFormat = new SimpleDateFormat("h:mm", Locale.getDefault());
+            m24hFormat = new SimpleDateFormat("k:mm", Locale.getDefault());
             String bestPattern = DateFormat.getBestDateTimePattern(Locale.getDefault(), "Md");
             mDateFormat = new SimpleDateFormat(bestPattern, Locale.getDefault());
         }
@@ -371,8 +372,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
                 registerReceiver();
 
                 // Update time zone in case it changed while we weren't visible.
-                mTime.clear(TimeZone.getDefault().getID());
-                mTime.setToNow();
+                mCalendar.setTimeZone(TimeZone.getDefault());
 
                 // Load the image in case it has changed while we weren't visible
                 mLoadImageHandler.post(new Runnable() {
@@ -526,7 +526,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
 
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
-            mTime.setToNow();
+            mCalendar.setTimeInMillis(System.currentTimeMillis());
 
             int width = canvas.getWidth();
             int height = canvas.getHeight();
@@ -548,9 +548,9 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
             }
 
             // Draw the time
-            String formattedTime = mTime.format(DateFormat.is24HourFormat(MuzeiWatchFace.this)
-                    ? FORMAT_24_HR
-                    : FORMAT_12_HR);
+            String formattedTime = DateFormat.is24HourFormat(MuzeiWatchFace.this)
+                    ? m24hFormat.format(mCalendar.getTime())
+                    : m12hFormat.format(mCalendar.getTime());
             float xOffset = mIsRound
                     ? width / 2
                     : width - mClockMargin;
@@ -581,7 +581,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
             // or unread notification / charging indicator (round)
             if (clockHeight + dateHeight + mDateMinAvailableMargin < spaceAvailable) {
                 // Draw the date
-                String formattedDate = mDateFormat.format(mTime.toMillis(false));
+                String formattedDate = mDateFormat.format(mCalendar.getTime());
                 float yDateOffset = mIsRound
                         ? yOffset - mClockTextHeight - mClockMargin // date above centered time
                         : yOffset + mDateTextHeight + mClockMargin; // date below top|right time
