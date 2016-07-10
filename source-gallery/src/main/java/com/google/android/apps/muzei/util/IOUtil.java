@@ -229,4 +229,22 @@ public class IOUtil {
         // Worst case, resort to internal storage
         return context.getCacheDir();
     }
+
+    public static File getBestAvailableFilesRoot(Context context) {
+        File[] roots = ContextCompat.getExternalFilesDirs(context, null);
+        if (roots != null) {
+            for (File root : roots) {
+                if (root == null) {
+                    continue;
+                }
+
+                if (Environment.MEDIA_MOUNTED.equals(EnvironmentCompat.getStorageState(root))) {
+                    return root;
+                }
+            }
+        }
+
+        // Worst case, resort to internal storage
+        return context.getFilesDir();
+    }
 }

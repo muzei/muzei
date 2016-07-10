@@ -35,7 +35,6 @@ import android.widget.ImageView;
 
 import com.google.android.apps.muzei.util.ImageBlurrer;
 import com.google.android.apps.muzei.util.MathUtil;
-
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 

@@ -25,9 +25,6 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-    <!-- Needed for gallery source; requested at runtime on Marshmallow -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
     <!-- Don't request this starting with Marshmallow (we only write to the app's cache folder) -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="22" />
@@ -88,31 +85,6 @@
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
-
-        <!-- Photo sources -->
-        <service android:name="com.google.android.apps.muzei.gallery.GalleryArtSource"
-            android:label="@string/gallery_source_title"
-            android:description="@string/gallery_source_description"
-            android:icon="@drawable/ic_source_gallery">
-            <intent-filter>
-                <action android:name="com.google.android.apps.muzei.api.MuzeiArtSource" />
-            </intent-filter>
-            <meta-data android:name="settingsActivity"
-                android:value="com.google.android.apps.muzei.gallery.GallerySettingsActivity" />
-            <meta-data android:name="setupActivity"
-                android:value="com.google.android.apps.muzei.gallery.GallerySetupActivity" />
-            <meta-data android:name="color" android:value="#4db6ac" />
-        </service>
-
-        <activity android:name="com.google.android.apps.muzei.gallery.GallerySetupActivity"
-            android:label="@string/gallery_source_settings_title"
-            android:theme="@style/Theme.Muzei.GallerySetup"
-            android:exported="true" />
-
-        <activity android:name="com.google.android.apps.muzei.gallery.GallerySettingsActivity"
-            android:label="@string/gallery_source_settings_title"
-            android:parentActivityName="com.google.android.apps.muzei.settings.SettingsActivity"
-            android:theme="@style/Theme.Muzei.GallerySettings" />
 
         <!-- Target for "Set As" intent -->
 

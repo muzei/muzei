@@ -33,16 +33,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.google.android.apps.muzei.util.LogUtil.LOGV;
-
 /**
  * Helper for building selection clauses for {@link android.database.sqlite.SQLiteDatabase}. Each
  * appended clause is combined using {@code AND}. This class is <em>not</em>
  * thread safe.
  */
 public class SelectionBuilder {
-    private static final String TAG = LogUtil.makeLogTag(SelectionBuilder.class);
-
     private String mTable = null;
     private Map<String, String> mProjectionMap = new HashMap<>();
     private StringBuilder mSelection = new StringBuilder();
@@ -153,7 +149,6 @@ public class SelectionBuilder {
             String having, String orderBy, String limit) {
         assertTable();
         if (columns != null) mapColumns(columns);
-        LOGV(TAG, "query(columns=" + Arrays.toString(columns) + ") " + this);
         return db.query(mTable, columns, getSelection(), getSelectionArgs(), groupBy, having,
                 orderBy, limit);
     }
@@ -163,7 +158,6 @@ public class SelectionBuilder {
      */
     public int update(SQLiteDatabase db, ContentValues values) {
         assertTable();
-        LOGV(TAG, "update() " + this);
         return db.update(mTable, values, getSelection(), getSelectionArgs());
     }
 
@@ -172,7 +166,6 @@ public class SelectionBuilder {
      */
     public int delete(SQLiteDatabase db) {
         assertTable();
-        LOGV(TAG, "delete() " + this);
         return db.delete(mTable, getSelection(), getSelectionArgs());
     }
 }

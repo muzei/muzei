@@ -28,8 +28,6 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
 
-import net.nurik.roman.muzei.R;
-
 import java.util.Random;
 
 /**

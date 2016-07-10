@@ -56,11 +56,8 @@ import android.widget.ViewAnimator;
 import com.google.android.apps.muzei.event.GalleryChosenUrisChangedEvent;
 import com.google.android.apps.muzei.util.CheatSheet;
 import com.google.android.apps.muzei.util.DrawInsetsFrameLayout;
-import com.google.android.apps.muzei.util.MathUtil;
 import com.google.android.apps.muzei.util.MultiSelectionController;
 import com.squareup.picasso.Picasso;
-
-import net.nurik.roman.muzei.R;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -285,11 +282,10 @@ public class GallerySettingsActivity extends AppCompatActivity {
                     return true;
                 }
 
-                switch (itemId) {
-                    case R.id.action_clear_photos:
-                        startService(new Intent(GallerySettingsActivity.this, GalleryArtSource.class)
-                                .setAction(ACTION_REMOVE_CHOSEN_URIS));
-                        return true;
+                if (itemId == R.id.action_clear_photos) {
+                    startService(new Intent(GallerySettingsActivity.this, GalleryArtSource.class)
+                            .setAction(ACTION_REMOVE_CHOSEN_URIS));
+                    return true;
                 }
 
                 return false;
@@ -315,37 +311,36 @@ public class GallerySettingsActivity extends AppCompatActivity {
         mSelectionToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.action_force_now:
-                        Set<Uri> selection = mMultiSelectionController.getSelection();
-                        if (selection.size() > 0) {
+                int itemId = item.getItemId();
+                if (itemId == R.id.action_force_now) {
+                    Set<Uri> selection = mMultiSelectionController.getSelection();
+                    if (selection.size() > 0) {
+                        startService(
+                                new Intent(GallerySettingsActivity.this, GalleryArtSource.class)
+                                        .setAction(ACTION_PUBLISH_NEXT_GALLERY_ITEM)
+                                        .putExtra(EXTRA_FORCE_URI, selection.iterator().next()));
+                        Toast.makeText(GallerySettingsActivity.this,
+                                R.string.gallery_source_temporary_force_image,
+                                Toast.LENGTH_SHORT).show();
+                    }
+                    mMultiSelectionController.reset(true);
+                    return true;
+                } else if (itemId == R.id.action_remove) {
+                    final ArrayList<Uri> removeUris = new ArrayList<>(
+                            mMultiSelectionController.getSelection());
+
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
                             startService(
                                     new Intent(GallerySettingsActivity.this, GalleryArtSource.class)
-                                    .setAction(ACTION_PUBLISH_NEXT_GALLERY_ITEM)
-                                    .putExtra(EXTRA_FORCE_URI, selection.iterator().next()));
-                            Toast.makeText(GallerySettingsActivity.this,
-                                    R.string.gallery_source_temporary_force_image,
-                                    Toast.LENGTH_SHORT).show();
+                                            .setAction(ACTION_REMOVE_CHOSEN_URIS)
+                                            .putParcelableArrayListExtra(EXTRA_URIS, removeUris));
                         }
-                        mMultiSelectionController.reset(true);
-                        return true;
+                    });
 
-                    case R.id.action_remove:
-                        final ArrayList<Uri> removeUris = new ArrayList<>(
-                                mMultiSelectionController.getSelection());
-
-                        mHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                startService(
-                                        new Intent(GallerySettingsActivity.this, GalleryArtSource.class)
-                                                .setAction(ACTION_REMOVE_CHOSEN_URIS)
-                                                .putParcelableArrayListExtra(EXTRA_URIS, removeUris));
-                            }
-                        });
-
-                        mMultiSelectionController.reset(true);
-                        return true;
+                    mMultiSelectionController.reset(true);
+                    return true;
                 }
                 return false;
             }
@@ -538,7 +533,7 @@ public class GallerySettingsActivity extends AppCompatActivity {
                         }
 
                         // find the smallest radius that'll cover the item
-                        float coverRadius = MathUtil.maxDistanceToCorner(
+                        float coverRadius = maxDistanceToCorner(
                                 mLastTouchX, mLastTouchY,
                                 0, 0, vh.mRootView.getWidth(), vh.mRootView.getHeight());
 
@@ -565,6 +560,15 @@ public class GallerySettingsActivity extends AppCompatActivity {
                 vh.mCheckedOverlayView.setVisibility(
                         checked ? View.VISIBLE : View.GONE);
             }
+        }
+
+        private float maxDistanceToCorner(int x, int y, int left, int top, int right, int bottom) {
+            float maxDistance = 0;
+            maxDistance = Math.max(maxDistance, (float) Math.hypot(x - left, y - top));
+            maxDistance = Math.max(maxDistance, (float) Math.hypot(x - right, y - top));
+            maxDistance = Math.max(maxDistance, (float) Math.hypot(x - left, y - bottom));
+            maxDistance = Math.max(maxDistance, (float) Math.hypot(x - right, y - bottom));
+            return maxDistance;
         }
 
         @Override
