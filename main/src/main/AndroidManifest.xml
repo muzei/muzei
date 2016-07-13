@@ -89,6 +89,15 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name="com.google.android.apps.muzei.MuzeiWidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_provider" />
+        </receiver>
+
         <!-- Photo sources -->
         <service android:name="com.google.android.apps.muzei.gallery.GalleryArtSource"
             android:label="@string/gallery_source_title"

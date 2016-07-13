@@ -54,4 +54,6 @@
     <dimen name="header_elevation">4dp</dimen>
     <dimen name="fab_elevation">8dp</dimen>
 
+    <dimen name="widget_min_height">40dp</dimen>
+    <dimen name="widget_min_width">112dp</dimen>
 </resources>
