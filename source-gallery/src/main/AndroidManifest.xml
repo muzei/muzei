@@ -36,7 +36,7 @@
 
         <activity android:name="com.google.android.apps.muzei.gallery.GallerySetupActivity"
                   android:label="@string/gallery_source_settings_title"
-                  android:theme="@style/Theme.Gallery.Setup"
+                  android:theme="@android:style/Theme.Translucent.NoTitleBar"
                   android:exported="true" />
 
         <activity android:name="com.google.android.apps.muzei.gallery.GallerySettingsActivity"
