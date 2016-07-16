@@ -54,7 +54,6 @@ import android.widget.Toast;
 import android.widget.ViewAnimator;
 
 import com.google.android.apps.muzei.event.GalleryChosenUrisChangedEvent;
-import com.google.android.apps.muzei.util.CheatSheet;
 import com.google.android.apps.muzei.util.DrawInsetsFrameLayout;
 import com.google.android.apps.muzei.util.MultiSelectionController;
 import com.squareup.picasso.Picasso;
@@ -225,7 +224,6 @@ public class GallerySettingsActivity extends AppCompatActivity {
                 chooseMorePhotos();
             }
         });
-        CheatSheet.setup(mAddButton);
 
         EventBus.getDefault().register(this);
     }
