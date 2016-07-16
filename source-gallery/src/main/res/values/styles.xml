@@ -15,18 +15,13 @@
   -->
 
 <resources>
-    <style name="Theme.Gallery.Settings">
+    <style name="Theme.Gallery.Base" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowBackground">@color/gallery_settings_window_background</item>
+        <item name="android:windowContentOverlay">@null</item>
 
         <item name="colorPrimaryDark">@color/gallery_settings_theme_dark</item>
         <item name="colorPrimary">@color/gallery_settings_theme</item>
         <item name="colorAccent">@color/gallery_settings_theme</item>
-    </style>
-
-    <!-- Global -->
-
-    <style name="Theme.Gallery.Base" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:windowContentOverlay">@null</item>
     </style>
 
     <style name="Theme.Gallery" parent="Theme.Gallery.Base"> <!-- pre-Lollipop -->

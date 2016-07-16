@@ -41,6 +41,6 @@
 
         <activity android:name="com.google.android.apps.muzei.gallery.GallerySettingsActivity"
                   android:label="@string/gallery_source_settings_title"
-                  android:theme="@style/Theme.Gallery.Settings" />
+                  android:theme="@style/Theme.Gallery" />
     </application>
 </manifest>
