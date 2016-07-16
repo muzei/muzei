@@ -42,7 +42,6 @@
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
             app:titleTextAppearance="@style/TextAppearance.ActionBar.Title"
-            app:contentInsetStart="@dimen/keyline_2"
             app:title="@string/gallery_source_settings_title" />
 
         <FrameLayout android:id="@android:id/empty"
@@ -134,7 +133,6 @@
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
             app:titleTextAppearance="@style/TextAppearance.ActionBar.Title"
-            app:contentInsetStart="@dimen/keyline_2"
             app:title="@string/gallery_source_settings_title"
             app:navigationIcon="?attr/homeAsUpIndicator" />
 

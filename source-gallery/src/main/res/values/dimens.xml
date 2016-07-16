@@ -15,8 +15,6 @@
   -->
 
 <resources>
-    <dimen name="keyline_2">72dp</dimen>
-
     <dimen name="gallery_settings_chosen_photo_grid_max_item_size">200dp</dimen>
     <dimen name="gallery_settings_chosen_photo_grid_spacing">2dp</dimen>
     <dimen name="gallery_settings_fab_space">96dp</dimen>
