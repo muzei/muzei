@@ -41,7 +41,6 @@
             android:id="@+id/app_bar"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
-            app:titleTextAppearance="@style/TextAppearance.ActionBar.Title"
             app:title="@string/gallery_source_settings_title" />
 
         <FrameLayout android:id="@android:id/empty"
@@ -70,7 +69,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/gallery_source_settings_enable_random"
-                        android:theme="@style/ThemeOverlay.AppCompat.Dark.GallerySettingsColoredButton"
                         style="@style/Widget.AppCompat.Button.Colored"/>
 
                     <Button
@@ -78,7 +76,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/gallery_source_settings_edit_settings"
-                        android:theme="@style/ThemeOverlay.AppCompat.Dark.GallerySettingsColoredButton"
                         style="@style/Widget.AppCompat.Button.Colored"/>
                 </ViewAnimator>
 
@@ -132,7 +129,6 @@
             android:id="@+id/selection_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
-            app:titleTextAppearance="@style/TextAppearance.ActionBar.Title"
             app:title="@string/gallery_source_settings_title"
             app:navigationIcon="?attr/homeAsUpIndicator" />
 

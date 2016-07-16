@@ -23,30 +23,15 @@
         <item name="colorAccent">@color/gallery_settings_theme</item>
     </style>
 
-    <style name="ThemeOverlay.AppCompat.Dark.GallerySettingsColoredButton">
-        <item name="colorAccent">@color/gallery_settings_theme</item>
-    </style>
-
     <!-- Global -->
 
     <style name="Theme.Gallery.Base" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:windowBackground">@android:color/black</item>
         <item name="android:windowContentOverlay">@null</item>
-        <item name="android:textAppearanceMedium">@style/TextAppearance.Muzei.Medium</item>
     </style>
 
     <style name="Theme.Gallery" parent="Theme.Gallery.Base"> <!-- pre-Lollipop -->
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>
-    </style>
-
-    <style name="TextAppearance.ActionBar.Title" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
-        <item name="android:textSize">20sp</item>
-        <item name="android:textColor">#fff</item>
-    </style>
-
-    <style name="TextAppearance.Muzei.Medium" parent="TextAppearance.AppCompat.Medium">
-        <item name="android:textColor">#fff</item>
     </style>
 
 </resources>
