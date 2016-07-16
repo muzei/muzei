@@ -109,15 +109,12 @@
 
         </FrameLayout>
 
-        <ImageButton android:id="@+id/add_photos_button"
-            android:background="@drawable/white_circle_button"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
+        <android.support.design.widget.FloatingActionButton android:id="@+id/add_photos_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="bottom|center_horizontal"
             android:layout_marginBottom="16dp"
             android:contentDescription="@string/action_add_photos"
-            android:elevation="@dimen/fab_elevation"
-            android:tint="@color/gallery_settings_theme"
             android:src="@drawable/ic_add_photos" />
 
     </com.google.android.apps.muzei.util.DrawInsetsFrameLayout>

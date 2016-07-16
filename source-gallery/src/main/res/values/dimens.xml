@@ -24,5 +24,4 @@
     <!-- height + top/bottom padding -->
 
     <dimen name="header_elevation">4dp</dimen>
-    <dimen name="fab_elevation">8dp</dimen>
 </resources>
