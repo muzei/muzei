@@ -135,7 +135,8 @@
             android:layout_height="?actionBarSize"
             app:titleTextAppearance="@style/TextAppearance.ActionBar.Title"
             app:contentInsetStart="@dimen/keyline_2"
-            app:title="@string/gallery_source_settings_title" />
+            app:title="@string/gallery_source_settings_title"
+            app:navigationIcon="?attr/homeAsUpIndicator" />
 
     </LinearLayout>
 </FrameLayout>
