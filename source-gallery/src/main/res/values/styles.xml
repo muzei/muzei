@@ -40,7 +40,6 @@
     <style name="Theme.Gallery.Base" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowBackground">@android:color/black</item>
         <item name="android:windowContentOverlay">@null</item>
-        <item name="android:selectableItemBackground">@drawable/white_selectable_item_background</item>
         <item name="android:textAppearanceMedium">@style/TextAppearance.Muzei.Medium</item>
     </style>
 
