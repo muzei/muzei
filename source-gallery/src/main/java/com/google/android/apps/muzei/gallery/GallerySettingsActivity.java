@@ -23,7 +23,6 @@ import android.annotation.TargetApi;
 import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
@@ -33,13 +32,15 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.OnApplyWindowInsetsListener;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.WindowInsetsCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.SparseIntArray;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -54,7 +55,6 @@ import android.widget.Toast;
 import android.widget.ViewAnimator;
 
 import com.google.android.apps.muzei.event.GalleryChosenUrisChangedEvent;
-import com.google.android.apps.muzei.util.DrawInsetsFrameLayout;
 import com.google.android.apps.muzei.util.MultiSelectionController;
 import com.squareup.picasso.Picasso;
 
@@ -115,10 +115,6 @@ public class GallerySettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gallery_settings_activity);
-        getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
         setupAppBar();
 
         mStore = GalleryStore.getInstance(this);
@@ -132,7 +128,6 @@ public class GallerySettingsActivity extends AppCompatActivity {
         DefaultItemAnimator itemAnimator = new DefaultItemAnimator();
         itemAnimator.setSupportsChangeAnimations(false);
         mPhotoGridView.setItemAnimator(itemAnimator);
-        mPhotoGridView.setHasFixedSize(true);
         setupMultiSelect();
 
         final GridLayoutManager gridLayoutManager = new GridLayoutManager(
@@ -175,27 +170,19 @@ public class GallerySettingsActivity extends AppCompatActivity {
             }
         });
 
-        final DrawInsetsFrameLayout insetsLayout = (DrawInsetsFrameLayout)
-                findViewById(R.id.draw_insets_frame_layout);
-        insetsLayout.setOnInsetsCallback(new DrawInsetsFrameLayout.OnInsetsCallback() {
+        ViewCompat.setOnApplyWindowInsetsListener(mPhotoGridView, new OnApplyWindowInsetsListener() {
             @Override
-            public void onInsetsChanged(Rect insets) {
-                insetsLayout.setPadding(insets.left, insets.top, insets.right, insets.bottom);
-
-                TypedValue actionBarSizeValue = new TypedValue();
-                getTheme().resolveAttribute(R.attr.actionBarSize, actionBarSizeValue, true);
+            public WindowInsetsCompat onApplyWindowInsets(final View v, final WindowInsetsCompat insets) {
                 int gridSpacing = getResources()
                         .getDimensionPixelSize(R.dimen.gallery_settings_chosen_photo_grid_spacing);
-                mPhotoGridView.setPadding(
-                        insets.left + gridSpacing,
-                        insets.top + gridSpacing + (int) actionBarSizeValue.getDimension(
-                                getResources().getDisplayMetrics()),
-                        insets.right + gridSpacing,
-                        insets.bottom + gridSpacing + getResources().getDimensionPixelSize(
-                                R.dimen.gallery_settings_fab_space));
+                ViewCompat.onApplyWindowInsets(v, insets.replaceSystemWindowInsets(
+                        insets.getSystemWindowInsetLeft() + gridSpacing,
+                        gridSpacing,
+                        insets.getSystemWindowInsetRight() + gridSpacing,
+                        insets.getSystemWindowInsetBottom() + insets.getSystemWindowInsetTop() + gridSpacing +
+                                getResources().getDimensionPixelSize(R.dimen.gallery_settings_fab_space)));
 
-                findViewById(R.id.selection_toolbar_container).setPadding(
-                        insets.left, insets.top, insets.right, 0);
+                return insets;
             }
         });
 

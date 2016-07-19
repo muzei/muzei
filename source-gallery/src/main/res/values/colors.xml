@@ -22,6 +22,5 @@
     <color name="gallery_settings_empty_state_light">@color/gallery_settings_theme_light</color>
 
     <color name="gallery_settings_window_background">#111</color>
-    <color name="gallery_settings_inset_shade">#a111</color>
     <color name="gallery_settings_chosen_photo_placeholder">#5666</color>
 </resources>
