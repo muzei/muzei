@@ -28,13 +28,12 @@
     <string name="gallery_action_force_now">Set as wallpaper now</string>
     <string name="gallery_action_remove">Remove</string>
 
-    <string name="gallery_title">My photos</string>
+    <string name="gallery_title">My Photos</string>
     <string name="gallery_description">Random camera photos</string>
     <plurals name="gallery_description_choice_template">
         <item quantity="one">1 photo</item>
         <item quantity="other">%1$d photos</item>
     </plurals>
-    <string name="gallery_settings_title">My Photos</string>
     <string name="gallery_empty">Random camera photos</string>
     <string name="gallery_empty_subtitle">Choose specific photos instead</string>
     <string name="gallery_temporary_force_image">Wallpaper set to selected image.</string>

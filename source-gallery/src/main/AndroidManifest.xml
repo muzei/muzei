@@ -35,12 +35,12 @@
         </service>
 
         <activity android:name="com.google.android.apps.muzei.gallery.GallerySetupActivity"
-                  android:label="@string/gallery_settings_title"
+                  android:label="@string/gallery_title"
                   android:theme="@android:style/Theme.Translucent.NoTitleBar"
                   android:exported="true" />
 
         <activity android:name="com.google.android.apps.muzei.gallery.GallerySettingsActivity"
-                  android:label="@string/gallery_settings_title"
+                  android:label="@string/gallery_title"
                   android:theme="@style/Theme.Gallery" />
     </application>
 </manifest>

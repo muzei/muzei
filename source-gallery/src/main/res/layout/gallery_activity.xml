@@ -42,7 +42,7 @@
             android:id="@+id/app_bar"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
-            app:title="@string/gallery_settings_title"
+            app:title="@string/gallery_title"
             app:layout_scrollFlags="scroll|enterAlways" />
 
     </android.support.design.widget.AppBarLayout>
@@ -131,7 +131,7 @@
             android:id="@+id/selection_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
-            app:title="@string/gallery_settings_title"
+            app:title="@string/gallery_title"
             app:navigationIcon="?attr/homeAsUpIndicator" />
 
     </LinearLayout>
