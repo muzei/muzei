@@ -16,7 +16,7 @@
 
 buildscript {
     repositories {
-        mavenCentral()
+        jcenter()
     }
     dependencies {
         classpath rootProject.ext.gradleClasspath
@@ -28,7 +28,7 @@ apply plugin: 'com.android.application'
 project.archivesBaseName = "muzei"
 
 repositories {
-    mavenCentral()
+    jcenter()
 }
 
 android {
