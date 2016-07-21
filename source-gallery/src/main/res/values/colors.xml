@@ -15,12 +15,12 @@
   -->
 
 <resources>
-    <color name="gallery_settings_theme_dark">#00796B</color>
-    <color name="gallery_settings_theme">#009688</color>
-    <color name="gallery_settings_theme_light">#4DB6AC</color>
-    <color name="gallery_settings_empty_state_dark">@color/gallery_settings_theme_dark</color>
-    <color name="gallery_settings_empty_state_light">@color/gallery_settings_theme_light</color>
+    <color name="gallery_theme_dark">#00796B</color>
+    <color name="gallery_theme">#009688</color>
+    <color name="gallery_theme_light">#4DB6AC</color>
+    <color name="gallery_empty_state_dark">@color/gallery_theme_dark</color>
+    <color name="gallery_empty_state_light">@color/gallery_theme_light</color>
 
-    <color name="gallery_settings_window_background">#111</color>
-    <color name="gallery_settings_chosen_photo_placeholder">#5666</color>
+    <color name="gallery_window_background">#111</color>
+    <color name="gallery_chosen_photo_placeholder">#5666</color>
 </resources>

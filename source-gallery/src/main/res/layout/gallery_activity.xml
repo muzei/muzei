@@ -29,8 +29,8 @@
         android:clipToPadding="false"
         android:fitsSystemWindows="true"
         android:drawSelectorOnTop="true"
-        android:horizontalSpacing="@dimen/gallery_settings_chosen_photo_grid_spacing"
-        android:verticalSpacing="@dimen/gallery_settings_chosen_photo_grid_spacing"
+        android:horizontalSpacing="@dimen/gallery_chosen_photo_grid_spacing"
+        android:verticalSpacing="@dimen/gallery_chosen_photo_grid_spacing"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <android.support.design.widget.AppBarLayout
@@ -42,7 +42,7 @@
             android:id="@+id/app_bar"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
-            app:title="@string/gallery_source_settings_title"
+            app:title="@string/gallery_settings_title"
             app:layout_scrollFlags="scroll|enterAlways" />
 
     </android.support.design.widget.AppBarLayout>
@@ -72,14 +72,14 @@
                     android:id="@+id/gallery_enable_random"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/gallery_source_settings_enable_random"
+                    android:text="@string/gallery_enable_random"
                     style="@style/Widget.AppCompat.Button.Colored"/>
 
                 <Button
                     android:id="@+id/gallery_edit_permission_settings"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/gallery_source_settings_edit_settings"
+                    android:text="@string/gallery_edit_settings"
                     style="@style/Widget.AppCompat.Button.Colored"/>
             </ViewAnimator>
 
@@ -92,9 +92,9 @@
                 android:textSize="22sp"
                 android:fontFamily="sans-serif-condensed"
                 android:textStyle="italic"
-                android:textColor="@color/gallery_settings_theme"
+                android:textColor="@color/gallery_theme"
                 android:breakStrategy="balanced"
-                android:text="@string/gallery_source_settings_empty" />
+                android:text="@string/gallery_empty" />
         </LinearLayout>
 
         <TextView android:layout_width="wrap_content"
@@ -104,8 +104,8 @@
             android:textSize="16sp"
             android:fontFamily="sans-serif-condensed"
             android:textStyle="italic"
-            android:textColor="@color/gallery_settings_theme_dark"
-            android:text="@string/gallery_source_settings_empty_subtitle" />
+            android:textColor="@color/gallery_theme_dark"
+            android:text="@string/gallery_empty_subtitle" />
 
     </FrameLayout>
 
@@ -114,8 +114,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="16dp"
-        android:contentDescription="@string/action_add_photos"
-        android:src="@drawable/ic_add_photos" />
+        android:contentDescription="@string/gallery_action_add_photos"
+        android:src="@drawable/gallery_ic_add_photos" />
 
     <LinearLayout
         android:id="@+id/selection_toolbar_container"
@@ -123,15 +123,15 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:visibility="invisible"
-        android:elevation="@dimen/header_elevation"
+        android:elevation="@dimen/gallery_header_elevation"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
         <android.support.v7.widget.Toolbar
-            android:background="@color/gallery_settings_theme_dark"
+            android:background="@color/gallery_theme_dark"
             android:id="@+id/selection_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
-            app:title="@string/gallery_source_settings_title"
+            app:title="@string/gallery_settings_title"
             app:navigationIcon="?attr/homeAsUpIndicator" />
 
     </LinearLayout>

@@ -361,14 +361,14 @@ public class GalleryArtSource extends MuzeiArtSource {
                     DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR
                             | DateUtils.FORMAT_SHOW_WEEKDAY);
         } else {
-            title = getString(R.string.gallery_source_from_gallery);
+            title = getString(R.string.gallery_from_gallery);
         }
 
         String byline;
         if (!TextUtils.isEmpty(metadata.location)) {
             byline = metadata.location;
         } else {
-            byline = getString(R.string.gallery_source_touch_to_view);
+            byline = getString(R.string.gallery_touch_to_view);
         }
 
         Uri finalImageUri = imageUri;
@@ -391,9 +391,9 @@ public class GalleryArtSource extends MuzeiArtSource {
         int numChosenUris = mStore.getChosenUris().size();
         setDescription(numChosenUris > 0
                 ? getResources().getQuantityString(
-                R.plurals.gallery_source_description_choice_template,
+                R.plurals.gallery_description_choice_template,
                 numChosenUris, numChosenUris)
-                : getString(R.string.gallery_source_description));
+                : getString(R.string.gallery_description));
         if (numChosenUris != 1) {
             setUserCommands(BUILTIN_COMMAND_ID_NEXT_ARTWORK);
         } else {

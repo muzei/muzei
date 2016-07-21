@@ -15,11 +15,11 @@
   -->
 
 <resources>
-    <dimen name="gallery_settings_chosen_photo_grid_max_item_size">200dp</dimen>
-    <dimen name="gallery_settings_chosen_photo_grid_spacing">2dp</dimen>
-    <dimen name="gallery_settings_fab_space">96dp</dimen>
+    <dimen name="gallery_chosen_photo_grid_max_item_size">200dp</dimen>
+    <dimen name="gallery_chosen_photo_grid_spacing">2dp</dimen>
+    <dimen name="gallery_fab_space">96dp</dimen>
 
     <!-- height + top/bottom padding -->
 
-    <dimen name="header_elevation">4dp</dimen>
+    <dimen name="gallery_header_elevation">4dp</dimen>
 </resources>

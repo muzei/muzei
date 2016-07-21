@@ -15,36 +15,36 @@
   -->
 
 <resources>
-    <string name="action_clear_photos">Remove all photos</string>
-    <string name="action_add_photos">Add photos</string>
-    <string name="action_rotate_interval">Change interval</string>
-    <string name="action_rotate_interval_none">Don\'t change wallpaper</string>
-    <string name="action_rotate_interval_1h">Every hour</string>
-    <string name="action_rotate_interval_3h">Every 3 hours</string>
-    <string name="action_rotate_interval_6h">Every 6 hours</string>
-    <string name="action_rotate_interval_24h">Every 24 hours</string>
-    <string name="action_rotate_interval_72h">Every 3 days</string>
+    <string name="gallery_action_clear_photos">Remove all photos</string>
+    <string name="gallery_action_add_photos">Add photos</string>
+    <string name="gallery_action_rotate_interval">Change interval</string>
+    <string name="gallery_action_rotate_interval_none">Don\'t change wallpaper</string>
+    <string name="gallery_action_rotate_interval_1h">Every hour</string>
+    <string name="gallery_action_rotate_interval_3h">Every 3 hours</string>
+    <string name="gallery_action_rotate_interval_6h">Every 6 hours</string>
+    <string name="gallery_action_rotate_interval_24h">Every 24 hours</string>
+    <string name="gallery_action_rotate_interval_72h">Every 3 days</string>
 
-    <string name="action_force_now">Set as wallpaper now</string>
-    <string name="action_remove">Remove</string>
+    <string name="gallery_action_force_now">Set as wallpaper now</string>
+    <string name="gallery_action_remove">Remove</string>
 
-    <string name="gallery_source_title">My photos</string>
-    <string name="gallery_source_description">Random camera photos</string>
-    <plurals name="gallery_source_description_choice_template">
+    <string name="gallery_title">My photos</string>
+    <string name="gallery_description">Random camera photos</string>
+    <plurals name="gallery_description_choice_template">
         <item quantity="one">1 photo</item>
         <item quantity="other">%1$d photos</item>
     </plurals>
-    <string name="gallery_source_settings_title">My Photos</string>
-    <string name="gallery_source_settings_empty">Random camera photos</string>
-    <string name="gallery_source_settings_empty_subtitle">Choose specific photos instead</string>
-    <string name="gallery_source_temporary_force_image">Wallpaper set to selected image.</string>
-    <string name="gallery_source_from_gallery">From your gallery</string>
-    <string name="gallery_source_touch_to_view">Touch to view</string>
+    <string name="gallery_settings_title">My Photos</string>
+    <string name="gallery_empty">Random camera photos</string>
+    <string name="gallery_empty_subtitle">Choose specific photos instead</string>
+    <string name="gallery_temporary_force_image">Wallpaper set to selected image.</string>
+    <string name="gallery_from_gallery">From your gallery</string>
+    <string name="gallery_touch_to_view">Touch to view</string>
 
-    <string name="gallery_source_settings_enable_random">Enable random camera photos</string>
-    <string name="gallery_source_settings_permission_rationale">Allow the storage permission to show random photos as
+    <string name="gallery_enable_random">Enable random camera photos</string>
+    <string name="gallery_permission_rationale">Allow the storage permission to show random photos as
         your background.</string>
-    <string name="gallery_source_settings_edit_settings">Edit App Permissions</string>
-    <string name="gallery_source_settings_denied_explanation">You must enable the <b>Storage</b> permission to use
+    <string name="gallery_edit_settings">Edit App Permissions</string>
+    <string name="gallery_denied_explanation">You must enable the <b>Storage</b> permission to use
         random photos as your background.</string>
 </resources>

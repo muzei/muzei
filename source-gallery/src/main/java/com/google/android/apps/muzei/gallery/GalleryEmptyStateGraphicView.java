@@ -80,9 +80,9 @@ public class GalleryEmptyStateGraphicView extends View {
 
         final Resources res = getResources();
         mOffPaint.setAntiAlias(true);
-        mOffPaint.setColor(ContextCompat.getColor(context, R.color.gallery_settings_empty_state_dark));
+        mOffPaint.setColor(ContextCompat.getColor(context, R.color.gallery_empty_state_dark));
         mOnPaint.setAntiAlias(true);
-        mOnPaint.setColor(ContextCompat.getColor(context, R.color.gallery_settings_empty_state_light));
+        mOnPaint.setColor(ContextCompat.getColor(context, R.color.gallery_empty_state_light));
 
         mCellSpacing = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                 CELL_SPACING_DIP, res.getDisplayMetrics());

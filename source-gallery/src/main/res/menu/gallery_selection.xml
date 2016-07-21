@@ -17,11 +17,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/action_force_now"
-        android:icon="@drawable/ic_action_play"
-        android:title="@string/action_force_now"
+        android:icon="@drawable/gallery_ic_action_play"
+        android:title="@string/gallery_action_force_now"
         app:showAsAction="always" />
     <item android:id="@+id/action_remove"
-        android:icon="@drawable/ic_action_remove"
-        android:title="@string/action_remove"
+        android:icon="@drawable/gallery_ic_action_remove"
+        android:title="@string/gallery_action_remove"
         app:showAsAction="always" />
 </menu>

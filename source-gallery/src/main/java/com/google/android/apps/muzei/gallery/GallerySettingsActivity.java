@@ -114,7 +114,7 @@ public class GallerySettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.gallery_settings_activity);
+        setContentView(R.layout.gallery_activity);
         setupAppBar();
 
         mStore = GalleryStore.getInstance(this);
@@ -122,7 +122,7 @@ public class GallerySettingsActivity extends AppCompatActivity {
         onDataSetChanged();
 
         mPlaceholderDrawable = new ColorDrawable(ContextCompat.getColor(this,
-                R.color.gallery_settings_chosen_photo_placeholder));
+                R.color.gallery_chosen_photo_placeholder));
 
         mPhotoGridView = (RecyclerView) findViewById(R.id.photo_grid);
         DefaultItemAnimator itemAnimator = new DefaultItemAnimator();
@@ -146,7 +146,7 @@ public class GallerySettingsActivity extends AppCompatActivity {
 
                 // Compute number of columns
                 int maxItemWidth = getResources().getDimensionPixelSize(
-                        R.dimen.gallery_settings_chosen_photo_grid_max_item_size);
+                        R.dimen.gallery_chosen_photo_grid_max_item_size);
                 int numColumns = 1;
                 while (true) {
                     if (width / numColumns > maxItemWidth) {
@@ -157,7 +157,7 @@ public class GallerySettingsActivity extends AppCompatActivity {
                 }
 
                 int spacing = getResources().getDimensionPixelSize(
-                        R.dimen.gallery_settings_chosen_photo_grid_spacing);
+                        R.dimen.gallery_chosen_photo_grid_spacing);
                 mItemSize = (width - spacing * (numColumns - 1)) / numColumns;
 
                 // Complete setup
@@ -174,13 +174,13 @@ public class GallerySettingsActivity extends AppCompatActivity {
             @Override
             public WindowInsetsCompat onApplyWindowInsets(final View v, final WindowInsetsCompat insets) {
                 int gridSpacing = getResources()
-                        .getDimensionPixelSize(R.dimen.gallery_settings_chosen_photo_grid_spacing);
+                        .getDimensionPixelSize(R.dimen.gallery_chosen_photo_grid_spacing);
                 ViewCompat.onApplyWindowInsets(v, insets.replaceSystemWindowInsets(
                         insets.getSystemWindowInsetLeft() + gridSpacing,
                         gridSpacing,
                         insets.getSystemWindowInsetRight() + gridSpacing,
                         insets.getSystemWindowInsetBottom() + insets.getSystemWindowInsetTop() + gridSpacing +
-                                getResources().getDimensionPixelSize(R.dimen.gallery_settings_fab_space)));
+                                getResources().getDimensionPixelSize(R.dimen.gallery_fab_space)));
 
                 return insets;
             }
@@ -241,7 +241,7 @@ public class GallerySettingsActivity extends AppCompatActivity {
             }
         });
 
-        appBar.inflateMenu(R.menu.gallery_settings);
+        appBar.inflateMenu(R.menu.gallery_activity);
 
         int rotateIntervalMin = GalleryArtSource.getSharedPreferences(this)
                 .getInt(GalleryArtSource.PREF_ROTATE_INTERVAL_MIN,
@@ -292,7 +292,7 @@ public class GallerySettingsActivity extends AppCompatActivity {
             }
         });
 
-        mSelectionToolbar.inflateMenu(R.menu.gallery_settings_selection);
+        mSelectionToolbar.inflateMenu(R.menu.gallery_selection);
         mSelectionToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -305,7 +305,7 @@ public class GallerySettingsActivity extends AppCompatActivity {
                                         .setAction(ACTION_PUBLISH_NEXT_GALLERY_ITEM)
                                         .putExtra(EXTRA_FORCE_URI, selection.iterator().next()));
                         Toast.makeText(GallerySettingsActivity.this,
-                                R.string.gallery_source_temporary_force_image,
+                                R.string.gallery_temporary_force_image,
                                 Toast.LENGTH_SHORT).show();
                     }
                     mMultiSelectionController.reset(true);
@@ -425,7 +425,7 @@ public class GallerySettingsActivity extends AppCompatActivity {
                     == PackageManager.PERMISSION_GRANTED) {
                 // Permission is granted, we can show the random camera photos image
                 animator.setDisplayedChild(0);
-                emptyDescription.setText(R.string.gallery_source_settings_empty);
+                emptyDescription.setText(R.string.gallery_empty);
                 setResult(RESULT_OK);
             } else {
                 // We have no images until they enable the permission
@@ -435,11 +435,11 @@ public class GallerySettingsActivity extends AppCompatActivity {
                     // We should show rationale on why they should enable the storage permission and
                     // random camera photos
                     animator.setDisplayedChild(1);
-                    emptyDescription.setText(R.string.gallery_source_settings_permission_rationale);
+                    emptyDescription.setText(R.string.gallery_permission_rationale);
                 } else {
                     // The user has permanently denied the storage permission. Give them a link to app settings
                     animator.setDisplayedChild(2);
-                    emptyDescription.setText(R.string.gallery_source_settings_denied_explanation);
+                    emptyDescription.setText(R.string.gallery_denied_explanation);
                 }
             }
         }
@@ -469,7 +469,7 @@ public class GallerySettingsActivity extends AppCompatActivity {
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View v = LayoutInflater.from(GallerySettingsActivity.this)
-                    .inflate(R.layout.gallery_settings_chosen_photo_item, parent, false);
+                    .inflate(R.layout.gallery_chosen_photo_item, parent, false);
             final ViewHolder vh = new ViewHolder(v);
 
             v.getLayoutParams().height = mItemSize;
@@ -507,7 +507,7 @@ public class GallerySettingsActivity extends AppCompatActivity {
                     .placeholder(mPlaceholderDrawable)
                     .into(vh.mThumbView);
             final boolean checked = mMultiSelectionController.isSelected(imageUri);
-            vh.mRootView.setTag(R.id.viewtag_position, position);
+            vh.mRootView.setTag(R.id.gallery_viewtag_position, position);
             if (mLastTouchPosition == vh.getAdapterPosition()
                     && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 new Handler().post(new Runnable() {

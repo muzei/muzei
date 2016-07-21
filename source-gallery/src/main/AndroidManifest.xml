@@ -21,8 +21,8 @@
 
     <application>
         <service android:name="com.google.android.apps.muzei.gallery.GalleryArtSource"
-                 android:label="@string/gallery_source_title"
-                 android:description="@string/gallery_source_description"
+                 android:label="@string/gallery_title"
+                 android:description="@string/gallery_description"
                  android:icon="@drawable/gallery_ic_source">
             <intent-filter>
                 <action android:name="com.google.android.apps.muzei.api.MuzeiArtSource" />
@@ -35,12 +35,12 @@
         </service>
 
         <activity android:name="com.google.android.apps.muzei.gallery.GallerySetupActivity"
-                  android:label="@string/gallery_source_settings_title"
+                  android:label="@string/gallery_settings_title"
                   android:theme="@android:style/Theme.Translucent.NoTitleBar"
                   android:exported="true" />
 
         <activity android:name="com.google.android.apps.muzei.gallery.GallerySettingsActivity"
-                  android:label="@string/gallery_source_settings_title"
+                  android:label="@string/gallery_settings_title"
                   android:theme="@style/Theme.Gallery" />
     </application>
 </manifest>

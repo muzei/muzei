@@ -15,6 +15,6 @@
   -->
 
 <resources>
-    <dimen name="gallery_settings_chosen_photo_grid_max_item_size">300dp</dimen>
-    <dimen name="gallery_settings_chosen_photo_grid_spacing">2dp</dimen>
+    <dimen name="gallery_chosen_photo_grid_max_item_size">300dp</dimen>
+    <dimen name="gallery_chosen_photo_grid_spacing">2dp</dimen>
 </resources>
