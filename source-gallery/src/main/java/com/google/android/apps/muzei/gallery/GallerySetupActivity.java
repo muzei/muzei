@@ -22,12 +22,12 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 
 import com.google.android.apps.muzei.api.MuzeiArtSource;
 
-public class GallerySetupActivity extends AppCompatActivity {
+public class GallerySetupActivity extends FragmentActivity {
     private static final int REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 1;
     private static final int REQUEST_CHOOSE_IMAGES = 2;
 

@@ -30,18 +30,20 @@ import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
+import android.util.Log;
 
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.event.GalleryChosenUrisChangedEvent;
-import com.google.android.apps.muzei.util.IOUtil;
-import com.google.android.apps.muzei.util.LogUtil;
-
-import net.nurik.roman.muzei.R;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -53,11 +55,8 @@ import java.util.Set;
 
 import org.greenrobot.eventbus.EventBus;
 
-import static com.google.android.apps.muzei.util.LogUtil.LOGE;
-import static com.google.android.apps.muzei.util.LogUtil.LOGW;
-
 public class GalleryArtSource extends MuzeiArtSource {
-    private static final String TAG = LogUtil.makeLogTag(GalleryArtSource.class);
+    private static final String TAG = "GalleryArtSource";
     private static final String SOURCE_NAME = "GalleryArtSource";
 
     public static final String PREF_ROTATE_INTERVAL_MIN = "rotate_interval_min";
@@ -139,6 +138,33 @@ public class GalleryArtSource extends MuzeiArtSource {
         super.onHandleIntent(intent);
     }
 
+    private void writeUriToFile(Uri uri, File destFile) throws IOException {
+        InputStream in = null;
+        OutputStream out = null;
+        try {
+            in = getContentResolver().openInputStream(uri);
+            if (in == null) {
+                return;
+            }
+            out = new FileOutputStream(destFile);
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = in.read(buffer)) > 0) {
+                out.write(buffer, 0, bytesRead);
+            }
+            out.flush();
+        } catch (SecurityException e) {
+            throw new IOException("Unable to read Uri: " + uri, e);
+        } finally {
+            if (in != null) {
+                in.close();
+            }
+            if (out != null) {
+                out.close();
+            }
+        }
+    }
+
     private void handleAddChosenUris(ArrayList<Uri> addUris, boolean allowPublishNewArtwork) {
         // Filter out duplicates
         Set<Uri> current = new HashSet<>(mStore.getChosenUris());
@@ -146,13 +172,10 @@ public class GalleryArtSource extends MuzeiArtSource {
 
         for (Uri uri : addUris) {
             // Download each file
-            File destFile = getStoredFileForUri(this, uri);
-            InputStream in;
             try {
-                in = IOUtil.openUri(this, uri, null);
-                IOUtil.readFullyWriteToFile(in, destFile);
-            } catch (IOUtil.OpenUriException | IOException e) {
-                LOGE(TAG, "Error downloading gallery image.", e);
+                writeUriToFile(uri, getStoredFileForUri(this, uri));
+            } catch (IOException e) {
+                Log.e(TAG, "Error downloading gallery image.", e);
                 return;
             }
         }
@@ -210,14 +233,9 @@ public class GalleryArtSource extends MuzeiArtSource {
 
     static void ensureStorageRoot(Context context) {
         if (sImageStorageRoot == null) {
-            // TODO: instead of best available, optimize for stable location since these aren't
-            // meant to be temporary
-            sImageStorageRoot = new File(IOUtil.getBestAvailableFilesRoot(context),
+            sImageStorageRoot = new File(context.getExternalFilesDir(null),
                     "gallery_images");
             sImageStorageRoot.mkdirs();
-            try {
-                new File(sImageStorageRoot, ".nomedia").createNewFile();
-            } catch (IOException ignored) {}
         }
     }
 
@@ -225,11 +243,38 @@ public class GalleryArtSource extends MuzeiArtSource {
         ensureStorageRoot(context);
 
         if (uri == null) {
-            LOGW(TAG, "Empty uri.");
+            Log.w(TAG, "Empty uri.");
             return null;
         }
 
-        return new File(sImageStorageRoot, IOUtil.getCacheFilenameForUri(uri));
+        StringBuilder filename = new StringBuilder();
+        filename.append(uri.getScheme()).append("_")
+                .append(uri.getHost()).append("_");
+        String encodedPath = uri.getEncodedPath();
+        if (!TextUtils.isEmpty(encodedPath)) {
+            int length = encodedPath.length();
+            if (length > 60) {
+                encodedPath = encodedPath.substring(length - 60);
+            }
+            encodedPath = encodedPath.replace('/', '_');
+            filename.append(encodedPath).append("_");
+        }
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(uri.toString().getBytes("UTF-8"));
+            byte[] digest = md.digest();
+            for (byte b : digest) {
+                if ((0xff & b) < 0x10) {
+                    filename.append("0").append(Integer.toHexString((0xFF & b)));
+                } else {
+                    filename.append(Integer.toHexString(0xFF & b));
+                }
+            }
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+            filename.append(uri.toString().hashCode());
+        }
+
+        return new File(sImageStorageRoot, filename.toString());
     }
 
     @Override
@@ -273,7 +318,7 @@ public class GalleryArtSource extends MuzeiArtSource {
             if (ContextCompat.checkSelfPermission(this,
                     android.Manifest.permission.READ_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
-                LOGW(TAG, "Missing read external storage permission.");
+                Log.w(TAG, "Missing read external storage permission.");
                 return;
             }
             Cursor cursor = getContentResolver().query(
@@ -282,13 +327,13 @@ public class GalleryArtSource extends MuzeiArtSource {
                     MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " NOT LIKE '%Screenshots%'",
                     null, null);
             if (cursor == null) {
-                LOGW(TAG, "Empty cursor.");
+                Log.w(TAG, "Empty cursor.");
                 return;
             }
 
             int count = cursor.getCount();
             if (count == 0) {
-                LOGE(TAG, "No photos in the gallery.");
+                Log.e(TAG, "No photos in the gallery.");
                 return;
             }
 
@@ -316,14 +361,14 @@ public class GalleryArtSource extends MuzeiArtSource {
                     DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR
                             | DateUtils.FORMAT_SHOW_WEEKDAY);
         } else {
-            title = getString(R.string.gallery_source_from_gallery);
+            title = getString(R.string.gallery_from_gallery);
         }
 
         String byline;
         if (!TextUtils.isEmpty(metadata.location)) {
             byline = metadata.location;
         } else {
-            byline = getString(R.string.gallery_source_touch_to_view);
+            byline = getString(R.string.gallery_touch_to_view);
         }
 
         Uri finalImageUri = imageUri;
@@ -346,9 +391,9 @@ public class GalleryArtSource extends MuzeiArtSource {
         int numChosenUris = mStore.getChosenUris().size();
         setDescription(numChosenUris > 0
                 ? getResources().getQuantityString(
-                R.plurals.gallery_source_description_choice_template,
+                R.plurals.gallery_description_choice_template,
                 numChosenUris, numChosenUris)
-                : getString(R.string.gallery_source_description));
+                : getString(R.string.gallery_description));
         if (numChosenUris != 1) {
             setUserCommands(BUILTIN_COMMAND_ID_NEXT_ARTWORK);
         } else {
@@ -372,10 +417,9 @@ public class GalleryArtSource extends MuzeiArtSource {
             metadata = new GalleryStore.Metadata();
             metadata.version = CURRENT_METADATA_CACHE_VERSION;
 
-            File tempImageFile = new File(IOUtil.getBestAvailableCacheRoot(this), "tempimage");
+            File tempImageFile = new File(getCacheDir(), "tempimage");
             try {
-                InputStream in = IOUtil.openUri(this, imageUri, null);
-                IOUtil.readFullyWriteToFile(in, tempImageFile);
+                writeUriToFile(imageUri, tempImageFile);
 
                 ExifInterface exifInterface = new ExifInterface(tempImageFile.getPath());
                 String dateString = exifInterface.getAttribute(ExifInterface.TAG_DATETIME);
@@ -416,10 +460,10 @@ public class GalleryArtSource extends MuzeiArtSource {
 
                 tempImageFile.delete();
                 store.putCachedMetadata(imageUri, metadata);
-            } catch (IOUtil.OpenUriException | ParseException e) {
-                LOGW(TAG, "Couldn't read image metadata.", e);
+            } catch (ParseException e) {
+                Log.w(TAG, "Couldn't read image metadata.", e);
             } catch (IOException e) {
-                LOGW(TAG, "Couldn't write temporary image file.", e);
+                Log.w(TAG, "Couldn't write temporary image file.", e);
             }
         }
 

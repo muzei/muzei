@@ -47,15 +47,6 @@ public class MathUtil {
         return sign * (Math.abs(num) + Math.abs(divisor) - 1) / Math.abs(divisor);
     }
 
-    public static float maxDistanceToCorner(int x, int y, int left, int top, int right, int bottom) {
-        float maxDistance = 0;
-        maxDistance = Math.max(maxDistance, (float) Math.hypot(x - left, y - top));
-        maxDistance = Math.max(maxDistance, (float) Math.hypot(x - right, y - top));
-        maxDistance = Math.max(maxDistance, (float) Math.hypot(x - left, y - bottom));
-        maxDistance = Math.max(maxDistance, (float) Math.hypot(x - right, y - bottom));
-        return maxDistance;
-    }
-
     private MathUtil() {
     }
 }
