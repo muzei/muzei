@@ -89,6 +89,6 @@ android {
 
 dependencies {
     compile 'com.google.android.support:wearable:1.4.0'
-    compile 'com.google.android.gms:play-services-wearable:8.4.0'
+    compile "com.google.android.gms:play-services-wearable:$rootProject.ext.playServicesVersion"
     compile project(':android-client-common')
 }
