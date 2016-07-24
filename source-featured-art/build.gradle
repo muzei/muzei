@@ -32,7 +32,7 @@ repositories {
 dependencies {
     compile project(':api')
     compile "com.squareup.okhttp3:okhttp:3.3.1"
-    compile "com.android.support:customtabs:24.0.0"
+    compile "com.android.support:customtabs:$rootProject.ext.supportLibraryVersion"
 }
 
 android {
