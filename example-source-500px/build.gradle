@@ -30,9 +30,9 @@ repositories {
 }
 
 dependencies {
-    compile 'com.squareup.retrofit2:retrofit:2.1.0'
-    compile 'com.squareup.retrofit2:converter-gson:2.1.0'
-    //compile 'com.google.android.apps.muzei:muzei-api:+'
+    compile "com.squareup.retrofit2:retrofit:2.1.0"
+    compile "com.squareup.retrofit2:converter-gson:2.1.0"
+    //compile "com.google.android.apps.muzei:muzei-api:+"
     compile project(':api')
 }
 
