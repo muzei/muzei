@@ -20,8 +20,11 @@ import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.BroadcastReceiver;
 import android.content.ClipData;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -32,6 +35,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.OnApplyWindowInsetsListener;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowInsetsCompat;
@@ -54,7 +58,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewAnimator;
 
-import com.google.android.apps.muzei.event.GalleryChosenUrisChangedEvent;
 import com.google.android.apps.muzei.util.MultiSelectionController;
 import com.squareup.picasso.Picasso;
 
@@ -64,9 +67,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
 import static com.google.android.apps.muzei.gallery.GalleryArtSource.ACTION_ADD_CHOSEN_URIS;
 import static com.google.android.apps.muzei.gallery.GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM;
@@ -212,7 +212,8 @@ public class GallerySettingsActivity extends AppCompatActivity {
             }
         });
 
-        EventBus.getDefault().register(this);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mGalleryChosenUrisChangedReceiver,
+                new IntentFilter(GalleryArtSource.ACTION_GALLERY_CHOSEN_URIS_CHANGED));
     }
 
     @Override
@@ -230,6 +231,12 @@ public class GallerySettingsActivity extends AppCompatActivity {
         super.onResume();
         // Permissions might have changed in the background
         onDataSetChanged();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mGalleryChosenUrisChangedReceiver);
     }
 
     private void setupAppBar() {
@@ -609,53 +616,55 @@ public class GallerySettingsActivity extends AppCompatActivity {
                 .putParcelableArrayListExtra(EXTRA_URIS, new ArrayList<>(uris)));
     }
 
-    @Subscribe
-    public void onEventMainThread(GalleryChosenUrisChangedEvent e) {
-        // Figure out what was removed and what was added.
-        // Only support structural change events for appends and removes for now.
-        List<Uri> newChosenUris = new ArrayList<>(mStore.getChosenUris());
-        if (newChosenUris.size() >= mChosenUris.size()) {
-            // items added or equal
-            int i;
+    private BroadcastReceiver mGalleryChosenUrisChangedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(final Context context, final Intent intent) {
+            // Figure out what was removed and what was added.
+            // Only support structural change events for appends and removes for now.
+            List<Uri> newChosenUris = new ArrayList<>(mStore.getChosenUris());
+            if (newChosenUris.size() >= mChosenUris.size()) {
+                // items added or equal
+                int i;
 
-            boolean isAppend = true;
-            for (i = 0; i < mChosenUris.size(); i++) {
-                if (!mChosenUris.get(i).equals(newChosenUris.get(i))) {
-                    isAppend = false;
+                boolean isAppend = true;
+                for (i = 0; i < mChosenUris.size(); i++) {
+                    if (!mChosenUris.get(i).equals(newChosenUris.get(i))) {
+                        isAppend = false;
+                    }
                 }
-            }
 
-            if (isAppend) {
-                mChosenPhotosAdapter.notifyItemRangeInserted(mChosenUris.size(),
-                        newChosenUris.size() - mChosenUris.size());
+                if (isAppend) {
+                    mChosenPhotosAdapter.notifyItemRangeInserted(mChosenUris.size(),
+                            newChosenUris.size() - mChosenUris.size());
+                } else {
+                    // not an append, don't handle this case intelligently
+                    mChosenPhotosAdapter.notifyDataSetChanged();
+                }
             } else {
-                // not an append, don't handle this case intelligently
-                mChosenPhotosAdapter.notifyDataSetChanged();
-            }
-        } else {
-            // TODO: handle case where 2 items removed, 1 added
-            // items removed
-            Set<Uri> currentUris = new HashSet<>(mChosenUris);
-            Set<Uri> removedUris = currentUris;
-            removedUris.removeAll(newChosenUris);
-            List<Integer> indices = new ArrayList<>();
-            for (Uri uri : removedUris) {
-                int index = mChosenUris.indexOf(uri);
-                if (index >= 0) {
-                    indices.add(index);
+                // TODO: handle case where 2 items removed, 1 added
+                // items removed
+                Set<Uri> currentUris = new HashSet<>(mChosenUris);
+                Set<Uri> removedUris = currentUris;
+                removedUris.removeAll(newChosenUris);
+                List<Integer> indices = new ArrayList<>();
+                for (Uri uri : removedUris) {
+                    int index = mChosenUris.indexOf(uri);
+                    if (index >= 0) {
+                        indices.add(index);
+                    }
+                }
+
+                Collections.sort(indices);
+                Collections.reverse(indices);
+                for (Integer index : indices) {
+                    mChosenPhotosAdapter.notifyItemRemoved(index);
                 }
             }
 
-            Collections.sort(indices);
-            Collections.reverse(indices);
-            for (Integer index : indices) {
-                mChosenPhotosAdapter.notifyItemRemoved(index);
-            }
+            mChosenUris = new ArrayList<>(mStore.getChosenUris());
+            onDataSetChanged();
         }
-
-        mChosenUris = new ArrayList<>(mStore.getChosenUris());
-        onDataSetChanged();
-    }
+    };
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
