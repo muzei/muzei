@@ -114,14 +114,14 @@ android {
 }
 
 dependencies {
-    compile 'com.squareup.okhttp3:okhttp:3.3.1'
-    compile 'com.squareup.picasso:picasso:2.5.2'
-    compile 'com.google.android.gms:play-services-wearable:9.2.0'
-    compile 'org.greenrobot:eventbus:3.0.0'
-    compile 'com.android.support:appcompat-v7:24.0.0'
-    compile 'com.android.support:recyclerview-v7:24.0.0'
-    compile 'com.android.support:design:24.0.0'
-    compile 'com.android.support:customtabs:24.0.0'
+    compile "com.squareup.okhttp3:okhttp:3.3.1"
+    compile "com.squareup.picasso:picasso:2.5.2"
+    compile "com.google.android.gms:play-services-wearable:9.2.0"
+    compile "org.greenrobot:eventbus:3.0.0"
+    compile "com.android.support:appcompat-v7:24.0.0"
+    compile "com.android.support:recyclerview-v7:24.0.0"
+    compile "com.android.support:design:24.0.0"
+    compile "com.android.support:customtabs:24.0.0"
 
     // :api is included as a transitive dependency from :android-client-common
     // compile project(':api')
