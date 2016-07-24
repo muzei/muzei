@@ -33,7 +33,6 @@ dependencies {
     compile project(':api')
     compile "com.squareup.okhttp3:okhttp:3.3.1"
     compile "com.squareup.picasso:picasso:2.5.2"
-    compile "org.greenrobot:eventbus:3.0.0"
     compile "com.android.support:appcompat-v7:$rootProject.ext.supportLibraryVersion"
     compile "com.android.support:design:$rootProject.ext.supportLibraryVersion"
     compile "com.android.support:recyclerview-v7:$rootProject.ext.supportLibraryVersion"

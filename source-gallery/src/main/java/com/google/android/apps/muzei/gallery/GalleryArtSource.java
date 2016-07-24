@@ -28,13 +28,13 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Log;
 
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
-import com.google.android.apps.muzei.event.GalleryChosenUrisChangedEvent;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -53,11 +53,12 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import org.greenrobot.eventbus.EventBus;
-
 public class GalleryArtSource extends MuzeiArtSource {
     private static final String TAG = "GalleryArtSource";
     private static final String SOURCE_NAME = "GalleryArtSource";
+
+    static final String ACTION_GALLERY_CHOSEN_URIS_CHANGED
+            = "com.google.android.apps.muzei.gallery.gallery_chosen_uris_changed";
 
     public static final String PREF_ROTATE_INTERVAL_MIN = "rotate_interval_min";
 
@@ -79,7 +80,6 @@ public class GalleryArtSource extends MuzeiArtSource {
             = "com.google.android.apps.muzei.gallery.extra.FORCE_URI";
 
     public static final int CURRENT_METADATA_CACHE_VERSION = 1;
-
     private static SimpleDateFormat sExifDateFormat = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
 
     private static File sImageStorageRoot;
@@ -184,7 +184,7 @@ public class GalleryArtSource extends MuzeiArtSource {
         chosenUris.addAll(addUris);
         mStore.setChosenUris(chosenUris);
 
-        EventBus.getDefault().post(new GalleryChosenUrisChangedEvent());
+        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(ACTION_GALLERY_CHOSEN_URIS_CHANGED));
 
         if (current.size() == 0 && allowPublishNewArtwork) {
             publishNextArtwork(null);
@@ -227,7 +227,7 @@ public class GalleryArtSource extends MuzeiArtSource {
             }
         }
 
-        EventBus.getDefault().post(new GalleryChosenUrisChangedEvent());
+        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(ACTION_GALLERY_CHOSEN_URIS_CHANGED));
         updateMeta();
     }
 
