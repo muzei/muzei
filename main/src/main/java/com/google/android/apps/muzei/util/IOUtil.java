@@ -19,23 +19,14 @@ package com.google.android.apps.muzei.util;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.net.Uri;
-import android.os.Environment;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.os.EnvironmentCompat;
-import android.text.TextUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -141,37 +132,6 @@ public class IOUtil {
         return in;
     }
 
-    public static String getCacheFilenameForUri(Uri uri) {
-        StringBuilder filename = new StringBuilder();
-        filename.append(uri.getScheme()).append("_")
-                .append(uri.getHost()).append("_");
-        String encodedPath = uri.getEncodedPath();
-        if (!TextUtils.isEmpty(encodedPath)) {
-            int length = encodedPath.length();
-            if (length > 60) {
-                encodedPath = encodedPath.substring(length - 60);
-            }
-            encodedPath = encodedPath.replace('/', '_');
-            filename.append(encodedPath).append("_");
-        }
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            md.update(uri.toString().getBytes("UTF-8"));
-            byte[] digest = md.digest();
-            for (byte b : digest) {
-                if ((0xff & b) < 0x10) {
-                    filename.append("0").append(Integer.toHexString((0xFF & b)));
-                } else {
-                    filename.append(Integer.toHexString(0xFF & b));
-                }
-            }
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-            filename.append(uri.toString().hashCode());
-        }
-
-        return filename.toString();
-    }
-
     public static class OpenUriException extends Exception {
         private boolean mRetryable;
 
@@ -188,45 +148,5 @@ public class IOUtil {
         public boolean isRetryable() {
             return mRetryable;
         }
-    }
-
-    public static void readFullyWriteToFile(InputStream in, File file) throws IOException {
-        readFullyWriteToOutputStream(in, new FileOutputStream(file));
-    }
-
-    public static void readFullyWriteToOutputStream(InputStream in, OutputStream out)
-            throws IOException {
-        if (in == null) {
-            throw new IOException("Null input stream");
-        }
-
-        try {
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = in.read(buffer)) > 0) {
-                out.write(buffer, 0, bytesRead);
-            }
-            out.flush();
-        } finally {
-            out.close();
-        }
-    }
-
-    public static File getBestAvailableCacheRoot(Context context) {
-        File[] roots = ContextCompat.getExternalCacheDirs(context);
-        if (roots != null) {
-            for (File root : roots) {
-                if (root == null) {
-                    continue;
-                }
-
-                if (Environment.MEDIA_MOUNTED.equals(EnvironmentCompat.getStorageState(root))) {
-                    return root;
-                }
-            }
-        }
-
-        // Worst case, resort to internal storage
-        return context.getCacheDir();
     }
 }

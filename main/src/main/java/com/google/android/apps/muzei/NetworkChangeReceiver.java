@@ -39,7 +39,7 @@ public class NetworkChangeReceiver extends WakefulBroadcastReceiver {
 
             // Check with components that may not currently be alive but interested in
             // network connectivity changes.
-            Intent retryIntent = ArtworkCache.maybeRetryDownloadDueToGainedConnectivity(context);
+            Intent retryIntent = TaskQueueService.maybeRetryDownloadDueToGainedConnectivity(context);
             if (retryIntent != null) {
                 startWakefulService(context, retryIntent);
             }

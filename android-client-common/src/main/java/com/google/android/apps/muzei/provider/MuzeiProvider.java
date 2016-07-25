@@ -423,7 +423,7 @@ public class MuzeiProvider extends ContentProvider {
             String[] projection = { BaseColumns._ID };
             Cursor data = queryArtwork(MuzeiContract.Artwork.CONTENT_URI, projection, null, null, null);
             if (!data.moveToFirst()) {
-                throw new IllegalArgumentException("You must insert at least one row");
+                throw new IllegalStateException("You must insert at least one row");
             }
             file = new File(directory, String.valueOf(data.getLong(0)));
             data.close();
@@ -431,8 +431,9 @@ public class MuzeiProvider extends ContentProvider {
             file = new File(directory, uri.getLastPathSegment());
         }
         final boolean isWriteOperation = mode.contains("w");
-        if (file.exists() && isWriteOperation) {
-            throw new IllegalArgumentException("Writing to an existing artwork file is not allowed: insert a new row");
+        if (file.exists() && file.length() > 0 && isWriteOperation) {
+            Log.e(TAG, "Writing to an existing artwork file is not allowed: insert a new row");
+            return null;
         }
         try {
             return ParcelFileDescriptor.open(file, ParcelFileDescriptor.parseMode(mode), new Handler(),
@@ -448,8 +449,8 @@ public class MuzeiProvider extends ContentProvider {
                         }
                     });
         } catch (IOException e) {
-            Log.e(TAG, "Error creating ParcelFileDescriptor for " + uri, e);
-            return null;
+            Log.e(TAG, "Error opening artwork", e);
+            throw new FileNotFoundException("Error opening artwork");
         }
     }
 
