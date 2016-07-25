@@ -18,16 +18,17 @@ package com.google.android.apps.muzei.render;
 
 import android.content.Context;
 import android.media.ExifInterface;
+import android.net.Uri;
 
 import com.google.android.apps.muzei.ArtworkCache;
 import com.google.android.apps.muzei.NewWallpaperNotificationReceiver;
 import com.google.android.apps.muzei.SourceManager;
 import com.google.android.apps.muzei.TaskQueueService;
+import com.google.android.apps.muzei.util.IOUtil;
 import com.google.android.apps.muzei.wearable.WearableController;
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.event.CurrentArtworkDownloadedEvent;
-import com.google.android.apps.muzei.provider.MuzeiProvider;
 import com.google.android.apps.muzei.util.LogUtil;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -104,9 +105,10 @@ public class RealRenderController extends RenderController {
         try {
             BitmapRegionLoader loader = BitmapRegionLoader.newInstance(
                     new FileInputStream(file), rotation);
-            if (MuzeiProvider.saveCurrentArtworkLocation(mContext, file)) {
-                mContext.getContentResolver().insert(MuzeiContract.Artwork.CONTENT_URI, currentArtwork.toContentValues());
-            }
+            Uri artworkUri = mContext.getContentResolver().insert(MuzeiContract.Artwork.CONTENT_URI,
+                    currentArtwork.toContentValues());
+            IOUtil.readFullyWriteToOutputStream(new FileInputStream(file),
+                    mContext.getContentResolver().openOutputStream(artworkUri));
             NewWallpaperNotificationReceiver
                     .maybeShowNewArtworkNotification(mContext, currentArtwork, loader);
             WearableController.updateArtwork(mContext, currentArtwork, loader);

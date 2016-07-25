@@ -57,10 +57,6 @@ import java.util.LinkedHashSet;
 public class MuzeiProvider extends ContentProvider {
     private static final String TAG = MuzeiProvider.class.getSimpleName();
     /**
-     * Shared Preference key for the current artwork location used in openFile
-     */
-    private static final String CURRENT_ARTWORK_LOCATION = "CURRENT_ARTWORK_LOCATION";
-    /**
      * The incoming URI matches the ARTWORK URI pattern
      */
     private static final int ARTWORK = 1;
@@ -110,23 +106,6 @@ public class MuzeiProvider extends ContentProvider {
      * Set of Uris that should be applied when the ongoing applyBatch operation finishes
      */
     private LinkedHashSet<Uri> pendingNotifyChange = new LinkedHashSet<>();
-
-    /**
-     * Save the current artwork's local location so that third parties can use openFile to retrieve the already
-     * downloaded artwork rather than re-download it
-     *
-     * @param context        Any valid Context
-     * @param currentArtwork File pointing to the current artwork
-     */
-    public static boolean saveCurrentArtworkLocation(Context context, File currentArtwork) {
-        if (currentArtwork == null || !currentArtwork.exists()) {
-            Log.w(TAG, "File " + currentArtwork + " is not valid");
-            return false;
-        }
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        sharedPreferences.edit().putString(CURRENT_ARTWORK_LOCATION, currentArtwork.getAbsolutePath()).commit();
-        return true;
-    }
 
     /**
      * Creates and initializes a column project for all columns for Artwork

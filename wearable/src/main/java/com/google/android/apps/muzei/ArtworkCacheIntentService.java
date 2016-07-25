@@ -20,13 +20,11 @@ import android.app.IntentService;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.util.Log;
 
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiContract;
-import com.google.android.apps.muzei.provider.MuzeiProvider;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.Asset;
@@ -37,10 +35,9 @@ import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Wearable;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
@@ -115,31 +112,32 @@ public class ArtworkCacheIntentService extends IntentService {
             Log.w(TAG, "Empty asset input stream (probably an unknown asset).");
             return false;
         }
-        Bitmap image = BitmapFactory.decodeStream(assetInputStream);
-        if (image == null) {
-            Log.w(TAG, "Couldn't decode a bitmap from the stream.");
+        Uri artworkUri = getContentResolver().insert(MuzeiContract.Artwork.CONTENT_URI, artwork.toContentValues());
+        if (artworkUri == null) {
+            Log.w(TAG, "Unable to write artwork information to MuzeiProvider");
             return false;
         }
-        File localCache = new File(getCacheDir(), "cache.png");
-        FileOutputStream out = null;
+        OutputStream out = null;
         try {
-            out = new FileOutputStream(localCache);
-            image.compress(Bitmap.CompressFormat.PNG, 100, out);
+            out = getContentResolver().openOutputStream(artworkUri);
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = assetInputStream.read(buffer)) > 0) {
+                out.write(buffer, 0, bytesRead);
+            }
+            out.flush();
         } catch (IOException e) {
-            Log.e(TAG, "Error writing local cache", e);
+            Log.e(TAG, "Error writing artwork", e);
         } finally {
             try {
                 if (out != null) {
                     out.close();
                 }
             } catch (IOException e) {
-                Log.e(TAG, "Error closing local cache file", e);
+                Log.e(TAG, "Error closing artwork", e);
             }
         }
         enableComponents(FullScreenActivity.class);
-        if (MuzeiProvider.saveCurrentArtworkLocation(this, localCache)) {
-            getContentResolver().insert(MuzeiContract.Artwork.CONTENT_URI, artwork.toContentValues());
-        }
         return true;
     }
 
