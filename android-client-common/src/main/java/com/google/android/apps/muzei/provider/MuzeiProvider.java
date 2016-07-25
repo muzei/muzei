@@ -423,7 +423,7 @@ public class MuzeiProvider extends ContentProvider {
 
     private ParcelFileDescriptor openFileArtwork(@NonNull final Uri uri, @NonNull final String mode) throws FileNotFoundException {
         File directory = new File(getContext().getFilesDir(), "artwork");
-        if (!directory.mkdirs()) {
+        if (!directory.exists() && !directory.mkdirs()) {
             throw new FileNotFoundException("Could not create artwork directory");
         }
         File file;
