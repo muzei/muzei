@@ -94,6 +94,7 @@ public class MuzeiProvider extends ContentProvider {
      */
     private final HashMap<String, String> allSourcesColumnProjectionMap =
             MuzeiProvider.buildAllSourcesColumnProjectionMap();
+    private Handler openFileHandler;
     /**
      * Handle to a new DatabaseHelper.
      */
@@ -343,6 +344,7 @@ public class MuzeiProvider extends ContentProvider {
      */
     @Override
     public boolean onCreate() {
+        openFileHandler = new Handler();
         databaseHelper = new DatabaseHelper(getContext());
         return true;
     }
@@ -442,7 +444,7 @@ public class MuzeiProvider extends ContentProvider {
             return null;
         }
         try {
-            return ParcelFileDescriptor.open(file, ParcelFileDescriptor.parseMode(mode), new Handler(),
+            return ParcelFileDescriptor.open(file, ParcelFileDescriptor.parseMode(mode), openFileHandler,
                     new ParcelFileDescriptor.OnCloseListener() {
                         @Override
                         public void onClose(final IOException e) {
