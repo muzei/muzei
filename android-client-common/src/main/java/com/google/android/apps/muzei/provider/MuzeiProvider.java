@@ -33,6 +33,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
@@ -44,6 +45,7 @@ import com.google.android.apps.muzei.api.MuzeiContract;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -63,13 +65,17 @@ public class MuzeiProvider extends ContentProvider {
      */
     private static final int ARTWORK = 1;
     /**
+     * The incoming URI matches the ARTWORK ID URI pattern
+     */
+    private static final int ARTWORK_ID = 2;
+    /**
      * The incoming URI matches the SOURCE URI pattern
      */
-    private static final int SOURCES = 2;
+    private static final int SOURCES = 3;
     /**
      * The incoming URI matches the SOURCE ID URI pattern
      */
-    private static final int SOURCE_ID = 3;
+    private static final int SOURCE_ID = 4;
     /**
      * The database that the provider uses as its underlying data store
      */
@@ -181,6 +187,8 @@ public class MuzeiProvider extends ContentProvider {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         matcher.addURI(MuzeiContract.AUTHORITY, MuzeiContract.Artwork.TABLE_NAME,
                 MuzeiProvider.ARTWORK);
+        matcher.addURI(MuzeiContract.AUTHORITY, MuzeiContract.Artwork.TABLE_NAME + "/#",
+                MuzeiProvider.ARTWORK_ID);
         matcher.addURI(MuzeiContract.AUTHORITY, MuzeiContract.Sources.TABLE_NAME,
                 MuzeiProvider.SOURCES);
         matcher.addURI(MuzeiContract.AUTHORITY, MuzeiContract.Sources.TABLE_NAME + "/#",
@@ -233,7 +241,8 @@ public class MuzeiProvider extends ContentProvider {
 
     @Override
     public int delete(@NonNull final Uri uri, final String selection, final String[] selectionArgs) {
-        if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK) {
+        if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK ||
+                MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK_ID) {
             throw new UnsupportedOperationException("Deletes are not supported");
         } else if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCES ||
                 MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCE_ID) {
@@ -283,6 +292,9 @@ public class MuzeiProvider extends ContentProvider {
             case ARTWORK:
                 // If the pattern is for artwork, returns the artwork content type.
                 return MuzeiContract.Artwork.CONTENT_TYPE;
+            case ARTWORK_ID:
+                // If the pattern is for artwork id, returns the artwork content item type.
+                return MuzeiContract.Artwork.CONTENT_ITEM_TYPE;
             case SOURCES:
                 // If the pattern is for sources, returns the sources content type.
                 return MuzeiContract.Sources.CONTENT_TYPE;
@@ -312,18 +324,19 @@ public class MuzeiProvider extends ContentProvider {
         if (!values.containsKey(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME))
             throw new IllegalArgumentException("Initial values must contain component name " + values);
         final SQLiteDatabase db = databaseHelper.getWritableDatabase();
-        final int countUpdated = db.update(MuzeiContract.Artwork.TABLE_NAME,
-                values, BaseColumns._ID + "=1", null);
-        if (countUpdated != 1) {
-            long rowId = db.insert(MuzeiContract.Artwork.TABLE_NAME,
-                    MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI, values);
-            if (rowId <= 0) {
-                throw new SQLException("Failed to insert row into " + uri);
-            }
+        long rowId = db.insert(MuzeiContract.Artwork.TABLE_NAME,
+                MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI, values);
+        // If the insert succeeded, the row ID exists.
+        if (rowId > 0)
+        {
+            // Creates a URI with the artwork ID pattern and the new row ID appended to it.
+            final Uri artworkUri = ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI, rowId);
+            // Note, we don't notifyChange() here - that'll happen when the file is written with openFile()
+            // using this Uri and the actual artwork is written successfully
+            return artworkUri;
         }
-
-        notifyChange(MuzeiContract.Artwork.CONTENT_URI);
-        return MuzeiContract.Artwork.CONTENT_URI;
+        // If the insert didn't succeed, then the rowID is <= 0
+        throw new SQLException("Failed to insert row into " + uri);
     }
 
     private Uri insertSource(@NonNull final Uri uri, final ContentValues initialValues) {
@@ -358,7 +371,8 @@ public class MuzeiProvider extends ContentProvider {
     @Override
     public Cursor query(@NonNull final Uri uri, final String[] projection, final String selection,
                         final String[] selectionArgs, final String sortOrder) {
-        if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK) {
+        if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK ||
+                MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK_ID) {
             return queryArtwork(uri, projection, selection, selectionArgs, sortOrder);
         } else if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCES ||
                 MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCE_ID) {
@@ -374,7 +388,17 @@ public class MuzeiProvider extends ContentProvider {
         qb.setTables(MuzeiContract.Artwork.TABLE_NAME);
         qb.setProjectionMap(allArtworkColumnProjectionMap);
         final SQLiteDatabase db = databaseHelper.getReadableDatabase();
-        final Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, sortOrder, null);
+        if (MuzeiProvider.uriMatcher.match(uri) == ARTWORK_ID) {
+            // If the incoming URI is for a single source identified by its ID, appends "_ID = <artworkId>"
+            // to the where clause, so that it selects that single piece of artwork
+            qb.appendWhere(BaseColumns._ID + "=" + uri.getPathSegments().get(1));
+        }
+        String orderBy;
+        if (TextUtils.isEmpty(sortOrder))
+            orderBy = MuzeiContract.Artwork.DEFAULT_SORT_ORDER;
+        else
+            orderBy = sortOrder;
+        final Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy, null);
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
     }
@@ -387,7 +411,7 @@ public class MuzeiProvider extends ContentProvider {
         final SQLiteDatabase db = databaseHelper.getReadableDatabase();
         if (MuzeiProvider.uriMatcher.match(uri) == SOURCE_ID) {
             // If the incoming URI is for a single source identified by its ID, appends "_ID = <sourceId>"
-            // to the where clause, so that it selects that single ingredient
+            // to the where clause, so that it selects that single source
             qb.appendWhere(BaseColumns._ID + "=" + uri.getPathSegments().get(1));
         }
         String orderBy;
@@ -402,29 +426,56 @@ public class MuzeiProvider extends ContentProvider {
 
     @Override
     public ParcelFileDescriptor openFile(@NonNull final Uri uri, @NonNull final String mode) throws FileNotFoundException {
-        // Validates the incoming URI. Only the full provider URI is allowed for openFile
-        if (MuzeiProvider.uriMatcher.match(uri) != MuzeiProvider.ARTWORK) {
+        if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK ||
+                MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK_ID) {
+            return openFileArtwork(uri, mode);
+        } else {
             throw new IllegalArgumentException("Unknown URI " + uri);
         }
-        if (!"r".equals(mode)) {
-            throw new IllegalArgumentException("Invalid mode for opening file: " + mode + ". Only 'r' is valid");
+    }
+
+    private ParcelFileDescriptor openFileArtwork(@NonNull final Uri uri, @NonNull final String mode) throws FileNotFoundException {
+        File directory = new File(getContext().getFilesDir(), "artwork");
+        if (!directory.mkdirs()) {
+            throw new FileNotFoundException("Could not create artwork directory");
         }
-        String currentArtworkLocation = PreferenceManager.getDefaultSharedPreferences(getContext())
-                .getString(CURRENT_ARTWORK_LOCATION, null);
-        if (currentArtworkLocation == null) {
-            throw new FileNotFoundException("No artwork image is set");
+        File file;
+        if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK) {
+            String[] projection = { BaseColumns._ID };
+            Cursor data = queryArtwork(MuzeiContract.Artwork.CONTENT_URI, projection, null, null, null);
+            file = new File(directory, String.valueOf(data.getLong(0)));
+            data.close();
+        } else {
+            file = new File(directory, uri.getLastPathSegment());
         }
-        File file = new File(currentArtworkLocation);
-        if (!file.exists()) {
-            throw new FileNotFoundException("File " + currentArtworkLocation + " does not exist");
+        final boolean isWriteOperation = mode.contains("w");
+        if (file.exists() && isWriteOperation) {
+            throw new IllegalArgumentException("Writing to an existing artwork file is not allowed: insert a new row");
         }
-        return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
+        try {
+            return ParcelFileDescriptor.open(file, ParcelFileDescriptor.parseMode(mode), new Handler(),
+                    new ParcelFileDescriptor.OnCloseListener() {
+                        @Override
+                        public void onClose(final IOException e) {
+                            if (e != null) {
+                                Log.e(TAG, "Error closing " + uri + " in mode " + mode, e);
+                            } else if (isWriteOperation) {
+                                // The file was successfully written, notify listeners of the new artwork
+                                notifyChange(uri);
+                            }
+                        }
+                    });
+        } catch (IOException e) {
+            Log.e(TAG, "Error creating ParcelFileDescriptor for " + uri, e);
+            return null;
+        }
     }
 
     @Override
     public int update(@NonNull final Uri uri, final ContentValues values, final String selection, final String[] selectionArgs) {
-        if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK) {
-            throw new UnsupportedOperationException("Updates are not allowed: insert does an insert or update operation");
+        if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK ||
+                MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK_ID) {
+            throw new UnsupportedOperationException("Updates are not allowed: insert a new row");
         } else if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCES ||
                 MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCE_ID) {
             return updateSource(uri, values, selection, selectionArgs);
