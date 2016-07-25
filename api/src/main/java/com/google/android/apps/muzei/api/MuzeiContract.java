@@ -161,7 +161,7 @@ public class MuzeiContract {
         /**
          * The default sort order for this table
          */
-        public static final String DEFAULT_SORT_ORDER = BaseColumns._ID + " DESC";
+        public static final String DEFAULT_SORT_ORDER = MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID + " DESC";
         /**
          * The table name offered by this provider.
          */

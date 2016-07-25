@@ -114,7 +114,7 @@ public class MuzeiProvider extends ContentProvider {
      */
     private static HashMap<String, String> buildAllArtworkColumnProjectionMap() {
         final HashMap<String, String> allColumnProjectionMap = new HashMap<>();
-        allColumnProjectionMap.put(BaseColumns._ID, BaseColumns._ID);
+        allColumnProjectionMap.put(BaseColumns._ID, MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID);
         allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME,
                 MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME);
         allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI,
@@ -364,7 +364,12 @@ public class MuzeiProvider extends ContentProvider {
     private Cursor queryArtwork(@NonNull final Uri uri, final String[] projection, final String selection,
                         final String[] selectionArgs, final String sortOrder) {
         final SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-        qb.setTables(MuzeiContract.Artwork.TABLE_NAME);
+        qb.setTables(MuzeiContract.Artwork.TABLE_NAME + " INNER JOIN " +
+                MuzeiContract.Sources.TABLE_NAME + " ON " +
+                MuzeiContract.Artwork.TABLE_NAME + "." +
+                MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME + "=" +
+                MuzeiContract.Sources.TABLE_NAME + "." +
+                MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME);
         qb.setProjectionMap(allArtworkColumnProjectionMap);
         final SQLiteDatabase db = databaseHelper.getReadableDatabase();
         if (MuzeiProvider.uriMatcher.match(uri) == ARTWORK_ID) {
@@ -374,7 +379,8 @@ public class MuzeiProvider extends ContentProvider {
         }
         String orderBy;
         if (TextUtils.isEmpty(sortOrder))
-            orderBy = MuzeiContract.Artwork.DEFAULT_SORT_ORDER;
+            orderBy = MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED + " DESC, " +
+                    MuzeiContract.Artwork.DEFAULT_SORT_ORDER;
         else
             orderBy = sortOrder;
         final Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy, null);
