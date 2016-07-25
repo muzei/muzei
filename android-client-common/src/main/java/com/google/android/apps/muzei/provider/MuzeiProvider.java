@@ -422,6 +422,9 @@ public class MuzeiProvider extends ContentProvider {
         if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK) {
             String[] projection = { BaseColumns._ID };
             Cursor data = queryArtwork(MuzeiContract.Artwork.CONTENT_URI, projection, null, null, null);
+            if (!data.moveToFirst()) {
+                throw new IllegalArgumentException("You must insert at least one row");
+            }
             file = new File(directory, String.valueOf(data.getLong(0)));
             data.close();
         } else {
