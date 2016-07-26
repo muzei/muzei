@@ -17,26 +17,22 @@
 package com.google.android.apps.muzei;
 
 import android.app.AlarmManager;
-import android.app.IntentService;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.content.WakefulBroadcastReceiver;
 
 import com.google.android.apps.muzei.sync.DownloadArtworkTask;
 import com.google.android.apps.muzei.util.LogUtil;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-import static com.google.android.apps.muzei.util.LogUtil.LOGE;
-
-public class TaskQueueService extends IntentService {
+public class TaskQueueService extends Service {
     private static final String TAG = LogUtil.makeLogTag(TaskQueueService.class);
 
     static final String ACTION_DOWNLOAD_CURRENT_ARTWORK
@@ -46,43 +42,53 @@ public class TaskQueueService extends IntentService {
 
     private static final long DOWNLOAD_ARTWORK_WAKELOCK_TIMEOUT_MILLIS = 30 * 1000;
 
-    public TaskQueueService() {
-        super("TaskQueueService");
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
+    public int onStartCommand(final Intent intent, int flags, final int startId) {
         if (intent.getAction() == null) {
-            return;
+            stopSelf();
+            return START_NOT_STICKY;
         }
 
         String action = intent.getAction();
         if (ACTION_DOWNLOAD_CURRENT_ARTWORK.equals(action)) {
-            // This is normally not started by a WakefulBroadcastReceiver so request a
-            // new wakelock.
-            PowerManager pwm = (PowerManager) getSystemService(POWER_SERVICE);
-            PowerManager.WakeLock lock = pwm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
-            lock.acquire(DOWNLOAD_ARTWORK_WAKELOCK_TIMEOUT_MILLIS);
+            // Handle internal download artwork request
+            new DownloadArtworkTask(this) {
+                PowerManager.WakeLock lock;
 
-            try {
-                // Handle internal download artwork request
-                boolean success = new DownloadArtworkTask(this)
-                        .get(DOWNLOAD_ARTWORK_WAKELOCK_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
-                if (success) {
-                    cancelArtworkDownloadRetries();
-                } else {
-                    scheduleRetryArtworkDownload();
+                @Override
+                protected void onPreExecute() {
+                    super.onPreExecute();
+                    // This is normally not started by a WakefulBroadcastReceiver so request a
+                    // new wakelock.
+                    PowerManager pwm = (PowerManager) getSystemService(POWER_SERVICE);
+                    lock = pwm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
+                    lock.acquire(DOWNLOAD_ARTWORK_WAKELOCK_TIMEOUT_MILLIS);
                 }
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                LOGE(TAG, "Error downloading artwork", e);
-            } finally {
-                if (lock.isHeld()) {
-                    lock.release();
-                }
-            }
 
-            WakefulBroadcastReceiver.completeWakefulIntent(intent);
+                @Override
+                protected void onPostExecute(Boolean success) {
+                    super.onPostExecute(success);
+                    if (success) {
+                        cancelArtworkDownloadRetries();
+                    } else {
+                        scheduleRetryArtworkDownload();
+                    }
+                    if (lock.isHeld()) {
+                        lock.release();
+                    }
+                    WakefulBroadcastReceiver.completeWakefulIntent(intent);
+                    stopSelf(startId);
+                }
+            }.execute();
+
         }
+        return START_REDELIVER_INTENT;
     }
 
     static PendingIntent getArtworkDownloadRetryPendingIntent(Context context) {
