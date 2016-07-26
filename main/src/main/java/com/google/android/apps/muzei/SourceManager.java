@@ -31,7 +31,6 @@ import android.os.RemoteException;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 
-import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.api.UserCommand;
@@ -69,7 +68,6 @@ public class SourceManager {
     private static final String PREF_SELECTED_SOURCE = "selected_source";
     private static final String PREF_SELECTED_SOURCE_TOKEN = "selected_source_token";
     private static final String PREF_SOURCE_STATES = "source_states";
-    private static final String PREF_CURRENT_ARTWORK = "current_artwork";
 
     private Context mApplicationContext;
     private ComponentName mSubscriberComponentName;
@@ -78,7 +76,6 @@ public class SourceManager {
 
     private ComponentName mSelectedSource;
     private String mSelectedSourceToken;
-    private Artwork mCurrentArtwork;
 
     private static SourceManager sInstance;
 
@@ -116,15 +113,6 @@ public class SourceManager {
         }
 
         mSelectedSourceToken = mSharedPrefs.getString(PREF_SELECTED_SOURCE_TOKEN, null);
-
-        // Get the current artwork
-        Cursor cursor = mContentResolver.query(MuzeiContract.Artwork.CONTENT_URI, null, null, null, null);
-        if (cursor != null && cursor.moveToFirst()) {
-            mCurrentArtwork = Artwork.fromCursor(cursor);
-        }
-        if (cursor != null) {
-            cursor.close();
-        }
     }
 
     private void migrateDataToContentProvider() {
@@ -281,21 +269,10 @@ public class SourceManager {
             if (existingSource != null) {
                 existingSource.close();
             }
-
-            mCurrentArtwork = state.getCurrentArtwork();
-            try {
-                mSharedPrefs.edit().putString(PREF_CURRENT_ARTWORK, mCurrentArtwork.toJson().toString()).apply();
-            } catch (JSONException e) {
-                LOGE(TAG, "Error writing current artwork", e);
-            }
         }
 
         // Download the artwork contained from the newly published SourceState
         mApplicationContext.startService(TaskQueueService.getDownloadCurrentArtworkIntent(mApplicationContext));
-    }
-
-    public synchronized Artwork getCurrentArtwork() {
-        return mCurrentArtwork;
     }
 
     public synchronized ComponentName getSelectedSource() {
