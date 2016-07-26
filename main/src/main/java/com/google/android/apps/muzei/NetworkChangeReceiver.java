@@ -16,14 +16,19 @@
 
 package com.google.android.apps.muzei;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.support.v4.content.WakefulBroadcastReceiver;
 
+import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.event.GainedNetworkConnectivityEvent;
 
 import org.greenrobot.eventbus.EventBus;
+
+import static com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_NETWORK_AVAILABLE;
 
 public class NetworkChangeReceiver extends WakefulBroadcastReceiver {
     @Override
@@ -45,8 +50,19 @@ public class NetworkChangeReceiver extends WakefulBroadcastReceiver {
             }
 
             // TODO: wakeful broadcast?
-            SourceManager sm = SourceManager.getInstance(context);
-            sm.maybeDispatchNetworkAvailable();
+            Cursor selectedSources = context.getContentResolver().query(MuzeiContract.Sources.CONTENT_URI,
+                    new String[]{MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME},
+                    MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED + "=1", null, null, null);
+            if (selectedSources != null && selectedSources.moveToPosition(-1)) {
+                while (selectedSources.moveToNext()) {
+                    String componentName = selectedSources.getString(0);
+                    context.startService(new Intent(ACTION_NETWORK_AVAILABLE)
+                            .setComponent(ComponentName.unflattenFromString(componentName)));
+                }
+            }
+            if (selectedSources != null) {
+                selectedSources.close();
+            }
         }
     }
 }

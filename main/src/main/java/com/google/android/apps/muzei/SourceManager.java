@@ -304,22 +304,4 @@ public class SourceManager {
                     .putExtra(EXTRA_TOKEN, (String) null));
         }
     }
-
-    public synchronized void maybeDispatchNetworkAvailable() {
-        Cursor selectedSource = mContentResolver.query(MuzeiContract.Sources.CONTENT_URI,
-                new String[]{MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE},
-                MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + "=?",
-                new String[] {mSelectedSource.flattenToShortString()}, null, null);
-        boolean wantsNetworkAvailable = selectedSource != null && selectedSource.moveToFirst() &&
-                selectedSource.getInt(0) != 0;
-        if (selectedSource != null) {
-            selectedSource.close();
-        }
-        if (wantsNetworkAvailable) {
-            mApplicationContext.startService(new Intent(ACTION_NETWORK_AVAILABLE)
-                    .setComponent(mSelectedSource)
-                    .putExtra(EXTRA_SUBSCRIBER_COMPONENT, mSubscriberComponentName)
-                    .putExtra(EXTRA_TOKEN, mSelectedSourceToken));
-        }
-    }
 }
