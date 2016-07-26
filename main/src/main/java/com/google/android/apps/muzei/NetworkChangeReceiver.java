@@ -24,9 +24,6 @@ import android.net.ConnectivityManager;
 import android.support.v4.content.WakefulBroadcastReceiver;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
-import com.google.android.apps.muzei.event.GainedNetworkConnectivityEvent;
-
-import org.greenrobot.eventbus.EventBus;
 
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_NETWORK_AVAILABLE;
 
@@ -40,8 +37,6 @@ public class NetworkChangeReceiver extends WakefulBroadcastReceiver {
         boolean hasConnectivity = !intent.getBooleanExtra(
                 ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
         if (hasConnectivity) {
-            EventBus.getDefault().post(new GainedNetworkConnectivityEvent());
-
             // Check with components that may not currently be alive but interested in
             // network connectivity changes.
             Intent retryIntent = TaskQueueService.maybeRetryDownloadDueToGainedConnectivity(context);
