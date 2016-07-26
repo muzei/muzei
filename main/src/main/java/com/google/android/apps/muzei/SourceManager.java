@@ -31,6 +31,7 @@ import android.os.RemoteException;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 
+import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.api.UserCommand;
@@ -269,6 +270,9 @@ public class SourceManager {
             if (existingSource != null) {
                 existingSource.close();
             }
+
+            Artwork artwork = state.getCurrentArtwork();
+            mContentResolver.insert(MuzeiContract.Artwork.CONTENT_URI, artwork.toContentValues());
         }
 
         // Download the artwork contained from the newly published SourceState
