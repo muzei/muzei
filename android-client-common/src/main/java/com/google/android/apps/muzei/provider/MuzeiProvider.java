@@ -377,7 +377,7 @@ public class MuzeiProvider extends ContentProvider {
         if (MuzeiProvider.uriMatcher.match(uri) == ARTWORK_ID) {
             // If the incoming URI is for a single source identified by its ID, appends "_ID = <artworkId>"
             // to the where clause, so that it selects that single piece of artwork
-            qb.appendWhere(BaseColumns._ID + "=" + uri.getPathSegments().get(1));
+            qb.appendWhere(MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID + "=" + uri.getLastPathSegment());
         }
         String orderBy;
         if (TextUtils.isEmpty(sortOrder))
@@ -399,7 +399,7 @@ public class MuzeiProvider extends ContentProvider {
         if (MuzeiProvider.uriMatcher.match(uri) == SOURCE_ID) {
             // If the incoming URI is for a single source identified by its ID, appends "_ID = <sourceId>"
             // to the where clause, so that it selects that single source
-            qb.appendWhere(BaseColumns._ID + "=" + uri.getPathSegments().get(1));
+            qb.appendWhere(BaseColumns._ID + "=" + uri.getLastPathSegment());
         }
         String orderBy;
         if (TextUtils.isEmpty(sortOrder))
@@ -492,7 +492,7 @@ public class MuzeiProvider extends ContentProvider {
             case SOURCE_ID:
                 // If the incoming URI matches a single source ID, does the update based on the incoming data, but
                 // modifies the where clause to restrict it to the particular source ID.
-                String finalWhere = BaseColumns._ID + " = " + uri.getPathSegments().get(1);
+                String finalWhere = BaseColumns._ID + " = " + uri.getLastPathSegment();
                 // If there were additional selection criteria, append them to the final WHERE clause
                 if (selection != null)
                     finalWhere = finalWhere + " AND " + selection;
