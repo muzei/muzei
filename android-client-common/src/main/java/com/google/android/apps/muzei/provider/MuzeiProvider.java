@@ -448,12 +448,15 @@ public class MuzeiProvider extends ContentProvider {
                     new ParcelFileDescriptor.OnCloseListener() {
                         @Override
                         public void onClose(final IOException e) {
-                            if (e != null) {
-                                Log.e(TAG, "Error closing " + uri + " in mode " + mode, e);
-                            } else if (isWriteOperation) {
-                                // The file was successfully written, notify listeners of the new artwork
-                                notifyChange(uri);
+                            if (isWriteOperation) {
+                                if (e != null) {
+                                    Log.e(TAG, "Error closing " + uri, e);
+                                } else {
+                                    // The file was successfully written, notify listeners of the new artwork
+                                    notifyChange(uri);
+                                }
                             }
+
                         }
                     });
         } catch (IOException e) {
