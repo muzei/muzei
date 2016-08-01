@@ -312,8 +312,13 @@ public class MuzeiProvider extends ContentProvider {
         {
             // Creates a URI with the artwork ID pattern and the new row ID appended to it.
             final Uri artworkUri = ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI, rowId);
-            // Note, we don't notifyChange() here - that'll happen when the file is written with openFile()
-            // using this Uri and the actual artwork is written successfully
+            File artwork = getCacheFileForArtworkUri(artworkUri);
+            if (artwork != null && artwork.exists()) {
+                // The image already exists so we'll notifyChange() to say the new artwork is ready
+                // Otherwise, this will be called when the file is written with openFile()
+                // using this Uri and the actual artwork is written successfully
+                notifyChange(artworkUri);
+            }
             return artworkUri;
         }
         // If the insert didn't succeed, then the rowID is <= 0
