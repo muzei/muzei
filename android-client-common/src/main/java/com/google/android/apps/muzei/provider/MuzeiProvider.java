@@ -427,26 +427,7 @@ public class MuzeiProvider extends ContentProvider {
         if (!directory.exists() && !directory.mkdirs()) {
             throw new FileNotFoundException("Could not create artwork directory");
         }
-        String[] projection = { BaseColumns._ID, MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI };
-        Cursor data;
-        if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK) {
-            data = queryArtwork(MuzeiContract.Artwork.CONTENT_URI, projection, null, null, null);
-            if (!data.moveToFirst()) {
-                throw new IllegalStateException("You must insert at least one row");
-            }
-        } else {
-            data = queryArtwork(uri, projection, null, null, null);
-            if (!data.moveToFirst()) {
-                throw new IllegalStateException("Invalid URI: " + uri);
-            }
-        }
-        // While normally we'd use data.getLong(), we later need this as a String so the automatic conversion helps here
-        String id = data.getString(0);
-        String imageUri = data.getString(1);
-        data.close();
-        // When there's an image URI, use that to build a cache filename,
-        // otherwise we'll assume this is a unique image and just use the id
-        final File file = new File(directory, imageUri != null ? getCacheFilenameForUri(imageUri) : id);
+        final File file = new File(directory, getCacheFilenameForArtworkUri(uri));
         final boolean isWriteOperation = mode.contains("w");
         if (file.exists() && file.length() > 0 && isWriteOperation) {
             Log.e(TAG, "Writing to an existing artwork file is not allowed: insert a new row");
@@ -474,8 +455,29 @@ public class MuzeiProvider extends ContentProvider {
         }
     }
 
-    private String getCacheFilenameForUri(@NonNull String uriString) {
-        Uri uri = Uri.parse(uriString);
+    private String getCacheFilenameForArtworkUri(@NonNull Uri artworkUri) {
+        String[] projection = { BaseColumns._ID, MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI };
+        Cursor data;
+        if (MuzeiProvider.uriMatcher.match(artworkUri) == MuzeiProvider.ARTWORK) {
+            data = queryArtwork(MuzeiContract.Artwork.CONTENT_URI, projection, null, null, null);
+            if (!data.moveToFirst()) {
+                throw new IllegalStateException("You must insert at least one row");
+            }
+        } else {
+            data = queryArtwork(artworkUri, projection, null, null, null);
+            if (!data.moveToFirst()) {
+                throw new IllegalStateException("Invalid URI: " + artworkUri);
+            }
+        }
+        // While normally we'd use data.getLong(), we later need this as a String so the automatic conversion helps here
+        String id = data.getString(0);
+        String imageUri = data.getString(1);
+        data.close();
+        if (TextUtils.isEmpty(imageUri)) {
+            return id;
+        }
+        // Otherwise, create a unique filename based on the imageUri
+        Uri uri = Uri.parse(imageUri);
         StringBuilder filename = new StringBuilder();
         filename.append(uri.getScheme()).append("_")
                 .append(uri.getHost()).append("_");
