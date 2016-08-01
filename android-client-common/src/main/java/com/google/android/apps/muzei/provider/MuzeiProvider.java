@@ -25,7 +25,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
-import android.content.SharedPreferences;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -35,7 +34,6 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
-import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -46,6 +44,9 @@ import com.google.android.apps.muzei.api.MuzeiContract;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -426,18 +427,26 @@ public class MuzeiProvider extends ContentProvider {
         if (!directory.exists() && !directory.mkdirs()) {
             throw new FileNotFoundException("Could not create artwork directory");
         }
-        File file;
+        String[] projection = { BaseColumns._ID, MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI };
+        Cursor data;
         if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK) {
-            String[] projection = { BaseColumns._ID };
-            Cursor data = queryArtwork(MuzeiContract.Artwork.CONTENT_URI, projection, null, null, null);
+            data = queryArtwork(MuzeiContract.Artwork.CONTENT_URI, projection, null, null, null);
             if (!data.moveToFirst()) {
                 throw new IllegalStateException("You must insert at least one row");
             }
-            file = new File(directory, String.valueOf(data.getLong(0)));
-            data.close();
         } else {
-            file = new File(directory, uri.getLastPathSegment());
+            data = queryArtwork(uri, projection, null, null, null);
+            if (!data.moveToFirst()) {
+                throw new IllegalStateException("Invalid URI: " + uri);
+            }
         }
+        // While normally we'd use data.getLong(), we later need this as a String so the automatic conversion helps here
+        String id = data.getString(0);
+        String imageUri = data.getString(1);
+        data.close();
+        // When there's an image URI, use that to build a cache filename,
+        // otherwise we'll assume this is a unique image and just use the id
+        final File file = new File(directory, imageUri != null ? getCacheFilenameForUri(imageUri) : id);
         final boolean isWriteOperation = mode.contains("w");
         if (file.exists() && file.length() > 0 && isWriteOperation) {
             Log.e(TAG, "Writing to an existing artwork file is not allowed: insert a new row");
@@ -450,7 +459,7 @@ public class MuzeiProvider extends ContentProvider {
                         public void onClose(final IOException e) {
                             if (isWriteOperation) {
                                 if (e != null) {
-                                    Log.e(TAG, "Error closing " + uri, e);
+                                    Log.e(TAG, "Error closing " + file + " for " + uri, e);
                                 } else {
                                     // The file was successfully written, notify listeners of the new artwork
                                     notifyChange(uri);
@@ -463,6 +472,37 @@ public class MuzeiProvider extends ContentProvider {
             Log.e(TAG, "Error opening artwork", e);
             throw new FileNotFoundException("Error opening artwork");
         }
+    }
+
+    private String getCacheFilenameForUri(@NonNull String uriString) {
+        Uri uri = Uri.parse(uriString);
+        StringBuilder filename = new StringBuilder();
+        filename.append(uri.getScheme()).append("_")
+                .append(uri.getHost()).append("_");
+        String encodedPath = uri.getEncodedPath();
+        if (!TextUtils.isEmpty(encodedPath)) {
+            int length = encodedPath.length();
+            if (length > 60) {
+                encodedPath = encodedPath.substring(length - 60);
+            }
+            encodedPath = encodedPath.replace('/', '_');
+            filename.append(encodedPath).append("_");
+        }
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(uri.toString().getBytes("UTF-8"));
+            byte[] digest = md.digest();
+            for (byte b : digest) {
+                if ((0xff & b) < 0x10) {
+                    filename.append("0").append(Integer.toHexString((0xFF & b)));
+                } else {
+                    filename.append(Integer.toHexString(0xFF & b));
+                }
+            }
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+            filename.append(uri.toString().hashCode());
+        }
+        return filename.toString();
     }
 
     @Override
