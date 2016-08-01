@@ -423,11 +423,10 @@ public class MuzeiProvider extends ContentProvider {
     }
 
     private ParcelFileDescriptor openFileArtwork(@NonNull final Uri uri, @NonNull final String mode) throws FileNotFoundException {
-        File directory = new File(getContext().getFilesDir(), "artwork");
-        if (!directory.exists() && !directory.mkdirs()) {
-            throw new FileNotFoundException("Could not create artwork directory");
+        final File file = getCacheFileForArtworkUri(uri);
+        if (file == null) {
+            throw new FileNotFoundException("Could not create artwork file");
         }
-        final File file = new File(directory, getCacheFilenameForArtworkUri(uri));
         final boolean isWriteOperation = mode.contains("w");
         if (file.exists() && file.length() > 0 && isWriteOperation) {
             Log.e(TAG, "Writing to an existing artwork file is not allowed: insert a new row");
@@ -455,7 +454,11 @@ public class MuzeiProvider extends ContentProvider {
         }
     }
 
-    private String getCacheFilenameForArtworkUri(@NonNull Uri artworkUri) {
+    private File getCacheFileForArtworkUri(@NonNull Uri artworkUri) {
+        File directory = new File(getContext().getFilesDir(), "artwork");
+        if (!directory.exists() && !directory.mkdirs()) {
+            return null;
+        }
         String[] projection = { BaseColumns._ID, MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI };
         Cursor data;
         if (MuzeiProvider.uriMatcher.match(artworkUri) == MuzeiProvider.ARTWORK) {
@@ -474,7 +477,7 @@ public class MuzeiProvider extends ContentProvider {
         String imageUri = data.getString(1);
         data.close();
         if (TextUtils.isEmpty(imageUri)) {
-            return id;
+            return new File(directory, id);
         }
         // Otherwise, create a unique filename based on the imageUri
         Uri uri = Uri.parse(imageUri);
@@ -504,7 +507,7 @@ public class MuzeiProvider extends ContentProvider {
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
             filename.append(uri.toString().hashCode());
         }
-        return filename.toString();
+        return new File(directory, filename.toString());
     }
 
     @Override
