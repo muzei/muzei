@@ -108,8 +108,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
     }
 
     public static void markNotificationRead(Context context) {
-        SourceManager sm = SourceManager.getInstance(context);
-        Artwork currentArtwork = sm.getCurrentArtwork();
+        Artwork currentArtwork = MuzeiContract.Artwork.getCurrentArtwork(context);
         if (currentArtwork == null || currentArtwork.getImageUri() == null) {
             return;
         }

@@ -16,52 +16,79 @@
 
 package com.google.android.apps.muzei;
 
-import android.app.IntentService;
+import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.IBinder;
 import android.os.PowerManager;
+import android.os.SystemClock;
+import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.content.WakefulBroadcastReceiver;
 
+import com.google.android.apps.muzei.sync.DownloadArtworkTask;
 import com.google.android.apps.muzei.util.LogUtil;
 
-public class TaskQueueService extends IntentService {
+public class TaskQueueService extends Service {
     private static final String TAG = LogUtil.makeLogTag(TaskQueueService.class);
 
     static final String ACTION_DOWNLOAD_CURRENT_ARTWORK
             = "com.google.android.apps.muzei.action.DOWNLOAD_CURRENT_ARTWORK";
 
+    private static final String PREF_ARTWORK_DOWNLOAD_ATTEMPT = "artwork_download_attempt";
+
     private static final long DOWNLOAD_ARTWORK_WAKELOCK_TIMEOUT_MILLIS = 30 * 1000;
 
-    public TaskQueueService() {
-        super("TaskQueueService");
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
+    public int onStartCommand(final Intent intent, int flags, final int startId) {
         if (intent.getAction() == null) {
-            return;
+            stopSelf();
+            return START_NOT_STICKY;
         }
 
         String action = intent.getAction();
         if (ACTION_DOWNLOAD_CURRENT_ARTWORK.equals(action)) {
-            // This is normally not started by a WakefulBroadcastReceiver so request a
-            // new wakelock.
-            PowerManager pwm = (PowerManager) getSystemService(POWER_SERVICE);
-            PowerManager.WakeLock lock = pwm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
-            lock.acquire(DOWNLOAD_ARTWORK_WAKELOCK_TIMEOUT_MILLIS);
+            // Handle internal download artwork request
+            new DownloadArtworkTask(this) {
+                PowerManager.WakeLock lock;
 
-            try {
-                // Handle internal download artwork request
-                ArtworkCache.getInstance(this).maybeDownloadCurrentArtworkSync();
-            } finally {
-                if (lock.isHeld()) {
-                    lock.release();
+                @Override
+                protected void onPreExecute() {
+                    super.onPreExecute();
+                    // This is normally not started by a WakefulBroadcastReceiver so request a
+                    // new wakelock.
+                    PowerManager pwm = (PowerManager) getSystemService(POWER_SERVICE);
+                    lock = pwm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
+                    lock.acquire(DOWNLOAD_ARTWORK_WAKELOCK_TIMEOUT_MILLIS);
                 }
-            }
 
-            WakefulBroadcastReceiver.completeWakefulIntent(intent);
+                @Override
+                protected void onPostExecute(Boolean success) {
+                    super.onPostExecute(success);
+                    if (success) {
+                        cancelArtworkDownloadRetries();
+                    } else {
+                        scheduleRetryArtworkDownload();
+                    }
+                    if (lock.isHeld()) {
+                        lock.release();
+                    }
+                    WakefulBroadcastReceiver.completeWakefulIntent(intent);
+                    stopSelf(startId);
+                }
+            }.execute();
+
         }
+        return START_REDELIVER_INTENT;
     }
 
     static PendingIntent getArtworkDownloadRetryPendingIntent(Context context) {
@@ -73,5 +100,30 @@ public class TaskQueueService extends IntentService {
     public static Intent getDownloadCurrentArtworkIntent(Context context) {
         return new Intent(context, TaskQueueService.class)
                 .setAction(ACTION_DOWNLOAD_CURRENT_ARTWORK);
+    }
+
+    private void cancelArtworkDownloadRetries() {
+        AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        am.cancel(TaskQueueService.getArtworkDownloadRetryPendingIntent(this));
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        sp.edit().putInt(PREF_ARTWORK_DOWNLOAD_ATTEMPT, 0).commit();
+    }
+
+    private void scheduleRetryArtworkDownload() {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        int reloadAttempt = sp.getInt(PREF_ARTWORK_DOWNLOAD_ATTEMPT, 0);
+        sp.edit().putInt(PREF_ARTWORK_DOWNLOAD_ATTEMPT, reloadAttempt + 1).commit();
+
+        AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        long retryTimeMillis = SystemClock.elapsedRealtime() + (1 << reloadAttempt) * 2000;
+        am.set(AlarmManager.ELAPSED_REALTIME, retryTimeMillis,
+                TaskQueueService.getArtworkDownloadRetryPendingIntent(this));
+    }
+
+    public static Intent maybeRetryDownloadDueToGainedConnectivity(Context context) {
+        return (PreferenceManager.getDefaultSharedPreferences(context)
+                .getInt(PREF_ARTWORK_DOWNLOAD_ATTEMPT, 0) > 0)
+                ? TaskQueueService.getDownloadCurrentArtworkIntent(context)
+                : null;
     }
 }

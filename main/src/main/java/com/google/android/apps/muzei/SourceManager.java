@@ -52,7 +52,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_HANDLE_COMMAND;
-import static com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_NETWORK_AVAILABLE;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_SUBSCRIBE;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_COMMAND_ID;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_SUBSCRIBER_COMPONENT;
@@ -69,7 +68,6 @@ public class SourceManager {
     private static final String PREF_SELECTED_SOURCE = "selected_source";
     private static final String PREF_SELECTED_SOURCE_TOKEN = "selected_source_token";
     private static final String PREF_SOURCE_STATES = "source_states";
-    private static final String PREF_CURRENT_ARTWORK = "current_artwork";
 
     private Context mApplicationContext;
     private ComponentName mSubscriberComponentName;
@@ -78,7 +76,6 @@ public class SourceManager {
 
     private ComponentName mSelectedSource;
     private String mSelectedSourceToken;
-    private Artwork mCurrentArtwork;
 
     private static SourceManager sInstance;
 
@@ -116,15 +113,6 @@ public class SourceManager {
         }
 
         mSelectedSourceToken = mSharedPrefs.getString(PREF_SELECTED_SOURCE_TOKEN, null);
-
-        // Get the current artwork
-        Cursor cursor = mContentResolver.query(MuzeiContract.Artwork.CONTENT_URI, null, null, null, null);
-        if (cursor != null && cursor.moveToFirst()) {
-            mCurrentArtwork = Artwork.fromCursor(cursor);
-        }
-        if (cursor != null) {
-            cursor.close();
-        }
     }
 
     private void migrateDataToContentProvider() {
@@ -282,20 +270,12 @@ public class SourceManager {
                 existingSource.close();
             }
 
-            mCurrentArtwork = state.getCurrentArtwork();
-            try {
-                mSharedPrefs.edit().putString(PREF_CURRENT_ARTWORK, mCurrentArtwork.toJson().toString()).apply();
-            } catch (JSONException e) {
-                LOGE(TAG, "Error writing current artwork", e);
-            }
+            Artwork artwork = state.getCurrentArtwork();
+            mContentResolver.insert(MuzeiContract.Artwork.CONTENT_URI, artwork.toContentValues());
         }
 
         // Download the artwork contained from the newly published SourceState
         mApplicationContext.startService(TaskQueueService.getDownloadCurrentArtworkIntent(mApplicationContext));
-    }
-
-    public synchronized Artwork getCurrentArtwork() {
-        return mCurrentArtwork;
     }
 
     public synchronized ComponentName getSelectedSource() {
@@ -325,24 +305,6 @@ public class SourceManager {
                     .setComponent(mSelectedSource)
                     .putExtra(EXTRA_SUBSCRIBER_COMPONENT, mSubscriberComponentName)
                     .putExtra(EXTRA_TOKEN, (String) null));
-        }
-    }
-
-    public synchronized void maybeDispatchNetworkAvailable() {
-        Cursor selectedSource = mContentResolver.query(MuzeiContract.Sources.CONTENT_URI,
-                new String[]{MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE},
-                MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + "=?",
-                new String[] {mSelectedSource.flattenToShortString()}, null, null);
-        boolean wantsNetworkAvailable = selectedSource != null && selectedSource.moveToFirst() &&
-                selectedSource.getInt(0) != 0;
-        if (selectedSource != null) {
-            selectedSource.close();
-        }
-        if (wantsNetworkAvailable) {
-            mApplicationContext.startService(new Intent(ACTION_NETWORK_AVAILABLE)
-                    .setComponent(mSelectedSource)
-                    .putExtra(EXTRA_SUBSCRIBER_COMPONENT, mSubscriberComponentName)
-                    .putExtra(EXTRA_TOKEN, mSelectedSourceToken));
         }
     }
 }
