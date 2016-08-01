@@ -79,6 +79,10 @@ public class ArtworkCacheIntentService extends IntentService {
             foundArtwork = foundArtwork || processDataItem(googleApiClient, dataItem);
         }
         dataItemBuffer.release();
+        if (foundArtwork) {
+            // Enable the Full Screen Activity only if we've found artwork
+            enableComponents(FullScreenActivity.class);
+        }
         if (!foundArtwork && intent != null &&
                 intent.getBooleanExtra(SHOW_ACTIVATE_NOTIFICATION_EXTRA, false)) {
             ActivateMuzeiIntentService.maybeShowActivateMuzeiNotification(this);
@@ -98,31 +102,36 @@ public class ArtworkCacheIntentService extends IntentService {
             Log.w(TAG, "No artwork in datamap.");
             return false;
         }
-        final Artwork artwork = Artwork.fromBundle(artworkDataMap.toBundle());
         final Asset asset = dataMapItem.getDataMap().getAsset("image");
         if (asset == null) {
             Log.w(TAG, "No image asset in datamap.");
             return false;
         }
-        // Convert asset into a file descriptor and block until it's ready
-        final DataApi.GetFdForAssetResult getFdForAssetResult =
-                Wearable.DataApi.getFdForAsset(googleApiClient, asset).await();
-        InputStream assetInputStream = getFdForAssetResult.getInputStream();
-        if (assetInputStream == null) {
-            Log.w(TAG, "Empty asset input stream (probably an unknown asset).");
-            return false;
-        }
+        final Artwork artwork = Artwork.fromBundle(artworkDataMap.toBundle());
         Uri artworkUri = getContentResolver().insert(MuzeiContract.Artwork.CONTENT_URI, artwork.toContentValues());
         if (artworkUri == null) {
             Log.w(TAG, "Unable to write artwork information to MuzeiProvider");
             return false;
         }
         OutputStream out = null;
+        DataApi.GetFdForAssetResult result = null;
+        InputStream in = null;
         try {
             out = getContentResolver().openOutputStream(artworkUri);
+            if (out == null) {
+                // We've already cached the artwork previously, so call this a success
+                return true;
+            }
+            // Convert asset into a file descriptor and block until it's ready
+            result = Wearable.DataApi.getFdForAsset(googleApiClient, asset).await();
+            in = result.getInputStream();
+            if (in == null) {
+                Log.w(TAG, "Unable to open asset input stream");
+                return false;
+            }
             byte[] buffer = new byte[1024];
             int bytesRead;
-            while ((bytesRead = assetInputStream.read(buffer)) > 0) {
+            while ((bytesRead = in.read(buffer)) > 0) {
                 out.write(buffer, 0, bytesRead);
             }
             out.flush();
@@ -130,14 +139,23 @@ public class ArtworkCacheIntentService extends IntentService {
             Log.e(TAG, "Error writing artwork", e);
         } finally {
             try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "Error closing artwork input stream", e);
+            }
+            if (result != null) {
+                result.release();
+            }
+            try {
                 if (out != null) {
                     out.close();
                 }
             } catch (IOException e) {
-                Log.e(TAG, "Error closing artwork", e);
+                Log.e(TAG, "Error closing artwork output stream", e);
             }
         }
-        enableComponents(FullScreenActivity.class);
         return true;
     }
 
