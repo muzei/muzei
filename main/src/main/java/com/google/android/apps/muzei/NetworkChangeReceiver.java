@@ -47,7 +47,8 @@ public class NetworkChangeReceiver extends WakefulBroadcastReceiver {
             // TODO: wakeful broadcast?
             Cursor selectedSources = context.getContentResolver().query(MuzeiContract.Sources.CONTENT_URI,
                     new String[]{MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME},
-                    MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED + "=1", null, null, null);
+                    MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED + "=1 AND " +
+                    MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE + "=1", null, null, null);
             if (selectedSources != null && selectedSources.moveToPosition(-1)) {
                 while (selectedSources.moveToNext()) {
                     String componentName = selectedSources.getString(0);
