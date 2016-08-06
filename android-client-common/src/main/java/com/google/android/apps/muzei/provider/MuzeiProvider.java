@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.provider;
 
+import android.content.ComponentName;
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -26,6 +27,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.content.UriMatcher;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -328,6 +330,16 @@ public class MuzeiProvider extends ContentProvider {
     private Uri insertSource(@NonNull final Uri uri, final ContentValues initialValues) {
         if (!initialValues.containsKey(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME))
             throw new IllegalArgumentException("Initial values must contain component name " + initialValues);
+        PackageManager packageManager = getContext().getPackageManager();
+        ComponentName componentName = ComponentName.unflattenFromString(
+                initialValues.getAsString(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME));
+        try {
+            // Confirm that the source exists and is a Service
+            packageManager.getServiceInfo(componentName, 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "Invalid component name:" + componentName);
+            throw new IllegalArgumentException("Invalid component name: " + componentName);
+        }
         final SQLiteDatabase db = databaseHelper.getWritableDatabase();
         final long rowId = db.insert(MuzeiContract.Sources.TABLE_NAME,
                 MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, initialValues);
