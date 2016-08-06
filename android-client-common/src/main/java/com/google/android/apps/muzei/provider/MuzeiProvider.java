@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.provider;
 
+import android.content.ComponentName;
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -26,12 +27,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.content.UriMatcher;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.provider.BaseColumns;
@@ -328,6 +332,27 @@ public class MuzeiProvider extends ContentProvider {
     private Uri insertSource(@NonNull final Uri uri, final ContentValues initialValues) {
         if (!initialValues.containsKey(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME))
             throw new IllegalArgumentException("Initial values must contain component name " + initialValues);
+        PackageManager packageManager = getContext().getPackageManager();
+        ComponentName componentName = ComponentName.unflattenFromString(
+                initialValues.getAsString(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME));
+        try {
+            // Confirm that the source exists and is a Service
+            packageManager.getServiceInfo(componentName, 0);
+            // Disable network access callbacks if we're running on an API 24 device and the source app
+            // targets API 24. This is to be consistent with the Behavior Changes in Android N
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
+                    initialValues.getAsBoolean(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE)) {
+                ApplicationInfo info = packageManager.getApplicationInfo(componentName.getPackageName(), 0);
+                if (info.targetSdkVersion >= Build.VERSION_CODES.N) {
+                    Log.w(TAG, "Sources targeting API 24 cannot receive network access callbacks. Changing " +
+                            componentName + " to false for "+ MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE);
+                    initialValues.put(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE, false);
+                }
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "Invalid component name:" + componentName);
+            throw new IllegalArgumentException("Invalid component name: " + componentName);
+        }
         final SQLiteDatabase db = databaseHelper.getWritableDatabase();
         final long rowId = db.insert(MuzeiContract.Sources.TABLE_NAME,
                 MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, initialValues);
