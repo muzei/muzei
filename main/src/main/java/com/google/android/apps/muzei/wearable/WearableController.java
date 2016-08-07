@@ -23,12 +23,12 @@ import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.os.Build;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.render.BitmapRegionLoader;
 import com.google.android.apps.muzei.render.ImageUtil;
-import com.google.android.apps.muzei.util.LogUtil;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -40,15 +40,12 @@ import com.google.android.gms.wearable.Wearable;
 import java.io.ByteArrayOutputStream;
 import java.util.concurrent.TimeUnit;
 
-import static com.google.android.apps.muzei.util.LogUtil.LOGW;
-import static com.google.android.apps.muzei.util.LogUtil.LOGV;
-
 /**
  * Controller for working with the Android Wear API. Also in charge of dealing with
  * Google Play Services.
  */
 public class WearableController {
-    private static final String TAG = LogUtil.makeLogTag(WearableController.class);
+    private static final String TAG = "WearableController";
 
     private static @Nullable GoogleApiClient createdConnectedWearableClient(Context context) {
         if (ConnectionResult.SUCCESS != GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context)
@@ -60,10 +57,8 @@ public class WearableController {
                 .build();
         ConnectionResult connectionResult = googleApiClient.blockingConnect(5, TimeUnit.SECONDS);
         if (!connectionResult.isSuccess()) {
-            if (connectionResult.getErrorCode() == ConnectionResult.API_UNAVAILABLE) {
-                LOGV(TAG, "Wearable API unavailable, cancelling request");
-            } else {
-                LOGW(TAG, "onConnectionFailed: " + connectionResult);
+            if (connectionResult.getErrorCode() != ConnectionResult.API_UNAVAILABLE) {
+                Log.w(TAG, "onConnectionFailed: " + connectionResult);
             }
             return null;
         }

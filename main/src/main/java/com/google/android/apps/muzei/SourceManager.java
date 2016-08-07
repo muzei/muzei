@@ -30,6 +30,7 @@ import android.net.Uri;
 import android.os.RemoteException;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
@@ -37,9 +38,10 @@ import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.api.UserCommand;
 import com.google.android.apps.muzei.api.internal.SourceState;
 import com.google.android.apps.muzei.featuredart.FeaturedArtSource;
-import com.google.android.apps.muzei.util.LogUtil;
 import com.google.android.apps.muzei.wearable.WearableController;
 import com.google.android.apps.muzei.wearable.WearableSourceUpdateService;
+
+import net.nurik.roman.muzei.BuildConfig;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -56,15 +58,12 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTIO
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_COMMAND_ID;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_SUBSCRIBER_COMPONENT;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_TOKEN;
-import static com.google.android.apps.muzei.util.LogUtil.LOGD;
-import static com.google.android.apps.muzei.util.LogUtil.LOGE;
-import static com.google.android.apps.muzei.util.LogUtil.LOGW;
 
 /**
  * Thread-safe.
  */
 public class SourceManager {
-    private static final String TAG = LogUtil.makeLogTag(SourceManager.class);
+    private static final String TAG = "SourceManager";
     private static final String PREF_SELECTED_SOURCE = "selected_source";
     private static final String PREF_SELECTED_SOURCE_TOKEN = "selected_source_token";
     private static final String PREF_SOURCE_STATES = "source_states";
@@ -153,7 +152,7 @@ public class SourceManager {
                 operations.add(ContentProviderOperation.newInsert(MuzeiContract.Sources.CONTENT_URI)
                     .withValues(values).build());
             } catch (JSONException e) {
-                LOGE(TAG, "Error loading source state.", e);
+                Log.e(TAG, "Error loading source state.", e);
             }
         }
         try {
@@ -162,7 +161,7 @@ public class SourceManager {
             mApplicationContext.startService(
                     new Intent(mApplicationContext, WearableSourceUpdateService.class));
         } catch (RemoteException | OperationApplicationException e) {
-            LOGE(TAG, "Error writing sources to ContentProvider", e);
+            Log.e(TAG, "Error writing sources to ContentProvider", e);
         }
     }
 
@@ -172,7 +171,7 @@ public class SourceManager {
 
     public void selectSource(ComponentName source) {
         if (source == null) {
-            LOGE(TAG, "selectSource: Empty source");
+            Log.e(TAG, "selectSource: Empty source");
             return;
         }
 
@@ -181,7 +180,9 @@ public class SourceManager {
                 return;
             }
 
-            LOGD(TAG, "Source " + source + " selected.");
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Source " + source + " selected.");
+            }
 
             final ArrayList<ContentProviderOperation> operations = new ArrayList<>();
             if (mSelectedSource != null) {
@@ -218,7 +219,7 @@ public class SourceManager {
                 mApplicationContext.startService(
                         new Intent(mApplicationContext, WearableSourceUpdateService.class));
             } catch (RemoteException | OperationApplicationException e) {
-                LOGE(TAG, "Error writing sources to ContentProvider", e);
+                Log.e(TAG, "Error writing sources to ContentProvider", e);
             }
 
             subscribeToSelectedSource();
@@ -231,7 +232,7 @@ public class SourceManager {
     public void handlePublishState(String token, SourceState state) {
         synchronized (this) {
             if (!TextUtils.equals(token, mSelectedSourceToken)) {
-                LOGW(TAG, "Dropping update from non-selected source (token mismatch).");
+                Log.w(TAG, "Dropping update from non-selected source (token mismatch).");
                 return;
             }
 

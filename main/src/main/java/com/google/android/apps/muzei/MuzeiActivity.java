@@ -40,6 +40,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.SparseIntArray;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -71,7 +72,6 @@ import com.google.android.apps.muzei.util.AnimatedMuzeiLoadingSpinnerView;
 import com.google.android.apps.muzei.util.AnimatedMuzeiLogoFragment;
 import com.google.android.apps.muzei.util.CheatSheet;
 import com.google.android.apps.muzei.util.DrawInsetsFrameLayout;
-import com.google.android.apps.muzei.util.LogUtil;
 import com.google.android.apps.muzei.util.PanScaleProxyView;
 import com.google.android.apps.muzei.util.ScrimUtil;
 import com.google.android.apps.muzei.util.TypefaceUtil;
@@ -83,10 +83,8 @@ import java.util.List;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import static com.google.android.apps.muzei.util.LogUtil.LOGE;
-
 public class MuzeiActivity extends AppCompatActivity {
-    private static final String TAG = LogUtil.makeLogTag(MuzeiActivity.class);
+    private static final String TAG = "MuzeiActivity";
 
     private static final String PREF_SEEN_TUTORIAL = "seen_tutorial";
 
@@ -178,7 +176,7 @@ public class MuzeiActivity extends AppCompatActivity {
                         } catch (ActivityNotFoundException | SecurityException e) {
                             Toast.makeText(MuzeiActivity.this, R.string.error_view_details,
                                     Toast.LENGTH_SHORT).show();
-                            LOGE(TAG, "Error viewing artwork details.", e);
+                            Log.e(TAG, "Error viewing artwork details.", e);
                         }
                     }
                 });

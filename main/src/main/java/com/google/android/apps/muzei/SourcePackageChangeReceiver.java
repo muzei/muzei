@@ -22,10 +22,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.text.TextUtils;
-
-import com.google.android.apps.muzei.util.LogUtil;
-
-import static com.google.android.apps.muzei.util.LogUtil.LOGI;
+import android.util.Log;
 
 /**
  * Broadcast receiver used to watch for changes to installed packages on the device. This triggers
@@ -33,7 +30,7 @@ import static com.google.android.apps.muzei.util.LogUtil.LOGI;
  * if it was updated (its package was replaced).
  */
 public class SourcePackageChangeReceiver extends WakefulBroadcastReceiver {
-    private static final String TAG = LogUtil.makeLogTag(SourcePackageChangeReceiver.class);
+    private static final String TAG = "SourcePackageChangeRcvr";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -51,13 +48,13 @@ public class SourcePackageChangeReceiver extends WakefulBroadcastReceiver {
         try {
             context.getPackageManager().getServiceInfo(selectedComponent, 0);
         } catch (PackageManager.NameNotFoundException e) {
-            LOGI(TAG, "Selected source no longer available; switching to default.");
+            Log.i(TAG, "Selected source no longer available; switching to default.");
             sourceManager.selectDefaultSource();
             return;
         }
 
         // Some other change.
-        LOGI(TAG, "Source package changed or replaced. Re-subscribing.");
+        Log.i(TAG, "Source package changed or replaced. Re-subscribing.");
         sourceManager.subscribeToSelectedSource();
     }
 }

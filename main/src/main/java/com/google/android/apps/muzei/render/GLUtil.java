@@ -19,8 +19,7 @@ package com.google.android.apps.muzei.render;
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
-
-import com.google.android.apps.muzei.util.LogUtil;
+import android.util.Log;
 
 import net.nurik.roman.muzei.BuildConfig;
 
@@ -28,10 +27,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
-import static com.google.android.apps.muzei.util.LogUtil.LOGE;
-
 public class GLUtil {
-    private static final String TAG = LogUtil.makeLogTag(GLUtil.class);
+    private static final String TAG = "GLUtil";
 
     public static final int BYTES_PER_FLOAT = 4;
 
@@ -92,7 +89,7 @@ public class GLUtil {
         }
 
         if (textureHandle[0] == 0) {
-            LOGE(TAG, "Error loading texture (empty texture handle)");
+            Log.e(TAG, "Error loading texture (empty texture handle)");
             if (BuildConfig.DEBUG) {
                 throw new RuntimeException("Error loading texture (empty texture handle).");
             }
@@ -104,7 +101,7 @@ public class GLUtil {
     public static void checkGlError(String glOperation) {
         int error;
         while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
-            LOGE(TAG, glOperation + ": glError " + error);
+            Log.e(TAG, glOperation + ": glError " + error);
             if (BuildConfig.DEBUG) {
                 throw new RuntimeException(glOperation + ": glError " + error);
             }

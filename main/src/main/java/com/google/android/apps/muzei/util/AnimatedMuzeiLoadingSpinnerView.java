@@ -25,6 +25,7 @@ import android.graphics.Path;
 import android.graphics.PathMeasure;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.Interpolator;
@@ -32,10 +33,8 @@ import android.view.animation.LinearInterpolator;
 
 import java.text.ParseException;
 
-import static com.google.android.apps.muzei.util.LogUtil.LOGE;
-
 public class AnimatedMuzeiLoadingSpinnerView extends View {
-    private static final String TAG = LogUtil.makeLogTag(AnimatedMuzeiLoadingSpinnerView.class);
+    private static final String TAG = "AnimatedLoadingSpinner";
 
     private static final int TRACE_TIME = 1000;
     private static final int MARKER_LENGTH_DIP = 16;
@@ -118,7 +117,7 @@ public class AnimatedMuzeiLoadingSpinnerView extends View {
             mGlyphData.path = parser.parsePath(LogoPaths.GLYPHS[0]);
         } catch (ParseException e) {
             mGlyphData.path = new Path();
-            LOGE(TAG, "Couldn't parse path", e);
+            Log.e(TAG, "Couldn't parse path", e);
         }
         PathMeasure pm = new PathMeasure(mGlyphData.path, true);
         while (true) {
