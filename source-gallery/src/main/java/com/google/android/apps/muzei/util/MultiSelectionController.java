@@ -97,7 +97,7 @@ public class MultiSelectionController<T extends Parcelable> {
         return mSelection.contains(item);
     }
 
-    public static interface Callbacks {
+    public interface Callbacks {
         void onSelectionChanged(boolean restored, boolean fromUser);
     }
 

@@ -14,8 +14,8 @@
   limitations under the License.
   -->
 
-<resources>
-    <string-array name="android_wear_capabilities">
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string-array name="android_wear_capabilities" tools:ignore="UnusedResources">
         <item>activate_muzei</item>
     </string-array>
 </resources>

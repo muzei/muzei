@@ -60,7 +60,7 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
 
     private static final int MAX_JITTER_MILLIS = 20 * 60 * 1000;
 
-    private static Random sRandom = new Random();
+    private static final Random sRandom = new Random();
 
     private static final SimpleDateFormat sDateFormatTZ
             = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US);

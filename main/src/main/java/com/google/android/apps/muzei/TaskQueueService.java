@@ -30,10 +30,9 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.WakefulBroadcastReceiver;
 
 import com.google.android.apps.muzei.sync.DownloadArtworkTask;
-import com.google.android.apps.muzei.util.LogUtil;
 
 public class TaskQueueService extends Service {
-    private static final String TAG = LogUtil.makeLogTag(TaskQueueService.class);
+    private static final String TAG = "TaskQueueService";
 
     static final String ACTION_DOWNLOAD_CURRENT_ARTWORK
             = "com.google.android.apps.muzei.action.DOWNLOAD_CURRENT_ARTWORK";

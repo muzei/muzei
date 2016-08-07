@@ -47,6 +47,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.content.res.ResourcesCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,7 +58,6 @@ import com.google.android.apps.muzei.SourceManager;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.util.CheatSheet;
-import com.google.android.apps.muzei.util.LogUtil;
 import com.google.android.apps.muzei.util.ObservableHorizontalScrollView;
 import com.google.android.apps.muzei.util.Scrollbar;
 
@@ -71,14 +71,12 @@ import java.util.List;
 import org.greenrobot.eventbus.EventBus;
 
 import static com.google.android.apps.muzei.api.MuzeiArtSource.ACTION_MUZEI_ART_SOURCE;
-import static com.google.android.apps.muzei.util.LogUtil.LOGE;
-import static com.google.android.apps.muzei.util.LogUtil.LOGW;
 
 /**
  * Fragment for allowing the user to choose the active source.
  */
 public class SettingsChooseSourceFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-    private static final String TAG = LogUtil.makeLogTag(SettingsChooseSourceFragment.class);
+    private static final String TAG = "SettingsChooseSourceFrg";
 
     private static final int SCROLLBAR_HIDE_DELAY_MILLIS = 1000;
 
@@ -180,10 +178,6 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
                     mCurrentScroller.cancel();
                     mCurrentScroller = null;
                 }
-            }
-
-            @Override
-            public void onUpOrCancelMotionEvent() {
             }
         });
         mSourceContainerView = (ViewGroup) mRootView.findViewById(R.id.source_container);
@@ -381,7 +375,7 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
                 Resources packageRes = packageContext.getResources();
                 source.description = packageRes.getString(ri.serviceInfo.descriptionRes);
             } catch (PackageManager.NameNotFoundException e) {
-                LOGW(TAG, "Can't read package resources for source " + source.componentName);
+                Log.e(TAG, "Can't read package resources for source " + source.componentName);
             }
             Bundle metaData = ri.serviceInfo.metaData;
             source.color = Color.WHITE;
@@ -528,7 +522,7 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
                     .putExtra(MuzeiArtSource.EXTRA_FROM_MUZEI_SETTINGS, true);
             startActivity(settingsIntent);
         } catch (ActivityNotFoundException | SecurityException e) {
-            LOGE(TAG, "Can't launch source settings.", e);
+            Log.e(TAG, "Can't launch source settings.", e);
         }
     }
 
@@ -539,7 +533,7 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
                     .putExtra(MuzeiArtSource.EXTRA_FROM_MUZEI_SETTINGS, true);
             startActivityForResult(setupIntent, REQUEST_EXTENSION_SETUP);
         } catch (ActivityNotFoundException | SecurityException e) {
-            LOGE(TAG, "Can't launch source setup.", e);
+            Log.e(TAG, "Can't launch source setup.", e);
         }
     }
 

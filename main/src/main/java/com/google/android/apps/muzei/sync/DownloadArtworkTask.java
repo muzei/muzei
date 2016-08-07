@@ -28,7 +28,6 @@ import android.util.Log;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.event.ArtworkLoadingStateChangedEvent;
-import com.google.android.apps.muzei.util.LogUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -47,7 +46,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class DownloadArtworkTask extends AsyncTask<Void, Void, Boolean> {
-    private static final String TAG = LogUtil.makeLogTag(DownloadArtworkTask.class);
+    private static final String TAG = "DownloadArtworkTask";
 
     private static final int DEFAULT_READ_TIMEOUT = 30; // in seconds
     private static final int DEFAULT_CONNECT_TIMEOUT = 15; // in seconds

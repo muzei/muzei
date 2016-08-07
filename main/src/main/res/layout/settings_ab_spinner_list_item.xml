@@ -24,10 +24,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:drawablePadding="8dp"
-        android:drawableRight="@drawable/spinner_triangle"
+        android:drawableEnd="@drawable/spinner_triangle"
         android:ellipsize="marquee"
-        android:paddingLeft="16dp"
-        android:paddingRight="4dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="4dp"
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.ActionBar.Title" />
 

@@ -21,19 +21,17 @@ import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.android.apps.muzei.NewWallpaperNotificationReceiver;
 import com.google.android.apps.muzei.wearable.WearableController;
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiContract;
-import com.google.android.apps.muzei.util.LogUtil;
 
 import java.io.IOException;
 
-import static com.google.android.apps.muzei.util.LogUtil.LOGE;
-
 public class RealRenderController extends RenderController {
-    private static final String TAG = LogUtil.makeLogTag(RealRenderController.class);
+    private static final String TAG = "RealRenderController";
 
     private String mLastLoadedPath;
     private ContentObserver mContentObserver;
@@ -75,7 +73,7 @@ public class RealRenderController extends RenderController {
             }
             return loader;
         } catch (IOException e) {
-            LOGE(TAG, "Error loading image", e);
+            Log.e(TAG, "Error loading image", e);
             return null;
         }
     }

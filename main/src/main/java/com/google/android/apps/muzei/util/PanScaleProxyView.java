@@ -58,8 +58,6 @@ public class PanScaleProxyView extends View {
     private PointF mZoomFocalPoint = new PointF();
     private RectF mScrollerStartViewport = new RectF(); // Used only for zooms and flings.
     private boolean mDragZoomed = false;
-    private boolean mNonSingleTapGesture = false;
-    private boolean mNonSingleTapZoomedOut = false;
     private boolean mMotionEventDown;
 
     private Handler mHandler = new Handler();
@@ -116,19 +114,11 @@ public class PanScaleProxyView extends View {
     public boolean onTouchEvent(MotionEvent event) {
         if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
             mMotionEventDown = true;
-            mNonSingleTapGesture = false;
-            mNonSingleTapZoomedOut = false;
-            if (mOnOtherGestureListener != null) {
-                mOnOtherGestureListener.onDown();
-            }
         }
         boolean retVal = mScaleGestureDetector.onTouchEvent(event);
         retVal = mGestureDetector.onTouchEvent(event) || retVal;
         if (mMotionEventDown && event.getActionMasked() == MotionEvent.ACTION_UP) {
             mMotionEventDown = false;
-            if (mNonSingleTapGesture && mOnOtherGestureListener != null) {
-                mOnOtherGestureListener.onUpNonSingleTap(mNonSingleTapZoomedOut);
-            }
         }
         return retVal || super.onTouchEvent(event);
     }
@@ -176,13 +166,7 @@ public class PanScaleProxyView extends View {
             mCurrentViewport.bottom = mCurrentViewport.top + newHeight;
             constrainViewport();
             triggerViewportChangedListener();
-            mNonSingleTapGesture = true;
             return true;
-        }
-
-        @Override
-        public void onScaleEnd(ScaleGestureDetector detector) {
-            super.onScaleEnd(detector);
         }
     };
 
@@ -276,8 +260,6 @@ public class PanScaleProxyView extends View {
             mZoomer.startZoom(startZoom, zoomIn ? 2f : 1f);
             triggerViewportChangedListener();
             postAnimateTick();
-            mNonSingleTapGesture = true;
-            mNonSingleTapZoomedOut = !zoomIn;
 
             // Workaround for 11952668; blow away the entire scale gesture detector after
             // a double tap
@@ -306,7 +288,6 @@ public class PanScaleProxyView extends View {
             setViewportTopLeft(
                     mCurrentViewport.left + viewportOffsetX,
                     mCurrentViewport.top + viewportOffsetY);
-            mNonSingleTapGesture = true;
             return true;
         }
 
@@ -317,7 +298,6 @@ public class PanScaleProxyView extends View {
             }
 
             fling((int) -velocityX, (int) -velocityY);
-            mNonSingleTapGesture = true;
             return true;
         }
     };
@@ -444,17 +424,6 @@ public class PanScaleProxyView extends View {
         return new RectF(mCurrentViewport);
     }
 
-    /**
-     * Sets the chart's current viewport.
-     *
-     * @see #getCurrentViewport()
-     */
-    public void setCurrentViewport(RectF viewport) {
-        mCurrentViewport = viewport;
-        constrainViewport();
-        triggerViewportChangedListener();
-    }
-
     private void triggerViewportChangedListener() {
         if (mOnViewportChangedListener != null) {
             mOnViewportChangedListener.onViewportChanged();
@@ -486,30 +455,6 @@ public class PanScaleProxyView extends View {
         super.onRestoreInstanceState(ss.getSuperState());
 
         mCurrentViewport = ss.viewport;
-    }
-
-    public void resetViewport(float relativeAspectRatio) {
-        if (relativeAspectRatio <= 0) {
-            throw new IllegalArgumentException("Relative aspect ratio should be > 0");
-        }
-
-        mRelativeAspectRatio = relativeAspectRatio;
-
-        if (mRelativeAspectRatio > 1) {
-            mCurrentViewport.set(
-                    0.5f - 0.5f / mRelativeAspectRatio,
-                    0,
-                    0.5f + 0.5f / mRelativeAspectRatio,
-                    1);
-        } else {
-            mCurrentViewport.set(
-                    0,
-                    0.5f - mRelativeAspectRatio / 2f,
-                    1,
-                    0.5f + mRelativeAspectRatio / 2f);
-        }
-
-        triggerViewportChangedListener();
     }
 
     public void setRelativeAspectRatio(float relativeAspectRatio) {
@@ -584,13 +529,11 @@ public class PanScaleProxyView extends View {
         }
     }
 
-    public static interface OnViewportChangedListener {
-        public void onViewportChanged();
+    public interface OnViewportChangedListener {
+        void onViewportChanged();
     }
 
-    public static interface OnOtherGestureListener {
-        public void onDown();
-        public void onSingleTapUp();
-        public void onUpNonSingleTap(boolean zoomedOut);
+    public interface OnOtherGestureListener {
+        void onSingleTapUp();
     }
 }
