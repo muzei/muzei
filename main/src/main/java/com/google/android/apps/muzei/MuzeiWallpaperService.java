@@ -50,11 +50,13 @@ public class MuzeiWallpaperService extends GLWallpaperService {
         super.onCreate();
         mLockScreenVisibleReceiver = new LockScreenVisibleReceiver();
         mLockScreenVisibleReceiver.setupRegisterDeregister(this);
+        SourceManager.getInstance(MuzeiWallpaperService.this).subscribeToSelectedSource();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        SourceManager.getInstance(MuzeiWallpaperService.this).unsubscribeToSelectedSource();
         if (mLockScreenVisibleReceiver != null) {
             mLockScreenVisibleReceiver.destroy();
             mLockScreenVisibleReceiver = null;
@@ -93,7 +95,6 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             mGestureDetector = new GestureDetector(MuzeiWallpaperService.this, mGestureListener);
             if (!isPreview()) {
                 EventBus.getDefault().postSticky(new WallpaperActiveStateChangedEvent(true));
-                SourceManager.getInstance(MuzeiWallpaperService.this).subscribeToSelectedSource();
             }
             setTouchEventsEnabled(true);
             setOffsetNotificationsEnabled(true);
@@ -114,7 +115,6 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             super.onDestroy();
             EventBus.getDefault().unregister(this);
             if (!isPreview()) {
-                SourceManager.getInstance(MuzeiWallpaperService.this).unsubscribeToSelectedSource();
                 EventBus.getDefault().postSticky(new WallpaperActiveStateChangedEvent(false));
             }
             queueEvent(new Runnable() {
