@@ -634,10 +634,6 @@ public class MuzeiActivity extends AppCompatActivity {
         mPanScaleProxyView.setOnOtherGestureListener(
                 new PanScaleProxyView.OnOtherGestureListener() {
                     @Override
-                    public void onDown() {
-                    }
-
-                    @Override
                     public void onSingleTapUp() {
                         if (mUiMode == UI_MODE_ART_DETAIL) {
                             showHideChrome((mContainerView.getSystemUiVisibility()

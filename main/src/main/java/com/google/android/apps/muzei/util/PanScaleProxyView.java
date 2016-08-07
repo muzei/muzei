@@ -114,9 +114,6 @@ public class PanScaleProxyView extends View {
     public boolean onTouchEvent(MotionEvent event) {
         if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
             mMotionEventDown = true;
-            if (mOnOtherGestureListener != null) {
-                mOnOtherGestureListener.onDown();
-            }
         }
         boolean retVal = mScaleGestureDetector.onTouchEvent(event);
         retVal = mGestureDetector.onTouchEvent(event) || retVal;
@@ -537,7 +534,6 @@ public class PanScaleProxyView extends View {
     }
 
     public interface OnOtherGestureListener {
-        void onDown();
         void onSingleTapUp();
     }
 }
