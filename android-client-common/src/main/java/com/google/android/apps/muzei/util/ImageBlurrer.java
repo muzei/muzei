@@ -27,10 +27,11 @@ import android.support.v8.renderscript.ScriptIntrinsicColorMatrix;
 
 public class ImageBlurrer {
     public static final int MAX_SUPPORTED_BLUR_PIXELS = 25;
-    private RenderScript mRS;
 
-    private ScriptIntrinsicBlur mSIBlur;
-    private ScriptIntrinsicColorMatrix mSIGrey;
+    private final RenderScript mRS;
+    private final ScriptIntrinsicBlur mSIBlur;
+    private final ScriptIntrinsicColorMatrix mSIGrey;
+
     private Allocation mAllocationSrc;
     private Allocation mAllocationDest;
 
