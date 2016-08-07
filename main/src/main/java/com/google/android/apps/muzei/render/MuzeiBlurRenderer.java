@@ -170,7 +170,7 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
         GLColorOverlay.initGl();
         GLPicture.initGl();
 
-        mColorOverlay = new GLColorOverlay(0);
+        mColorOverlay = new GLColorOverlay();
 
         mSurfaceCreated = true;
         if (mQueuedNextBitmapRegionLoader != null) {
