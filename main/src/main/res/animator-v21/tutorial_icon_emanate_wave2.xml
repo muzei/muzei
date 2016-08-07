@@ -17,7 +17,7 @@
 <set xmlns:android="http://schemas.android.com/apk/res/android">
     <objectAnimator
         android:duration="@integer/tutorial_icon_emanate_duration"
-        android:interpolator="@interpolator/tutorial_icon_emanate_interpolator"
+        android:interpolator="@anim/tutorial_icon_emanate_interpolator"
         android:propertyName="scaleX"
         android:repeatCount="-1"
         android:repeatMode="restart"
@@ -27,7 +27,7 @@
         android:valueType="floatType" />
     <objectAnimator
         android:duration="@integer/tutorial_icon_emanate_duration"
-        android:interpolator="@interpolator/tutorial_icon_emanate_interpolator"
+        android:interpolator="@anim/tutorial_icon_emanate_interpolator"
         android:propertyName="scaleY"
         android:repeatCount="-1"
         android:repeatMode="restart"
