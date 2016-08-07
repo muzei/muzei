@@ -86,14 +86,13 @@ public class ScrimUtil {
         paintDrawable.setShaderFactory(new ShapeDrawable.ShaderFactory() {
             @Override
             public Shader resize(int width, int height) {
-                LinearGradient linearGradient = new LinearGradient(
+                return new LinearGradient(
                         width * x0,
                         height * y0,
                         width * x1,
                         height * y1,
                         stopColors, null,
                         Shader.TileMode.CLAMP);
-                return linearGradient;
             }
         });
 
