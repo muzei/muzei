@@ -220,7 +220,7 @@ public class AnimatedMuzeiLogoView extends View {
         mOnStateChangeListener = onStateChangeListener;
     }
 
-    public static interface OnStateChangeListener {
+    public interface OnStateChangeListener {
         void onStateChange(int state);
     }
 

@@ -125,7 +125,7 @@ public abstract class RenderController {
         }
     }
 
-    public static interface Callbacks {
+    public interface Callbacks {
         void queueEventOnGlThread(Runnable runnable);
         void requestRender();
     }

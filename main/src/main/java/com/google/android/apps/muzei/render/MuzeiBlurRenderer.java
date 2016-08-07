@@ -583,7 +583,7 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
         mCallbacks.requestRender();
     }
 
-    public static interface Callbacks {
+    public interface Callbacks {
         void requestRender();
     }
 }

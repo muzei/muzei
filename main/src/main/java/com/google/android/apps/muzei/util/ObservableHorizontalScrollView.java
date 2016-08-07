@@ -64,9 +64,9 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView {
         mCallbacks = listener;
     }
 
-    public static interface Callbacks {
-        public void onScrollChanged(int scrollX);
-        public void onDownMotionEvent();
-        public void onUpOrCancelMotionEvent();
+    public interface Callbacks {
+        void onScrollChanged(int scrollX);
+        void onDownMotionEvent();
+        void onUpOrCancelMotionEvent();
     }
 }

@@ -584,13 +584,13 @@ public class PanScaleProxyView extends View {
         }
     }
 
-    public static interface OnViewportChangedListener {
-        public void onViewportChanged();
+    public interface OnViewportChangedListener {
+        void onViewportChanged();
     }
 
-    public static interface OnOtherGestureListener {
-        public void onDown();
-        public void onSingleTapUp();
-        public void onUpNonSingleTap(boolean zoomedOut);
+    public interface OnOtherGestureListener {
+        void onDown();
+        void onSingleTapUp();
+        void onUpNonSingleTap(boolean zoomedOut);
     }
 }

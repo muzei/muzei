@@ -360,7 +360,7 @@ public class SettingsActivity extends AppCompatActivity
         mAppBar.inflateMenu(R.menu.settings);
     }
 
-    public static interface SettingsActivityMenuListener {
-        public void onSettingsActivityMenuItemClick(MenuItem item);
+    public interface SettingsActivityMenuListener {
+        void onSettingsActivityMenuItemClick(MenuItem item);
     }
 }
