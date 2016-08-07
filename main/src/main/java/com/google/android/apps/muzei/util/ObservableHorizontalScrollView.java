@@ -46,10 +46,6 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView {
                 case MotionEvent.ACTION_DOWN:
                     mCallbacks.onDownMotionEvent();
                     break;
-                case MotionEvent.ACTION_UP:
-                case MotionEvent.ACTION_CANCEL:
-                    mCallbacks.onUpOrCancelMotionEvent();
-                    break;
             }
         }
         return super.onTouchEvent(ev);
@@ -67,6 +63,5 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView {
     public interface Callbacks {
         void onScrollChanged(int scrollX);
         void onDownMotionEvent();
-        void onUpOrCancelMotionEvent();
     }
 }

@@ -181,10 +181,6 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
                     mCurrentScroller = null;
                 }
             }
-
-            @Override
-            public void onUpOrCancelMotionEvent() {
-            }
         });
         mSourceContainerView = (ViewGroup) mRootView.findViewById(R.id.source_container);
 
