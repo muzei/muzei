@@ -80,12 +80,6 @@
             android:theme="@style/Theme.Muzei.About"
             android:parentActivityName="com.google.android.apps.muzei.settings.SettingsActivity" />
 
-        <receiver android:name="com.google.android.apps.muzei.NetworkChangeReceiver">
-            <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-            </intent-filter>
-        </receiver>
-
         <!-- Target for "Set As" intent -->
 
         <activity android:name="com.google.android.apps.muzei.PhotoSetAsTargetActivity"

@@ -30,10 +30,6 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTIO
 public class NetworkChangeReceiver extends WakefulBroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent == null || !ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
-            return;
-        }
-
         boolean hasConnectivity = !intent.getBooleanExtra(
                 ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
         if (hasConnectivity) {

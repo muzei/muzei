@@ -17,6 +17,10 @@
 package com.google.android.apps.muzei;
 
 import android.app.WallpaperManager;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.GestureDetector;
@@ -39,6 +43,7 @@ import org.greenrobot.eventbus.Subscribe;
 
 public class MuzeiWallpaperService extends GLWallpaperService {
     private LockScreenVisibleReceiver mLockScreenVisibleReceiver;
+    private NetworkChangeReceiver mNetworkChangeReceiver;
 
     @Override
     public Engine onCreateEngine() {
@@ -51,11 +56,24 @@ public class MuzeiWallpaperService extends GLWallpaperService {
         mLockScreenVisibleReceiver = new LockScreenVisibleReceiver();
         mLockScreenVisibleReceiver.setupRegisterDeregister(this);
         SourceManager.getInstance(MuzeiWallpaperService.this).subscribeToSelectedSource();
+        mNetworkChangeReceiver = new NetworkChangeReceiver();
+        IntentFilter networkChangeFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(mNetworkChangeReceiver, networkChangeFilter);
+        // Ensure we retry loading the artwork if the network changed while the wallpaper was disabled
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        Intent retryIntent = TaskQueueService.maybeRetryDownloadDueToGainedConnectivity(this);
+        if (retryIntent != null && connectivityManager.getActiveNetworkInfo().isConnected()) {
+            startService(retryIntent);
+        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (mNetworkChangeReceiver != null) {
+            unregisterReceiver(mNetworkChangeReceiver);
+            mNetworkChangeReceiver = null;
+        }
         SourceManager.getInstance(MuzeiWallpaperService.this).unsubscribeToSelectedSource();
         if (mLockScreenVisibleReceiver != null) {
             mLockScreenVisibleReceiver.destroy();
