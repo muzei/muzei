@@ -109,7 +109,4 @@ class GLColorOverlay {
     public void setColor(int color) {
         mColor = color;
     }
-
-    public void destroy() {
-    }
 }
