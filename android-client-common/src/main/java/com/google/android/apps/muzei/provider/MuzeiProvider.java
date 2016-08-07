@@ -341,6 +341,7 @@ public class MuzeiProvider extends ContentProvider {
             // Disable network access callbacks if we're running on an API 24 device and the source app
             // targets API 24. This is to be consistent with the Behavior Changes in Android N
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
+                    initialValues.containsKey(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE) &&
                     initialValues.getAsBoolean(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE)) {
                 ApplicationInfo info = packageManager.getApplicationInfo(componentName.getPackageName(), 0);
                 if (info.targetSdkVersion >= Build.VERSION_CODES.N) {
