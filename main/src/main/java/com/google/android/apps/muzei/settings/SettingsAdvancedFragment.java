@@ -51,8 +51,6 @@ public class SettingsAdvancedFragment extends Fragment
     private SeekBar mBlurSeekBar;
     private SeekBar mDimSeekBar;
     private SeekBar mGreySeekBar;
-    private CheckBox mNotifyNewWallpaperCheckBox;
-    private CheckBox mBlurOnLockScreenCheckBox;
 
     public SettingsAdvancedFragment() {
     }
@@ -124,8 +122,7 @@ public class SettingsAdvancedFragment extends Fragment
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-
-        mNotifyNewWallpaperCheckBox = (CheckBox) rootView.findViewById(
+        CheckBox mNotifyNewWallpaperCheckBox = (CheckBox) rootView.findViewById(
                 R.id.notify_new_wallpaper_checkbox);
         mNotifyNewWallpaperCheckBox.setOnCheckedChangeListener(
                 new CompoundButton.OnCheckedChangeListener() {
@@ -139,8 +136,7 @@ public class SettingsAdvancedFragment extends Fragment
                 });
         mNotifyNewWallpaperCheckBox.setChecked(getSharedPreferences()
                 .getBoolean(NewWallpaperNotificationReceiver.PREF_ENABLED, true));
-
-        mBlurOnLockScreenCheckBox = (CheckBox) rootView.findViewById(
+        CheckBox mBlurOnLockScreenCheckBox = (CheckBox) rootView.findViewById(
                 R.id.blur_on_lockscreen_checkbox);
         mBlurOnLockScreenCheckBox.setOnCheckedChangeListener(
                 new CompoundButton.OnCheckedChangeListener() {
