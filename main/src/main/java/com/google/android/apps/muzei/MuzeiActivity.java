@@ -203,7 +203,6 @@ public class MuzeiActivity extends AppCompatActivity {
     private boolean mPaused;
     private boolean mWindowHasFocus;
     private boolean mOverflowMenuVisible = false;
-    private boolean mGestureFlagSystemUiBecameVisible;
     private boolean mWallpaperActive;
     private boolean mSeenTutorial;
     private boolean mGuardViewportChangeListener;
@@ -566,9 +565,6 @@ public class MuzeiActivity extends AppCompatActivity {
                     @Override
                     public void onSystemUiVisibilityChange(int vis) {
                         final boolean visible = (vis & View.SYSTEM_UI_FLAG_LOW_PROFILE) == 0;
-                        if (visible) {
-                            mGestureFlagSystemUiBecameVisible = true;
-                        }
 
                         boolean showArtDetailChrome = (mUiMode == UI_MODE_ART_DETAIL);
                         mChromeContainerView.setVisibility(
@@ -639,7 +635,6 @@ public class MuzeiActivity extends AppCompatActivity {
                 new PanScaleProxyView.OnOtherGestureListener() {
                     @Override
                     public void onDown() {
-                        mGestureFlagSystemUiBecameVisible = false;
                     }
 
                     @Override
@@ -648,17 +643,6 @@ public class MuzeiActivity extends AppCompatActivity {
                             showHideChrome((mContainerView.getSystemUiVisibility()
                                     & View.SYSTEM_UI_FLAG_LOW_PROFILE) != 0);
                         }
-                    }
-
-                    @Override
-                    public void onUpNonSingleTap(boolean zoomedOut) {
-                        if (mGestureFlagSystemUiBecameVisible) {
-                            // System UI became visible during this touch sequence. Don't
-                            // change system visibility.
-                            return;
-                        }
-
-                        //showHideChrome(zoomedOut);
                     }
                 });
 
