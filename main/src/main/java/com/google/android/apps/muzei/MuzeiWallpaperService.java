@@ -17,6 +17,10 @@
 package com.google.android.apps.muzei;
 
 import android.app.WallpaperManager;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.GestureDetector;
@@ -39,6 +43,7 @@ import org.greenrobot.eventbus.Subscribe;
 
 public class MuzeiWallpaperService extends GLWallpaperService {
     private LockScreenVisibleReceiver mLockScreenVisibleReceiver;
+    private NetworkChangeReceiver mNetworkChangeReceiver;
 
     @Override
     public Engine onCreateEngine() {
@@ -50,11 +55,26 @@ public class MuzeiWallpaperService extends GLWallpaperService {
         super.onCreate();
         mLockScreenVisibleReceiver = new LockScreenVisibleReceiver();
         mLockScreenVisibleReceiver.setupRegisterDeregister(this);
+        SourceManager.getInstance(MuzeiWallpaperService.this).subscribeToSelectedSource();
+        mNetworkChangeReceiver = new NetworkChangeReceiver();
+        IntentFilter networkChangeFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(mNetworkChangeReceiver, networkChangeFilter);
+        // Ensure we retry loading the artwork if the network changed while the wallpaper was disabled
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        Intent retryIntent = TaskQueueService.maybeRetryDownloadDueToGainedConnectivity(this);
+        if (retryIntent != null && connectivityManager.getActiveNetworkInfo().isConnected()) {
+            startService(retryIntent);
+        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (mNetworkChangeReceiver != null) {
+            unregisterReceiver(mNetworkChangeReceiver);
+            mNetworkChangeReceiver = null;
+        }
+        SourceManager.getInstance(MuzeiWallpaperService.this).unsubscribeToSelectedSource();
         if (mLockScreenVisibleReceiver != null) {
             mLockScreenVisibleReceiver.destroy();
             mLockScreenVisibleReceiver = null;
@@ -93,7 +113,6 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             mGestureDetector = new GestureDetector(MuzeiWallpaperService.this, mGestureListener);
             if (!isPreview()) {
                 EventBus.getDefault().postSticky(new WallpaperActiveStateChangedEvent(true));
-                SourceManager.getInstance(MuzeiWallpaperService.this).subscribeToSelectedSource();
             }
             setTouchEventsEnabled(true);
             setOffsetNotificationsEnabled(true);
@@ -114,7 +133,6 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             super.onDestroy();
             EventBus.getDefault().unregister(this);
             if (!isPreview()) {
-                SourceManager.getInstance(MuzeiWallpaperService.this).unsubscribeToSelectedSource();
                 EventBus.getDefault().postSticky(new WallpaperActiveStateChangedEvent(false));
             }
             queueEvent(new Runnable() {
