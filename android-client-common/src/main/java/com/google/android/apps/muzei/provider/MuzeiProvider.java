@@ -335,24 +335,23 @@ public class MuzeiProvider extends ContentProvider {
         PackageManager packageManager = getContext().getPackageManager();
         ComponentName componentName = ComponentName.unflattenFromString(
                 initialValues.getAsString(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME));
-        try {
-            // Confirm that the source exists and is a Service
-            packageManager.getServiceInfo(componentName, 0);
-            // Disable network access callbacks if we're running on an API 24 device and the source app
-            // targets API 24. This is to be consistent with the Behavior Changes in Android N
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
-                    initialValues.containsKey(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE) &&
-                    initialValues.getAsBoolean(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE)) {
+        // Disable network access callbacks if we're running on an API 24 device and the source app
+        // targets API 24. This is to be consistent with the Behavior Changes in Android N
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
+                initialValues.containsKey(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE) &&
+                initialValues.getAsBoolean(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE)) {
+            try {
                 ApplicationInfo info = packageManager.getApplicationInfo(componentName.getPackageName(), 0);
                 if (info.targetSdkVersion >= Build.VERSION_CODES.N) {
                     Log.w(TAG, "Sources targeting API 24 cannot receive network access callbacks. Changing " +
                             componentName + " to false for "+ MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE);
                     initialValues.put(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE, false);
                 }
+            } catch (PackageManager.NameNotFoundException e) {
+                Log.w(TAG, "Invalid component name:" + componentName + ", ignoring " +
+                        MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE);
+                initialValues.put(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE, false);
             }
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "Invalid component name:" + componentName);
-            throw new IllegalArgumentException("Invalid component name: " + componentName);
         }
         final SQLiteDatabase db = databaseHelper.getWritableDatabase();
         final long rowId = db.insert(MuzeiContract.Sources.TABLE_NAME,
@@ -500,7 +499,8 @@ public class MuzeiProvider extends ContentProvider {
         if (MuzeiProvider.uriMatcher.match(artworkUri) == MuzeiProvider.ARTWORK) {
             data = queryArtwork(MuzeiContract.Artwork.CONTENT_URI, projection, null, null, null);
             if (!data.moveToFirst()) {
-                throw new IllegalStateException("You must insert at least one row");
+                Log.w(TAG, "You must insert at least one row to read or write artwork");
+                return null;
             }
         } else {
             data = queryArtwork(artworkUri, projection, null, null, null);
