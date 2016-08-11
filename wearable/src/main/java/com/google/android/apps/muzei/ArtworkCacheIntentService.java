@@ -18,8 +18,10 @@ package com.google.android.apps.muzei;
 
 import android.app.IntentService;
 import android.content.ComponentName;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
@@ -108,6 +110,21 @@ public class ArtworkCacheIntentService extends IntentService {
             return false;
         }
         final Artwork artwork = Artwork.fromBundle(artworkDataMap.toBundle());
+        // Check if the source info row exists at all.
+        ComponentName componentName = artwork.getComponentName();
+        Cursor sourceQuery = getContentResolver().query(MuzeiContract.Sources.CONTENT_URI, null,
+                MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + "=?",
+                new String[] {componentName.flattenToShortString()}, null);
+        if (sourceQuery == null || !sourceQuery.moveToFirst()) {
+            // If the row does not exist, insert a dummy row
+            ContentValues values = new ContentValues();
+            values.put(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, componentName.flattenToShortString());
+            values.put(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, true);
+            getContentResolver().insert(MuzeiContract.Sources.CONTENT_URI, values);
+        }
+        if (sourceQuery != null) {
+            sourceQuery.close();
+        }
         Uri artworkUri = getContentResolver().insert(MuzeiContract.Artwork.CONTENT_URI, artwork.toContentValues());
         if (artworkUri == null) {
             Log.w(TAG, "Unable to write artwork information to MuzeiProvider");
