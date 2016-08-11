@@ -471,6 +471,11 @@ public class MuzeiProvider extends ContentProvider {
                             if (isWriteOperation) {
                                 if (e != null) {
                                     Log.e(TAG, "Error closing " + file + " for " + uri, e);
+                                    if (file.exists()) {
+                                        if (!file.delete()) {
+                                            Log.w(TAG, "Unable to delete " + file);
+                                        }
+                                    }
                                 } else {
                                     // The file was successfully written, notify listeners of the new artwork
                                     notifyChange(uri);
