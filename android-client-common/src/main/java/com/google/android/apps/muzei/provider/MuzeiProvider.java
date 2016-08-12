@@ -138,6 +138,18 @@ public class MuzeiProvider extends ContentProvider {
                 MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT);
         allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_META_FONT,
                 MuzeiContract.Artwork.COLUMN_NAME_META_FONT);
+        allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME,
+                MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME);
+        allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED,
+                MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED);
+        allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION,
+                MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION);
+        allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE,
+                MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE);
+        allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,
+                MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND);
+        allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_COMMANDS,
+                MuzeiContract.Sources.COLUMN_NAME_COMMANDS);
         return allColumnProjectionMap;
     }
 
