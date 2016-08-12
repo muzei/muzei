@@ -35,6 +35,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
@@ -459,7 +460,11 @@ public class MuzeiProvider extends ContentProvider {
         }
         final boolean isWriteOperation = mode.contains("w");
         if (file.exists() && file.length() > 0 && isWriteOperation) {
-            Log.e(TAG, "Writing to an existing artwork file is not allowed: insert a new row");
+            String callingPackageName = getContext().getPackageManager().getNameForUid(
+                    Binder.getCallingUid());
+            if (!getContext().getPackageName().equals(callingPackageName)) {
+                Log.w(TAG, "Writing to an existing artwork file is not allowed: insert a new row");
+            }
             return null;
         }
         try {
@@ -499,7 +504,11 @@ public class MuzeiProvider extends ContentProvider {
         if (MuzeiProvider.uriMatcher.match(artworkUri) == MuzeiProvider.ARTWORK) {
             data = queryArtwork(MuzeiContract.Artwork.CONTENT_URI, projection, null, null, null);
             if (!data.moveToFirst()) {
-                Log.w(TAG, "You must insert at least one row to read or write artwork");
+                String callingPackageName = getContext().getPackageManager().getNameForUid(
+                        Binder.getCallingUid());
+                if (!getContext().getPackageName().equals(callingPackageName)) {
+                    Log.w(TAG, "You must insert at least one row to read or write artwork");
+                }
                 return null;
             }
         } else {
