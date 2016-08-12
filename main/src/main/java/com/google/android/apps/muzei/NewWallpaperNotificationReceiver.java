@@ -145,7 +145,9 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
                 new String[] {BaseColumns._ID,
                 MuzeiContract.Artwork.COLUMN_NAME_TITLE,
                 MuzeiContract.Artwork.COLUMN_NAME_BYLINE,
-                MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT},
+                MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT,
+                MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,
+                MuzeiContract.Sources.COLUMN_NAME_COMMANDS},
                 null, null, null);
         if (artwork == null || !artwork.moveToFirst()) {
             if (artwork != null) {
@@ -215,56 +217,48 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
 
         NotificationCompat.WearableExtender extender = new NotificationCompat.WearableExtender();
 
-        Cursor selectedSource = context.getContentResolver().query(MuzeiContract.Sources.CONTENT_URI,
-                new String[]{MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,
-                        MuzeiContract.Sources.COLUMN_NAME_COMMANDS},
-                MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED + "=1", null, null, null);
-        if (selectedSource != null && selectedSource.moveToFirst()) {
-            // Support Next Artwork
-            if (selectedSource.getInt(0) != 0) {
-                PendingIntent nextPendingIntent = PendingIntent.getBroadcast(context, 0,
-                        new Intent(context, NewWallpaperNotificationReceiver.class)
-                                .setAction(ACTION_NEXT_ARTWORK),
-                        PendingIntent.FLAG_UPDATE_CURRENT);
-                nb.addAction(
-                        R.drawable.ic_notif_next_artwork,
-                        context.getString(R.string.action_next_artwork_condensed),
-                        nextPendingIntent);
-                // Android Wear uses larger action icons so we build a
-                // separate action
-                extender.addAction(new NotificationCompat.Action.Builder(
-                        R.drawable.ic_notif_full_next_artwork,
-                        context.getString(R.string.action_next_artwork_condensed),
-                        nextPendingIntent)
-                        .extend(new NotificationCompat.Action.WearableExtender().setAvailableOffline(false))
-                        .build());
-            }
-            List<UserCommand> commands = MuzeiContract.Sources.parseCommands(selectedSource.getString(1));
-            // Show custom actions as a selectable list on Android Wear devices
-            if (!commands.isEmpty()) {
-                String[] actions = new String[commands.size()];
-                for (int h=0; h<commands.size(); h++) {
-                    actions[h] = commands.get(h).getTitle();
-                }
-                PendingIntent userCommandPendingIntent = PendingIntent.getBroadcast(context, 0,
-                        new Intent(context, NewWallpaperNotificationReceiver.class)
-                                .setAction(ACTION_USER_COMMAND),
-                        PendingIntent.FLAG_UPDATE_CURRENT);
-                RemoteInput remoteInput = new RemoteInput.Builder(EXTRA_USER_COMMAND)
-                        .setAllowFreeFormInput(false)
-                        .setLabel(context.getString(R.string.action_user_command_prompt))
-                        .setChoices(actions)
-                        .build();
-                extender.addAction(new NotificationCompat.Action.Builder(
-                        R.drawable.ic_notif_full_user_command,
-                        context.getString(R.string.action_user_command),
-                        userCommandPendingIntent).addRemoteInput(remoteInput)
-                        .extend(new NotificationCompat.Action.WearableExtender().setAvailableOffline(false))
-                        .build());
-            }
+        // Support Next Artwork
+        if (artwork.getInt(artwork.getColumnIndex(MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND)) != 0) {
+            PendingIntent nextPendingIntent = PendingIntent.getBroadcast(context, 0,
+                    new Intent(context, NewWallpaperNotificationReceiver.class)
+                            .setAction(ACTION_NEXT_ARTWORK),
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+            nb.addAction(
+                    R.drawable.ic_notif_next_artwork,
+                    context.getString(R.string.action_next_artwork_condensed),
+                    nextPendingIntent);
+            // Android Wear uses larger action icons so we build a
+            // separate action
+            extender.addAction(new NotificationCompat.Action.Builder(
+                    R.drawable.ic_notif_full_next_artwork,
+                    context.getString(R.string.action_next_artwork_condensed),
+                    nextPendingIntent)
+                    .extend(new NotificationCompat.Action.WearableExtender().setAvailableOffline(false))
+                    .build());
         }
-        if (selectedSource != null) {
-            selectedSource.close();
+        List<UserCommand> commands = MuzeiContract.Sources.parseCommands(
+                artwork.getString(artwork.getColumnIndex(MuzeiContract.Sources.COLUMN_NAME_COMMANDS)));
+        // Show custom actions as a selectable list on Android Wear devices
+        if (!commands.isEmpty()) {
+            String[] actions = new String[commands.size()];
+            for (int h=0; h<commands.size(); h++) {
+                actions[h] = commands.get(h).getTitle();
+            }
+            PendingIntent userCommandPendingIntent = PendingIntent.getBroadcast(context, 0,
+                    new Intent(context, NewWallpaperNotificationReceiver.class)
+                            .setAction(ACTION_USER_COMMAND),
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+            RemoteInput remoteInput = new RemoteInput.Builder(EXTRA_USER_COMMAND)
+                    .setAllowFreeFormInput(false)
+                    .setLabel(context.getString(R.string.action_user_command_prompt))
+                    .setChoices(actions)
+                    .build();
+            extender.addAction(new NotificationCompat.Action.Builder(
+                    R.drawable.ic_notif_full_user_command,
+                    context.getString(R.string.action_user_command),
+                    userCommandPendingIntent).addRemoteInput(remoteInput)
+                    .extend(new NotificationCompat.Action.WearableExtender().setAvailableOffline(false))
+                    .build());
         }
         Intent viewIntent = null;
         try {
