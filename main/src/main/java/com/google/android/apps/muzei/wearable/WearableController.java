@@ -16,18 +16,17 @@
 
 package com.google.android.apps.muzei.wearable;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Rect;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiContract;
-import com.google.android.apps.muzei.render.BitmapRegionLoader;
 import com.google.android.apps.muzei.render.ImageUtil;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -38,6 +37,7 @@ import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.Wearable;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -109,29 +109,36 @@ public class WearableController {
 
     }
 
-    public static synchronized void updateArtwork(Context context,
-                                                  Artwork artwork, BitmapRegionLoader bitmapRegionLoader) {
+    public static synchronized void updateArtwork(Context context) {
         GoogleApiClient googleApiClient = WearableController.createdConnectedWearableClient(context);
         if (googleApiClient == null) {
             // Connection failed
             return;
         }
-        Rect rect = new Rect();
-        int width = bitmapRegionLoader.getWidth();
-        int height = bitmapRegionLoader.getHeight();
-        rect.set(0, 0, width, height);
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        if (width > height) {
-            options.inSampleSize = ImageUtil.calculateSampleSize(height, 320);
-        } else {
-            options.inSampleSize = ImageUtil.calculateSampleSize(width, 320);
+        ContentResolver contentResolver = context.getContentResolver();
+        Bitmap image = null;
+        try {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeStream(contentResolver.openInputStream(
+                    MuzeiContract.Artwork.CONTENT_URI), null, options);
+            options = new BitmapFactory.Options();
+            if (options.outWidth > options.outHeight) {
+                options.inSampleSize = ImageUtil.calculateSampleSize(options.outHeight, 320);
+            } else {
+                options.inSampleSize = ImageUtil.calculateSampleSize(options.outWidth, 320);
+            }
+            image = BitmapFactory.decodeStream(contentResolver.openInputStream(
+                    MuzeiContract.Artwork.CONTENT_URI), null, options);
+        } catch (FileNotFoundException e) {
+            Log.e(TAG, "Unable to read artwork to update Android Wear", e);
         }
-        Bitmap image = bitmapRegionLoader.decodeRegion(rect, options);
         if (image != null) {
             final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
             image.compress(Bitmap.CompressFormat.PNG, 100, byteStream);
             Asset asset = Asset.createFromBytes(byteStream.toByteArray());
             PutDataMapRequest dataMapRequest = PutDataMapRequest.create("/artwork");
+            Artwork artwork = MuzeiContract.Artwork.getCurrentArtwork(context);
             dataMapRequest.getDataMap().putDataMap("artwork", DataMap.fromBundle(artwork.toBundle()));
             dataMapRequest.getDataMap().putAsset("image", asset);
             Wearable.DataApi.putDataItem(googleApiClient, dataMapRequest.asPutDataRequest().setUrgent()).await();

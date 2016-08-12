@@ -18,14 +18,14 @@ package com.google.android.apps.muzei.render;
 
 import android.content.Context;
 import android.database.ContentObserver;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
-import android.text.TextUtils;
+import android.provider.BaseColumns;
 import android.util.Log;
 
 import com.google.android.apps.muzei.NewWallpaperNotificationReceiver;
 import com.google.android.apps.muzei.wearable.WearableController;
-import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiContract;
 
 import java.io.IOException;
@@ -33,7 +33,7 @@ import java.io.IOException;
 public class RealRenderController extends RenderController {
     private static final String TAG = "RealRenderController";
 
-    private String mLastLoadedPath;
+    private long mLastLoadedArtworkId = -1;
     private ContentObserver mContentObserver;
 
     public RealRenderController(Context context, MuzeiBlurRenderer renderer,
@@ -60,16 +60,22 @@ public class RealRenderController extends RenderController {
 
     @Override
     protected BitmapRegionLoader openDownloadedCurrentArtwork(boolean forceReload) {
-        Artwork currentArtwork = MuzeiContract.Artwork.getCurrentArtwork(mContext);
         // Load the stream
         try {
             BitmapRegionLoader loader = BitmapRegionLoader.newInstance(
                     mContext.getContentResolver().openInputStream(MuzeiContract.Artwork.CONTENT_URI), 0);
-            if (!TextUtils.equals(mLastLoadedPath, currentArtwork.getImageUri().toString())) {
-                mLastLoadedPath = currentArtwork.getImageUri().toString();
-                NewWallpaperNotificationReceiver
-                        .maybeShowNewArtworkNotification(mContext, currentArtwork, loader);
-                WearableController.updateArtwork(mContext, currentArtwork, loader);
+            Cursor lastArtwork = mContext.getContentResolver().query(
+                    MuzeiContract.Artwork.CONTENT_URI, new String[] {BaseColumns._ID}, null, null, null);
+            if (lastArtwork != null && lastArtwork.moveToFirst()) {
+                long id = lastArtwork.getLong(0);
+                if (mLastLoadedArtworkId != id) {
+                    mLastLoadedArtworkId = id;
+                    NewWallpaperNotificationReceiver.maybeShowNewArtworkNotification(mContext);
+                    WearableController.updateArtwork(mContext);
+                }
+            }
+            if (lastArtwork != null) {
+                lastArtwork.close();
             }
             return loader;
         } catch (IOException e) {
