@@ -265,15 +265,16 @@ public class SourceManager {
             } else {
                 mContentResolver.insert(MuzeiContract.Sources.CONTENT_URI, values);
             }
-            // We're already on a background thread, so it safe to call this directly
-            WearableController.updateSource(mApplicationContext);
             if (existingSource != null) {
                 existingSource.close();
             }
-
-            Artwork artwork = state.getCurrentArtwork();
-            mContentResolver.insert(MuzeiContract.Artwork.CONTENT_URI, artwork.toContentValues());
         }
+
+        // We're already on a background thread, so it safe to call this directly
+        WearableController.updateSource(mApplicationContext);
+
+        Artwork artwork = state.getCurrentArtwork();
+        mContentResolver.insert(MuzeiContract.Artwork.CONTENT_URI, artwork.toContentValues());
 
         // Download the artwork contained from the newly published SourceState
         mApplicationContext.startService(TaskQueueService.getDownloadCurrentArtworkIntent(mApplicationContext));
