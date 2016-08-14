@@ -20,14 +20,18 @@ import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.ContentObserver;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.ViewConfiguration;
 
+import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
 import com.google.android.apps.muzei.event.LockScreenVisibleChangedEvent;
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
@@ -35,6 +39,7 @@ import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
 import com.google.android.apps.muzei.render.RealRenderController;
 import com.google.android.apps.muzei.render.RenderController;
+import com.google.android.apps.muzei.wearable.WearableController;
 
 import net.rbgrn.android.glwallpaperservice.GLWallpaperService;
 
@@ -44,6 +49,10 @@ import org.greenrobot.eventbus.Subscribe;
 public class MuzeiWallpaperService extends GLWallpaperService {
     private LockScreenVisibleReceiver mLockScreenVisibleReceiver;
     private NetworkChangeReceiver mNetworkChangeReceiver;
+    private HandlerThread mNotificationHandlerThread;
+    private ContentObserver mNotificationContentObserver;
+    private HandlerThread mWearableHandlerThread;
+    private ContentObserver mWearableContentObserver;
 
     @Override
     public Engine onCreateEngine() {
@@ -65,11 +74,39 @@ public class MuzeiWallpaperService extends GLWallpaperService {
         if (retryIntent != null && connectivityManager.getActiveNetworkInfo().isConnected()) {
             startService(retryIntent);
         }
+
+        // Set up a thread to update notifications whenever the artwork changes
+        mNotificationHandlerThread = new HandlerThread("MuzeiWallpaperService-Notification");
+        mNotificationHandlerThread.start();
+        mNotificationContentObserver = new ContentObserver(new Handler(mNotificationHandlerThread.getLooper())) {
+            @Override
+            public void onChange(final boolean selfChange, final Uri uri) {
+                NewWallpaperNotificationReceiver.maybeShowNewArtworkNotification(MuzeiWallpaperService.this);
+            }
+        };
+        getContentResolver().registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
+                true, mNotificationContentObserver);
+
+        // Set up a thread to update Android Wear whenever the artwork changes
+        mWearableHandlerThread = new HandlerThread("MuzeiWallpaperService-Wearable");
+        mWearableHandlerThread.start();
+        mWearableContentObserver = new ContentObserver(new Handler(mWearableHandlerThread.getLooper())) {
+            @Override
+            public void onChange(final boolean selfChange, final Uri uri) {
+                WearableController.updateArtwork(MuzeiWallpaperService.this);
+            }
+        };
+        getContentResolver().registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
+                true, mWearableContentObserver);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        getContentResolver().unregisterContentObserver(mWearableContentObserver);
+        mWearableHandlerThread.quitSafely();
+        getContentResolver().unregisterContentObserver(mNotificationContentObserver);
+        mNotificationHandlerThread.quitSafely();
         if (mNetworkChangeReceiver != null) {
             unregisterReceiver(mNetworkChangeReceiver);
             mNetworkChangeReceiver = null;
