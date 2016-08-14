@@ -43,7 +43,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class ActivateMuzeiIntentService extends IntentService {
-    private static final String TAG = ActivateMuzeiIntentService.class.getSimpleName();
+    private static final String TAG = "ActivateMuzeiService";
     private static final int NOTIFICATION_ID = 3113;
     private static final String ACTIVATE_MUZEI_NOTIF_SHOWN_PREF_KEY = "ACTIVATE_MUZEI_NOTIF_SHOWN";
     private static final String ACTION_MARK_NOTIFICATION_READ =

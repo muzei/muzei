@@ -51,7 +51,7 @@ import java.util.concurrent.TimeUnit;
  * notification to activate Muzei if the artwork is not found
  */
 public class ArtworkCacheIntentService extends IntentService {
-    private static final String TAG = ArtworkCacheIntentService.class.getSimpleName();
+    private static final String TAG = "ArtworkCacheService";
     public static final String SHOW_ACTIVATE_NOTIFICATION_EXTRA = "SHOW_ACTIVATE_NOTIFICATION";
 
     public ArtworkCacheIntentService() {

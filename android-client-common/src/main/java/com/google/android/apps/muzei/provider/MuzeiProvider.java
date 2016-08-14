@@ -61,7 +61,7 @@ import java.util.LinkedHashSet;
  * Provides access to a the most recent artwork
  */
 public class MuzeiProvider extends ContentProvider {
-    private static final String TAG = MuzeiProvider.class.getSimpleName();
+    private static final String TAG = "MuzeiProvider";
     /**
      * The incoming URI matches the ARTWORK URI pattern
      */

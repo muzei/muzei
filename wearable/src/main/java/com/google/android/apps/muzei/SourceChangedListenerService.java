@@ -35,7 +35,7 @@ import java.util.ArrayList;
  * WearableListenerService responsible to receiving Data Layer changes with updated source info
  */
 public class SourceChangedListenerService extends WearableListenerService {
-    private static final String TAG = SourceChangedListenerService.class.getSimpleName();
+    private static final String TAG = "SourceChangedService";
 
     @Override
     public void onDataChanged(final DataEventBuffer dataEvents) {

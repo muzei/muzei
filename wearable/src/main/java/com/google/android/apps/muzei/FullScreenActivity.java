@@ -46,7 +46,7 @@ import net.nurik.roman.muzei.R;
 import java.io.FileNotFoundException;
 
 public class FullScreenActivity extends Activity implements LoaderManager.LoaderCallbacks<Bitmap> {
-    private static final String TAG = FullScreenActivity.class.getSimpleName();
+    private static final String TAG = "FullScreenActivity";
 
     private PanView mPanView;
     private View mLoadingIndicatorView;

@@ -39,7 +39,7 @@ import android.widget.OverScroller;
  * and flinging
  */
 public class PanView extends View {
-    private static final String TAG = PanView.class.getSimpleName();
+    private static final String TAG = "PanView";
 
     private Bitmap mImage;
     private Bitmap mScaledImage;
