@@ -362,7 +362,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
         public void onVisibilityChanged(boolean visible) {
             super.onVisibilityChanged(visible);
             if (visible) {
-                mLoadImageHandlerThread = new HandlerThread(MuzeiWatchFace.class.getSimpleName());
+                mLoadImageHandlerThread = new HandlerThread("MuzeiWatchFace-LoadImage");
                 mLoadImageHandlerThread.start();
                 mLoadImageHandler = new Handler(mLoadImageHandlerThread.getLooper());
                 mLoadImageContentObserver = new LoadImageContentObserver(mLoadImageHandler);

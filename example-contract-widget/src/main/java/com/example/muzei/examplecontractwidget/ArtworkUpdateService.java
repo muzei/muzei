@@ -37,10 +37,10 @@ import java.io.FileNotFoundException;
  * Handle updating all widgets with the latest artwork
  */
 public class ArtworkUpdateService extends IntentService {
-    private static final String TAG = ArtworkUpdateService.class.getSimpleName();
+    private static final String TAG = "ArtworkUpdateService";
 
     public ArtworkUpdateService() {
-        super(ArtworkUpdateService.class.getSimpleName());
+        super(TAG);
     }
 
     @Override
@@ -69,7 +69,7 @@ public class ArtworkUpdateService extends IntentService {
             // where options subsamples the image to the appropriate size if you don't need to full size image
             image = scaleBitmap(image);
         } catch (FileNotFoundException e) {
-            Log.w(ArtworkUpdateService.class.getSimpleName(), "Could not find current artwork image", e);
+            Log.w(TAG, "Could not find current artwork image", e);
             return;
         }
         if (image == null) {
