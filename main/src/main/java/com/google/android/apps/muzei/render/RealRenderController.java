@@ -18,14 +18,10 @@ package com.google.android.apps.muzei.render;
 
 import android.content.Context;
 import android.database.ContentObserver;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
-import android.provider.BaseColumns;
 import android.util.Log;
 
-import com.google.android.apps.muzei.NewWallpaperNotificationReceiver;
-import com.google.android.apps.muzei.wearable.WearableController;
 import com.google.android.apps.muzei.api.MuzeiContract;
 
 import java.io.IOException;
@@ -33,7 +29,6 @@ import java.io.IOException;
 public class RealRenderController extends RenderController {
     private static final String TAG = "RealRenderController";
 
-    private long mLastLoadedArtworkId = -1;
     private ContentObserver mContentObserver;
 
     public RealRenderController(Context context, MuzeiBlurRenderer renderer,
@@ -62,22 +57,8 @@ public class RealRenderController extends RenderController {
     protected BitmapRegionLoader openDownloadedCurrentArtwork(boolean forceReload) {
         // Load the stream
         try {
-            BitmapRegionLoader loader = BitmapRegionLoader.newInstance(
+            return BitmapRegionLoader.newInstance(
                     mContext.getContentResolver().openInputStream(MuzeiContract.Artwork.CONTENT_URI), 0);
-            Cursor lastArtwork = mContext.getContentResolver().query(
-                    MuzeiContract.Artwork.CONTENT_URI, new String[] {BaseColumns._ID}, null, null, null);
-            if (lastArtwork != null && lastArtwork.moveToFirst()) {
-                long id = lastArtwork.getLong(0);
-                if (mLastLoadedArtworkId != id) {
-                    mLastLoadedArtworkId = id;
-                    NewWallpaperNotificationReceiver.maybeShowNewArtworkNotification(mContext);
-                    WearableController.updateArtwork(mContext);
-                }
-            }
-            if (lastArtwork != null) {
-                lastArtwork.close();
-            }
-            return loader;
         } catch (IOException e) {
             Log.e(TAG, "Error loading image", e);
             return null;
