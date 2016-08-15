@@ -229,7 +229,7 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
             row.add(DocumentsContract.Document.COLUMN_DOCUMENT_ID,
                     SOURCE_DOCUMENT_ID_PREFIX + Long.toString(id));
             row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, DocumentsContract.Document.MIME_TYPE_DIR);
-            row.add(DocumentsContract.Document.COLUMN_FLAGS, 0);
+            row.add(DocumentsContract.Document.COLUMN_FLAGS, DocumentsContract.Document.FLAG_DIR_PREFERS_GRID);
             row.add(DocumentsContract.Document.COLUMN_SIZE, null);
             ComponentName componentName = ComponentName.unflattenFromString(
                     data.getString(data.getColumnIndex(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME)));
