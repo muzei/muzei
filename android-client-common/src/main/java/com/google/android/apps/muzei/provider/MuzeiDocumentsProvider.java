@@ -305,58 +305,66 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
     @Override
     public AssetFileDescriptor openDocumentThumbnail(final String documentId, final Point sizeHint, final CancellationSignal signal) throws FileNotFoundException {
         if (documentId != null && documentId.startsWith(ARTWORK_DOCUMENT_ID_PREFIX)) {
-            ContentResolver contentResolver = getContext().getContentResolver();
             long artworkId = Long.parseLong(documentId.replace(ARTWORK_DOCUMENT_ID_PREFIX, ""));
             Uri artworkUri = ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI, artworkId);
-            File tempFile = getCacheFileForArtworkUri(artworkUri);
-            if (tempFile != null && tempFile.exists() && tempFile.length() != 0) {
-                // We already have a cached thumbnail
-                return new AssetFileDescriptor(ParcelFileDescriptor.open(tempFile, ParcelFileDescriptor.MODE_READ_ONLY), 0,
-                        AssetFileDescriptor.UNKNOWN_LENGTH);
-            }
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            BitmapFactory.decodeStream(contentResolver.openInputStream(artworkUri), null, options);
-            final int targetHeight = 2 * sizeHint.y;
-            final int targetWidth = 2 * sizeHint.x;
-            final int height = options.outHeight;
-            final int width = options.outWidth;
-            options.inSampleSize = 1;
-            if (height > targetHeight || width > targetWidth) {
-                final int halfHeight = height / 2;
-                final int halfWidth = width / 2;
-                // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-                // height and width larger than the requested height and width.
-                while ((halfHeight / options.inSampleSize) > targetHeight
-                        || (halfWidth / options.inSampleSize) > targetWidth) {
-                    options.inSampleSize *= 2;
-                }
-            }
-            options.inJustDecodeBounds = false;
-            Bitmap bitmap = BitmapFactory.decodeStream(contentResolver.openInputStream(artworkUri), null, options);
-            // Write out the thumbnail to a temporary file
-            FileOutputStream out = null;
-            try {
-                if (tempFile == null) {
-                    tempFile = File.createTempFile("thumbnail", null, getContext().getCacheDir());
-                }
-                out = new FileOutputStream(tempFile);
-                bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
-            } catch (IOException e) {
-                Log.e(TAG, "Error writing thumbnail", e);
-                return null;
-            } finally {
-                if (out != null)
-                    try {
-                        out.close();
-                    } catch (IOException e) {
-                        Log.e(TAG, "Error closing thumbnail", e);
-                    }
-            }
+            return openArtworkThumbnail(artworkUri, sizeHint, signal);
+        }
+        return null;
+    }
+
+    private AssetFileDescriptor openArtworkThumbnail(final Uri artworkUri, final Point sizeHint, final CancellationSignal signal) throws FileNotFoundException {
+        ContentResolver contentResolver = getContext().getContentResolver();
+        File tempFile = getCacheFileForArtworkUri(artworkUri);
+        if (tempFile != null && tempFile.exists() && tempFile.length() != 0) {
+            // We already have a cached thumbnail
             return new AssetFileDescriptor(ParcelFileDescriptor.open(tempFile, ParcelFileDescriptor.MODE_READ_ONLY), 0,
                     AssetFileDescriptor.UNKNOWN_LENGTH);
         }
-        return null;
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeStream(contentResolver.openInputStream(artworkUri), null, options);
+        if (signal.isCanceled()) {
+            // Canceled, so we'll stop here to save us the effort of actually decoding the image
+            return null;
+        }
+        final int targetHeight = 2 * sizeHint.y;
+        final int targetWidth = 2 * sizeHint.x;
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        options.inSampleSize = 1;
+        if (height > targetHeight || width > targetWidth) {
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / options.inSampleSize) > targetHeight
+                    || (halfWidth / options.inSampleSize) > targetWidth) {
+                options.inSampleSize *= 2;
+            }
+        }
+        options.inJustDecodeBounds = false;
+        Bitmap bitmap = BitmapFactory.decodeStream(contentResolver.openInputStream(artworkUri), null, options);
+        // Write out the thumbnail to a temporary file
+        FileOutputStream out = null;
+        try {
+            if (tempFile == null) {
+                tempFile = File.createTempFile("thumbnail", null, getContext().getCacheDir());
+            }
+            out = new FileOutputStream(tempFile);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
+        } catch (IOException e) {
+            Log.e(TAG, "Error writing thumbnail", e);
+            return null;
+        } finally {
+            if (out != null)
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    Log.e(TAG, "Error closing thumbnail", e);
+                }
+        }
+        return new AssetFileDescriptor(ParcelFileDescriptor.open(tempFile, ParcelFileDescriptor.MODE_READ_ONLY), 0,
+                AssetFileDescriptor.UNKNOWN_LENGTH);
     }
 
     // This is very similar to MuzeiProvider.getCacheFileForArtworkUri, but uses the getCacheDir()
