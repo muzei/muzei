@@ -105,9 +105,25 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
         row.add(DocumentsContract.Root.COLUMN_TITLE, getContext().getString(R.string.app_name));
         row.add(DocumentsContract.Root.COLUMN_FLAGS,
                 DocumentsContract.Root.FLAG_LOCAL_ONLY |
+                DocumentsContract.Root.FLAG_SUPPORTS_SEARCH |
                 DocumentsContract.Root.FLAG_SUPPORTS_IS_CHILD);
         row.add(DocumentsContract.Root.COLUMN_MIME_TYPES, "image/*");
         row.add(DocumentsContract.Root.COLUMN_DOCUMENT_ID, ROOT_DOCUMENT_ID);
+        return result;
+    }
+
+    @Override
+    public Cursor querySearchDocuments(final String rootId, final String query, final String[] projection) throws FileNotFoundException {
+        final MatrixCursor result = new MatrixCursor(projection != null ? projection : DEFAULT_DOCUMENT_PROJECTION);
+        String selection = MuzeiContract.Artwork.COLUMN_NAME_TITLE + " LIKE ? OR " +
+                MuzeiContract.Artwork.COLUMN_NAME_BYLINE + " LIKE ? OR " +
+                MuzeiContract.Artwork.COLUMN_NAME_ATTRIBUTION + " LIKE ?";
+        String likeAnyPositionQuery = "%" + query + "%";
+        includeAllArtwork(result, getContext().getContentResolver().query(
+                MuzeiContract.Artwork.CONTENT_URI, ARTWORK_PROJECTION,
+                selection,
+                new String[] { likeAnyPositionQuery, likeAnyPositionQuery, likeAnyPositionQuery },
+                MuzeiContract.Artwork.DEFAULT_SORT_ORDER));
         return result;
     }
 
