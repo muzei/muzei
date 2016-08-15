@@ -88,10 +88,45 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
         row.add(DocumentsContract.Root.COLUMN_ROOT_ID, "Muzei");
         row.add(DocumentsContract.Root.COLUMN_ICON, R.mipmap.ic_launcher);
         row.add(DocumentsContract.Root.COLUMN_TITLE, getContext().getString(R.string.app_name));
-        row.add(DocumentsContract.Root.COLUMN_FLAGS, DocumentsContract.Root.FLAG_LOCAL_ONLY);
+        row.add(DocumentsContract.Root.COLUMN_FLAGS,
+                DocumentsContract.Root.FLAG_LOCAL_ONLY |
+                DocumentsContract.Root.FLAG_SUPPORTS_IS_CHILD);
         row.add(DocumentsContract.Root.COLUMN_MIME_TYPES, "image/*");
         row.add(DocumentsContract.Root.COLUMN_DOCUMENT_ID, ROOT_DOCUMENT_ID);
         return result;
+    }
+
+    @Override
+    public boolean isChildDocument(final String parentDocumentId, final String documentId) {
+        if (ROOT_DOCUMENT_ID.equals(parentDocumentId)) {
+            // Everything is a child of ROOT_DOCUMENT_ID
+            return true;
+        } else if (documentId != null && documentId.startsWith(ARTWORK_DOCUMENT_ID_PREFIX)) {
+            if (BY_DATE_DOCUMENT_ID.equals(parentDocumentId)) {
+                // All artwork is a child of BY_DATE_DOCUMENT_ID
+                return true;
+            }
+            if (BY_SOURCE_DOCUMENT_ID.equals(parentDocumentId)) {
+                long sourceId = Long.parseLong(parentDocumentId.replace(SOURCE_DOCUMENT_ID_PREFIX, ""));
+                long artworkId = Long.parseLong(documentId.replace(ARTWORK_DOCUMENT_ID_PREFIX, ""));
+                String[] projection = new String[] { MuzeiContract.Sources.TABLE_NAME + "." + BaseColumns._ID };
+                Cursor data = getContext().getContentResolver().query(
+                        ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI, artworkId),
+                        projection, null, null, null);
+                if (data == null) {
+                    return false;
+                }
+                long artworkSourceId = data.getLong(0);
+                data.close();
+                // The source id of the parent must match the artwork's source id for it to be a child
+                return sourceId == artworkSourceId;
+            }
+            return false;
+        } else if (documentId != null && documentId.startsWith(SOURCE_DOCUMENT_ID_PREFIX)) {
+            // Sources are children of BY_SOURCE_DOCUMENT_ID
+            return BY_SOURCE_DOCUMENT_ID.equals(parentDocumentId);
+        }
+        return false;
     }
 
     @Override
