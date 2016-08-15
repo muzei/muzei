@@ -31,6 +31,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.CancellationSignal;
 import android.os.ParcelFileDescriptor;
 import android.provider.BaseColumns;
@@ -225,7 +226,9 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
             String byline = data.getString(data.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_BYLINE));
             row.add(DocumentsContract.Document.COLUMN_SUMMARY, byline);
             row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, "image/*");
-            row.add(DocumentsContract.Document.COLUMN_FLAGS, DocumentsContract.Document.FLAG_SUPPORTS_THUMBNAIL);
+            row.add(DocumentsContract.Document.COLUMN_FLAGS,
+                    DocumentsContract.Document.FLAG_SUPPORTS_THUMBNAIL |
+                    DocumentsContract.Document.FLAG_SUPPORTS_DELETE);
             row.add(DocumentsContract.Document.COLUMN_SIZE, null);
             data.moveToNext();
         }
@@ -431,6 +434,26 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
             filename.append(uri.toString().hashCode());
         }
         return new File(directory, filename.toString());
+    }
+
+    @Override
+    public void deleteDocument(String documentId) throws FileNotFoundException {
+        if (documentId == null || !documentId.startsWith(ARTWORK_DOCUMENT_ID_PREFIX)) {
+            return;
+        }
+        long artworkId = Long.parseLong(documentId.replace(ARTWORK_DOCUMENT_ID_PREFIX, ""));
+        Uri artworkUri = ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI, artworkId);
+        // Delete any thumbnail we have cached
+        File thumbnail = getCacheFileForArtworkUri(artworkUri);
+        if (thumbnail != null && thumbnail.exists()) {
+            thumbnail.delete();
+        }
+        revokeDocumentPermission(documentId);
+        // Clear the calling identity to denote that this delete request is coming from
+        // Muzei itself, even if it is on behalf of the user or an app the user has trusted
+        long token = Binder.clearCallingIdentity();
+        getContext().getContentResolver().delete(artworkUri, null, null);
+        Binder.restoreCallingIdentity(token);
     }
 
     @Override

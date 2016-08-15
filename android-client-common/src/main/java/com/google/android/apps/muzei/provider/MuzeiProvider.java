@@ -56,6 +56,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 /**
  * Provides access to a the most recent artwork
@@ -121,7 +122,10 @@ public class MuzeiProvider extends ContentProvider {
      */
     private static HashMap<String, String> buildAllArtworkColumnProjectionMap() {
         final HashMap<String, String> allColumnProjectionMap = new HashMap<>();
-        allColumnProjectionMap.put(BaseColumns._ID, MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID);
+        allColumnProjectionMap.put(BaseColumns._ID,
+                MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID);
+        allColumnProjectionMap.put(MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID,
+                MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID);
         allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME,
                 MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME);
         allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI,
@@ -138,6 +142,8 @@ public class MuzeiProvider extends ContentProvider {
                 MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT);
         allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_META_FONT,
                 MuzeiContract.Artwork.COLUMN_NAME_META_FONT);
+        allColumnProjectionMap.put(MuzeiContract.Sources.TABLE_NAME + "." + BaseColumns._ID,
+                MuzeiContract.Sources.TABLE_NAME + "." + BaseColumns._ID);
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME,
                 MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME);
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED,
@@ -241,13 +247,94 @@ public class MuzeiProvider extends ContentProvider {
     public int delete(@NonNull final Uri uri, final String selection, final String[] selectionArgs) {
         if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK ||
                 MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK_ID) {
-            throw new UnsupportedOperationException("Deletes are not supported");
+            String callingPackageName = getContext().getPackageManager().getNameForUid(
+                    Binder.getCallingUid());
+            if (getContext().getPackageName().equals(callingPackageName)) {
+                return deleteArtwork(uri, selection, selectionArgs);
+            } else {
+                throw new UnsupportedOperationException("Deletes are not supported");
+            }
         } else if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCES ||
                 MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCE_ID) {
             return deleteSource(uri, selection, selectionArgs);
         } else {
             throw new IllegalArgumentException("Unknown URI " + uri);
         }
+    }
+
+    private int deleteArtwork(@NonNull final Uri uri, final String selection, final String[] selectionArgs) {
+        // Opens the database object in "write" mode.
+        final SQLiteDatabase db = databaseHelper.getWritableDatabase();
+        String finalWhere = selection;
+        if (MuzeiProvider.uriMatcher.match(uri) == ARTWORK_ID) {
+            finalWhere = MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID + " = " + uri.getLastPathSegment();
+            // If there were additional selection criteria, append them to the final WHERE clause
+            if (selection != null)
+                finalWhere = finalWhere + " AND " + selection;
+        }
+        // We can't just simply delete the rows as that won't free up the space occupied by the
+        // artwork image files associated with each row being deleted. Instead we have to query
+        // and manually delete each artwork file
+        String[] projection = new String[] {
+                MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID,
+                MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI};
+        Cursor rowsToDelete = queryArtwork(uri, projection, finalWhere, selectionArgs,
+                MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI);
+        if (rowsToDelete == null) {
+            return 0;
+        }
+        // First we build a list of IDs to be deleted. This will be used if we need to determine
+        // if a given image URI needs to be deleted
+        List<String> idsToDelete = new ArrayList<>();
+        rowsToDelete.moveToFirst();
+        while (!rowsToDelete.isAfterLast()) {
+            idsToDelete.add(Long.toString(rowsToDelete.getLong(0)));
+            rowsToDelete.moveToNext();
+        }
+        String notInDeleteIds = MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID +
+                " NOT IN (" + TextUtils.join(",", idsToDelete) + ")";
+        // Now we actually go through the list of rows to be deleted
+        // and check if we can delete the artwork image file associated with each one
+        rowsToDelete.moveToFirst();
+        while (!rowsToDelete.isAfterLast()) {
+            Uri artworkUri = ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI,
+                    rowsToDelete.getLong(0));
+            String imageUri = rowsToDelete.getString(1);
+            if (TextUtils.isEmpty(imageUri)) {
+                // An empty image URI means the artwork is unique to this specific row
+                // so we can always delete it when the associated row is deleted
+                File artwork = getCacheFileForArtworkUri(artworkUri);
+                if (artwork != null && artwork.exists()) {
+                    artwork.delete();
+                }
+            } else {
+                // Check if there are other rows using this same image URI that aren't
+                // in the list of ids to delete
+                Cursor otherArtwork = queryArtwork(MuzeiContract.Artwork.CONTENT_URI,
+                        new String[] {MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID},
+                        MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI + "=? AND " + notInDeleteIds,
+                        new String[] { imageUri }, null);
+                if (otherArtwork == null) {
+                    continue;
+                }
+                if (otherArtwork.getCount() == 0) {
+                    // There's no non-deleted rows that reference this same artwork URI
+                    // so we can delete the artwork
+                    File artwork = getCacheFileForArtworkUri(artworkUri);
+                    if (artwork != null && artwork.exists()) {
+                        artwork.delete();
+                    }
+                }
+                otherArtwork.close();
+            }
+            rowsToDelete.moveToNext();
+        }
+        rowsToDelete.close();
+        int count = db.delete(MuzeiContract.Artwork.TABLE_NAME, finalWhere, selectionArgs);
+        if (count > 0) {
+            notifyChange(uri);
+        }
+        return count;
     }
 
     private int deleteSource(@NonNull final Uri uri, final String selection, final String[] selectionArgs) {
@@ -266,7 +353,7 @@ public class MuzeiProvider extends ContentProvider {
                 // If the incoming URI matches a single source ID, does the
                 // delete based on the incoming data, but modifies the where
                 // clause to restrict it to the particular source ID.
-                String finalWhere = BaseColumns._ID + " = " + uri.getPathSegments().get(1);
+                String finalWhere = BaseColumns._ID + " = " + uri.getLastPathSegment();
                 // If there were additional selection criteria, append them to the final WHERE clause
                 if (selection != null)
                     finalWhere = finalWhere + " AND " + selection;
