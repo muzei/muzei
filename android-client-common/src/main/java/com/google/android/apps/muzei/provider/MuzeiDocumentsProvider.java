@@ -146,7 +146,7 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
         } else if (BY_DATE_DOCUMENT_ID.equals(parentDocumentId)) {
             includeAllArtwork(result, getContext().getContentResolver().query(
                     MuzeiContract.Artwork.CONTENT_URI, ARTWORK_PROJECTION, null, null,
-                    MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID));
+                    MuzeiContract.Artwork.DEFAULT_SORT_ORDER));
         } else if (BY_SOURCE_DOCUMENT_ID.equals(parentDocumentId)) {
             includeAllSources(result, getContext().getContentResolver().query(
                     MuzeiContract.Sources.CONTENT_URI, SOURCE_PROJECTION, null, null, null));
