@@ -183,7 +183,6 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
         row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, DocumentsContract.Document.MIME_TYPE_DIR);
         row.add(DocumentsContract.Document.COLUMN_FLAGS, DocumentsContract.Document.FLAG_DIR_PREFERS_GRID);
         row.add(DocumentsContract.Document.COLUMN_SIZE, null);
-        // TODO: Add Document.COLUMN_ICON
     }
 
     private void includeBySourceRow(MatrixCursor.RowBuilder row) {
@@ -191,9 +190,8 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
         row.add(DocumentsContract.Document.COLUMN_DISPLAY_NAME,
                 getContext().getString(R.string.document_by_source_display_name));
         row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, DocumentsContract.Document.MIME_TYPE_DIR);
-        row.add(DocumentsContract.Document.COLUMN_FLAGS, DocumentsContract.Document.FLAG_DIR_PREFERS_GRID);
+        row.add(DocumentsContract.Document.COLUMN_FLAGS, 0);
         row.add(DocumentsContract.Document.COLUMN_SIZE, null);
-        // TODO: Add Document.COLUMN_ICON
     }
 
     private void includeAllArtwork(MatrixCursor result, Cursor data) {
