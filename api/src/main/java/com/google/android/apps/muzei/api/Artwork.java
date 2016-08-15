@@ -29,6 +29,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
+import java.util.Date;
 
 /**
  * A serializable object representing a single artwork produced by a {@link MuzeiArtSource}. An
@@ -50,6 +51,7 @@ public class Artwork {
     private static final String KEY_VIEW_INTENT = "viewIntent";
     private static final String KEY_DETAILS_URI = "detailsUri";
     private static final String KEY_META_FONT = "metaFont";
+    private static final String KEY_DATE_ADDED = "dateAdded";
 
     private ComponentName mComponentName;
     private Uri mImageUri;
@@ -59,6 +61,7 @@ public class Artwork {
     private String mToken;
     private Intent mViewIntent;
     private String mMetaFont;
+    private Date mDateAdded;
 
     private Artwork() {
     }
@@ -139,6 +142,15 @@ public class Artwork {
     }
 
     /**
+     * Returns when this artwork was added to Muzei.
+     *
+     * @see Artwork.Builder#dateAdded(Date)
+     */
+    public Date getDateAdded() {
+        return mDateAdded;
+    }
+
+    /**
      * Sets the {@link ComponentName} of the {@link MuzeiArtSource} providing this artwork
      */
     public void setComponentName(Context context, Class<? extends MuzeiArtSource> source) {
@@ -214,6 +226,15 @@ public class Artwork {
      */
     public void setMetaFont(String metaFont) {
         mMetaFont = metaFont;
+    }
+
+    /**
+     * Sets when this artwork was added to Muzei. This will be done automatically for you.
+     *
+     * @see Artwork.Builder#dateAdded(Date)
+     */
+    public void setDateAdded(Date dateAdded) {
+        mDateAdded = dateAdded;
     }
 
     /**
@@ -343,6 +364,14 @@ public class Artwork {
         }
 
         /**
+         * Sets when this artwork was added to Muzei. This will be done automatically for you.
+         */
+        public Builder dateAdded(Date dateAdded) {
+            mArtwork.mDateAdded = dateAdded;
+            return this;
+        }
+
+        /**
          * Creates and returns the final Artwork object. Once this method is called, it is not valid
          * to further use this {@link Artwork.Builder} object.
          */
@@ -365,6 +394,7 @@ public class Artwork {
         bundle.putString(KEY_VIEW_INTENT, (mViewIntent != null)
                 ? mViewIntent.toUri(Intent.URI_INTENT_SCHEME) : null);
         bundle.putString(KEY_META_FONT, mMetaFont);
+        bundle.putLong(KEY_DATE_ADDED, mDateAdded != null ? mDateAdded.getTime() : 0);
         return bundle;
     }
 
@@ -377,7 +407,8 @@ public class Artwork {
                 .byline(bundle.getString(KEY_BYLINE))
                 .attribution(bundle.getString(KEY_ATTRIBUTION))
                 .token(bundle.getString(KEY_TOKEN))
-                .metaFont(bundle.getString(KEY_META_FONT));
+                .metaFont(bundle.getString(KEY_META_FONT))
+                .dateAdded(new Date(bundle.getLong(KEY_DATE_ADDED, 0)));
 
         String componentName = bundle.getString(KEY_COMPONENT_NAME);
         if (!TextUtils.isEmpty(componentName)) {
@@ -414,6 +445,7 @@ public class Artwork {
         jsonObject.put(KEY_VIEW_INTENT, (mViewIntent != null)
                 ? mViewIntent.toUri(Intent.URI_INTENT_SCHEME) : null);
         jsonObject.put(KEY_META_FONT, mMetaFont);
+        jsonObject.put(KEY_DATE_ADDED, mDateAdded != null ? mDateAdded.getTime() : 0);
         return jsonObject;
     }
 
@@ -426,7 +458,8 @@ public class Artwork {
                 .byline(jsonObject.optString(KEY_BYLINE))
                 .attribution(jsonObject.optString(KEY_ATTRIBUTION))
                 .token(jsonObject.optString(KEY_TOKEN))
-                .metaFont(jsonObject.optString(KEY_META_FONT));
+                .metaFont(jsonObject.optString(KEY_META_FONT))
+                .dateAdded(new Date(jsonObject.getLong(KEY_DATE_ADDED)));
 
         String componentName = jsonObject.optString(KEY_COMPONENT_NAME);
         if (!TextUtils.isEmpty(componentName)) {
@@ -468,6 +501,8 @@ public class Artwork {
         values.put(MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT, (mViewIntent != null)
                 ? mViewIntent.toUri(Intent.URI_INTENT_SCHEME) : null);
         values.put(MuzeiContract.Artwork.COLUMN_NAME_META_FONT, mMetaFont);
+        values.put(MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED, mDateAdded != null ?
+                mDateAdded.getTime() : 0);
         return values;
     }
 
@@ -513,6 +548,10 @@ public class Artwork {
         int metaFontColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_META_FONT);
         if (metaFontColumnIndex != -1) {
             builder.metaFont(cursor.getString(metaFontColumnIndex));
+        }
+        int dateAddedColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED);
+        if (dateAddedColumnIndex != -1) {
+            builder.dateAdded(new Date(cursor.getLong(dateAddedColumnIndex)));
         }
         return builder.build();
     }

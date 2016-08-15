@@ -80,13 +80,15 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
             DocumentsContract.Document.COLUMN_SUMMARY,
             DocumentsContract.Document.COLUMN_MIME_TYPE,
             DocumentsContract.Document.COLUMN_FLAGS,
-            DocumentsContract.Document.COLUMN_SIZE};
+            DocumentsContract.Document.COLUMN_SIZE,
+            DocumentsContract.Document.COLUMN_LAST_MODIFIED};
 
     private static final String[] ARTWORK_PROJECTION = new String[]{
             MuzeiContract.Artwork._ID,
             MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI,
             MuzeiContract.Artwork.COLUMN_NAME_TITLE,
-            MuzeiContract.Artwork.COLUMN_NAME_BYLINE};
+            MuzeiContract.Artwork.COLUMN_NAME_BYLINE,
+            MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED};
 
     private static final String[] SOURCE_PROJECTION = new String[]{
             MuzeiContract.Sources._ID,
@@ -221,7 +223,9 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
         row.add(DocumentsContract.Document.COLUMN_DISPLAY_NAME,
                 context.getString(R.string.document_by_date_display_name));
         row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, DocumentsContract.Document.MIME_TYPE_DIR);
-        row.add(DocumentsContract.Document.COLUMN_FLAGS, DocumentsContract.Document.FLAG_DIR_PREFERS_GRID);
+        row.add(DocumentsContract.Document.COLUMN_FLAGS,
+                DocumentsContract.Document.FLAG_DIR_PREFERS_GRID |
+                DocumentsContract.Document.FLAG_DIR_PREFERS_LAST_MODIFIED);
         row.add(DocumentsContract.Document.COLUMN_SIZE, null);
     }
 
@@ -265,6 +269,8 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
                         DocumentsContract.Document.FLAG_SUPPORTS_THUMBNAIL |
                         DocumentsContract.Document.FLAG_SUPPORTS_DELETE);
                 row.add(DocumentsContract.Document.COLUMN_SIZE, null);
+                long dateAdded = data.getLong(data.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED));
+                row.add(DocumentsContract.Document.COLUMN_LAST_MODIFIED, dateAdded);
             }
             data.moveToNext();
         }
@@ -287,7 +293,9 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
             row.add(DocumentsContract.Document.COLUMN_DOCUMENT_ID,
                     SOURCE_DOCUMENT_ID_PREFIX + Long.toString(id));
             row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, DocumentsContract.Document.MIME_TYPE_DIR);
-            row.add(DocumentsContract.Document.COLUMN_FLAGS, DocumentsContract.Document.FLAG_DIR_PREFERS_GRID);
+            row.add(DocumentsContract.Document.COLUMN_FLAGS,
+                    DocumentsContract.Document.FLAG_DIR_PREFERS_GRID |
+                    DocumentsContract.Document.FLAG_DIR_PREFERS_LAST_MODIFIED);
             row.add(DocumentsContract.Document.COLUMN_SIZE, null);
             ComponentName componentName = ComponentName.unflattenFromString(
                     data.getString(data.getColumnIndex(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME)));

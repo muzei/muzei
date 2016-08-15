@@ -142,6 +142,8 @@ public class MuzeiProvider extends ContentProvider {
                 MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT);
         allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_META_FONT,
                 MuzeiContract.Artwork.COLUMN_NAME_META_FONT);
+        allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED,
+                MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED);
         allColumnProjectionMap.put(MuzeiContract.Sources.TABLE_NAME + "." + BaseColumns._ID,
                 MuzeiContract.Sources.TABLE_NAME + "." + BaseColumns._ID);
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME,
@@ -419,6 +421,7 @@ public class MuzeiProvider extends ContentProvider {
         }
         if (!values.containsKey(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME))
             throw new IllegalArgumentException("Initial values must contain component name " + values);
+        values.put(MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED, System.currentTimeMillis());
         final SQLiteDatabase db = databaseHelper.getWritableDatabase();
         long rowId = db.insert(MuzeiContract.Artwork.TABLE_NAME,
                 MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI, values);
@@ -771,6 +774,7 @@ public class MuzeiProvider extends ContentProvider {
                     + MuzeiContract.Artwork.COLUMN_NAME_ATTRIBUTION + " TEXT,"
                     + MuzeiContract.Artwork.COLUMN_NAME_TOKEN + " TEXT,"
                     + MuzeiContract.Artwork.COLUMN_NAME_META_FONT + " TEXT,"
+                    + MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED + " INTEGER,"
                     + MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT + " TEXT,"
                     + " CONSTRAINT fk_source_artwork FOREIGN KEY ("
                     + MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME + ") REFERENCES "

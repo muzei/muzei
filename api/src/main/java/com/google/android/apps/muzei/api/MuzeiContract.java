@@ -151,6 +151,12 @@ public class MuzeiContract {
          */
         public static final String COLUMN_NAME_META_FONT = "metaFont";
         /**
+         * Column name for when this artwork was added.
+         * This will be automatically added for you by Muzei.
+         * <p>Type: LONG (in milliseconds)
+         */
+        public static final String COLUMN_NAME_DATE_ADDED = "date_added";
+        /**
          * The MIME type of {@link #CONTENT_URI} providing artwork.
          */
         public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.android.apps.muzei.artwork";
@@ -161,7 +167,7 @@ public class MuzeiContract {
         /**
          * The default sort order for this table
          */
-        public static final String DEFAULT_SORT_ORDER = MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID + " DESC";
+        public static final String DEFAULT_SORT_ORDER = COLUMN_NAME_DATE_ADDED + " DESC";
         /**
          * The table name offered by this provider.
          */
