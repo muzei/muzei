@@ -130,6 +130,14 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
     }
 
     @Override
+    public String getDocumentType(final String documentId) throws FileNotFoundException {
+        if (documentId != null && documentId.startsWith(ARTWORK_DOCUMENT_ID_PREFIX)) {
+            return "image/*";
+        }
+        return DocumentsContract.Document.MIME_TYPE_DIR;
+    }
+
+    @Override
     public Cursor queryChildDocuments(String parentDocumentId, String[] projection, String sortOrder) throws FileNotFoundException {
         final MatrixCursor result = new MatrixCursor(projection != null ? projection : DEFAULT_DOCUMENT_PROJECTION);
         if (ROOT_DOCUMENT_ID.equals(parentDocumentId)) {
