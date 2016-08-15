@@ -246,6 +246,25 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
         if (data == null) {
             return;
         }
+        ContentResolver contentResolver = getContext() != null ? getContext().getContentResolver() : null;
+        if (contentResolver == null) {
+            data.close();
+            return;
+        }
+        // Retrieve the latest artwork _ID for use when determining whether the user should be
+        // able to delete the artwork
+        Cursor currentArtwork = contentResolver.query(MuzeiContract.Artwork.CONTENT_URI,
+                new String[] { BaseColumns._ID }, null, null, null);
+        if (currentArtwork == null || !currentArtwork.moveToFirst()) {
+            data.close();
+            if (currentArtwork != null) {
+                currentArtwork.close();
+            }
+            return;
+        }
+        long currentArtworkId = currentArtwork.getLong(0);
+        currentArtwork.close();
+        // Add the artwork from the given Cursor
         Set<String> addedImageUris = new HashSet<>();
         data.moveToFirst();
         while (!data.isAfterLast()) {
@@ -265,9 +284,10 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
                 String byline = data.getString(data.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_BYLINE));
                 row.add(DocumentsContract.Document.COLUMN_SUMMARY, byline);
                 row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, "image/*");
+                // Don't allow deleting the currently displayed artwork
                 row.add(DocumentsContract.Document.COLUMN_FLAGS,
                         DocumentsContract.Document.FLAG_SUPPORTS_THUMBNAIL |
-                        DocumentsContract.Document.FLAG_SUPPORTS_DELETE);
+                        (id != currentArtworkId ? DocumentsContract.Document.FLAG_SUPPORTS_DELETE : 0));
                 row.add(DocumentsContract.Document.COLUMN_SIZE, null);
                 long dateAdded = data.getLong(data.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED));
                 row.add(DocumentsContract.Document.COLUMN_LAST_MODIFIED, dateAdded);
