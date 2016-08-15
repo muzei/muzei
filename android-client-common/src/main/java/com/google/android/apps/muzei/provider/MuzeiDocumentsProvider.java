@@ -52,7 +52,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * DocumentsProvider that allows users to view previous Muzei wallpapers
@@ -82,6 +84,7 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
 
     private static final String[] ARTWORK_PROJECTION = new String[]{
             MuzeiContract.Artwork._ID,
+            MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI,
             MuzeiContract.Artwork.COLUMN_NAME_TITLE,
             MuzeiContract.Artwork.COLUMN_NAME_BYLINE};
 
@@ -215,21 +218,30 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
         if (data == null) {
             return;
         }
+        Set<String> addedImageUris = new HashSet<>();
         data.moveToFirst();
         while (!data.isAfterLast()) {
-            final MatrixCursor.RowBuilder row = result.newRow();
-            long id = data.getLong(data.getColumnIndex(BaseColumns._ID));
-            row.add(DocumentsContract.Document.COLUMN_DOCUMENT_ID,
-                    ARTWORK_DOCUMENT_ID_PREFIX + Long.toString(id));
-            String title = data.getString(data.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_TITLE));
-            row.add(DocumentsContract.Document.COLUMN_DISPLAY_NAME, title);
-            String byline = data.getString(data.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_BYLINE));
-            row.add(DocumentsContract.Document.COLUMN_SUMMARY, byline);
-            row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, "image/*");
-            row.add(DocumentsContract.Document.COLUMN_FLAGS,
-                    DocumentsContract.Document.FLAG_SUPPORTS_THUMBNAIL |
-                    DocumentsContract.Document.FLAG_SUPPORTS_DELETE);
-            row.add(DocumentsContract.Document.COLUMN_SIZE, null);
+            String imageUri = data.getString(data.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI));
+            // We can't skip null image URIs (those are unique images), but we do want to skip
+            // duplicates of the same underlying artwork as determined by a shared image URI
+            if (TextUtils.isEmpty(imageUri) || !addedImageUris.contains(imageUri)) {
+                if (!TextUtils.isEmpty(imageUri)) {
+                    addedImageUris.add(imageUri);
+                }
+                final MatrixCursor.RowBuilder row = result.newRow();
+                long id = data.getLong(data.getColumnIndex(BaseColumns._ID));
+                row.add(DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                        ARTWORK_DOCUMENT_ID_PREFIX + Long.toString(id));
+                String title = data.getString(data.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_TITLE));
+                row.add(DocumentsContract.Document.COLUMN_DISPLAY_NAME, title);
+                String byline = data.getString(data.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_BYLINE));
+                row.add(DocumentsContract.Document.COLUMN_SUMMARY, byline);
+                row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, "image/*");
+                row.add(DocumentsContract.Document.COLUMN_FLAGS,
+                        DocumentsContract.Document.FLAG_SUPPORTS_THUMBNAIL |
+                        DocumentsContract.Document.FLAG_SUPPORTS_DELETE);
+                row.add(DocumentsContract.Document.COLUMN_SIZE, null);
+            }
             data.moveToNext();
         }
         data.close();
@@ -448,12 +460,57 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
         if (thumbnail != null && thumbnail.exists()) {
             thumbnail.delete();
         }
-        revokeDocumentPermission(documentId);
-        // Clear the calling identity to denote that this delete request is coming from
-        // Muzei itself, even if it is on behalf of the user or an app the user has trusted
-        long token = Binder.clearCallingIdentity();
-        getContext().getContentResolver().delete(artworkUri, null, null);
-        Binder.restoreCallingIdentity(token);
+
+        // Since we filter out subsequent artwork with the same non-null artwork URI,
+        // this deleteDocument() really means 'delete all instances of that artwork URI'.
+        // This forces us to do a little more work here to really delete all instances of the
+        // artwork.
+
+        // First we check the image URI
+        Cursor data = getContext().getContentResolver().query(artworkUri,
+                new String[] { MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI }, null, null, null);
+        if (data == null) {
+            return;
+        }
+        if (!data.moveToFirst()) {
+            throw new IllegalStateException("Invalid URI: " + artworkUri);
+        }
+        String imageUri = data.getString(0);
+        data.close();
+
+        if (TextUtils.isEmpty(imageUri)) {
+            // The easy case: this is a unique image URI and we can just delete the single row.
+            revokeDocumentPermission(documentId);
+            // Clear the calling identity to denote that this delete request is coming from
+            // Muzei itself, even if it is on behalf of the user or an app the user has trusted
+            long token = Binder.clearCallingIdentity();
+            getContext().getContentResolver().delete(artworkUri, null, null);
+            Binder.restoreCallingIdentity(token);
+        } else {
+            // The hard case: we're actually deleting every row with that image URI
+            data = getContext().getContentResolver().query(MuzeiContract.Artwork.CONTENT_URI,
+                    new String[] { BaseColumns._ID },
+                    MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI + "=?",
+                    new String[] { imageUri }, null);
+            if (data == null) {
+                return;
+            }
+            data.moveToFirst();
+            while (!data.isAfterLast()) {
+                // We want to make sure every document being deleted is revoked
+                revokeDocumentPermission(ARTWORK_DOCUMENT_ID_PREFIX + data.getLong(0));
+                data.moveToNext();
+            }
+            data.close();
+            // Clear the calling identity to denote that this delete request is coming from
+            // Muzei itself, even if it is on behalf of the user or an app the user has trusted
+            long token = Binder.clearCallingIdentity();
+            getContext().getContentResolver().delete(
+                    MuzeiContract.Artwork.CONTENT_URI,
+                    MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI + "=?",
+                    new String[] { imageUri });
+            Binder.restoreCallingIdentity(token);
+        }
     }
 
     @Override
