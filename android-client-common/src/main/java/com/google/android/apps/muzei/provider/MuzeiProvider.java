@@ -210,21 +210,24 @@ public class MuzeiProvider extends ContentProvider {
         } finally {
             holdNotifyChange = false;
             boolean broadcastSourceChanged = false;
-            ContentResolver contentResolver = getContext().getContentResolver();
-            Iterator<Uri> iterator = pendingNotifyChange.iterator();
-            while (iterator.hasNext()) {
-                Uri uri = iterator.next();
-                contentResolver.notifyChange(uri, null);
-                if (MuzeiContract.Artwork.CONTENT_URI.equals(uri)) {
-                    getContext().sendBroadcast(new Intent(MuzeiContract.Artwork.ACTION_ARTWORK_CHANGED));
-                } else if (MuzeiProvider.uriMatcher.match(uri) == SOURCES ||
-                        MuzeiProvider.uriMatcher.match(uri) == SOURCE_ID) {
-                    broadcastSourceChanged = true;
+            Context context = getContext();
+            if (context != null) {
+                ContentResolver contentResolver = context.getContentResolver();
+                Iterator<Uri> iterator = pendingNotifyChange.iterator();
+                while (iterator.hasNext()) {
+                    Uri uri = iterator.next();
+                    contentResolver.notifyChange(uri, null);
+                    if (MuzeiContract.Artwork.CONTENT_URI.equals(uri)) {
+                        context.sendBroadcast(new Intent(MuzeiContract.Artwork.ACTION_ARTWORK_CHANGED));
+                    } else if (MuzeiProvider.uriMatcher.match(uri) == SOURCES ||
+                            MuzeiProvider.uriMatcher.match(uri) == SOURCE_ID) {
+                        broadcastSourceChanged = true;
+                    }
+                    iterator.remove();
                 }
-                iterator.remove();
-            }
-            if (broadcastSourceChanged) {
-                getContext().sendBroadcast(new Intent(MuzeiContract.Sources.ACTION_SOURCE_CHANGED));
+                if (broadcastSourceChanged) {
+                    context.sendBroadcast(new Intent(MuzeiContract.Sources.ACTION_SOURCE_CHANGED));
+                }
             }
         }
     }
@@ -233,23 +236,31 @@ public class MuzeiProvider extends ContentProvider {
         if (holdNotifyChange) {
             pendingNotifyChange.add(uri);
         } else {
-            getContext().getContentResolver().notifyChange(uri, null);
+            Context context = getContext();
+            if (context == null) {
+                return;
+            }
+            context.getContentResolver().notifyChange(uri, null);
             if (MuzeiContract.Artwork.CONTENT_URI.equals(uri)) {
-                getContext().sendBroadcast(new Intent(MuzeiContract.Artwork.ACTION_ARTWORK_CHANGED));
+                context.sendBroadcast(new Intent(MuzeiContract.Artwork.ACTION_ARTWORK_CHANGED));
             } else if (MuzeiProvider.uriMatcher.match(uri) == SOURCES ||
                     MuzeiProvider.uriMatcher.match(uri) == SOURCE_ID) {
-                getContext().sendBroadcast(new Intent(MuzeiContract.Sources.ACTION_SOURCE_CHANGED));
+                context.sendBroadcast(new Intent(MuzeiContract.Sources.ACTION_SOURCE_CHANGED));
             }
         }
     }
 
     @Override
     public int delete(@NonNull final Uri uri, final String selection, final String[] selectionArgs) {
+        Context context = getContext();
+        if (context == null) {
+            return 0;
+        }
         if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK ||
                 MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK_ID) {
-            String callingPackageName = getContext().getPackageManager().getNameForUid(
+            String callingPackageName = context.getPackageManager().getNameForUid(
                     Binder.getCallingUid());
-            if (getContext().getPackageName().equals(callingPackageName)) {
+            if (context.getPackageName().equals(callingPackageName)) {
                 return deleteArtwork(uri, selection, selectionArgs);
             } else {
                 throw new UnsupportedOperationException("Deletes are not supported");
@@ -430,9 +441,12 @@ public class MuzeiProvider extends ContentProvider {
     }
 
     private Uri insertSource(@NonNull final Uri uri, final ContentValues initialValues) {
+        PackageManager packageManager = getContext() != null ? getContext().getPackageManager() : null;
+        if (packageManager == null) {
+            return null;
+        }
         if (!initialValues.containsKey(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME))
             throw new IllegalArgumentException("Initial values must contain component name " + initialValues);
-        PackageManager packageManager = getContext().getPackageManager();
         ComponentName componentName = ComponentName.unflattenFromString(
                 initialValues.getAsString(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME));
         // Disable network access callbacks if we're running on an API 24 device and the source app
@@ -496,6 +510,10 @@ public class MuzeiProvider extends ContentProvider {
 
     private Cursor queryArtwork(@NonNull final Uri uri, final String[] projection, final String selection,
                         final String[] selectionArgs, final String sortOrder) {
+        ContentResolver contentResolver = getContext() != null ? getContext().getContentResolver() : null;
+        if (contentResolver == null) {
+            return null;
+        }
         final SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(MuzeiContract.Artwork.TABLE_NAME + " INNER JOIN " +
                 MuzeiContract.Sources.TABLE_NAME + " ON " +
@@ -517,12 +535,16 @@ public class MuzeiProvider extends ContentProvider {
         else
             orderBy = sortOrder;
         final Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy, null);
-        c.setNotificationUri(getContext().getContentResolver(), uri);
+        c.setNotificationUri(contentResolver, uri);
         return c;
     }
 
     private Cursor querySource(@NonNull final Uri uri, final String[] projection, final String selection,
                                 final String[] selectionArgs, final String sortOrder) {
+        ContentResolver contentResolver = getContext() != null ? getContext().getContentResolver() : null;
+        if (contentResolver == null) {
+            return null;
+        }
         final SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(MuzeiContract.Sources.TABLE_NAME);
         qb.setProjectionMap(allSourcesColumnProjectionMap);
@@ -538,7 +560,7 @@ public class MuzeiProvider extends ContentProvider {
         else
             orderBy = sortOrder;
         final Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy, null);
-        c.setNotificationUri(getContext().getContentResolver(), uri);
+        c.setNotificationUri(contentResolver, uri);
         return c;
     }
 
@@ -559,9 +581,13 @@ public class MuzeiProvider extends ContentProvider {
         }
         final boolean isWriteOperation = mode.contains("w");
         if (file.exists() && file.length() > 0 && isWriteOperation) {
-            String callingPackageName = getContext().getPackageManager().getNameForUid(
+            Context context = getContext();
+            if (context == null) {
+                return null;
+            }
+            String callingPackageName = context.getPackageManager().getNameForUid(
                     Binder.getCallingUid());
-            if (!getContext().getPackageName().equals(callingPackageName)) {
+            if (!context.getPackageName().equals(callingPackageName)) {
                 Log.w(TAG, "Writing to an existing artwork file is not allowed: insert a new row");
             }
             return null;
@@ -594,7 +620,11 @@ public class MuzeiProvider extends ContentProvider {
     }
 
     private File getCacheFileForArtworkUri(@NonNull Uri artworkUri) {
-        File directory = new File(getContext().getFilesDir(), "artwork");
+        Context context = getContext();
+        if (context == null) {
+            return null;
+        }
+        File directory = new File(context.getFilesDir(), "artwork");
         if (!directory.exists() && !directory.mkdirs()) {
             return null;
         }
@@ -602,6 +632,9 @@ public class MuzeiProvider extends ContentProvider {
         Cursor data;
         if (MuzeiProvider.uriMatcher.match(artworkUri) == MuzeiProvider.ARTWORK) {
             data = queryArtwork(MuzeiContract.Artwork.CONTENT_URI, projection, null, null, null);
+            if (data == null) {
+                return null;
+            }
             if (!data.moveToFirst()) {
                 String callingPackageName = getContext().getPackageManager().getNameForUid(
                         Binder.getCallingUid());
@@ -612,6 +645,9 @@ public class MuzeiProvider extends ContentProvider {
             }
         } else {
             data = queryArtwork(artworkUri, projection, null, null, null);
+            if (data == null) {
+                return null;
+            }
             if (!data.moveToFirst()) {
                 throw new IllegalStateException("Invalid URI: " + artworkUri);
             }
