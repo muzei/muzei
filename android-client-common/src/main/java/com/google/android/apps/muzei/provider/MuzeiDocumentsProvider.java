@@ -272,7 +272,7 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
             row.add(DocumentsContract.Document.COLUMN_DISPLAY_NAME,
                     getContext().getString(R.string.app_name));
             row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, DocumentsContract.Document.MIME_TYPE_DIR);
-            row.add(DocumentsContract.Document.COLUMN_FLAGS, DocumentsContract.Document.FLAG_DIR_PREFERS_GRID);
+            row.add(DocumentsContract.Document.COLUMN_FLAGS, 0);
             row.add(DocumentsContract.Document.COLUMN_SIZE, null);
         } else if (BY_DATE_DOCUMENT_ID.equals(documentId)) {
             includeByDateRow(result.newRow());
