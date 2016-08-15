@@ -15,7 +15,7 @@
   -->
 
 <resources>
-    <string name="complication_artwork_label">Artwork</string>
-    <string name="dismiss_overlay_intro">Long press anywhere to exit</string>
-    <string name="activate_notification_text">Activate to sync your background</string>
+    <string name="app_name">Muzei</string>
+    <string name="document_by_date_display_name">Artwork by Date</string>
+    <string name="document_by_source_display_name">Artwork by Source</string>
 </resources>
