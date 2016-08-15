@@ -17,32 +17,47 @@
 package com.google.android.apps.muzei.provider;
 
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.MatrixCursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Point;
+import android.net.Uri;
 import android.os.CancellationSignal;
 import android.os.ParcelFileDescriptor;
 import android.provider.BaseColumns;
 import android.provider.DocumentsContract;
 import android.provider.DocumentsProvider;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
 
 import net.nurik.roman.muzei.androidclientcommon.R;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 /**
  * DocumentsProvider that allows users to view previous Muzei wallpapers
  */
 public class MuzeiDocumentsProvider extends DocumentsProvider {
+    private static final String TAG = "MuzeiDocumentsProvider";
     /**
      * Default root projection
      */
@@ -196,7 +211,7 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
             String byline = data.getString(data.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_BYLINE));
             row.add(DocumentsContract.Document.COLUMN_SUMMARY, byline);
             row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, "image/*");
-            row.add(DocumentsContract.Document.COLUMN_FLAGS, 0);
+            row.add(DocumentsContract.Document.COLUMN_FLAGS, DocumentsContract.Document.FLAG_SUPPORTS_THUMBNAIL);
             row.add(DocumentsContract.Document.COLUMN_SIZE, null);
             data.moveToNext();
         }
@@ -285,6 +300,115 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
         long artworkId = Long.parseLong(documentId.replace(ARTWORK_DOCUMENT_ID_PREFIX, ""));
         return getContext().getContentResolver().openFileDescriptor(
                 ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI, artworkId), mode, signal);
+    }
+
+    @Override
+    public AssetFileDescriptor openDocumentThumbnail(final String documentId, final Point sizeHint, final CancellationSignal signal) throws FileNotFoundException {
+        if (documentId != null && documentId.startsWith(ARTWORK_DOCUMENT_ID_PREFIX)) {
+            ContentResolver contentResolver = getContext().getContentResolver();
+            long artworkId = Long.parseLong(documentId.replace(ARTWORK_DOCUMENT_ID_PREFIX, ""));
+            Uri artworkUri = ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI, artworkId);
+            File tempFile = getCacheFileForArtworkUri(artworkUri);
+            if (tempFile != null && tempFile.exists() && tempFile.length() != 0) {
+                // We already have a cached thumbnail
+                return new AssetFileDescriptor(ParcelFileDescriptor.open(tempFile, ParcelFileDescriptor.MODE_READ_ONLY), 0,
+                        AssetFileDescriptor.UNKNOWN_LENGTH);
+            }
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeStream(contentResolver.openInputStream(artworkUri), null, options);
+            final int targetHeight = 2 * sizeHint.y;
+            final int targetWidth = 2 * sizeHint.x;
+            final int height = options.outHeight;
+            final int width = options.outWidth;
+            options.inSampleSize = 1;
+            if (height > targetHeight || width > targetWidth) {
+                final int halfHeight = height / 2;
+                final int halfWidth = width / 2;
+                // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+                // height and width larger than the requested height and width.
+                while ((halfHeight / options.inSampleSize) > targetHeight
+                        || (halfWidth / options.inSampleSize) > targetWidth) {
+                    options.inSampleSize *= 2;
+                }
+            }
+            options.inJustDecodeBounds = false;
+            Bitmap bitmap = BitmapFactory.decodeStream(contentResolver.openInputStream(artworkUri), null, options);
+            // Write out the thumbnail to a temporary file
+            FileOutputStream out = null;
+            try {
+                if (tempFile == null) {
+                    tempFile = File.createTempFile("thumbnail", null, getContext().getCacheDir());
+                }
+                out = new FileOutputStream(tempFile);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
+            } catch (IOException e) {
+                Log.e(TAG, "Error writing thumbnail", e);
+                return null;
+            } finally {
+                if (out != null)
+                    try {
+                        out.close();
+                    } catch (IOException e) {
+                        Log.e(TAG, "Error closing thumbnail", e);
+                    }
+            }
+            return new AssetFileDescriptor(ParcelFileDescriptor.open(tempFile, ParcelFileDescriptor.MODE_READ_ONLY), 0,
+                    AssetFileDescriptor.UNKNOWN_LENGTH);
+        }
+        return null;
+    }
+
+    // This is very similar to MuzeiProvider.getCacheFileForArtworkUri, but uses the getCacheDir()
+    private File getCacheFileForArtworkUri(@NonNull Uri artworkUri) {
+        File directory = new File(getContext().getCacheDir(), "artwork_thumbnails");
+        if (!directory.exists() && !directory.mkdirs()) {
+            return null;
+        }
+        String[] projection = { BaseColumns._ID, MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI };
+        Cursor data = getContext().getContentResolver().query(artworkUri, projection, null, null, null);
+        if (data == null) {
+            return null;
+        }
+        if (!data.moveToFirst()) {
+            throw new IllegalStateException("Invalid URI: " + artworkUri);
+        }
+        // While normally we'd use data.getLong(), we later need this as a String so the automatic conversion helps here
+        String id = data.getString(0);
+        String imageUri = data.getString(1);
+        data.close();
+        if (TextUtils.isEmpty(imageUri)) {
+            return new File(directory, id);
+        }
+        // Otherwise, create a unique filename based on the imageUri
+        Uri uri = Uri.parse(imageUri);
+        StringBuilder filename = new StringBuilder();
+        filename.append(uri.getScheme()).append("_")
+                .append(uri.getHost()).append("_");
+        String encodedPath = uri.getEncodedPath();
+        if (!TextUtils.isEmpty(encodedPath)) {
+            int length = encodedPath.length();
+            if (length > 60) {
+                encodedPath = encodedPath.substring(length - 60);
+            }
+            encodedPath = encodedPath.replace('/', '_');
+            filename.append(encodedPath).append("_");
+        }
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(uri.toString().getBytes("UTF-8"));
+            byte[] digest = md.digest();
+            for (byte b : digest) {
+                if ((0xff & b) < 0x10) {
+                    filename.append("0").append(Integer.toHexString((0xFF & b)));
+                } else {
+                    filename.append(Integer.toHexString(0xFF & b));
+                }
+            }
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+            filename.append(uri.toString().hashCode());
+        }
+        return new File(directory, filename.toString());
     }
 
     @Override
