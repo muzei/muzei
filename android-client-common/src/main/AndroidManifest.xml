@@ -28,5 +28,15 @@
             android:writePermission="com.google.android.apps.muzei.WRITE_PROVIDER">
             <grant-uri-permission android:pathPattern=".*"/>
         </provider>
+        <provider
+            android:name="com.google.android.apps.muzei.provider.MuzeiDocumentsProvider"
+            android:authorities="com.google.android.apps.muzei.documents"
+            android:grantUriPermissions="true"
+            android:exported="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS">
+            <intent-filter>
+                <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
+            </intent-filter>
+        </provider>
     </application>
 </manifest>
