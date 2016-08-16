@@ -347,6 +347,15 @@ public class GallerySettingsActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onBackPressed() {
+        if (mMultiSelectionController.getSelectedCount() > 0) {
+            mMultiSelectionController.reset(true);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
     private void tryUpdateSelection(boolean allowAnimate, boolean fromUser) {
         final View selectionToolbarContainer = findViewById(R.id.selection_toolbar_container);
 
