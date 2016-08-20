@@ -39,6 +39,10 @@ public class ArtworkComplicationProviderService extends ComplicationProviderServ
 
     @Override
     public void onComplicationActivated(int complicationId, int type, ComplicationManager manager) {
+        addComplication(complicationId);
+    }
+
+    private void addComplication(int complicationId) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         Set<String> complications = preferences.getStringSet(KEY_COMPLICATION_IDS, new TreeSet<String>());
         complications.add(Integer.toString(complicationId));
@@ -61,6 +65,14 @@ public class ArtworkComplicationProviderService extends ComplicationProviderServ
 
     @Override
     public void onComplicationUpdate(int complicationId, int type, ComplicationManager complicationManager) {
+        // Make sure that the complicationId is really in our set of added complications
+        // This fixes corner cases like Muzei being uninstalled and reinstalled
+        // (which wipes out our SharedPreferences but keeps any complications activated)
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        Set<String> complications = preferences.getStringSet(KEY_COMPLICATION_IDS, new TreeSet<String>());
+        if (!complications.contains(Integer.toString(complicationId))) {
+            addComplication(complicationId);
+        }
         ComplicationData.Builder builder = new ComplicationData.Builder(type)
                 .setLargeImage(Icon.createWithContentUri(MuzeiContract.Artwork.CONTENT_URI));
         complicationManager.updateComplicationData(complicationId, builder.build());

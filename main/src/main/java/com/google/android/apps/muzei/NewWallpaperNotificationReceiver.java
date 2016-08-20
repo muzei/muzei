@@ -172,7 +172,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
             int width = options.outWidth;
             int height = options.outHeight;
             int shortestLength = Math.min(width, height);
-            options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = false;
             int largeIconHeight = context.getResources()
                     .getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
             options.inSampleSize = ImageUtil.calculateSampleSize(shortestLength, largeIconHeight);
