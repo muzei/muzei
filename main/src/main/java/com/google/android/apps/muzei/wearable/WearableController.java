@@ -122,7 +122,7 @@ public class WearableController {
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeStream(contentResolver.openInputStream(
                     MuzeiContract.Artwork.CONTENT_URI), null, options);
-            options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = false;
             if (options.outWidth > options.outHeight) {
                 options.inSampleSize = ImageUtil.calculateSampleSize(options.outHeight, 320);
             } else {
