@@ -70,6 +70,8 @@ public class ArtworkComplicationJobService extends JobService {
             }
             providerUpdateRequester.requestUpdate(complicationIds);
         }
+        // Schedule the job again to catch the next update to the artwork
+        scheduleComplicationUpdateJob(this);
         return false;
     }
 
