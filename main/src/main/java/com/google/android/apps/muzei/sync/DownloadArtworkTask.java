@@ -58,7 +58,7 @@ public class DownloadArtworkTask extends AsyncTask<Void, Void, Boolean> {
     }
 
     @Override
-    protected void onPreExecute() {
+    protected void onProgressUpdate(final Void... values) {
         EventBus.getDefault().postSticky(new ArtworkLoadingStateChangedEvent(true, false));
     }
 
@@ -85,6 +85,9 @@ public class DownloadArtworkTask extends AsyncTask<Void, Void, Boolean> {
                 // We've already downloaded the file
                 return true;
             }
+            // Only publish progress (i.e., say we've started loading the artwork)
+            // if we actually need to download the artwork
+            publishProgress();
             in = openUri(mApplicationContext, imageUri);
             byte[] buffer = new byte[1024];
             int bytesRead;
