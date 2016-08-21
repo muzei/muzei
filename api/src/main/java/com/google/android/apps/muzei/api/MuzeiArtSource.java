@@ -346,7 +346,7 @@ public abstract class MuzeiArtSource extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mServiceLooper.quit();
+        mServiceLooper.quitSafely();
     }
 
     /**
