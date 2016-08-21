@@ -40,6 +40,7 @@ import android.support.v4.view.OnApplyWindowInsetsListener;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowInsetsCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -628,49 +629,31 @@ public class GallerySettingsActivity extends AppCompatActivity {
     private BroadcastReceiver mGalleryChosenUrisChangedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(final Context context, final Intent intent) {
-            // Figure out what was removed and what was added.
-            // Only support structural change events for appends and removes for now.
-            List<Uri> newChosenUris = new ArrayList<>(mStore.getChosenUris());
-            if (newChosenUris.size() >= mChosenUris.size()) {
-                // items added or equal
-                int i;
-
-                boolean isAppend = true;
-                for (i = 0; i < mChosenUris.size(); i++) {
-                    if (!mChosenUris.get(i).equals(newChosenUris.get(i))) {
-                        isAppend = false;
-                    }
-                }
-
-                if (isAppend) {
-                    mChosenPhotosAdapter.notifyItemRangeInserted(mChosenUris.size(),
-                            newChosenUris.size() - mChosenUris.size());
-                } else {
-                    // not an append, don't handle this case intelligently
-                    mChosenPhotosAdapter.notifyDataSetChanged();
-                }
-            } else {
-                // TODO: handle case where 2 items removed, 1 added
-                // items removed
-                Set<Uri> currentUris = new HashSet<>(mChosenUris);
-                Set<Uri> removedUris = currentUris;
-                removedUris.removeAll(newChosenUris);
-                List<Integer> indices = new ArrayList<>();
-                for (Uri uri : removedUris) {
-                    int index = mChosenUris.indexOf(uri);
-                    if (index >= 0) {
-                        indices.add(index);
-                    }
-                }
-
-                Collections.sort(indices);
-                Collections.reverse(indices);
-                for (Integer index : indices) {
-                    mChosenPhotosAdapter.notifyItemRemoved(index);
-                }
-            }
-
+            final List<Uri> oldChosenUris = mChosenUris;
             mChosenUris = new ArrayList<>(mStore.getChosenUris());
+            DiffUtil.calculateDiff(new DiffUtil.Callback() {
+                @Override
+                public int getOldListSize() {
+                    return oldChosenUris.size();
+                }
+
+                @Override
+                public int getNewListSize() {
+                    return mChosenUris.size();
+                }
+
+                @Override
+                public boolean areItemsTheSame(final int oldItemPosition, final int newItemPosition) {
+                    return oldChosenUris.get(oldItemPosition).equals(mChosenUris.get(newItemPosition));
+                }
+
+                @Override
+                public boolean areContentsTheSame(final int oldItemPosition, final int newItemPosition) {
+                    // If the items are the same (same URI), then they are equivalent and
+                    // no change animation is needed
+                    return true;
+                }
+            }).dispatchUpdatesTo(mChosenPhotosAdapter);
             onDataSetChanged();
         }
     };
