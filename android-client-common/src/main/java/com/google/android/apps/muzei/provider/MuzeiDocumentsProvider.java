@@ -331,7 +331,7 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
             String title = resolveInfo.loadLabel(packageManager).toString();
             row.add(DocumentsContract.Document.COLUMN_DISPLAY_NAME, title);
             String description = data.getString(data.getColumnIndex(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION));
-            if (TextUtils.isEmpty(description)) {
+            if (TextUtils.isEmpty(description) && resolveInfo.serviceInfo.descriptionRes != 0) {
                 // Load the default description
                 try {
                     Context packageContext = context.createPackageContext(
