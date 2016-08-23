@@ -368,14 +368,15 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
             source.icon = new BitmapDrawable(getResources(), generateSourceImage(ri.loadIcon(pm)));
             source.componentName = new ComponentName(ri.serviceInfo.packageName,
                     ri.serviceInfo.name);
-            Context packageContext;
-            try {
-                packageContext = getActivity().createPackageContext(
-                        source.componentName.getPackageName(), 0);
-                Resources packageRes = packageContext.getResources();
-                source.description = packageRes.getString(ri.serviceInfo.descriptionRes);
-            } catch (PackageManager.NameNotFoundException e) {
-                Log.e(TAG, "Can't read package resources for source " + source.componentName);
+            if (ri.serviceInfo.descriptionRes != 0) {
+                try {
+                    Context packageContext = getActivity().createPackageContext(
+                            source.componentName.getPackageName(), 0);
+                    Resources packageRes = packageContext.getResources();
+                    source.description = packageRes.getString(ri.serviceInfo.descriptionRes);
+                } catch (PackageManager.NameNotFoundException e) {
+                    Log.e(TAG, "Can't read package resources for source " + source.componentName);
+                }
             }
             Bundle metaData = ri.serviceInfo.metaData;
             source.color = Color.WHITE;
