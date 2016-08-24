@@ -25,6 +25,7 @@ import android.os.Build;
 import android.support.v4.content.WakefulBroadcastReceiver;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
+import com.google.android.apps.muzei.sync.TaskQueueService;
 
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_NETWORK_AVAILABLE;
 

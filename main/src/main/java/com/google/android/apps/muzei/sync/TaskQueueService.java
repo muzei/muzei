@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei;
+package com.google.android.apps.muzei.sync;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -32,9 +32,6 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.content.WakefulBroadcastReceiver;
-
-import com.google.android.apps.muzei.sync.DownloadArtworkJobService;
-import com.google.android.apps.muzei.sync.DownloadArtworkTask;
 
 import java.util.List;
 
