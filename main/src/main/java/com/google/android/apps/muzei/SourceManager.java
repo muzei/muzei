@@ -38,6 +38,7 @@ import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.api.UserCommand;
 import com.google.android.apps.muzei.api.internal.SourceState;
 import com.google.android.apps.muzei.featuredart.FeaturedArtSource;
+import com.google.android.apps.muzei.sync.TaskQueueService;
 import com.google.android.apps.muzei.wearable.WearableController;
 import com.google.android.apps.muzei.wearable.WearableSourceUpdateService;
 

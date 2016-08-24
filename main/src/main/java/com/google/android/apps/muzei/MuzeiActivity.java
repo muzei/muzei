@@ -68,6 +68,7 @@ import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
 import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiRendererFragment;
 import com.google.android.apps.muzei.settings.SettingsActivity;
+import com.google.android.apps.muzei.sync.TaskQueueService;
 import com.google.android.apps.muzei.util.AnimatedMuzeiLoadingSpinnerView;
 import com.google.android.apps.muzei.util.AnimatedMuzeiLogoFragment;
 import com.google.android.apps.muzei.util.CheatSheet;

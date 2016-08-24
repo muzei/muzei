@@ -39,6 +39,7 @@ import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
 import com.google.android.apps.muzei.render.RealRenderController;
 import com.google.android.apps.muzei.render.RenderController;
+import com.google.android.apps.muzei.sync.TaskQueueService;
 import com.google.android.apps.muzei.wearable.WearableController;
 
 import net.rbgrn.android.glwallpaperservice.GLWallpaperService;

@@ -21,9 +21,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
+import android.os.Build;
 import android.support.v4.content.WakefulBroadcastReceiver;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
+import com.google.android.apps.muzei.sync.TaskQueueService;
 
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_NETWORK_AVAILABLE;
 
@@ -35,9 +37,11 @@ public class NetworkChangeReceiver extends WakefulBroadcastReceiver {
         if (hasConnectivity) {
             // Check with components that may not currently be alive but interested in
             // network connectivity changes.
-            Intent retryIntent = TaskQueueService.maybeRetryDownloadDueToGainedConnectivity(context);
-            if (retryIntent != null) {
-                startWakefulService(context, retryIntent);
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                Intent retryIntent = TaskQueueService.maybeRetryDownloadDueToGainedConnectivity(context);
+                if (retryIntent != null) {
+                    startWakefulService(context, retryIntent);
+                }
             }
 
             // TODO: wakeful broadcast?
