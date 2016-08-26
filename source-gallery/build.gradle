@@ -45,6 +45,10 @@ android {
     defaultConfig {
         minSdkVersion 18
         targetSdkVersion rootProject.ext.targetSdkVersion
+
+        def galleryAuthorityValue = applicationId + ".gallery"
+        manifestPlaceholders = [galleryAuthority : galleryAuthorityValue]
+        buildConfigField "String", "GALLERY_AUTHORITY", "\"${galleryAuthorityValue}\""
     }
 
     compileOptions {
