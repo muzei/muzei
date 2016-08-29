@@ -49,8 +49,8 @@
 
     <string name="set_as_wallpaper_using_muzei">Wallpaper (using Muzei)</string>
 
-    <string name="tutorial_main">Open the Muzei app to see your wallpaper.</string>
-    <string name="tutorial_subtitle">Double touch the blurred wallpaper on your home screen to temporarily focus.</string>
+    <string name="tutorial_main">Open the Muzei app to see your wallpaper</string>
+    <string name="tutorial_subtitle">Double touch the blurred wallpaper on your home screen to temporarily focus</string>
 
     <string name="get_more_sources">Get more sources</string>
     <string name="reset_advanced_settings_defaults">Reset sliders</string>
