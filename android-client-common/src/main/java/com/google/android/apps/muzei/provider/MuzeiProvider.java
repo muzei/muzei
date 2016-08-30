@@ -419,8 +419,9 @@ public class MuzeiProvider extends ContentProvider {
         if (values == null) {
             throw new IllegalArgumentException("Invalid ContentValues: must not be null");
         }
-        if (!values.containsKey(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME))
-            throw new IllegalArgumentException("Initial values must contain component name " + values);
+        if (!values.containsKey(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME) ||
+                TextUtils.isEmpty(values.getAsString(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME)))
+            throw new IllegalArgumentException("Initial values must contain component name: " + values);
         values.put(MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED, System.currentTimeMillis());
         final SQLiteDatabase db = databaseHelper.getWritableDatabase();
         long rowId = db.insert(MuzeiContract.Artwork.TABLE_NAME,
