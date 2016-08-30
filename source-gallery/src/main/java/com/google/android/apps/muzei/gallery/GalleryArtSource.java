@@ -42,9 +42,6 @@ import com.google.android.apps.muzei.api.MuzeiArtSource;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -69,8 +66,6 @@ public class GalleryArtSource extends MuzeiArtSource {
             = "com.google.android.apps.muzei.gallery.extra.FORCE_URI";
 
     private static SimpleDateFormat sExifDateFormat = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
-
-    private static File sImageStorageRoot;
 
     private static final Set<String> sOmitCountryCodes = new HashSet<>();
     static {
@@ -117,7 +112,6 @@ public class GalleryArtSource extends MuzeiArtSource {
             }
         };
         getContentResolver().registerContentObserver(GalleryContract.ChosenPhotos.CONTENT_URI, true, mContentObserver);
-        ensureStorageRoot(this);
     }
 
     @Override
@@ -149,52 +143,6 @@ public class GalleryArtSource extends MuzeiArtSource {
         }
 
         super.onHandleIntent(intent);
-    }
-
-    static void ensureStorageRoot(Context context) {
-        if (sImageStorageRoot == null) {
-            sImageStorageRoot = new File(context.getExternalFilesDir(null),
-                    "gallery_images");
-            sImageStorageRoot.mkdirs();
-        }
-    }
-
-    public static File getStoredFileForUri(Context context, Uri uri) {
-        ensureStorageRoot(context);
-
-        if (uri == null) {
-            Log.w(TAG, "Empty uri.");
-            return null;
-        }
-
-        StringBuilder filename = new StringBuilder();
-        filename.append(uri.getScheme()).append("_")
-                .append(uri.getHost()).append("_");
-        String encodedPath = uri.getEncodedPath();
-        if (!TextUtils.isEmpty(encodedPath)) {
-            int length = encodedPath.length();
-            if (length > 60) {
-                encodedPath = encodedPath.substring(length - 60);
-            }
-            encodedPath = encodedPath.replace('/', '_');
-            filename.append(encodedPath).append("_");
-        }
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            md.update(uri.toString().getBytes("UTF-8"));
-            byte[] digest = md.digest();
-            for (byte b : digest) {
-                if ((0xff & b) < 0x10) {
-                    filename.append("0").append(Integer.toHexString((0xFF & b)));
-                } else {
-                    filename.append(Integer.toHexString(0xFF & b));
-                }
-            }
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-            filename.append(uri.toString().hashCode());
-        }
-
-        return new File(sImageStorageRoot, filename.toString());
     }
 
     @Override
