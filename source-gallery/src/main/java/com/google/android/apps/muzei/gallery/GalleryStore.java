@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.android.apps.muzei.gallery.GalleryDatabase.ChosenPhotos;
-import static com.google.android.apps.muzei.gallery.GalleryDatabase.MetadataCache;
 import static com.google.android.apps.muzei.gallery.GalleryDatabase.Tables;
 
 /**
@@ -58,7 +57,7 @@ public class GalleryStore {
             db.delete(Tables.CHOSEN_PHOTOS, null, null);
             ContentValues values = new ContentValues();
             for (Uri uri : chosenUris) {
-                values.put(MetadataCache.URI, uri.toString());
+                values.put(ChosenPhotos.URI, uri.toString());
                 db.insertOrThrow(Tables.CHOSEN_PHOTOS, null, values);
             }
             db.setTransactionSuccessful();
@@ -84,55 +83,6 @@ public class GalleryStore {
 
         cursor.close();
         return uris;
-    }
-
-    public synchronized Metadata getCachedMetadata(Uri uri) {
-        SQLiteDatabase db = mDatabase.getReadableDatabase();
-        Cursor cursor = new SelectionBuilder()
-                .table(Tables.METADATA_CACHE)
-                .where(MetadataCache.URI + "=?", uri.toString())
-                .query(db, new String[]{
-                        MetadataCache.DATETIME,
-                        MetadataCache.LOCATION,
-                        MetadataCache.VERSION,
-                }, null);
-        if (cursor == null || cursor.getCount() == 0) {
-            return null;
-        }
-
-        cursor.moveToFirst();
-        Metadata metadata = new Metadata();
-        metadata.datetime = cursor.getLong(0);
-        metadata.location = cursor.getString(1);
-        metadata.version = cursor.getInt(2);
-        cursor.close();
-        return metadata;
-    }
-
-    public synchronized void putCachedMetadata(Uri uri, Metadata metadata) {
-        SQLiteDatabase db = mDatabase.getWritableDatabase();
-        db.beginTransaction();
-        try {
-            ContentValues values = new ContentValues();
-            values.put(MetadataCache.URI, uri.toString());
-            values.put(MetadataCache.DATETIME, metadata.datetime);
-            values.put(MetadataCache.LOCATION, metadata.location);
-            values.put(MetadataCache.VERSION, metadata.version);
-            db.insertOrThrow(Tables.METADATA_CACHE, null, values);
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-            db.close();
-        }
-    }
-
-    public static class Metadata {
-        long datetime;
-        String location;
-        int version;
-
-        public Metadata() {
-        }
     }
 }
 

@@ -17,6 +17,7 @@
 package com.google.android.apps.muzei.gallery;
 
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -26,6 +27,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -79,7 +81,6 @@ public class GalleryArtSource extends MuzeiArtSource {
     public static final String EXTRA_FORCE_URI
             = "com.google.android.apps.muzei.gallery.extra.FORCE_URI";
 
-    public static final int CURRENT_METADATA_CACHE_VERSION = 1;
     private static SimpleDateFormat sExifDateFormat = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
 
     private static File sImageStorageRoot;
@@ -352,12 +353,29 @@ public class GalleryArtSource extends MuzeiArtSource {
         String token = imageUri.toString();
 
         // Retrieve metadata for item
-        GalleryStore.Metadata metadata = getOrCreateMetadata(imageUri);
+        ensureMetadataExists(imageUri);
+        String[] projection = {
+                GalleryContract.MetadataCache.COLUMN_NAME_DATETIME,
+                GalleryContract.MetadataCache.COLUMN_NAME_LOCATION};
+        Cursor metadata = getContentResolver().query(GalleryContract.MetadataCache.CONTENT_URI,
+                projection,
+                GalleryContract.MetadataCache.COLUMN_NAME_URI + "=?",
+                new String[] { imageUri.toString() },
+                null);
+        long datetime = 0;
+        String location = null;
+        if (metadata != null && metadata.moveToFirst()) {
+            datetime = metadata.getLong(metadata.getColumnIndex(GalleryContract.MetadataCache.COLUMN_NAME_DATETIME));
+            location = metadata.getString(metadata.getColumnIndex(GalleryContract.MetadataCache.COLUMN_NAME_LOCATION));
+        }
+        if (metadata != null) {
+            metadata.close();
+        }
 
         // Publish the actual artwork
         String title;
-        if (metadata.datetime > 0) {
-            title = DateUtils.formatDateTime(this, metadata.datetime,
+        if (datetime > 0) {
+            title = DateUtils.formatDateTime(this, datetime,
                     DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR
                             | DateUtils.FORMAT_SHOW_WEEKDAY);
         } else {
@@ -365,8 +383,8 @@ public class GalleryArtSource extends MuzeiArtSource {
         }
 
         String byline;
-        if (!TextUtils.isEmpty(metadata.location)) {
-            byline = metadata.location;
+        if (!TextUtils.isEmpty(location)) {
+            byline = location;
         } else {
             byline = getString(R.string.gallery_touch_to_view);
         }
@@ -409,13 +427,16 @@ public class GalleryArtSource extends MuzeiArtSource {
         }
     }
 
-    private GalleryStore.Metadata getOrCreateMetadata(Uri imageUri) {
-        GalleryStore store = GalleryStore.getInstance(this);
-        GalleryStore.Metadata metadata = store.getCachedMetadata(imageUri);
-        if (metadata == null || metadata.version < CURRENT_METADATA_CACHE_VERSION) {
+    private void ensureMetadataExists(Uri imageUri) {
+        Cursor existingMetadata = getContentResolver().query(GalleryContract.MetadataCache.CONTENT_URI,
+                new String[] {BaseColumns._ID},
+                GalleryContract.MetadataCache.COLUMN_NAME_URI + "=?",
+                new String[] { imageUri.toString() },
+                null);
+        if (existingMetadata == null || !existingMetadata.moveToFirst()) {
             // No cached metadata or it's stale, need to pull it separately using Exif
-            metadata = new GalleryStore.Metadata();
-            metadata.version = CURRENT_METADATA_CACHE_VERSION;
+            ContentValues values = new ContentValues();
+            values.put(GalleryContract.MetadataCache.COLUMN_NAME_URI, imageUri.toString());
 
             File tempImageFile = new File(getCacheDir(), "tempimage");
             try {
@@ -425,7 +446,7 @@ public class GalleryArtSource extends MuzeiArtSource {
                 String dateString = exifInterface.getAttribute(ExifInterface.TAG_DATETIME);
                 if (!TextUtils.isEmpty(dateString)) {
                     Date date = sExifDateFormat.parse(dateString);
-                    metadata.datetime = date.getTime();
+                    values.put(GalleryContract.MetadataCache.COLUMN_NAME_DATETIME, date.getTime());
                 }
 
                 float[] latlong = new float[2];
@@ -454,20 +475,21 @@ public class GalleryArtSource extends MuzeiArtSource {
                             }
                             sb.append(countryCode);
                         }
-                        metadata.location = sb.toString();
+                        values.put(GalleryContract.MetadataCache.COLUMN_NAME_LOCATION, sb.toString());
                     }
                 }
 
                 tempImageFile.delete();
-                store.putCachedMetadata(imageUri, metadata);
+                getContentResolver().insert(GalleryContract.MetadataCache.CONTENT_URI, values);
             } catch (ParseException e) {
                 Log.w(TAG, "Couldn't read image metadata.", e);
             } catch (IOException e) {
                 Log.w(TAG, "Couldn't write temporary image file.", e);
             }
         }
-
-        return metadata;
+        if (existingMetadata != null) {
+            existingMetadata.close();
+        }
     }
 
     private interface ImagesQuery {

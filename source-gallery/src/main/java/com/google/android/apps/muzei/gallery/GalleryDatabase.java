@@ -30,18 +30,10 @@ class GalleryDatabase extends SQLiteOpenHelper {
 
     interface Tables {
         String CHOSEN_PHOTOS = "chosen_photos";
-        String METADATA_CACHE = "metadata_cache";
     }
 
     interface ChosenPhotos extends BaseColumns {
         String URI = "uri";
-    }
-
-    interface MetadataCache extends BaseColumns {
-        String URI = "uri";
-        String DATETIME = "datetime";
-        String LOCATION = "location";
-        String VERSION = "version";
     }
 
     public GalleryDatabase(Context context) {
@@ -54,21 +46,12 @@ class GalleryDatabase extends SQLiteOpenHelper {
                 + ChosenPhotos._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + ChosenPhotos.URI + " TEXT NOT NULL,"
                 + "UNIQUE (" + ChosenPhotos.URI + ") ON CONFLICT REPLACE)");
-
-        db.execSQL("CREATE TABLE " + Tables.METADATA_CACHE + " ("
-                + MetadataCache._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + MetadataCache.URI + " TEXT NOT NULL,"
-                + MetadataCache.DATETIME + " INTEGER,"
-                + MetadataCache.LOCATION + " TEXT,"
-                + MetadataCache.VERSION + " INTEGER,"
-                + "UNIQUE (" + MetadataCache.URI + ") ON CONFLICT REPLACE)");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // TODO: proper migrations
         db.execSQL("DROP TABLE IF EXISTS " + Tables.CHOSEN_PHOTOS);
-        db.execSQL("DROP TABLE IF EXISTS " + Tables.METADATA_CACHE);
         onCreate(db);
     }
 }
