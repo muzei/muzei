@@ -20,22 +20,24 @@ import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.content.BroadcastReceiver;
 import android.content.ClipData;
-import android.content.Context;
+import android.content.ContentProviderOperation;
+import android.content.ContentValues;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.OperationApplicationException;
 import android.content.pm.PackageManager;
+import android.database.ContentObserver;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.RemoteException;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.OnApplyWindowInsetsListener;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowInsetsCompat;
@@ -45,6 +47,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -64,28 +67,27 @@ import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.google.android.apps.muzei.gallery.GalleryArtSource.ACTION_ADD_CHOSEN_URIS;
 import static com.google.android.apps.muzei.gallery.GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM;
-import static com.google.android.apps.muzei.gallery.GalleryArtSource.ACTION_REMOVE_CHOSEN_URIS;
 import static com.google.android.apps.muzei.gallery.GalleryArtSource.EXTRA_FORCE_URI;
-import static com.google.android.apps.muzei.gallery.GalleryArtSource.EXTRA_URIS;
 
 public class GallerySettingsActivity extends AppCompatActivity {
+    private static final String TAG = "GallerySettingsActivity";
     private static final int REQUEST_CHOOSE_PHOTOS = 1;
     private static final int REQUEST_STORAGE_PERMISSION = 2;
     private static final String STATE_SELECTION = "selection";
 
     private GalleryStore mStore;
     private List<Uri> mChosenUris;
+    private ContentObserver mGalleryChosenUrisContentObserver;
 
     private Toolbar mSelectionToolbar;
 
-    private Handler mHandler = new Handler();
+    private HandlerThread mHandlerThread;
+    private Handler mHandler;
     private RecyclerView mPhotoGridView;
     private int mItemSize = 10;
 
@@ -213,8 +215,9 @@ public class GallerySettingsActivity extends AppCompatActivity {
             }
         });
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mGalleryChosenUrisChangedReceiver,
-                new IntentFilter(GalleryArtSource.ACTION_GALLERY_CHOSEN_URIS_CHANGED));
+        mGalleryChosenUrisContentObserver = new GalleryChosenUrisContentObserver();
+        getContentResolver().registerContentObserver(GalleryContract.ChosenPhotos.CONTENT_URI,
+                true, mGalleryChosenUrisContentObserver);
     }
 
     @Override
@@ -237,7 +240,11 @@ public class GallerySettingsActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mGalleryChosenUrisChangedReceiver);
+        getContentResolver().unregisterContentObserver(mGalleryChosenUrisContentObserver);
+        if (mHandlerThread != null) {
+            mHandlerThread.quitSafely();
+            mHandlerThread = null;
+        }
     }
 
     private void setupAppBar() {
@@ -276,14 +283,27 @@ public class GallerySettingsActivity extends AppCompatActivity {
                 }
 
                 if (itemId == R.id.action_clear_photos) {
-                    startService(new Intent(GallerySettingsActivity.this, GalleryArtSource.class)
-                            .setAction(ACTION_REMOVE_CHOSEN_URIS));
+                    runOnHandlerThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            getContentResolver().delete(GalleryContract.ChosenPhotos.CONTENT_URI, null, null);
+                        }
+                    });
                     return true;
                 }
 
                 return false;
             }
         });
+    }
+
+    private void runOnHandlerThread(Runnable runnable) {
+        if (mHandlerThread == null) {
+            mHandlerThread = new HandlerThread("GallerySettingsActivity");
+            mHandlerThread.start();
+            mHandler = new Handler(mHandlerThread.getLooper());
+        }
+        mHandler.post(runnable);
     }
 
     private int mLastTouchPosition;
@@ -322,13 +342,22 @@ public class GallerySettingsActivity extends AppCompatActivity {
                     final ArrayList<Uri> removeUris = new ArrayList<>(
                             mMultiSelectionController.getSelection());
 
-                    mHandler.post(new Runnable() {
+                    runOnHandlerThread(new Runnable() {
                         @Override
                         public void run() {
-                            startService(
-                                    new Intent(GallerySettingsActivity.this, GalleryArtSource.class)
-                                            .setAction(ACTION_REMOVE_CHOSEN_URIS)
-                                            .putParcelableArrayListExtra(EXTRA_URIS, removeUris));
+                            // Update chosen URIs
+                            ArrayList<ContentProviderOperation> operations = new ArrayList<>();
+                            for (Uri uri : removeUris) {
+                                ContentValues values = new ContentValues();
+                                values.put(GalleryContract.ChosenPhotos.COLUMN_NAME_URI, uri.toString());
+                                operations.add(ContentProviderOperation.newDelete(GalleryContract.ChosenPhotos.CONTENT_URI)
+                                        .withValues(values).build());
+                            }
+                            try {
+                                getContentResolver().applyBatch(GalleryContract.AUTHORITY, operations);
+                            } catch (RemoteException | OperationApplicationException e) {
+                                Log.e(TAG, "Error deleting URIs from the ContentProvider", e);
+                            }
                         }
                     });
 
@@ -515,8 +544,8 @@ public class GallerySettingsActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(final ViewHolder vh, int position) {
             Uri imageUri = mChosenUris.get(position);
-            File storedFile = GalleryArtSource.getStoredFileForUri(
-                    getApplicationContext(), imageUri);
+            File storedFile = GalleryProvider.getCacheFileForUri(
+                    getApplicationContext(), imageUri.toString());
             Picasso.with(GallerySettingsActivity.this)
                     .load(Uri.fromFile(storedFile))
                     .resize(mItemSize, mItemSize)
@@ -606,7 +635,7 @@ public class GallerySettingsActivity extends AppCompatActivity {
         }
 
         // Add chosen items
-        Set<Uri> uris = new HashSet<>();
+        final Set<Uri> uris = new HashSet<>();
         if (result.getData() != null) {
             uris.add(result.getData());
         }
@@ -621,14 +650,32 @@ public class GallerySettingsActivity extends AppCompatActivity {
         }
 
         // Update chosen URIs
-        startService(new Intent(GallerySettingsActivity.this, GalleryArtSource.class)
-                .setAction(ACTION_ADD_CHOSEN_URIS)
-                .putParcelableArrayListExtra(EXTRA_URIS, new ArrayList<>(uris)));
+        runOnHandlerThread(new Runnable() {
+            @Override
+            public void run() {
+                ArrayList<ContentProviderOperation> operations = new ArrayList<>();
+                for (Uri uri : uris) {
+                    ContentValues values = new ContentValues();
+                    values.put(GalleryContract.ChosenPhotos.COLUMN_NAME_URI, uri.toString());
+                    operations.add(ContentProviderOperation.newInsert(GalleryContract.ChosenPhotos.CONTENT_URI)
+                            .withValues(values).build());
+                }
+                try {
+                    getContentResolver().applyBatch(GalleryContract.AUTHORITY, operations);
+                } catch (RemoteException | OperationApplicationException e) {
+                    Log.e(TAG, "Error writing uris to ContentProvider", e);
+                }
+            }
+        });
     }
 
-    private BroadcastReceiver mGalleryChosenUrisChangedReceiver = new BroadcastReceiver() {
+    private class GalleryChosenUrisContentObserver extends ContentObserver {
+        GalleryChosenUrisContentObserver() {
+            super(new Handler());
+        }
+
         @Override
-        public void onReceive(final Context context, final Intent intent) {
+        public void onChange(boolean selfChange, Uri uri) {
             final List<Uri> oldChosenUris = mChosenUris;
             mChosenUris = new ArrayList<>(mStore.getChosenUris());
             DiffUtil.calculateDiff(new DiffUtil.Callback() {
@@ -656,7 +703,7 @@ public class GallerySettingsActivity extends AppCompatActivity {
             }).dispatchUpdatesTo(mChosenPhotosAdapter);
             onDataSetChanged();
         }
-    };
+    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {

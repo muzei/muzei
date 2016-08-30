@@ -31,10 +31,21 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.util.Log;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -44,6 +55,7 @@ import java.util.LinkedHashSet;
  * Provides access to the Gallery's chosen photos and metadata
  */
 public class GalleryProvider extends ContentProvider {
+    private static final String TAG = "GalleryProvider";
     /**
      * The incoming URI matches the CHOSEN PHOTOS URI pattern
      */
@@ -173,8 +185,7 @@ public class GalleryProvider extends ContentProvider {
 
     @Override
     public int delete(@NonNull final Uri uri, final String selection, final String[] selectionArgs) {
-        if (GalleryProvider.uriMatcher.match(uri) == GalleryProvider.CHOSEN_PHOTOS ||
-                GalleryProvider.uriMatcher.match(uri) == GalleryProvider.CHOSEN_PHOTOS_ID) {
+        if (GalleryProvider.uriMatcher.match(uri) == GalleryProvider.CHOSEN_PHOTOS) {
             return deleteChosenPhotos(uri, selection, selectionArgs);
         } else if (GalleryProvider.uriMatcher.match(uri) == GalleryProvider.METADATA_CACHE) {
             throw new UnsupportedOperationException("Deletes are not supported");
@@ -186,28 +197,25 @@ public class GalleryProvider extends ContentProvider {
     private int deleteChosenPhotos(@NonNull final Uri uri, final String selection, final String[] selectionArgs) {
         // Opens the database object in "write" mode.
         final SQLiteDatabase db = databaseHelper.getWritableDatabase();
-        int count;
-        // Does the delete based on the incoming URI pattern.
-        switch (GalleryProvider.uriMatcher.match(uri)) {
-            case CHOSEN_PHOTOS:
-                // If the incoming pattern matches the general pattern for
-                // sources, does a delete based on the incoming "where"
-                // column and arguments.
-                count = db.delete(GalleryContract.ChosenPhotos.TABLE_NAME, selection, selectionArgs);
-                break;
-            case CHOSEN_PHOTOS_ID:
-                // If the incoming URI matches a single chosen photo ID, does the
-                // delete based on the incoming data, but modifies the where
-                // clause to restrict it to the particular chosen photo ID.
-                String finalWhere = BaseColumns._ID + " = " + uri.getLastPathSegment();
-                // If there were additional selection criteria, append them to the final WHERE clause
-                if (selection != null)
-                    finalWhere = finalWhere + " AND " + selection;
-                count = db.delete(GalleryContract.ChosenPhotos.TABLE_NAME, finalWhere, selectionArgs);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
+        // We can't just simply delete the rows as that won't free up the space occupied by the
+        // chosen image files for each row being deleted. Instead we have to query
+        // and manually delete each chosen image file
+        String[] projection = new String[] {
+                GalleryContract.ChosenPhotos.COLUMN_NAME_URI};
+        Cursor rowsToDelete = queryChosenPhotos(uri, projection, selection, selectionArgs, null);
+        if (rowsToDelete == null) {
+            return 0;
         }
+        rowsToDelete.moveToFirst();
+        while (!rowsToDelete.isAfterLast()) {
+            String imageUri = rowsToDelete.getString(0);
+            File file = getCacheFileForUri(getContext(), imageUri);
+            if (file != null && file.exists()) {
+                file.delete();
+            }
+            rowsToDelete.moveToNext();
+        }
+        int count = db.delete(GalleryContract.ChosenPhotos.TABLE_NAME, selection, selectionArgs);
         if (count > 0) {
             notifyChange(uri);
         }
@@ -251,6 +259,14 @@ public class GalleryProvider extends ContentProvider {
         }
         if (!values.containsKey(GalleryContract.ChosenPhotos.COLUMN_NAME_URI))
             throw new IllegalArgumentException("Initial values must contain URI " + values);
+        String imageUri = values.getAsString(GalleryContract.ChosenPhotos.COLUMN_NAME_URI);
+        try {
+            writeUriToFile(values.getAsString(GalleryContract.ChosenPhotos.COLUMN_NAME_URI),
+                    getCacheFileForUri(getContext(), imageUri));
+        } catch (IOException e) {
+            Log.e(TAG, "Error downloading gallery image " + imageUri, e);
+            throw new SQLException("Error downloading gallery image " + imageUri);
+        }
         final SQLiteDatabase db = databaseHelper.getWritableDatabase();
         long rowId = db.insert(GalleryContract.ChosenPhotos.TABLE_NAME,
                 GalleryContract.ChosenPhotos.COLUMN_NAME_URI, values);
@@ -264,6 +280,37 @@ public class GalleryProvider extends ContentProvider {
         }
         // If the insert didn't succeed, then the rowID is <= 0
         throw new SQLException("Failed to insert row into " + uri);
+    }
+
+    private void writeUriToFile(String uri, File destFile) throws IOException {
+        ContentResolver contentResolver = getContext() != null ? getContext().getContentResolver() : null;
+        if (contentResolver == null) {
+            return;
+        }
+        InputStream in = null;
+        OutputStream out = null;
+        try {
+            in = contentResolver.openInputStream(Uri.parse(uri));
+            if (in == null) {
+                return;
+            }
+            out = new FileOutputStream(destFile);
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = in.read(buffer)) > 0) {
+                out.write(buffer, 0, bytesRead);
+            }
+            out.flush();
+        } catch (SecurityException e) {
+            throw new IOException("Unable to read Uri: " + uri, e);
+        } finally {
+            if (in != null) {
+                in.close();
+            }
+            if (out != null) {
+                out.close();
+            }
+        }
     }
 
     private Uri insertMetadataCache(@NonNull final Uri uri, final ContentValues initialValues) {
@@ -351,6 +398,44 @@ public class GalleryProvider extends ContentProvider {
         final Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy, null);
         c.setNotificationUri(contentResolver, uri);
         return c;
+    }
+
+    static File getCacheFileForUri(Context context, @NonNull String imageUri) {
+        File directory = new File(context.getExternalFilesDir(null), "gallery_images");
+        if (!directory.exists() && !directory.mkdirs()) {
+            return null;
+        }
+
+        // Create a unique filename based on the imageUri
+        Uri uri = Uri.parse(imageUri);
+        StringBuilder filename = new StringBuilder();
+        filename.append(uri.getScheme()).append("_")
+                .append(uri.getHost()).append("_");
+        String encodedPath = uri.getEncodedPath();
+        if (!TextUtils.isEmpty(encodedPath)) {
+            int length = encodedPath.length();
+            if (length > 60) {
+                encodedPath = encodedPath.substring(length - 60);
+            }
+            encodedPath = encodedPath.replace('/', '_');
+            filename.append(encodedPath).append("_");
+        }
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(uri.toString().getBytes("UTF-8"));
+            byte[] digest = md.digest();
+            for (byte b : digest) {
+                if ((0xff & b) < 0x10) {
+                    filename.append("0").append(Integer.toHexString((0xFF & b)));
+                } else {
+                    filename.append(Integer.toHexString(0xFF & b));
+                }
+            }
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+            filename.append(uri.toString().hashCode());
+        }
+
+        return new File(directory, filename.toString());
     }
 
     @Override

@@ -43,7 +43,7 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 18
+        minSdkVersion 19
         targetSdkVersion rootProject.ext.targetSdkVersion
 
         def galleryAuthorityValue = applicationId + ".gallery"

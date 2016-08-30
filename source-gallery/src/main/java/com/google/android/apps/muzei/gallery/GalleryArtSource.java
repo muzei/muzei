@@ -22,15 +22,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.location.Address;
 import android.location.Geocoder;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.Handler;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -39,16 +41,12 @@ import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -59,23 +57,12 @@ public class GalleryArtSource extends MuzeiArtSource {
     private static final String TAG = "GalleryArtSource";
     private static final String SOURCE_NAME = "GalleryArtSource";
 
-    static final String ACTION_GALLERY_CHOSEN_URIS_CHANGED
-            = "com.google.android.apps.muzei.gallery.gallery_chosen_uris_changed";
-
     public static final String PREF_ROTATE_INTERVAL_MIN = "rotate_interval_min";
 
     public static final int DEFAULT_ROTATE_INTERVAL_MIN = 60 * 6;
 
     public static final String ACTION_PUBLISH_NEXT_GALLERY_ITEM
             = "com.google.android.apps.muzei.gallery.action.PUBLISH_NEXT_GALLERY_ITEM";
-    public static final String ACTION_ADD_CHOSEN_URIS
-            = "com.google.android.apps.muzei.gallery.action.ADD_CHOSEN_URIS";
-    public static final String ACTION_REMOVE_CHOSEN_URIS
-            = "com.google.android.apps.muzei.gallery.action.REMOVE_CHOSEN_URIS";
-    public static final String EXTRA_URIS
-            = "com.google.android.apps.muzei.gallery.extra.URIS";
-    public static final String EXTRA_ALLOW_PUBLISH
-            = "com.google.android.apps.muzei.gallery.extra.ALLOW_PUBLISH";
     public static final String ACTION_SCHEDULE_NEXT
             = "com.google.android.apps.muzei.gallery.action.SCHEDULE_NEXT";
     public static final String EXTRA_FORCE_URI
@@ -91,6 +78,7 @@ public class GalleryArtSource extends MuzeiArtSource {
     }
 
     private Geocoder mGeocoder;
+    private ContentObserver mContentObserver;
     private GalleryStore mStore;
 
     public GalleryArtSource() {
@@ -102,7 +90,42 @@ public class GalleryArtSource extends MuzeiArtSource {
         super.onCreate();
         mStore = GalleryStore.getInstance(this);
         mGeocoder = new Geocoder(this);
+        mContentObserver = new ContentObserver(new Handler()) {
+            @Override
+            public void onChange(boolean selfChange, Uri uri) {
+                // Update the metadata
+                updateMeta();
+
+                // See if we've just added the very first image
+                Artwork currentArtwork = getCurrentArtwork();
+                if (currentArtwork == null) {
+                    publishNextArtwork(null);
+                    return;
+                }
+
+                // See if the current artwork was removed
+                Cursor data = getContentResolver().query(GalleryContract.ChosenPhotos.CONTENT_URI,
+                        new String[] { BaseColumns._ID },
+                        GalleryContract.ChosenPhotos.COLUMN_NAME_URI + "=?",
+                        new String[] { currentArtwork.getToken() },
+                        null);
+                if (data == null || !data.moveToFirst()) {
+                    // We're showing a removed URI
+                    publishNextArtwork(null);
+                }
+                if (data != null) {
+                    data.close();
+                }
+            }
+        };
+        getContentResolver().registerContentObserver(GalleryContract.ChosenPhotos.CONTENT_URI, true, mContentObserver);
         ensureStorageRoot(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        getContentResolver().unregisterContentObserver(mContentObserver);
     }
 
     @Override
@@ -122,114 +145,12 @@ public class GalleryArtSource extends MuzeiArtSource {
             publishNextArtwork(forceUri);
             return;
 
-        } else if (ACTION_ADD_CHOSEN_URIS.equals(action)) {
-            handleAddChosenUris(intent.<Uri>getParcelableArrayListExtra(EXTRA_URIS),
-                    intent.getBooleanExtra(EXTRA_ALLOW_PUBLISH, true));
-            return;
-
-        } else if (ACTION_REMOVE_CHOSEN_URIS.equals(action)) {
-            handleRemoveChosenUris(intent.<Uri>getParcelableArrayListExtra(EXTRA_URIS));
-            return;
-
         } else if (ACTION_SCHEDULE_NEXT.equals(action)) {
             scheduleNext();
             return;
         }
 
         super.onHandleIntent(intent);
-    }
-
-    private void writeUriToFile(Uri uri, File destFile) throws IOException {
-        InputStream in = null;
-        OutputStream out = null;
-        try {
-            in = getContentResolver().openInputStream(uri);
-            if (in == null) {
-                return;
-            }
-            out = new FileOutputStream(destFile);
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = in.read(buffer)) > 0) {
-                out.write(buffer, 0, bytesRead);
-            }
-            out.flush();
-        } catch (SecurityException e) {
-            throw new IOException("Unable to read Uri: " + uri, e);
-        } finally {
-            if (in != null) {
-                in.close();
-            }
-            if (out != null) {
-                out.close();
-            }
-        }
-    }
-
-    private void handleAddChosenUris(ArrayList<Uri> addUris, boolean allowPublishNewArtwork) {
-        // Filter out duplicates
-        Set<Uri> current = new HashSet<>(mStore.getChosenUris());
-        addUris.removeAll(current);
-
-        for (Uri uri : addUris) {
-            // Download each file
-            try {
-                writeUriToFile(uri, getStoredFileForUri(this, uri));
-            } catch (IOException e) {
-                Log.e(TAG, "Error downloading gallery image.", e);
-                return;
-            }
-        }
-
-        List<Uri> chosenUris = mStore.getChosenUris();
-        chosenUris.addAll(addUris);
-        mStore.setChosenUris(chosenUris);
-
-        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(ACTION_GALLERY_CHOSEN_URIS_CHANGED));
-
-        if (current.size() == 0 && allowPublishNewArtwork) {
-            publishNextArtwork(null);
-        }
-
-        updateMeta();
-    }
-
-    private void handleRemoveChosenUris(List<Uri> removeUris) {
-        if (removeUris == null) {
-            File[] files = sImageStorageRoot.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    file.delete();
-                }
-            }
-            mStore.setChosenUris(new ArrayList<Uri>());
-            publishNextArtwork(null);
-
-        } else {
-            Artwork currentArtwork = getCurrentArtwork();
-            boolean currentlyShowingRemovedArtwork = false;
-            List<Uri> chosenUris = mStore.getChosenUris();
-            chosenUris.removeAll(removeUris);
-            for (Uri uri : removeUris) {
-                if (!currentlyShowingRemovedArtwork && currentArtwork != null
-                        && TextUtils.equals(currentArtwork.getToken(), uri.toString())) {
-                    currentlyShowingRemovedArtwork = true;
-                }
-
-                File f = getStoredFileForUri(this, uri);
-                if (f != null) {
-                    f.delete();
-                }
-            }
-            mStore.setChosenUris(chosenUris);
-
-            if (currentlyShowingRemovedArtwork) {
-                publishNextArtwork(null);
-            }
-        }
-
-        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(ACTION_GALLERY_CHOSEN_URIS_CHANGED));
-        updateMeta();
     }
 
     static void ensureStorageRoot(Context context) {
@@ -392,7 +313,7 @@ public class GalleryArtSource extends MuzeiArtSource {
         Uri finalImageUri = imageUri;
         if (useStoredFile) {
             // Previously stored in handleAddChosenUris
-            finalImageUri = Uri.fromFile(getStoredFileForUri(this, imageUri));
+            finalImageUri = Uri.fromFile(GalleryProvider.getCacheFileForUri(this, imageUri.toString()));
         }
 
         publishArtwork(new Artwork.Builder()
@@ -427,7 +348,7 @@ public class GalleryArtSource extends MuzeiArtSource {
         }
     }
 
-    private void ensureMetadataExists(Uri imageUri) {
+    private void ensureMetadataExists(@NonNull Uri imageUri) {
         Cursor existingMetadata = getContentResolver().query(GalleryContract.MetadataCache.CONTENT_URI,
                 new String[] {BaseColumns._ID},
                 GalleryContract.MetadataCache.COLUMN_NAME_URI + "=?",
@@ -438,11 +359,9 @@ public class GalleryArtSource extends MuzeiArtSource {
             ContentValues values = new ContentValues();
             values.put(GalleryContract.MetadataCache.COLUMN_NAME_URI, imageUri.toString());
 
-            File tempImageFile = new File(getCacheDir(), "tempimage");
+            File imageFile = GalleryProvider.getCacheFileForUri(this, imageUri.toString());
             try {
-                writeUriToFile(imageUri, tempImageFile);
-
-                ExifInterface exifInterface = new ExifInterface(tempImageFile.getPath());
+                ExifInterface exifInterface = new ExifInterface(imageFile.getPath());
                 String dateString = exifInterface.getAttribute(ExifInterface.TAG_DATETIME);
                 if (!TextUtils.isEmpty(dateString)) {
                     Date date = sExifDateFormat.parse(dateString);
@@ -479,7 +398,6 @@ public class GalleryArtSource extends MuzeiArtSource {
                     }
                 }
 
-                tempImageFile.delete();
                 getContentResolver().insert(GalleryContract.MetadataCache.CONTENT_URI, values);
             } catch (ParseException e) {
                 Log.w(TAG, "Couldn't read image metadata.", e);

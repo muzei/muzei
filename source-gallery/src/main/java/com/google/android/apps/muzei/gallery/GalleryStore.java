@@ -16,7 +16,6 @@
 
 package com.google.android.apps.muzei.gallery;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -48,23 +47,6 @@ public class GalleryStore {
 
     private GalleryStore(Context applicationContext) {
         mDatabase = new GalleryDatabase(applicationContext);
-    }
-
-    public synchronized void setChosenUris(List<Uri> chosenUris) {
-        SQLiteDatabase db = mDatabase.getWritableDatabase();
-        db.beginTransaction();
-        try {
-            db.delete(Tables.CHOSEN_PHOTOS, null, null);
-            ContentValues values = new ContentValues();
-            for (Uri uri : chosenUris) {
-                values.put(ChosenPhotos.URI, uri.toString());
-                db.insertOrThrow(Tables.CHOSEN_PHOTOS, null, values);
-            }
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-            db.close();
-        }
     }
 
     public synchronized List<Uri> getChosenUris() {
