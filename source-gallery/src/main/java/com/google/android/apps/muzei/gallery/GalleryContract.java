@@ -50,6 +50,10 @@ public class GalleryContract {
          */
         public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.android.apps.muzei.gallery.chosen_photos";
         /**
+         * The MIME type of {@link #CONTENT_URI} providing a single chosen photo.
+         */
+        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.google.android.apps.muzei.gallery.chosen_photos";
+        /**
          * The default sort order for this table
          */
         public static final String DEFAULT_SORT_ORDER = BaseColumns._ID;

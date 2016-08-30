@@ -49,9 +49,13 @@ public class GalleryProvider extends ContentProvider {
      */
     private static final int CHOSEN_PHOTOS = 1;
     /**
+     * The incoming URI matches the CHOSEN PHOTOS ID URI pattern
+     */
+    private static final int CHOSEN_PHOTOS_ID = 2;
+    /**
      * The incoming URI matches the METADATA CACHE URI pattern
      */
-    private static final int METADATA_CACHE = 2;
+    private static final int METADATA_CACHE = 3;
     /**
      * The database that the provider uses as its underlying data store
      */
@@ -126,6 +130,8 @@ public class GalleryProvider extends ContentProvider {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         matcher.addURI(GalleryContract.AUTHORITY, GalleryContract.ChosenPhotos.TABLE_NAME,
                 GalleryProvider.CHOSEN_PHOTOS);
+        matcher.addURI(GalleryContract.AUTHORITY, GalleryContract.ChosenPhotos.TABLE_NAME + "/#",
+                GalleryProvider.CHOSEN_PHOTOS_ID);
         matcher.addURI(GalleryContract.AUTHORITY, GalleryContract.MetadataCache.TABLE_NAME,
                 GalleryProvider.METADATA_CACHE);
         return matcher;
@@ -167,7 +173,8 @@ public class GalleryProvider extends ContentProvider {
 
     @Override
     public int delete(@NonNull final Uri uri, final String selection, final String[] selectionArgs) {
-        if (GalleryProvider.uriMatcher.match(uri) == GalleryProvider.CHOSEN_PHOTOS) {
+        if (GalleryProvider.uriMatcher.match(uri) == GalleryProvider.CHOSEN_PHOTOS ||
+                GalleryProvider.uriMatcher.match(uri) == GalleryProvider.CHOSEN_PHOTOS_ID) {
             return deleteChosenPhotos(uri, selection, selectionArgs);
         } else if (GalleryProvider.uriMatcher.match(uri) == GalleryProvider.METADATA_CACHE) {
             throw new UnsupportedOperationException("Deletes are not supported");
@@ -188,6 +195,16 @@ public class GalleryProvider extends ContentProvider {
                 // column and arguments.
                 count = db.delete(GalleryContract.ChosenPhotos.TABLE_NAME, selection, selectionArgs);
                 break;
+            case CHOSEN_PHOTOS_ID:
+                // If the incoming URI matches a single chosen photo ID, does the
+                // delete based on the incoming data, but modifies the where
+                // clause to restrict it to the particular chosen photo ID.
+                String finalWhere = BaseColumns._ID + " = " + uri.getLastPathSegment();
+                // If there were additional selection criteria, append them to the final WHERE clause
+                if (selection != null)
+                    finalWhere = finalWhere + " AND " + selection;
+                count = db.delete(GalleryContract.ChosenPhotos.TABLE_NAME, finalWhere, selectionArgs);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
@@ -206,6 +223,9 @@ public class GalleryProvider extends ContentProvider {
             case CHOSEN_PHOTOS:
                 // If the pattern is for chosen photos, returns the chosen photos content type.
                 return GalleryContract.ChosenPhotos.CONTENT_TYPE;
+            case CHOSEN_PHOTOS_ID:
+                // If the pattern is for chosen photo id, returns the chosen photo content item type.
+                return GalleryContract.ChosenPhotos.CONTENT_ITEM_TYPE;
             case METADATA_CACHE:
                 // If the pattern is for metadata cache, returns the metadata cache content type.
                 return GalleryContract.MetadataCache.CONTENT_TYPE;
@@ -278,7 +298,8 @@ public class GalleryProvider extends ContentProvider {
     @Override
     public Cursor query(@NonNull final Uri uri, final String[] projection, final String selection,
                         final String[] selectionArgs, final String sortOrder) {
-        if (GalleryProvider.uriMatcher.match(uri) == GalleryProvider.CHOSEN_PHOTOS) {
+        if (GalleryProvider.uriMatcher.match(uri) == GalleryProvider.CHOSEN_PHOTOS ||
+                GalleryProvider.uriMatcher.match(uri) == GalleryProvider.CHOSEN_PHOTOS_ID) {
             return queryChosenPhotos(uri, projection, selection, selectionArgs, sortOrder);
         } else if (GalleryProvider.uriMatcher.match(uri) == GalleryProvider.METADATA_CACHE) {
             return queryMetadataCache(uri, projection, selection, selectionArgs, sortOrder);
@@ -297,6 +318,11 @@ public class GalleryProvider extends ContentProvider {
         qb.setTables(GalleryContract.ChosenPhotos.TABLE_NAME);
         qb.setProjectionMap(allChosenPhotosColumnProjectionMap);
         final SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        if (GalleryProvider.uriMatcher.match(uri) == CHOSEN_PHOTOS_ID) {
+            // If the incoming URI is for a single chosen photo identified by its ID, appends "_ID = <chosenPhotoId>"
+            // to the where clause, so that it selects that single chosen photo
+            qb.appendWhere(BaseColumns._ID + "=" + uri.getLastPathSegment());
+        }
         String orderBy;
         if (TextUtils.isEmpty(sortOrder))
             orderBy = GalleryContract.ChosenPhotos.DEFAULT_SORT_ORDER;
@@ -329,7 +355,8 @@ public class GalleryProvider extends ContentProvider {
 
     @Override
     public int update(@NonNull final Uri uri, final ContentValues values, final String selection, final String[] selectionArgs) {
-        if (GalleryProvider.uriMatcher.match(uri) == GalleryProvider.CHOSEN_PHOTOS) {
+        if (GalleryProvider.uriMatcher.match(uri) == GalleryProvider.CHOSEN_PHOTOS ||
+                GalleryProvider.uriMatcher.match(uri) == GalleryProvider.CHOSEN_PHOTOS_ID) {
             throw new UnsupportedOperationException("Updates are not allowed");
         } else if (GalleryProvider.uriMatcher.match(uri) == GalleryProvider.METADATA_CACHE) {
             throw new UnsupportedOperationException("Updates are not allowed");
