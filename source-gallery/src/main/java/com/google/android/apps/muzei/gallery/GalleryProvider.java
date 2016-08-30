@@ -17,10 +17,13 @@
 package com.google.android.apps.muzei.gallery;
 
 import android.content.ContentProvider;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -32,7 +35,10 @@ import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 
 /**
  * Provides access to the Gallery's chosen photos and metadata
@@ -72,6 +78,14 @@ public class GalleryProvider extends ContentProvider {
      * Handle to a new DatabaseHelper.
      */
     private DatabaseHelper databaseHelper;
+    /**
+     * Whether we should hold notifyChange() calls due to an ongoing applyBatch operation
+     */
+    private boolean holdNotifyChange = false;
+    /**
+     * Set of Uris that should be applied when the ongoing applyBatch operation finishes
+     */
+    private LinkedHashSet<Uri> pendingNotifyChange = new LinkedHashSet<>();
 
     /**
      * Creates and initializes a column project for all columns for Chosen Photos
@@ -117,6 +131,40 @@ public class GalleryProvider extends ContentProvider {
         return matcher;
     }
 
+    @NonNull
+    @Override
+    public ContentProviderResult[] applyBatch(@NonNull final ArrayList<ContentProviderOperation> operations)
+            throws OperationApplicationException {
+        holdNotifyChange = true;
+        try {
+            return super.applyBatch(operations);
+        } finally {
+            holdNotifyChange = false;
+            Context context = getContext();
+            if (context != null) {
+                ContentResolver contentResolver = context.getContentResolver();
+                Iterator<Uri> iterator = pendingNotifyChange.iterator();
+                while (iterator.hasNext()) {
+                    Uri uri = iterator.next();
+                    contentResolver.notifyChange(uri, null);
+                    iterator.remove();
+                }
+            }
+        }
+    }
+
+    private void notifyChange(Uri uri) {
+        if (holdNotifyChange) {
+            pendingNotifyChange.add(uri);
+        } else {
+            Context context = getContext();
+            if (context == null) {
+                return;
+            }
+            context.getContentResolver().notifyChange(uri, null);
+        }
+    }
+
     @Override
     public int delete(@NonNull final Uri uri, final String selection, final String[] selectionArgs) {
         if (GalleryProvider.uriMatcher.match(uri) == GalleryProvider.CHOSEN_PHOTOS) {
@@ -143,8 +191,8 @@ public class GalleryProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
-        if (count > 0 && getContext() != null) {
-            getContext().getContentResolver().notifyChange(uri, null);
+        if (count > 0) {
+            notifyChange(uri);
         }
         return count;
     }
@@ -178,10 +226,6 @@ public class GalleryProvider extends ContentProvider {
     }
 
     private Uri insertChosenPhotos(@NonNull final Uri uri, final ContentValues values) {
-        ContentResolver contentResolver = getContext() != null ? getContext().getContentResolver() : null;
-        if (contentResolver == null) {
-            return null;
-        }
         if (values == null) {
             throw new IllegalArgumentException("Invalid ContentValues: must not be null");
         }
@@ -195,7 +239,7 @@ public class GalleryProvider extends ContentProvider {
         {
             // Creates a URI with the chosen photos ID pattern and the new row ID appended to it.
             final Uri chosenPhotoUri = ContentUris.withAppendedId(GalleryContract.ChosenPhotos.CONTENT_URI, rowId);
-            contentResolver.notifyChange(chosenPhotoUri, null);
+            notifyChange(chosenPhotoUri);
             return chosenPhotoUri;
         }
         // If the insert didn't succeed, then the rowID is <= 0
@@ -203,10 +247,6 @@ public class GalleryProvider extends ContentProvider {
     }
 
     private Uri insertMetadataCache(@NonNull final Uri uri, final ContentValues initialValues) {
-        ContentResolver contentResolver = getContext() != null ? getContext().getContentResolver() : null;
-        if (contentResolver == null) {
-            return null;
-        }
         if (!initialValues.containsKey(GalleryContract.MetadataCache.COLUMN_NAME_URI))
             throw new IllegalArgumentException("Initial values must contain URI " + initialValues);
         final SQLiteDatabase db = databaseHelper.getWritableDatabase();
@@ -217,7 +257,7 @@ public class GalleryProvider extends ContentProvider {
         {
             // Creates a URI with the metadata cache ID pattern and the new row ID appended to it.
             final Uri metadataCacheUri = ContentUris.withAppendedId(GalleryContract.MetadataCache.CONTENT_URI, rowId);
-            contentResolver.notifyChange(metadataCacheUri, null);
+            notifyChange(metadataCacheUri);
             return metadataCacheUri;
         }
         // If the insert didn't succeed, then the rowID is <= 0
