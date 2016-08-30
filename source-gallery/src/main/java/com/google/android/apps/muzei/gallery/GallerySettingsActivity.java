@@ -22,11 +22,12 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.ClipData;
 import android.content.ContentProviderOperation;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.content.pm.PackageManager;
-import android.database.ContentObserver;
+import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
@@ -34,10 +35,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.RemoteException;
+import android.provider.BaseColumns;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.view.OnApplyWindowInsetsListener;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowInsetsCompat;
@@ -65,24 +70,21 @@ import android.widget.ViewAnimator;
 import com.google.android.apps.muzei.util.MultiSelectionController;
 import com.squareup.picasso.Picasso;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import static com.google.android.apps.muzei.gallery.GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM;
 import static com.google.android.apps.muzei.gallery.GalleryArtSource.EXTRA_FORCE_URI;
 
-public class GallerySettingsActivity extends AppCompatActivity {
+public class GallerySettingsActivity extends AppCompatActivity
+        implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = "GallerySettingsActivity";
     private static final int REQUEST_CHOOSE_PHOTOS = 1;
     private static final int REQUEST_STORAGE_PERMISSION = 2;
     private static final String STATE_SELECTION = "selection";
 
-    private GalleryStore mStore;
-    private List<Uri> mChosenUris;
-    private ContentObserver mGalleryChosenUrisContentObserver;
+    private Cursor mChosenUris;
 
     private Toolbar mSelectionToolbar;
 
@@ -120,9 +122,7 @@ public class GallerySettingsActivity extends AppCompatActivity {
         setContentView(R.layout.gallery_activity);
         setupAppBar();
 
-        mStore = GalleryStore.getInstance(this);
-        mChosenUris = new ArrayList<>(mStore.getChosenUris());
-        onDataSetChanged();
+        getSupportLoaderManager().initLoader(0, null, this);
 
         mPlaceholderDrawable = new ColorDrawable(ContextCompat.getColor(this,
                 R.color.gallery_chosen_photo_placeholder));
@@ -214,10 +214,6 @@ public class GallerySettingsActivity extends AppCompatActivity {
                 chooseMorePhotos();
             }
         });
-
-        mGalleryChosenUrisContentObserver = new GalleryChosenUrisContentObserver();
-        getContentResolver().registerContentObserver(GalleryContract.ChosenPhotos.CONTENT_URI,
-                true, mGalleryChosenUrisContentObserver);
     }
 
     @Override
@@ -240,7 +236,6 @@ public class GallerySettingsActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        getContentResolver().unregisterContentObserver(mGalleryChosenUrisContentObserver);
         if (mHandlerThread != null) {
             mHandlerThread.quitSafely();
             mHandlerThread = null;
@@ -459,7 +454,7 @@ public class GallerySettingsActivity extends AppCompatActivity {
     private void onDataSetChanged() {
         View emptyView = findViewById(android.R.id.empty);
         TextView emptyDescription = (TextView) findViewById(R.id.empty_description);
-        if (!mChosenUris.isEmpty()) {
+        if (mChosenUris != null && mChosenUris.getCount() > 0) {
             emptyView.setVisibility(View.GONE);
             // We have at least one image, so consider the Gallery source properly setup
             setResult(RESULT_OK);
@@ -534,7 +529,10 @@ public class GallerySettingsActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     mUpdatePosition = vh.getAdapterPosition();
-                    mMultiSelectionController.toggle(mChosenUris.get(mUpdatePosition), true);
+                    mChosenUris.moveToPosition(mUpdatePosition);
+                    Uri imageUri = Uri.parse(mChosenUris.getString(
+                            mChosenUris.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_URI)));
+                    mMultiSelectionController.toggle(imageUri, true);
                 }
             });
 
@@ -543,11 +541,13 @@ public class GallerySettingsActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(final ViewHolder vh, int position) {
-            Uri imageUri = mChosenUris.get(position);
-            File storedFile = GalleryProvider.getCacheFileForUri(
-                    getApplicationContext(), imageUri.toString());
+            mChosenUris.moveToPosition(mUpdatePosition);
+            Uri contentUri = ContentUris.withAppendedId(GalleryContract.ChosenPhotos.CONTENT_URI,
+                    mChosenUris.getLong(mChosenUris.getColumnIndex(BaseColumns._ID)));
+            Uri imageUri = Uri.parse(mChosenUris.getString(
+                    mChosenUris.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_URI)));
             Picasso.with(GallerySettingsActivity.this)
-                    .load(Uri.fromFile(storedFile))
+                    .load(contentUri)
                     .resize(mItemSize, mItemSize)
                     .centerCrop()
                     .placeholder(mPlaceholderDrawable)
@@ -604,12 +604,13 @@ public class GallerySettingsActivity extends AppCompatActivity {
 
         @Override
         public int getItemCount() {
-            return mChosenUris.size();
+            return mChosenUris != null ? mChosenUris.getCount() : 0;
         }
 
         @Override
         public long getItemId(int position) {
-            return mChosenUris.get(position).hashCode();
+            mChosenUris.moveToPosition(position);
+            return mChosenUris.getLong(mChosenUris.getColumnIndex(BaseColumns._ID));
         }
     };
 
@@ -669,40 +670,55 @@ public class GallerySettingsActivity extends AppCompatActivity {
         });
     }
 
-    private class GalleryChosenUrisContentObserver extends ContentObserver {
-        GalleryChosenUrisContentObserver() {
-            super(new Handler());
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(this, GalleryContract.ChosenPhotos.CONTENT_URI,
+                new String[] {BaseColumns._ID, GalleryContract.ChosenPhotos.COLUMN_NAME_URI },
+                null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, final Cursor data) {
+        if (mChosenUris == data) {
+            return;
         }
+        final Cursor previousData = mChosenUris;
+        mChosenUris = data;
+        DiffUtil.calculateDiff(new DiffUtil.Callback() {
+            @Override
+            public int getOldListSize() {
+                return previousData != null ? previousData.getCount() : 0;
+            }
 
-        @Override
-        public void onChange(boolean selfChange, Uri uri) {
-            final List<Uri> oldChosenUris = mChosenUris;
-            mChosenUris = new ArrayList<>(mStore.getChosenUris());
-            DiffUtil.calculateDiff(new DiffUtil.Callback() {
-                @Override
-                public int getOldListSize() {
-                    return oldChosenUris.size();
-                }
+            @Override
+            public int getNewListSize() {
+                return data.getCount();
+            }
 
-                @Override
-                public int getNewListSize() {
-                    return mChosenUris.size();
-                }
+            @Override
+            public boolean areItemsTheSame(final int oldItemPosition, final int newItemPosition) {
+                previousData.moveToPosition(oldItemPosition);
+                long oldId = previousData.getLong(previousData.getColumnIndex(BaseColumns._ID));
+                data.moveToPosition(newItemPosition);
+                long newId = data.getLong(data.getColumnIndex(BaseColumns._ID));
+                return oldId == newId;
+            }
 
-                @Override
-                public boolean areItemsTheSame(final int oldItemPosition, final int newItemPosition) {
-                    return oldChosenUris.get(oldItemPosition).equals(mChosenUris.get(newItemPosition));
-                }
+            @Override
+            public boolean areContentsTheSame(final int oldItemPosition, final int newItemPosition) {
+                // If the items are the same (same ID), then they are equivalent and
+                // no change animation is needed
+                return true;
+            }
+        }).dispatchUpdatesTo(mChosenPhotosAdapter);
+        onDataSetChanged();
+    }
 
-                @Override
-                public boolean areContentsTheSame(final int oldItemPosition, final int newItemPosition) {
-                    // If the items are the same (same URI), then they are equivalent and
-                    // no change animation is needed
-                    return true;
-                }
-            }).dispatchUpdatesTo(mChosenPhotosAdapter);
-            onDataSetChanged();
-        }
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mChosenUris = null;
+        mChosenPhotosAdapter.notifyItemRangeRemoved(0, mChosenPhotosAdapter.getItemCount());
+        onDataSetChanged();
     }
 
     @Override

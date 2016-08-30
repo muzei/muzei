@@ -79,7 +79,6 @@ public class GalleryArtSource extends MuzeiArtSource {
 
     private Geocoder mGeocoder;
     private ContentObserver mContentObserver;
-    private GalleryStore mStore;
 
     public GalleryArtSource() {
         super(SOURCE_NAME);
@@ -88,7 +87,6 @@ public class GalleryArtSource extends MuzeiArtSource {
     @Override
     public void onCreate() {
         super.onCreate();
-        mStore = GalleryStore.getInstance(this);
         mGeocoder = new Geocoder(this);
         mContentObserver = new ContentObserver(new Handler()) {
             @Override
@@ -215,8 +213,10 @@ public class GalleryArtSource extends MuzeiArtSource {
         // schedule next
         scheduleNext();
 
-        List<Uri> chosenUris = mStore.getChosenUris();
-        int numChosenUris = (chosenUris != null) ? chosenUris.size() : 0;
+        Cursor chosenUris = getContentResolver().query(GalleryContract.ChosenPhotos.CONTENT_URI,
+                new String[] { GalleryContract.ChosenPhotos.COLUMN_NAME_URI },
+                null, null, null);
+        int numChosenUris = (chosenUris != null) ? chosenUris.getCount() : 0;
 
         Artwork currentArtwork = getCurrentArtwork();
         String lastToken = (currentArtwork != null) ? currentArtwork.getToken() : null;
@@ -229,12 +229,13 @@ public class GalleryArtSource extends MuzeiArtSource {
 
         } else if (numChosenUris > 0) {
             while (true) {
-                imageUri = chosenUris.get(random.nextInt(chosenUris.size()));
+                chosenUris.moveToPosition(random.nextInt(chosenUris.getCount()));
+                imageUri = Uri.parse(chosenUris.getString(
+                        chosenUris.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_URI)));
                 if (numChosenUris <= 1 || !imageUri.toString().equals(lastToken)) {
                     break;
                 }
             }
-
         } else {
             useStoredFile = false;
             if (ContextCompat.checkSelfPermission(this,
@@ -269,6 +270,9 @@ public class GalleryArtSource extends MuzeiArtSource {
             }
 
             cursor.close();
+        }
+        if (chosenUris != null) {
+            chosenUris.close();
         }
 
         String token = imageUri.toString();
@@ -327,7 +331,12 @@ public class GalleryArtSource extends MuzeiArtSource {
     }
 
     private void updateMeta() {
-        int numChosenUris = mStore.getChosenUris().size();
+        Cursor chosenUris = getContentResolver().query(GalleryContract.ChosenPhotos.CONTENT_URI,
+                null, null, null, null);
+        int numChosenUris = chosenUris != null ? chosenUris.getCount() : 0;
+        if (chosenUris != null) {
+            chosenUris.close();
+        }
         setDescription(numChosenUris > 0
                 ? getResources().getQuantityString(
                 R.plurals.gallery_description_choice_template,

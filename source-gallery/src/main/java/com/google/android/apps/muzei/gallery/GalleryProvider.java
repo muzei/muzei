@@ -400,6 +400,36 @@ public class GalleryProvider extends ContentProvider {
         return c;
     }
 
+    @Override
+    public ParcelFileDescriptor openFile(@NonNull final Uri uri, @NonNull final String mode) throws FileNotFoundException {
+        if (GalleryProvider.uriMatcher.match(uri) == GalleryProvider.CHOSEN_PHOTOS_ID) {
+            return openFileChosenPhoto(uri, mode);
+        } else {
+            throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+    }
+
+    private ParcelFileDescriptor openFileChosenPhoto(@NonNull final Uri uri, @NonNull final String mode) throws FileNotFoundException {
+        String[] projection = { GalleryContract.ChosenPhotos.COLUMN_NAME_URI };
+        Cursor data = queryChosenPhotos(uri, projection, null, null, null);
+        if (data == null) {
+            return null;
+        }
+        if (!data.moveToFirst()) {
+            throw new IllegalStateException("Invalid URI: " + uri);
+        }
+        String imageUri = data.getString(0);
+        data.close();
+        final File file = getCacheFileForUri(getContext(), imageUri);
+        if (file == null) {
+            throw new FileNotFoundException("Could not find chosen photo file");
+        }
+        if (!mode.equals("r")) {
+            throw new IllegalArgumentException("Only reading chosen photos is allowed");
+        }
+        return ParcelFileDescriptor.open(file, ParcelFileDescriptor.parseMode(mode));
+    }
+
     static File getCacheFileForUri(Context context, @NonNull String imageUri) {
         File directory = new File(context.getExternalFilesDir(null), "gallery_images");
         if (!directory.exists() && !directory.mkdirs()) {
