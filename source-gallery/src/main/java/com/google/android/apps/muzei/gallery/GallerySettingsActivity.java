@@ -19,7 +19,6 @@ package com.google.android.apps.muzei.gallery;
 import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
 import android.content.ClipData;
 import android.content.ComponentName;
 import android.content.ContentProviderOperation;
@@ -627,7 +626,6 @@ public class GallerySettingsActivity extends AppCompatActivity
         }
     };
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     private void chooseMorePhotos() {
         // NOTE: No need to use the Document Storage framework (OPEN_DOCUMENT)
         // since we only need temporary access to the photo (we make a copy).
