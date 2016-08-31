@@ -111,6 +111,8 @@ public class GalleryArtSource extends MuzeiArtSource {
                 }
             }
         };
+        // Make any changes since the last time the GalleryArtSource was created
+        mContentObserver.onChange(false, GalleryContract.ChosenPhotos.CONTENT_URI);
         getContentResolver().registerContentObserver(GalleryContract.ChosenPhotos.CONTENT_URI, true, mContentObserver);
     }
 
