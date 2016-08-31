@@ -343,10 +343,11 @@ public class GallerySettingsActivity extends AppCompatActivity
                             // Update chosen URIs
                             ArrayList<ContentProviderOperation> operations = new ArrayList<>();
                             for (Uri uri : removeUris) {
-                                ContentValues values = new ContentValues();
-                                values.put(GalleryContract.ChosenPhotos.COLUMN_NAME_URI, uri.toString());
                                 operations.add(ContentProviderOperation.newDelete(GalleryContract.ChosenPhotos.CONTENT_URI)
-                                        .withValues(values).build());
+                                        .withSelection(
+                                                GalleryContract.ChosenPhotos.COLUMN_NAME_URI + "=?",
+                                                new String[] { uri.toString() })
+                                        .build());
                             }
                             try {
                                 getContentResolver().applyBatch(GalleryContract.AUTHORITY, operations);
@@ -541,7 +542,7 @@ public class GallerySettingsActivity extends AppCompatActivity
 
         @Override
         public void onBindViewHolder(final ViewHolder vh, int position) {
-            mChosenUris.moveToPosition(mUpdatePosition);
+            mChosenUris.moveToPosition(position);
             Uri contentUri = ContentUris.withAppendedId(GalleryContract.ChosenPhotos.CONTENT_URI,
                     mChosenUris.getLong(mChosenUris.getColumnIndex(BaseColumns._ID)));
             Uri imageUri = Uri.parse(mChosenUris.getString(
