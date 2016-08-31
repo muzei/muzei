@@ -273,7 +273,6 @@ public class GalleryArtSource extends MuzeiArtSource {
 
         Uri finalImageUri = imageUri;
         if (useStoredFile) {
-            // Previously stored in handleAddChosenUris
             finalImageUri = Uri.fromFile(GalleryProvider.getCacheFileForUri(this, imageUri.toString()));
         }
 
