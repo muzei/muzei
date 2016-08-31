@@ -716,15 +716,17 @@ public class GallerySettingsActivity extends AppCompatActivity
             @Override
             public boolean areItemsTheSame(final int oldItemPosition, final int newItemPosition) {
                 previousData.moveToPosition(oldItemPosition);
-                long oldId = previousData.getLong(previousData.getColumnIndex(BaseColumns._ID));
+                String oldImageUri = previousData.getString(
+                        previousData.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_URI));
                 data.moveToPosition(newItemPosition);
-                long newId = data.getLong(data.getColumnIndex(BaseColumns._ID));
-                return oldId == newId;
+                String newImageUri = data.getString(
+                        data.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_URI));
+                return oldImageUri.equals(newImageUri);
             }
 
             @Override
             public boolean areContentsTheSame(final int oldItemPosition, final int newItemPosition) {
-                // If the items are the same (same ID), then they are equivalent and
+                // If the items are the same (same image URI), then they are equivalent and
                 // no change animation is needed
                 return true;
             }
