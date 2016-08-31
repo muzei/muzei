@@ -101,7 +101,7 @@ public class GalleryProvider extends ContentProvider {
     /**
      * Set of Uris that should be applied when the ongoing applyBatch operation finishes
      */
-    private LinkedHashSet<Uri> pendingNotifyChange = new LinkedHashSet<>();
+    private final LinkedHashSet<Uri> pendingNotifyChange = new LinkedHashSet<>();
 
     /**
      * Creates and initializes a column project for all columns for Chosen Photos
@@ -211,7 +211,9 @@ public class GalleryProvider extends ContentProvider {
             String imageUri = rowsToDelete.getString(0);
             File file = getCacheFileForUri(getContext(), imageUri);
             if (file != null && file.exists()) {
-                file.delete();
+                if (!file.delete()) {
+                    Log.w(TAG, "Unable to delete " + file);
+                }
             }
             rowsToDelete.moveToNext();
         }
@@ -305,10 +307,14 @@ public class GalleryProvider extends ContentProvider {
             throw new IOException("Unable to read Uri: " + uri, e);
         } finally {
             if (in != null) {
-                in.close();
+                try {
+                    in.close();
+                } catch(IOException ignored) {}
             }
             if (out != null) {
-                out.close();
+                try {
+                    out.close();
+                } catch(IOException ignored) {}
             }
         }
     }

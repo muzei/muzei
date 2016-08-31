@@ -19,6 +19,7 @@ package com.google.android.apps.muzei.gallery;
 import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.content.ClipData;
 import android.content.ComponentName;
 import android.content.ContentProviderOperation;
@@ -87,7 +88,7 @@ public class GallerySettingsActivity extends AppCompatActivity
     private static final int REQUEST_STORAGE_PERMISSION = 2;
     private static final String STATE_SELECTION = "selection";
 
-    private ServiceConnection mServiceConnection = new ServiceConnection() {
+    private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(final ComponentName name, final IBinder service) {
         }
@@ -106,13 +107,13 @@ public class GallerySettingsActivity extends AppCompatActivity
     private RecyclerView mPhotoGridView;
     private int mItemSize = 10;
 
-    private MultiSelectionController<Uri> mMultiSelectionController
+    private final MultiSelectionController<Uri> mMultiSelectionController
             = new MultiSelectionController<>(STATE_SELECTION);
 
     private ColorDrawable mPlaceholderDrawable;
 
-    private static SparseIntArray sRotateMenuIdsByMin = new SparseIntArray();
-    private static SparseIntArray sRotateMinsByMenuId = new SparseIntArray();
+    private static final SparseIntArray sRotateMenuIdsByMin = new SparseIntArray();
+    private static final SparseIntArray sRotateMinsByMenuId = new SparseIntArray();
 
     static {
         sRotateMenuIdsByMin.put(0, R.id.action_rotate_interval_none);
@@ -186,7 +187,7 @@ public class GallerySettingsActivity extends AppCompatActivity
                 mPhotoGridView.setAdapter(mChosenPhotosAdapter);
 
                 mPhotoGridView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                tryUpdateSelection(false, false);
+                tryUpdateSelection(false);
             }
         });
 
@@ -379,7 +380,7 @@ public class GallerySettingsActivity extends AppCompatActivity
         mMultiSelectionController.setCallbacks(new MultiSelectionController.Callbacks() {
             @Override
             public void onSelectionChanged(boolean restored, boolean fromUser) {
-                tryUpdateSelection(!restored, fromUser);
+                tryUpdateSelection(!restored);
             }
         });
     }
@@ -393,7 +394,7 @@ public class GallerySettingsActivity extends AppCompatActivity
         }
     }
 
-    private void tryUpdateSelection(boolean allowAnimate, boolean fromUser) {
+    private void tryUpdateSelection(boolean allowAnimate) {
         final View selectionToolbarContainer = findViewById(R.id.selection_toolbar_container);
 
         if (mUpdatePosition >= 0) {
@@ -505,11 +506,11 @@ public class GallerySettingsActivity extends AppCompatActivity
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        View mRootView;
-        ImageView mThumbView;
-        View mCheckedOverlayView;
+        final View mRootView;
+        final ImageView mThumbView;
+        final View mCheckedOverlayView;
 
-        public ViewHolder(View root) {
+        ViewHolder(View root) {
             super(root);
             mRootView = root;
             mThumbView = (ImageView) root.findViewById(R.id.thumbnail);
@@ -517,7 +518,7 @@ public class GallerySettingsActivity extends AppCompatActivity
         }
     }
 
-    private RecyclerView.Adapter<ViewHolder> mChosenPhotosAdapter
+    private final RecyclerView.Adapter<ViewHolder> mChosenPhotosAdapter
             = new RecyclerView.Adapter<ViewHolder>() {
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -569,6 +570,7 @@ public class GallerySettingsActivity extends AppCompatActivity
             if (mLastTouchPosition == vh.getAdapterPosition()
                     && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 new Handler().post(new Runnable() {
+                    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
                     @Override
                     public void run() {
                         if (checked) {

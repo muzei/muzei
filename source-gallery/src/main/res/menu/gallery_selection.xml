@@ -19,9 +19,9 @@
     <item android:id="@+id/action_force_now"
         android:icon="@drawable/gallery_ic_action_play"
         android:title="@string/gallery_action_force_now"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
     <item android:id="@+id/action_remove"
         android:icon="@drawable/gallery_ic_action_remove"
         android:title="@string/gallery_action_remove"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
 </menu>

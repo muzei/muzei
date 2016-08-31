@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.gallery;
 
+import android.annotation.SuppressLint;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -67,7 +68,8 @@ public class GalleryArtSource extends MuzeiArtSource {
     public static final String EXTRA_FORCE_URI
             = "com.google.android.apps.muzei.gallery.extra.FORCE_URI";
 
-    private static SimpleDateFormat sExifDateFormat = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
+    @SuppressLint("SimpleDateFormat")
+    private static final SimpleDateFormat sExifDateFormat = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
 
     private static final Set<String> sOmitCountryCodes = new HashSet<>();
     static {
@@ -134,24 +136,15 @@ public class GalleryArtSource extends MuzeiArtSource {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        if (intent == null) {
-            super.onHandleIntent(intent);
-            return;
-        }
-
-        String action = intent.getAction();
-        if (ACTION_PUBLISH_NEXT_GALLERY_ITEM.equals(action)) {
+        super.onHandleIntent(intent);
+        if (intent != null && ACTION_PUBLISH_NEXT_GALLERY_ITEM.equals(intent.getAction())) {
             Uri forceUri = null;
             if (intent.hasExtra(EXTRA_FORCE_URI)) {
                 forceUri = intent.getParcelableExtra(EXTRA_FORCE_URI);
             }
 
             publishNextArtwork(forceUri);
-            return;
-
         }
-
-        super.onHandleIntent(intent);
     }
 
     @Override
@@ -203,7 +196,7 @@ public class GalleryArtSource extends MuzeiArtSource {
             }
             Cursor cursor = getContentResolver().query(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    ImagesQuery.PROJECTION,
+                    new String[] { MediaStore.MediaColumns._ID },
                     MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " NOT LIKE '%Screenshots%'",
                     null, null);
             if (cursor == null) {
@@ -220,7 +213,7 @@ public class GalleryArtSource extends MuzeiArtSource {
             while (true) {
                 cursor.moveToPosition(random.nextInt(count));
                 imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                        cursor.getLong(ImagesQuery._ID));
+                        cursor.getLong(0));
                 if (!imageUri.toString().equals(lastToken)) {
                     break;
                 }
@@ -319,12 +312,20 @@ public class GalleryArtSource extends MuzeiArtSource {
                 GalleryContract.MetadataCache.COLUMN_NAME_URI + "=?",
                 new String[] { imageUri.toString() },
                 null);
-        if (existingMetadata == null || !existingMetadata.moveToFirst()) {
+        if (existingMetadata == null) {
+            return;
+        }
+        boolean metadataExists = existingMetadata.moveToFirst();
+        existingMetadata.close();
+        if (!metadataExists) {
             // No cached metadata or it's stale, need to pull it separately using Exif
             ContentValues values = new ContentValues();
             values.put(GalleryContract.MetadataCache.COLUMN_NAME_URI, imageUri.toString());
 
             File imageFile = GalleryProvider.getCacheFileForUri(this, imageUri.toString());
+            if (imageFile == null) {
+                return;
+            }
             try {
                 ExifInterface exifInterface = new ExifInterface(imageFile.getPath());
                 String dateString = exifInterface.getAttribute(ExifInterface.TAG_DATETIME);
@@ -370,18 +371,5 @@ public class GalleryArtSource extends MuzeiArtSource {
                 Log.w(TAG, "Couldn't write temporary image file.", e);
             }
         }
-        if (existingMetadata != null) {
-            existingMetadata.close();
-        }
-    }
-
-    private interface ImagesQuery {
-        String[] PROJECTION = {
-                MediaStore.MediaColumns._ID,
-                MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME,
-        };
-
-        int _ID = 0;
-        int BUCKET_DISPLAY_NAME = 1;
     }
 }

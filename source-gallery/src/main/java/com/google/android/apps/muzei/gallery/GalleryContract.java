@@ -26,7 +26,7 @@ public class GalleryContract {
     /**
      * Base authority for this content provider
      */
-    public static final String AUTHORITY = BuildConfig.GALLERY_AUTHORITY;
+    static final String AUTHORITY = BuildConfig.GALLERY_AUTHORITY;
     /**
      * The scheme part for this provider's URI
      */
@@ -48,19 +48,19 @@ public class GalleryContract {
         /**
          * The MIME type of {@link #CONTENT_URI} providing chosen photos.
          */
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.android.apps.muzei.gallery.chosen_photos";
+        static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.android.apps.muzei.gallery.chosen_photos";
         /**
          * The MIME type of {@link #CONTENT_URI} providing a single chosen photo.
          */
-        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.google.android.apps.muzei.gallery.chosen_photos";
+        static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.google.android.apps.muzei.gallery.chosen_photos";
         /**
          * The default sort order for this table
          */
-        public static final String DEFAULT_SORT_ORDER = BaseColumns._ID;
+        static final String DEFAULT_SORT_ORDER = BaseColumns._ID;
         /**
          * The table name offered by this provider.
          */
-        public static final String TABLE_NAME = "chosen_photos";
+        static final String TABLE_NAME = "chosen_photos";
 
         /**
          * This class cannot be instantiated
@@ -75,34 +75,34 @@ public class GalleryContract {
                 + "/" + ChosenPhotos.TABLE_NAME);
     }
 
-    public static final class MetadataCache implements BaseColumns {
+    static final class MetadataCache implements BaseColumns {
         /**
          * Column name of the photo's URI.
          * <p>Type: TEXT (URI)
          */
-        public static final String COLUMN_NAME_URI = "uri";
+        static final String COLUMN_NAME_URI = "uri";
         /**
          * Column name for when this photo was taken
          * <p>Type: LONG (in milliseconds)
          */
-        public static final String COLUMN_NAME_DATETIME = "datetime";
+        static final String COLUMN_NAME_DATETIME = "datetime";
         /**
          * Column name for the photo's location.
          * <p>Type: TEXT
          */
-        public static final String COLUMN_NAME_LOCATION = "location";
+        static final String COLUMN_NAME_LOCATION = "location";
         /**
          * The MIME type of {@link #CONTENT_URI} providing metadata.
          */
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.android.apps.muzei.gallery.metadata_cache";
+        static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.android.apps.muzei.gallery.metadata_cache";
         /**
          * The default sort order for this table
          */
-        public static final String DEFAULT_SORT_ORDER = BaseColumns._ID + " DESC";
+        static final String DEFAULT_SORT_ORDER = BaseColumns._ID + " DESC";
         /**
          * The table name offered by this provider.
          */
-        public static final String TABLE_NAME = "metadata_cache";
+        static final String TABLE_NAME = "metadata_cache";
 
         /**
          * This class cannot be instantiated
@@ -113,7 +113,7 @@ public class GalleryContract {
         /**
          * The content:// style URL for this table.
          */
-        public static final Uri CONTENT_URI = Uri.parse(GalleryContract.SCHEME + GalleryContract.AUTHORITY
+        static final Uri CONTENT_URI = Uri.parse(GalleryContract.SCHEME + GalleryContract.AUTHORITY
                 + "/" + MetadataCache.TABLE_NAME);
     }
 }
