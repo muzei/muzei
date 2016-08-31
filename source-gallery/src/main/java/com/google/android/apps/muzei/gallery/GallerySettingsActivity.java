@@ -58,6 +58,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -133,7 +134,8 @@ public class GallerySettingsActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gallery_activity);
-        setupAppBar();
+        Toolbar appBar = (Toolbar) findViewById(R.id.app_bar);
+        setSupportActionBar(appBar);
 
         getSupportLoaderManager().initLoader(0, null, this);
 
@@ -259,54 +261,47 @@ public class GallerySettingsActivity extends AppCompatActivity
         unbindService(mServiceConnection);
     }
 
-    private void setupAppBar() {
-        Toolbar appBar = (Toolbar) findViewById(R.id.app_bar);
-        appBar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onNavigateUp();
-            }
-        });
-
-        appBar.inflateMenu(R.menu.gallery_activity);
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.gallery_activity, menu);
 
         int rotateIntervalMin = GalleryArtSource.getSharedPreferences(this)
                 .getInt(GalleryArtSource.PREF_ROTATE_INTERVAL_MIN,
                         GalleryArtSource.DEFAULT_ROTATE_INTERVAL_MIN);
         int menuId = sRotateMenuIdsByMin.get(rotateIntervalMin);
         if (menuId != 0) {
-            MenuItem item = appBar.getMenu().findItem(menuId);
+            MenuItem item = menu.findItem(menuId);
             if (item != null) {
                 item.setChecked(true);
             }
         }
+        return true;
+    }
 
-        appBar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                int itemId = item.getItemId();
-                int rotateMin = sRotateMinsByMenuId.get(itemId, -1);
-                if (rotateMin != -1) {
-                    GalleryArtSource.getSharedPreferences(GallerySettingsActivity.this).edit()
-                            .putInt(GalleryArtSource.PREF_ROTATE_INTERVAL_MIN, rotateMin)
-                            .apply();
-                    item.setChecked(true);
-                    return true;
+    @Override
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        int itemId = item.getItemId();
+        int rotateMin = sRotateMinsByMenuId.get(itemId, -1);
+        if (rotateMin != -1) {
+            GalleryArtSource.getSharedPreferences(GallerySettingsActivity.this).edit()
+                    .putInt(GalleryArtSource.PREF_ROTATE_INTERVAL_MIN, rotateMin)
+                    .apply();
+            item.setChecked(true);
+            return true;
+        }
+
+        if (itemId == R.id.action_clear_photos) {
+            runOnHandlerThread(new Runnable() {
+                @Override
+                public void run() {
+                    getContentResolver().delete(GalleryContract.ChosenPhotos.CONTENT_URI, null, null);
                 }
+            });
+            return true;
+        }
 
-                if (itemId == R.id.action_clear_photos) {
-                    runOnHandlerThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            getContentResolver().delete(GalleryContract.ChosenPhotos.CONTENT_URI, null, null);
-                        }
-                    });
-                    return true;
-                }
-
-                return false;
-            }
-        });
+        return super.onOptionsItemSelected(item);
     }
 
     private void runOnHandlerThread(Runnable runnable) {
