@@ -64,8 +64,6 @@ public class GalleryArtSource extends MuzeiArtSource {
             = "com.google.android.apps.muzei.gallery.BIND_GALLERY";
     public static final String ACTION_PUBLISH_NEXT_GALLERY_ITEM
             = "com.google.android.apps.muzei.gallery.action.PUBLISH_NEXT_GALLERY_ITEM";
-    public static final String ACTION_SCHEDULE_NEXT
-            = "com.google.android.apps.muzei.gallery.action.SCHEDULE_NEXT";
     public static final String EXTRA_FORCE_URI
             = "com.google.android.apps.muzei.gallery.extra.FORCE_URI";
 
@@ -151,9 +149,6 @@ public class GalleryArtSource extends MuzeiArtSource {
             publishNextArtwork(forceUri);
             return;
 
-        } else if (ACTION_SCHEDULE_NEXT.equals(action)) {
-            scheduleNext();
-            return;
         }
 
         super.onHandleIntent(intent);
