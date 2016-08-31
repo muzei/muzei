@@ -55,17 +55,17 @@ public class GalleryEmptyStateGraphicView extends View {
     private static final int FADE_TIME_MILLIS = 100;
     private static final int OFF_TIME_MILLIS = 50;
 
-    private Paint mOffPaint = new Paint();
-    private Paint mOnPaint = new Paint();
+    private final Paint mOffPaint = new Paint();
+    private final Paint mOnPaint = new Paint();
     private int mWidth, mHeight;
     private long mOnTime;
     private int mOnX;
     private int mOnY;
-    private Random mRandom = new Random();
-    private RectF mTempRectF = new RectF();
-    private int mCellSpacing;
-    private int mCellRounding;
-    private int mCellSize;
+    private final Random mRandom = new Random();
+    private final RectF mTempRectF = new RectF();
+    private final int mCellSpacing;
+    private final int mCellRounding;
+    private final int mCellSize;
 
     public GalleryEmptyStateGraphicView(Context context) {
         this(context, null, 0);

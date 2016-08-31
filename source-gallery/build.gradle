@@ -43,8 +43,12 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 18
+        minSdkVersion 19
         targetSdkVersion rootProject.ext.targetSdkVersion
+
+        def galleryAuthorityValue = "com.google.android.apps.muzei.gallery"
+        manifestPlaceholders = [galleryAuthority : galleryAuthorityValue]
+        buildConfigField "String", "GALLERY_AUTHORITY", "\"${galleryAuthorityValue}\""
     }
 
     compileOptions {

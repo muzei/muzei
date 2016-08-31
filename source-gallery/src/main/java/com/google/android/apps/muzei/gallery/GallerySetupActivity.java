@@ -19,6 +19,7 @@ package com.google.android.apps.muzei.gallery;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -34,8 +35,14 @@ public class GallerySetupActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Cursor chosenUris = getContentResolver().query(GalleryContract.ChosenPhotos.CONTENT_URI,
+                null, null, null, null);
+        int numChosenUris = chosenUris != null ? chosenUris.getCount() : 0;
+        if (chosenUris != null) {
+            chosenUris.close();
+        }
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED || !GalleryStore.getInstance(this).getChosenUris().isEmpty()) {
+                == PackageManager.PERMISSION_GRANTED || numChosenUris > 0) {
             // If we have permission or have any previously selected images
             setResult(RESULT_OK);
             finish();

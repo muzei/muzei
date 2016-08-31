@@ -18,11 +18,13 @@ package com.google.android.apps.muzei;
 
 import android.app.Activity;
 import android.content.ComponentName;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
 import com.google.android.apps.muzei.gallery.GalleryArtSource;
+import com.google.android.apps.muzei.gallery.GalleryContract;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,10 +45,9 @@ public class PhotoSetAsTargetActivity extends Activity {
         sourceManager.selectSource(new ComponentName(this, GalleryArtSource.class));
 
         // Add and publish the chosen photo
-        startService(new Intent(this, GalleryArtSource.class)
-                .setAction(GalleryArtSource.ACTION_ADD_CHOSEN_URIS)
-                .putExtra(GalleryArtSource.EXTRA_URIS, new ArrayList<>(Arrays.asList(photoUri)))
-                .putExtra(GalleryArtSource.EXTRA_ALLOW_PUBLISH, false));
+        ContentValues values = new ContentValues();
+        values.put(GalleryContract.ChosenPhotos.COLUMN_NAME_URI, photoUri.toString());
+        getContentResolver().insert(GalleryContract.ChosenPhotos.CONTENT_URI, values);
         startService(new Intent(this, GalleryArtSource.class)
                 .setAction(GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM)
                 .putExtra(GalleryArtSource.EXTRA_FORCE_URI, photoUri));
