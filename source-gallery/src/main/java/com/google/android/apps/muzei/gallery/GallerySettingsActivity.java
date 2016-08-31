@@ -21,11 +21,13 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.ClipData;
+import android.content.ComponentName;
 import android.content.ContentProviderOperation;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.OperationApplicationException;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
@@ -34,6 +36,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.IBinder;
 import android.os.RemoteException;
 import android.provider.BaseColumns;
 import android.provider.Settings;
@@ -84,6 +87,16 @@ public class GallerySettingsActivity extends AppCompatActivity
     private static final int REQUEST_STORAGE_PERMISSION = 2;
     private static final String STATE_SELECTION = "selection";
 
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(final ComponentName name, final IBinder service) {
+        }
+
+        @Override
+        public void onServiceDisconnected(final ComponentName name) {
+        }
+    };
+
     private Cursor mChosenUris;
 
     private Toolbar mSelectionToolbar;
@@ -123,6 +136,9 @@ public class GallerySettingsActivity extends AppCompatActivity
         setupAppBar();
 
         getSupportLoaderManager().initLoader(0, null, this);
+
+        bindService(new Intent(this, GalleryArtSource.class).setAction(GalleryArtSource.ACTION_BIND_GALLERY),
+                mServiceConnection, BIND_AUTO_CREATE);
 
         mPlaceholderDrawable = new ColorDrawable(ContextCompat.getColor(this,
                 R.color.gallery_chosen_photo_placeholder));
@@ -240,6 +256,7 @@ public class GallerySettingsActivity extends AppCompatActivity
             mHandlerThread.quitSafely();
             mHandlerThread = null;
         }
+        unbindService(mServiceConnection);
     }
 
     private void setupAppBar() {

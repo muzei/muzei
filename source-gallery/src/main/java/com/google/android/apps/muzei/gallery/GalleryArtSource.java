@@ -28,7 +28,9 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Handler;
+import android.os.IBinder;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -58,6 +60,8 @@ public class GalleryArtSource extends MuzeiArtSource {
 
     public static final int DEFAULT_ROTATE_INTERVAL_MIN = 60 * 6;
 
+    static final String ACTION_BIND_GALLERY
+            = "com.google.android.apps.muzei.gallery.BIND_GALLERY";
     public static final String ACTION_PUBLISH_NEXT_GALLERY_ITEM
             = "com.google.android.apps.muzei.gallery.action.PUBLISH_NEXT_GALLERY_ITEM";
     public static final String ACTION_SCHEDULE_NEXT
@@ -114,6 +118,14 @@ public class GalleryArtSource extends MuzeiArtSource {
         // Make any changes since the last time the GalleryArtSource was created
         mContentObserver.onChange(false, GalleryContract.ChosenPhotos.CONTENT_URI);
         getContentResolver().registerContentObserver(GalleryContract.ChosenPhotos.CONTENT_URI, true, mContentObserver);
+    }
+
+    @Override
+    public IBinder onBind(final Intent intent) {
+        if (intent != null && TextUtils.equals(intent.getAction(), ACTION_BIND_GALLERY)) {
+            return new Binder();
+        }
+        return super.onBind(intent);
     }
 
     @Override
