@@ -469,7 +469,7 @@ public class GalleryProvider extends ContentProvider {
         String imageUri = data.getString(0);
         data.close();
         final File file = getCacheFileForUri(getContext(), imageUri);
-        if (file == null && getContext() != null) {
+        if ((file == null || !file.exists()) && getContext() != null) {
             // Assume we have persisted URI permission to the imageUri and can read the image directly from the imageUri
             try {
                 return getContext().getContentResolver().openFileDescriptor(Uri.parse(imageUri), mode);
@@ -482,10 +482,24 @@ public class GalleryProvider extends ContentProvider {
         return ParcelFileDescriptor.open(file, ParcelFileDescriptor.parseMode(mode));
     }
 
-    static File getLocalFileForUri(Context context, @NonNull String imageUri) {
-        File cachedFile = getCacheFileForUri(context, imageUri);
-        if (cachedFile != null) {
-            return cachedFile;
+    static File getLocalFileForUri(Context context, @NonNull Uri uri) {
+        String imageUri = uri.toString();
+        if (GalleryProvider.uriMatcher.match(uri) == CHOSEN_PHOTOS_ID) {
+            String[] projection = { GalleryContract.ChosenPhotos.COLUMN_NAME_URI };
+            Cursor data = context.getContentResolver().query(uri, projection, null, null, null);
+            if (data == null) {
+                return null;
+            }
+            if (!data.moveToFirst()) {
+                throw new IllegalStateException("Invalid URI: " + uri);
+            }
+            imageUri = data.getString(0);
+            data.close();
+            // See if there's already a cached file for the image
+            File cachedFile = getCacheFileForUri(context, imageUri);
+            if (cachedFile != null && cachedFile.exists()) {
+                return cachedFile;
+            }
         }
         // Create a local file
         File tempFile = new File(context.getCacheDir(), "tempimage");

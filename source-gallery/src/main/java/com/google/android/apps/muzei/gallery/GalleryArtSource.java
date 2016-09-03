@@ -315,7 +315,7 @@ public class GalleryArtSource extends MuzeiArtSource {
             ContentValues values = new ContentValues();
             values.put(GalleryContract.MetadataCache.COLUMN_NAME_URI, imageUri.toString());
 
-            File imageFile = GalleryProvider.getLocalFileForUri(this, imageUri.toString());
+            File imageFile = GalleryProvider.getLocalFileForUri(this, imageUri);
             if (imageFile == null) {
                 return;
             }
