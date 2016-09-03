@@ -30,6 +30,7 @@ import android.location.Geocoder;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.provider.BaseColumns;
@@ -45,6 +46,7 @@ import com.google.android.apps.muzei.api.MuzeiArtSource;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -315,12 +317,19 @@ public class GalleryArtSource extends MuzeiArtSource {
             ContentValues values = new ContentValues();
             values.put(GalleryContract.MetadataCache.COLUMN_NAME_URI, imageUri.toString());
 
-            File imageFile = GalleryProvider.getLocalFileForUri(this, imageUri);
-            if (imageFile == null) {
-                return;
-            }
+            InputStream in = null;
             try {
-                ExifInterface exifInterface = new ExifInterface(imageFile.getPath());
+                ExifInterface exifInterface;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    in = getContentResolver().openInputStream(imageUri);
+                    exifInterface = new ExifInterface(in);
+                } else {
+                    File imageFile = GalleryProvider.getLocalFileForUri(this, imageUri);
+                    if (imageFile == null) {
+                        return;
+                    }
+                    exifInterface = new ExifInterface(imageFile.getPath());
+                }
                 String dateString = exifInterface.getAttribute(ExifInterface.TAG_DATETIME);
                 if (!TextUtils.isEmpty(dateString)) {
                     Date date = sExifDateFormat.parse(dateString);
@@ -362,6 +371,12 @@ public class GalleryArtSource extends MuzeiArtSource {
                 Log.w(TAG, "Couldn't read image metadata.", e);
             } catch (IOException e) {
                 Log.w(TAG, "Couldn't write temporary image file.", e);
+            } finally {
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (IOException ignored) { }
+                }
             }
         }
     }
