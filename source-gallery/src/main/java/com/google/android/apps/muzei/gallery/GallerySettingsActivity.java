@@ -30,6 +30,7 @@ import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -78,6 +79,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static com.google.android.apps.muzei.gallery.GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM;
@@ -286,6 +288,19 @@ public class GallerySettingsActivity extends AppCompatActivity
                 item.setChecked(true);
             }
         }
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(final Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        List<ResolveInfo> getContentActivities = getPackageManager().queryIntentActivities(intent, 0);
+        // Don't show the 'Import photos' action unless there are enabled activities that specifically only
+        // support ACTION_GET_CONTENT (size must be > 1 as the default DocumentsActivity will always appear in this
+        // list on API 19+ devices)
+        menu.findItem(R.id.action_import_photos).setVisible(getContentActivities.size() > 1);
         return true;
     }
 
