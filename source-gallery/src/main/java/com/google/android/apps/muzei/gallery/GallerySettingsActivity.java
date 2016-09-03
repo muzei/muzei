@@ -25,6 +25,7 @@ import android.content.ComponentName;
 import android.content.ContentProviderOperation;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.content.ServiceConnection;
@@ -49,6 +50,7 @@ import android.support.v4.content.Loader;
 import android.support.v4.view.OnApplyWindowInsetsListener;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowInsetsCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -229,7 +231,15 @@ public class GallerySettingsActivity extends AppCompatActivity
         mAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                chooseMorePhotos();
+                // Use ACTION_OPEN_DOCUMENT by default for adding photos.
+                // This allows us to use persistent URI permissions to access the underlying photos
+                // meaning we don't need to use additional storage space and will pull in edits automatically
+                // in addition to syncing deletions.
+                // (There's a separate 'Import photos' option which uses ACTION_GET_CONTENT to support legacy apps)
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.setType("image/*");
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                startActivityForResult(intent, REQUEST_CHOOSE_PHOTOS);
             }
         });
     }
@@ -291,7 +301,26 @@ public class GallerySettingsActivity extends AppCompatActivity
             return true;
         }
 
-        if (itemId == R.id.action_clear_photos) {
+        if (itemId == R.id.action_import_photos) {
+            // Warn the user that importing photos has some disadvantages compared to adding photos
+            // via ACTION_OPEN_DOCUMENT
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.gallery_import_warning_title)
+                    .setMessage(R.string.gallery_import_warning_message)
+                    .setPositiveButton(R.string.gallery_import_warning_continue, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(final DialogInterface dialog, final int which) {
+                            // Import photos using ACTION_GET_CONTENT
+                            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                            intent.setType("image/*");
+                            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                            startActivityForResult(intent, REQUEST_CHOOSE_PHOTOS);
+                        }
+                    })
+                    .setNegativeButton(R.string.gallery_import_warning_cancel, null)
+                    .show();
+            return true;
+        } else if (itemId == R.id.action_clear_photos) {
             runOnHandlerThread(new Runnable() {
                 @Override
                 public void run() {
@@ -627,15 +656,6 @@ public class GallerySettingsActivity extends AppCompatActivity
             return mChosenUris.getLong(mChosenUris.getColumnIndex(BaseColumns._ID));
         }
     };
-
-    private void chooseMorePhotos() {
-        // NOTE: No need to use the Document Storage framework (OPEN_DOCUMENT)
-        // since we only need temporary access to the photo (we make a copy).
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/*");
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        startActivityForResult(intent, REQUEST_CHOOSE_PHOTOS);
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
