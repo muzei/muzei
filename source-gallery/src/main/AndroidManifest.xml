@@ -23,7 +23,8 @@
         <provider
             android:authorities="${galleryAuthority}"
             android:name="com.google.android.apps.muzei.gallery.GalleryProvider"
-            android:exported="false" />
+            android:exported="false"
+            android:grantUriPermissions="true"/>
         <service android:name="com.google.android.apps.muzei.gallery.GalleryArtSource"
                  android:label="@string/gallery_title"
                  android:description="@string/gallery_description"
