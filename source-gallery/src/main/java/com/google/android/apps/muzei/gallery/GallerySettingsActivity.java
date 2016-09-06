@@ -29,6 +29,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.content.ServiceConnection;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
@@ -58,6 +59,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
@@ -130,6 +132,8 @@ public class GallerySettingsActivity extends AppCompatActivity
             sRotateMinsByMenuId.put(sRotateMenuIdsByMin.valueAt(i), sRotateMenuIdsByMin.keyAt(i));
         }
     }
+
+    private List<ActivityInfo> mGetContentActivites = new ArrayList<>();
 
     private int mUpdatePosition = -1;
     private View mAddButton;
@@ -294,13 +298,32 @@ public class GallerySettingsActivity extends AppCompatActivity
     @Override
     public boolean onPrepareOptionsMenu(final Menu menu) {
         super.onPrepareOptionsMenu(menu);
+        // Make sure the 'Import photos' MenuItem is set up properly based on the number of
+        // activities that handle ACTION_GET_CONTENT
+        // 0 = hide the MenuItem
+        // 1 = show 'Import photos from APP_NAME' to go to the one app that exists
+        // 2 = show 'Import photos...' to have the user pick which app to import photos from
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
         List<ResolveInfo> getContentActivities = getPackageManager().queryIntentActivities(intent, 0);
-        // Don't show the 'Import photos' action unless there are enabled activities that specifically only
-        // support ACTION_GET_CONTENT (size must be > 1 as the default DocumentsActivity will always appear in this
-        // list on API 19+ devices)
-        menu.findItem(R.id.action_import_photos).setVisible(getContentActivities.size() > 1);
+        mGetContentActivites.clear();
+        for (ResolveInfo info : getContentActivities) {
+            // Filter out the default system UI
+            if (!TextUtils.equals(info.activityInfo.packageName, "com.android.documentsui")) {
+                mGetContentActivites.add(info.activityInfo);
+            }
+        }
+
+        // Hide the 'Import photos' action if there are no activities found
+        MenuItem importPhotosMenuItem = menu.findItem(R.id.action_import_photos);
+        importPhotosMenuItem.setVisible(!mGetContentActivites.isEmpty());
+        // If there's only one app that supports ACTION_GET_CONTENT, tell the user what that app is
+        if (mGetContentActivites.size() == 1) {
+            importPhotosMenuItem.setTitle(getString(R.string.gallery_action_import_photos_from,
+                    mGetContentActivites.get(0).loadLabel(getPackageManager())));
+        } else {
+            importPhotosMenuItem.setTitle(R.string.gallery_action_import_photos);
+        }
         return true;
     }
 
@@ -317,23 +340,26 @@ public class GallerySettingsActivity extends AppCompatActivity
         }
 
         if (itemId == R.id.action_import_photos) {
-            // Warn the user that importing photos has some disadvantages compared to adding photos
-            // via ACTION_OPEN_DOCUMENT
-            new AlertDialog.Builder(this)
-                    .setTitle(R.string.gallery_import_warning_title)
-                    .setMessage(R.string.gallery_import_warning_message)
-                    .setPositiveButton(R.string.gallery_import_warning_continue, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(final DialogInterface dialog, final int which) {
-                            // Import photos using ACTION_GET_CONTENT
-                            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                            intent.setType("image/*");
-                            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                            startActivityForResult(intent, REQUEST_CHOOSE_PHOTOS);
-                        }
-                    })
-                    .setNegativeButton(R.string.gallery_import_warning_cancel, null)
-                    .show();
+            if (mGetContentActivites.size() == 1) {
+                // Just start the one ACTION_GET_CONTENT app
+                requestGetContent(mGetContentActivites.get(0));
+            } else {
+                // Let the user pick which app they want to import photos from
+                PackageManager packageManager = getPackageManager();
+                final CharSequence[] items = new CharSequence[mGetContentActivites.size()];
+                for (int h = 0; h < mGetContentActivites.size(); h++) {
+                    items[h] = mGetContentActivites.get(h).loadLabel(packageManager);
+                }
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.gallery_import_dialog_title)
+                        .setItems(items, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                requestGetContent(mGetContentActivites.get(which));
+                            }
+                        })
+                        .show();
+            }
             return true;
         } else if (itemId == R.id.action_clear_photos) {
             runOnHandlerThread(new Runnable() {
@@ -346,6 +372,14 @@ public class GallerySettingsActivity extends AppCompatActivity
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void requestGetContent(ActivityInfo info) {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        intent.setClassName(info.packageName, info.name);
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        startActivityForResult(intent, REQUEST_CHOOSE_PHOTOS);
     }
 
     private void runOnHandlerThread(Runnable runnable) {
