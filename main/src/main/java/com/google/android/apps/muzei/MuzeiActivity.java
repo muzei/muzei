@@ -172,6 +172,9 @@ public class MuzeiActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         viewIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        // Make sure any data URIs granted to Muzei are passed onto the
+                        // started Activity
+                        viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                         try {
                             startActivity(viewIntent);
                         } catch (ActivityNotFoundException | SecurityException e) {

@@ -23,8 +23,10 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.content.UriMatcher;
+import android.content.UriPermission;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -33,6 +35,7 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.BaseColumns;
+import android.provider.DocumentsContract;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
@@ -50,6 +53,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 /**
  * Provides access to the Gallery's chosen photos and metadata
@@ -214,6 +218,18 @@ public class GalleryProvider extends ContentProvider {
                 if (!file.delete()) {
                     Log.w(TAG, "Unable to delete " + file);
                 }
+            } else if (getContext() != null) {
+                // Try to release any persisted URI permission for the imageUri
+                Uri uriToRelease = Uri.parse(imageUri);
+                ContentResolver contentResolver = getContext().getContentResolver();
+                List<UriPermission> persistedUriPermissions = contentResolver.getPersistedUriPermissions();
+                for (UriPermission persistedUriPermission : persistedUriPermissions) {
+                    if (persistedUriPermission.getUri().equals(uriToRelease)) {
+                        contentResolver.releasePersistableUriPermission(
+                                uriToRelease, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        break;
+                    }
+                }
             }
             rowsToDelete.moveToNext();
         }
@@ -262,12 +278,36 @@ public class GalleryProvider extends ContentProvider {
         if (!values.containsKey(GalleryContract.ChosenPhotos.COLUMN_NAME_URI))
             throw new IllegalArgumentException("Initial values must contain URI " + values);
         String imageUri = values.getAsString(GalleryContract.ChosenPhotos.COLUMN_NAME_URI);
-        try {
-            writeUriToFile(values.getAsString(GalleryContract.ChosenPhotos.COLUMN_NAME_URI),
-                    getCacheFileForUri(getContext(), imageUri));
-        } catch (IOException e) {
-            Log.e(TAG, "Error downloading gallery image " + imageUri, e);
-            throw new SQLException("Error downloading gallery image " + imageUri);
+        boolean persistedPermission = false;
+        Uri uriToTake = Uri.parse(imageUri);
+        // Try to persist access to the URI, saving us from having to store a local copy
+        if (getContext() != null && DocumentsContract.isDocumentUri(getContext(), uriToTake)) {
+            try {
+                getContext().getContentResolver().takePersistableUriPermission(uriToTake, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                persistedPermission = true;
+                // If we have a persisted URI permission, we don't need a local copy
+                File cachedFile = getCacheFileForUri(getContext(), imageUri);
+                if (cachedFile != null && cachedFile.exists()) {
+                    if (!cachedFile.delete()) {
+                        Log.w(TAG, "Unable to delete " + cachedFile);
+                    }
+                }
+            } catch (SecurityException ignored) {
+                // If we don't have FLAG_GRANT_PERSISTABLE_URI_PERMISSION (such as when using ACTION_GET_CONTENT),
+                // this will fail. It'll also fail for URIs originating from our own app.
+                // These cases are handled below
+            }
+        }
+        if (!persistedPermission &&
+                !imageUri.startsWith(ContentResolver.SCHEME_CONTENT + "://" + getContext().getPackageName())) {
+            // We only need to make a local copy if we weren't able to persist the permission
+            // and the URI is not from our package (we always have access to those URIs)
+            try {
+                writeUriToFile(getContext(), imageUri, getCacheFileForUri(getContext(), imageUri));
+            } catch (IOException e) {
+                Log.e(TAG, "Error downloading gallery image " + imageUri, e);
+                throw new SQLException("Error downloading gallery image " + imageUri);
+            }
         }
         final SQLiteDatabase db = databaseHelper.getWritableDatabase();
         long rowId = db.insert(GalleryContract.ChosenPhotos.TABLE_NAME,
@@ -284,15 +324,14 @@ public class GalleryProvider extends ContentProvider {
         throw new SQLException("Failed to insert row into " + uri);
     }
 
-    private void writeUriToFile(String uri, File destFile) throws IOException {
-        ContentResolver contentResolver = getContext() != null ? getContext().getContentResolver() : null;
-        if (contentResolver == null) {
+    private static void writeUriToFile(Context context, String uri, File destFile) throws IOException {
+        if (context == null) {
             return;
         }
         InputStream in = null;
         OutputStream out = null;
         try {
-            in = contentResolver.openInputStream(Uri.parse(uri));
+            in = context.getContentResolver().openInputStream(Uri.parse(uri));
             if (in == null) {
                 return;
             }
@@ -416,6 +455,9 @@ public class GalleryProvider extends ContentProvider {
     }
 
     private ParcelFileDescriptor openFileChosenPhoto(@NonNull final Uri uri, @NonNull final String mode) throws FileNotFoundException {
+        if (!mode.equals("r")) {
+            throw new IllegalArgumentException("Only reading chosen photos is allowed");
+        }
         String[] projection = { GalleryContract.ChosenPhotos.COLUMN_NAME_URI };
         Cursor data = queryChosenPhotos(uri, projection, null, null, null);
         if (data == null) {
@@ -427,16 +469,50 @@ public class GalleryProvider extends ContentProvider {
         String imageUri = data.getString(0);
         data.close();
         final File file = getCacheFileForUri(getContext(), imageUri);
-        if (file == null) {
-            throw new FileNotFoundException("Could not find chosen photo file");
-        }
-        if (!mode.equals("r")) {
-            throw new IllegalArgumentException("Only reading chosen photos is allowed");
+        if ((file == null || !file.exists()) && getContext() != null) {
+            // Assume we have persisted URI permission to the imageUri and can read the image directly from the imageUri
+            try {
+                return getContext().getContentResolver().openFileDescriptor(Uri.parse(imageUri), mode);
+            } catch (SecurityException e) {
+                Log.d(TAG, "Unable to load " + uri + ", deleting the row", e);
+                deleteChosenPhotos(uri, null, null);
+                throw new FileNotFoundException("No permission to load " + uri);
+            }
         }
         return ParcelFileDescriptor.open(file, ParcelFileDescriptor.parseMode(mode));
     }
 
-    static File getCacheFileForUri(Context context, @NonNull String imageUri) {
+    static File getLocalFileForUri(Context context, @NonNull Uri uri) {
+        String imageUri = uri.toString();
+        if (GalleryProvider.uriMatcher.match(uri) == CHOSEN_PHOTOS_ID) {
+            String[] projection = { GalleryContract.ChosenPhotos.COLUMN_NAME_URI };
+            Cursor data = context.getContentResolver().query(uri, projection, null, null, null);
+            if (data == null) {
+                return null;
+            }
+            if (!data.moveToFirst()) {
+                throw new IllegalStateException("Invalid URI: " + uri);
+            }
+            imageUri = data.getString(0);
+            data.close();
+            // See if there's already a cached file for the image
+            File cachedFile = getCacheFileForUri(context, imageUri);
+            if (cachedFile != null && cachedFile.exists()) {
+                return cachedFile;
+            }
+        }
+        // Create a local file
+        File tempFile = new File(context.getCacheDir(), "tempimage");
+        try {
+            writeUriToFile(context, imageUri, tempFile);
+            return tempFile;
+        } catch (IOException e) {
+            Log.e(TAG, "Error downloading gallery image " + imageUri, e);
+            return null;
+        }
+    }
+
+    private static File getCacheFileForUri(Context context, @NonNull String imageUri) {
         File directory = new File(context.getExternalFilesDir(null), "gallery_images");
         if (!directory.exists() && !directory.mkdirs()) {
             return null;

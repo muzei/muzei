@@ -24,6 +24,13 @@
     <string name="gallery_action_rotate_interval_6h">Every 6 hours</string>
     <string name="gallery_action_rotate_interval_24h">Every 24 hours</string>
     <string name="gallery_action_rotate_interval_72h">Every 3 days</string>
+    <string name="gallery_action_import_photos">Import photos</string>
+
+    <string name="gallery_import_warning_title">Use additional storage space?</string>
+    <string name="gallery_import_warning_message">Importing creates additional copies of your photos and does not
+        sync edits or deletions. Use this option if your app does not appear in the default list.</string>
+    <string name="gallery_import_warning_continue">Proceed with import</string>
+    <string name="gallery_import_warning_cancel">Cancel</string>
 
     <string name="gallery_action_force_now">Set as wallpaper now</string>
     <string name="gallery_action_remove">Remove</string>

@@ -44,6 +44,9 @@
         </menu>
     </item>
     <item
+        android:id="@+id/action_import_photos"
+        android:title="@string/gallery_action_import_photos" />
+    <item
         android:id="@+id/action_clear_photos"
         android:title="@string/gallery_action_clear_photos"
         android:orderInCategory="10000"

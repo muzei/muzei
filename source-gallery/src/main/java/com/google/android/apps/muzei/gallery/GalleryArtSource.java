@@ -30,6 +30,7 @@ import android.location.Geocoder;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.provider.BaseColumns;
@@ -45,6 +46,7 @@ import com.google.android.apps.muzei.api.MuzeiArtSource;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -164,14 +166,13 @@ public class GalleryArtSource extends MuzeiArtSource {
         scheduleNext();
 
         Cursor chosenUris = getContentResolver().query(GalleryContract.ChosenPhotos.CONTENT_URI,
-                new String[] { GalleryContract.ChosenPhotos.COLUMN_NAME_URI },
+                new String[] { BaseColumns._ID },
                 null, null, null);
         int numChosenUris = (chosenUris != null) ? chosenUris.getCount() : 0;
 
         Artwork currentArtwork = getCurrentArtwork();
         String lastToken = (currentArtwork != null) ? currentArtwork.getToken() : null;
 
-        boolean useStoredFile = true;
         Uri imageUri;
         Random random = new Random();
         if (forceUri != null) {
@@ -180,14 +181,13 @@ public class GalleryArtSource extends MuzeiArtSource {
         } else if (numChosenUris > 0) {
             while (true) {
                 chosenUris.moveToPosition(random.nextInt(chosenUris.getCount()));
-                imageUri = Uri.parse(chosenUris.getString(
-                        chosenUris.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_URI)));
+                imageUri = ContentUris.withAppendedId(GalleryContract.ChosenPhotos.CONTENT_URI,
+                        chosenUris.getLong(chosenUris.getColumnIndex(BaseColumns._ID)));
                 if (numChosenUris <= 1 || !imageUri.toString().equals(lastToken)) {
                     break;
                 }
             }
         } else {
-            useStoredFile = false;
             if (ContextCompat.checkSelfPermission(this,
                     android.Manifest.permission.READ_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -264,18 +264,13 @@ public class GalleryArtSource extends MuzeiArtSource {
             byline = getString(R.string.gallery_touch_to_view);
         }
 
-        Uri finalImageUri = imageUri;
-        if (useStoredFile) {
-            finalImageUri = Uri.fromFile(GalleryProvider.getCacheFileForUri(this, imageUri.toString()));
-        }
-
         publishArtwork(new Artwork.Builder()
-                .imageUri(finalImageUri)
+                .imageUri(imageUri)
                 .title(title)
                 .byline(byline)
                 .token(token)
                 .viewIntent(new Intent(Intent.ACTION_VIEW)
-                        .setDataAndType(finalImageUri, "image/jpeg"))
+                        .setDataAndType(imageUri, "image/jpeg"))
                 .build());
     }
 
@@ -322,12 +317,19 @@ public class GalleryArtSource extends MuzeiArtSource {
             ContentValues values = new ContentValues();
             values.put(GalleryContract.MetadataCache.COLUMN_NAME_URI, imageUri.toString());
 
-            File imageFile = GalleryProvider.getCacheFileForUri(this, imageUri.toString());
-            if (imageFile == null) {
-                return;
-            }
+            InputStream in = null;
             try {
-                ExifInterface exifInterface = new ExifInterface(imageFile.getPath());
+                ExifInterface exifInterface;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    in = getContentResolver().openInputStream(imageUri);
+                    exifInterface = new ExifInterface(in);
+                } else {
+                    File imageFile = GalleryProvider.getLocalFileForUri(this, imageUri);
+                    if (imageFile == null) {
+                        return;
+                    }
+                    exifInterface = new ExifInterface(imageFile.getPath());
+                }
                 String dateString = exifInterface.getAttribute(ExifInterface.TAG_DATETIME);
                 if (!TextUtils.isEmpty(dateString)) {
                     Date date = sExifDateFormat.parse(dateString);
@@ -369,6 +371,12 @@ public class GalleryArtSource extends MuzeiArtSource {
                 Log.w(TAG, "Couldn't read image metadata.", e);
             } catch (IOException e) {
                 Log.w(TAG, "Couldn't write temporary image file.", e);
+            } finally {
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (IOException ignored) { }
+                }
             }
         }
     }
