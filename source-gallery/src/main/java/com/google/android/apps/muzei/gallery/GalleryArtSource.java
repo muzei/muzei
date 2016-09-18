@@ -34,8 +34,10 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.provider.BaseColumns;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
@@ -49,6 +51,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -166,7 +169,7 @@ public class GalleryArtSource extends MuzeiArtSource {
         scheduleNext();
 
         Cursor chosenUris = getContentResolver().query(GalleryContract.ChosenPhotos.CONTENT_URI,
-                new String[] { BaseColumns._ID },
+                new String[] { BaseColumns._ID, GalleryContract.ChosenPhotos.COLUMN_NAME_URI },
                 null, null, null);
         int numChosenUris = (chosenUris != null) ? chosenUris.getCount() : 0;
 
@@ -179,11 +182,33 @@ public class GalleryArtSource extends MuzeiArtSource {
             imageUri = forceUri;
 
         } else if (numChosenUris > 0) {
-            while (true) {
-                chosenUris.moveToPosition(random.nextInt(chosenUris.getCount()));
-                imageUri = ContentUris.withAppendedId(GalleryContract.ChosenPhotos.CONTENT_URI,
+            // First build a list of all image URIs, recursively exploring any tree URIs that were added
+            List<Uri> allImages = new ArrayList<>(numChosenUris);
+            while (chosenUris.moveToNext()) {
+                Uri chosenUri = ContentUris.withAppendedId(GalleryContract.ChosenPhotos.CONTENT_URI,
                         chosenUris.getLong(chosenUris.getColumnIndex(BaseColumns._ID)));
-                if (numChosenUris <= 1 || !imageUri.toString().equals(lastToken)) {
+                Uri possibleTreeUri = Uri.parse(chosenUris.getString(
+                        chosenUris.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_URI)));
+                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
+                    // No tree URIs prior to Lollipop
+                    allImages.add(chosenUri);
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !DocumentsContract.isTreeUri(possibleTreeUri)) {
+                    // Not a Tree URI so it must be a picture URI
+                    allImages.add(chosenUri);
+                } else {
+                    // Prior to N we can't directly check if the URI is a tree URI, so we have to just try it
+                    try {
+                        addAllImagesFromTree(allImages, possibleTreeUri, DocumentsContract.getDocumentId(possibleTreeUri));
+                    } catch (IllegalArgumentException e) {
+                        // Not actually a tree URI. Good to know.
+                        allImages.add(chosenUri);
+                    }
+                }
+            }
+            int numImages = allImages.size();
+            while (true) {
+                imageUri = allImages.get(random.nextInt(numImages));
+                if (numImages <= 1 || !imageUri.toString().equals(lastToken)) {
                     break;
                 }
             }
@@ -272,6 +297,32 @@ public class GalleryArtSource extends MuzeiArtSource {
                 .viewIntent(new Intent(Intent.ACTION_VIEW)
                         .setDataAndType(imageUri, "image/jpeg"))
                 .build());
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void addAllImagesFromTree(final List<Uri> allImages, final Uri treeUri, final String parentDocumentUri) {
+        final Uri childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri,
+                parentDocumentUri);
+        Cursor children = getContentResolver().query(childrenUri,
+                new String[] { DocumentsContract.Document.COLUMN_DOCUMENT_ID, DocumentsContract.Document.COLUMN_MIME_TYPE},
+                null, null, null);
+        if (children == null) {
+            return;
+        }
+        while (children.moveToNext()) {
+            String documentId = children.getString(
+                    children.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
+            String mimeType = children.getString(
+                    children.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE));
+            if (DocumentsContract.Document.MIME_TYPE_DIR.equals(mimeType)) {
+                // Recursively explore all directories
+                addAllImagesFromTree(allImages, treeUri, documentId);
+            } else if (mimeType != null && mimeType.startsWith("image/")) {
+                // Add images to the list
+                allImages.add(DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId));
+            }
+        }
+        children.close();
     }
 
     private void updateMeta() {
