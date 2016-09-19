@@ -33,6 +33,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.provider.BaseColumns;
 import android.provider.DocumentsContract;
@@ -79,7 +80,7 @@ public class GalleryProvider extends ContentProvider {
     /**
      * The database version
      */
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
     /**
      * A UriMatcher instance
      */
@@ -117,6 +118,8 @@ public class GalleryProvider extends ContentProvider {
         allColumnProjectionMap.put(BaseColumns._ID, BaseColumns._ID);
         allColumnProjectionMap.put(GalleryContract.ChosenPhotos.COLUMN_NAME_URI,
                 GalleryContract.ChosenPhotos.COLUMN_NAME_URI);
+        allColumnProjectionMap.put(GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI,
+                GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI);
         return allColumnProjectionMap;
     }
 
@@ -278,6 +281,9 @@ public class GalleryProvider extends ContentProvider {
         if (!values.containsKey(GalleryContract.ChosenPhotos.COLUMN_NAME_URI))
             throw new IllegalArgumentException("Initial values must contain URI " + values);
         String imageUri = values.getAsString(GalleryContract.ChosenPhotos.COLUMN_NAME_URI);
+        // Check if it is a tree URI (i.e., a whole directory of images)
+        boolean isTreeUri = isTreeUri(Uri.parse(imageUri));
+        values.put(GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI, isTreeUri);
         boolean persistedPermission = false;
         Uri uriToTake = Uri.parse(imageUri);
         // Try to persist access to the URI, saving us from having to store a local copy
@@ -322,6 +328,23 @@ public class GalleryProvider extends ContentProvider {
         }
         // If the insert didn't succeed, then the rowID is <= 0
         throw new SQLException("Failed to insert row into " + uri);
+    }
+
+    private boolean isTreeUri(Uri possibleTreeUri) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return DocumentsContract.isTreeUri(possibleTreeUri);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // Prior to N we can't directly check if the URI is a tree URI, so we have to just try it
+            try {
+                String treeDocumentId = DocumentsContract.getTreeDocumentId(possibleTreeUri);
+                return !TextUtils.isEmpty(treeDocumentId);
+            } catch (IllegalArgumentException e) {
+                // Definitely not a tree URI
+                return false;
+            }
+        }
+        // No tree URIs prior to Lollipop
+        return false;
     }
 
     private static void writeUriToFile(Context context, String uri, File destFile) throws IOException {
@@ -584,6 +607,7 @@ public class GalleryProvider extends ContentProvider {
             db.execSQL("CREATE TABLE " + GalleryContract.ChosenPhotos.TABLE_NAME + " ("
                     + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + GalleryContract.ChosenPhotos.COLUMN_NAME_URI + " TEXT NOT NULL,"
+                    + GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI + " INTEGER,"
                     + "UNIQUE (" + GalleryContract.ChosenPhotos.COLUMN_NAME_URI + ") ON CONFLICT REPLACE)");
         }
 
@@ -601,6 +625,9 @@ public class GalleryProvider extends ContentProvider {
             if (oldVersion < 2) {
                 db.execSQL("DROP TABLE IF EXISTS " + GalleryContract.MetadataCache.TABLE_NAME);
                 onCreateMetadataCache(db);
+            } else if (oldVersion < 3) {
+                db.execSQL("ALTER TABLE " + GalleryContract.ChosenPhotos.TABLE_NAME
+                        + " ADD COLUMN " + GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI + " INTEGER");
             }
         }
     }
