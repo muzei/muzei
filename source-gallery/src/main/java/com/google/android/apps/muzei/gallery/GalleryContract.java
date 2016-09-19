@@ -46,6 +46,11 @@ public class GalleryContract {
          */
         public static final String COLUMN_NAME_URI = "uri";
         /**
+         * Column name for the flag indicating the URI is a tree URI
+         * <p>Type: INTEGER (boolean)
+         */
+        public static final String COLUMN_NAME_IS_TREE_URI = "is_tree_uri";
+        /**
          * The MIME type of {@link #CONTENT_URI} providing chosen photos.
          */
         static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.android.apps.muzei.gallery.chosen_photos";

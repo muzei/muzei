@@ -169,7 +169,8 @@ public class GalleryArtSource extends MuzeiArtSource {
         scheduleNext();
 
         Cursor chosenUris = getContentResolver().query(GalleryContract.ChosenPhotos.CONTENT_URI,
-                new String[] { BaseColumns._ID, GalleryContract.ChosenPhotos.COLUMN_NAME_URI },
+                new String[] { BaseColumns._ID, GalleryContract.ChosenPhotos.COLUMN_NAME_URI,
+                        GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI },
                 null, null, null);
         int numChosenUris = (chosenUris != null) ? chosenUris.getCount() : 0;
 
@@ -187,22 +188,14 @@ public class GalleryArtSource extends MuzeiArtSource {
             while (chosenUris.moveToNext()) {
                 Uri chosenUri = ContentUris.withAppendedId(GalleryContract.ChosenPhotos.CONTENT_URI,
                         chosenUris.getLong(chosenUris.getColumnIndex(BaseColumns._ID)));
-                Uri possibleTreeUri = Uri.parse(chosenUris.getString(
-                        chosenUris.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_URI)));
-                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
-                    // No tree URIs prior to Lollipop
-                    allImages.add(chosenUri);
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !DocumentsContract.isTreeUri(possibleTreeUri)) {
-                    // Not a Tree URI so it must be a picture URI
-                    allImages.add(chosenUri);
+                boolean isTreeUri = chosenUris.getInt(
+                        chosenUris.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI)) != 0;
+                if (isTreeUri && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    Uri treeUri = Uri.parse(chosenUris.getString(
+                            chosenUris.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_URI)));
+                    addAllImagesFromTree(allImages, treeUri, DocumentsContract.getDocumentId(treeUri));
                 } else {
-                    // Prior to N we can't directly check if the URI is a tree URI, so we have to just try it
-                    try {
-                        addAllImagesFromTree(allImages, possibleTreeUri, DocumentsContract.getDocumentId(possibleTreeUri));
-                    } catch (IllegalArgumentException e) {
-                        // Not actually a tree URI. Good to know.
-                        allImages.add(chosenUri);
-                    }
+                    allImages.add(chosenUri);
                 }
             }
             int numImages = allImages.size();
@@ -300,9 +293,9 @@ public class GalleryArtSource extends MuzeiArtSource {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void addAllImagesFromTree(final List<Uri> allImages, final Uri treeUri, final String parentDocumentUri) {
+    private void addAllImagesFromTree(final List<Uri> allImages, final Uri treeUri, final String parentDocumentId) {
         final Uri childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri,
-                parentDocumentUri);
+                parentDocumentId);
         Cursor children = getContentResolver().query(childrenUri,
                 new String[] { DocumentsContract.Document.COLUMN_DOCUMENT_ID, DocumentsContract.Document.COLUMN_MIME_TYPE},
                 null, null, null);
