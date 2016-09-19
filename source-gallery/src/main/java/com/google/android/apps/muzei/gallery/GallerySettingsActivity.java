@@ -42,6 +42,7 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.provider.BaseColumns;
+import android.provider.DocumentsContract;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -81,7 +82,10 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.Random;
 import java.util.Set;
 
 import static com.google.android.apps.muzei.gallery.GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM;
@@ -413,10 +417,25 @@ public class GallerySettingsActivity extends AppCompatActivity
                 if (itemId == R.id.action_force_now) {
                     Set<Uri> selection = mMultiSelectionController.getSelection();
                     if (selection.size() > 0) {
+                        Uri selectedUri = selection.iterator().next();
+                        // Check to see if it is tree URI, if so, force a random photo from the tree
+                        Cursor data = getContentResolver().query(selectedUri,
+                                new String[] { GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI },
+                                null, null, null);
+                        if (data != null && data.moveToNext()) {
+                            boolean isTreeUri = data.getInt(0) != 0;
+                            if (isTreeUri) {
+                                List<Uri> photoUris = getImagesFromTreeUri(selectedUri, Integer.MAX_VALUE);
+                                selectedUri = photoUris.get(new Random().nextInt(photoUris.size()));
+                            }
+                        }
+                        if (data != null) {
+                            data.close();
+                        }
                         startService(
                                 new Intent(GallerySettingsActivity.this, GalleryArtSource.class)
                                         .setAction(ACTION_PUBLISH_NEXT_GALLERY_ITEM)
-                                        .putExtra(EXTRA_FORCE_URI, selection.iterator().next()));
+                                        .putExtra(EXTRA_FORCE_URI, selectedUri));
                         Toast.makeText(GallerySettingsActivity.this,
                                 R.string.gallery_temporary_force_image,
                                 Toast.LENGTH_SHORT).show();
@@ -433,10 +452,7 @@ public class GallerySettingsActivity extends AppCompatActivity
                             // Update chosen URIs
                             ArrayList<ContentProviderOperation> operations = new ArrayList<>();
                             for (Uri uri : removeUris) {
-                                operations.add(ContentProviderOperation.newDelete(GalleryContract.ChosenPhotos.CONTENT_URI)
-                                        .withSelection(
-                                                GalleryContract.ChosenPhotos.COLUMN_NAME_URI + "=?",
-                                                new String[] { uri.toString() })
+                                operations.add(ContentProviderOperation.newDelete(uri)
                                         .build());
                             }
                             try {
@@ -484,8 +500,24 @@ public class GallerySettingsActivity extends AppCompatActivity
 
         int selectedCount = mMultiSelectionController.getSelectedCount();
         final boolean toolbarVisible = selectedCount > 0;
+        boolean showForceNow = selectedCount == 1;
+        if (showForceNow) {
+            // Double check to make sure we can force a URI for the selected URI
+            Uri selectedUri = mMultiSelectionController.getSelection().iterator().next();
+            Cursor data = getContentResolver().query(selectedUri,
+                    new String[] { GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI },
+                    null, null, null);
+            if (data != null && data.moveToNext()) {
+                boolean isTreeUri = data.getInt(0) != 0;
+                // Only show the force now icon if it isn't a tree URI or there is at least one image in the tree
+                showForceNow = !isTreeUri || !getImagesFromTreeUri(selectedUri, 1).isEmpty();
+            }
+            if (data != null) {
+                data.close();
+            }
+        }
         mSelectionToolbar.getMenu().findItem(R.id.action_force_now).setVisible(
-                selectedCount < 2);
+                showForceNow);
 
         Boolean previouslyVisible = (Boolean) selectionToolbarContainer.getTag(0xDEADBEEF);
         if (previouslyVisible == null) {
@@ -538,7 +570,38 @@ public class GallerySettingsActivity extends AppCompatActivity
         }
 
         if (toolbarVisible) {
-            mSelectionToolbar.setTitle(Integer.toString(selectedCount));
+            String title = Integer.toString(selectedCount);
+            if (selectedCount == 1) {
+                // If they've selected a tree URI, show the DISPLAY_NAME instead of just '1'
+                Uri selectedUri = mMultiSelectionController.getSelection().iterator().next();
+                Cursor data = getContentResolver().query(selectedUri,
+                        new String[] { GalleryContract.ChosenPhotos.COLUMN_NAME_URI,
+                                GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI },
+                        null, null, null);
+                if (data != null && data.moveToNext()) {
+                    boolean isTreeUri = data.getInt(
+                            data.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI)) != 0;
+                    if (isTreeUri) {
+                        Cursor documentData = getContentResolver().query(Uri.parse(
+                                data.getString(data.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_URI))),
+                                new String[] { DocumentsContract.Document.COLUMN_DISPLAY_NAME }, null, null, null);
+                        if (documentData != null && documentData.moveToNext()) {
+                            String displayName = documentData.getString(
+                                    documentData.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
+                            if (!TextUtils.isEmpty(displayName)) {
+                                title = displayName;
+                            }
+                        }
+                        if (documentData != null) {
+                            documentData.close();
+                        }
+                    }
+                }
+                if (data != null) {
+                    data.close();
+                }
+            }
+            mSelectionToolbar.setTitle(title);
         }
     }
 
@@ -583,26 +646,61 @@ public class GallerySettingsActivity extends AppCompatActivity
         mMultiSelectionController.restoreInstanceState(savedInstanceState);
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    abstract static class CheckableViewHolder extends RecyclerView.ViewHolder {
         final View mRootView;
-        final ImageView mThumbView;
         final View mCheckedOverlayView;
 
-        ViewHolder(View root) {
+        CheckableViewHolder(View root) {
             super(root);
             mRootView = root;
-            mThumbView = (ImageView) root.findViewById(R.id.thumbnail);
             mCheckedOverlayView = root.findViewById(R.id.checked_overlay);
         }
     }
 
-    private final RecyclerView.Adapter<ViewHolder> mChosenPhotosAdapter
-            = new RecyclerView.Adapter<ViewHolder>() {
+    static class PhotoViewHolder extends CheckableViewHolder {
+        final ImageView mThumbView;
+
+        PhotoViewHolder(View root) {
+            super(root);
+            mThumbView = (ImageView) root.findViewById(R.id.thumbnail);
+        }
+    }
+
+    static class TreeViewHolder extends CheckableViewHolder {
+        final List<ImageView> mThumbViews = new ArrayList<>();
+
+        TreeViewHolder(View root) {
+            super(root);
+            mThumbViews.add((ImageView) root.findViewById(R.id.thumbnail1));
+            mThumbViews.add((ImageView) root.findViewById(R.id.thumbnail2));
+            mThumbViews.add((ImageView) root.findViewById(R.id.thumbnail3));
+            mThumbViews.add((ImageView) root.findViewById(R.id.thumbnail4));
+        }
+    }
+
+    private final RecyclerView.Adapter<CheckableViewHolder> mChosenPhotosAdapter
+            = new RecyclerView.Adapter<CheckableViewHolder>() {
         @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(GallerySettingsActivity.this)
-                    .inflate(R.layout.gallery_chosen_photo_item, parent, false);
-            final ViewHolder vh = new ViewHolder(v);
+        public int getItemViewType(final int position) {
+            mChosenUris.moveToPosition(position);
+            // This will return 1 for tree URIs and 0 for photo URIs
+            return mChosenUris.getInt(mChosenUris.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI));
+        }
+
+        @Override
+        public CheckableViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            boolean isTreeUri = viewType != 0;
+            View v;
+            final CheckableViewHolder vh;
+            if (isTreeUri) {
+                v = LayoutInflater.from(GallerySettingsActivity.this)
+                        .inflate(R.layout.gallery_chosen_photo_tree_item, parent, false);
+                vh = new TreeViewHolder(v);
+            } else {
+                v = LayoutInflater.from(GallerySettingsActivity.this)
+                        .inflate(R.layout.gallery_chosen_photo_item, parent, false);
+                vh = new PhotoViewHolder(v);
+            }
 
             v.getLayoutParams().height = mItemSize;
             v.setOnTouchListener(new View.OnTouchListener() {
@@ -620,10 +718,9 @@ public class GallerySettingsActivity extends AppCompatActivity
                 @Override
                 public void onClick(View view) {
                     mUpdatePosition = vh.getAdapterPosition();
-                    mChosenUris.moveToPosition(mUpdatePosition);
-                    Uri imageUri = Uri.parse(mChosenUris.getString(
-                            mChosenUris.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_URI)));
-                    mMultiSelectionController.toggle(imageUri, true);
+                    Uri contentUri = ContentUris.withAppendedId(GalleryContract.ChosenPhotos.CONTENT_URI,
+                            getItemId(mUpdatePosition));
+                    mMultiSelectionController.toggle(contentUri, true);
                 }
             });
 
@@ -631,19 +728,39 @@ public class GallerySettingsActivity extends AppCompatActivity
         }
 
         @Override
-        public void onBindViewHolder(final ViewHolder vh, int position) {
+        public void onBindViewHolder(final CheckableViewHolder vh, int position) {
             mChosenUris.moveToPosition(position);
             Uri contentUri = ContentUris.withAppendedId(GalleryContract.ChosenPhotos.CONTENT_URI,
                     mChosenUris.getLong(mChosenUris.getColumnIndex(BaseColumns._ID)));
-            Uri imageUri = Uri.parse(mChosenUris.getString(
-                    mChosenUris.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_URI)));
-            Picasso.with(GallerySettingsActivity.this)
-                    .load(contentUri)
-                    .resize(mItemSize, mItemSize)
-                    .centerCrop()
-                    .placeholder(mPlaceholderDrawable)
-                    .into(vh.mThumbView);
-            final boolean checked = mMultiSelectionController.isSelected(imageUri);
+            boolean isTreeUri = getItemViewType(position) != 0;
+            if (isTreeUri) {
+                TreeViewHolder treeVh = (TreeViewHolder) vh;
+                int maxImages = treeVh.mThumbViews.size();
+                Uri imageUri = Uri.parse(mChosenUris.getString(
+                        mChosenUris.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_URI)));
+                List<Uri> images = getImagesFromTreeUri(imageUri, maxImages);
+                int numImages = images.size();
+                for (int h=0; h<numImages; h++) {
+                    Picasso.with(GallerySettingsActivity.this)
+                            .load(images.get(h))
+                            .resize(mItemSize / 2, mItemSize / 2)
+                            .centerCrop()
+                            .placeholder(mPlaceholderDrawable)
+                            .into(treeVh.mThumbViews.get(h));
+                }
+                for (int h=numImages; h<maxImages; h++) {
+                    treeVh.mThumbViews.get(h).setImageDrawable(mPlaceholderDrawable);
+                }
+            } else {
+                PhotoViewHolder photoVh = (PhotoViewHolder) vh;
+                Picasso.with(GallerySettingsActivity.this)
+                        .load(contentUri)
+                        .resize(mItemSize, mItemSize)
+                        .centerCrop()
+                        .placeholder(mPlaceholderDrawable)
+                        .into(photoVh.mThumbView);
+            }
+            final boolean checked = mMultiSelectionController.isSelected(contentUri);
             vh.mRootView.setTag(R.id.gallery_viewtag_position, position);
             if (mLastTouchPosition == vh.getAdapterPosition()
                     && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -706,6 +823,41 @@ public class GallerySettingsActivity extends AppCompatActivity
         }
     };
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private List<Uri> getImagesFromTreeUri(final Uri treeUri, final int maxImages) {
+        List<Uri> images = new ArrayList<>();
+        Queue<String> directories = new LinkedList<>();
+        directories.add(DocumentsContract.getDocumentId(treeUri));
+        while (images.size() < maxImages && !directories.isEmpty()) {
+            String parentDocumentId = directories.poll();
+            final Uri childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri,
+                    parentDocumentId);
+            Cursor children = getContentResolver().query(childrenUri,
+                    new String[] { DocumentsContract.Document.COLUMN_DOCUMENT_ID, DocumentsContract.Document.COLUMN_MIME_TYPE},
+                    null, null, null);
+            if (children == null) {
+                continue;
+            }
+            while (children.moveToNext()) {
+                String documentId = children.getString(
+                        children.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
+                String mimeType = children.getString(
+                        children.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE));
+                if (DocumentsContract.Document.MIME_TYPE_DIR.equals(mimeType)) {
+                    directories.add(documentId);
+                } else if (mimeType != null && mimeType.startsWith("image/")) {
+                    // Add images to the list
+                    images.add(DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId));
+                }
+                if (images.size() == maxImages) {
+                    break;
+                }
+            }
+            children.close();
+        }
+        return images;
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
         if (requestCode != REQUEST_CHOOSE_PHOTOS || resultCode != RESULT_OK) {
@@ -755,7 +907,8 @@ public class GallerySettingsActivity extends AppCompatActivity
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(this, GalleryContract.ChosenPhotos.CONTENT_URI,
-                new String[] {BaseColumns._ID, GalleryContract.ChosenPhotos.COLUMN_NAME_URI },
+                new String[] {BaseColumns._ID, GalleryContract.ChosenPhotos.COLUMN_NAME_URI,
+                        GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI },
                 null, null, null);
     }
 
