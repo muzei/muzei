@@ -446,12 +446,14 @@ public class GallerySettingsActivity extends AppCompatActivity
                         Uri selectedUri = selection.iterator().next();
                         // Check to see if it is tree URI, if so, force a random photo from the tree
                         Cursor data = getContentResolver().query(selectedUri,
-                                new String[] { GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI },
+                                new String[] { GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI,
+                                        GalleryContract.ChosenPhotos.COLUMN_NAME_URI },
                                 null, null, null);
                         if (data != null && data.moveToNext()) {
                             boolean isTreeUri = data.getInt(0) != 0;
                             if (isTreeUri) {
-                                List<Uri> photoUris = getImagesFromTreeUri(selectedUri, Integer.MAX_VALUE);
+                                Uri treeUri = Uri.parse(data.getString(1));
+                                List<Uri> photoUris = getImagesFromTreeUri(treeUri, Integer.MAX_VALUE);
                                 selectedUri = photoUris.get(new Random().nextInt(photoUris.size()));
                             }
                         }
@@ -593,12 +595,13 @@ public class GallerySettingsActivity extends AppCompatActivity
             // Double check to make sure we can force a URI for the selected URI
             Uri selectedUri = mMultiSelectionController.getSelection().iterator().next();
             Cursor data = getContentResolver().query(selectedUri,
-                    new String[] { GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI },
+                    new String[] { GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI,
+                            GalleryContract.ChosenPhotos.COLUMN_NAME_URI },
                     null, null, null);
             if (data != null && data.moveToNext()) {
                 boolean isTreeUri = data.getInt(0) != 0;
                 // Only show the force now icon if it isn't a tree URI or there is at least one image in the tree
-                showForceNow = !isTreeUri || !getImagesFromTreeUri(selectedUri, 1).isEmpty();
+                showForceNow = !isTreeUri || !getImagesFromTreeUri(Uri.parse(data.getString(1)), 1).isEmpty();
             }
             if (data != null) {
                 data.close();
@@ -667,25 +670,15 @@ public class GallerySettingsActivity extends AppCompatActivity
                 // If they've selected a tree URI, show the DISPLAY_NAME instead of just '1'
                 Uri selectedUri = mMultiSelectionController.getSelection().iterator().next();
                 Cursor data = getContentResolver().query(selectedUri,
-                        new String[] { GalleryContract.ChosenPhotos.COLUMN_NAME_URI,
-                                GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI },
+                        new String[] { GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI,
+                                GalleryContract.ChosenPhotos.COLUMN_NAME_URI },
                         null, null, null);
                 if (data != null && data.moveToNext()) {
-                    boolean isTreeUri = data.getInt(
-                            data.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI)) != 0;
+                    boolean isTreeUri = data.getInt(0) != 0;
                     if (isTreeUri) {
-                        Cursor documentData = getContentResolver().query(Uri.parse(
-                                data.getString(data.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_URI))),
-                                new String[] { DocumentsContract.Document.COLUMN_DISPLAY_NAME }, null, null, null);
-                        if (documentData != null && documentData.moveToNext()) {
-                            String displayName = documentData.getString(
-                                    documentData.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
-                            if (!TextUtils.isEmpty(displayName)) {
-                                title = displayName;
-                            }
-                        }
-                        if (documentData != null) {
-                            documentData.close();
+                        String displayName = getDisplayNameForTreeUri(Uri.parse(data.getString(1)));
+                        if (!TextUtils.isEmpty(displayName)) {
+                            title = displayName;
                         }
                     }
                 }
@@ -695,6 +688,22 @@ public class GallerySettingsActivity extends AppCompatActivity
             }
             mSelectionToolbar.setTitle(title);
         }
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private String getDisplayNameForTreeUri(Uri treeUri) {
+        Uri documentUri = DocumentsContract.buildDocumentUriUsingTree(treeUri,
+                DocumentsContract.getTreeDocumentId(treeUri));
+        Cursor data = getContentResolver().query(documentUri,
+                new String[] { DocumentsContract.Document.COLUMN_DISPLAY_NAME }, null, null, null);
+        String displayName = null;
+        if (data != null && data.moveToNext()) {
+            displayName = data.getString(data.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
+        }
+        if (data != null) {
+            data.close();
+        }
+        return displayName;
     }
 
     private void onDataSetChanged() {
