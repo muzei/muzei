@@ -28,6 +28,7 @@ import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.content.UriPermission;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -192,7 +193,8 @@ public class GalleryProvider extends ContentProvider {
 
     @Override
     public int delete(@NonNull final Uri uri, final String selection, final String[] selectionArgs) {
-        if (GalleryProvider.uriMatcher.match(uri) == GalleryProvider.CHOSEN_PHOTOS) {
+        if (GalleryProvider.uriMatcher.match(uri) == GalleryProvider.CHOSEN_PHOTOS ||
+                GalleryProvider.uriMatcher.match(uri) == GalleryProvider.CHOSEN_PHOTOS_ID) {
             return deleteChosenPhotos(uri, selection, selectionArgs);
         } else if (GalleryProvider.uriMatcher.match(uri) == GalleryProvider.METADATA_CACHE) {
             throw new UnsupportedOperationException("Deletes are not supported");
@@ -236,7 +238,13 @@ public class GalleryProvider extends ContentProvider {
             }
             rowsToDelete.moveToNext();
         }
-        int count = db.delete(GalleryContract.ChosenPhotos.TABLE_NAME, selection, selectionArgs);
+        String finalSelection = selection;
+        if (GalleryProvider.uriMatcher.match(uri) == CHOSEN_PHOTOS_ID) {
+            // If the incoming URI is for a single chosen photo identified by its ID, appends "_ID = <chosenPhotoId>"
+            finalSelection = DatabaseUtils.concatenateWhere(selection,
+                    BaseColumns._ID + "=" + uri.getLastPathSegment());
+        }
+        int count = db.delete(GalleryContract.ChosenPhotos.TABLE_NAME, finalSelection, selectionArgs);
         if (count > 0) {
             notifyChange(uri);
         }
