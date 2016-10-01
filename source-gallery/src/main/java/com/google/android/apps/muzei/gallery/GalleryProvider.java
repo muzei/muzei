@@ -295,7 +295,7 @@ public class GalleryProvider extends ContentProvider {
         boolean persistedPermission = false;
         Uri uriToTake = Uri.parse(imageUri);
         // Try to persist access to the URI, saving us from having to store a local copy
-        if (getContext() != null && DocumentsContract.isDocumentUri(getContext(), uriToTake)) {
+        if (getContext() != null && (isTreeUri || DocumentsContract.isDocumentUri(getContext(), uriToTake))) {
             try {
                 getContext().getContentResolver().takePersistableUriPermission(uriToTake, Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 persistedPermission = true;
