@@ -13,13 +13,13 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-
-<resources>
-    <dimen name="gallery_chosen_photo_grid_max_item_size">200dp</dimen>
-    <dimen name="gallery_chosen_photo_grid_spacing">2dp</dimen>
-    <dimen name="gallery_chosen_photo_folder_padding">8dp</dimen>
-    <dimen name="gallery_fab_space">96dp</dimen>
-    <dimen name="gallery_fab_margin">16dp</dimen>
-    <dimen name="gallery_fab_toolbar_height">56dp</dimen>
-    <dimen name="gallery_header_elevation">4dp</dimen>
-</resources>
+<vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:height="24dp"
+    android:viewportHeight="24.0"
+    android:viewportWidth="24.0"
+    android:width="24dp">
+    <path
+        android:fillColor="#FFF"
+        android:pathData="M10,4H4c-1.1,0 -1.99,0.9 -1.99,2L2,18c0,1.1 0.9,2 2,2h16c1.1,0 2,-0.9 2,-2V8c0,-1.1 -0.9,-2 -2,-2h-8l-2,-2z"/>
+</vector>

@@ -141,6 +141,7 @@ public class GallerySettingsActivity extends AppCompatActivity
 
     private int mUpdatePosition = -1;
     private View mAddButton;
+    private View mAddToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -237,21 +238,46 @@ public class GallerySettingsActivity extends AppCompatActivity
                 startActivity(intent);
             }
         });
-        mAddButton = findViewById(R.id.add_photos_button);
+        mAddButton = findViewById(R.id.add_fab);
         mAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Use ACTION_OPEN_DOCUMENT by default for adding photos.
-                // This allows us to use persistent URI permissions to access the underlying photos
-                // meaning we don't need to use additional storage space and will pull in edits automatically
-                // in addition to syncing deletions.
-                // (There's a separate 'Import photos' option which uses ACTION_GET_CONTENT to support legacy apps)
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intent.setType("image/*");
-                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    // On Lollipop and higher, we show the add toolbar to allow users to add either
+                    // individual photos or a whole directory
+                    showAddToolbar();
+                } else {
+                    requestPhotos();
+                }
+            }
+        });
+        mAddToolbar = findViewById(R.id.add_toolbar);
+        findViewById(R.id.add_photos).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                requestPhotos();
+            }
+        });
+        findViewById(R.id.add_folder).setOnClickListener(new View.OnClickListener() {
+            @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onClick(final View v) {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
                 startActivityForResult(intent, REQUEST_CHOOSE_PHOTOS);
             }
         });
+    }
+
+    private void requestPhotos() {
+        // Use ACTION_OPEN_DOCUMENT by default for adding photos.
+        // This allows us to use persistent URI permissions to access the underlying photos
+        // meaning we don't need to use additional storage space and will pull in edits automatically
+        // in addition to syncing deletions.
+        // (There's a separate 'Import photos' option which uses ACTION_GET_CONTENT to support legacy apps)
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        startActivityForResult(intent, REQUEST_CHOOSE_PHOTOS);
     }
 
     @Override
@@ -483,9 +509,71 @@ public class GallerySettingsActivity extends AppCompatActivity
     public void onBackPressed() {
         if (mMultiSelectionController.getSelectedCount() > 0) {
             mMultiSelectionController.reset(true);
+        } else if (mAddToolbar.getVisibility() == View.VISIBLE) {
+            hideAddToolbar(true);
         } else {
             super.onBackPressed();
         }
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void showAddToolbar() {
+        // Divide by two since we're doing two animations but we want the total time to the short animation time
+        final int duration = getResources().getInteger(android.R.integer.config_shortAnimTime) / 2;
+        // Hide the add button
+        mAddButton.animate()
+                .scaleX(0f)
+                .scaleY(0f)
+                .translationY(getResources().getDimension(R.dimen.gallery_fab_margin))
+                .setDuration(duration)
+                .withEndAction(new Runnable() {
+                    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+                    @Override
+                    public void run() {
+                        mAddButton.setVisibility(View.INVISIBLE);
+                        // Then show the toolbar
+                        mAddToolbar.setVisibility(View.VISIBLE);
+                        ViewAnimationUtils.createCircularReveal(
+                                mAddToolbar,
+                                mAddToolbar.getWidth() / 2,
+                                mAddToolbar.getHeight() / 2,
+                                0,
+                                mAddToolbar.getWidth() / 2)
+                                .setDuration(duration)
+                                .start();
+                    }
+                });
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void hideAddToolbar(final boolean showAddButton) {
+        // Divide by two since we're doing two animations but we want the total time to the short animation time
+        final int duration = getResources().getInteger(android.R.integer.config_shortAnimTime) / 2;
+        // Hide the toolbar
+        Animator hideAnimator = ViewAnimationUtils.createCircularReveal(
+                mAddToolbar,
+                mAddToolbar.getWidth() / 2,
+                mAddToolbar.getHeight() / 2,
+                mAddToolbar.getWidth() / 2,
+                0).setDuration(showAddButton ? duration : duration * 2);
+        hideAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(final Animator animation) {
+                mAddToolbar.setVisibility(View.INVISIBLE);
+                if (showAddButton) {
+                    mAddButton.setVisibility(View.VISIBLE);
+                    mAddButton.animate()
+                            .scaleX(1f)
+                            .scaleY(1f)
+                            .translationY(0)
+                            .setDuration(duration);
+                } else {
+                    // Just reset the translationY
+                    mAddButton.setTranslationY(0);
+                }
+            }
+        });
+        hideAnimator.start();
     }
 
     private void tryUpdateSelection(boolean allowAnimate) {
@@ -539,16 +627,20 @@ public class GallerySettingsActivity extends AppCompatActivity
                         .setDuration(duration)
                         .withEndAction(null);
 
-                mAddButton.animate()
-                        .scaleX(0f)
-                        .scaleY(0f)
-                        .setDuration(duration)
-                        .withEndAction(new Runnable() {
-                            @Override
-                            public void run() {
-                                mAddButton.setVisibility(View.INVISIBLE);
-                            }
-                        });
+                if (mAddToolbar.getVisibility() == View.VISIBLE) {
+                    hideAddToolbar(false);
+                } else {
+                    mAddButton.animate()
+                            .scaleX(0f)
+                            .scaleY(0f)
+                            .setDuration(duration)
+                            .withEndAction(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mAddButton.setVisibility(View.INVISIBLE);
+                                }
+                            });
+                }
             } else {
                 selectionToolbarContainer.animate()
                         .translationY(-selectionToolbarContainer.getHeight())
@@ -860,8 +952,16 @@ public class GallerySettingsActivity extends AppCompatActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
-        if (requestCode != REQUEST_CHOOSE_PHOTOS || resultCode != RESULT_OK) {
-            super.onActivityResult(requestCode, resultCode, result);
+        super.onActivityResult(requestCode, resultCode, result);
+        if (requestCode != REQUEST_CHOOSE_PHOTOS) {
+            return;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            hideAddToolbar(true);
+        }
+
+        if (resultCode != RESULT_OK) {
             return;
         }
 
