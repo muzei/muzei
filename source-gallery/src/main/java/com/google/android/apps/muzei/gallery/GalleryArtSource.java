@@ -193,7 +193,7 @@ public class GalleryArtSource extends MuzeiArtSource {
                 if (isTreeUri && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     Uri treeUri = Uri.parse(chosenUris.getString(
                             chosenUris.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_URI)));
-                    addAllImagesFromTree(allImages, treeUri, DocumentsContract.getDocumentId(treeUri));
+                    addAllImagesFromTree(allImages, treeUri, DocumentsContract.getTreeDocumentId(treeUri));
                 } else {
                     allImages.add(chosenUri);
                 }
