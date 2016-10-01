@@ -919,7 +919,7 @@ public class GallerySettingsActivity extends AppCompatActivity
     private List<Uri> getImagesFromTreeUri(final Uri treeUri, final int maxImages) {
         List<Uri> images = new ArrayList<>();
         Queue<String> directories = new LinkedList<>();
-        directories.add(DocumentsContract.getDocumentId(treeUri));
+        directories.add(DocumentsContract.getTreeDocumentId(treeUri));
         while (images.size() < maxImages && !directories.isEmpty()) {
             String parentDocumentId = directories.poll();
             final Uri childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri,
