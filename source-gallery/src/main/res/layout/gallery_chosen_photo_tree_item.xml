@@ -14,12 +14,12 @@
   limitations under the License.
   -->
 
-<android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.percent.PercentFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="2dp"
-    android:foreground="?selectableItemBackground">
+    android:foreground="?attr/selectableItemBackground">
 
     <ImageView
         android:id="@+id/thumbnail1"
@@ -71,4 +71,4 @@
 
     </FrameLayout>
 
-</android.support.percent.PercentRelativeLayout>
+</android.support.percent.PercentFrameLayout>
