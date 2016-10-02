@@ -933,9 +933,16 @@ public class GallerySettingsActivity extends AppCompatActivity
             String parentDocumentId = directories.poll();
             final Uri childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri,
                     parentDocumentId);
-            Cursor children = getContentResolver().query(childrenUri,
-                    new String[] { DocumentsContract.Document.COLUMN_DOCUMENT_ID, DocumentsContract.Document.COLUMN_MIME_TYPE},
-                    null, null, null);
+            Cursor children;
+            try {
+                children = getContentResolver().query(childrenUri,
+                        new String[]{DocumentsContract.Document.COLUMN_DOCUMENT_ID, DocumentsContract.Document.COLUMN_MIME_TYPE},
+                        null, null, null);
+            } catch (SecurityException e) {
+                // No longer can read this URI, which means no images from this URI
+                // This a temporary state as the next onLoadFinished() will remove this item entirely
+                children = null;
+            }
             if (children == null) {
                 continue;
             }
