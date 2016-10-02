@@ -267,7 +267,7 @@ public class GallerySettingsActivity extends AppCompatActivity
             @Override
             public void onClick(final View v) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-                startActivityForResult(intent, REQUEST_CHOOSE_PHOTOS);
+                startActivityForResult(intent, REQUEST_CHOOSE_FOLDER);
                 SharedPreferences preferences = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
                 if (preferences.getBoolean(SHOW_INTERNAL_STORAGE_MESSAGE, true)) {
                     Toast.makeText(GallerySettingsActivity.this, R.string.gallery_internal_storage_message,
