@@ -293,15 +293,16 @@ public class GalleryArtSource extends MuzeiArtSource {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void addAllImagesFromTree(final List<Uri> allImages, final Uri treeUri, final String parentDocumentId) {
+    private int addAllImagesFromTree(final List<Uri> allImages, final Uri treeUri, final String parentDocumentId) {
         final Uri childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri,
                 parentDocumentId);
         Cursor children = getContentResolver().query(childrenUri,
                 new String[] { DocumentsContract.Document.COLUMN_DOCUMENT_ID, DocumentsContract.Document.COLUMN_MIME_TYPE},
                 null, null, null);
         if (children == null) {
-            return;
+            return 0;
         }
+        int numImagesAdded = 0;
         while (children.moveToNext()) {
             String documentId = children.getString(
                     children.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
@@ -309,28 +310,46 @@ public class GalleryArtSource extends MuzeiArtSource {
                     children.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE));
             if (DocumentsContract.Document.MIME_TYPE_DIR.equals(mimeType)) {
                 // Recursively explore all directories
-                addAllImagesFromTree(allImages, treeUri, documentId);
+                numImagesAdded += addAllImagesFromTree(allImages, treeUri, documentId);
             } else if (mimeType != null && mimeType.startsWith("image/")) {
                 // Add images to the list
-                allImages.add(DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId));
+                if (allImages != null) {
+                    allImages.add(DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId));
+                }
+                numImagesAdded++;
             }
         }
         children.close();
+        return numImagesAdded;
     }
 
     private void updateMeta() {
         Cursor chosenUris = getContentResolver().query(GalleryContract.ChosenPhotos.CONTENT_URI,
-                null, null, null, null);
-        int numChosenUris = chosenUris != null ? chosenUris.getCount() : 0;
+                new String[] {
+                        GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI,
+                        GalleryContract.ChosenPhotos.COLUMN_NAME_URI },
+                null, null, null);
+        int numImages = 0;
+        while (chosenUris != null && chosenUris.moveToNext()) {
+            boolean isTreeUri = chosenUris.getInt(
+                    chosenUris.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI)) != 0;
+            if (isTreeUri && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                Uri treeUri = Uri.parse(chosenUris.getString(
+                        chosenUris.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_URI)));
+                numImages += addAllImagesFromTree(null, treeUri, DocumentsContract.getTreeDocumentId(treeUri));
+            } else {
+                numImages++;
+            }
+        }
         if (chosenUris != null) {
             chosenUris.close();
         }
-        setDescription(numChosenUris > 0
+        setDescription(numImages > 0
                 ? getResources().getQuantityString(
                 R.plurals.gallery_description_choice_template,
-                numChosenUris, numChosenUris)
+                numImages, numImages)
                 : getString(R.string.gallery_description));
-        if (numChosenUris != 1) {
+        if (numImages != 1) {
             setUserCommands(BUILTIN_COMMAND_ID_NEXT_ARTWORK);
         } else {
             removeAllUserCommands();
