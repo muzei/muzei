@@ -111,13 +111,43 @@
 
     </FrameLayout>
 
-    <android.support.design.widget.FloatingActionButton android:id="@+id/add_photos_button"
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/add_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="16dp"
-        android:contentDescription="@string/gallery_action_add_photos"
-        android:src="@drawable/gallery_ic_add_photos" />
+        android:layout_marginBottom="@dimen/gallery_fab_margin"
+        android:contentDescription="@string/gallery_add_fab"
+        android:src="@drawable/gallery_ic_add"/>
+
+    <LinearLayout
+        android:id="@+id/add_toolbar"
+        style="?android:attr/buttonBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/gallery_fab_toolbar_height"
+        android:layout_gravity="bottom"
+        android:background="@color/gallery_theme_dark"
+        android:orientation="horizontal"
+        android:visibility="invisible">
+
+        <ImageButton
+            android:id="@+id/add_photos"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:contentDescription="@string/gallery_add_photos"
+            android:src="@drawable/gallery_ic_add_photo"/>
+
+        <ImageButton
+            android:id="@+id/add_folder"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:contentDescription="@string/gallery_add_folder"
+            android:src="@drawable/gallery_ic_add_folder"/>
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/selection_toolbar_container"

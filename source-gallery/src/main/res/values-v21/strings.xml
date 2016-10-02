@@ -15,11 +15,5 @@
   -->
 
 <resources>
-    <dimen name="gallery_chosen_photo_grid_max_item_size">200dp</dimen>
-    <dimen name="gallery_chosen_photo_grid_spacing">2dp</dimen>
-    <dimen name="gallery_chosen_photo_folder_padding">8dp</dimen>
-    <dimen name="gallery_fab_space">96dp</dimen>
-    <dimen name="gallery_fab_margin">16dp</dimen>
-    <dimen name="gallery_fab_toolbar_height">56dp</dimen>
-    <dimen name="gallery_header_elevation">4dp</dimen>
+    <string name="gallery_add_fab">Add photos or a folder</string>
 </resources>

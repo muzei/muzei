@@ -1,0 +1,74 @@
+<!--
+  Copyright 2014 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<android.support.percent.PercentFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="2dp"
+    android:foreground="?attr/selectableItemBackground">
+
+    <ImageView
+        android:id="@+id/thumbnail1"
+        app:layout_widthPercent="50%"
+        app:layout_heightPercent="50%"
+        android:scaleType="centerCrop" />
+
+    <ImageView
+        android:id="@+id/thumbnail2"
+        app:layout_widthPercent="50%"
+        app:layout_heightPercent="50%"
+        android:layout_gravity="end"
+        android:scaleType="centerCrop" />
+
+    <ImageView
+        android:id="@+id/thumbnail3"
+        app:layout_widthPercent="50%"
+        app:layout_heightPercent="50%"
+        android:layout_gravity="bottom"
+        android:scaleType="centerCrop" />
+
+    <ImageView
+        android:id="@+id/thumbnail4"
+        app:layout_widthPercent="50%"
+        app:layout_heightPercent="50%"
+        android:layout_gravity="bottom|end"
+        android:scaleType="centerCrop" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:padding="@dimen/gallery_chosen_photo_folder_padding"
+        android:src="@drawable/gallery_ic_folder" />
+
+    <FrameLayout
+        android:id="@+id/checked_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#bfff"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/gallery_chosen_photo_selected"
+            android:tint="@color/gallery_theme_dark" />
+
+    </FrameLayout>
+
+</android.support.percent.PercentFrameLayout>

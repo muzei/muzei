@@ -27,12 +27,15 @@ import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.content.UriPermission;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.provider.BaseColumns;
 import android.provider.DocumentsContract;
@@ -79,7 +82,7 @@ public class GalleryProvider extends ContentProvider {
     /**
      * The database version
      */
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
     /**
      * A UriMatcher instance
      */
@@ -117,6 +120,8 @@ public class GalleryProvider extends ContentProvider {
         allColumnProjectionMap.put(BaseColumns._ID, BaseColumns._ID);
         allColumnProjectionMap.put(GalleryContract.ChosenPhotos.COLUMN_NAME_URI,
                 GalleryContract.ChosenPhotos.COLUMN_NAME_URI);
+        allColumnProjectionMap.put(GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI,
+                GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI);
         return allColumnProjectionMap;
     }
 
@@ -189,7 +194,8 @@ public class GalleryProvider extends ContentProvider {
 
     @Override
     public int delete(@NonNull final Uri uri, final String selection, final String[] selectionArgs) {
-        if (GalleryProvider.uriMatcher.match(uri) == GalleryProvider.CHOSEN_PHOTOS) {
+        if (GalleryProvider.uriMatcher.match(uri) == GalleryProvider.CHOSEN_PHOTOS ||
+                GalleryProvider.uriMatcher.match(uri) == GalleryProvider.CHOSEN_PHOTOS_ID) {
             return deleteChosenPhotos(uri, selection, selectionArgs);
         } else if (GalleryProvider.uriMatcher.match(uri) == GalleryProvider.METADATA_CACHE) {
             throw new UnsupportedOperationException("Deletes are not supported");
@@ -233,7 +239,13 @@ public class GalleryProvider extends ContentProvider {
             }
             rowsToDelete.moveToNext();
         }
-        int count = db.delete(GalleryContract.ChosenPhotos.TABLE_NAME, selection, selectionArgs);
+        String finalSelection = selection;
+        if (GalleryProvider.uriMatcher.match(uri) == CHOSEN_PHOTOS_ID) {
+            // If the incoming URI is for a single chosen photo identified by its ID, appends "_ID = <chosenPhotoId>"
+            finalSelection = DatabaseUtils.concatenateWhere(selection,
+                    BaseColumns._ID + "=" + uri.getLastPathSegment());
+        }
+        int count = db.delete(GalleryContract.ChosenPhotos.TABLE_NAME, finalSelection, selectionArgs);
         if (count > 0) {
             notifyChange(uri);
         }
@@ -272,41 +284,52 @@ public class GalleryProvider extends ContentProvider {
     }
 
     private Uri insertChosenPhotos(@NonNull final Uri uri, final ContentValues values) {
+        Context context = getContext();
+        if (context == null) {
+            return null;
+        }
         if (values == null) {
             throw new IllegalArgumentException("Invalid ContentValues: must not be null");
         }
         if (!values.containsKey(GalleryContract.ChosenPhotos.COLUMN_NAME_URI))
             throw new IllegalArgumentException("Initial values must contain URI " + values);
         String imageUri = values.getAsString(GalleryContract.ChosenPhotos.COLUMN_NAME_URI);
-        boolean persistedPermission = false;
+        // Check if it is a tree URI (i.e., a whole directory of images)
+        boolean isTreeUri = isTreeUri(Uri.parse(imageUri));
+        values.put(GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI, isTreeUri);
         Uri uriToTake = Uri.parse(imageUri);
-        // Try to persist access to the URI, saving us from having to store a local copy
-        if (getContext() != null && DocumentsContract.isDocumentUri(getContext(), uriToTake)) {
-            try {
-                getContext().getContentResolver().takePersistableUriPermission(uriToTake, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                persistedPermission = true;
-                // If we have a persisted URI permission, we don't need a local copy
-                File cachedFile = getCacheFileForUri(getContext(), imageUri);
-                if (cachedFile != null && cachedFile.exists()) {
-                    if (!cachedFile.delete()) {
-                        Log.w(TAG, "Unable to delete " + cachedFile);
+        boolean haveUriPermission = context.checkCallingUriPermission(uriToTake,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION) == PackageManager.PERMISSION_GRANTED;
+        // If we only have permission to this URI via URI permissions (rather than directly, such as if the URI is
+        // from our own app), it is from an external  source and we need to make sure to gain persistent access to
+        // the URI's content
+        if (haveUriPermission) {
+            boolean persistedPermission = false;
+            // Try to persist access to the URI, saving us from having to store a local copy
+            if (isTreeUri || DocumentsContract.isDocumentUri(context, uriToTake)) {
+                try {
+                    context.getContentResolver().takePersistableUriPermission(uriToTake, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    persistedPermission = true;
+                    // If we have a persisted URI permission, we don't need a local copy
+                    File cachedFile = getCacheFileForUri(getContext(), imageUri);
+                    if (cachedFile != null && cachedFile.exists()) {
+                        if (!cachedFile.delete()) {
+                            Log.w(TAG, "Unable to delete " + cachedFile);
+                        }
                     }
+                } catch (SecurityException ignored) {
+                    // If we don't have FLAG_GRANT_PERSISTABLE_URI_PERMISSION (such as when using ACTION_GET_CONTENT),
+                    // this will fail. We'll need to make a local copy (handled below)
                 }
-            } catch (SecurityException ignored) {
-                // If we don't have FLAG_GRANT_PERSISTABLE_URI_PERMISSION (such as when using ACTION_GET_CONTENT),
-                // this will fail. It'll also fail for URIs originating from our own app.
-                // These cases are handled below
             }
-        }
-        if (!persistedPermission &&
-                !imageUri.startsWith(ContentResolver.SCHEME_CONTENT + "://" + getContext().getPackageName())) {
-            // We only need to make a local copy if we weren't able to persist the permission
-            // and the URI is not from our package (we always have access to those URIs)
-            try {
-                writeUriToFile(getContext(), imageUri, getCacheFileForUri(getContext(), imageUri));
-            } catch (IOException e) {
-                Log.e(TAG, "Error downloading gallery image " + imageUri, e);
-                throw new SQLException("Error downloading gallery image " + imageUri);
+            if (!persistedPermission) {
+                // We only need to make a local copy if we weren't able to persist the permission
+                try {
+                    writeUriToFile(context, imageUri, getCacheFileForUri(context, imageUri));
+                } catch (IOException e) {
+                    Log.e(TAG, "Error downloading gallery image " + imageUri, e);
+                    throw new SQLException("Error downloading gallery image " + imageUri);
+                }
             }
         }
         final SQLiteDatabase db = databaseHelper.getWritableDatabase();
@@ -322,6 +345,23 @@ public class GalleryProvider extends ContentProvider {
         }
         // If the insert didn't succeed, then the rowID is <= 0
         throw new SQLException("Failed to insert row into " + uri);
+    }
+
+    private boolean isTreeUri(Uri possibleTreeUri) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return DocumentsContract.isTreeUri(possibleTreeUri);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // Prior to N we can't directly check if the URI is a tree URI, so we have to just try it
+            try {
+                String treeDocumentId = DocumentsContract.getTreeDocumentId(possibleTreeUri);
+                return !TextUtils.isEmpty(treeDocumentId);
+            } catch (IllegalArgumentException e) {
+                // Definitely not a tree URI
+                return false;
+            }
+        }
+        // No tree URIs prior to Lollipop
+        return false;
     }
 
     private static void writeUriToFile(Context context, String uri, File destFile) throws IOException {
@@ -584,6 +624,7 @@ public class GalleryProvider extends ContentProvider {
             db.execSQL("CREATE TABLE " + GalleryContract.ChosenPhotos.TABLE_NAME + " ("
                     + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + GalleryContract.ChosenPhotos.COLUMN_NAME_URI + " TEXT NOT NULL,"
+                    + GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI + " INTEGER,"
                     + "UNIQUE (" + GalleryContract.ChosenPhotos.COLUMN_NAME_URI + ") ON CONFLICT REPLACE)");
         }
 
@@ -601,6 +642,9 @@ public class GalleryProvider extends ContentProvider {
             if (oldVersion < 2) {
                 db.execSQL("DROP TABLE IF EXISTS " + GalleryContract.MetadataCache.TABLE_NAME);
                 onCreateMetadataCache(db);
+            } else if (oldVersion < 3) {
+                db.execSQL("ALTER TABLE " + GalleryContract.ChosenPhotos.TABLE_NAME
+                        + " ADD COLUMN " + GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI + " INTEGER");
             }
         }
     }

@@ -147,11 +147,11 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
             // Everything is a child of ROOT_DOCUMENT_ID
             return true;
         } else if (documentId != null && documentId.startsWith(ARTWORK_DOCUMENT_ID_PREFIX)) {
-            if (BY_DATE_DOCUMENT_ID.equals(parentDocumentId)) {
-                // All artwork is a child of BY_DATE_DOCUMENT_ID
+            if (BY_DATE_DOCUMENT_ID.equals(parentDocumentId) || BY_SOURCE_DOCUMENT_ID.equals(parentDocumentId)) {
+                // All artwork is a child of BY_DATE_DOCUMENT_ID and a child of BY_SOURCE_DOCUMENT_ID
                 return true;
             }
-            if (BY_SOURCE_DOCUMENT_ID.equals(parentDocumentId)) {
+            if (parentDocumentId != null && parentDocumentId.startsWith(SOURCE_DOCUMENT_ID_PREFIX)) {
                 long sourceId = Long.parseLong(parentDocumentId.replace(SOURCE_DOCUMENT_ID_PREFIX, ""));
                 long artworkId = Long.parseLong(documentId.replace(ARTWORK_DOCUMENT_ID_PREFIX, ""));
                 String[] projection = new String[] { MuzeiContract.Sources.TABLE_NAME + "." + BaseColumns._ID };
@@ -165,7 +165,10 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
                 if (data == null) {
                     return false;
                 }
-                long artworkSourceId = data.getLong(0);
+                long artworkSourceId = -1;
+                if (data.moveToFirst()) {
+                    artworkSourceId = data.getLong(0);
+                }
                 data.close();
                 // The source id of the parent must match the artwork's source id for it to be a child
                 return sourceId == artworkSourceId;
