@@ -25,10 +25,12 @@ import android.content.ComponentName;
 import android.content.ContentProviderOperation;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -94,10 +96,12 @@ import static com.google.android.apps.muzei.gallery.GalleryArtSource.EXTRA_FORCE
 public class GallerySettingsActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = "GallerySettingsActivity";
+    private static final String SHARED_PREF_NAME = "GallerySettingsActivity";
+    private static final String SHOW_INTERNAL_STORAGE_MESSAGE = "show_internal_storage_message";
     private static final int REQUEST_CHOOSE_PHOTOS = 1;
-    private static final int REQUEST_STORAGE_PERMISSION = 2;
+    private static final int REQUEST_CHOOSE_FOLDER = 2;
+    private static final int REQUEST_STORAGE_PERMISSION = 3;
     private static final String STATE_SELECTION = "selection";
-
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(final ComponentName name, final IBinder service) {
@@ -264,6 +268,11 @@ public class GallerySettingsActivity extends AppCompatActivity
             public void onClick(final View v) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
                 startActivityForResult(intent, REQUEST_CHOOSE_PHOTOS);
+                SharedPreferences preferences = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+                if (preferences.getBoolean(SHOW_INTERNAL_STORAGE_MESSAGE, true)) {
+                    Toast.makeText(GallerySettingsActivity.this, R.string.gallery_internal_storage_message,
+                            Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
@@ -969,7 +978,7 @@ public class GallerySettingsActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
         super.onActivityResult(requestCode, resultCode, result);
-        if (requestCode != REQUEST_CHOOSE_PHOTOS) {
+        if (requestCode != REQUEST_CHOOSE_PHOTOS && requestCode != REQUEST_CHOOSE_FOLDER) {
             return;
         }
 
@@ -983,6 +992,11 @@ public class GallerySettingsActivity extends AppCompatActivity
 
         if (result == null) {
             return;
+        }
+
+        if (requestCode == REQUEST_CHOOSE_FOLDER) {
+            SharedPreferences preferences = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+            preferences.edit().putBoolean(SHOW_INTERNAL_STORAGE_MESSAGE, false).apply();
         }
 
         // Add chosen items
