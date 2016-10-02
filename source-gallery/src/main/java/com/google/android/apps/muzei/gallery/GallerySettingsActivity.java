@@ -125,6 +125,7 @@ public class GallerySettingsActivity extends AppCompatActivity
             = new MultiSelectionController<>(STATE_SELECTION);
 
     private ColorDrawable mPlaceholderDrawable;
+    private ColorDrawable mPlaceholderSmallDrawable;
 
     private static final SparseIntArray sRotateMenuIdsByMin = new SparseIntArray();
     private static final SparseIntArray sRotateMinsByMenuId = new SparseIntArray();
@@ -160,6 +161,8 @@ public class GallerySettingsActivity extends AppCompatActivity
                 mServiceConnection, BIND_AUTO_CREATE);
 
         mPlaceholderDrawable = new ColorDrawable(ContextCompat.getColor(this,
+                R.color.gallery_chosen_photo_placeholder));
+        mPlaceholderSmallDrawable = new ColorDrawable(ContextCompat.getColor(this,
                 R.color.gallery_chosen_photo_placeholder));
 
         mPhotoGridView = (RecyclerView) findViewById(R.id.photo_grid);
@@ -855,11 +858,11 @@ public class GallerySettingsActivity extends AppCompatActivity
                             .load(images.get(h))
                             .resize(mItemSize / 2, mItemSize / 2)
                             .centerCrop()
-                            .placeholder(mPlaceholderDrawable)
+                            .placeholder(mPlaceholderSmallDrawable)
                             .into(treeVh.mThumbViews.get(h));
                 }
                 for (int h=numImages; h<maxImages; h++) {
-                    treeVh.mThumbViews.get(h).setImageDrawable(mPlaceholderDrawable);
+                    treeVh.mThumbViews.get(h).setImageDrawable(mPlaceholderSmallDrawable);
                 }
             } else {
                 PhotoViewHolder photoVh = (PhotoViewHolder) vh;
