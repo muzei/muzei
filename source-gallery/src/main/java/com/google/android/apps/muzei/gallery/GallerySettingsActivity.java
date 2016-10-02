@@ -288,6 +288,7 @@ public class GallerySettingsActivity extends AppCompatActivity
         // (There's a separate 'Import photos' option which uses ACTION_GET_CONTENT to support legacy apps)
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.setType("image/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         startActivityForResult(intent, REQUEST_CHOOSE_PHOTOS);
     }
@@ -347,6 +348,7 @@ public class GallerySettingsActivity extends AppCompatActivity
         // 2 = show 'Import photos...' to have the user pick which app to import photos from
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
         List<ResolveInfo> getContentActivities = getPackageManager().queryIntentActivities(intent, 0);
         mGetContentActivites.clear();
         for (ResolveInfo info : getContentActivities) {
@@ -419,6 +421,7 @@ public class GallerySettingsActivity extends AppCompatActivity
     private void requestGetContent(ActivityInfo info) {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setClassName(info.packageName, info.name);
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         startActivityForResult(intent, REQUEST_CHOOSE_PHOTOS);
