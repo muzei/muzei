@@ -17,8 +17,11 @@
 ext {
     gradleClasspath = 'com.android.tools.build:gradle:2.2.0'
     compileSdkVersion = 24
-    buildToolsVersion = "24.0.1"
+    buildToolsVersion = "24.0.3"
     targetSdkVersion = 23
 
-    supportLibraryVersion = "24.2.0"
+    supportLibraryVersion = "24.2.1"
+    googlePlayServicesVersion = "9.6.1"
+    okhttpVersion = "3.4.1"
+    picassoVersion = "2.5.2"
 }
