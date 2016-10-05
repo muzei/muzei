@@ -243,7 +243,8 @@ public class MuzeiProvider extends ContentProvider {
                 return;
             }
             context.getContentResolver().notifyChange(uri, null);
-            if (MuzeiContract.Artwork.CONTENT_URI.equals(uri)) {
+            if (MuzeiProvider.uriMatcher.match(uri) == ARTWORK ||
+                    MuzeiProvider.uriMatcher.match(uri) == ARTWORK_ID) {
                 context.sendBroadcast(new Intent(MuzeiContract.Artwork.ACTION_ARTWORK_CHANGED));
             } else if (MuzeiProvider.uriMatcher.match(uri) == SOURCES ||
                     MuzeiProvider.uriMatcher.match(uri) == SOURCE_ID) {
