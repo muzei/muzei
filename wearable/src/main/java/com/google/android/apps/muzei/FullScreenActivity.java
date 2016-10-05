@@ -26,6 +26,7 @@ import android.content.Loader;
 import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -84,10 +85,12 @@ public class FullScreenActivity extends Activity implements LoaderManager.Loader
         mBylineView = (TextView) findViewById(R.id.byline);
         mBylineView.setTypeface(tf);
 
-        // Configure the DismissOverlayView element
         mDismissOverlay = (DismissOverlayView) findViewById(R.id.dismiss_overlay);
-        mDismissOverlay.setIntroText(R.string.dismiss_overlay_intro);
-        mDismissOverlay.showIntroIfNecessary();
+        // Only show the dismiss overlay on Wear 1.0 devices
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            mDismissOverlay.setIntroText(R.string.dismiss_overlay_intro);
+            mDismissOverlay.showIntroIfNecessary();
+        }
         mDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -108,7 +111,10 @@ public class FullScreenActivity extends Activity implements LoaderManager.Loader
                 if (mDismissOverlay.getVisibility() == View.VISIBLE) {
                     return;
                 }
-                mDismissOverlay.show();
+                // Only show the dismiss overlay on Wear 1.0 devices
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                    mDismissOverlay.show();
+                }
             }
         });
     }
