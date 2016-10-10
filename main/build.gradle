@@ -63,6 +63,25 @@ android {
         }
     }
 
+    splits {
+        abi {
+            enable true
+            reset()
+            include "armeabi-v7a", "arm64-v8a", "mips", "x86", "x86_64"
+            universalApk true
+        }
+    }
+
+    // For each APK output variant, add in the ABI specific versionCode
+    applicationVariants.all { variant ->
+        // assign different version code for each output
+        variant.outputs.each { output ->
+            int abiVersionCode = rootProject.ext.abiSplitVersionCodes.get(
+                    output.getFilter(com.android.build.OutputFile.ABI)) ?: 0
+            output.versionCodeOverride = abiVersionCode * rootProject.ext.abiSplitMultiplier + defaultConfig.versionCode
+        }
+    }
+
     productFlavors {
         dev {
             // dev utilizes minSDKVersion = 21 to allow the Android gradle plugin
