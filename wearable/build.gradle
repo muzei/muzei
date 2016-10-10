@@ -41,7 +41,7 @@ android {
         renderscriptSupportModeEnabled true
 
         versionName versionProps['name']
-        versionCode versionProps['code'].toInteger()
+        versionCode versionProps['codeWear'].toInteger()
     }
 
     signingConfigs {
