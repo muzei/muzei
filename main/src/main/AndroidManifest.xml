@@ -43,6 +43,15 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter android:label="Muzei">
++                <action android:name="android.intent.action.VIEW" />
++
++                <category android:name="android.intent.category.DEFAULT" />
++                <category android:name="android.intent.category.BROWSABLE" />
++                <!-- Accepts URIs that begin with "muzei://main" -->
++                <data
++                    android:host="main"
++                    android:scheme="muzei" />
         </activity>
 
         <service
@@ -76,6 +85,15 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.NOTIFICATION_PREFERENCES" />
             </intent-filter>
+            <intent-filter android:label="Muzei">
++                <action android:name="android.intent.action.VIEW" />
++
++                <category android:name="android.intent.category.DEFAULT" />
++                <category android:name="android.intent.category.BROWSABLE" />
++                <!-- Accepts URIs that begin with "muzei://settings" -->
++                <data
++                    android:host="settings"
++                    android:scheme="muzei" />
         </activity>
 
         <activity
