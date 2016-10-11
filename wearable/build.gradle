@@ -36,6 +36,7 @@ android {
     publishNonDefault true
 
     defaultConfig {
+        applicationId "net.nurik.roman.muzei"
         minSdkVersion 23
         targetSdkVersion rootProject.ext.targetSdkVersion
         renderscriptTargetApi rootProject.ext.targetSdkVersion

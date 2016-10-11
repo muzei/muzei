@@ -40,6 +40,7 @@ android {
     versionProps.load(new FileInputStream(file('../version.properties')))
 
     defaultConfig {
+        applicationId "net.nurik.roman.muzei"
         minSdkVersion 19
         targetSdkVersion rootProject.ext.targetSdkVersion
         renderscriptTargetApi rootProject.ext.targetSdkVersion
