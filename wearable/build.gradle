@@ -97,7 +97,7 @@ android {
 }
 
 dependencies {
-    compile "com.google.android.support:wearable:2.0.0-alpha2"
+    compile "com.google.android.support:wearable:2.0.0-alpha3"
     compile "com.google.android.gms:play-services-wearable:$rootProject.ext.googlePlayServicesVersion"
     compile "com.google.firebase:firebase-crash:$rootProject.ext.googlePlayServicesVersion"
     compile project(':android-client-common')

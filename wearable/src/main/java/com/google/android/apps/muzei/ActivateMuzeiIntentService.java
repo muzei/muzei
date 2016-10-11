@@ -61,6 +61,7 @@ public class ActivateMuzeiIntentService extends IntentService {
         builder.setSmallIcon(R.drawable.ic_stat_muzei)
                 .setColor(ContextCompat.getColor(context, R.color.notification))
                 .setPriority(Notification.PRIORITY_MAX)
+                .setDefaults(Notification.DEFAULT_VIBRATE)
                 .setAutoCancel(true)
                 .setContentTitle(context.getString(R.string.app_name))
                 .setContentText(context.getString(R.string.activate_notification_text));
