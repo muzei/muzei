@@ -71,11 +71,20 @@ android {
     }
 
     buildTypes {
+        debug {
+            versionNameSuffix " Debug"
+        }
+
         release {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), file('proguard-project.txt')
             signingConfig signingConfigs.release
+        }
+
+        publicBeta.initWith(buildTypes.release)
+        publicBeta {
+            versionNameSuffix " " + versionProps['betaNumber']
         }
     }
 
