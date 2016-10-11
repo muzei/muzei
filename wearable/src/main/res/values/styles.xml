@@ -15,10 +15,11 @@
   -->
 
 <resources>
-    <style name="BaseTheme" parent="android:Theme.DeviceDefault" />
-
-    <style name="FullScreenTheme" parent="BaseTheme">
+    <style name="FullScreenTheme" parent="android:Theme.DeviceDefault">
         <item name="android:windowSwipeToDismiss">false</item>
         <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:colorControlActivated">#3c6caf</item>
+        <item name="android:colorEdgeEffect">#fff</item>
+        <item name="android:progressBarStyleLarge">@android:style/Widget.Material.ProgressBar.Large</item>
     </style>
 </resources>

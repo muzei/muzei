@@ -36,10 +36,11 @@ android {
     publishNonDefault true
 
     defaultConfig {
-        minSdkVersion 20
+        minSdkVersion 23
         targetSdkVersion rootProject.ext.targetSdkVersion
         renderscriptTargetApi rootProject.ext.targetSdkVersion
         renderscriptSupportModeEnabled true
+        ndk.abiFilters 'armeabi-v7a', 'x86'
 
         versionName versionProps['name']
         versionCode versionProps['codeWear'].toInteger()
@@ -62,10 +63,7 @@ android {
 
     productFlavors {
         dev {
-            // dev utilizes minSDKVersion = 21 to allow the Android gradle plugin
-            // to pre-dex each module and produce an APK that can be tested on
-            // Android Lollipop without time consuming dex merging processes.
-            minSdkVersion 21
+            // Pre-dex each module and produce an APK to avoid the time consuming dex merging process
             multiDexEnabled true
         }
 
@@ -74,11 +72,20 @@ android {
     }
 
     buildTypes {
+        debug {
+            versionNameSuffix " Debug"
+        }
+
         release {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), file('proguard-project.txt')
             signingConfig signingConfigs.release
+        }
+
+        publicBeta.initWith(buildTypes.release)
+        publicBeta {
+            versionNameSuffix " " + versionProps['betaNumber']
         }
     }
 
