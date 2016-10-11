@@ -19,7 +19,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath rootProject.ext.gradleClasspath
+        classpath "com.android.tools.build:gradle:$rootProject.ext.toolsPluginVersion"
     }
 }
 

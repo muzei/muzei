@@ -19,8 +19,8 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath rootProject.ext.gradleClasspath
-        classpath 'com.google.gms:google-services:3.0.0'
+        classpath "com.android.tools.build:gradle:$rootProject.ext.toolsPluginVersion"
+        classpath "com.google.gms:google-services:$rootProject.ext.googleServicesPluginVersion"
     }
 }
 
