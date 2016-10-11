@@ -36,7 +36,7 @@ android {
     publishNonDefault true
 
     defaultConfig {
-        minSdkVersion 20
+        minSdkVersion 23
         targetSdkVersion rootProject.ext.targetSdkVersion
         renderscriptTargetApi rootProject.ext.targetSdkVersion
         renderscriptSupportModeEnabled true
@@ -62,10 +62,7 @@ android {
 
     productFlavors {
         dev {
-            // dev utilizes minSDKVersion = 21 to allow the Android gradle plugin
-            // to pre-dex each module and produce an APK that can be tested on
-            // Android Lollipop without time consuming dex merging processes.
-            minSdkVersion 21
+            // Pre-dex each module and produce an APK to avoid the time consuming dex merging process
             multiDexEnabled true
         }
 
