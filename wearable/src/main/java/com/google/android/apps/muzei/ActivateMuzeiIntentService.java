@@ -31,6 +31,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.wearable.activity.ConfirmationActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -86,7 +87,6 @@ public class ActivateMuzeiIntentService extends IntentService {
         NotificationManager notificationManager = (NotificationManager)
                 context.getSystemService(NOTIFICATION_SERVICE);
         notificationManager.notify(NOTIFICATION_ID, builder.build());
-        preferences.edit().putBoolean(ACTIVATE_MUZEI_NOTIF_SHOWN_PREF_KEY, true).apply();
     }
 
     public ActivateMuzeiIntentService() {
@@ -95,12 +95,10 @@ public class ActivateMuzeiIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String action = intent.getAction();
         if (TextUtils.equals(action, ACTION_MARK_NOTIFICATION_READ)) {
-            // Clear the notification
-            NotificationManager notificationManager = (NotificationManager)
-                    getSystemService(NOTIFICATION_SERVICE);
-            notificationManager.cancel(NOTIFICATION_ID);
+            preferences.edit().putBoolean(ACTIVATE_MUZEI_NOTIF_SHOWN_PREF_KEY, true).apply();
             return;
         }
         // else -> Open on Phone action
@@ -111,12 +109,15 @@ public class ActivateMuzeiIntentService extends IntentService {
                 googleApiClient.blockingConnect(30, TimeUnit.SECONDS);
         if (!connectionResult.isSuccess()) {
             Log.e(TAG, "Failed to connect to GoogleApiClient.");
+            Toast.makeText(this, R.string.activate_failed, Toast.LENGTH_SHORT).show();
             return;
         }
         Set<Node> nodes =  Wearable.CapabilityApi.getCapability(googleApiClient, "activate_muzei",
                 CapabilityApi.FILTER_REACHABLE).await()
                 .getCapability().getNodes();
-        if (!nodes.isEmpty()) {
+        if (nodes.isEmpty()) {
+            Toast.makeText(this, R.string.activate_failed, Toast.LENGTH_SHORT).show();
+        } else {
             // Show the open on phone animation
             Intent openOnPhoneIntent = new Intent(this, ConfirmationActivity.class);
             openOnPhoneIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -127,6 +128,7 @@ public class ActivateMuzeiIntentService extends IntentService {
             NotificationManager notificationManager = (NotificationManager)
                     getSystemService(NOTIFICATION_SERVICE);
             notificationManager.cancel(NOTIFICATION_ID);
+            preferences.edit().putBoolean(ACTIVATE_MUZEI_NOTIF_SHOWN_PREF_KEY, true).apply();
             // Send the message to the phone to open Muzei
             for (Node node : nodes) {
                 Wearable.MessageApi.sendMessage(googleApiClient, node.getId(),
