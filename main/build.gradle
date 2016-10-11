@@ -20,6 +20,7 @@ buildscript {
     }
     dependencies {
         classpath rootProject.ext.gradleClasspath
+        classpath 'com.google.gms:google-services:3.0.0'
     }
 }
 
@@ -136,6 +137,7 @@ dependencies {
     compile "com.squareup.okhttp3:okhttp:$rootProject.ext.okhttpVersion"
     compile "com.squareup.picasso:picasso:$rootProject.ext.picassoVersion"
     compile "com.google.android.gms:play-services-wearable:$rootProject.ext.googlePlayServicesVersion"
+    compile "com.google.firebase:firebase-crash:$rootProject.ext.googlePlayServicesVersion"
     compile "org.greenrobot:eventbus:3.0.0"
     compile "com.android.support:appcompat-v7:$rootProject.ext.supportLibraryVersion"
     compile "com.android.support:recyclerview-v7:$rootProject.ext.supportLibraryVersion"
@@ -150,3 +152,5 @@ dependencies {
     devWearApp project(path: ':wearable', configuration: 'devRelease')
     prodWearApp project(path: ':wearable', configuration: 'prodRelease')
 }
+
+apply plugin: 'com.google.gms.google-services'

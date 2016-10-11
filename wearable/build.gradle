@@ -20,6 +20,7 @@ buildscript {
     }
     dependencies {
         classpath rootProject.ext.gradleClasspath
+        classpath 'com.google.gms:google-services:3.0.0'
     }
 }
 
@@ -89,6 +90,9 @@ android {
 
 dependencies {
     compile "com.google.android.support:wearable:2.0.0-alpha2"
-    compile "com.google.android.gms:play-services-wearable:8.4.0"
+    compile "com.google.android.gms:play-services-wearable:$rootProject.ext.googlePlayServicesVersion"
+    compile "com.google.firebase:firebase-crash:$rootProject.ext.googlePlayServicesVersion"
     compile project(':android-client-common')
 }
+
+apply plugin: 'com.google.gms.google-services'
