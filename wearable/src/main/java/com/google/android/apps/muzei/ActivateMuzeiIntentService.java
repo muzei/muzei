@@ -25,7 +25,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Icon;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 import android.support.wearable.activity.ConfirmationActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -55,7 +57,8 @@ public class ActivateMuzeiIntentService extends IntentService {
             return;
         }
         Notification.Builder builder = new Notification.Builder(context);
-        builder.setSmallIcon(R.mipmap.ic_launcher)
+        builder.setSmallIcon(R.drawable.ic_stat_muzei)
+                .setColor(ContextCompat.getColor(context, R.color.notification))
                 .setPriority(Notification.PRIORITY_MAX)
                 .setAutoCancel(true)
                 .setContentTitle(context.getString(R.string.app_name))
@@ -65,7 +68,8 @@ public class ActivateMuzeiIntentService extends IntentService {
         builder.setDeleteIntent(PendingIntent.getService(context, 0, deleteIntent, 0));
         Intent launchMuzeiIntent = new Intent(context, ActivateMuzeiIntentService.class);
         PendingIntent pendingIntent = PendingIntent.getService(context, 0, launchMuzeiIntent, 0);
-        builder.addAction(new Notification.Action.Builder(R.drawable.ic_open_on_phone,
+        builder.addAction(new Notification.Action.Builder(
+                Icon.createWithResource(context, R.drawable.open_on_phone),
                 context.getString(R.string.common_open_on_phone), pendingIntent)
                 .extend(new Notification.Action.WearableExtender()
                         .setAvailableOffline(false))
