@@ -106,17 +106,12 @@ public class GalleryArtSource extends MuzeiArtSource {
                 }
 
                 // See if the current artwork was removed
-                Cursor data = getContentResolver().query(GalleryContract.ChosenPhotos.CONTENT_URI,
-                        new String[] { BaseColumns._ID },
-                        GalleryContract.ChosenPhotos.COLUMN_NAME_URI + "=?",
-                        new String[] { currentArtwork.getToken() },
-                        null);
-                if (data == null || !data.moveToFirst()) {
+                Uri currentArtworkUri = currentArtwork.getToken() != null
+                        ? Uri.parse(currentArtwork.getToken())
+                        : null;
+                if (uri.equals(currentArtworkUri)) {
                     // We're showing a removed URI
                     publishNextArtwork(null);
-                }
-                if (data != null) {
-                    data.close();
                 }
             }
         };
