@@ -29,6 +29,7 @@ import android.graphics.drawable.Icon;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.wearable.activity.ConfirmationActivity;
+import android.support.wearable.playstore.PlayStoreAvailability;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -43,6 +44,7 @@ import net.nurik.roman.muzei.R;
 
 import java.io.IOException;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
 public class ActivateMuzeiIntentService extends IntentService {
@@ -57,17 +59,44 @@ public class ActivateMuzeiIntentService extends IntentService {
         if (preferences.getBoolean(ACTIVATE_MUZEI_NOTIF_SHOWN_PREF_KEY, false)) {
             return;
         }
+        NotificationManager notificationManager = (NotificationManager)
+                context.getSystemService(NOTIFICATION_SERVICE);
         Notification.Builder builder = new Notification.Builder(context);
         builder.setSmallIcon(R.drawable.ic_stat_muzei)
                 .setColor(ContextCompat.getColor(context, R.color.notification))
                 .setPriority(Notification.PRIORITY_MAX)
                 .setDefaults(Notification.DEFAULT_VIBRATE)
                 .setAutoCancel(true)
-                .setContentTitle(context.getString(R.string.app_name))
-                .setContentText(context.getString(R.string.activate_notification_text));
+                .setContentTitle(context.getString(R.string.activate_title));
         Intent deleteIntent = new Intent(context, ActivateMuzeiIntentService.class);
         deleteIntent.setAction(ACTION_MARK_NOTIFICATION_READ);
         builder.setDeleteIntent(PendingIntent.getService(context, 0, deleteIntent, 0));
+        // Check if the Muzei main app is installed
+        GoogleApiClient googleApiClient = new GoogleApiClient.Builder(context)
+                .addApi(Wearable.API)
+                .build();
+        ConnectionResult connectionResult =
+                googleApiClient.blockingConnect(30, TimeUnit.SECONDS);
+        Set<Node> nodes = new TreeSet<>();
+        if (connectionResult.isSuccess()) {
+            nodes =  Wearable.CapabilityApi.getCapability(googleApiClient, "activate_muzei",
+                CapabilityApi.FILTER_ALL).await()
+                .getCapability().getNodes();
+            googleApiClient.disconnect();
+        }
+        if (nodes.isEmpty()) {
+            // Send an install Muzei notification
+            if (PlayStoreAvailability.getPlayStoreAvailabilityOnPhone(context)
+                    != PlayStoreAvailability.PLAY_STORE_ON_PHONE_AVAILABLE) {
+                builder.setContentText(context.getString(R.string.activate_no_play_store));
+            } else {
+                builder.setContentText(context.getString(R.string.activate_install_muzei));
+            }
+            notificationManager.notify(NOTIFICATION_ID, builder.build());
+            return;
+        }
+        // else, Muzei is installed on the phone/tablet, but not activated
+        builder.setContentText(context.getString(R.string.activate_enable_muzei));
         Intent launchMuzeiIntent = new Intent(context, ActivateMuzeiIntentService.class);
         PendingIntent pendingIntent = PendingIntent.getService(context, 0, launchMuzeiIntent, 0);
         builder.addAction(new Notification.Action.Builder(
@@ -85,8 +114,6 @@ public class ActivateMuzeiIntentService extends IntentService {
         builder.extend(new Notification.WearableExtender()
                 .setContentAction(0)
                 .setBackground(background));
-        NotificationManager notificationManager = (NotificationManager)
-                context.getSystemService(NOTIFICATION_SERVICE);
         notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
