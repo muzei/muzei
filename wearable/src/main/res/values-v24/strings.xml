@@ -16,5 +16,5 @@
 
 <resources>
     <string name="activate_title">Limited functionality</string>
-    <string name="activate_enable_muzei">Sync your background by activating Muzei on your connected device.</string>
+    <string name="activate_enable_muzei">Sync your background by activating Muzei on %s.</string>
 </resources>

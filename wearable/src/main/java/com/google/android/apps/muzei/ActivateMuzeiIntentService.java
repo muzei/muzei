@@ -17,7 +17,6 @@
 package com.google.android.apps.muzei;
 
 import android.app.IntentService;
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -25,8 +24,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Icon;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.wearable.activity.ConfirmationActivity;
 import android.support.wearable.playstore.PlayStoreAvailability;
@@ -61,11 +60,11 @@ public class ActivateMuzeiIntentService extends IntentService {
         }
         NotificationManager notificationManager = (NotificationManager)
                 context.getSystemService(NOTIFICATION_SERVICE);
-        Notification.Builder builder = new Notification.Builder(context);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
         builder.setSmallIcon(R.drawable.ic_stat_muzei)
                 .setColor(ContextCompat.getColor(context, R.color.notification))
-                .setPriority(Notification.PRIORITY_MAX)
-                .setDefaults(Notification.DEFAULT_VIBRATE)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setDefaults(NotificationCompat.DEFAULT_VIBRATE)
                 .setAutoCancel(true)
                 .setContentTitle(context.getString(R.string.activate_title));
         Intent deleteIntent = new Intent(context, ActivateMuzeiIntentService.class);
@@ -96,13 +95,14 @@ public class ActivateMuzeiIntentService extends IntentService {
             return;
         }
         // else, Muzei is installed on the phone/tablet, but not activated
-        builder.setContentText(context.getString(R.string.activate_enable_muzei));
+        String nodeName = nodes.iterator().next().getDisplayName();
+        builder.setContentText(context.getString(R.string.activate_enable_muzei, nodeName));
         Intent launchMuzeiIntent = new Intent(context, ActivateMuzeiIntentService.class);
         PendingIntent pendingIntent = PendingIntent.getService(context, 0, launchMuzeiIntent, 0);
-        builder.addAction(new Notification.Action.Builder(
-                Icon.createWithResource(context, R.drawable.open_on_phone),
-                context.getString(R.string.common_open_on_phone), pendingIntent)
-                .extend(new Notification.Action.WearableExtender()
+        builder.addAction(new NotificationCompat.Action.Builder(R.drawable.open_on_phone,
+                context.getString(R.string.activate_action, nodeName), pendingIntent)
+                .extend(new NotificationCompat.Action.WearableExtender()
+                        .setHintDisplayActionInline(true)
                         .setAvailableOffline(false))
                 .build());
         Bitmap background = null;
@@ -111,7 +111,7 @@ public class ActivateMuzeiIntentService extends IntentService {
         } catch (IOException e) {
             Log.e(TAG, "Error reading default background asset", e);
         }
-        builder.extend(new Notification.WearableExtender()
+        builder.extend(new NotificationCompat.WearableExtender()
                 .setContentAction(0)
                 .setBackground(background));
         notificationManager.notify(NOTIFICATION_ID, builder.build());
