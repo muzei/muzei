@@ -85,10 +85,10 @@ public class ArtworkCacheIntentService extends IntentService {
             // Enable the Full Screen Activity only if we've found artwork
             enableComponents(FullScreenActivity.class);
         }
-        //if (!foundArtwork && intent != null &&
-        //        intent.getBooleanExtra(SHOW_ACTIVATE_NOTIFICATION_EXTRA, false)) {
+        if (!foundArtwork && intent != null &&
+                intent.getBooleanExtra(SHOW_ACTIVATE_NOTIFICATION_EXTRA, false)) {
             ActivateMuzeiIntentService.maybeShowActivateMuzeiNotification(this);
-        //}
+        }
         googleApiClient.disconnect();
     }
 
