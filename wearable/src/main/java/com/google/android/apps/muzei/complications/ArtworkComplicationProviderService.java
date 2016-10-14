@@ -26,6 +26,7 @@ import android.support.wearable.complications.ComplicationManager;
 import android.support.wearable.complications.ComplicationProviderService;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.util.Set;
 import java.util.TreeSet;
@@ -40,6 +41,7 @@ public class ArtworkComplicationProviderService extends ComplicationProviderServ
     @Override
     public void onComplicationActivated(int complicationId, int type, ComplicationManager manager) {
         addComplication(complicationId);
+        FirebaseAnalytics.getInstance(this).logEvent("complication_artwork_activated", null);
     }
 
     private void addComplication(int complicationId) {
@@ -54,6 +56,7 @@ public class ArtworkComplicationProviderService extends ComplicationProviderServ
 
     @Override
     public void onComplicationDeactivated(int complicationId) {
+        FirebaseAnalytics.getInstance(this).logEvent("complication_artwork_deactivated", null);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         Set<String> complications = preferences.getStringSet(KEY_COMPLICATION_IDS, new TreeSet<String>());
         complications.remove(Integer.toString(complicationId));
