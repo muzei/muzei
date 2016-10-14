@@ -697,6 +697,7 @@ public class MuzeiActivity extends AppCompatActivity {
 
                 switch (menuItem.getItemId()) {
                     case R.id.action_settings:
+                        FirebaseAnalytics.getInstance(MuzeiActivity.this).logEvent("settings_open", null);
                         startActivity(new Intent(MuzeiActivity.this, SettingsActivity.class));
                         return true;
                 }
