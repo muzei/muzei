@@ -44,6 +44,7 @@ import android.widget.Toast;
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiRendererFragment;
 import com.google.android.apps.muzei.util.DrawInsetsFrameLayout;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.R;
 
@@ -93,6 +94,7 @@ public class SettingsActivity extends AppCompatActivity
 
         if (getIntent() != null && getIntent().getCategories() != null &&
                 getIntent().getCategories().contains(Notification.INTENT_CATEGORY_NOTIFICATION_PREFERENCES)) {
+            FirebaseAnalytics.getInstance(this).logEvent("notification_preferences_open", null);
             mStartSection = START_SECTION_ADVANCED;
         }
 
@@ -222,6 +224,7 @@ public class SettingsActivity extends AppCompatActivity
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.action_get_more_sources:
+                        FirebaseAnalytics.getInstance(SettingsActivity.this).logEvent("more_sources_open", null);
                         try {
                             Intent playStoreIntent = new Intent(Intent.ACTION_VIEW,
                                     Uri.parse("http://play.google.com/store/search?q=Muzei&c=apps"))
@@ -236,6 +239,7 @@ public class SettingsActivity extends AppCompatActivity
                         return true;
 
                     case R.id.action_about:
+                        FirebaseAnalytics.getInstance(SettingsActivity.this).logEvent("about_open", null);
                         startActivity(new Intent(SettingsActivity.this, AboutActivity.class));
                         return true;
                 }

@@ -35,6 +35,7 @@ import com.google.android.apps.muzei.SourceManager;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.R;
 
@@ -50,6 +51,11 @@ import org.greenrobot.eventbus.Subscribe;
 public class NextArtworkTileService extends TileService {
     private ContentObserver mSourceContentObserver;
     private boolean mWallpaperActive = false;
+
+    @Override
+    public void onTileAdded() {
+        FirebaseAnalytics.getInstance(this).logEvent("tile_next_artwork_added", null);
+    }
 
     @Override
     public void onStartListening() {
@@ -116,6 +122,8 @@ public class NextArtworkTileService extends TileService {
     @Override
     public void onClick() {
         if (getQsTile().getState() == Tile.STATE_ACTIVE) {
+            FirebaseAnalytics.getInstance(NextArtworkTileService.this).logEvent(
+                    "tile_next_artwork_click", null);
             // Active means we send the 'Next Artwork' command
             SourceManager.getInstance(this).sendAction(MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK);
         } else {
@@ -123,6 +131,8 @@ public class NextArtworkTileService extends TileService {
             unlockAndRun(new Runnable() {
                 @Override
                 public void run() {
+                    FirebaseAnalytics.getInstance(NextArtworkTileService.this).logEvent(
+                            "tile_next_artwork_activate", null);
                     try {
                         startActivityAndCollapse(new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
                                 .putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
@@ -147,5 +157,10 @@ public class NextArtworkTileService extends TileService {
     public void onStopListening() {
         EventBus.getDefault().unregister(this);
         getContentResolver().unregisterContentObserver(mSourceContentObserver);
+    }
+
+    @Override
+    public void onTileRemoved() {
+        FirebaseAnalytics.getInstance(this).logEvent("tile_next_artwork_removed", null);
     }
 }

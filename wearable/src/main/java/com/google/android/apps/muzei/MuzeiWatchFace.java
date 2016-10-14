@@ -45,7 +45,9 @@ import android.view.WindowInsets;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.util.ImageBlurrer;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
+import net.nurik.roman.muzei.BuildConfig;
 import net.nurik.roman.muzei.R;
 
 import java.io.FileNotFoundException;
@@ -79,6 +81,12 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
      * Update rate in milliseconds for mute mode. We update every minute, like in ambient mode.
      */
     private static final long MUTE_UPDATE_RATE_MS = TimeUnit.MINUTES.toMillis(1);
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE);
+    }
 
     @Override
     public Engine onCreateEngine() {
@@ -201,10 +209,8 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
 
         @Override
         public void onCreate(SurfaceHolder holder) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onCreate");
-            }
             super.onCreate(holder);
+            FirebaseAnalytics.getInstance(MuzeiWatchFace.this).logEvent("watchface_created", null);
 
             mMute = getInterruptionFilter() == WatchFaceService.INTERRUPTION_FILTER_NONE;
             SharedPreferences preferences =
@@ -292,6 +298,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
 
         @Override
         public void onDestroy() {
+            FirebaseAnalytics.getInstance(MuzeiWatchFace.this).logEvent("watchface_destroyed", null);
             mUpdateTimeHandler.removeMessages(MSG_UPDATE_TIME);
             super.onDestroy();
         }

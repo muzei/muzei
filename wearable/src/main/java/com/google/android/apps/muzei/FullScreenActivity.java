@@ -41,7 +41,9 @@ import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.util.PanView;
 import com.google.android.apps.muzei.util.TypefaceUtil;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
+import net.nurik.roman.muzei.BuildConfig;
 import net.nurik.roman.muzei.R;
 
 import java.io.FileNotFoundException;
@@ -66,6 +68,7 @@ public class FullScreenActivity extends Activity implements LoaderManager.Loader
     public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         setContentView(R.layout.full_screen_activity);
+        FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE);
         mPanView = (PanView) findViewById(R.id.pan_view);
         getLoaderManager().initLoader(0, null, this);
 

@@ -48,6 +48,8 @@ android {
 
         versionName versionProps['name']
         versionCode versionProps['code'].toInteger()
+
+        buildConfigField "String", "DEVICE_TYPE", "\"android\""
     }
 
     signingConfigs {

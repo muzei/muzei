@@ -38,6 +38,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.CapabilityApi;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.Wearable;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.R;
 
@@ -88,8 +89,10 @@ public class ActivateMuzeiIntentService extends IntentService {
             if (PlayStoreAvailability.getPlayStoreAvailabilityOnPhone(context)
                     != PlayStoreAvailability.PLAY_STORE_ON_PHONE_AVAILABLE) {
                 builder.setContentText(context.getString(R.string.activate_no_play_store));
+                FirebaseAnalytics.getInstance(context).logEvent("activate_notif_no_play_store", null);
             } else {
                 builder.setContentText(context.getString(R.string.activate_install_muzei));
+                FirebaseAnalytics.getInstance(context).logEvent("activate_notif_play_store", null);
             }
             notificationManager.notify(NOTIFICATION_ID, builder.build());
             return;
@@ -114,6 +117,7 @@ public class ActivateMuzeiIntentService extends IntentService {
         builder.extend(new NotificationCompat.WearableExtender()
                 .setContentAction(0)
                 .setBackground(background));
+        FirebaseAnalytics.getInstance(context).logEvent("activate_notif_installed", null);
         notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
@@ -146,6 +150,7 @@ public class ActivateMuzeiIntentService extends IntentService {
         if (nodes.isEmpty()) {
             Toast.makeText(this, R.string.activate_failed, Toast.LENGTH_SHORT).show();
         } else {
+            FirebaseAnalytics.getInstance(this).logEvent("activate_notif_message_sent", null);
             // Show the open on phone animation
             Intent openOnPhoneIntent = new Intent(this, ConfirmationActivity.class);
             openOnPhoneIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

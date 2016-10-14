@@ -20,6 +20,10 @@
 
     <uses-feature android:name="android.hardware.type.watch"/>
 
+    <!-- Used by Firebase Analytics -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
     <!-- Required to act as a custom watch face. -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
