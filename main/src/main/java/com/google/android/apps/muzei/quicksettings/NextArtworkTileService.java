@@ -35,6 +35,7 @@ import com.google.android.apps.muzei.SourceManager;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.R;
 
@@ -123,6 +124,7 @@ public class NextArtworkTileService extends TileService {
             unlockAndRun(new Runnable() {
                 @Override
                 public void run() {
+                    FirebaseAnalytics.getInstance(NextArtworkTileService.this).logEvent("activate_tile", null);
                     try {
                         startActivityAndCollapse(new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
                                 .putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,

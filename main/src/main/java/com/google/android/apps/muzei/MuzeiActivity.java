@@ -76,6 +76,7 @@ import com.google.android.apps.muzei.util.DrawInsetsFrameLayout;
 import com.google.android.apps.muzei.util.PanScaleProxyView;
 import com.google.android.apps.muzei.util.ScrimUtil;
 import com.google.android.apps.muzei.util.TypefaceUtil;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.R;
 
@@ -322,6 +323,7 @@ public class MuzeiActivity extends AppCompatActivity {
         findViewById(R.id.activate_muzei_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                FirebaseAnalytics.getInstance(MuzeiActivity.this).logEvent("activate", null);
                 try {
                     startActivity(new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
                             .putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
@@ -418,6 +420,7 @@ public class MuzeiActivity extends AppCompatActivity {
 
         // Special work
         if (newUiMode == UI_MODE_INTRO) {
+            FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.TUTORIAL_BEGIN, null);
             final View activateButton = findViewById(R.id.activate_muzei_button);
             activateButton.setAlpha(0);
             final AnimatedMuzeiLogoFragment logoFragment = (AnimatedMuzeiLogoFragment)
@@ -511,6 +514,10 @@ public class MuzeiActivity extends AppCompatActivity {
                 });
             }
             set.start();
+        }
+
+        if (newUiMode == UI_MODE_ART_DETAIL) {
+            FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.TUTORIAL_COMPLETE, null);
         }
 
         mPanScaleProxyView.setVisibility(newUiMode == UI_MODE_ART_DETAIL
