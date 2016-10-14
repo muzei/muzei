@@ -209,10 +209,8 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
 
         @Override
         public void onCreate(SurfaceHolder holder) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onCreate");
-            }
             super.onCreate(holder);
+            FirebaseAnalytics.getInstance(MuzeiWatchFace.this).logEvent("watchface_created", null);
 
             mMute = getInterruptionFilter() == WatchFaceService.INTERRUPTION_FILTER_NONE;
             SharedPreferences preferences =
@@ -300,6 +298,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
 
         @Override
         public void onDestroy() {
+            FirebaseAnalytics.getInstance(MuzeiWatchFace.this).logEvent("watchface_destroyed", null);
             mUpdateTimeHandler.removeMessages(MSG_UPDATE_TIME);
             super.onDestroy();
         }

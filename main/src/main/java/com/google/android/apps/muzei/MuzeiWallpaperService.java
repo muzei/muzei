@@ -153,6 +153,7 @@ public class MuzeiWallpaperService extends GLWallpaperService {
 
             mGestureDetector = new GestureDetector(MuzeiWallpaperService.this, mGestureListener);
             if (!isPreview()) {
+                FirebaseAnalytics.getInstance(MuzeiWallpaperService.this).logEvent("wallpaper_created", null);
                 EventBus.getDefault().postSticky(new WallpaperActiveStateChangedEvent(true));
             }
             setTouchEventsEnabled(true);
@@ -174,6 +175,7 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             super.onDestroy();
             EventBus.getDefault().unregister(this);
             if (!isPreview()) {
+                FirebaseAnalytics.getInstance(MuzeiWallpaperService.this).logEvent("wallpaper_destroyed", null);
                 EventBus.getDefault().postSticky(new WallpaperActiveStateChangedEvent(false));
             }
             queueEvent(new Runnable() {

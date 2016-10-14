@@ -53,6 +53,11 @@ public class NextArtworkTileService extends TileService {
     private boolean mWallpaperActive = false;
 
     @Override
+    public void onTileAdded() {
+        FirebaseAnalytics.getInstance(this).logEvent("tile_next_artwork_added", null);
+    }
+
+    @Override
     public void onStartListening() {
         // Start listening for source changes, which will include when a source
         // starts or stops supporting the 'Next Artwork' command
@@ -149,5 +154,10 @@ public class NextArtworkTileService extends TileService {
     public void onStopListening() {
         EventBus.getDefault().unregister(this);
         getContentResolver().unregisterContentObserver(mSourceContentObserver);
+    }
+
+    @Override
+    public void onTileRemoved() {
+        FirebaseAnalytics.getInstance(this).logEvent("tile_next_artwork_removed", null);
     }
 }
