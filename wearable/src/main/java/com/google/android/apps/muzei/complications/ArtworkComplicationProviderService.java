@@ -28,6 +28,8 @@ import android.support.wearable.complications.ComplicationProviderService;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
+import net.nurik.roman.muzei.BuildConfig;
+
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -37,6 +39,12 @@ import java.util.TreeSet;
 @TargetApi(Build.VERSION_CODES.N)
 public class ArtworkComplicationProviderService extends ComplicationProviderService {
     static String KEY_COMPLICATION_IDS = "complication_ids";
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE);
+    }
 
     @Override
     public void onComplicationActivated(int complicationId, int type, ComplicationManager manager) {

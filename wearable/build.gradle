@@ -45,6 +45,8 @@ android {
 
         versionName versionProps['name']
         versionCode versionProps['codeWear'].toInteger()
+
+        buildConfigField "String", "DEVICE_TYPE", "\"wear\""
     }
 
     signingConfigs {

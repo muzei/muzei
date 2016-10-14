@@ -45,7 +45,9 @@ import android.view.WindowInsets;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.util.ImageBlurrer;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
+import net.nurik.roman.muzei.BuildConfig;
 import net.nurik.roman.muzei.R;
 
 import java.io.FileNotFoundException;
@@ -79,6 +81,12 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
      * Update rate in milliseconds for mute mode. We update every minute, like in ambient mode.
      */
     private static final long MUTE_UPDATE_RATE_MS = TimeUnit.MINUTES.toMillis(1);
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE);
+    }
 
     @Override
     public Engine onCreateEngine() {

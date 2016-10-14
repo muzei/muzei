@@ -41,7 +41,9 @@ import com.google.android.apps.muzei.render.RealRenderController;
 import com.google.android.apps.muzei.render.RenderController;
 import com.google.android.apps.muzei.sync.TaskQueueService;
 import com.google.android.apps.muzei.wearable.WearableController;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
+import net.nurik.roman.muzei.BuildConfig;
 import net.rbgrn.android.glwallpaperservice.GLWallpaperService;
 
 import org.greenrobot.eventbus.EventBus;
@@ -63,6 +65,7 @@ public class MuzeiWallpaperService extends GLWallpaperService {
     @Override
     public void onCreate() {
         super.onCreate();
+        FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE);
         mLockScreenVisibleReceiver = new LockScreenVisibleReceiver();
         mLockScreenVisibleReceiver.setupRegisterDeregister(this);
         SourceManager.getInstance(MuzeiWallpaperService.this).subscribeToSelectedSource();

@@ -78,6 +78,7 @@ import com.google.android.apps.muzei.util.ScrimUtil;
 import com.google.android.apps.muzei.util.TypefaceUtil;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
+import net.nurik.roman.muzei.BuildConfig;
 import net.nurik.roman.muzei.R;
 
 import java.util.List;
@@ -259,6 +260,7 @@ public class MuzeiActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.muzei_activity);
+        FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE);
 
         mContainerView = (DrawInsetsFrameLayout) findViewById(R.id.container);
 
