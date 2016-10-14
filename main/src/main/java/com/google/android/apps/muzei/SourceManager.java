@@ -41,6 +41,7 @@ import com.google.android.apps.muzei.featuredart.FeaturedArtSource;
 import com.google.android.apps.muzei.sync.TaskQueueService;
 import com.google.android.apps.muzei.wearable.WearableController;
 import com.google.android.apps.muzei.wearable.WearableSourceUpdateService;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.BuildConfig;
 
@@ -68,7 +69,7 @@ public class SourceManager {
     private static final String PREF_SELECTED_SOURCE = "selected_source";
     private static final String PREF_SELECTED_SOURCE_TOKEN = "selected_source_token";
     private static final String PREF_SOURCE_STATES = "source_states";
-
+    private static final String USER_PROPERTY_SELECTED_SOURCE = "selected_source";
     private Context mApplicationContext;
     private ComponentName mSubscriberComponentName;
     private SharedPreferences mSharedPrefs;
@@ -159,6 +160,8 @@ public class SourceManager {
         try {
             mContentResolver.applyBatch(MuzeiContract.AUTHORITY, operations);
             mSharedPrefs.edit().remove(PREF_SELECTED_SOURCE).remove(PREF_SOURCE_STATES).apply();
+            FirebaseAnalytics.getInstance(mApplicationContext).setUserProperty(USER_PROPERTY_SELECTED_SOURCE,
+                    selectedSource.flattenToShortString());
             mApplicationContext.startService(
                     new Intent(mApplicationContext, WearableSourceUpdateService.class));
         } catch (RemoteException | OperationApplicationException e) {
@@ -217,6 +220,8 @@ public class SourceManager {
                         .putString(PREF_SELECTED_SOURCE, source.flattenToShortString())
                         .putString(PREF_SELECTED_SOURCE_TOKEN, mSelectedSourceToken)
                         .apply();
+                FirebaseAnalytics.getInstance(mApplicationContext).setUserProperty(USER_PROPERTY_SELECTED_SOURCE,
+                        source.flattenToShortString());
                 mApplicationContext.startService(
                         new Intent(mApplicationContext, WearableSourceUpdateService.class));
             } catch (RemoteException | OperationApplicationException e) {
