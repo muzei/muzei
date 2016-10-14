@@ -122,6 +122,8 @@ public class NextArtworkTileService extends TileService {
     @Override
     public void onClick() {
         if (getQsTile().getState() == Tile.STATE_ACTIVE) {
+            FirebaseAnalytics.getInstance(NextArtworkTileService.this).logEvent(
+                    "tile_next_artwork_click", null);
             // Active means we send the 'Next Artwork' command
             SourceManager.getInstance(this).sendAction(MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK);
         } else {
@@ -129,7 +131,8 @@ public class NextArtworkTileService extends TileService {
             unlockAndRun(new Runnable() {
                 @Override
                 public void run() {
-                    FirebaseAnalytics.getInstance(NextArtworkTileService.this).logEvent("activate_tile", null);
+                    FirebaseAnalytics.getInstance(NextArtworkTileService.this).logEvent(
+                            "tile_next_artwork_activate", null);
                     try {
                         startActivityAndCollapse(new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
                                 .putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
