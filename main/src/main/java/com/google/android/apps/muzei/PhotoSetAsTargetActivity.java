@@ -25,9 +25,7 @@ import android.os.Bundle;
 
 import com.google.android.apps.muzei.gallery.GalleryArtSource;
 import com.google.android.apps.muzei.gallery.GalleryContract;
-
-import java.util.ArrayList;
-import java.util.Arrays;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 public class PhotoSetAsTargetActivity extends Activity {
     @Override
@@ -41,6 +39,11 @@ public class PhotoSetAsTargetActivity extends Activity {
         Uri photoUri = getIntent().getData();
 
         // Select the gallery source
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID,
+                new ComponentName(this, GalleryArtSource.class).flattenToShortString());
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sources");
+        FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
         SourceManager sourceManager = SourceManager.getInstance(this);
         sourceManager.selectSource(new ComponentName(this, GalleryArtSource.class));
 
