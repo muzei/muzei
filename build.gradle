@@ -27,5 +27,5 @@ ext {
     picassoVersion = "2.5.2"
 
     abiSplitMultiplier = 10000
-    abiSplitVersionCodes = ['armeabi-v7a':1, 'arm64-v8a':2, 'mips':3, 'x86':4, 'x86_64':5]
+    abiSplitVersionCodes = ['armeabi-v7a':1, 'arm64-v8a':2]
 }
