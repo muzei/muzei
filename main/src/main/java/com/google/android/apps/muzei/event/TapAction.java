@@ -27,11 +27,10 @@ public final class TapAction
     }
 
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({NOTHING, SHOW_ORIGINAL_ARTWORK, NEXT_ARTWORK, VIEW_ARTWORK})
+    @IntDef({NOTHING, SHOW_ORIGINAL_ARTWORK, NEXT_ARTWORK})
     public @interface Value {}
 
     public static final int NOTHING = 0;
     public static final int SHOW_ORIGINAL_ARTWORK = 1;
     public static final int NEXT_ARTWORK = 2;
-    public static final int VIEW_ARTWORK = 3;
 }

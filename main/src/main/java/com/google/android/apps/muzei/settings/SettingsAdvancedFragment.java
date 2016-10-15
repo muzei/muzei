@@ -46,7 +46,6 @@ import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
 
 import net.nurik.roman.muzei.R;
 
-import de.greenrobot.event.EventBus;
 import org.greenrobot.eventbus.EventBus;
 
 /**
@@ -142,8 +141,7 @@ public class SettingsAdvancedFragment extends Fragment
         TapActionEntry[] entries = new TapActionEntry[] {
                 new TapActionEntry(getString(R.string.settings_tap_action_nothing), TapAction.NOTHING),
                 new TapActionEntry(getString(R.string.settings_tap_action_showoriginal), TapAction.SHOW_ORIGINAL_ARTWORK),
-                new TapActionEntry(getString(R.string.settings_tap_action_next), TapAction.NEXT_ARTWORK),
-                new TapActionEntry(getString(R.string.settings_tap_action_view), TapAction.VIEW_ARTWORK)
+                new TapActionEntry(getString(R.string.settings_tap_action_next), TapAction.NEXT_ARTWORK)
         };
 
         ArrayAdapter<TapActionEntry> doubleTapActionSpinnerAdapter =
@@ -210,7 +208,6 @@ public class SettingsAdvancedFragment extends Fragment
         });
 
         mNotifyNewWallpaperCheckBox = (CheckBox) rootView.findViewById(
-        CheckBox mNotifyNewWallpaperCheckBox = (CheckBox) rootView.findViewById(
                 R.id.notify_new_wallpaper_checkbox);
         mNotifyNewWallpaperCheckBox.setOnCheckedChangeListener(
                 new CompoundButton.OnCheckedChangeListener() {
@@ -223,12 +220,11 @@ public class SettingsAdvancedFragment extends Fragment
                     }
                 }
         );
-                });
+
         mNotifyNewWallpaperCheckBox.setChecked(getSharedPreferences()
                 .getBoolean(NewWallpaperNotificationReceiver.PREF_ENABLED, true));
 
         mBlurOnLockScreenCheckBox = (CheckBox) rootView.findViewById(
-        CheckBox mBlurOnLockScreenCheckBox = (CheckBox) rootView.findViewById(
                 R.id.blur_on_lockscreen_checkbox);
         mBlurOnLockScreenCheckBox.setOnCheckedChangeListener(
                 new CompoundButton.OnCheckedChangeListener() {

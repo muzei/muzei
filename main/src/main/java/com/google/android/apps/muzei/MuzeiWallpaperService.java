@@ -26,13 +26,16 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.SystemClock;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.ViewConfiguration;
 import android.widget.Toast;
 
+import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.api.MuzeiContract;
+import com.google.android.apps.muzei.api.internal.SourceState;
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
 import com.google.android.apps.muzei.event.DoubleTapActionChangedEvent;
 import com.google.android.apps.muzei.event.LockScreenVisibleChangedEvent;
@@ -53,8 +56,6 @@ import net.rbgrn.android.glwallpaperservice.GLWallpaperService;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import static com.google.android.apps.muzei.util.LogUtil.LOGE;
-
 public class MuzeiWallpaperService extends GLWallpaperService {
     private LockScreenVisibleReceiver mLockScreenVisibleReceiver;
     private NetworkChangeReceiver mNetworkChangeReceiver;
@@ -67,8 +68,6 @@ public class MuzeiWallpaperService extends GLWallpaperService {
     public static final String PREF_THREEFINGERACTION = "threefinger_action";
 
     private static final int THREE_FINGER_ACTION_PAUSE_MS = 1000 * 1; //1s
-
-    private static final String TAG = LogUtil.makeLogTag(MuzeiWallpaperService.class);
 
     @Override
     public Engine onCreateEngine() {
@@ -294,9 +293,6 @@ public class MuzeiWallpaperService extends GLWallpaperService {
                 case TapAction.SHOW_ORIGINAL_ARTWORK:
                     executeShowOriginalArtworkAction();
                     break;
-                case TapAction.VIEW_ARTWORK:
-                    executeViewArtworkAction();
-                    break;
                 default:
                     //NOOP
                     break;
@@ -317,35 +313,6 @@ public class MuzeiWallpaperService extends GLWallpaperService {
 
         private void executeNextArtworkAction() {
             SourceManager.getInstance(getApplicationContext()).sendAction(MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK);
-        }
-
-        private void executeViewArtworkAction() {
-            SourceManager sm = SourceManager.getInstance(getApplicationContext());
-            SourceState selectedSourceState = sm.getSelectedSourceState();
-
-            if(selectedSourceState == null)
-                return;
-
-            Artwork artwork = selectedSourceState.getCurrentArtwork();
-            if(artwork == null)
-                return;
-
-            Intent viewIntent = artwork.getViewIntent();
-            if(viewIntent == null)
-                return;
-
-            viewIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            try {
-                startActivity(viewIntent);
-            } catch (ActivityNotFoundException e) {
-                Toast.makeText(getApplicationContext(), R.string.error_view_details,
-                        Toast.LENGTH_SHORT).show();
-                LOGE(TAG, "Error viewing artwork details.", e);
-            } catch (SecurityException e) {
-                Toast.makeText(getApplicationContext(), R.string.error_view_details,
-                        Toast.LENGTH_SHORT).show();
-                LOGE(TAG, "Error viewing artwork details.", e);
-            }
         }
 
         @Override

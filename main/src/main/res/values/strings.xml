@@ -28,7 +28,6 @@
     <string name="settings_tap_action_nothing">Nothing</string>
     <string name="settings_tap_action_showoriginal">Show Original</string>
     <string name="settings_tap_action_next">Next Artwork</string>
-    <string name="settings_tap_action_view">View Artwork details</string>
 
     <string name="notification_new_wallpaper">New wallpaper</string>
 
