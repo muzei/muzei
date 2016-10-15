@@ -18,14 +18,14 @@ package com.google.android.apps.muzei;
 
 import android.app.Activity;
 import android.content.ComponentName;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
 import com.google.android.apps.muzei.gallery.GalleryArtSource;
-
-import java.util.ArrayList;
-import java.util.Arrays;
+import com.google.android.apps.muzei.gallery.GalleryContract;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 public class PhotoSetAsTargetActivity extends Activity {
     @Override
@@ -39,14 +39,18 @@ public class PhotoSetAsTargetActivity extends Activity {
         Uri photoUri = getIntent().getData();
 
         // Select the gallery source
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID,
+                new ComponentName(this, GalleryArtSource.class).flattenToShortString());
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sources");
+        FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
         SourceManager sourceManager = SourceManager.getInstance(this);
         sourceManager.selectSource(new ComponentName(this, GalleryArtSource.class));
 
         // Add and publish the chosen photo
-        startService(new Intent(this, GalleryArtSource.class)
-                .setAction(GalleryArtSource.ACTION_ADD_CHOSEN_URIS)
-                .putExtra(GalleryArtSource.EXTRA_URIS, new ArrayList<>(Arrays.asList(photoUri)))
-                .putExtra(GalleryArtSource.EXTRA_ALLOW_PUBLISH, false));
+        ContentValues values = new ContentValues();
+        values.put(GalleryContract.ChosenPhotos.COLUMN_NAME_URI, photoUri.toString());
+        getContentResolver().insert(GalleryContract.ChosenPhotos.CONTENT_URI, values);
         startService(new Intent(this, GalleryArtSource.class)
                 .setAction(GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM)
                 .putExtra(GalleryArtSource.EXTRA_FORCE_URI, photoUri));

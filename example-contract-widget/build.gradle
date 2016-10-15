@@ -16,21 +16,21 @@
 
 buildscript {
     repositories {
-        mavenCentral()
+        jcenter()
     }
     dependencies {
-        classpath rootProject.ext.gradleClasspath
+        classpath "com.android.tools.build:gradle:$rootProject.ext.toolsPluginVersion"
     }
 }
 
 apply plugin: 'com.android.application'
 
 repositories {
-    mavenCentral()
+    jcenter()
 }
 
 dependencies {
-    //compile 'com.google.android.apps.muzei:muzei-api:2.+'
+    //compile "com.google.android.apps.muzei:muzei-api:2.+"
     compile project(':api')
 }
 
@@ -39,7 +39,7 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 17
+        minSdkVersion 18
         targetSdkVersion rootProject.ext.targetSdkVersion
     }
 }

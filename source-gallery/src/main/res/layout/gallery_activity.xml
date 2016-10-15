@@ -1,0 +1,171 @@
+<!--
+  Copyright 2014 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <android.support.v7.widget.RecyclerView android:id="@+id/photo_grid"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:stretchMode="columnWidth"
+        android:scrollbarStyle="outsideOverlay"
+        android:scrollbars="vertical"
+        android:clipToPadding="false"
+        android:fitsSystemWindows="true"
+        android:drawSelectorOnTop="true"
+        android:horizontalSpacing="@dimen/gallery_chosen_photo_grid_spacing"
+        android:verticalSpacing="@dimen/gallery_chosen_photo_grid_spacing"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/app_bar"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            app:title="@string/gallery_title"
+            app:layout_scrollFlags="scroll|enterAlways" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <FrameLayout android:id="@android:id/empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="32dp"
+            android:layout_gravity="center"
+            android:gravity="center">
+
+            <ViewAnimator android:id="@+id/empty_animator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:measureAllChildren="false">
+
+                <com.google.android.apps.muzei.gallery.GalleryEmptyStateGraphicView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <Button
+                    android:id="@+id/gallery_enable_random"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/gallery_enable_random"
+                    style="@style/Widget.AppCompat.Button.Colored"/>
+
+                <Button
+                    android:id="@+id/gallery_edit_permission_settings"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/gallery_edit_settings"
+                    style="@style/Widget.AppCompat.Button.Colored"/>
+            </ViewAnimator>
+
+            <TextView android:id="@+id/empty_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="64dp"
+                android:gravity="center_horizontal"
+                android:textSize="22sp"
+                android:fontFamily="sans-serif-condensed"
+                android:textStyle="italic"
+                android:textColor="@color/gallery_theme"
+                android:breakStrategy="balanced"
+                android:text="@string/gallery_empty"
+                tools:targetApi="M"/>
+        </LinearLayout>
+
+        <TextView android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="88dp"
+            android:textSize="16sp"
+            android:fontFamily="sans-serif-condensed"
+            android:textStyle="italic"
+            android:textColor="@color/gallery_theme_dark"
+            android:text="@string/gallery_empty_subtitle" />
+
+    </FrameLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/add_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="@dimen/gallery_fab_margin"
+        android:contentDescription="@string/gallery_add_fab"
+        android:src="@drawable/gallery_ic_add"/>
+
+    <LinearLayout
+        android:id="@+id/add_toolbar"
+        style="?android:attr/buttonBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/gallery_fab_toolbar_height"
+        android:layout_gravity="bottom"
+        android:background="@color/gallery_theme_dark"
+        android:orientation="horizontal"
+        android:visibility="invisible">
+
+        <ImageButton
+            android:id="@+id/add_photos"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:contentDescription="@string/gallery_add_photos"
+            android:src="@drawable/gallery_ic_add_photo"/>
+
+        <ImageButton
+            android:id="@+id/add_folder"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:contentDescription="@string/gallery_add_folder"
+            android:src="@drawable/gallery_ic_add_folder"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/selection_toolbar_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="invisible"
+        android:elevation="@dimen/gallery_header_elevation"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        tools:targetApi="LOLLIPOP">
+
+        <android.support.v7.widget.Toolbar
+            android:background="@color/gallery_theme_dark"
+            android:id="@+id/selection_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            app:title="@string/gallery_title"
+            app:navigationIcon="?attr/homeAsUpIndicator" />
+
+    </LinearLayout>
+</android.support.design.widget.CoordinatorLayout>

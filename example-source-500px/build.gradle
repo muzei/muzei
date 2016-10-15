@@ -16,22 +16,23 @@
 
 buildscript {
     repositories {
-        mavenCentral()
+        jcenter()
     }
     dependencies {
-        classpath rootProject.ext.gradleClasspath
+        classpath "com.android.tools.build:gradle:$rootProject.ext.toolsPluginVersion"
     }
 }
 
 apply plugin: 'com.android.application'
 
 repositories {
-    mavenCentral()
+    jcenter()
 }
 
 dependencies {
-    compile 'com.squareup.retrofit:retrofit:1.8.0'
-    //compile 'com.google.android.apps.muzei:muzei-api:+'
+    compile "com.squareup.retrofit2:retrofit:2.1.0"
+    compile "com.squareup.retrofit2:converter-gson:2.1.0"
+    //compile "com.google.android.apps.muzei:muzei-api:+"
     compile project(':api')
 }
 
@@ -40,7 +41,7 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 17
+        minSdkVersion 19
         targetSdkVersion rootProject.ext.targetSdkVersion
     }
 }

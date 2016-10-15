@@ -30,6 +30,7 @@ import android.net.Uri;
 import android.os.RemoteException;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
@@ -37,9 +38,12 @@ import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.api.UserCommand;
 import com.google.android.apps.muzei.api.internal.SourceState;
 import com.google.android.apps.muzei.featuredart.FeaturedArtSource;
-import com.google.android.apps.muzei.util.LogUtil;
+import com.google.android.apps.muzei.sync.TaskQueueService;
 import com.google.android.apps.muzei.wearable.WearableController;
 import com.google.android.apps.muzei.wearable.WearableSourceUpdateService;
+import com.google.firebase.analytics.FirebaseAnalytics;
+
+import net.nurik.roman.muzei.BuildConfig;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -52,25 +56,20 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_HANDLE_COMMAND;
-import static com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_NETWORK_AVAILABLE;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_SUBSCRIBE;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_COMMAND_ID;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_SUBSCRIBER_COMPONENT;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_TOKEN;
-import static com.google.android.apps.muzei.util.LogUtil.LOGD;
-import static com.google.android.apps.muzei.util.LogUtil.LOGE;
-import static com.google.android.apps.muzei.util.LogUtil.LOGW;
 
 /**
  * Thread-safe.
  */
 public class SourceManager {
-    private static final String TAG = LogUtil.makeLogTag(SourceManager.class);
+    private static final String TAG = "SourceManager";
     private static final String PREF_SELECTED_SOURCE = "selected_source";
     private static final String PREF_SELECTED_SOURCE_TOKEN = "selected_source_token";
     private static final String PREF_SOURCE_STATES = "source_states";
-    private static final String PREF_CURRENT_ARTWORK = "current_artwork";
-
+    private static final String USER_PROPERTY_SELECTED_SOURCE = "selected_source";
     private Context mApplicationContext;
     private ComponentName mSubscriberComponentName;
     private SharedPreferences mSharedPrefs;
@@ -78,7 +77,6 @@ public class SourceManager {
 
     private ComponentName mSelectedSource;
     private String mSelectedSourceToken;
-    private Artwork mCurrentArtwork;
 
     private static SourceManager sInstance;
 
@@ -116,15 +114,6 @@ public class SourceManager {
         }
 
         mSelectedSourceToken = mSharedPrefs.getString(PREF_SELECTED_SOURCE_TOKEN, null);
-
-        // Get the current artwork
-        Cursor cursor = mContentResolver.query(MuzeiContract.Artwork.CONTENT_URI, null, null, null, null);
-        if (cursor != null && cursor.moveToFirst()) {
-            mCurrentArtwork = Artwork.fromCursor(cursor);
-        }
-        if (cursor != null) {
-            cursor.close();
-        }
     }
 
     private void migrateDataToContentProvider() {
@@ -165,16 +154,18 @@ public class SourceManager {
                 operations.add(ContentProviderOperation.newInsert(MuzeiContract.Sources.CONTENT_URI)
                     .withValues(values).build());
             } catch (JSONException e) {
-                LOGE(TAG, "Error loading source state.", e);
+                Log.e(TAG, "Error loading source state.", e);
             }
         }
         try {
             mContentResolver.applyBatch(MuzeiContract.AUTHORITY, operations);
             mSharedPrefs.edit().remove(PREF_SELECTED_SOURCE).remove(PREF_SOURCE_STATES).apply();
+            FirebaseAnalytics.getInstance(mApplicationContext).setUserProperty(USER_PROPERTY_SELECTED_SOURCE,
+                    selectedSource.flattenToShortString());
             mApplicationContext.startService(
                     new Intent(mApplicationContext, WearableSourceUpdateService.class));
         } catch (RemoteException | OperationApplicationException e) {
-            LOGE(TAG, "Error writing sources to ContentProvider", e);
+            Log.e(TAG, "Error writing sources to ContentProvider", e);
         }
     }
 
@@ -184,7 +175,7 @@ public class SourceManager {
 
     public void selectSource(ComponentName source) {
         if (source == null) {
-            LOGE(TAG, "selectSource: Empty source");
+            Log.e(TAG, "selectSource: Empty source");
             return;
         }
 
@@ -193,15 +184,13 @@ public class SourceManager {
                 return;
             }
 
-            LOGD(TAG, "Source " + source + " selected.");
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Source " + source + " selected.");
+            }
 
             final ArrayList<ContentProviderOperation> operations = new ArrayList<>();
             if (mSelectedSource != null) {
-                // unsubscribe from existing source
-                mApplicationContext.startService(new Intent(ACTION_SUBSCRIBE)
-                        .setComponent(mSelectedSource)
-                        .putExtra(EXTRA_SUBSCRIBER_COMPONENT, mSubscriberComponentName)
-                        .putExtra(EXTRA_TOKEN, (String) null));
+                unsubscribeToSelectedSource();
 
                 // Unselect the old source
                 operations.add(ContentProviderOperation.newUpdate(MuzeiContract.Sources.CONTENT_URI)
@@ -231,10 +220,12 @@ public class SourceManager {
                         .putString(PREF_SELECTED_SOURCE, source.flattenToShortString())
                         .putString(PREF_SELECTED_SOURCE_TOKEN, mSelectedSourceToken)
                         .apply();
+                FirebaseAnalytics.getInstance(mApplicationContext).setUserProperty(USER_PROPERTY_SELECTED_SOURCE,
+                        source.flattenToShortString());
                 mApplicationContext.startService(
                         new Intent(mApplicationContext, WearableSourceUpdateService.class));
             } catch (RemoteException | OperationApplicationException e) {
-                LOGE(TAG, "Error writing sources to ContentProvider", e);
+                Log.e(TAG, "Error writing sources to ContentProvider", e);
             }
 
             subscribeToSelectedSource();
@@ -247,7 +238,7 @@ public class SourceManager {
     public void handlePublishState(String token, SourceState state) {
         synchronized (this) {
             if (!TextUtils.equals(token, mSelectedSourceToken)) {
-                LOGW(TAG, "Dropping update from non-selected source (token mismatch).");
+                Log.w(TAG, "Dropping update from non-selected source (token mismatch).");
                 return;
             }
 
@@ -280,26 +271,20 @@ public class SourceManager {
             } else {
                 mContentResolver.insert(MuzeiContract.Sources.CONTENT_URI, values);
             }
-            // We're already on a background thread, so it safe to call this directly
-            WearableController.updateSource(mApplicationContext);
             if (existingSource != null) {
                 existingSource.close();
             }
-
-            mCurrentArtwork = state.getCurrentArtwork();
-            try {
-                mSharedPrefs.edit().putString(PREF_CURRENT_ARTWORK, mCurrentArtwork.toJson().toString()).apply();
-            } catch (JSONException e) {
-                LOGE(TAG, "Error writing current artwork", e);
-            }
         }
+
+        // We're already on a background thread, so it safe to call this directly
+        WearableController.updateSource(mApplicationContext);
+
+        Artwork artwork = state.getCurrentArtwork();
+        artwork.setComponentName(mSelectedSource);
+        mContentResolver.insert(MuzeiContract.Artwork.CONTENT_URI, artwork.toContentValues());
 
         // Download the artwork contained from the newly published SourceState
         mApplicationContext.startService(TaskQueueService.getDownloadCurrentArtworkIntent(mApplicationContext));
-    }
-
-    public synchronized Artwork getCurrentArtwork() {
-        return mCurrentArtwork;
     }
 
     public synchronized ComponentName getSelectedSource() {
@@ -323,21 +308,12 @@ public class SourceManager {
         }
     }
 
-    public synchronized void maybeDispatchNetworkAvailable() {
-        Cursor selectedSource = mContentResolver.query(MuzeiContract.Sources.CONTENT_URI,
-                new String[]{MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE},
-                MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + "=?",
-                new String[] {mSelectedSource.flattenToShortString()}, null, null);
-        boolean wantsNetworkAvailable = selectedSource != null && selectedSource.moveToFirst() &&
-                selectedSource.getInt(0) != 0;
-        if (selectedSource != null) {
-            selectedSource.close();
-        }
-        if (wantsNetworkAvailable) {
-            mApplicationContext.startService(new Intent(ACTION_NETWORK_AVAILABLE)
+    public synchronized void unsubscribeToSelectedSource() {
+        if (mSelectedSource != null) {
+            mApplicationContext.startService(new Intent(ACTION_SUBSCRIBE)
                     .setComponent(mSelectedSource)
                     .putExtra(EXTRA_SUBSCRIBER_COMPONENT, mSubscriberComponentName)
-                    .putExtra(EXTRA_TOKEN, mSelectedSourceToken));
+                    .putExtra(EXTRA_TOKEN, (String) null));
         }
     }
 }

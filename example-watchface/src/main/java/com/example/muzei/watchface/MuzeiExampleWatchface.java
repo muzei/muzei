@@ -21,6 +21,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.support.v4.content.ContextCompat;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.view.Gravity;
@@ -47,14 +48,14 @@ public class MuzeiExampleWatchface extends CanvasWatchFaceService {
             super.onCreate(holder);
             setWatchFaceStyle(new WatchFaceStyle.Builder(MuzeiExampleWatchface.this)
                     .setStatusBarGravity(Gravity.TOP | Gravity.END)
-                    .setViewProtection(WatchFaceStyle.PROTECT_STATUS_BAR
+                    .setViewProtectionMode(WatchFaceStyle.PROTECT_STATUS_BAR
                             | WatchFaceStyle.PROTECT_HOTWORD_INDICATOR)
                     .setPeekOpacityMode(WatchFaceStyle.PEEK_OPACITY_MODE_TRANSLUCENT)
                     .setCardPeekMode(WatchFaceStyle.PEEK_MODE_SHORT)
                     .setShowSystemUiTime(true)
                     .build());
             mBackgroundPaint = new Paint();
-            mBackgroundPaint.setColor(getResources().getColor(android.R.color.black));
+            mBackgroundPaint.setColor(ContextCompat.getColor(MuzeiExampleWatchface.this, android.R.color.black));
             mLoader = new WatchfaceArtworkImageLoader(MuzeiExampleWatchface.this);
             mLoader.registerListener(0, this);
             mLoader.startLoading();

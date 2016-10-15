@@ -20,7 +20,7 @@ package com.google.android.apps.muzei.settings;
  * Preference constants/helpers.
  */
 public interface Prefs {
-    public static final String PREF_GREY_AMOUNT = "grey_amount";
-    public static final String PREF_DIM_AMOUNT = "dim_amount";
-    public static final String PREF_BLUR_AMOUNT = "blur_amount";
+    String PREF_GREY_AMOUNT = "grey_amount";
+    String PREF_DIM_AMOUNT = "dim_amount";
+    String PREF_BLUR_AMOUNT = "blur_amount";
 }

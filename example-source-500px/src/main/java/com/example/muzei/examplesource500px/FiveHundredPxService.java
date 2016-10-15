@@ -18,24 +18,25 @@ package com.example.muzei.examplesource500px;
 
 import java.util.List;
 
-import retrofit.http.GET;
+import retrofit2.Call;
+import retrofit2.http.GET;
 
 interface FiveHundredPxService {
-    @GET("/v1/photos?feature=popular&sort=rating&image_size=5&rpp=40")
-    PhotosResponse getPopularPhotos();
+    @GET("v1/photos?feature=popular&sort=rating&image_size=5&rpp=40")
+    Call<PhotosResponse> getPopularPhotos();
 
-    static class PhotosResponse {
+    class PhotosResponse {
         List<Photo> photos;
     }
 
-    static class Photo {
+    class Photo {
         int id;
         String image_url;
         String name;
         User user;
     }
 
-    static class User {
+    class User {
         String fullname;
     }
 }

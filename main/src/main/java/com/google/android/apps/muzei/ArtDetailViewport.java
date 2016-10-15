@@ -18,7 +18,7 @@ package com.google.android.apps.muzei;
 
 import android.graphics.RectF;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 // Singleton that also behaves as an event
 public class ArtDetailViewport {
@@ -39,17 +39,16 @@ public class ArtDetailViewport {
         return (id == 0) ? mViewport0 : mViewport1;
     }
 
-    public ArtDetailViewport setViewport(int id, RectF viewport, boolean fromUser) {
-        return setViewport(id, viewport.left, viewport.top, viewport.right, viewport.bottom,
+    public void setViewport(int id, RectF viewport, boolean fromUser) {
+        setViewport(id, viewport.left, viewport.top, viewport.right, viewport.bottom,
                 fromUser);
     }
 
-    public ArtDetailViewport setViewport(int id, float left, float top, float right, float bottom,
+    public void setViewport(int id, float left, float top, float right, float bottom,
             boolean fromUser) {
         mFromUser = fromUser;
         getViewport(id).set(left, top, right, bottom);
         EventBus.getDefault().post(this);
-        return this;
     }
 
     public boolean isFromUser() {

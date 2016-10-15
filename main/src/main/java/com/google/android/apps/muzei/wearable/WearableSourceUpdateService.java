@@ -24,7 +24,7 @@ import android.content.Intent;
  */
 public class WearableSourceUpdateService extends IntentService {
     public WearableSourceUpdateService() {
-        super(WearableSourceUpdateService.class.getSimpleName());
+        super("WearableSourceUpdateService");
     }
 
     @Override

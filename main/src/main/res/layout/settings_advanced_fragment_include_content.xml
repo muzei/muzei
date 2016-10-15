@@ -92,7 +92,7 @@
         android:text="@string/settings_notify_new_wallpaper"
         android:layout_column="@integer/settings_advanced_checkbox_column"
         android:layout_columnSpan="@integer/settings_advanced_checkbox_column_span"
-        android:layout_marginLeft="@dimen/settings_advanced_checkbox_margin_start"
+        android:layout_marginStart="@dimen/settings_advanced_checkbox_margin_start"
         android:layout_marginTop="24dp" />
 
     <CheckBox android:id="@+id/blur_on_lockscreen_checkbox"
@@ -100,7 +100,7 @@
         android:text="@string/settings_blur_on_lockscreen"
         android:layout_column="@integer/settings_advanced_checkbox_column"
         android:layout_columnSpan="@integer/settings_advanced_checkbox_column_span"
-        android:layout_marginLeft="@dimen/settings_advanced_checkbox_margin_start"
+        android:layout_marginStart="@dimen/settings_advanced_checkbox_margin_start"
         android:layout_marginTop="16dp" />
 
 </GridLayout>

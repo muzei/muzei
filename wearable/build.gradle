@@ -16,10 +16,11 @@
 
 buildscript {
     repositories {
-        mavenCentral()
+        jcenter()
     }
     dependencies {
-        classpath rootProject.ext.gradleClasspath
+        classpath "com.android.tools.build:gradle:$rootProject.ext.toolsPluginVersion"
+        classpath "com.google.gms:google-services:$rootProject.ext.googleServicesPluginVersion"
     }
 }
 
@@ -35,13 +36,17 @@ android {
     publishNonDefault true
 
     defaultConfig {
-        minSdkVersion 20
+        applicationId "net.nurik.roman.muzei"
+        minSdkVersion 23
         targetSdkVersion rootProject.ext.targetSdkVersion
         renderscriptTargetApi rootProject.ext.targetSdkVersion
         renderscriptSupportModeEnabled true
+        ndk.abiFilters 'armeabi-v7a', 'x86'
 
         versionName versionProps['name']
-        versionCode versionProps['code'].toInteger()
+        versionCode versionProps['codeWear'].toInteger()
+
+        buildConfigField "String", "DEVICE_TYPE", "\"wear\""
     }
 
     signingConfigs {
@@ -61,10 +66,7 @@ android {
 
     productFlavors {
         dev {
-            // dev utilizes minSDKVersion = 21 to allow the Android gradle plugin
-            // to pre-dex each module and produce an APK that can be tested on
-            // Android Lollipop without time consuming dex merging processes.
-            minSdkVersion 21
+            // Pre-dex each module and produce an APK to avoid the time consuming dex merging process
             multiDexEnabled true
         }
 
@@ -73,11 +75,20 @@ android {
     }
 
     buildTypes {
+        debug {
+            versionNameSuffix " Debug"
+        }
+
         release {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), file('proguard-project.txt')
             signingConfig signingConfigs.release
+        }
+
+        publicBeta.initWith(buildTypes.release)
+        publicBeta {
+            versionNameSuffix " " + versionProps['betaNumber']
         }
     }
 
@@ -88,7 +99,11 @@ android {
 }
 
 dependencies {
-    compile 'com.google.android.support:wearable:1.3.0'
-    compile 'com.google.android.gms:play-services-wearable:8.3.0'
+    compile "com.android.support:support-v4:$rootProject.ext.supportLibraryVersion"
+    compile "com.google.android.support:wearable:2.0.0-alpha3"
+    compile "com.google.android.gms:play-services-wearable:$rootProject.ext.googlePlayServicesVersion"
+    compile "com.google.firebase:firebase-crash:$rootProject.ext.googlePlayServicesVersion"
     compile project(':android-client-common')
 }
+
+apply plugin: 'com.google.gms.google-services'

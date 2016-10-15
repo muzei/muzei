@@ -47,7 +47,7 @@
             android:textAllCaps="true"
             android:fontFamily="sans-serif-condensed"
             android:textStyle="bold"
-            android:textSize="18dp"
+            android:textSize="18sp"
             android:textColor="#333"
             android:id="@+id/activate_muzei_button" />
 

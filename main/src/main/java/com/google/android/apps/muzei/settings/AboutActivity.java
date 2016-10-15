@@ -16,10 +16,14 @@
 
 package com.google.android.apps.muzei.settings;
 
+import android.content.ActivityNotFoundException;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.customtabs.CustomTabsIntent;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
@@ -29,7 +33,6 @@ import android.widget.TextView;
 
 import com.google.android.apps.muzei.render.MuzeiRendererFragment;
 import com.google.android.apps.muzei.util.AnimatedMuzeiLogoFragment;
-import com.google.android.apps.muzei.util.ExternalLinkUtil;
 
 import net.nurik.roman.muzei.R;
 
@@ -84,8 +87,14 @@ public class AboutActivity extends AppCompatActivity {
         findViewById(R.id.android_experiment_link).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ExternalLinkUtil.openLinkInBrowser(AboutActivity.this,
-                        "https://www.androidexperiments.com/experiment/muzei");
+                CustomTabsIntent cti = new CustomTabsIntent.Builder()
+                        .setShowTitle(true)
+                        .setToolbarColor(ContextCompat.getColor(AboutActivity.this, R.color.theme_primary))
+                        .build();
+                try {
+                    cti.launchUrl(AboutActivity.this, Uri.parse("https://www.androidexperiments.com/experiment/muzei"));
+                } catch (ActivityNotFoundException ignored) {
+                }
             }
         });
     }

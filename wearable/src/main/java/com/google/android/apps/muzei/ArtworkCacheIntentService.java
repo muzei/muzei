@@ -18,15 +18,15 @@ package com.google.android.apps.muzei;
 
 import android.app.IntentService;
 import android.content.ComponentName;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.database.Cursor;
+import android.net.Uri;
 import android.util.Log;
 
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiContract;
-import com.google.android.apps.muzei.provider.MuzeiProvider;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.Asset;
@@ -37,10 +37,9 @@ import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Wearable;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
@@ -52,7 +51,7 @@ import java.util.concurrent.TimeUnit;
  * notification to activate Muzei if the artwork is not found
  */
 public class ArtworkCacheIntentService extends IntentService {
-    private static final String TAG = ArtworkCacheIntentService.class.getSimpleName();
+    private static final String TAG = "ArtworkCacheService";
     public static final String SHOW_ACTIVATE_NOTIFICATION_EXTRA = "SHOW_ACTIVATE_NOTIFICATION";
 
     public ArtworkCacheIntentService() {
@@ -81,7 +80,11 @@ public class ArtworkCacheIntentService extends IntentService {
             DataItem dataItem = dataItemIterator.next();
             foundArtwork = foundArtwork || processDataItem(googleApiClient, dataItem);
         }
-        dataItemBuffer.close();
+        dataItemBuffer.release();
+        if (foundArtwork) {
+            // Enable the Full Screen Activity only if we've found artwork
+            enableComponents(FullScreenActivity.class);
+        }
         if (!foundArtwork && intent != null &&
                 intent.getBooleanExtra(SHOW_ACTIVATE_NOTIFICATION_EXTRA, false)) {
             ActivateMuzeiIntentService.maybeShowActivateMuzeiNotification(this);
@@ -101,44 +104,74 @@ public class ArtworkCacheIntentService extends IntentService {
             Log.w(TAG, "No artwork in datamap.");
             return false;
         }
-        final Artwork artwork = Artwork.fromBundle(artworkDataMap.toBundle());
         final Asset asset = dataMapItem.getDataMap().getAsset("image");
         if (asset == null) {
             Log.w(TAG, "No image asset in datamap.");
             return false;
         }
-        // Convert asset into a file descriptor and block until it's ready
-        final DataApi.GetFdForAssetResult getFdForAssetResult =
-                Wearable.DataApi.getFdForAsset(googleApiClient, asset).await();
-        InputStream assetInputStream = getFdForAssetResult.getInputStream();
-        if (assetInputStream == null) {
-            Log.w(TAG, "Empty asset input stream (probably an unknown asset).");
+        final Artwork artwork = Artwork.fromBundle(artworkDataMap.toBundle());
+        // Check if the source info row exists at all.
+        ComponentName componentName = artwork.getComponentName();
+        Cursor sourceQuery = getContentResolver().query(MuzeiContract.Sources.CONTENT_URI, null,
+                MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + "=?",
+                new String[] {componentName.flattenToShortString()}, null);
+        if (sourceQuery == null || !sourceQuery.moveToFirst()) {
+            // If the row does not exist, insert a dummy row
+            ContentValues values = new ContentValues();
+            values.put(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, componentName.flattenToShortString());
+            values.put(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, true);
+            getContentResolver().insert(MuzeiContract.Sources.CONTENT_URI, values);
+        }
+        if (sourceQuery != null) {
+            sourceQuery.close();
+        }
+        Uri artworkUri = getContentResolver().insert(MuzeiContract.Artwork.CONTENT_URI, artwork.toContentValues());
+        if (artworkUri == null) {
+            Log.w(TAG, "Unable to write artwork information to MuzeiProvider");
             return false;
         }
-        Bitmap image = BitmapFactory.decodeStream(assetInputStream);
-        if (image == null) {
-            Log.w(TAG, "Couldn't decode a bitmap from the stream.");
-            return false;
-        }
-        File localCache = new File(getCacheDir(), "cache.png");
-        FileOutputStream out = null;
+        OutputStream out = null;
+        DataApi.GetFdForAssetResult result = null;
+        InputStream in = null;
         try {
-            out = new FileOutputStream(localCache);
-            image.compress(Bitmap.CompressFormat.PNG, 100, out);
+            out = getContentResolver().openOutputStream(artworkUri);
+            if (out == null) {
+                // We've already cached the artwork previously, so call this a success
+                return true;
+            }
+            // Convert asset into a file descriptor and block until it's ready
+            result = Wearable.DataApi.getFdForAsset(googleApiClient, asset).await();
+            in = result.getInputStream();
+            if (in == null) {
+                Log.w(TAG, "Unable to open asset input stream");
+                return false;
+            }
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = in.read(buffer)) > 0) {
+                out.write(buffer, 0, bytesRead);
+            }
+            out.flush();
         } catch (IOException e) {
-            Log.e(TAG, "Error writing local cache", e);
+            Log.e(TAG, "Error writing artwork", e);
         } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "Error closing artwork input stream", e);
+            }
+            if (result != null) {
+                result.release();
+            }
             try {
                 if (out != null) {
                     out.close();
                 }
             } catch (IOException e) {
-                Log.e(TAG, "Error closing local cache file", e);
+                Log.e(TAG, "Error closing artwork output stream", e);
             }
-        }
-        enableComponents(FullScreenActivity.class);
-        if (MuzeiProvider.saveCurrentArtworkLocation(this, localCache)) {
-            getContentResolver().insert(MuzeiContract.Artwork.CONTENT_URI, artwork.toContentValues());
         }
         return true;
     }

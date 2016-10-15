@@ -47,6 +47,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.content.res.ResourcesCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,9 +58,9 @@ import com.google.android.apps.muzei.SourceManager;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.util.CheatSheet;
-import com.google.android.apps.muzei.util.LogUtil;
 import com.google.android.apps.muzei.util.ObservableHorizontalScrollView;
 import com.google.android.apps.muzei.util.Scrollbar;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.R;
 
@@ -68,17 +69,15 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 import static com.google.android.apps.muzei.api.MuzeiArtSource.ACTION_MUZEI_ART_SOURCE;
-import static com.google.android.apps.muzei.util.LogUtil.LOGE;
-import static com.google.android.apps.muzei.util.LogUtil.LOGW;
 
 /**
  * Fragment for allowing the user to choose the active source.
  */
 public class SettingsChooseSourceFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-    private static final String TAG = LogUtil.makeLogTag(SettingsChooseSourceFragment.class);
+    private static final String TAG = "SettingsChooseSourceFrg";
 
     private static final int SCROLLBAR_HIDE_DELAY_MILLIS = 1000;
 
@@ -136,6 +135,10 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
         if (!(activity instanceof Callbacks)) {
             throw new ClassCastException("Activity must implement fragment callbacks.");
         }
+
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "sources");
+        FirebaseAnalytics.getInstance(getActivity()).logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST, bundle);
     }
 
     @Override
@@ -180,10 +183,6 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
                     mCurrentScroller.cancel();
                     mCurrentScroller = null;
                 }
-            }
-
-            @Override
-            public void onUpOrCancelMotionEvent() {
             }
         });
         mSourceContainerView = (ViewGroup) mRootView.findViewById(R.id.source_container);
@@ -374,14 +373,15 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
             source.icon = new BitmapDrawable(getResources(), generateSourceImage(ri.loadIcon(pm)));
             source.componentName = new ComponentName(ri.serviceInfo.packageName,
                     ri.serviceInfo.name);
-            Context packageContext;
-            try {
-                packageContext = getActivity().createPackageContext(
-                        source.componentName.getPackageName(), 0);
-                Resources packageRes = packageContext.getResources();
-                source.description = packageRes.getString(ri.serviceInfo.descriptionRes);
-            } catch (PackageManager.NameNotFoundException e) {
-                LOGW(TAG, "Can't read package resources for source " + source.componentName);
+            if (ri.serviceInfo.descriptionRes != 0) {
+                try {
+                    Context packageContext = getActivity().createPackageContext(
+                            source.componentName.getPackageName(), 0);
+                    Resources packageRes = packageContext.getResources();
+                    source.description = packageRes.getString(ri.serviceInfo.descriptionRes);
+                } catch (PackageManager.NameNotFoundException e) {
+                    Log.e(TAG, "Can't read package resources for source " + source.componentName);
+                }
             }
             Bundle metaData = ri.serviceInfo.metaData;
             source.color = Color.WHITE;
@@ -465,9 +465,18 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
                     if (source.componentName.equals(mSelectedSource)) {
                         ((Callbacks) getActivity()).onRequestCloseActivity();
                     } else if (source.setupActivity != null) {
+                        Bundle bundle = new Bundle();
+                        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, source.componentName.flattenToShortString());
+                        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, source.label);
+                        bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "sources");
+                        FirebaseAnalytics.getInstance(getActivity()).logEvent(FirebaseAnalytics.Event.VIEW_ITEM, bundle);
                         mCurrentInitialSetupSource = source.componentName;
                         launchSourceSetup(source);
                     } else {
+                        Bundle bundle = new Bundle();
+                        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, source.componentName.flattenToShortString());
+                        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sources");
+                        FirebaseAnalytics.getInstance(getActivity()).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
                         mSourceManager.selectSource(source.componentName);
                     }
                 }
@@ -528,7 +537,7 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
                     .putExtra(MuzeiArtSource.EXTRA_FROM_MUZEI_SETTINGS, true);
             startActivity(settingsIntent);
         } catch (ActivityNotFoundException | SecurityException e) {
-            LOGE(TAG, "Can't launch source settings.", e);
+            Log.e(TAG, "Can't launch source settings.", e);
         }
     }
 
@@ -539,7 +548,7 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
                     .putExtra(MuzeiArtSource.EXTRA_FROM_MUZEI_SETTINGS, true);
             startActivityForResult(setupIntent, REQUEST_EXTENSION_SETUP);
         } catch (ActivityNotFoundException | SecurityException e) {
-            LOGE(TAG, "Can't launch source setup.", e);
+            Log.e(TAG, "Can't launch source setup.", e);
         }
     }
 
@@ -547,6 +556,10 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_EXTENSION_SETUP) {
             if (resultCode == Activity.RESULT_OK && mCurrentInitialSetupSource != null) {
+                Bundle bundle = new Bundle();
+                bundle.putString(FirebaseAnalytics.Param.ITEM_ID, mCurrentInitialSetupSource.flattenToShortString());
+                bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sources");
+                FirebaseAnalytics.getInstance(getActivity()).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
                 mSourceManager.selectSource(mCurrentInitialSetupSource);
             }
 

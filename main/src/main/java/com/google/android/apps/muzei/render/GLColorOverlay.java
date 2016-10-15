@@ -53,7 +53,7 @@ class GLColorOverlay {
              1,  1, 0,   // top right
     };
 
-    private int mColor;
+    private int mColor = 0;
 
     private FloatBuffer mVertexBuffer;
 
@@ -62,9 +62,7 @@ class GLColorOverlay {
     private static int sUniformColorHandle;
     private static int sUniformMVPMatrixHandle;
 
-    public GLColorOverlay(int color) {
-        mColor = color;
-
+    public GLColorOverlay() {
         mVertexBuffer = GLUtil.asFloatBuffer(mVertices);
     }
 
@@ -108,8 +106,5 @@ class GLColorOverlay {
 
     public void setColor(int color) {
         mColor = color;
-    }
-
-    public void destroy() {
     }
 }

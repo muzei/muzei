@@ -17,22 +17,22 @@
 package com.google.android.apps.muzei;
 
 import android.app.WallpaperManager;
-import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.IntentFilter;
+import android.database.ContentObserver;
+import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
-import android.preference.PreferenceManager;
+import android.os.HandlerThread;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.ViewConfiguration;
 import android.widget.Toast;
 
-import com.google.android.apps.muzei.api.Artwork;
-import com.google.android.apps.muzei.api.MuzeiArtSource;
-import com.google.android.apps.muzei.api.internal.SourceState;
+import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
 import com.google.android.apps.muzei.event.DoubleTapActionChangedEvent;
 import com.google.android.apps.muzei.event.LockScreenVisibleChangedEvent;
@@ -43,17 +43,25 @@ import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
 import com.google.android.apps.muzei.render.RealRenderController;
 import com.google.android.apps.muzei.render.RenderController;
-import com.google.android.apps.muzei.util.LogUtil;
+import com.google.android.apps.muzei.sync.TaskQueueService;
+import com.google.android.apps.muzei.wearable.WearableController;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
-import net.nurik.roman.muzei.R;
+import net.nurik.roman.muzei.BuildConfig;
 import net.rbgrn.android.glwallpaperservice.GLWallpaperService;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import static com.google.android.apps.muzei.util.LogUtil.LOGE;
 
 public class MuzeiWallpaperService extends GLWallpaperService {
     private LockScreenVisibleReceiver mLockScreenVisibleReceiver;
+    private NetworkChangeReceiver mNetworkChangeReceiver;
+    private HandlerThread mNotificationHandlerThread;
+    private ContentObserver mNotificationContentObserver;
+    private HandlerThread mWearableHandlerThread;
+    private ContentObserver mWearableContentObserver;
 
     public static final String PREF_DOUBLETAPACTION = "doubletap_action";
     public static final String PREF_THREEFINGERACTION = "threefinger_action";
@@ -70,13 +78,57 @@ public class MuzeiWallpaperService extends GLWallpaperService {
     @Override
     public void onCreate() {
         super.onCreate();
+        FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE);
         mLockScreenVisibleReceiver = new LockScreenVisibleReceiver();
         mLockScreenVisibleReceiver.setupRegisterDeregister(this);
+        SourceManager.getInstance(MuzeiWallpaperService.this).subscribeToSelectedSource();
+        mNetworkChangeReceiver = new NetworkChangeReceiver();
+        IntentFilter networkChangeFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(mNetworkChangeReceiver, networkChangeFilter);
+        // Ensure we retry loading the artwork if the network changed while the wallpaper was disabled
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        Intent retryIntent = TaskQueueService.maybeRetryDownloadDueToGainedConnectivity(this);
+        if (retryIntent != null && connectivityManager.getActiveNetworkInfo().isConnected()) {
+            startService(retryIntent);
+        }
+
+        // Set up a thread to update notifications whenever the artwork changes
+        mNotificationHandlerThread = new HandlerThread("MuzeiWallpaperService-Notification");
+        mNotificationHandlerThread.start();
+        mNotificationContentObserver = new ContentObserver(new Handler(mNotificationHandlerThread.getLooper())) {
+            @Override
+            public void onChange(final boolean selfChange, final Uri uri) {
+                NewWallpaperNotificationReceiver.maybeShowNewArtworkNotification(MuzeiWallpaperService.this);
+            }
+        };
+        getContentResolver().registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
+                true, mNotificationContentObserver);
+
+        // Set up a thread to update Android Wear whenever the artwork changes
+        mWearableHandlerThread = new HandlerThread("MuzeiWallpaperService-Wearable");
+        mWearableHandlerThread.start();
+        mWearableContentObserver = new ContentObserver(new Handler(mWearableHandlerThread.getLooper())) {
+            @Override
+            public void onChange(final boolean selfChange, final Uri uri) {
+                WearableController.updateArtwork(MuzeiWallpaperService.this);
+            }
+        };
+        getContentResolver().registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
+                true, mWearableContentObserver);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        getContentResolver().unregisterContentObserver(mWearableContentObserver);
+        mWearableHandlerThread.quitSafely();
+        getContentResolver().unregisterContentObserver(mNotificationContentObserver);
+        mNotificationHandlerThread.quitSafely();
+        if (mNetworkChangeReceiver != null) {
+            unregisterReceiver(mNetworkChangeReceiver);
+            mNetworkChangeReceiver = null;
+        }
+        SourceManager.getInstance(MuzeiWallpaperService.this).unsubscribeToSelectedSource();
         if (mLockScreenVisibleReceiver != null) {
             mLockScreenVisibleReceiver.destroy();
             mLockScreenVisibleReceiver = null;
@@ -120,21 +172,12 @@ public class MuzeiWallpaperService extends GLWallpaperService {
 
             mGestureDetector = new GestureDetector(MuzeiWallpaperService.this, mGestureListener);
             if (!isPreview()) {
+                FirebaseAnalytics.getInstance(MuzeiWallpaperService.this).logEvent("wallpaper_created", null);
                 EventBus.getDefault().postSticky(new WallpaperActiveStateChangedEvent(true));
             }
             setTouchEventsEnabled(true);
             setOffsetNotificationsEnabled(true);
-            EventBus.getDefault().registerSticky(this);
-
-
-            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            @TapAction.Value
-            int doubleTapActionCode = sp.getInt(PREF_DOUBLETAPACTION, TapAction.SHOW_ORIGINAL_ARTWORK);
-            mDoubleTapAction = doubleTapActionCode;
-
-            @TapAction.Value
-            int threeFingerActionCode = sp.getInt(PREF_THREEFINGERACTION, TapAction.NOTHING);
-            mThreeFingerAction = threeFingerActionCode;
+            EventBus.getDefault().register(this);
         }
 
         @Override
@@ -151,6 +194,7 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             super.onDestroy();
             EventBus.getDefault().unregister(this);
             if (!isPreview()) {
+                FirebaseAnalytics.getInstance(MuzeiWallpaperService.this).logEvent("wallpaper_destroyed", null);
                 EventBus.getDefault().postSticky(new WallpaperActiveStateChangedEvent(false));
             }
             queueEvent(new Runnable() {
@@ -164,6 +208,7 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             mRenderController.destroy();
         }
 
+        @Subscribe
         public void onEventMainThread(final ArtDetailOpenedClosedEvent e) {
             if (e.isArtDetailOpened() == mArtDetailMode) {
                 return;
@@ -179,10 +224,12 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             });
         }
 
+        @Subscribe
         public void onEventMainThread(ArtDetailViewport e) {
             requestRender();
         }
 
+        @Subscribe
         public void onEventMainThread(LockScreenVisibleChangedEvent e) {
             final boolean blur = !e.isLockScreenVisible();
             cancelDelayedBlur();
@@ -222,6 +269,15 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             // mValidDoubleTap previously set in the gesture listener
             if (WallpaperManager.COMMAND_TAP.equals(action) && mValidDoubleTap) {
                 executeTapAction(mDoubleTapAction);
+                // Temporarily toggle focused/blurred
+                queueEvent(new Runnable() {
+                    @Override
+                    public void run() {
+                        mRenderer.setIsBlurred(!mRenderer.isBlurred(), false);
+                        // Schedule a re-blur
+                        delayedBlur();
+                    }
+                });
                 // Reset the flag
                 mValidDoubleTap = false;
             }

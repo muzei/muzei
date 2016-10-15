@@ -57,25 +57,23 @@ public class MuzeiContract {
     /**
      * Constants and helper methods for the Artwork table, providing access to the current artwork.
      *
-     * <p>The Artwork table contains at most a single row with the details of the most recent
-     * artwork. It also provides direct access to the cached image already downloaded by Muzei,
+     * <p>The Artwork table contains the details of the artwork that has been loaded by Muzei.
+     * It also provides direct access to the cached image already downloaded by Muzei,
      * ensuring that you do not need to do additional networks requests or have internet access
-     * when retrieving the latest artwork.
+     * when retrieving previously loaded artwork.
      *
      * <h3>Working with the Artwork table</h3>
      *
-     * There's only one URI you need to care about: {@link #CONTENT_URI}.
-     *
-     * <p>Querying this URI will return either zero rows (in cases where the user has never
-     * activated Muzei before) or one row containing all of the details needed to create an
+     * Querying {@link #CONTENT_URI} will return either zero rows (in cases where the user has never
+     * activated Muzei before) or a row for each previously loaded artwork with all of the details needed to create an
      * {@link com.google.android.apps.muzei.api.Artwork Artwork} object. The helper method
-     * {@link #getCurrentArtwork(Context)} does exactly this work for you, although
+     * {@link #getCurrentArtwork(Context)} does builds an Artwork object for the most recent artwork, although
      * you can certainly query the {@link #CONTENT_URI} directly and either use the columns directly or
      * use {@link com.google.android.apps.muzei.api.Artwork#fromCursor(android.database.Cursor) Artwork.fromCursor(Cursor)}
      * to parse the Cursor for you.
      *
-     * <p>If instead you use {@link ContentResolver#openInputStream(Uri) ContentResolver.openInputStream(Uri)}
-     * on the {@link #CONTENT_URI}, you'll get an InputStream for the cached image Bitmap. This can
+     * <p>If instead you use {@link ContentResolver#openInputStream(Uri) ContentResolver.openInputStream(Uri)},
+     * you'll get an InputStream for the cached image Bitmap. This can
      * then be passed to {@link BitmapFactory#decodeStream(java.io.InputStream) BitmapFactory.decodeStream(InputStream)} or
      * similar methods to retrieve the Bitmap itself. The helper method
      * {@link #getCurrentArtworkBitmap(Context)} does this operation, although note
@@ -153,9 +151,23 @@ public class MuzeiContract {
          */
         public static final String COLUMN_NAME_META_FONT = "metaFont";
         /**
+         * Column name for when this artwork was added.
+         * This will be automatically added for you by Muzei.
+         * <p>Type: LONG (in milliseconds)
+         */
+        public static final String COLUMN_NAME_DATE_ADDED = "date_added";
+        /**
          * The MIME type of {@link #CONTENT_URI} providing artwork.
          */
         public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.android.apps.muzei.artwork";
+        /**
+         * The MIME type of {@link #CONTENT_URI} providing a single piece of artwork.
+         */
+        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.google.android.apps.muzei.artwork";
+        /**
+         * The default sort order for this table
+         */
+        public static final String DEFAULT_SORT_ORDER = COLUMN_NAME_DATE_ADDED + " DESC";
         /**
          * The table name offered by this provider.
          */

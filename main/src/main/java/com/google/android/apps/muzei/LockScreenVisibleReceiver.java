@@ -26,7 +26,7 @@ import android.preference.PreferenceManager;
 
 import com.google.android.apps.muzei.event.LockScreenVisibleChangedEvent;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 public class LockScreenVisibleReceiver extends BroadcastReceiver {
     public static final String PREF_ENABLED = "disable_blur_when_screen_locked_enabled";

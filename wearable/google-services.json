@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "543408482564",
+    "firebase_url": "https://project-5314359277299065051.firebaseio.com",
+    "project_id": "project-5314359277299065051",
+    "storage_bucket": "project-5314359277299065051.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:543408482564:android:b94fc70ed09b1238",
+        "android_client_info": {
+          "package_name": "net.nurik.roman.muzei"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "543408482564-t831s05qt0nffpp5k3l043dukif9l4tg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "net.nurik.roman.muzei",
+            "certificate_hash": "FF265DBDE0B46E5A8853D88791ED546595F0DEAB"
+          }
+        },
+        {
+          "client_id": "543408482564-lhkad8drrvnjqupeoifdq2bqfhto9b0t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6YOyyg_RZB9w8TBNXY5Wm-QJxxZWSn2M"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "543408482564-lhkad8drrvnjqupeoifdq2bqfhto9b0t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

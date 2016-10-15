@@ -1,0 +1,26 @@
+<!--
+  Copyright 2014 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+    <color name="gallery_theme_dark">#00796B</color>
+    <color name="gallery_theme">#009688</color>
+    <color name="gallery_theme_light">#4DB6AC</color>
+    <color name="gallery_empty_state_dark">@color/gallery_theme_dark</color>
+    <color name="gallery_empty_state_light">@color/gallery_theme_light</color>
+
+    <color name="gallery_window_background">#111</color>
+    <color name="gallery_chosen_photo_placeholder">#5666</color>
+</resources>

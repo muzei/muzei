@@ -30,6 +30,7 @@ import android.opengl.Matrix;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 
@@ -38,19 +39,16 @@ import com.google.android.apps.muzei.event.ArtworkSizeChangedEvent;
 import com.google.android.apps.muzei.event.SwitchingPhotosStateChangedEvent;
 import com.google.android.apps.muzei.settings.Prefs;
 import com.google.android.apps.muzei.util.ImageBlurrer;
-import com.google.android.apps.muzei.util.LogUtil;
 import com.google.android.apps.muzei.util.MathUtil;
 import com.google.android.apps.muzei.util.TickingFloatAnimator;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import de.greenrobot.event.EventBus;
-
-import static com.google.android.apps.muzei.util.LogUtil.LOGE;
+import org.greenrobot.eventbus.EventBus;
 
 public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
-    private static final String TAG = LogUtil.makeLogTag(MuzeiBlurRenderer.class);
+    private static final String TAG = "MuzeiBlurRenderer";
 
     private static final int CROSSFADE_ANIMATION_DURATION = 750;
     private static final int BLUR_ANIMATION_DURATION = 750;
@@ -170,7 +168,7 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
         GLColorOverlay.initGl();
         GLPicture.initGl();
 
-        mColorOverlay = new GLColorOverlay(0);
+        mColorOverlay = new GLColorOverlay();
 
         mSurfaceCreated = true;
         if (mQueuedNextBitmapRegionLoader != null) {
@@ -410,7 +408,7 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
 
                         scaledBitmap.recycle();
                     } else {
-                        LOGE(TAG, "BitmapRegionLoader failed to decode the region, rect="
+                        Log.e(TAG, "BitmapRegionLoader failed to decode the region, rect="
                                 + rect.toShortString());
                         for (int f = 1; f <= mBlurKeyframes; f++) {
                             mPictures[f] = null;
@@ -583,7 +581,7 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
         mCallbacks.requestRender();
     }
 
-    public static interface Callbacks {
+    public interface Callbacks {
         void requestRender();
     }
 }

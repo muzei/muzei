@@ -40,6 +40,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.SparseIntArray;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -67,25 +68,26 @@ import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
 import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiRendererFragment;
 import com.google.android.apps.muzei.settings.SettingsActivity;
+import com.google.android.apps.muzei.sync.TaskQueueService;
 import com.google.android.apps.muzei.util.AnimatedMuzeiLoadingSpinnerView;
 import com.google.android.apps.muzei.util.AnimatedMuzeiLogoFragment;
 import com.google.android.apps.muzei.util.CheatSheet;
 import com.google.android.apps.muzei.util.DrawInsetsFrameLayout;
-import com.google.android.apps.muzei.util.LogUtil;
 import com.google.android.apps.muzei.util.PanScaleProxyView;
 import com.google.android.apps.muzei.util.ScrimUtil;
 import com.google.android.apps.muzei.util.TypefaceUtil;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
+import net.nurik.roman.muzei.BuildConfig;
 import net.nurik.roman.muzei.R;
 
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
-
-import static com.google.android.apps.muzei.util.LogUtil.LOGE;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 public class MuzeiActivity extends AppCompatActivity {
-    private static final String TAG = LogUtil.makeLogTag(MuzeiActivity.class);
+    private static final String TAG = "MuzeiActivity";
 
     private static final String PREF_SEEN_TUTORIAL = "seen_tutorial";
 
@@ -172,12 +174,15 @@ public class MuzeiActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         viewIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        // Make sure any data URIs granted to Muzei are passed onto the
+                        // started Activity
+                        viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                         try {
                             startActivity(viewIntent);
                         } catch (ActivityNotFoundException | SecurityException e) {
                             Toast.makeText(MuzeiActivity.this, R.string.error_view_details,
                                     Toast.LENGTH_SHORT).show();
-                            LOGE(TAG, "Error viewing artwork details.", e);
+                            Log.e(TAG, "Error viewing artwork details.", e);
                         }
                     }
                 });
@@ -202,7 +207,6 @@ public class MuzeiActivity extends AppCompatActivity {
     private boolean mPaused;
     private boolean mWindowHasFocus;
     private boolean mOverflowMenuVisible = false;
-    private boolean mGestureFlagSystemUiBecameVisible;
     private boolean mWallpaperActive;
     private boolean mSeenTutorial;
     private boolean mGuardViewportChangeListener;
@@ -256,6 +260,7 @@ public class MuzeiActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.muzei_activity);
+        FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE);
 
         mContainerView = (DrawInsetsFrameLayout) findViewById(R.id.container);
 
@@ -320,6 +325,7 @@ public class MuzeiActivity extends AppCompatActivity {
         findViewById(R.id.activate_muzei_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                FirebaseAnalytics.getInstance(MuzeiActivity.this).logEvent("activate", null);
                 try {
                     startActivity(new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
                             .putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
@@ -416,6 +422,7 @@ public class MuzeiActivity extends AppCompatActivity {
 
         // Special work
         if (newUiMode == UI_MODE_INTRO) {
+            FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.TUTORIAL_BEGIN, null);
             final View activateButton = findViewById(R.id.activate_muzei_button);
             activateButton.setAlpha(0);
             final AnimatedMuzeiLogoFragment logoFragment = (AnimatedMuzeiLogoFragment)
@@ -511,6 +518,10 @@ public class MuzeiActivity extends AppCompatActivity {
             set.start();
         }
 
+        if (newUiMode == UI_MODE_ART_DETAIL) {
+            FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.TUTORIAL_COMPLETE, null);
+        }
+
         mPanScaleProxyView.setVisibility(newUiMode == UI_MODE_ART_DETAIL
                 ? View.VISIBLE : View.GONE);
 
@@ -565,9 +576,6 @@ public class MuzeiActivity extends AppCompatActivity {
                     @Override
                     public void onSystemUiVisibilityChange(int vis) {
                         final boolean visible = (vis & View.SYSTEM_UI_FLAG_LOW_PROFILE) == 0;
-                        if (visible) {
-                            mGestureFlagSystemUiBecameVisible = true;
-                        }
 
                         boolean showArtDetailChrome = (mUiMode == UI_MODE_ART_DETAIL);
                         mChromeContainerView.setVisibility(
@@ -637,27 +645,11 @@ public class MuzeiActivity extends AppCompatActivity {
         mPanScaleProxyView.setOnOtherGestureListener(
                 new PanScaleProxyView.OnOtherGestureListener() {
                     @Override
-                    public void onDown() {
-                        mGestureFlagSystemUiBecameVisible = false;
-                    }
-
-                    @Override
                     public void onSingleTapUp() {
                         if (mUiMode == UI_MODE_ART_DETAIL) {
                             showHideChrome((mContainerView.getSystemUiVisibility()
                                     & View.SYSTEM_UI_FLAG_LOW_PROFILE) != 0);
                         }
-                    }
-
-                    @Override
-                    public void onUpNonSingleTap(boolean zoomedOut) {
-                        if (mGestureFlagSystemUiBecameVisible) {
-                            // System UI became visible during this touch sequence. Don't
-                            // change system visibility.
-                            return;
-                        }
-
-                        //showHideChrome(zoomedOut);
                     }
                 });
 
@@ -707,6 +699,7 @@ public class MuzeiActivity extends AppCompatActivity {
 
                 switch (menuItem.getItemId()) {
                     case R.id.action_settings:
+                        FirebaseAnalytics.getInstance(MuzeiActivity.this).logEvent("settings_open", null);
                         startActivity(new Intent(MuzeiActivity.this, SettingsActivity.class));
                         return true;
                 }
@@ -758,6 +751,7 @@ public class MuzeiActivity extends AppCompatActivity {
         maybeUpdateArtDetailOpenedClosed();
     }
 
+    @Subscribe
     public void onEventMainThread(WallpaperSizeChangedEvent wsce) {
         if (wsce.getHeight() > 0) {
             mWallpaperAspectRatio = wsce.getWidth() * 1f / wsce.getHeight();
@@ -768,6 +762,7 @@ public class MuzeiActivity extends AppCompatActivity {
         resetProxyViewport();
     }
 
+    @Subscribe
     public void onEventMainThread(ArtworkSizeChangedEvent ase) {
         mArtworkAspectRatio = ase.getWidth() * 1f / ase.getHeight();
         resetProxyViewport();
@@ -791,6 +786,7 @@ public class MuzeiActivity extends AppCompatActivity {
         }
     }
 
+    @Subscribe
     public void onEventMainThread(ArtDetailViewport e) {
         if (!e.isFromUser() && mPanScaleProxyView != null) {
             mGuardViewportChangeListener = true;
@@ -799,6 +795,7 @@ public class MuzeiActivity extends AppCompatActivity {
         }
     }
 
+    @Subscribe
     public void onEventMainThread(SwitchingPhotosStateChangedEvent spe) {
         mCurrentViewportId = spe.getCurrentId();
         mPanScaleProxyView.enablePanScale(!spe.isSwitchingPhotos());
@@ -861,6 +858,7 @@ public class MuzeiActivity extends AppCompatActivity {
         NewWallpaperNotificationReceiver.markNotificationRead(this);
     }
 
+    @Subscribe
     public void onEventMainThread(final WallpaperActiveStateChangedEvent e) {
         if (mPaused) {
             return;
@@ -870,6 +868,7 @@ public class MuzeiActivity extends AppCompatActivity {
         updateUiMode();
     }
 
+    @Subscribe
     public void onEventMainThread(ArtworkLoadingStateChangedEvent e) {
         mArtworkLoading = e.isLoading();
         mArtworkLoadingError = e.hadError();

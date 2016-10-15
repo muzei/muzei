@@ -15,7 +15,13 @@
   -->
 
 <resources>
-    <string name="app_name">Muzei</string>
+    <string name="complication_artwork_label">Artwork</string>
     <string name="dismiss_overlay_intro">Long press anywhere to exit</string>
-    <string name="activate_notification_text">Activate to sync your background</string>
+    <string name="activate_title">@string/app_name</string>
+    <string name="activate_no_play_store">Muzei will only show a static background
+        if you cannot install the Muzei Android app on your connected device.</string>
+    <string name="activate_install_muzei">Sync your background by installing Muzei on your connected device.</string>
+    <string name="activate_enable_muzei">Activate Muzei sync on %s</string>
+    <string name="activate_action">Activate on %s</string>
+    <string name="activate_failed">Unable to find your phone to activate Muzei</string>
 </resources>

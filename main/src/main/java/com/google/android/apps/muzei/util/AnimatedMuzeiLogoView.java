@@ -25,6 +25,7 @@ import android.graphics.Path;
 import android.graphics.PathMeasure;
 import android.graphics.PointF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
@@ -32,10 +33,8 @@ import android.view.animation.Interpolator;
 
 import java.text.ParseException;
 
-import static com.google.android.apps.muzei.util.LogUtil.LOGE;
-
 public class AnimatedMuzeiLogoView extends View {
-    private static final String TAG = LogUtil.makeLogTag(AnimatedMuzeiLogoView.class);
+    private static final String TAG = "AnimatedMuzeiLogoView";
 
     private static final int TRACE_TIME = 2000;
     private static final int TRACE_TIME_PER_GLYPH = 1000;
@@ -138,7 +137,7 @@ public class AnimatedMuzeiLogoView extends View {
                 mGlyphData[i].path = parser.parsePath(LogoPaths.GLYPHS[i]);
             } catch (ParseException e) {
                 mGlyphData[i].path = new Path();
-                LOGE(TAG, "Couldn't parse path", e);
+                Log.e(TAG, "Couldn't parse path", e);
             }
             PathMeasure pm = new PathMeasure(mGlyphData[i].path, true);
             while (true) {
@@ -220,7 +219,7 @@ public class AnimatedMuzeiLogoView extends View {
         mOnStateChangeListener = onStateChangeListener;
     }
 
-    public static interface OnStateChangeListener {
+    public interface OnStateChangeListener {
         void onStateChange(int state);
     }
 

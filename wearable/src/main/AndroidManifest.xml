@@ -1,4 +1,4 @@
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright 2014 Google Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,8 +20,15 @@
 
     <uses-feature android:name="android.hardware.type.watch"/>
 
+    <!-- Used by Firebase Analytics -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
     <!-- Required to act as a custom watch face. -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- Used to restart jobs listening for MuzeiProvider changes on boot -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:icon="@mipmap/ic_launcher"
@@ -54,6 +61,32 @@
         </service>
 
         <service android:name="com.google.android.apps.muzei.ArtworkCacheIntentService" />
+
+        <service
+            android:name="com.google.android.apps.muzei.complications.ArtworkComplicationProviderService"
+            android:label="@string/complication_artwork_label"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="LARGE_IMAGE" />
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="0" />
+        </service>
+        <service
+            android:name="com.google.android.apps.muzei.complications.ArtworkComplicationJobService"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <receiver
+            android:name="com.google.android.apps.muzei.complications.ArtworkComplicationBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
         <service
             android:name="com.google.android.apps.muzei.MuzeiWatchFace"

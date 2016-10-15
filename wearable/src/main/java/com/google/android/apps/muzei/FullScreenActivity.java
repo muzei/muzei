@@ -26,6 +26,7 @@ import android.content.Loader;
 import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -40,13 +41,15 @@ import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.util.PanView;
 import com.google.android.apps.muzei.util.TypefaceUtil;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
+import net.nurik.roman.muzei.BuildConfig;
 import net.nurik.roman.muzei.R;
 
 import java.io.FileNotFoundException;
 
 public class FullScreenActivity extends Activity implements LoaderManager.LoaderCallbacks<Bitmap> {
-    private static final String TAG = FullScreenActivity.class.getSimpleName();
+    private static final String TAG = "FullScreenActivity";
 
     private PanView mPanView;
     private View mLoadingIndicatorView;
@@ -65,6 +68,7 @@ public class FullScreenActivity extends Activity implements LoaderManager.Loader
     public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         setContentView(R.layout.full_screen_activity);
+        FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE);
         mPanView = (PanView) findViewById(R.id.pan_view);
         getLoaderManager().initLoader(0, null, this);
 
@@ -84,10 +88,12 @@ public class FullScreenActivity extends Activity implements LoaderManager.Loader
         mBylineView = (TextView) findViewById(R.id.byline);
         mBylineView.setTypeface(tf);
 
-        // Configure the DismissOverlayView element
         mDismissOverlay = (DismissOverlayView) findViewById(R.id.dismiss_overlay);
-        mDismissOverlay.setIntroText(R.string.dismiss_overlay_intro);
-        mDismissOverlay.showIntroIfNecessary();
+        // Only show the dismiss overlay on Wear 1.0 devices
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            mDismissOverlay.setIntroText(R.string.dismiss_overlay_intro);
+            mDismissOverlay.showIntroIfNecessary();
+        }
         mDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -108,7 +114,10 @@ public class FullScreenActivity extends Activity implements LoaderManager.Loader
                 if (mDismissOverlay.getVisibility() == View.VISIBLE) {
                     return;
                 }
-                mDismissOverlay.show();
+                // Only show the dismiss overlay on Wear 1.0 devices
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                    mDismissOverlay.show();
+                }
             }
         });
     }

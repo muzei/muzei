@@ -57,7 +57,7 @@ public class ArtworkImageLoader extends AsyncTaskLoader<Bitmap> {
         try {
             return MuzeiContract.Artwork.getCurrentArtworkBitmap(getContext());
         } catch (FileNotFoundException e) {
-            Log.e(ArtworkImageLoader.class.getSimpleName(), "Error getting artwork image", e);
+            Log.e("ArtworkImageLoader", "Error getting artwork image", e);
         }
         return null;
     }

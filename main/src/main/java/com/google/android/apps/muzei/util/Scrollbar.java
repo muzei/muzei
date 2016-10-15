@@ -28,13 +28,12 @@ import android.view.View;
 import net.nurik.roman.muzei.R;
 
 public class Scrollbar extends View {
+    private static final int DEFAULT_BACKGROUND_COLOR = 0x80000000;
+    private static final int DEFAULT_INDICATOR_COLOR = 0xff000000;
+
     private boolean mHidden = true;
 
     private final int mAnimationDuration;
-
-    private int mIndicatorColor = 0xff000000;
-    private int mBackgroundColor = 0x80000000;
-
     private float mIndicatorWidth;
     private Paint mBackgroundPaint;
     private Paint mIndicatorPaint;
@@ -63,8 +62,8 @@ public class Scrollbar extends View {
         mAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
         final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.Scrollbar);
-        mBackgroundColor = a.getColor(R.styleable.Scrollbar_backgroundColor, mBackgroundColor);
-        mIndicatorColor = a.getColor(R.styleable.Scrollbar_indicatorColor, mIndicatorColor);
+        int mBackgroundColor = a.getColor(R.styleable.Scrollbar_backgroundColor, DEFAULT_BACKGROUND_COLOR);
+        int mIndicatorColor = a.getColor(R.styleable.Scrollbar_indicatorColor, DEFAULT_INDICATOR_COLOR);
         a.recycle();
 
         mBackgroundPaint = new Paint();

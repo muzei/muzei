@@ -16,10 +16,11 @@
 
 buildscript {
     repositories {
-        mavenCentral()
+        jcenter()
     }
     dependencies {
-        classpath rootProject.ext.gradleClasspath
+        classpath "com.android.tools.build:gradle:$rootProject.ext.toolsPluginVersion"
+        classpath "com.google.gms:google-services:$rootProject.ext.googleServicesPluginVersion"
     }
 }
 
@@ -28,7 +29,7 @@ apply plugin: 'com.android.application'
 project.archivesBaseName = "muzei"
 
 repositories {
-    mavenCentral()
+    jcenter()
 }
 
 android {
@@ -39,13 +40,16 @@ android {
     versionProps.load(new FileInputStream(file('../version.properties')))
 
     defaultConfig {
-        minSdkVersion 17
+        applicationId "net.nurik.roman.muzei"
+        minSdkVersion 19
         targetSdkVersion rootProject.ext.targetSdkVersion
         renderscriptTargetApi rootProject.ext.targetSdkVersion
         renderscriptSupportModeEnabled true
 
         versionName versionProps['name']
         versionCode versionProps['code'].toInteger()
+
+        buildConfigField "String", "DEVICE_TYPE", "\"android\""
     }
 
     signingConfigs {
@@ -60,6 +64,25 @@ android {
             keyAlias keyProps["alias"] ?: ""
             storePassword keyProps["storePass"] ?: ""
             keyPassword keyProps["pass"] ?: ""
+        }
+    }
+
+    splits {
+        abi {
+            enable true
+            reset()
+            include "armeabi-v7a", "arm64-v8a"
+            universalApk true
+        }
+    }
+
+    // For each APK output variant, add in the ABI specific versionCode
+    applicationVariants.all { variant ->
+        // assign different version code for each output
+        variant.outputs.each { output ->
+            int abiVersionCode = rootProject.ext.abiSplitVersionCodes.get(
+                    output.getFilter(com.android.build.OutputFile.ABI)) ?: 0
+            output.versionCodeOverride = abiVersionCode * rootProject.ext.abiSplitMultiplier + defaultConfig.versionCode
         }
     }
 
@@ -90,9 +113,6 @@ android {
 
         publicBeta.initWith(buildTypes.release)
         publicBeta {
-            minifyEnabled true
-            shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), file('proguard-project.txt')
             versionNameSuffix " " + versionProps['betaNumber']
         }
 
@@ -100,9 +120,6 @@ android {
         publicDebug {
             debuggable true
             renderscriptDebuggable true
-            minifyEnabled true
-            shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), file('proguard-project.txt')
             versionNameSuffix " Debug " + versionProps['betaNumber']
         }
     }
@@ -114,19 +131,23 @@ android {
 }
 
 dependencies {
-    compile 'com.squareup.okhttp:okhttp:2.1.0'
-    compile 'com.squareup.okhttp:okhttp-urlconnection:2.1.0'
-    compile 'com.squareup.picasso:picasso:2.4.0'
-    compile 'com.google.android.gms:play-services-wearable:8.3.0'
-    compile 'de.greenrobot:eventbus:2.4.0'
-    compile 'com.android.support:appcompat-v7:23.1.1'
-    compile 'com.android.support:recyclerview-v7:23.1.1'
-    compile 'com.android.support:design:23.1.1'
-    compile 'com.android.support:customtabs:23.1.1'
+    compile "com.squareup.okhttp3:okhttp:$rootProject.ext.okhttpVersion"
+    compile "com.squareup.picasso:picasso:$rootProject.ext.picassoVersion"
+    compile "com.google.android.gms:play-services-wearable:$rootProject.ext.googlePlayServicesVersion"
+    compile "com.google.firebase:firebase-crash:$rootProject.ext.googlePlayServicesVersion"
+    compile "org.greenrobot:eventbus:3.0.0"
+    compile "com.android.support:appcompat-v7:$rootProject.ext.supportLibraryVersion"
+    compile "com.android.support:recyclerview-v7:$rootProject.ext.supportLibraryVersion"
+    compile "com.android.support:design:$rootProject.ext.supportLibraryVersion"
+    compile "com.android.support:customtabs:$rootProject.ext.supportLibraryVersion"
 
     // :api is included as a transitive dependency from :android-client-common
     // compile project(':api')
     compile project(':android-client-common')
-    devWearApp project(path: ':wearable', configuration: 'devRelease')
-    prodWearApp project(path: ':wearable', configuration: 'prodRelease')
+    compile project(':source-featured-art')
+    compile project(':source-gallery')
+    releaseWearApp project(path: ':wearable', configuration: 'prodRelease')
+    publicBetaWearApp project(path: ':wearable', configuration: 'prodPublicBeta')
 }
+
+apply plugin: 'com.google.gms.google-services'
