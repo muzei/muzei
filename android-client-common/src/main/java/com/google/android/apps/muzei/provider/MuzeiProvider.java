@@ -580,11 +580,43 @@ public class MuzeiProvider extends ContentProvider {
     }
 
     private ParcelFileDescriptor openFileArtwork(@NonNull final Uri uri, @NonNull final String mode) throws FileNotFoundException {
-        final File file = getCacheFileForArtworkUri(uri);
+        String[] projection = { BaseColumns._ID, MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI };
+        final boolean isWriteOperation = mode.contains("w");
+        final File file;
+        if (!isWriteOperation && MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK) {
+            // If it isn't a write operation, then we should attempt to find the latest artwork
+            // that does have a cached artwork file. This prevents race conditions where
+            // an external app attempts to load the latest artwork while an art source is inserting a
+            // new artwork
+            Cursor data = queryArtwork(MuzeiContract.Artwork.CONTENT_URI, projection, null, null, null);
+            if (data == null) {
+                return null;
+            }
+            if (!data.moveToFirst()) {
+                String callingPackageName = getContext().getPackageManager().getNameForUid(
+                        Binder.getCallingUid());
+                if (!getContext().getPackageName().equals(callingPackageName)) {
+                    Log.w(TAG, "You must insert at least one row to read or write artwork");
+                }
+                return null;
+            }
+            File foundFile = null;
+            while (!data.isAfterLast()) {
+                Uri possibleArtworkUri = ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI, data.getLong(0));
+                File possibleFile = getCacheFileForArtworkUri(possibleArtworkUri);
+                if (possibleFile != null && possibleFile.exists()) {
+                    foundFile = possibleFile;
+                    break;
+                }
+                data.moveToNext();
+            }
+            file = foundFile;
+        } else {
+            file = getCacheFileForArtworkUri(uri);
+        }
         if (file == null) {
             throw new FileNotFoundException("Could not create artwork file");
         }
-        final boolean isWriteOperation = mode.contains("w");
         if (file.exists() && file.length() > 0 && isWriteOperation) {
             Context context = getContext();
             if (context == null) {
@@ -624,9 +656,9 @@ public class MuzeiProvider extends ContentProvider {
         }
     }
 
-    private File getCacheFileForArtworkUri(@NonNull Uri artworkUri) {
+    private File getCacheFileForArtworkUri(Uri artworkUri) {
         Context context = getContext();
-        if (context == null) {
+        if (context == null || artworkUri == null) {
             return null;
         }
         File directory = new File(context.getFilesDir(), "artwork");
@@ -634,28 +666,12 @@ public class MuzeiProvider extends ContentProvider {
             return null;
         }
         String[] projection = { BaseColumns._ID, MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI };
-        Cursor data;
-        if (MuzeiProvider.uriMatcher.match(artworkUri) == MuzeiProvider.ARTWORK) {
-            data = queryArtwork(MuzeiContract.Artwork.CONTENT_URI, projection, null, null, null);
-            if (data == null) {
-                return null;
-            }
-            if (!data.moveToFirst()) {
-                String callingPackageName = getContext().getPackageManager().getNameForUid(
-                        Binder.getCallingUid());
-                if (!getContext().getPackageName().equals(callingPackageName)) {
-                    Log.w(TAG, "You must insert at least one row to read or write artwork");
-                }
-                return null;
-            }
-        } else {
-            data = queryArtwork(artworkUri, projection, null, null, null);
-            if (data == null) {
-                return null;
-            }
-            if (!data.moveToFirst()) {
-                throw new IllegalStateException("Invalid URI: " + artworkUri);
-            }
+        Cursor data = queryArtwork(artworkUri, projection, null, null, null);
+        if (data == null) {
+            return null;
+        }
+        if (!data.moveToFirst()) {
+            throw new IllegalStateException("Invalid URI: " + artworkUri);
         }
         // While normally we'd use data.getLong(), we later need this as a String so the automatic conversion helps here
         String id = data.getString(0);
