@@ -82,7 +82,7 @@ public class GalleryProvider extends ContentProvider {
     /**
      * The database version
      */
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
     /**
      * A UriMatcher instance
      */
@@ -642,9 +642,30 @@ public class GalleryProvider extends ContentProvider {
             if (oldVersion < 2) {
                 db.execSQL("DROP TABLE IF EXISTS " + GalleryContract.MetadataCache.TABLE_NAME);
                 onCreateMetadataCache(db);
-            } else if (oldVersion < 3) {
+            }
+            if (oldVersion < 3) {
                 db.execSQL("ALTER TABLE " + GalleryContract.ChosenPhotos.TABLE_NAME
                         + " ADD COLUMN " + GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI + " INTEGER");
+            }
+            if (oldVersion < 4) {
+                // Due to an issue with upgrading version 2 to 3, some users might have the
+                // COLUMN_NAME_IS_TREE_URI column and some might not. Awkward.
+                // We'll check if the column exists and add it if it doesn't exist
+                Cursor pragma = db.rawQuery("PRAGMA table_info(" + GalleryContract.ChosenPhotos.TABLE_NAME + ")", null);
+                boolean columnExists = false;
+                while (pragma.moveToNext()) {
+                    int columnIndex = pragma.getColumnIndex("name");
+                    if(columnIndex != -1 &&
+                            pragma.getString(columnIndex).equals(
+                                    GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI)) {
+                        columnExists = true;
+                    }
+                }
+                pragma.close();
+                if (!columnExists) {
+                    db.execSQL("ALTER TABLE " + GalleryContract.ChosenPhotos.TABLE_NAME
+                            + " ADD COLUMN " + GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI + " INTEGER");
+                }
             }
         }
     }
