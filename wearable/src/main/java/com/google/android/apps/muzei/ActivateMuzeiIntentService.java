@@ -25,6 +25,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.preference.PreferenceManager;
+import android.service.notification.StatusBarNotification;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.wearable.activity.ConfirmationActivity;
@@ -49,7 +50,8 @@ import java.util.concurrent.TimeUnit;
 
 public class ActivateMuzeiIntentService extends IntentService {
     private static final String TAG = "ActivateMuzeiService";
-    private static final int NOTIFICATION_ID = 3113;
+    private static final int INSTALL_NOTIFICATION_ID = 3113;
+    private static final int ACTIVATE_NOTIFICATION_ID = 3114;
     private static final String ACTIVATE_MUZEI_NOTIF_SHOWN_PREF_KEY = "ACTIVATE_MUZEI_NOTIF_SHOWN";
     private static final String ACTION_MARK_NOTIFICATION_READ =
             "com.google.android.apps.muzei.action.NOTIFICATION_DELETED";
@@ -61,6 +63,16 @@ public class ActivateMuzeiIntentService extends IntentService {
         }
         NotificationManager notificationManager = (NotificationManager)
                 context.getSystemService(NOTIFICATION_SERVICE);
+        StatusBarNotification[] notifications = notificationManager.getActiveNotifications();
+        boolean hasInstallNotification = false;
+        boolean hasActivateNotification = false;
+        for (StatusBarNotification notification : notifications) {
+            if (notification.getId() == INSTALL_NOTIFICATION_ID) {
+                hasInstallNotification = true;
+            } else if (notification.getId() == ACTIVATE_NOTIFICATION_ID) {
+                hasActivateNotification = true;
+            }
+        }
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
         builder.setSmallIcon(R.drawable.ic_stat_muzei)
                 .setColor(ContextCompat.getColor(context, R.color.notification))
@@ -85,6 +97,10 @@ public class ActivateMuzeiIntentService extends IntentService {
             googleApiClient.disconnect();
         }
         if (nodes.isEmpty()) {
+            if (hasInstallNotification) {
+                // No need to repost the notification
+                return;
+            }
             // Send an install Muzei notification
             if (PlayStoreAvailability.getPlayStoreAvailabilityOnPhone(context)
                     != PlayStoreAvailability.PLAY_STORE_ON_PHONE_AVAILABLE) {
@@ -94,10 +110,18 @@ public class ActivateMuzeiIntentService extends IntentService {
                 builder.setContentText(context.getString(R.string.activate_install_muzei));
                 FirebaseAnalytics.getInstance(context).logEvent("activate_notif_play_store", null);
             }
-            notificationManager.notify(NOTIFICATION_ID, builder.build());
+            notificationManager.notify(INSTALL_NOTIFICATION_ID, builder.build());
             return;
         }
         // else, Muzei is installed on the phone/tablet, but not activated
+        if (hasInstallNotification) {
+            // Clear any install Muzei notification
+            notificationManager.cancel(INSTALL_NOTIFICATION_ID);
+        }
+        if (hasActivateNotification) {
+            // No need to repost the notification
+            return;
+        }
         String nodeName = nodes.iterator().next().getDisplayName();
         builder.setContentText(context.getString(R.string.activate_enable_muzei, nodeName));
         Intent launchMuzeiIntent = new Intent(context, ActivateMuzeiIntentService.class);
@@ -118,7 +142,14 @@ public class ActivateMuzeiIntentService extends IntentService {
                 .setContentAction(0)
                 .setBackground(background));
         FirebaseAnalytics.getInstance(context).logEvent("activate_notif_installed", null);
-        notificationManager.notify(NOTIFICATION_ID, builder.build());
+        notificationManager.notify(ACTIVATE_NOTIFICATION_ID, builder.build());
+    }
+
+    public static void clearNotifications(Context context) {
+        NotificationManager notificationManager = (NotificationManager)
+                context.getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.cancel(INSTALL_NOTIFICATION_ID);
+        notificationManager.cancel(ACTIVATE_NOTIFICATION_ID);
     }
 
     public ActivateMuzeiIntentService() {
@@ -160,7 +191,7 @@ public class ActivateMuzeiIntentService extends IntentService {
             // Clear the notification
             NotificationManager notificationManager = (NotificationManager)
                     getSystemService(NOTIFICATION_SERVICE);
-            notificationManager.cancel(NOTIFICATION_ID);
+            notificationManager.cancel(INSTALL_NOTIFICATION_ID);
             preferences.edit().putBoolean(ACTIVATE_MUZEI_NOTIF_SHOWN_PREF_KEY, true).apply();
             // Send the message to the phone to open Muzei
             for (Node node : nodes) {

@@ -89,6 +89,8 @@ public class ArtworkCacheIntentService extends IntentService {
         if (!foundArtwork && intent != null &&
                 intent.getBooleanExtra(SHOW_ACTIVATE_NOTIFICATION_EXTRA, false)) {
             ActivateMuzeiIntentService.maybeShowActivateMuzeiNotification(this);
+        } else {
+            ActivateMuzeiIntentService.clearNotifications(this);
         }
         googleApiClient.disconnect();
     }
