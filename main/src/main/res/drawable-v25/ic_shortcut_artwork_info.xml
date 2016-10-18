@@ -1,0 +1,28 @@
+<!--
+  Copyright 2014 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="48dp"
+        android:height="48dp"
+        android:viewportWidth="48.0"
+        android:viewportHeight="48.0">
+    <path
+        android:pathData="M24,24m-22,0a22,22 0,1 1,44 0a22,22 0,1 1,-44 0"
+        android:fillColor="#F5F5F5" />
+    <path
+        android:pathData="M24.45,19.17C23.78,19.17 23.27,18.99 22.91,18.63C22.56,18.27 22.38,17.76 22.38,17.1C22.38,16.13 22.66,15.37 23.22,14.82C23.77,14.27 24.52,14 25.46,14C26.8,14 27.47,14.66 27.47,15.99C27.47,16.98 27.2,17.76 26.64,18.32C26.08,18.89 25.35,19.17 24.45,19.17L24.45,19.17ZM25.35,29.6C25.39,29.6 25.43,29.59 25.47,29.57C25.52,29.55 25.58,29.51 25.67,29.44C25.76,29.37 25.89,29.26 26.06,29.11C26.22,28.96 26.45,28.76 26.73,28.51L27.34,28.62L27.87,29.89C27.17,30.68 26.55,31.35 26.02,31.88C25.49,32.41 25.01,32.83 24.58,33.15C24.16,33.47 23.77,33.69 23.4,33.81C23.04,33.94 22.67,34 22.3,34C21.14,34 20.55,33.41 20.55,32.22C20.76,30.91 20.96,29.72 21.14,28.64C21.21,28.18 21.28,27.73 21.35,27.28C21.42,26.82 21.48,26.41 21.55,26.03C21.61,25.65 21.66,25.33 21.69,25.06C21.73,24.8 21.75,24.61 21.75,24.5C21.75,23.92 21.45,23.63 20.87,23.63L20.13,23.63L20.45,21.45C21.03,21.45 21.67,21.44 22.36,21.4C23.05,21.37 23.69,21.33 24.29,21.29C25,21.24 25.69,21.19 26.36,21.14L26.79,21.67C26.61,22.43 26.42,23.23 26.23,24.08C26.07,24.82 25.9,25.66 25.72,26.6C25.55,27.54 25.39,28.51 25.25,29.52L25.35,29.6Z"
+        android:fillColor="#3C6CAF" />
+</vector>
