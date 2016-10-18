@@ -23,9 +23,11 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.widget.RemoteViews;
 
 import com.google.android.apps.muzei.api.Artwork;
@@ -64,10 +66,6 @@ public class ArtworkUpdateService extends IntentService {
         Bitmap image;
         try {
             image = MuzeiContract.Artwork.getCurrentArtworkBitmap(this);
-            // getCurrentArtworkBitmap is a naive method so we manually reduce the size based on the screen size
-            // Consider using BitmapFactory.decodeStream(contentResolver.openInputStream(CONTENT_URI), options)
-            // where options subsamples the image to the appropriate size if you don't need to full size image
-            image = scaleBitmap(image);
         } catch (FileNotFoundException e) {
             Log.w(TAG, "Could not find current artwork image", e);
             return;
@@ -81,18 +79,28 @@ public class ArtworkUpdateService extends IntentService {
         Intent launchIntent = packageManager.getLaunchIntentForPackage("net.nurik.roman.muzei");
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0, launchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         for (int widgetId : appWidgetIds) {
+            Bundle extras = appWidgetManager.getAppWidgetOptions(widgetId);
+            int widgetWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                    extras.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH), displayMetrics);
+            int widgetHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                    extras.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT), displayMetrics);
+            // getCurrentArtworkBitmap is a naive method so we manually reduce the size based on the
+            // widget's actual size. Consider using
+            // BitmapFactory.decodeStream(contentResolver.openInputStream(CONTENT_URI), options)
+            // where options subsamples the image to the appropriate size
+            Bitmap scaledImage = scaleBitmap(image, widgetWidth, widgetHeight);
             RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.widget);
             remoteViews.setContentDescription(R.id.background, contentDescription);
-            remoteViews.setImageViewBitmap(R.id.background, image);
+            remoteViews.setImageViewBitmap(R.id.background, scaledImage);
             remoteViews.setOnClickPendingIntent(R.id.background, pendingIntent);
             appWidgetManager.updateAppWidget(widgetId, remoteViews);
         }
     }
 
-    private Bitmap scaleBitmap(Bitmap image) {
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
-        int largestDimension = Math.max(metrics.widthPixels, metrics.heightPixels);
+    private Bitmap scaleBitmap(Bitmap image, int widgetWidth, int widgetHeight) {
+        int largestDimension = Math.max(widgetWidth, widgetHeight);
         int width = image.getWidth();
         int height = image.getHeight();
         if (width > height) {

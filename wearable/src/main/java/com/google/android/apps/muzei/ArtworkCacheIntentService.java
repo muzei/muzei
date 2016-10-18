@@ -27,6 +27,7 @@ import android.util.Log;
 
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiContract;
+import com.google.android.apps.muzei.complications.ArtworkComplicationProviderService;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.Asset;
@@ -82,12 +83,14 @@ public class ArtworkCacheIntentService extends IntentService {
         }
         dataItemBuffer.release();
         if (foundArtwork) {
-            // Enable the Full Screen Activity only if we've found artwork
-            enableComponents(FullScreenActivity.class);
+            // Enable the Full Screen Activity and Artwork Complication Provider Service only if we've found artwork
+            enableComponents(FullScreenActivity.class, ArtworkComplicationProviderService.class);
         }
         if (!foundArtwork && intent != null &&
                 intent.getBooleanExtra(SHOW_ACTIVATE_NOTIFICATION_EXTRA, false)) {
             ActivateMuzeiIntentService.maybeShowActivateMuzeiNotification(this);
+        } else {
+            ActivateMuzeiIntentService.clearNotifications(this);
         }
         googleApiClient.disconnect();
     }
