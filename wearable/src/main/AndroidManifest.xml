@@ -65,6 +65,7 @@
         <service
             android:name="com.google.android.apps.muzei.complications.ArtworkComplicationProviderService"
             android:label="@string/complication_artwork_label"
+            android:enabled="false"
             tools:ignore="ExportedService">
             <intent-filter>
                 <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST" />
