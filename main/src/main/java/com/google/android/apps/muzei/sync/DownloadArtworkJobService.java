@@ -30,6 +30,7 @@ public class DownloadArtworkJobService extends JobService {
         mDownloadArtworkTask = new DownloadArtworkTask(this) {
             @Override
             protected void onPostExecute(Boolean success) {
+                super.onPostExecute(success);
                 jobFinished(params, !success);
             }
         };
