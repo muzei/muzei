@@ -42,7 +42,8 @@
     <string name="action_next_artwork_condensed">Next</string>
     <string name="action_user_command">More</string>
     <string name="action_user_command_prompt">Choose action</string>
-    <string name="action_open_details">More info</string>
+    <string name="action_artwork_info">Artwork info</string>
+    <string name="action_artwork_info_disabled">There is no artwork info for the current artwork.</string>
 
     <string name="done">Done</string>
     <string name="retry">Retry</string>
