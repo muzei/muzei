@@ -280,11 +280,14 @@ public class SourceManager {
         WearableController.updateSource(mApplicationContext);
 
         Artwork artwork = state.getCurrentArtwork();
-        artwork.setComponentName(mSelectedSource);
-        mContentResolver.insert(MuzeiContract.Artwork.CONTENT_URI, artwork.toContentValues());
+        if (artwork != null) {
+            artwork.setComponentName(mSelectedSource);
+            mContentResolver.insert(MuzeiContract.Artwork.CONTENT_URI, artwork.toContentValues());
 
-        // Download the artwork contained from the newly published SourceState
-        mApplicationContext.startService(TaskQueueService.getDownloadCurrentArtworkIntent(mApplicationContext));
+            // Download the artwork contained from the newly published SourceState
+            mApplicationContext.startService(
+                    TaskQueueService.getDownloadCurrentArtworkIntent(mApplicationContext));
+        }
     }
 
     public synchronized ComponentName getSelectedSource() {
