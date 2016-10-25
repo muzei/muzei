@@ -298,37 +298,47 @@ public class GalleryProvider extends ContentProvider {
         boolean isTreeUri = isTreeUri(Uri.parse(imageUri));
         values.put(GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI, isTreeUri);
         Uri uriToTake = Uri.parse(imageUri);
-        boolean haveUriPermission = context.checkCallingUriPermission(uriToTake,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION) == PackageManager.PERMISSION_GRANTED;
-        // If we only have permission to this URI via URI permissions (rather than directly, such as if the URI is
-        // from our own app), it is from an external  source and we need to make sure to gain persistent access to
-        // the URI's content
-        if (haveUriPermission) {
-            boolean persistedPermission = false;
-            // Try to persist access to the URI, saving us from having to store a local copy
-            if (isTreeUri || DocumentsContract.isDocumentUri(context, uriToTake)) {
-                try {
-                    context.getContentResolver().takePersistableUriPermission(uriToTake, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    persistedPermission = true;
-                    // If we have a persisted URI permission, we don't need a local copy
-                    File cachedFile = getCacheFileForUri(getContext(), imageUri);
-                    if (cachedFile != null && cachedFile.exists()) {
-                        if (!cachedFile.delete()) {
-                            Log.w(TAG, "Unable to delete " + cachedFile);
-                        }
-                    }
-                } catch (SecurityException ignored) {
-                    // If we don't have FLAG_GRANT_PERSISTABLE_URI_PERMISSION (such as when using ACTION_GET_CONTENT),
-                    // this will fail. We'll need to make a local copy (handled below)
-                }
+        if (isTreeUri) {
+            try {
+                context.getContentResolver().takePersistableUriPermission(uriToTake, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            } catch (SecurityException ignored) {
+                // You can't persist URI permissions from your own app, so this fails.
+                // We'll still have access to it directly
             }
-            if (!persistedPermission) {
-                // We only need to make a local copy if we weren't able to persist the permission
-                try {
-                    writeUriToFile(context, imageUri, getCacheFileForUri(context, imageUri));
-                } catch (IOException e) {
-                    Log.e(TAG, "Error downloading gallery image " + imageUri, e);
-                    throw new SQLException("Error downloading gallery image " + imageUri);
+        } else {
+            boolean haveUriPermission = context.checkCallingUriPermission(uriToTake,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION) == PackageManager.PERMISSION_GRANTED;
+            // If we only have permission to this URI via URI permissions (rather than directly,
+            // such as if the URI is from our own app), it is from an external source and we need
+            // to make sure to gain persistent access to the URI's content
+            if (haveUriPermission) {
+                boolean persistedPermission = false;
+                // Try to persist access to the URI, saving us from having to store a local copy
+                if (DocumentsContract.isDocumentUri(context, uriToTake)) {
+                    try {
+                        context.getContentResolver().takePersistableUriPermission(uriToTake,
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        persistedPermission = true;
+                        // If we have a persisted URI permission, we don't need a local copy
+                        File cachedFile = getCacheFileForUri(getContext(), imageUri);
+                        if (cachedFile != null && cachedFile.exists()) {
+                            if (!cachedFile.delete()) {
+                                Log.w(TAG, "Unable to delete " + cachedFile);
+                            }
+                        }
+                    } catch (SecurityException ignored) {
+                        // If we don't have FLAG_GRANT_PERSISTABLE_URI_PERMISSION (such as when using ACTION_GET_CONTENT),
+                        // this will fail. We'll need to make a local copy (handled below)
+                    }
+                }
+                if (!persistedPermission) {
+                    // We only need to make a local copy if we weren't able to persist the permission
+                    try {
+                        writeUriToFile(context, imageUri, getCacheFileForUri(context, imageUri));
+                    } catch (IOException e) {
+                        Log.e(TAG, "Error downloading gallery image " + imageUri, e);
+                        throw new SQLException("Error downloading gallery image " + imageUri);
+                    }
                 }
             }
         }
