@@ -62,8 +62,6 @@
         <service android:name="com.google.android.apps.muzei.SourceSubscriberService"
             android:exported="true" />
 
-        <service android:name="com.google.android.apps.muzei.wearable.WearableSourceUpdateService" />
-
         <service android:name="com.google.android.apps.muzei.sync.TaskQueueService" />
         <service
             android:name="com.google.android.apps.muzei.sync.DownloadArtworkJobService"

@@ -39,8 +39,6 @@ import com.google.android.apps.muzei.api.UserCommand;
 import com.google.android.apps.muzei.api.internal.SourceState;
 import com.google.android.apps.muzei.featuredart.FeaturedArtSource;
 import com.google.android.apps.muzei.sync.TaskQueueService;
-import com.google.android.apps.muzei.wearable.WearableController;
-import com.google.android.apps.muzei.wearable.WearableSourceUpdateService;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.BuildConfig;
@@ -162,8 +160,6 @@ public class SourceManager {
             mSharedPrefs.edit().remove(PREF_SELECTED_SOURCE).remove(PREF_SOURCE_STATES).apply();
             FirebaseAnalytics.getInstance(mApplicationContext).setUserProperty(USER_PROPERTY_SELECTED_SOURCE,
                     selectedSource.flattenToShortString());
-            mApplicationContext.startService(
-                    new Intent(mApplicationContext, WearableSourceUpdateService.class));
         } catch (RemoteException | OperationApplicationException e) {
             Log.e(TAG, "Error writing sources to ContentProvider", e);
         }
@@ -222,8 +218,6 @@ public class SourceManager {
                         .apply();
                 FirebaseAnalytics.getInstance(mApplicationContext).setUserProperty(USER_PROPERTY_SELECTED_SOURCE,
                         source.flattenToShortString());
-                mApplicationContext.startService(
-                        new Intent(mApplicationContext, WearableSourceUpdateService.class));
             } catch (RemoteException | OperationApplicationException e) {
                 Log.e(TAG, "Error writing sources to ContentProvider", e);
             }
@@ -275,9 +269,6 @@ public class SourceManager {
                 existingSource.close();
             }
         }
-
-        // We're already on a background thread, so it safe to call this directly
-        WearableController.updateSource(mApplicationContext);
 
         Artwork artwork = state.getCurrentArtwork();
         if (artwork != null) {
