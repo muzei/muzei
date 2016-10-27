@@ -114,6 +114,8 @@ public class ArtworkCacheIntentService extends IntentService {
             return false;
         }
         final Artwork artwork = Artwork.fromBundle(artworkDataMap.toBundle());
+        // Change it so that all Artwork from the phone is attributed to the DataLayerArtSource
+        artwork.setComponentName(this, DataLayerArtSource.class);
         // Check if the source info row exists at all.
         ComponentName componentName = artwork.getComponentName();
         Cursor sourceQuery = getContentResolver().query(MuzeiContract.Sources.CONTENT_URI, null,
