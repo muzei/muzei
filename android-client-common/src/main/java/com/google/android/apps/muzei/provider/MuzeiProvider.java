@@ -454,21 +454,22 @@ public class MuzeiProvider extends ContentProvider {
             throw new IllegalArgumentException("Initial values must contain component name " + initialValues);
         ComponentName componentName = ComponentName.unflattenFromString(
                 initialValues.getAsString(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME));
+        ApplicationInfo info;
+        try {
+            // Ensure the service is valid and extract the application info
+            info = packageManager.getServiceInfo(componentName, 0).applicationInfo;
+        } catch (PackageManager.NameNotFoundException e) {
+            throw new IllegalArgumentException("Invalid component name " +
+                    initialValues.getAsString(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME), e);
+        }
         // Disable network access callbacks if we're running on an API 24 device and the source app
         // targets API 24. This is to be consistent with the Behavior Changes in Android N
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
                 initialValues.containsKey(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE) &&
                 initialValues.getAsBoolean(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE)) {
-            try {
-                ApplicationInfo info = packageManager.getApplicationInfo(componentName.getPackageName(), 0);
-                if (info.targetSdkVersion >= Build.VERSION_CODES.N) {
-                    Log.w(TAG, "Sources targeting API 24 cannot receive network access callbacks. Changing " +
-                            componentName + " to false for "+ MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE);
-                    initialValues.put(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE, false);
-                }
-            } catch (PackageManager.NameNotFoundException e) {
-                Log.w(TAG, "Invalid component name:" + componentName + ", ignoring " +
-                        MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE);
+            if (info.targetSdkVersion >= Build.VERSION_CODES.N) {
+                Log.w(TAG, "Sources targeting API 24 cannot receive network access callbacks. Changing " +
+                        componentName + " to false for " + MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE);
                 initialValues.put(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE, false);
             }
         }

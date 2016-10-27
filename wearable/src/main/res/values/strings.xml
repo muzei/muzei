@@ -15,6 +15,8 @@
   -->
 
 <resources>
+    <string name="datalayer_source_title">From Phone</string>
+    <string name="datalayer_source_description">Sync the background between your phone and watch</string>
     <string name="complication_artwork_label">Artwork</string>
     <string name="dismiss_overlay_intro">Long press anywhere to exit</string>
     <string name="activate_title">@string/app_name</string>

@@ -18,11 +18,9 @@ package com.google.android.apps.muzei.wearable;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.android.apps.muzei.api.Artwork;
@@ -47,10 +45,10 @@ import java.util.concurrent.TimeUnit;
 public class WearableController {
     private static final String TAG = "WearableController";
 
-    private static @Nullable GoogleApiClient createdConnectedWearableClient(Context context) {
+    public static synchronized void updateArtwork(Context context) {
         if (ConnectionResult.SUCCESS != GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context)
                 || Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            return null;
+            return;
         }
         GoogleApiClient googleApiClient = new GoogleApiClient.Builder(context)
                 .addApi(Wearable.API)
@@ -60,59 +58,6 @@ public class WearableController {
             if (connectionResult.getErrorCode() != ConnectionResult.API_UNAVAILABLE) {
                 Log.w(TAG, "onConnectionFailed: " + connectionResult);
             }
-            return null;
-        }
-        return googleApiClient;
-    }
-
-    public static synchronized void updateSource(Context context) {
-        if (ConnectionResult.SUCCESS != GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context)
-                || Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            return;
-        }
-        GoogleApiClient googleApiClient = createdConnectedWearableClient(context);
-        if (googleApiClient == null) {
-            // Connection failed
-            return;
-        }
-        Cursor cursor = context.getContentResolver().query(MuzeiContract.Sources.CONTENT_URI,
-                new String[] {MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME,
-                MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED,
-                MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION,
-                MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE,
-                MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,
-                MuzeiContract.Sources.COLUMN_NAME_COMMANDS},
-                MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED + "=1", null, null);
-        if (cursor == null) {
-            googleApiClient.disconnect();
-            return;
-        }
-        PutDataMapRequest dataMapRequest = PutDataMapRequest.create("/source");
-        DataMap dataMap = dataMapRequest.getDataMap();
-        if (cursor.moveToFirst()) {
-            dataMap.putString(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME,
-                    cursor.getString(0));
-            dataMap.putBoolean(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED,
-                    cursor.getInt(1) != 0);
-            dataMap.putString(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION,
-                    cursor.getString(2));
-            dataMap.putBoolean(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE,
-                    cursor.getInt(3) != 0);
-            dataMap.putBoolean(MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,
-                    cursor.getInt(4) != 0);
-            dataMap.putString(MuzeiContract.Sources.COLUMN_NAME_COMMANDS,
-                    cursor.getString(5));
-        }
-        cursor.close();
-        Wearable.DataApi.putDataItem(googleApiClient, dataMapRequest.asPutDataRequest().setUrgent()).await();
-        googleApiClient.disconnect();
-
-    }
-
-    public static synchronized void updateArtwork(Context context) {
-        GoogleApiClient googleApiClient = WearableController.createdConnectedWearableClient(context);
-        if (googleApiClient == null) {
-            // Connection failed
             return;
         }
         ContentResolver contentResolver = context.getContentResolver();

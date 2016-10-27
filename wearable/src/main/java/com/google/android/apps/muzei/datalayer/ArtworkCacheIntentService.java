@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei;
+package com.google.android.apps.muzei.datalayer;
 
 import android.app.IntentService;
 import android.content.ComponentName;
@@ -25,6 +25,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
+import com.google.android.apps.muzei.FullScreenActivity;
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.complications.ArtworkComplicationProviderService;
@@ -113,6 +114,8 @@ public class ArtworkCacheIntentService extends IntentService {
             return false;
         }
         final Artwork artwork = Artwork.fromBundle(artworkDataMap.toBundle());
+        // Change it so that all Artwork from the phone is attributed to the DataLayerArtSource
+        artwork.setComponentName(this, DataLayerArtSource.class);
         // Check if the source info row exists at all.
         ComponentName componentName = artwork.getComponentName();
         Cursor sourceQuery = getContentResolver().query(MuzeiContract.Sources.CONTENT_URI, null,

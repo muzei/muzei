@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.wearable;
+package com.google.android.apps.muzei.datalayer;
 
-import android.app.IntentService;
 import android.content.Intent;
 
-/**
- * IntentService responsible for updating Wearables with the latest source information
- */
-public class WearableSourceUpdateService extends IntentService {
-    public WearableSourceUpdateService() {
-        super("WearableSourceUpdateService");
-    }
+import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.WearableListenerService;
 
+/**
+ * WearableListenerService responsible to receiving Data Layer changes with updated artwork
+ */
+public class ArtworkChangedListenerService extends WearableListenerService {
     @Override
-    protected void onHandleIntent(Intent intent) {
-        WearableController.updateSource(this);
+    public void onDataChanged(final DataEventBuffer dataEvents) {
+        // Only artwork changes trigger this WearableListenerService
+        startService(new Intent(this, ArtworkCacheIntentService.class));
     }
 }
