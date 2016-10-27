@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei;
+package com.google.android.apps.muzei.datalayer;
 
 import android.app.IntentService;
 import android.content.ComponentName;
@@ -25,6 +25,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
+import com.google.android.apps.muzei.FullScreenActivity;
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.complications.ArtworkComplicationProviderService;

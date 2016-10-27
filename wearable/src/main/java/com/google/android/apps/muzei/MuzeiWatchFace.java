@@ -44,6 +44,7 @@ import android.view.SurfaceHolder;
 import android.view.WindowInsets;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
+import com.google.android.apps.muzei.datalayer.ArtworkCacheIntentService;
 import com.google.android.apps.muzei.util.ImageBlurrer;
 import com.google.firebase.analytics.FirebaseAnalytics;
 

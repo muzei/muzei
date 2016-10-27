@@ -12,17 +12,16 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-  -->
-
+-->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
-          package="net.nurik.roman.muzei">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="net.nurik.roman.muzei">
 
-    <uses-feature android:name="android.hardware.type.watch"/>
+    <uses-feature android:name="android.hardware.type.watch" />
 
     <!-- Used by Firebase Analytics -->
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <!-- Required to act as a custom watch face. -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -52,7 +51,7 @@
             </intent-filter>
         </service>
 
-        <service android:name="com.google.android.apps.muzei.ArtworkChangedListenerService"
+        <service android:name="com.google.android.apps.muzei.datalayer.ArtworkChangedListenerService"
                  tools:ignore="ExportedService">
             <intent-filter>
                 <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
@@ -60,7 +59,7 @@
             </intent-filter>
         </service>
 
-        <service android:name="com.google.android.apps.muzei.ArtworkCacheIntentService" />
+        <service android:name="com.google.android.apps.muzei.datalayer.ArtworkCacheIntentService" />
 
         <service
             android:name="com.google.android.apps.muzei.complications.ArtworkComplicationProviderService"
@@ -107,7 +106,7 @@
             </intent-filter>
         </service>
 
-        <service android:name="com.google.android.apps.muzei.ActivateMuzeiIntentService" />
+        <service android:name="com.google.android.apps.muzei.datalayer.ActivateMuzeiIntentService" />
         <activity android:name="android.support.wearable.activity.ConfirmationActivity" />
     </application>
 </manifest>
