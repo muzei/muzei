@@ -67,7 +67,9 @@ public class BitmapRegionLoader {
         if (mBitmapRegionDecoder != null) {
             mOriginalWidth = mBitmapRegionDecoder.getWidth();
             mOriginalHeight = mBitmapRegionDecoder.getHeight();
-            mValid = true;
+            if (mOriginalWidth > 0 && mOriginalHeight > 0) {
+                mValid = true;
+            }
         }
     }
 

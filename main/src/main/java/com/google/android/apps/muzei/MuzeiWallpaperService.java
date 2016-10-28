@@ -80,7 +80,8 @@ public class MuzeiWallpaperService extends GLWallpaperService {
         // Ensure we retry loading the artwork if the network changed while the wallpaper was disabled
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         Intent retryIntent = TaskQueueService.maybeRetryDownloadDueToGainedConnectivity(this);
-        if (retryIntent != null && connectivityManager.getActiveNetworkInfo().isConnected()) {
+        if (retryIntent != null && connectivityManager.getActiveNetworkInfo() != null &&
+                connectivityManager.getActiveNetworkInfo().isConnected()) {
             startService(retryIntent);
         }
 

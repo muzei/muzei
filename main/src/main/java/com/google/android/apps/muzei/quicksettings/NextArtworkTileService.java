@@ -86,6 +86,11 @@ public class NextArtworkTileService extends TileService {
 
     private void updateTile() {
         Tile tile = getQsTile();
+        if (tile == null) {
+            // We're outside of the onStartListening / onStopListening window
+            // We'll update the tile next time onStartListening is called.
+            return;
+        }
         if (!mWallpaperActive) {
             // If the wallpaper isn't active, the quick tile will activate it
             tile.setState(Tile.STATE_INACTIVE);

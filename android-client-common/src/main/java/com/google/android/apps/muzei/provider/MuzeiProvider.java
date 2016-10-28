@@ -672,7 +672,8 @@ public class MuzeiProvider extends ContentProvider {
             return null;
         }
         if (!data.moveToFirst()) {
-            throw new IllegalStateException("Invalid URI: " + artworkUri);
+            Log.e(TAG, "Invalid artwork URI " + artworkUri);
+            return null;
         }
         // While normally we'd use data.getLong(), we later need this as a String so the automatic conversion helps here
         String id = data.getString(0);

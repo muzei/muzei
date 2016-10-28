@@ -24,6 +24,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.BaseColumns;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
@@ -75,7 +76,12 @@ public class DownloadArtworkTask extends AsyncTask<Void, Void, Boolean> {
         }
         Uri artworkUri = ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI,
                 data.getLong(0));
-        Uri imageUri = Uri.parse(data.getString(1));
+        String imageUriString = data.getString(1);
+        if (TextUtils.isEmpty(imageUriString)) {
+            // There's nothing else we can do here so declare success
+            return true;
+        }
+        Uri imageUri = Uri.parse(imageUriString);
         data.close();
         OutputStream out = null;
         InputStream in = null;
