@@ -989,7 +989,13 @@ public class GallerySettingsActivity extends AppCompatActivity
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            hideAddToolbar(true);
+            if (!mAddToolbar.isAttachedToWindow()) {
+                // Can't animate detached Views
+                mAddToolbar.setVisibility(View.INVISIBLE);
+                mAddButton.setVisibility(View.VISIBLE);
+            } else {
+                hideAddToolbar(true);
+            }
         }
 
         if (resultCode != RESULT_OK) {
