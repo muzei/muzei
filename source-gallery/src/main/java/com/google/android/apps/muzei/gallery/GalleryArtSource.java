@@ -17,10 +17,12 @@
 package com.google.android.apps.muzei.gallery;
 
 import android.annotation.SuppressLint;
+import android.content.ContentProviderOperation;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
@@ -33,6 +35,7 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.provider.BaseColumns;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
@@ -321,23 +324,39 @@ public class GalleryArtSource extends MuzeiArtSource {
     private void updateMeta() {
         Cursor chosenUris = getContentResolver().query(GalleryContract.ChosenPhotos.CONTENT_URI,
                 new String[] {
+                        BaseColumns._ID,
                         GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI,
                         GalleryContract.ChosenPhotos.COLUMN_NAME_URI },
                 null, null, null);
         int numImages = 0;
+        ArrayList<ContentProviderOperation> rowsToDelete = new ArrayList<>();
         while (chosenUris != null && chosenUris.moveToNext()) {
             boolean isTreeUri = chosenUris.getInt(
                     chosenUris.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI)) != 0;
             if (isTreeUri && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 Uri treeUri = Uri.parse(chosenUris.getString(
                         chosenUris.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_URI)));
-                numImages += addAllImagesFromTree(null, treeUri, DocumentsContract.getTreeDocumentId(treeUri));
+                try {
+                    numImages += addAllImagesFromTree(null, treeUri, DocumentsContract.getTreeDocumentId(treeUri));
+                } catch (SecurityException e) {
+                    Log.w(TAG, "Unable to load images from " + treeUri + ", deleting row", e);
+                    rowsToDelete.add(ContentProviderOperation.newDelete(
+                            ContentUris.withAppendedId(GalleryContract.ChosenPhotos.CONTENT_URI,
+                                    chosenUris.getLong(chosenUris.getColumnIndex(BaseColumns._ID)))).build());
+                }
             } else {
                 numImages++;
             }
         }
         if (chosenUris != null) {
             chosenUris.close();
+        }
+        if (!rowsToDelete.isEmpty()) {
+            try {
+                getContentResolver().applyBatch(GalleryContract.AUTHORITY, rowsToDelete);
+            } catch (RemoteException | OperationApplicationException e) {
+                Log.e(TAG, "Error deleting invalid rows", e);
+            }
         }
         setDescription(numImages > 0
                 ? getResources().getQuantityString(

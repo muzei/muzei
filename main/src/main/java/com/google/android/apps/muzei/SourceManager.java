@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
@@ -128,6 +129,13 @@ public class SourceManager {
             try {
                 ContentValues values = new ContentValues();
                 ComponentName source = ComponentName.unflattenFromString(pair[0]);
+                try {
+                    // Ensure the source is a valid Service
+                    mApplicationContext.getPackageManager().getServiceInfo(source, 0);
+                } catch (PackageManager.NameNotFoundException e) {
+                    // No need to keep no longer valid sources
+                    continue;
+                }
                 values.put(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, source.flattenToShortString());
                 values.put(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, source.equals(selectedSource));
                 JSONObject jsonObject = (JSONObject) new JSONTokener(pair[1]).nextValue();

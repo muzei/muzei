@@ -514,7 +514,8 @@ public class GalleryProvider extends ContentProvider {
             return null;
         }
         if (!data.moveToFirst()) {
-            throw new IllegalStateException("Invalid URI: " + uri);
+            data.close();
+            throw new FileNotFoundException("Unable to load " + uri);
         }
         String imageUri = data.getString(0);
         data.close();
@@ -541,7 +542,8 @@ public class GalleryProvider extends ContentProvider {
                 return null;
             }
             if (!data.moveToFirst()) {
-                throw new IllegalStateException("Invalid URI: " + uri);
+                data.close();
+                return null;
             }
             imageUri = data.getString(0);
             data.close();
