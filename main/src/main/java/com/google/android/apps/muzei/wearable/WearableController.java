@@ -20,6 +20,8 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.os.Build;
 import android.util.Log;
 
@@ -35,7 +37,11 @@ import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.Wearable;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -79,6 +85,14 @@ public class WearableController {
             Log.e(TAG, "Unable to read artwork to update Android Wear", e);
         }
         if (image != null) {
+            int rotation = getRotation(context);
+            if (rotation != 0) {
+                // Rotate the image so that Wear always gets a right side up image
+                Matrix matrix = new Matrix();
+                matrix.postRotate(rotation);
+                image = Bitmap.createBitmap(image, 0, 0, image.getWidth(), image.getHeight(),
+                        matrix, true);
+            }
             final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
             image.compress(Bitmap.CompressFormat.PNG, 100, byteStream);
             Asset asset = Asset.createFromBytes(byteStream.toByteArray());
@@ -89,5 +103,48 @@ public class WearableController {
             Wearable.DataApi.putDataItem(googleApiClient, dataMapRequest.asPutDataRequest().setUrgent()).await();
         }
         googleApiClient.disconnect();
+    }
+
+    private static int getRotation(Context context) {
+        ContentResolver contentResolver = context.getContentResolver();
+        int rotation = 0;
+        ExifInterface exifInterface;
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                exifInterface = new ExifInterface(contentResolver.openInputStream(
+                        MuzeiContract.Artwork.CONTENT_URI));
+            } else {
+                exifInterface = new ExifInterface(writeArtworkToFile(context,
+                        contentResolver.openInputStream(MuzeiContract.Artwork.CONTENT_URI)).getAbsolutePath());
+            }
+            int orientation = exifInterface.getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_90: rotation = 90; break;
+                case ExifInterface.ORIENTATION_ROTATE_180: rotation = 180; break;
+                case ExifInterface.ORIENTATION_ROTATE_270: rotation = 270; break;
+            }
+        } catch (IOException ignored) {
+        }
+        return rotation;
+    }
+
+    private static File writeArtworkToFile(Context context, InputStream in) throws IOException {
+        File file = new File(context.getCacheDir(), "temp_artwork_for_wear");
+        FileOutputStream out = new FileOutputStream(file);
+        try {
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = in.read(buffer)) > 0) {
+                out.write(buffer, 0, bytesRead);
+            }
+            out.flush();
+        } finally {
+            try {
+                out.close();
+            } catch (IOException ignored) {
+            }
+        }
+        return file;
     }
 }
