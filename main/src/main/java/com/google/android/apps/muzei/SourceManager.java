@@ -52,7 +52,6 @@ import org.json.JSONTokener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_HANDLE_COMMAND;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_SUBSCRIBE;
@@ -66,7 +65,6 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA
 public class SourceManager {
     private static final String TAG = "SourceManager";
     private static final String PREF_SELECTED_SOURCE = "selected_source";
-    private static final String PREF_SELECTED_SOURCE_TOKEN = "selected_source_token";
     private static final String PREF_SOURCE_STATES = "source_states";
     private static final String USER_PROPERTY_SELECTED_SOURCE = "selected_source";
     private Context mApplicationContext;
@@ -75,7 +73,6 @@ public class SourceManager {
     private ContentResolver mContentResolver;
 
     private ComponentName mSelectedSource;
-    private String mSelectedSourceToken;
 
     private static SourceManager sInstance;
 
@@ -111,8 +108,6 @@ public class SourceManager {
         if (selectedSource != null) {
             selectedSource.close();
         }
-
-        mSelectedSourceToken = mSharedPrefs.getString(PREF_SELECTED_SOURCE_TOKEN, null);
     }
 
     private void migrateDataToContentProvider() {
@@ -219,10 +214,8 @@ public class SourceManager {
                 mContentResolver.applyBatch(MuzeiContract.AUTHORITY, operations);
                 // generate a new token and subscribe to new source
                 mSelectedSource = source;
-                mSelectedSourceToken = UUID.randomUUID().toString();
                 mSharedPrefs.edit()
                         .putString(PREF_SELECTED_SOURCE, source.flattenToShortString())
-                        .putString(PREF_SELECTED_SOURCE_TOKEN, mSelectedSourceToken)
                         .apply();
                 FirebaseAnalytics.getInstance(mApplicationContext).setUserProperty(USER_PROPERTY_SELECTED_SOURCE,
                         source.flattenToShortString());
@@ -239,7 +232,7 @@ public class SourceManager {
 
     public void handlePublishState(String token, SourceState state) {
         synchronized (this) {
-            if (!TextUtils.equals(token, mSelectedSourceToken)) {
+            if (!TextUtils.equals(token, mSelectedSource.flattenToShortString())) {
                 Log.w(TAG, "Dropping update from non-selected source (token mismatch).");
                 return;
             }
@@ -306,7 +299,7 @@ public class SourceManager {
             mApplicationContext.startService(new Intent(ACTION_SUBSCRIBE)
                     .setComponent(mSelectedSource)
                     .putExtra(EXTRA_SUBSCRIBER_COMPONENT, mSubscriberComponentName)
-                    .putExtra(EXTRA_TOKEN, mSelectedSourceToken));
+                    .putExtra(EXTRA_TOKEN, mSelectedSource.flattenToShortString()));
         }
     }
 
