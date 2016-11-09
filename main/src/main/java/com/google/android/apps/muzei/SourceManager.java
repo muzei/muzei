@@ -19,7 +19,6 @@ package com.google.android.apps.muzei;
 import android.content.ComponentName;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -27,17 +26,12 @@ import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.RemoteException;
-import android.provider.BaseColumns;
-import android.text.TextUtils;
 import android.util.Log;
 
-import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.api.UserCommand;
-import com.google.android.apps.muzei.api.internal.SourceState;
 import com.google.android.apps.muzei.featuredart.FeaturedArtSource;
 import com.google.android.apps.muzei.sync.TaskQueueService;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -228,58 +222,6 @@ public class SourceManager {
 
         // Ensure the artwork from the newly selected source is downloaded
         mApplicationContext.startService(TaskQueueService.getDownloadCurrentArtworkIntent(mApplicationContext));
-    }
-
-    public void handlePublishState(String token, SourceState state) {
-        synchronized (this) {
-            if (!TextUtils.equals(token, mSelectedSource.flattenToShortString())) {
-                Log.w(TAG, "Dropping update from non-selected source (token mismatch).");
-                return;
-            }
-
-            ContentValues values = new ContentValues();
-            values.put(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, mSelectedSource.flattenToShortString());
-            values.put(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, true);
-            values.put(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION, state.getDescription());
-            values.put(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE, state.getWantsNetworkAvailable());
-            JSONArray commandsSerialized = new JSONArray();
-            int numSourceActions = state.getNumUserCommands();
-            boolean supportsNextArtwork = false;
-            for (int i = 0; i < numSourceActions; i++) {
-                UserCommand command = state.getUserCommandAt(i);
-                if (command.getId() == MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK) {
-                    supportsNextArtwork = true;
-                } else {
-                    commandsSerialized.put(command.serialize());
-                }
-            }
-            values.put(MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND, supportsNextArtwork);
-            values.put(MuzeiContract.Sources.COLUMN_NAME_COMMANDS, commandsSerialized.toString());
-            Cursor existingSource = mContentResolver.query(MuzeiContract.Sources.CONTENT_URI,
-                    new String[]{BaseColumns._ID},
-                    MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + "=?",
-                    new String[] {mSelectedSource.flattenToShortString()}, null, null);
-            if (existingSource != null && existingSource.moveToFirst()) {
-                Uri sourceUri = ContentUris.withAppendedId(MuzeiContract.Sources.CONTENT_URI,
-                        existingSource.getLong(0));
-                mContentResolver.update(sourceUri, values, null, null);
-            } else {
-                mContentResolver.insert(MuzeiContract.Sources.CONTENT_URI, values);
-            }
-            if (existingSource != null) {
-                existingSource.close();
-            }
-        }
-
-        Artwork artwork = state.getCurrentArtwork();
-        if (artwork != null) {
-            artwork.setComponentName(mSelectedSource);
-            mContentResolver.insert(MuzeiContract.Artwork.CONTENT_URI, artwork.toContentValues());
-
-            // Download the artwork contained from the newly published SourceState
-            mApplicationContext.startService(
-                    TaskQueueService.getDownloadCurrentArtworkIntent(mApplicationContext));
-        }
     }
 
     public synchronized ComponentName getSelectedSource() {
