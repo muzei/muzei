@@ -85,7 +85,6 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
 
     private static final int REQUEST_EXTENSION_SETUP = 1;
 
-    private SourceManager mSourceManager;
     private ComponentName mSelectedSource;
     private List<Source> mSources = new ArrayList<>();
 
@@ -123,8 +122,6 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
                 R.dimen.settings_choose_source_item_estimated_height);
         mItemImageSize = getResources().getDimensionPixelSize(
                 R.dimen.settings_choose_source_item_image_size);
-
-        mSourceManager = SourceManager.getInstance(getActivity());
 
         prepareGenerateSourceImages();
     }
@@ -269,7 +266,7 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
 
     private void updateSelectedItem(boolean allowAnimate) {
         ComponentName previousSelectedSource = mSelectedSource;
-        mSelectedSource = mSourceManager.getSelectedSource();
+        mSelectedSource = SourceManager.getSelectedSource(getContext());
         if (previousSelectedSource != null && previousSelectedSource.equals(mSelectedSource)) {
             // Only update status
             for (final Source source : mSources) {
@@ -477,7 +474,7 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
                         bundle.putString(FirebaseAnalytics.Param.ITEM_ID, source.componentName.flattenToShortString());
                         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sources");
                         FirebaseAnalytics.getInstance(getActivity()).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
-                        mSourceManager.selectSource(source.componentName);
+                        SourceManager.selectSource(getContext(), source.componentName);
                     }
                 }
             });
@@ -560,7 +557,7 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
                 bundle.putString(FirebaseAnalytics.Param.ITEM_ID, mCurrentInitialSetupSource.flattenToShortString());
                 bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sources");
                 FirebaseAnalytics.getInstance(getActivity()).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
-                mSourceManager.selectSource(mCurrentInitialSetupSource);
+                SourceManager.selectSource(getContext(), mCurrentInitialSetupSource);
             }
 
             mCurrentInitialSetupSource = null;

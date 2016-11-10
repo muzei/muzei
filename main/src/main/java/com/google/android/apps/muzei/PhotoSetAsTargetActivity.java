@@ -44,8 +44,7 @@ public class PhotoSetAsTargetActivity extends Activity {
                 new ComponentName(this, GalleryArtSource.class).flattenToShortString());
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sources");
         FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
-        SourceManager sourceManager = SourceManager.getInstance(this);
-        sourceManager.selectSource(new ComponentName(this, GalleryArtSource.class));
+        SourceManager.selectSource(this, new ComponentName(this, GalleryArtSource.class));
 
         // Add and publish the chosen photo
         ContentValues values = new ContentValues();
