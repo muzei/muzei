@@ -73,7 +73,7 @@ public class MuzeiWallpaperService extends GLWallpaperService {
         FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE);
         mLockScreenVisibleReceiver = new LockScreenVisibleReceiver();
         mLockScreenVisibleReceiver.setupRegisterDeregister(this);
-        SourceManager.getInstance(MuzeiWallpaperService.this).subscribeToSelectedSource();
+        SourceManager.subscribeToSelectedSource(MuzeiWallpaperService.this);
         mNetworkChangeReceiver = new NetworkChangeReceiver();
         IntentFilter networkChangeFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(mNetworkChangeReceiver, networkChangeFilter);
@@ -141,7 +141,7 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             unregisterReceiver(mNetworkChangeReceiver);
             mNetworkChangeReceiver = null;
         }
-        SourceManager.getInstance(MuzeiWallpaperService.this).unsubscribeToSelectedSource();
+        SourceManager.unsubscribeToSelectedSource(MuzeiWallpaperService.this);
         if (mLockScreenVisibleReceiver != null) {
             mLockScreenVisibleReceiver.destroy();
             mLockScreenVisibleReceiver = null;

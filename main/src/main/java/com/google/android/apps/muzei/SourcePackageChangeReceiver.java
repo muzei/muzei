@@ -24,6 +24,8 @@ import android.support.v4.content.WakefulBroadcastReceiver;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.android.apps.muzei.featuredart.FeaturedArtSource;
+
 /**
  * Broadcast receiver used to watch for changes to installed packages on the device. This triggers
  * a cleanup of sources (in case one was uninstalled), or a data update request to a source
@@ -39,9 +41,9 @@ public class SourcePackageChangeReceiver extends WakefulBroadcastReceiver {
         }
 
         String packageName = intent.getData().getSchemeSpecificPart();
-        SourceManager sourceManager = SourceManager.getInstance(context);
-        ComponentName selectedComponent = sourceManager.getSelectedSource();
-        if (!TextUtils.equals(packageName, selectedComponent.getPackageName())) {
+        ComponentName selectedComponent = SourceManager.getSelectedSource(context);
+        if (selectedComponent == null ||
+                !TextUtils.equals(packageName, selectedComponent.getPackageName())) {
             return;
         }
 
@@ -49,12 +51,13 @@ public class SourcePackageChangeReceiver extends WakefulBroadcastReceiver {
             context.getPackageManager().getServiceInfo(selectedComponent, 0);
         } catch (PackageManager.NameNotFoundException e) {
             Log.i(TAG, "Selected source no longer available; switching to default.");
-            sourceManager.selectDefaultSource();
+            SourceManager.selectSource(context,
+                    new ComponentName(context, FeaturedArtSource.class));
             return;
         }
 
         // Some other change.
         Log.i(TAG, "Source package changed or replaced. Re-subscribing.");
-        sourceManager.subscribeToSelectedSource();
+        SourceManager.subscribeToSelectedSource(context);
     }
 }

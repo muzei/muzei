@@ -61,7 +61,7 @@ public class SourceSubscriberService extends IntentService {
         }
         // Handle API call from source
         String token = intent.getStringExtra(EXTRA_TOKEN);
-        ComponentName selectedSource = SourceManager.getInstance(this).getSelectedSource();
+        ComponentName selectedSource = SourceManager.getSelectedSource(this);
         if (selectedSource == null ||
                 !TextUtils.equals(token, selectedSource.flattenToShortString())) {
             Log.w(TAG, "Dropping update from non-selected source.");

@@ -130,7 +130,7 @@ public class NextArtworkTileService extends TileService {
             FirebaseAnalytics.getInstance(NextArtworkTileService.this).logEvent(
                     "tile_next_artwork_click", null);
             // Active means we send the 'Next Artwork' command
-            SourceManager.getInstance(this).sendAction(MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK);
+            SourceManager.sendAction(this, MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK);
         } else {
             // Inactive means we attempt to activate Muzei
             unlockAndRun(new Runnable() {

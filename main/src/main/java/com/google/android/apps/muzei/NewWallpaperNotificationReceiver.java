@@ -79,8 +79,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
             if (ACTION_MARK_NOTIFICATION_READ.equals(action)) {
                 markNotificationRead(context);
             } else if (ACTION_NEXT_ARTWORK.equals(action)) {
-                SourceManager sm = SourceManager.getInstance(context);
-                sm.sendAction(MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK);
+                SourceManager.sendAction(context, MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK);
             } else if (ACTION_USER_COMMAND.equals(action)) {
                 triggerUserCommandFromRemoteInput(context, intent);
             }
@@ -93,7 +92,6 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
             return;
         }
         String selectedCommand = remoteInput.getCharSequence(EXTRA_USER_COMMAND).toString();
-        SourceManager sm = SourceManager.getInstance(context);
         Cursor selectedSource = context.getContentResolver().query(MuzeiContract.Sources.CONTENT_URI,
                 new String[]{MuzeiContract.Sources.COLUMN_NAME_COMMANDS},
                 MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED + "=1", null, null, null);
@@ -101,7 +99,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
             List<UserCommand> commands = MuzeiContract.Sources.parseCommands(selectedSource.getString(0));
             for (UserCommand action : commands) {
                 if (TextUtils.equals(selectedCommand, action.getTitle())) {
-                    sm.sendAction(action.getId());
+                    SourceManager.sendAction(context, action.getId());
                     break;
                 }
             }
