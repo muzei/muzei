@@ -17,16 +17,13 @@
 package com.google.android.apps.muzei.render;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 
-import com.google.android.apps.muzei.event.BlurAmountChangedEvent;
-import com.google.android.apps.muzei.event.DimAmountChangedEvent;
-import com.google.android.apps.muzei.event.GreyAmountChangedEvent;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
+import com.google.android.apps.muzei.settings.Prefs;
 
 public abstract class RenderController {
     protected Context mContext;
@@ -34,37 +31,37 @@ public abstract class RenderController {
     protected Callbacks mCallbacks;
     protected boolean mVisible;
     private BitmapRegionLoader mQueuedBitmapRegionLoader;
+    private SharedPreferences.OnSharedPreferenceChangeListener mOnSharedPreferenceChangeListener =
+            new SharedPreferences.OnSharedPreferenceChangeListener() {
+                @Override
+                public void onSharedPreferenceChanged(SharedPreferences sp, String key) {
+                    if (Prefs.PREF_BLUR_AMOUNT.equals(key)) {
+                        mRenderer.recomputeMaxPrescaledBlurPixels();
+                        throttledForceReloadCurrentArtwork();
+                    } else if (Prefs.PREF_DIM_AMOUNT.equals(key)) {
+                        mRenderer.recomputeMaxDimAmount();
+                        throttledForceReloadCurrentArtwork();
+                    } else if (Prefs.PREF_GREY_AMOUNT.equals(key)) {
+                        mRenderer.recomputeGreyAmount();
+                        throttledForceReloadCurrentArtwork();
+                    }
+                }
+            };
 
     public RenderController(Context context, MuzeiBlurRenderer renderer, Callbacks callbacks) {
         mRenderer = renderer;
         mContext = context;
         mCallbacks = callbacks;
-        EventBus.getDefault().register(this);
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .registerOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
     }
 
     public void destroy() {
         if (mQueuedBitmapRegionLoader != null) {
             mQueuedBitmapRegionLoader.destroy();
         }
-        EventBus.getDefault().unregister(this);
-    }
-
-    @Subscribe
-    public void onEventMainThread(BlurAmountChangedEvent e) {
-        mRenderer.recomputeMaxPrescaledBlurPixels();
-        throttledForceReloadCurrentArtwork();
-    }
-
-    @Subscribe
-    public void onEventMainThread(DimAmountChangedEvent e) {
-        mRenderer.recomputeMaxDimAmount();
-        throttledForceReloadCurrentArtwork();
-    }
-
-    @Subscribe
-    public void onEventMainThread(GreyAmountChangedEvent e) {
-        mRenderer.recomputeGreyAmount();
-        throttledForceReloadCurrentArtwork();
+        PreferenceManager.getDefaultSharedPreferences(mContext)
+                .unregisterOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
     }
 
     private void throttledForceReloadCurrentArtwork() {

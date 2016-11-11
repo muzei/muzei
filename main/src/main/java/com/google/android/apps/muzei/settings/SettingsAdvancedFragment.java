@@ -32,9 +32,6 @@ import android.widget.SeekBar;
 
 import com.google.android.apps.muzei.LockScreenVisibleReceiver;
 import com.google.android.apps.muzei.NewWallpaperNotificationReceiver;
-import com.google.android.apps.muzei.event.BlurAmountChangedEvent;
-import com.google.android.apps.muzei.event.DimAmountChangedEvent;
-import com.google.android.apps.muzei.event.GreyAmountChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
 
 import net.nurik.roman.muzei.R;
@@ -131,7 +128,6 @@ public class SettingsAdvancedFragment extends Fragment
                         getSharedPreferences().edit()
                                 .putBoolean(NewWallpaperNotificationReceiver.PREF_ENABLED, checked)
                                 .apply();
-                        EventBus.getDefault().post(new BlurAmountChangedEvent());
                     }
                 });
         mNotifyNewWallpaperCheckBox.setChecked(getSharedPreferences()
@@ -175,7 +171,6 @@ public class SettingsAdvancedFragment extends Fragment
             getSharedPreferences().edit()
                     .putInt(Prefs.PREF_BLUR_AMOUNT, mBlurSeekBar.getProgress())
                     .apply();
-            EventBus.getDefault().post(new BlurAmountChangedEvent());
         }
     };
 
@@ -185,7 +180,6 @@ public class SettingsAdvancedFragment extends Fragment
             getSharedPreferences().edit()
                     .putInt(Prefs.PREF_DIM_AMOUNT, mDimSeekBar.getProgress())
                     .apply();
-            EventBus.getDefault().post(new DimAmountChangedEvent());
         }
     };
 
@@ -195,7 +189,6 @@ public class SettingsAdvancedFragment extends Fragment
             getSharedPreferences().edit()
                     .putInt(Prefs.PREF_GREY_AMOUNT, mGreySeekBar.getProgress())
                     .apply();
-            EventBus.getDefault().post(new GreyAmountChangedEvent());
         }
     };
 
@@ -210,9 +203,6 @@ public class SettingsAdvancedFragment extends Fragment
             mBlurSeekBar.setProgress(MuzeiBlurRenderer.DEFAULT_BLUR);
             mDimSeekBar.setProgress(MuzeiBlurRenderer.DEFAULT_MAX_DIM);
             mGreySeekBar.setProgress(MuzeiBlurRenderer.DEFAULT_GREY);
-            EventBus.getDefault().post(new BlurAmountChangedEvent());
-            EventBus.getDefault().post(new DimAmountChangedEvent());
-            EventBus.getDefault().post(new GreyAmountChangedEvent());
         }
     }
 }
