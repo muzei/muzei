@@ -15,13 +15,13 @@
  */
 
 ext {
-    toolsPluginVersion = "2.2.2"
+    toolsPluginVersion = "2.3.0-alpha1"
     googleServicesPluginVersion = "3.0.0"
     compileSdkVersion = 25
     buildToolsVersion = "25.0.0"
     targetSdkVersion = 23
 
-    supportLibraryVersion = "25.0.0"
+    supportLibraryVersion = "25.0.1"
     googlePlayServicesVersion = "9.8.0"
     okhttpVersion = "3.4.1"
     picassoVersion = "2.5.2"
