@@ -57,6 +57,7 @@ public class SourceManager {
     private static final String PREF_SELECTED_SOURCE = "selected_source";
     private static final String PREF_SOURCE_STATES = "source_states";
     private static final String USER_PROPERTY_SELECTED_SOURCE = "selected_source";
+    private static final String USER_PROPERTY_SELECTED_SOURCE_PACKAGE = "selected_source_package";
 
     private SourceManager() {
     }
@@ -116,8 +117,7 @@ public class SourceManager {
         try {
             context.getContentResolver().applyBatch(MuzeiContract.AUTHORITY, operations);
             sharedPrefs.edit().remove(PREF_SELECTED_SOURCE).remove(PREF_SOURCE_STATES).apply();
-            FirebaseAnalytics.getInstance(context).setUserProperty(USER_PROPERTY_SELECTED_SOURCE,
-                    selectedSource.flattenToShortString());
+            sendSelectedSourceAnalytics(context, selectedSource);
         } catch (RemoteException | OperationApplicationException e) {
             Log.e(TAG, "Error writing sources to ContentProvider", e);
         }
@@ -163,8 +163,7 @@ public class SourceManager {
 
         try {
             context.getContentResolver().applyBatch(MuzeiContract.AUTHORITY, operations);
-            FirebaseAnalytics.getInstance(context).setUserProperty(USER_PROPERTY_SELECTED_SOURCE,
-                    source.flattenToShortString());
+            sendSelectedSourceAnalytics(context, source);
         } catch (RemoteException | OperationApplicationException e) {
             Log.e(TAG, "Error writing sources to ContentProvider", e);
         }
@@ -173,6 +172,24 @@ public class SourceManager {
 
         // Ensure the artwork from the newly selected source is downloaded
         context.startService(TaskQueueService.getDownloadCurrentArtworkIntent(context));
+    }
+
+    private static void sendSelectedSourceAnalytics(Context context, ComponentName selectedSource) {
+        // The current limit for user property values
+        final int MAX_VALUE_LENGTH = 36;
+        String packageName = selectedSource.getPackageName();
+        if (packageName.length() > MAX_VALUE_LENGTH) {
+            packageName = packageName.substring(packageName.length() - MAX_VALUE_LENGTH);
+        }
+        FirebaseAnalytics.getInstance(context).setUserProperty(USER_PROPERTY_SELECTED_SOURCE_PACKAGE,
+                packageName);
+        String className = selectedSource.flattenToShortString();
+        className = className.substring(className.indexOf('/')+1);
+        if (className.length() > MAX_VALUE_LENGTH) {
+            className = className.substring(className.length() - MAX_VALUE_LENGTH);
+        }
+        FirebaseAnalytics.getInstance(context).setUserProperty(USER_PROPERTY_SELECTED_SOURCE,
+                className);
     }
 
     public static ComponentName getSelectedSource(Context context) {
