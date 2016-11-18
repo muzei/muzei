@@ -70,7 +70,7 @@ public class SourceState {
         mWantsNetworkAvailable = wantsNetworkAvailable;
     }
 
-    public void setUserCommands(int... userCommands) {
+    public synchronized void setUserCommands(int... userCommands) {
         mUserCommands.clear();
         if (userCommands != null) {
             mUserCommands.ensureCapacity(userCommands.length);
@@ -80,7 +80,7 @@ public class SourceState {
         }
     }
 
-    public void setUserCommands(UserCommand... userCommands) {
+    public synchronized void setUserCommands(UserCommand... userCommands) {
         mUserCommands.clear();
         if (userCommands != null) {
             mUserCommands.ensureCapacity(userCommands.length);
@@ -88,14 +88,14 @@ public class SourceState {
         }
     }
 
-    public void setUserCommands(List<UserCommand> userCommands) {
+    public synchronized void setUserCommands(List<UserCommand> userCommands) {
         mUserCommands.clear();
         if (userCommands != null) {
             mUserCommands.addAll(userCommands);
         }
     }
 
-    public Bundle toBundle() {
+    public synchronized Bundle toBundle() {
         Bundle bundle = new Bundle();
         if (mCurrentArtwork != null) {
             bundle.putBundle("currentArtwork", mCurrentArtwork.toBundle());
@@ -128,7 +128,7 @@ public class SourceState {
         return state;
     }
 
-    public JSONObject toJson() throws JSONException{
+    public synchronized JSONObject toJson() throws JSONException{
         JSONObject jsonObject = new JSONObject();
         if (mCurrentArtwork != null) {
             jsonObject.put("currentArtwork", mCurrentArtwork.toJson());

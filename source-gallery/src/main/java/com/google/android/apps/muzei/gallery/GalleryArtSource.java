@@ -197,6 +197,10 @@ public class GalleryArtSource extends MuzeiArtSource {
                 }
             }
             int numImages = allImages.size();
+            if (numImages == 0) {
+                Log.e(TAG, "No photos in the selected directories.");
+                return;
+            }
             while (true) {
                 imageUri = allImages.get(random.nextInt(numImages));
                 if (numImages <= 1 || !imageUri.toString().equals(lastToken)) {
