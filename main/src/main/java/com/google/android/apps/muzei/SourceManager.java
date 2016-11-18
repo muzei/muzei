@@ -156,7 +156,7 @@ public class SourceManager {
         operations.add(ContentProviderOperation.newUpdate(MuzeiContract.Sources.CONTENT_URI)
                 .withValue(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME,
                         source.flattenToShortString())
-                .withValue(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, false)
+                .withValue(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, true)
                 .withSelection(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + "=?",
                         new String[] {source.flattenToShortString()})
                 .build());
