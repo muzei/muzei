@@ -1,0 +1,78 @@
+<!--
+  Copyright 2014 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+    <string name="app_description">Fond d\'écran animé Muzei</string>
+
+    <string name="settings_title">Paramètres de Muzei</string>
+    <string name="settings_blur_amount_title">Flou</string>
+    <string name="settings_dim_amount_title">Assombrir</string>
+    <string name="settings_grey_amount_title">Gris</string>
+    <string name="settings_notify_new_wallpaper">Notifications du nouveau fond d\'écran</string>
+    <string name="settings_blur_on_lockscreen">Appliquer le flou sur l\'écran de verrouillage</string>
+
+    <string name="notification_new_wallpaper">Nouveau fond d\'écran</string>
+
+    <string name="action_activate">Activer</string>
+    <string name="action_settings">Personnaliser</string>
+    <string name="action_source_settings">Paramètres de la source</string>
+
+    <string name="contentdesc_overflow">Plus d\'options</string>
+    <string name="error_view_details">Impossible de voir les détails de l\'oeuvre.</string>
+    <string name="error_easter_egg">Hmm, cette image n\'a pas l\'air de se charger. Grumpy McPuzzles en est vraiment désolé, et vous recommande d\'essayer une autre source.</string>
+    <string name="error_wallpaper_chooser">Impossible d\'ouvrir le sélecteur de fond d\'écran. Vous pouvez toujours activer Muzei en choisissant \'Fonds d\'écran animés\' dans le sélecteur de fond d\'écran de votre écran d\'accueil.</string>
+
+    <string name="section_choose_source">Sources</string>
+    <string name="section_advanced">Avancé</string>
+
+    <string name="action_next_artwork">Oeuvre suivante</string>
+    <string name="action_next_artwork_condensed">Suivant</string>
+    <string name="action_user_command">Plus</string>
+    <string name="action_user_command_prompt">Choisir l\'action</string>
+    <string name="action_artwork_info">Informations sur l\'oeuvre</string>
+    <string name="action_artwork_info_disabled">Aucune information sur l\'oeuvre courante.</string>
+
+    <string name="done">Terminé</string>
+    <string name="retry">Réessayer</string>
+
+    <string name="set_as_wallpaper_using_muzei">Fond d'écran (avec Muzei)</string>
+
+    <string name="tutorial_main">Ouvrez Muzei pour voir votre fond d\'écran</string>
+    <string name="tutorial_subtitle">Appuyez deux fois sur le fond d\'écran flouté sur votre écran d\'accueil pour faire la mise au point temporairement.</string>
+
+    <string name="get_more_sources">Obtenir plus de sources</string>
+    <string name="reset_advanced_settings_defaults">Réinitialiser les curseurs</string>
+    <string name="play_store_not_found">Impossible d\'ouvrir le Play Store.</string>
+
+    <string name="about_title">À propos de Muzei</string>
+    <string name="about_body"><![CDATA[
+        Créé à New York par Roman Nurik, avec de nombreuses <a href="http://code.muzei.co">contributions
+        de la communauté</a>. <i>Muzei</i> est une translittération du mot russe
+        <a href="http://translate.google.com/#en/ru/museum"><i>музей</i></a>, qui signifie
+        &#8220;musée.&#8221;<br><br>
+
+        Copyright 2013&ndash;2016 Google Inc. Tous droits réservés.
+        <a href="http://m.google.com/utos">Termes de service</a>,
+        <a href="http://www.google.com/policies/privacy/">Politique de confidentialité</a>&nbsp;<br><br>
+
+        Sincères remerciements à ces projets open source:<br>
+        &bull; <b><a href="http://square.github.io/okhttp/">OkHttp</a> et <a href="http://square.github.io/picasso/">Picasso</a></b> par Square<br>
+        &bull; <b><a href="https://github.com/greenrobot/EventBus">EventBus</a></b> par greenrobot<br>
+        &bull; <b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a></b> par Robert Green, Mark F. Guerra, et d'autres
+    ]]></string>
+    <string name="about_version_template">v%1$s</string>
+    <string name="app_author">Roman Nurik</string>
+</resources>
