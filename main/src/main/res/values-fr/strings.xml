@@ -48,7 +48,7 @@
     <string name="done">Terminé</string>
     <string name="retry">Réessayer</string>
 
-    <string name="set_as_wallpaper_using_muzei">Fond d'écran (avec Muzei)</string>
+    <string name="set_as_wallpaper_using_muzei">Fond d\'écran (avec Muzei)</string>
 
     <string name="tutorial_main">Ouvrez Muzei pour voir votre fond d\'écran</string>
     <string name="tutorial_subtitle">Appuyez deux fois sur le fond d\'écran flouté sur votre écran d\'accueil pour faire la mise au point temporairement.</string>
