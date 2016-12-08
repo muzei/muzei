@@ -665,13 +665,10 @@ public class MuzeiActivity extends AppCompatActivity {
         });
     }
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     private void setupOverflowButton() {
         final View overflowButton = findViewById(R.id.overflow_button);
         mOverflowMenu = new PopupMenu(this, overflowButton);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            overflowButton.setOnTouchListener(mOverflowMenu.getDragToOpenListener());
-        }
+        overflowButton.setOnTouchListener(mOverflowMenu.getDragToOpenListener());
         overflowButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -728,15 +725,13 @@ public class MuzeiActivity extends AppCompatActivity {
 
     private void showHideChrome(boolean show) {
         int flags = show ? 0 : View.SYSTEM_UI_FLAG_LOW_PROFILE;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            flags |= View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
-            if (!show) {
-                flags |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE;
-            }
+        flags |= View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+        if (!show) {
+            flags |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE;
         }
         mContainerView.setSystemUiVisibility(flags);
     }

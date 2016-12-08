@@ -111,17 +111,10 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
         recomputeGreyAmount();
     }
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     private int getNumberOfKeyframes() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            ActivityManager activityManager = (ActivityManager)
-                    mContext.getSystemService(Context.ACTIVITY_SERVICE);
-            if (activityManager.isLowRamDevice()) {
-                return 1;
-            }
-        }
-
-        return 5;
+        ActivityManager activityManager = (ActivityManager)
+                mContext.getSystemService(Context.ACTIVITY_SERVICE);
+        return activityManager.isLowRamDevice() ? 1 : 5;
     }
 
     public void recomputeMaxPrescaledBlurPixels() {

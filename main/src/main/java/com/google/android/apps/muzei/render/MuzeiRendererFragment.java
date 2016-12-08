@@ -71,19 +71,12 @@ public class MuzeiRendererFragment extends Fragment implements
     }
 
     @Override
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        boolean simpleDemoMode = false;
-        if (mDemoMode && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            ActivityManager activityManager = (ActivityManager)
-                    getActivity().getSystemService(Context.ACTIVITY_SERVICE);
-            if (activityManager.isLowRamDevice()) {
-                simpleDemoMode = true;
-            }
-        }
+        ActivityManager activityManager = (ActivityManager)
+                getActivity().getSystemService(Context.ACTIVITY_SERVICE);
 
-        if (simpleDemoMode) {
+        if (mDemoMode && activityManager.isLowRamDevice()) {
             DisplayMetrics dm = getResources().getDisplayMetrics();
             int targetWidth = dm.widthPixels;
             int targetHeight = dm.heightPixels;
