@@ -80,7 +80,7 @@ public class PanScaleProxyView extends View {
 
         // Sets up interactions
         mScaleGestureDetector = new ScaleGestureDetector(context, mScaleGestureListener);
-        ScaleGestureDetectorCompat.setQuickScaleEnabled(mScaleGestureDetector, true);
+        mScaleGestureDetector.setQuickScaleEnabled(true);
         mGestureDetector = new GestureDetectorCompat(context, mGestureListener);
 
         mScroller = new OverScroller(context);
@@ -264,7 +264,7 @@ public class PanScaleProxyView extends View {
             // Workaround for 11952668; blow away the entire scale gesture detector after
             // a double tap
             mScaleGestureDetector = new ScaleGestureDetector(getContext(), mScaleGestureListener);
-            ScaleGestureDetectorCompat.setQuickScaleEnabled(mScaleGestureDetector, true);
+            mScaleGestureDetector.setQuickScaleEnabled(true);
             return true;
         }
 

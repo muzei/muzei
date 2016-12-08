@@ -52,8 +52,7 @@ public class WearableController {
     private static final String TAG = "WearableController";
 
     public static synchronized void updateArtwork(Context context) {
-        if (ConnectionResult.SUCCESS != GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context)
-                || Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        if (ConnectionResult.SUCCESS != GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context)) {
             return;
         }
         GoogleApiClient googleApiClient = new GoogleApiClient.Builder(context)
