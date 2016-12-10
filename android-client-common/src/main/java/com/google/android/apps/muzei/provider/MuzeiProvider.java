@@ -417,12 +417,53 @@ public class MuzeiProvider extends ContentProvider {
     }
 
     private Uri insertArtwork(@NonNull final Uri uri, final ContentValues values) {
+        Context context = getContext();
+        if (context == null) {
+            return null;
+        }
         if (values == null) {
             throw new IllegalArgumentException("Invalid ContentValues: must not be null");
         }
         if (!values.containsKey(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME) ||
-                TextUtils.isEmpty(values.getAsString(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME)))
+                TextUtils.isEmpty(values.getAsString(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME))) {
             throw new IllegalArgumentException("Initial values must contain component name: " + values);
+        }
+
+        // Check to make sure the component name is valid
+        ComponentName componentName = ComponentName.unflattenFromString(
+                values.getAsString(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME));
+        if (componentName == null) {
+            throw new IllegalArgumentException("Invalid component name: " +
+                    values.getAsString(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME));
+        }
+        // Make sure they are using the short string format
+        values.put(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME, componentName.flattenToShortString());
+
+        // Ensure the app inserting the artwork is either Muzei or the same app as the source
+        String callingPackageName = context.getPackageManager().getNameForUid(Binder.getCallingUid());
+        if (!context.getPackageName().equals(callingPackageName) &&
+                !TextUtils.equals(callingPackageName, componentName.getPackageName())) {
+            throw new IllegalArgumentException("Calling package name (" + callingPackageName +
+                    ") must match the source's package name (" + componentName.getPackageName() + ")");
+        }
+
+        // Ensure the related source has been added to the database.
+        // This should be true in 99.9% of cases, but the insert will fail if this isn't true
+        Cursor sourceQuery = querySource(MuzeiContract.Sources.CONTENT_URI,
+                new String[] { BaseColumns._ID },
+                MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + "=?",
+                new String[] { componentName.flattenToShortString() },
+                null);
+        if (sourceQuery == null || sourceQuery.getCount() == 0) {
+            ContentValues initialValues = new ContentValues();
+            initialValues.put(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME,
+                    componentName.flattenToShortString());
+            insertSource(MuzeiContract.Sources.CONTENT_URI, initialValues);
+        }
+        if (sourceQuery != null) {
+            sourceQuery.close();
+        }
+
         values.put(MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED, System.currentTimeMillis());
         final SQLiteDatabase db = databaseHelper.getWritableDatabase();
         long rowId = db.insert(MuzeiContract.Artwork.TABLE_NAME,
@@ -446,22 +487,44 @@ public class MuzeiProvider extends ContentProvider {
     }
 
     private Uri insertSource(@NonNull final Uri uri, final ContentValues initialValues) {
-        PackageManager packageManager = getContext() != null ? getContext().getPackageManager() : null;
-        if (packageManager == null) {
+        Context context = getContext();
+        if (context == null) {
             return null;
         }
-        if (!initialValues.containsKey(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME))
-            throw new IllegalArgumentException("Initial values must contain component name " + initialValues);
+        if (!initialValues.containsKey(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME) ||
+                TextUtils.isEmpty(initialValues.getAsString(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME))) {
+            throw new IllegalArgumentException(
+                    "Initial values must contain component name " + initialValues);
+        }
         ComponentName componentName = ComponentName.unflattenFromString(
                 initialValues.getAsString(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME));
+        if (componentName == null) {
+            throw new IllegalArgumentException("Invalid component name: " +
+                    initialValues.getAsString(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME));
+        }
         ApplicationInfo info;
         try {
             // Ensure the service is valid and extract the application info
-            info = packageManager.getServiceInfo(componentName, 0).applicationInfo;
+            info = context.getPackageManager().getServiceInfo(componentName, 0).applicationInfo;
         } catch (PackageManager.NameNotFoundException e) {
             throw new IllegalArgumentException("Invalid component name " +
                     initialValues.getAsString(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME), e);
         }
+        // Make sure they are using the short string format
+        initialValues.put(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, componentName.flattenToShortString());
+
+
+        // Only Muzei can set the IS_SELECTED field
+        if (initialValues.containsKey(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED)) {
+            String callingPackageName = context.getPackageManager().getNameForUid(
+                    Binder.getCallingUid());
+            if (!context.getPackageName().equals(callingPackageName)) {
+                Log.w(TAG, "Only Muzei can set the " + MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED +
+                        " column. Ignoring the value in " + initialValues);
+                initialValues.remove(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED);
+            }
+        }
+
         // Disable network access callbacks if we're running on an API 24 device and the source app
         // targets API 24. This is to be consistent with the Behavior Changes in Android N
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
@@ -728,6 +791,22 @@ public class MuzeiProvider extends ContentProvider {
 
     private int updateSource(@NonNull final Uri uri, final ContentValues values, final String selection,
                              final String[] selectionArgs) {
+        Context context = getContext();
+        if (context == null) {
+            return 0;
+        }
+
+        // Only Muzei can set the IS_SELECTED field
+        if (values.containsKey(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED)) {
+            String callingPackageName = context.getPackageManager().getNameForUid(
+                    Binder.getCallingUid());
+            if (!context.getPackageName().equals(callingPackageName)) {
+                Log.w(TAG, "Only Muzei can set the " + MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED +
+                        " column. Ignoring the value in " + values);
+                values.remove(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED);
+            }
+        }
+
         final SQLiteDatabase db = databaseHelper.getWritableDatabase();
         int count;
         switch (MuzeiProvider.uriMatcher.match(uri))
@@ -745,8 +824,7 @@ public class MuzeiProvider extends ContentProvider {
                 if (selection != null)
                     finalWhere = finalWhere + " AND " + selection;
                 count = db.update(MuzeiContract.Sources.TABLE_NAME, values, finalWhere, selectionArgs);
-                notifyChange(uri);
-                return count;
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
