@@ -24,10 +24,15 @@
         <provider
             android:name="com.google.android.apps.muzei.provider.MuzeiProvider"
             android:authorities="com.google.android.apps.muzei"
+            android:directBootAware="true"
             android:exported="true"
             android:writePermission="com.google.android.apps.muzei.WRITE_PROVIDER">
             <grant-uri-permission android:pathPattern=".*"/>
         </provider>
+        <service
+            android:name="com.google.android.apps.muzei.provider.DirectBootCacheJobService"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
         <provider
             android:name="com.google.android.apps.muzei.provider.MuzeiDocumentsProvider"
             android:authorities="com.google.android.apps.muzei.documents"

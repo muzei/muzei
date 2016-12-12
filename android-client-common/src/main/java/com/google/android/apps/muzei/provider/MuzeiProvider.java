@@ -41,6 +41,7 @@ import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
+import android.support.v4.os.UserManagerCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -263,6 +264,10 @@ public class MuzeiProvider extends ContentProvider {
         if (context == null) {
             return 0;
         }
+        if (!UserManagerCompat.isUserUnlocked(context)) {
+            Log.w(TAG, "Deletes are not supported until the user is unlocked");
+            return 0;
+        }
         if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK ||
                 MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK_ID) {
             String callingPackageName = context.getPackageManager().getNameForUid(
@@ -411,6 +416,10 @@ public class MuzeiProvider extends ContentProvider {
 
     @Override
     public Uri insert(@NonNull final Uri uri, final ContentValues values) {
+        if (!UserManagerCompat.isUserUnlocked(getContext())) {
+            Log.w(TAG, "Inserts are not supported until the user is unlocked");
+            return null;
+        }
         if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK) {
             return insertArtwork(uri, values);
         } else if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCES) {
@@ -564,12 +573,21 @@ public class MuzeiProvider extends ContentProvider {
     public boolean onCreate() {
         openFileHandler = new Handler();
         databaseHelper = new DatabaseHelper(getContext());
+        // Schedule a job that will update the latest artwork in the Direct Boot cache directory
+        // whenever the artwork changes
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            DirectBootCacheJobService.scheduleDirectBootCacheJob(getContext());
+        }
         return true;
     }
 
     @Override
     public Cursor query(@NonNull final Uri uri, final String[] projection, final String selection,
                         final String[] selectionArgs, final String sortOrder) {
+        if (!UserManagerCompat.isUserUnlocked(getContext())) {
+            Log.w(TAG, "Queries are not supported until the user is unlocked");
+            return null;
+        }
         if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK ||
                 MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK_ID) {
             return queryArtwork(uri, projection, selection, selectionArgs, sortOrder);
@@ -651,7 +669,13 @@ public class MuzeiProvider extends ContentProvider {
         String[] projection = { BaseColumns._ID, MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI };
         final boolean isWriteOperation = mode.contains("w");
         final File file;
-        if (!isWriteOperation && MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK) {
+        if (!UserManagerCompat.isUserUnlocked(getContext())) {
+            if (isWriteOperation) {
+                Log.w(TAG, "Wallpaper is read only until the user is unlocked");
+                return null;
+            }
+            file = DirectBootCacheJobService.getCachedArtwork(getContext());
+        } else if (!isWriteOperation && MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK) {
             // If it isn't a write operation, then we should attempt to find the latest artwork
             // that does have a cached artwork file. This prevents race conditions where
             // an external app attempts to load the latest artwork while an art source is inserting a
