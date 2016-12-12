@@ -517,7 +517,10 @@ public class Artwork {
         }
         int imageUriColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI);
         if (imageUriColumnIndex != -1) {
-            builder.imageUri(Uri.parse(cursor.getString(imageUriColumnIndex)));
+            String uriString = cursor.getString(imageUriColumnIndex);
+            if (!TextUtils.isEmpty(uriString)) {
+                builder.imageUri(Uri.parse(uriString));
+            }
         }
         int titleColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_TITLE);
         if (titleColumnIndex != -1) {
