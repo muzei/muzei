@@ -47,9 +47,7 @@ public class RealRenderController extends RenderController {
         };
         context.getContentResolver().registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
                 true, mContentObserver);
-        if (MuzeiContract.Artwork.getCurrentArtwork(context) != null) {
-            reloadCurrentArtwork(false);
-        }
+        reloadCurrentArtwork(false);
     }
 
     @Override

@@ -17,6 +17,7 @@
 package com.google.android.apps.muzei;
 
 import android.app.WallpaperManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -28,6 +29,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.RequiresApi;
+import android.support.v4.os.UserManagerCompat;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -53,6 +55,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 public class MuzeiWallpaperService extends GLWallpaperService {
+    private boolean mInitialized = false;
+    private BroadcastReceiver mUnlockReceiver;
     private LockScreenVisibleReceiver mLockScreenVisibleReceiver;
     private NetworkChangeReceiver mNetworkChangeReceiver;
     private HandlerThread mNotificationHandlerThread;
@@ -70,6 +74,22 @@ public class MuzeiWallpaperService extends GLWallpaperService {
     @Override
     public void onCreate() {
         super.onCreate();
+        if (UserManagerCompat.isUserUnlocked(this)) {
+            initialize();
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            mUnlockReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    initialize();
+                    unregisterReceiver(this);
+                }
+            };
+            IntentFilter filter = new IntentFilter(Intent.ACTION_USER_UNLOCKED);
+            registerReceiver(mUnlockReceiver, filter);
+        }
+    }
+
+    private void initialize() {
         FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE);
         mLockScreenVisibleReceiver = new LockScreenVisibleReceiver();
         mLockScreenVisibleReceiver.setupRegisterDeregister(this);
@@ -124,27 +144,32 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             getContentResolver().registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
                     true, mArtworkInfoShortcutContentObserver);
         }
+        mInitialized = true;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-            getContentResolver().unregisterContentObserver(mArtworkInfoShortcutContentObserver);
-            mArtworkInfoShortcutHandlerThread.quitSafely();
-        }
-        getContentResolver().unregisterContentObserver(mWearableContentObserver);
-        mWearableHandlerThread.quitSafely();
-        getContentResolver().unregisterContentObserver(mNotificationContentObserver);
-        mNotificationHandlerThread.quitSafely();
-        if (mNetworkChangeReceiver != null) {
-            unregisterReceiver(mNetworkChangeReceiver);
-            mNetworkChangeReceiver = null;
-        }
-        SourceManager.unsubscribeToSelectedSource(MuzeiWallpaperService.this);
-        if (mLockScreenVisibleReceiver != null) {
-            mLockScreenVisibleReceiver.destroy();
-            mLockScreenVisibleReceiver = null;
+        if (mInitialized) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                getContentResolver().unregisterContentObserver(mArtworkInfoShortcutContentObserver);
+                mArtworkInfoShortcutHandlerThread.quitSafely();
+            }
+            getContentResolver().unregisterContentObserver(mWearableContentObserver);
+            mWearableHandlerThread.quitSafely();
+            getContentResolver().unregisterContentObserver(mNotificationContentObserver);
+            mNotificationHandlerThread.quitSafely();
+            if (mNetworkChangeReceiver != null) {
+                unregisterReceiver(mNetworkChangeReceiver);
+                mNetworkChangeReceiver = null;
+            }
+            SourceManager.unsubscribeToSelectedSource(MuzeiWallpaperService.this);
+            if (mLockScreenVisibleReceiver != null) {
+                mLockScreenVisibleReceiver.destroy();
+                mLockScreenVisibleReceiver = null;
+            }
+        } else {
+            unregisterReceiver(mUnlockReceiver);
         }
     }
 
@@ -164,6 +189,9 @@ public class MuzeiWallpaperService extends GLWallpaperService {
         private boolean mVisible = true;
         private boolean mValidDoubleTap;
 
+        private boolean mWallpaperActivated = false;
+        private BroadcastReceiver mEngineUnlockReceiver;
+
         @Override
         public void onCreate(SurfaceHolder surfaceHolder) {
             super.onCreate(surfaceHolder);
@@ -178,13 +206,32 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             requestRender();
 
             mGestureDetector = new GestureDetector(MuzeiWallpaperService.this, mGestureListener);
+
+
             if (!isPreview()) {
-                FirebaseAnalytics.getInstance(MuzeiWallpaperService.this).logEvent("wallpaper_created", null);
-                EventBus.getDefault().postSticky(new WallpaperActiveStateChangedEvent(true));
+                if (UserManagerCompat.isUserUnlocked(MuzeiWallpaperService.this)) {
+                    activateWallpaper();
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    mEngineUnlockReceiver = new BroadcastReceiver() {
+                        @Override
+                        public void onReceive(Context context, Intent intent) {
+                            activateWallpaper();
+                            unregisterReceiver(this);
+                        }
+                    };
+                    IntentFilter filter = new IntentFilter(Intent.ACTION_USER_UNLOCKED);
+                    registerReceiver(mEngineUnlockReceiver, filter);
+                }
             }
             setTouchEventsEnabled(true);
             setOffsetNotificationsEnabled(true);
             EventBus.getDefault().register(this);
+        }
+
+        private void activateWallpaper() {
+            mWallpaperActivated = true;
+            FirebaseAnalytics.getInstance(MuzeiWallpaperService.this).logEvent("wallpaper_created", null);
+            EventBus.getDefault().postSticky(new WallpaperActiveStateChangedEvent(true));
         }
 
         @Override
@@ -200,9 +247,11 @@ public class MuzeiWallpaperService extends GLWallpaperService {
         public void onDestroy() {
             super.onDestroy();
             EventBus.getDefault().unregister(this);
-            if (!isPreview()) {
+            if (mWallpaperActivated) {
                 FirebaseAnalytics.getInstance(MuzeiWallpaperService.this).logEvent("wallpaper_destroyed", null);
                 EventBus.getDefault().postSticky(new WallpaperActiveStateChangedEvent(false));
+            } else if (!isPreview()) {
+                unregisterReceiver(mEngineUnlockReceiver);
             }
             queueEvent(new Runnable() {
                 @Override

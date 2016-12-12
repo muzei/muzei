@@ -50,6 +50,7 @@
 
         <service
             android:name="com.google.android.apps.muzei.MuzeiWallpaperService"
+            android:directBootAware="true"
             android:permission="android.permission.BIND_WALLPAPER">
             <intent-filter>
                 <action android:name="android.service.wallpaper.WallpaperService" />
