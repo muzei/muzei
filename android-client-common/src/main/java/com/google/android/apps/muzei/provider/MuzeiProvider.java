@@ -113,7 +113,7 @@ public class MuzeiProvider extends ContentProvider {
     /**
      * Set of Uris that should be applied when the ongoing applyBatch operation finishes
      */
-    private LinkedHashSet<Uri> pendingNotifyChange = new LinkedHashSet<>();
+    private final LinkedHashSet<Uri> pendingNotifyChange = new LinkedHashSet<>();
 
     /**
      * Creates and initializes a column project for all columns for Artwork
@@ -215,17 +215,19 @@ public class MuzeiProvider extends ContentProvider {
             Context context = getContext();
             if (context != null) {
                 ContentResolver contentResolver = context.getContentResolver();
-                Iterator<Uri> iterator = pendingNotifyChange.iterator();
-                while (iterator.hasNext()) {
-                    Uri uri = iterator.next();
-                    contentResolver.notifyChange(uri, null);
-                    if (MuzeiContract.Artwork.CONTENT_URI.equals(uri)) {
-                        context.sendBroadcast(new Intent(MuzeiContract.Artwork.ACTION_ARTWORK_CHANGED));
-                    } else if (MuzeiProvider.uriMatcher.match(uri) == SOURCES ||
-                            MuzeiProvider.uriMatcher.match(uri) == SOURCE_ID) {
-                        broadcastSourceChanged = true;
+                synchronized (pendingNotifyChange) {
+                    Iterator<Uri> iterator = pendingNotifyChange.iterator();
+                    while (iterator.hasNext()) {
+                        Uri uri = iterator.next();
+                        contentResolver.notifyChange(uri, null);
+                        if (MuzeiContract.Artwork.CONTENT_URI.equals(uri)) {
+                            context.sendBroadcast(new Intent(MuzeiContract.Artwork.ACTION_ARTWORK_CHANGED));
+                        } else if (MuzeiProvider.uriMatcher.match(uri) == SOURCES ||
+                                MuzeiProvider.uriMatcher.match(uri) == SOURCE_ID) {
+                            broadcastSourceChanged = true;
+                        }
+                        iterator.remove();
                     }
-                    iterator.remove();
                 }
                 if (broadcastSourceChanged) {
                     context.sendBroadcast(new Intent(MuzeiContract.Sources.ACTION_SOURCE_CHANGED));
@@ -236,7 +238,9 @@ public class MuzeiProvider extends ContentProvider {
 
     private void notifyChange(Uri uri) {
         if (holdNotifyChange) {
-            pendingNotifyChange.add(uri);
+            synchronized (pendingNotifyChange) {
+                pendingNotifyChange.add(uri);
+            }
         } else {
             Context context = getContext();
             if (context == null) {
