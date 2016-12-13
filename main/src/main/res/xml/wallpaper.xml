@@ -18,5 +18,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:thumbnail="@drawable/thumb"
     android:author="@string/app_author"
+    android:contextDescription="@string/app_context_description"
+    android:contextUri="@string/app_context_uri"
     android:settingsActivity="com.google.android.apps.muzei.settings.SettingsActivity"
     android:description="@string/app_description" />
