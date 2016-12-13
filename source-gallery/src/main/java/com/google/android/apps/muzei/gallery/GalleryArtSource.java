@@ -29,7 +29,6 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.location.Address;
 import android.location.Geocoder;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
@@ -41,6 +40,7 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.media.ExifInterface;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
@@ -49,7 +49,6 @@ import android.util.Log;
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
@@ -398,19 +397,11 @@ public class GalleryArtSource extends MuzeiArtSource {
             ContentValues values = new ContentValues();
             values.put(GalleryContract.MetadataCache.COLUMN_NAME_URI, imageUri.toString());
 
-            InputStream in = null;
-            try {
-                ExifInterface exifInterface;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    in = getContentResolver().openInputStream(imageUri);
-                    exifInterface = new ExifInterface(in);
-                } else {
-                    File imageFile = GalleryProvider.getLocalFileForUri(this, imageUri);
-                    if (imageFile == null) {
-                        return;
-                    }
-                    exifInterface = new ExifInterface(imageFile.getPath());
+            try (InputStream in = getContentResolver().openInputStream(imageUri)) {
+                if (in == null) {
+                    return;
                 }
+                ExifInterface exifInterface = new ExifInterface(in);
                 String dateString = exifInterface.getAttribute(ExifInterface.TAG_DATETIME);
                 if (!TextUtils.isEmpty(dateString)) {
                     Date date = sExifDateFormat.parse(dateString);
@@ -448,16 +439,8 @@ public class GalleryArtSource extends MuzeiArtSource {
                 }
 
                 getContentResolver().insert(GalleryContract.MetadataCache.CONTENT_URI, values);
-            } catch (ParseException e) {
+            } catch (ParseException|IOException e) {
                 Log.w(TAG, "Couldn't read image metadata.", e);
-            } catch (IOException e) {
-                Log.w(TAG, "Couldn't write temporary image file.", e);
-            } finally {
-                if (in != null) {
-                    try {
-                        in.close();
-                    } catch (IOException ignored) { }
-                }
             }
         }
     }

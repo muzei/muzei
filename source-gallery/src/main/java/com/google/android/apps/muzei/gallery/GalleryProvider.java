@@ -533,37 +533,6 @@ public class GalleryProvider extends ContentProvider {
         return ParcelFileDescriptor.open(file, ParcelFileDescriptor.parseMode(mode));
     }
 
-    static File getLocalFileForUri(Context context, @NonNull Uri uri) {
-        String imageUri = uri.toString();
-        if (GalleryProvider.uriMatcher.match(uri) == CHOSEN_PHOTOS_ID) {
-            String[] projection = { GalleryContract.ChosenPhotos.COLUMN_NAME_URI };
-            Cursor data = context.getContentResolver().query(uri, projection, null, null, null);
-            if (data == null) {
-                return null;
-            }
-            if (!data.moveToFirst()) {
-                data.close();
-                return null;
-            }
-            imageUri = data.getString(0);
-            data.close();
-            // See if there's already a cached file for the image
-            File cachedFile = getCacheFileForUri(context, imageUri);
-            if (cachedFile != null && cachedFile.exists()) {
-                return cachedFile;
-            }
-        }
-        // Create a local file
-        File tempFile = new File(context.getCacheDir(), "tempimage");
-        try {
-            writeUriToFile(context, imageUri, tempFile);
-            return tempFile;
-        } catch (IOException e) {
-            Log.e(TAG, "Error downloading gallery image " + imageUri, e);
-            return null;
-        }
-    }
-
     private static File getCacheFileForUri(Context context, @NonNull String imageUri) {
         File directory = new File(context.getExternalFilesDir(null), "gallery_images");
         if (!directory.exists() && !directory.mkdirs()) {

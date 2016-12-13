@@ -75,4 +75,6 @@
     ]]></string>
     <string name="about_version_template">v%1$s</string>
     <string name="app_author">Roman Nurik</string>
+    <string name="app_context_description">A living museum for your home screen</string>
+    <string name="app_context_uri">http://www.muzei.co/</string>
 </resources>

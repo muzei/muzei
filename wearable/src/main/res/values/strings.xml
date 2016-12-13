@@ -23,6 +23,8 @@
     <string name="activate_no_play_store">Muzei will only show a static background
         if you cannot install the Muzei Android app on your connected device.</string>
     <string name="activate_install_muzei">Sync your background by installing Muzei on your connected device.</string>
+    <string name="activate_install_action">Open Play Store on your phone</string>
+    <string name="activate_install_failed">Unable to find your phone to install Muzei</string>
     <string name="activate_enable_muzei">Activate Muzei sync on %s</string>
     <string name="activate_action">Activate on %s</string>
     <string name="activate_failed">Unable to find your phone to activate Muzei</string>

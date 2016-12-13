@@ -18,16 +18,13 @@ package com.google.android.apps.muzei.render;
 
 import android.content.Context;
 import android.database.ContentObserver;
-import android.media.ExifInterface;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Handler;
+import android.support.media.ExifInterface;
 import android.util.Log;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -67,12 +64,7 @@ public class RealRenderController extends RenderController {
                 if (in == null) {
                     return null;
                 }
-                ExifInterface exifInterface;
-                if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    exifInterface = new ExifInterface(in);
-                } else {
-                    exifInterface = new ExifInterface(writeArtworkToFile(in).getAbsolutePath());
-                }
+                ExifInterface exifInterface = new ExifInterface(in);
                 int orientation = exifInterface.getAttributeInt(
                         ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
                 switch (orientation) {
@@ -89,24 +81,5 @@ public class RealRenderController extends RenderController {
             Log.e(TAG, "Error loading image", e);
             return null;
         }
-    }
-
-    private File writeArtworkToFile(InputStream in) throws IOException {
-        File file = new File(mContext.getCacheDir(), "temp_artwork");
-        FileOutputStream out = new FileOutputStream(file);
-        try {
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = in.read(buffer)) > 0) {
-                out.write(buffer, 0, bytesRead);
-            }
-            out.flush();
-        } finally {
-            try {
-                out.close();
-            } catch (IOException ignored) {
-            }
-        }
-        return file;
     }
 }
