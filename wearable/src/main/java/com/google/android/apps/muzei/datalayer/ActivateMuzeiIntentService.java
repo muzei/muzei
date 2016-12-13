@@ -24,12 +24,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
 import android.service.notification.StatusBarNotification;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.wearable.activity.ConfirmationActivity;
-import android.support.wearable.playstore.PlayStoreAvailability;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -39,6 +42,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.CapabilityApi;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.Wearable;
+import com.google.android.wearable.intent.RemoteIntent;
+import com.google.android.wearable.playstore.PlayStoreAvailability;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.R;
@@ -55,6 +60,8 @@ public class ActivateMuzeiIntentService extends IntentService {
     private static final String ACTIVATE_MUZEI_NOTIF_SHOWN_PREF_KEY = "ACTIVATE_MUZEI_NOTIF_SHOWN";
     private static final String ACTION_MARK_NOTIFICATION_READ =
             "com.google.android.apps.muzei.action.NOTIFICATION_DELETED";
+    private static final String ACTION_REMOTE_INSTALL_MUZEI =
+            "com.google.android.apps.muzei.action.REMOTE_INSTALL_MUZEI";
 
     public static void maybeShowActivateMuzeiNotification(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -108,6 +115,17 @@ public class ActivateMuzeiIntentService extends IntentService {
                 FirebaseAnalytics.getInstance(context).logEvent("activate_notif_no_play_store", null);
             } else {
                 builder.setContentText(context.getString(R.string.activate_install_muzei));
+                Intent installMuzeiIntent = new Intent(context, ActivateMuzeiIntentService.class);
+                installMuzeiIntent.setAction(ACTION_REMOTE_INSTALL_MUZEI);
+                PendingIntent pendingIntent = PendingIntent.getService(context, 0, installMuzeiIntent, 0);
+                builder.addAction(new NotificationCompat.Action.Builder(R.drawable.open_on_phone,
+                        context.getString(R.string.activate_install_action), pendingIntent)
+                        .extend(new NotificationCompat.Action.WearableExtender()
+                                .setHintDisplayActionInline(true)
+                                .setAvailableOffline(false))
+                        .build());
+                builder.extend(new NotificationCompat.WearableExtender()
+                        .setContentAction(0));
                 FirebaseAnalytics.getInstance(context).logEvent("activate_notif_play_store", null);
             }
             notificationManager.notify(INSTALL_NOTIFICATION_ID, builder.build());
@@ -158,10 +176,30 @@ public class ActivateMuzeiIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String action = intent.getAction();
         if (TextUtils.equals(action, ACTION_MARK_NOTIFICATION_READ)) {
             preferences.edit().putBoolean(ACTIVATE_MUZEI_NOTIF_SHOWN_PREF_KEY, true).apply();
+            return;
+        } else if (TextUtils.equals(action, ACTION_REMOTE_INSTALL_MUZEI)) {
+            Intent remoteIntent =
+                    new Intent(Intent.ACTION_VIEW)
+                            .addCategory(Intent.CATEGORY_BROWSABLE)
+                            .setData(Uri.parse("market://details?id=" + getPackageName()));
+            RemoteIntent.startRemoteActivity(this, remoteIntent, new ResultReceiver(new Handler()) {
+                @Override
+                protected void onReceiveResult(int resultCode, Bundle resultData) {
+                    if (resultCode == RemoteIntent.RESULT_OK) {
+                        FirebaseAnalytics.getInstance(ActivateMuzeiIntentService.this)
+                                .logEvent("activate_notif_install_sent", null);
+                        preferences.edit().putBoolean(ACTIVATE_MUZEI_NOTIF_SHOWN_PREF_KEY,
+                                true).apply();
+                    } else {
+                        Toast.makeText(ActivateMuzeiIntentService.this,
+                                R.string.activate_install_failed, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
             return;
         }
         // else -> Open on Phone action
