@@ -23,7 +23,7 @@ ext {
 
     supportLibraryVersion = "25.1.0"
     googlePlayServicesVersion = "9.8.0"
-    okhttpVersion = "3.4.1"
+    okhttpVersion = "3.5.0"
     picassoVersion = "2.5.2"
 
     abiSplitMultiplier = 10000
