@@ -39,9 +39,6 @@ android {
         applicationId "net.nurik.roman.muzei"
         minSdkVersion 23
         targetSdkVersion rootProject.ext.targetSdkVersion
-        renderscriptTargetApi rootProject.ext.targetSdkVersion
-        renderscriptSupportModeEnabled true
-        ndk.abiFilters 'armeabi-v7a', 'x86'
 
         versionName versionProps['name']
         versionCode versionProps['codeWear'].toInteger()

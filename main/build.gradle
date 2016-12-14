@@ -43,8 +43,6 @@ android {
         applicationId "net.nurik.roman.muzei"
         minSdkVersion 19
         targetSdkVersion rootProject.ext.targetSdkVersion
-        renderscriptTargetApi rootProject.ext.targetSdkVersion
-        renderscriptSupportModeEnabled true
 
         versionName versionProps['name']
         versionCode versionProps['code'].toInteger()
@@ -64,25 +62,6 @@ android {
             keyAlias keyProps["alias"] ?: ""
             storePassword keyProps["storePass"] ?: ""
             keyPassword keyProps["pass"] ?: ""
-        }
-    }
-
-    splits {
-        abi {
-            enable true
-            reset()
-            include "armeabi-v7a", "arm64-v8a"
-            universalApk true
-        }
-    }
-
-    // For each APK output variant, add in the ABI specific versionCode
-    applicationVariants.all { variant ->
-        // assign different version code for each output
-        variant.outputs.each { output ->
-            int abiVersionCode = rootProject.ext.abiSplitVersionCodes.get(
-                    output.getFilter(com.android.build.OutputFile.ABI)) ?: 0
-            output.versionCodeOverride = abiVersionCode * rootProject.ext.abiSplitMultiplier + defaultConfig.versionCode
         }
     }
 
