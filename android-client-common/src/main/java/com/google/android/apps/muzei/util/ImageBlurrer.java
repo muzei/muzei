@@ -46,7 +46,7 @@ public class ImageBlurrer {
             return null;
         }
 
-        Bitmap dest = src.copy(src.getConfig(), false);
+        Bitmap dest = src.copy(src.getConfig(), true);
         if (radius == 0f && desaturateAmount == 0f) {
             return dest;
         }
