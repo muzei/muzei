@@ -100,7 +100,9 @@ dependencies {
     compile "com.android.support:exifinterface:$rootProject.ext.supportLibraryVersion"
     compile "com.google.android.support:wearable:2.0.0-beta1"
     compile "com.google.android.gms:play-services-wearable:$rootProject.ext.googlePlayServicesVersion"
-    compile "com.google.firebase:firebase-crash:$rootProject.ext.googlePlayServicesVersion"
+    compile "com.google.firebase:firebase-core:$rootProject.ext.googlePlayServicesVersion"
+    // Only use crash reporting in the "prod" product flavor
+    prodCompile "com.google.firebase:firebase-crash:$rootProject.ext.googlePlayServicesVersion"
     compile project(':android-client-common')
 }
 
