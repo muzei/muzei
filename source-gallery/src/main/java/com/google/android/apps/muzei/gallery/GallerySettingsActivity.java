@@ -884,6 +884,12 @@ public class GallerySettingsActivity extends AppCompatActivity
                     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
                     @Override
                     public void run() {
+                        if (!vh.mCheckedOverlayView.isAttachedToWindow()) {
+                            // Can't animate detached Views
+                            vh.mCheckedOverlayView.setVisibility(
+                                    checked ? View.VISIBLE : View.GONE);
+                            return;
+                        }
                         if (checked) {
                             vh.mCheckedOverlayView.setVisibility(View.VISIBLE);
                         }
