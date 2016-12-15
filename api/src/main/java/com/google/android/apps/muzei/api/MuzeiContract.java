@@ -199,17 +199,11 @@ public class MuzeiContract {
          */
         public static com.google.android.apps.muzei.api.Artwork getCurrentArtwork(Context context) {
             ContentResolver contentResolver = context.getContentResolver();
-            Cursor cursor = contentResolver.query(CONTENT_URI, null, null, null, null);
-            if (cursor == null) {
-                return null;
-            }
-            try {
-                if (!cursor.moveToFirst()) {
+            try (Cursor cursor = contentResolver.query(CONTENT_URI, null, null, null, null)) {
+                if (cursor == null || !cursor.moveToFirst()) {
                     return null;
                 }
                 return com.google.android.apps.muzei.api.Artwork.fromCursor(cursor);
-            } finally {
-                cursor.close();
             }
         }
 

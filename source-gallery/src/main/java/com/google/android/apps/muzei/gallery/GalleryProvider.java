@@ -378,14 +378,11 @@ public class GalleryProvider extends ContentProvider {
         if (context == null) {
             return;
         }
-        InputStream in = null;
-        OutputStream out = null;
-        try {
-            in = context.getContentResolver().openInputStream(Uri.parse(uri));
+        try (InputStream in = context.getContentResolver().openInputStream(Uri.parse(uri));
+             OutputStream out = in != null ? new FileOutputStream(destFile) : null) {
             if (in == null) {
                 return;
             }
-            out = new FileOutputStream(destFile);
             byte[] buffer = new byte[1024];
             int bytesRead;
             while ((bytesRead = in.read(buffer)) > 0) {
@@ -394,17 +391,6 @@ public class GalleryProvider extends ContentProvider {
             out.flush();
         } catch (SecurityException e) {
             throw new IOException("Unable to read Uri: " + uri, e);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch(IOException ignored) {}
-            }
-            if (out != null) {
-                try {
-                    out.close();
-                } catch(IOException ignored) {}
-            }
         }
     }
 
