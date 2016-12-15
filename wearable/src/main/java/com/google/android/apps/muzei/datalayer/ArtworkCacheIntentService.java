@@ -136,11 +136,9 @@ public class ArtworkCacheIntentService extends IntentService {
             Log.w(TAG, "Unable to write artwork information to MuzeiProvider");
             return false;
         }
-        OutputStream out = null;
         DataApi.GetFdForAssetResult result = null;
         InputStream in = null;
-        try {
-            out = getContentResolver().openOutputStream(artworkUri);
+        try (OutputStream out = getContentResolver().openOutputStream(artworkUri)) {
             if (out == null) {
                 // We've already cached the artwork previously, so call this a success
                 return true;
@@ -170,13 +168,6 @@ public class ArtworkCacheIntentService extends IntentService {
             }
             if (result != null) {
                 result.release();
-            }
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException e) {
-                Log.e(TAG, "Error closing artwork output stream", e);
             }
         }
         return true;

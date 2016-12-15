@@ -83,10 +83,8 @@ public class DownloadArtworkTask extends AsyncTask<Void, Void, Boolean> {
         }
         Uri imageUri = Uri.parse(imageUriString);
         data.close();
-        OutputStream out = null;
-        InputStream in = null;
-        try {
-            out = resolver.openOutputStream(artworkUri);
+        try (OutputStream out = resolver.openOutputStream(artworkUri);
+             InputStream in = out != null ? openUri(mApplicationContext, imageUri) : null) {
             if (out == null) {
                 // We've already downloaded the file
                 return true;
@@ -94,7 +92,6 @@ public class DownloadArtworkTask extends AsyncTask<Void, Void, Boolean> {
             // Only publish progress (i.e., say we've started loading the artwork)
             // if we actually need to download the artwork
             publishProgress();
-            in = openUri(mApplicationContext, imageUri);
             byte[] buffer = new byte[1024];
             int bytesRead;
             while ((bytesRead = in.read(buffer)) > 0) {
@@ -104,21 +101,6 @@ public class DownloadArtworkTask extends AsyncTask<Void, Void, Boolean> {
         } catch (IOException e) {
             Log.e(TAG, "Error downloading artwork", e);
             return false;
-        } finally {
-            try {
-                if (in != null) {
-                    in.close();
-                }
-            } catch (IOException e) {
-                Log.e(TAG, "Error closing artwork input stream", e);
-            }
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException e) {
-                Log.e(TAG, "Error closing artwork output stream", e);
-            }
         }
         return true;
     }

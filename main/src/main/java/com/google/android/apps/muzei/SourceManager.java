@@ -193,17 +193,12 @@ public class SourceManager {
     }
 
     public static ComponentName getSelectedSource(Context context) {
-        Cursor data = context.getContentResolver().query(MuzeiContract.Sources.CONTENT_URI,
+        try (Cursor data = context.getContentResolver().query(MuzeiContract.Sources.CONTENT_URI,
                 new String[] {MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME},
-                MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED + "=1", null, null);
-        try {
+                MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED + "=1", null, null)) {
             return data != null && data.moveToFirst()
                     ? ComponentName.unflattenFromString(data.getString(0))
                     : null;
-        } finally {
-            if (data != null) {
-                data.close();
-            }
         }
     }
 

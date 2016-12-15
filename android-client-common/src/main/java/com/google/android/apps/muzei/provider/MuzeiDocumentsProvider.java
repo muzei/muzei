@@ -445,23 +445,19 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
         options.inJustDecodeBounds = false;
         Bitmap bitmap = BitmapFactory.decodeStream(contentResolver.openInputStream(artworkUri), null, options);
         // Write out the thumbnail to a temporary file
-        FileOutputStream out = null;
-        try {
-            if (tempFile == null) {
+        if (tempFile == null) {
+            try {
                 tempFile = File.createTempFile("thumbnail", null, getContext().getCacheDir());
+            } catch (IOException e) {
+                Log.e(TAG, "Error writing thumbnail", e);
+                return null;
             }
-            out = new FileOutputStream(tempFile);
+        }
+        try (FileOutputStream out = new FileOutputStream(tempFile)) {
             bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
         } catch (IOException e) {
             Log.e(TAG, "Error writing thumbnail", e);
             return null;
-        } finally {
-            if (out != null)
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    Log.e(TAG, "Error closing thumbnail", e);
-                }
         }
         return new AssetFileDescriptor(ParcelFileDescriptor.open(tempFile, ParcelFileDescriptor.MODE_READ_ONLY), 0,
                 AssetFileDescriptor.UNKNOWN_LENGTH);
