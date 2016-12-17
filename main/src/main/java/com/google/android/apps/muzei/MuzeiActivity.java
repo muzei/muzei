@@ -20,7 +20,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.annotation.TargetApi;
 import android.app.WallpaperManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -146,7 +145,7 @@ public class MuzeiActivity extends AppCompatActivity {
             Artwork currentArtwork = Artwork.fromCursor(data);
             String titleFont = "AlegreyaSans-Black.ttf";
             String bylineFont = "AlegreyaSans-Medium.ttf";
-            if (Artwork.FONT_TYPE_ELEGANT.equals(currentArtwork.getMetaFont())) {
+            if (MuzeiContract.Artwork.META_FONT_TYPE_ELEGANT.equals(currentArtwork.getMetaFont())) {
                 titleFont = "Alegreya-BlackItalic.ttf";
                 bylineFont = "Alegreya-Italic.ttf";
             }

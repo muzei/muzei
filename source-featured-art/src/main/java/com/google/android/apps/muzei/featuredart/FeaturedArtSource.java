@@ -27,6 +27,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.apps.muzei.api.Artwork;
+import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.api.RemoteMuzeiArtSource;
 import com.google.android.apps.muzei.api.UserCommand;
 
@@ -87,7 +88,7 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
                     .attribution("wikiart.org")
                     .viewIntent(new Intent(Intent.ACTION_VIEW,
                             Uri.parse("http://www.wikiart.org/en/vincent-van-gogh/the-starry-night-1889")))
-                    .metaFont(Artwork.FONT_TYPE_ELEGANT)
+                    .metaFont(MuzeiContract.Artwork.META_FONT_TYPE_ELEGANT)
                     .build());
             commands.add(new UserCommand(BUILTIN_COMMAND_ID_NEXT_ARTWORK));
             // show the latest photo in 15 minutes
@@ -199,7 +200,7 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
                 Log.d(TAG, "Publishing artwork update: " + artwork);
             }
             if (artwork != null && jsonObject != null) {
-                artwork.setMetaFont(Artwork.FONT_TYPE_ELEGANT);
+                artwork.setMetaFont(MuzeiContract.Artwork.META_FONT_TYPE_ELEGANT);
                 publishArtwork(artwork);
             }
         }
