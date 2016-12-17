@@ -302,7 +302,8 @@ public class MuzeiProvider extends ContentProvider {
         // and manually delete each artwork file
         String[] projection = new String[] {
                 MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID,
-                MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI};
+                MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI,
+                MuzeiContract.Artwork.COLUMN_NAME_TOKEN};
         Cursor rowsToDelete = queryArtwork(uri, projection, finalWhere, selectionArgs,
                 MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI);
         if (rowsToDelete == null) {
@@ -325,13 +326,33 @@ public class MuzeiProvider extends ContentProvider {
             Uri artworkUri = ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI,
                     rowsToDelete.getLong(0));
             String imageUri = rowsToDelete.getString(1);
-            if (TextUtils.isEmpty(imageUri)) {
-                // An empty image URI means the artwork is unique to this specific row
+            String token = rowsToDelete.getString(2);
+            if (TextUtils.isEmpty(imageUri) && TextUtils.isEmpty(token)) {
+                // An empty image URI and token means the artwork is unique to this specific row
                 // so we can always delete it when the associated row is deleted
                 File artwork = getCacheFileForArtworkUri(artworkUri);
                 if (artwork != null && artwork.exists()) {
                     artwork.delete();
                 }
+            } else if (TextUtils.isEmpty(imageUri)) {
+                // Check if there are other rows using this same token that aren't
+                // in the list of ids to delete
+                Cursor otherArtwork = queryArtwork(MuzeiContract.Artwork.CONTENT_URI,
+                        new String[] {MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID},
+                        MuzeiContract.Artwork.COLUMN_NAME_TOKEN + "=? AND " + notInDeleteIds,
+                        new String[] { token }, null);
+                if (otherArtwork == null) {
+                    continue;
+                }
+                if (otherArtwork.getCount() == 0) {
+                    // There's no non-deleted rows that reference this same artwork URI
+                    // so we can delete the artwork
+                    File artwork = getCacheFileForArtworkUri(artworkUri);
+                    if (artwork != null && artwork.exists()) {
+                        artwork.delete();
+                    }
+                }
+                otherArtwork.close();
             } else {
                 // Check if there are other rows using this same image URI that aren't
                 // in the list of ids to delete
@@ -781,7 +802,8 @@ public class MuzeiProvider extends ContentProvider {
         if (!directory.exists() && !directory.mkdirs()) {
             return null;
         }
-        String[] projection = { BaseColumns._ID, MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI };
+        String[] projection = { BaseColumns._ID, MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI,
+                MuzeiContract.Artwork.COLUMN_NAME_TOKEN };
         Cursor data = queryArtwork(artworkUri, projection, null, null, null);
         if (data == null) {
             return null;
@@ -793,27 +815,32 @@ public class MuzeiProvider extends ContentProvider {
         // While normally we'd use data.getLong(), we later need this as a String so the automatic conversion helps here
         String id = data.getString(0);
         String imageUri = data.getString(1);
+        String token = data.getString(2);
         data.close();
-        if (TextUtils.isEmpty(imageUri)) {
+        if (TextUtils.isEmpty(imageUri) && TextUtils.isEmpty(token)) {
             return new File(directory, id);
         }
-        // Otherwise, create a unique filename based on the imageUri
-        Uri uri = Uri.parse(imageUri);
+        // Otherwise, create a unique filename based on the imageUri and token
         StringBuilder filename = new StringBuilder();
-        filename.append(uri.getScheme()).append("_")
-                .append(uri.getHost()).append("_");
-        String encodedPath = uri.getEncodedPath();
-        if (!TextUtils.isEmpty(encodedPath)) {
-            int length = encodedPath.length();
-            if (length > 60) {
-                encodedPath = encodedPath.substring(length - 60);
+        if (!TextUtils.isEmpty(imageUri)) {
+            Uri uri = Uri.parse(imageUri);
+            filename.append(uri.getScheme()).append("_")
+                    .append(uri.getHost()).append("_");
+            String encodedPath = uri.getEncodedPath();
+            if (!TextUtils.isEmpty(encodedPath)) {
+                int length = encodedPath.length();
+                if (length > 60) {
+                    encodedPath = encodedPath.substring(length - 60);
+                }
+                encodedPath = encodedPath.replace('/', '_');
+                filename.append(encodedPath).append("_");
             }
-            encodedPath = encodedPath.replace('/', '_');
-            filename.append(encodedPath).append("_");
         }
+        // Use the imageUri if available, otherwise use the token
+        String unique = !TextUtils.isEmpty(imageUri) ? imageUri : token;
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
-            md.update(uri.toString().getBytes("UTF-8"));
+            md.update(unique.getBytes("UTF-8"));
             byte[] digest = md.digest();
             for (byte b : digest) {
                 if ((0xff & b) < 0x10) {
@@ -823,7 +850,7 @@ public class MuzeiProvider extends ContentProvider {
                 }
             }
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-            filename.append(uri.toString().hashCode());
+            filename.append(unique.hashCode());
         }
         return new File(directory, filename.toString());
     }
