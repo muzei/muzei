@@ -18,7 +18,10 @@ package com.google.android.apps.muzei.api;
 
 import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -30,7 +33,14 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -199,6 +209,310 @@ public class MuzeiContract {
          * artwork.
          */
         public static final String ACTION_ARTWORK_CHANGED = "com.google.android.apps.muzei.ACTION_ARTWORK_CHANGED";
+
+        /**
+         * Create a new {@link ArtworkPublishRequest} associated with the given {@link MuzeiArtSource}.
+         * You must call one of the <code>publish()</code> methods on the returned {@link ArtworkPublishRequest}
+         * to complete uploading the artwork.
+         *
+         * @param context Context used to publish the artwork
+         * @param source {@link MuzeiArtSource} that this artwork should be associated with
+         * @return a {@link ArtworkPublishRequest} that should be filled in and then used to <code>publish</code>
+         * the artwork
+         */
+        public static ArtworkPublishRequest createArtwork(Context context,
+                                                          Class<? extends MuzeiArtSource> source) {
+            return new ArtworkPublishRequest(context, new ComponentName(context, source));
+        }
+
+        /**
+         * Create a new {@link ArtworkPublishRequest} associated with the given {@link MuzeiArtSource}.
+         * You must call one of the <code>publish()</code> methods on the returned {@link ArtworkPublishRequest}
+         * to complete uploading the artwork.
+         *
+         * @param context Context used to publish the artwork
+         * @param source {@link MuzeiArtSource} that this artwork should be associated with
+         * @return a {@link ArtworkPublishRequest} that should be filled in and then used to <code>publish</code>
+         * the artwork
+         */
+        public static ArtworkPublishRequest createArtwork(Context context, ComponentName source) {
+            return new ArtworkPublishRequest(context, source);
+        }
+
+        /**
+         * Class which allows you to set the optional fields associated with a piece of artwork in preparation for
+         * publishing with one of the <code>publish()</code> methods.
+         *
+         * <p> The <code>publish()</code> methods cannot be called on the main thread since they directly read
+         * and write the image data to the ContentProviders set in {@link #contentAuthorities}.
+         *
+         * <p> Create an artwork publish request with {@link #createArtwork(Context, Class)} or
+         * {@link #createArtwork(Context, ComponentName)}.
+         *
+         * <p> All methods are optional and can be chained together as seen below, although it is strongly recommended
+         * to at least set a {@link #title} and {@link #byline}.
+         *
+         * <pre class="prettyprint">
+         * MuzeiContract.Artwork.createArtwork(context, ExampleArtSource.class)
+         *     .title("Example image")
+         *     .byline("Unknown person, c. 1980")
+         *     .viewIntent(new Intent(Intent.ACTION_VIEW,
+         *         Uri.parse("http://example.com/imagedetails.html")))
+         *     .publish(Uri.parse("http://example.com/image.jpg"));
+         * </pre>
+         */
+        public static class ArtworkPublishRequest {
+            private static final int DEFAULT_READ_TIMEOUT = 30000; // in milliseconds
+            private static final int DEFAULT_CONNECT_TIMEOUT = 15000; // in milliseconds
+
+            private final ContentResolver contentResolver;
+            private final AssetManager assetManager;
+            private final ContentValues values = new ContentValues();
+            private final ArrayList<Uri> contentUris = new ArrayList<>();
+
+            ArtworkPublishRequest(Context context, ComponentName source) {
+                contentResolver = context.getContentResolver();
+                assetManager = context.getAssets();
+                values.put(Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME,
+                        source.flattenToShortString());
+                // Default to writing to only the standard Muzei CONTENT_URI
+                contentUris.add(CONTENT_URI);
+            }
+
+            /**
+             * Override the default authority of {@link MuzeiContract#AUTHORITY} with a custom set.
+             * The Artwork will be written to all of the provided ContentProviders
+             * @param authorities the list of authorities to write the artwork to. Defaults to only
+             *                    {@link MuzeiContract#AUTHORITY}
+             * @return this {@link ArtworkPublishRequest}
+             */
+            public ArtworkPublishRequest contentAuthorities(String... authorities) {
+                contentUris.clear();
+                for (String authority : authorities) {
+                    contentUris.add(Uri.parse(SCHEME + authority + "/" + Artwork.TABLE_NAME));
+                }
+                return this;
+            }
+
+            /**
+             * Sets the artwork's user-visible title.
+             * @return this {@link ArtworkPublishRequest}
+             */
+            public ArtworkPublishRequest title(String title) {
+                values.put(Artwork.COLUMN_NAME_TITLE, title);
+                return this;
+            }
+
+            /**
+             * Sets the artwork's user-visible byline (e.g. author and date).
+             * @return this {@link ArtworkPublishRequest}
+             */
+            public ArtworkPublishRequest byline(String byline) {
+                values.put(Artwork.COLUMN_NAME_BYLINE, byline);
+                return this;
+            }
+
+            /**
+             * Sets the artwork's user-visible attribution text.
+             * @return this {@link ArtworkPublishRequest}
+             */
+            public ArtworkPublishRequest attribution(String attribution) {
+                values.put(Artwork.COLUMN_NAME_ATTRIBUTION, attribution);
+                return this;
+            }
+
+            /**
+             * Sets the artwork's opaque application-specific identifier.
+             *
+             * <p> If this is non-null, it will be used to
+             * de-duplicate artwork published with {@link #publish(Bitmap)} or {@link #publish(InputStream)}
+             *
+             * @return this {@link ArtworkPublishRequest}
+             */
+            public ArtworkPublishRequest token(String token) {
+                values.put(Artwork.COLUMN_NAME_TOKEN, token);
+                return this;
+            }
+
+            /**
+             * Sets the activity {@link Intent} that will be
+             * {@linkplain Context#startActivity(Intent) started} when
+             * the user clicks for more details about the artwork.
+             *
+             * <p> The activity that this intent resolves to must have <code>android:exported</code>
+             * set to <code>true</code>.
+             *
+             * <p> Because artwork objects can be persisted across device reboots,
+             * {@linkplain android.app.PendingIntent pending intents}, which would alleviate the
+             * exported requirement, are not currently supported.
+             * @return this {@link ArtworkPublishRequest}
+             */
+            public ArtworkPublishRequest viewIntent(Intent viewIntent) {
+                if (viewIntent != null) {
+                    values.put(Artwork.COLUMN_NAME_VIEW_INTENT,
+                            viewIntent.toUri(Intent.URI_INTENT_SCHEME));
+                }
+                return this;
+            }
+
+            /**
+             * Sets the font type to use to show metadata for the artwork.
+             *
+             * @return this {@link ArtworkPublishRequest}
+             *
+             * @see Artwork#META_FONT_TYPE_DEFAULT
+             * @see Artwork#META_FONT_TYPE_ELEGANT
+             */
+            public ArtworkPublishRequest metaFont(String metaFont) {
+                values.put(Artwork.COLUMN_NAME_META_FONT, metaFont);
+                return this;
+            }
+
+            /**
+             * Load the artwork from an image URI, which must resolve to a JPEG or PNG image, ideally
+             * under 5MB. Supported URI schemes are:
+             *
+             * <ul>
+             * <li><code>content://...</code>.</li>
+             * <li><code>file://...</code>.</li>
+             * <li><code>file:///android_asset/...</code>.</li>
+             * <li><code>http://...</code> or <code>https://...</code>.</li>
+             * </ul>
+             *
+             * <p> If Muzei has previously loaded from the same imageUri, it will reuse that image rather than
+             * load the image again.
+             *
+             * <p> If you need more control over loading the image, use {@link #publish(InputStream)}.
+             *
+             * <p> This method must not be called on the main thread since it directly writes the Bitmap data
+             * to the ContentProviders set in {@link #contentAuthorities}.
+             *
+             * @param imageUri URI of the image to load
+             * @throws IOException if an error occurs while publishing the image
+             */
+            public void publish(Uri imageUri) throws IOException {
+                values.put(Artwork.COLUMN_NAME_IMAGE_URI, imageUri.toString());
+                try (InputStream in = openUri(imageUri)) {
+                    publish(in);
+                }
+            }
+
+            /**
+             * Load the artwork from a Bitmap.
+             *
+             * <p> Each Bitmap is considered a unique image (i.e., never published prior). To de-duplicate
+             * the same Bitmap, set the same {@link #token} with each publish. This will cause Muzei to reuse
+             * that image rather than load the image again.
+             *
+             * <p> This method must not be called on the main thread since it directly writes the Bitmap data
+             * to the ContentProviders set in {@link #contentAuthorities}.
+             *
+             * @param bitmap The artwork to display
+             * @throws IOException if an error occurs while publishing the image
+             */
+            public void publish(Bitmap bitmap) throws IOException {
+                if (Looper.myLooper() == Looper.getMainLooper()) {
+                    throw new IllegalStateException("publish cannot be called on the main thread");
+                }
+                for (Uri contentUri : contentUris) {
+                    Uri artworkUri = contentResolver.insert(contentUri, values);
+                    try (OutputStream out = contentResolver.openOutputStream(artworkUri)) {
+                        if (out == null) {
+                            continue;
+                        }
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                    }
+                }
+            }
+
+            /**
+             * Load the artwork from an InputStream.
+             *
+             * <p> Each InputStream is considered a unique image (i.e., never published prior). To de-duplicate
+             * the same InputStream, set the same {@link #token} with each publish. This will cause Muzei to reuse
+             * that image rather than load the image again.
+             *
+             * <p> This method must not be called on the main thread since it directly writes the Bitmap data
+             * to the ContentProviders set in {@link #contentAuthorities}.
+             *
+             * @param in An InputStream pointing to a valid JPEG or PNG image
+             * @throws IOException if an error occurs while publishing the image
+             */
+            public void publish(InputStream in) throws IOException {
+                if (Looper.myLooper() == Looper.getMainLooper()) {
+                    throw new IllegalStateException("publish cannot be called on the main thread");
+                }
+                for (Uri contentUri : contentUris) {
+                    Uri artworkUri = contentResolver.insert(contentUri, values);
+                    try (OutputStream out = contentResolver.openOutputStream(artworkUri)) {
+                        if (out == null) {
+                            continue;
+                        }
+                        byte[] buffer = new byte[1024];
+                        int bytesRead;
+                        while ((bytesRead = in.read(buffer)) > 0) {
+                            out.write(buffer, 0, bytesRead);
+                        }
+                        out.flush();
+                    }
+                }
+            }
+
+            private InputStream openUri(Uri uri)
+                    throws IOException {
+                if (uri == null) {
+                    throw new IllegalArgumentException("Uri cannot be empty");
+                }
+
+                String scheme = uri.getScheme();
+                if (scheme == null) {
+                    throw new IOException("Uri had no scheme");
+                }
+
+                InputStream in = null;
+                if ("content".equals(scheme)) {
+                    try {
+                        in = contentResolver.openInputStream(uri);
+                    } catch (SecurityException e) {
+                        throw new FileNotFoundException("No access to " + uri + ": " + e.toString());
+                    }
+
+                } else if ("file".equals(scheme)) {
+                    List<String> segments = uri.getPathSegments();
+                    if (segments != null && segments.size() > 1
+                            && "android_asset".equals(segments.get(0))) {
+                        StringBuilder assetPath = new StringBuilder();
+                        for (int i = 1; i < segments.size(); i++) {
+                            if (i > 1) {
+                                assetPath.append("/");
+                            }
+                            assetPath.append(segments.get(i));
+                        }
+                        in = assetManager.open(assetPath.toString());
+                    } else {
+                        in = new FileInputStream(new File(uri.getPath()));
+                    }
+
+                } else if ("http".equals(scheme) || "https".equals(scheme)) {
+                    URL url = new URL(uri.toString());
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setReadTimeout(DEFAULT_READ_TIMEOUT);
+                    conn.setConnectTimeout(DEFAULT_CONNECT_TIMEOUT);
+                    conn.connect();
+                    int responseCode = conn.getResponseCode();
+                    if (!(responseCode >= 200 && responseCode < 300)) {
+                        throw new IOException("HTTP error response " + responseCode);
+                    }
+                    in = conn.getInputStream();
+                }
+
+                if (in == null) {
+                    throw new FileNotFoundException("Null input stream for URI: " + uri);
+                }
+
+                return in;
+            }
+        }
 
         /**
          * Returns the current Muzei {@link com.google.android.apps.muzei.api.Artwork Artwork}
