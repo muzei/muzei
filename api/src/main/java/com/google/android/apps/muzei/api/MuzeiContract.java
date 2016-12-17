@@ -105,6 +105,14 @@ public class MuzeiContract {
      */
     public static final class Artwork implements BaseColumns {
         /**
+         * The default font type for {@link #COLUMN_NAME_META_FONT}
+         */
+        public static final String META_FONT_TYPE_DEFAULT = "";
+        /**
+         * An elegant alternate font type for {@link #COLUMN_NAME_META_FONT}
+         */
+        public static final String META_FONT_TYPE_ELEGANT = "elegant";
+        /**
          * Column name for the flattened {@link ComponentName} of the source that is providing
          * this wallpaper
          * <p>Type: TEXT in the format of {@link ComponentName#flattenToShortString()}
@@ -147,7 +155,7 @@ public class MuzeiContract {
         public static final String COLUMN_NAME_VIEW_INTENT = "viewIntent";
         /**
          * Column name for the font type to use to display artwork meta info.
-         * <p>Type: TEXT
+         * <p>Type: TEXT (one of {@link #META_FONT_TYPE_DEFAULT} or {@link #META_FONT_TYPE_ELEGANT})
          */
         public static final String COLUMN_NAME_META_FONT = "metaFont";
         /**
