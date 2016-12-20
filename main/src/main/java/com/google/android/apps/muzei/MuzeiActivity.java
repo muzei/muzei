@@ -20,7 +20,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.annotation.TargetApi;
 import android.app.WallpaperManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -177,7 +176,9 @@ public class MuzeiActivity extends AppCompatActivity {
                         viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                         try {
                             startActivity(viewIntent);
-                        } catch (ActivityNotFoundException | SecurityException e) {
+                        } catch (RuntimeException e) {
+                            // Catch ActivityNotFoundException, SecurityException,
+                            // and FileUriExposedException
                             Toast.makeText(MuzeiActivity.this, R.string.error_view_details,
                                     Toast.LENGTH_SHORT).show();
                             Log.e(TAG, "Error viewing artwork details.", e);
