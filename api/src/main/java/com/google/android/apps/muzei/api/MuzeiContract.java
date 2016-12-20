@@ -42,6 +42,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -613,6 +614,170 @@ public class MuzeiContract {
          * source info.
          */
         public static final String ACTION_SOURCE_CHANGED = "com.google.android.apps.muzei.ACTION_SOURCE_CHANGED";
+
+        /**
+         * Create a new {@link SourceUpdateRequest} associated with the given {@link MuzeiArtSource}.
+         * You must call {@link SourceUpdateRequest#send()} on the returned {@link SourceUpdateRequest}
+         * to complete updating the source information.
+         *
+         * @param context Context used to update the source
+         * @param source {@link MuzeiArtSource} for this source
+         * @return a {@link SourceUpdateRequest} that should be filled in and then used to
+         * {@link SourceUpdateRequest#send()} the source update
+         */
+        public static SourceUpdateRequest updateSource(Context context,
+                Class<? extends MuzeiArtSource> source) {
+            return new SourceUpdateRequest(context, new ComponentName(context, source));
+        }
+
+        /**
+         * Create a new {@link SourceUpdateRequest} associated with the given {@link MuzeiArtSource}.
+         * You must call {@link SourceUpdateRequest#send()} on the returned {@link SourceUpdateRequest}
+         * to complete updating the source information.
+         *
+         * @param context Context used to update the source
+         * @param source {@link MuzeiArtSource} for this source
+         * @return a {@link SourceUpdateRequest} that should be filled in and then used to
+         * {@link SourceUpdateRequest#send()} the source update
+         */
+        public static SourceUpdateRequest updateSource(Context context, ComponentName source) {
+            return new SourceUpdateRequest(context, source);
+        }
+
+        /**
+         * Class which allows you to set the optional source information fields before calling
+         * {@link #send()}.
+         *
+         * <p> {@link #send()} should not be called on the main thread since it directly
+         * writes to the ContentProviders set in {@link #contentAuthorities}.
+         *
+         * <p> Create a source update request with {@link #updateSource(Context, Class)} or
+         * {@link #updateSource(Context, ComponentName)}.
+         *
+         * <p> All methods are optional and can be chained together as seen below.
+         *
+         * <pre class="prettyprint">
+         * MuzeiContract.Sources.updateSource(context, ExampleArtSource.class)
+         *     .description("Popular photos tagged \"landscape\"")
+         *     .supportsNextArtworkCommand(true)
+         *     .send();
+         * </pre>
+         */
+        public static class SourceUpdateRequest {
+            private final ContentResolver contentResolver;
+            private final ContentValues values = new ContentValues();
+            private final ArrayList<Uri> contentUris = new ArrayList<>();
+
+            SourceUpdateRequest(Context context, ComponentName source) {
+                contentResolver = context.getContentResolver();
+                values.put(Sources.COLUMN_NAME_COMPONENT_NAME,
+                        source.flattenToShortString());
+                // Default to writing to only the standard Muzei CONTENT_URI
+                contentUris.add(CONTENT_URI);
+            }
+
+            /**
+             * Override the default authority of {@link MuzeiContract#AUTHORITY} with a custom set.
+             * The updated source information will be written to all of the provided ContentProviders
+             * @param authorities the list of authorities to update with the new the source information.
+             *                    Defaults to only {@link MuzeiContract#AUTHORITY}
+             * @return this {@link SourceUpdateRequest}
+             */
+            public SourceUpdateRequest contentAuthorities(String... authorities) {
+                contentUris.clear();
+                for (String authority : authorities) {
+                    contentUris.add(Uri.parse(SCHEME + authority + "/" + Sources.TABLE_NAME));
+                }
+                return this;
+            }
+
+            /**
+             * Sets the current source description of the current configuration (e.g. 'Popular photos
+             * tagged "landscape"'). If no description is provided, the <code>android:description</code>
+             * element of the source's service element in the manifest will be used.
+             * @return this {@link SourceUpdateRequest}
+             */
+            public SourceUpdateRequest description(String description) {
+                values.put(Sources.COLUMN_NAME_DESCRIPTION, description);
+                return this;
+            }
+
+            /**
+             * Indicates that the source is interested (or no longer interested) in getting notified via
+             * {@link MuzeiArtSource#onNetworkAvailable()} when a network connection becomes available.
+             *
+             * <p> Note that this request will be ignored if you target
+             * {@link android.os.Build.VERSION_CODES#N} or higher to mirror the
+             * <a href="https://developer.android.com/about/versions/nougat/android-7.0-changes.html#bg-opt">
+             *     Background Optimizations changes in Android 7.0</a>.
+             * @return this {@link SourceUpdateRequest}
+             */
+            public SourceUpdateRequest wantsNetworkAvailable(boolean wantsNetworkAvailable) {
+                values.put(Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE, wantsNetworkAvailable);
+                return this;
+            }
+
+            /**
+             * Sets whether the source supports the built in 'Next Artwork' command which allows
+             * users to quickly move to the next artwork.
+             * @return this {@link SourceUpdateRequest}
+             */
+            public SourceUpdateRequest supportsNextArtworkCommand(boolean supportsNextArtworkCommand) {
+                values.put(Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND, supportsNextArtworkCommand);
+                return this;
+            }
+
+            /**
+             * Sets the list of custom defined user-visible commands for the source.
+             * Custom commands must have identifiers below {@link MuzeiArtSource#MAX_CUSTOM_COMMAND_ID}.
+             *
+             * @return this {@link SourceUpdateRequest}
+             * @see MuzeiArtSource#MAX_CUSTOM_COMMAND_ID
+             * @see #supportsNextArtworkCommand(boolean)
+             */
+            public SourceUpdateRequest userCommands(UserCommand... commands) {
+                return userCommands(Arrays.asList(commands));
+            }
+
+            /**
+             * Sets the list of custom defined user-visible commands for the source.
+             * Custom commands must have identifiers below {@link MuzeiArtSource#MAX_CUSTOM_COMMAND_ID}.
+             *
+             * @return this {@link SourceUpdateRequest}
+             * @see MuzeiArtSource#MAX_CUSTOM_COMMAND_ID
+             * @see #supportsNextArtworkCommand(boolean)
+             */
+            public SourceUpdateRequest userCommands(List<UserCommand> commands) {
+                JSONArray commandsSerialized = new JSONArray();
+                for (UserCommand command : commands) {
+                    if (command.getId() == MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK) {
+                        // Built in commands shouldn't be in this list, but we'll handle it
+                        // as a convenience
+                        supportsNextArtworkCommand(true);
+                    } else if (command.getId() > MuzeiArtSource.MAX_CUSTOM_COMMAND_ID) {
+                        throw new IllegalArgumentException("Command " + command.getTitle() +
+                                " has a ID of " + command.getId() +
+                                " which is higher than the maximum value of " +
+                                MuzeiArtSource.MAX_CUSTOM_COMMAND_ID);
+                    } else {
+                        commandsSerialized.put(command.serialize());
+                    }
+                }
+                values.put(MuzeiContract.Sources.COLUMN_NAME_COMMANDS, commandsSerialized.toString());
+                return this;
+            }
+
+            /**
+             * Send the updated source information
+             */
+            public void send() {
+                for (Uri contentUri : contentUris) {
+                    contentResolver.update(contentUri, values,
+                            Sources.COLUMN_NAME_COMPONENT_NAME + "=?",
+                            new String[] {values.getAsString(Sources.COLUMN_NAME_COMPONENT_NAME)});
+                }
+            }
+        }
 
         /**
          * Parse the commands found in the {@link #COLUMN_NAME_COMMANDS} field into a List of {@link UserCommand}s.
