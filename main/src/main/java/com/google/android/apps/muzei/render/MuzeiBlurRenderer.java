@@ -16,7 +16,6 @@
 
 package com.google.android.apps.muzei.render;
 
-import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -27,7 +26,6 @@ import android.graphics.RectF;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -55,6 +53,7 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
 
     public static final int DEFAULT_BLUR = 250; // max 500
     public static final int DEFAULT_GREY = 0; // max 500
+    public static final int DEMO_BLUR = 250;
     public static final int DEMO_DIM = 64;
     public static final int DEMO_GREY = 0;
     public static final int DEFAULT_MAX_DIM = 128; // technical max 255
@@ -119,9 +118,11 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
 
     public void recomputeMaxPrescaledBlurPixels() {
         // Compute blur sizes
-        float maxBlurRadiusOverScreenHeight = PreferenceManager
-                .getDefaultSharedPreferences(mContext).getInt(Prefs.PREF_BLUR_AMOUNT, DEFAULT_BLUR)
-                * 0.0001f;
+        int blurAmount = mDemoMode
+                ? DEMO_BLUR
+                : PreferenceManager.getDefaultSharedPreferences(mContext)
+                .getInt(Prefs.PREF_BLUR_AMOUNT, DEFAULT_BLUR);
+        float maxBlurRadiusOverScreenHeight = blurAmount * 0.0001f;
         DisplayMetrics dm = mContext.getResources().getDisplayMetrics();
         int maxBlurPx = (int) (dm.heightPixels * maxBlurRadiusOverScreenHeight);
         mBlurredSampleSize = 4;
