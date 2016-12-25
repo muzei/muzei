@@ -1,0 +1,490 @@
+/**
+ * Copyright 2016 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+$todayColor: rgba(242, 190, 25, 1);
+$todayDateColor: rgba(72, 48, 0, 1);
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background-color: #fff;
+  -webkit-font-smoothing: antialiased;
+  color: #333;
+}
+
+#container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.main-strip,
+.month-carousel {
+  width: 600px;
+}
+
+.main-strip {
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+  z-index: 100;
+  margin-top: 20px;
+  margin-bottom: 8px;
+}
+
+.header img {
+  height: 24px;
+  opacity: .3;
+}
+
+.header .logo-icon {
+  display: none;
+}
+
+.header .logo-text {
+  margin-right: 4px;
+}
+
+.header span {
+  font-family: 'alegreya sans';
+  font-size: 24px;
+  font-weight: 300;
+  text-transform: uppercase;
+  opacity: .3;
+}
+
+.month-carousel-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1 1 auto;
+  position: relative;
+  overflow-x: hidden;
+  cursor: -webkit-grab;
+  cursor: grab;
+
+  &.panning,
+  &.panning * {
+    cursor: -webkit-grabbing;
+    cursor: grabbing;
+  }
+}
+
+.month-carousel {
+  position: relative;
+  margin: 0 auto;
+  -webkit-flex: 1 0 auto;
+  flex: 1 0 auto;
+
+  &.animate {
+    transition: transform .2s;
+  }
+}
+
+.month {
+  position: absolute;
+  overflow-x: visible;
+  overflow-y: visible;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  transition: opacity .2s;
+  display: flex;
+  flex-direction: column;
+  transform: translateZ(0);
+
+  // inactive
+  opacity: .15;
+
+  .click-screen {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    z-index: 1000;
+  }
+
+  &.active {
+    opacity: 1;
+    cursor: -webkit-grab;
+    cursor: grab;
+
+    .click-screen {
+      display: none;
+    }
+  }
+}
+
+// month contents
+
+.month-row {
+  flex-shrink: 0;
+  margin: 0;
+
+  &.month-header {
+    font-family: 'alegreya sans';
+    font-weight: 800;
+    font-size: 28px;
+    margin-top: 16px;
+    text-align: center;
+  }
+
+  &.weekday-labels {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    margin-top: 24px;
+    margin-bottom: 8px;
+    font-family: 'alegreya sans';
+    font-weight: 700;
+    font-size: 12px;
+    text-align: center;
+    color: rgba(0, 0, 0, .25);
+    text-transform: uppercase;
+  }
+}
+
+.days {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  flex: 1 1 auto;
+  align-content: flex-start;
+  width: 100%;
+  padding: 0 8px 32px 8px;
+  margin-left: -8px;
+  margin-right: -8px;
+  overflow-y: auto;
+  margin-bottom: 0;
+}
+
+.cell {
+  width: 78px;
+  margin-right: 4px;
+}
+
+.days .cell {
+  position: relative;
+  left: 0;
+  top: 0;
+  height: 80px;
+  margin-bottom: 4px;
+
+  .image {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+  }
+
+  .meta {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    padding: 4px 8px;
+    background-color: #111;
+    border-bottom: 4px solid #fff;
+    color: #fff;
+    font-family: 'alegreya sans';
+    font-weight: 500;
+    font-size: 11px;
+    line-height: 13px;
+    pointer-events: none;
+    box-sizing: border-box;
+    opacity: 0;
+    z-index: 2;
+
+    .title {
+      display: none;
+    }
+  }
+
+  &:hover {
+    z-index: 10;
+  }
+
+  &:hover .meta {
+    opacity: 1;
+    top: 100%;
+    transition:
+        opacity .2s,
+        top .2s;
+  }
+
+  .overlay-link {
+    display: none;
+    text-decoration: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(#000, .4);
+    transition: opacity .2s;
+    z-index: 1;
+  }
+
+  &:hover .overlay-link {
+    opacity: 0;
+  }
+
+  &.today,
+  &.past {
+    background-color: #333;
+    color: #fff;
+
+    .overlay-link {
+      display: flex;
+    }
+  }
+
+  .date {
+    margin-top: 4px;
+    margin-left: 8px;
+    font-size: 16px;
+    font-family: 'alegreya sans';
+    font-weight: 500;
+    color: #fff;
+  }
+
+  &.today .image {
+    -webkit-filter: grayscale(100%);
+    filter: grayscale(100%);
+  }
+
+  &.today:hover .image {
+    -webkit-filter: none;
+    filter: none;
+  }
+
+  &.today .overlay-link {
+    background-color: rgba($todayColor, .7);
+  }
+
+  &.today .date {
+    font-weight: 800;
+    color: $todayDateColor;
+    text-shadow:
+        0 0 1px #fff,
+        0 0 1px #fff,
+        0 0 1px #fff,
+        0 0 1px #fff,
+        0 0 1px #fff;
+  }
+}
+
+@media (max-width: 800px) {
+  .month-row.month-header {
+    font-size: 16px;
+    line-height: 40px;
+    padding: 0;
+    margin: 0;
+    border-bottom: 1px solid rgba(#000, .2);
+  }
+
+  .header {
+    margin-top: 0;
+    margin-bottom: 0;
+
+    &::before {
+      position: absolute;
+      display: block;
+      left: 0;
+      top: 0;
+      width: 80px;
+      height: 40px;
+      background: linear-gradient(to right, #fff 50%, rgba(#fff, 0) 100%);
+      content: '';
+    }
+  }
+
+  .header span {
+    font-size: 16px;
+    font-weight: 400;
+    display: none;
+  }
+
+  .header img {
+    height: 24px;
+  }
+
+  .header .logo-icon {
+    display: block;
+    position: absolute;
+    left: 8px;
+    top: 8px;
+  }
+
+  .header .logo-text {
+    display: none;
+  }
+
+  .main-strip,
+  .month-carousel {
+    width: 464px;
+  }
+
+  .month-row.weekday-labels {
+    display: none;
+  }
+
+  .days .cell.skipped.before {
+    display: none;
+  }
+
+  // cells
+
+  .days {
+    padding-top: 16px;
+  }
+
+  .days .cell {
+    height: 64px;
+
+    .image {
+      position: absolute;
+      left: 32px;
+      top: 0;
+      width: 64px;
+      height: 100%;
+      background-size: cover;
+    }
+
+    .meta {
+      visibility: visible;
+      position: absolute;
+      left: 96px;
+      top: 0;
+      right: 0;
+      width: auto;
+      height: 100%;
+      padding: 6px 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background-color: transparent;
+      border-bottom: 0;
+      color: #333;
+      font-size: 14px;
+      line-height: 16px;
+      box-sizing: border-box;
+      opacity: 1;
+
+      .byline {
+        white-space: nowrap;
+        width: 100%;
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
+
+      .title {
+        display: block;
+        font-size: 16px;
+        line-height: 20px;
+        font-weight: 700;
+        width: 100%;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
+    }
+
+    &:hover .meta {
+      visibility: visible;
+      opacity: 1;
+      top: auto;
+    }
+
+    .overlay-link {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: transparent;
+    }
+
+    &:hover .overlay-link {
+      opacity: 1;
+    }
+
+    &.today,
+    &.past {
+      background-color: transparent;
+      color: #000;
+
+      .overlay-link {
+        display: flex;
+      }
+    }
+
+    .date {
+      position: absolute;
+      top: 50%;
+      left: 8px;
+      width: 16px;
+      text-align: center;
+      margin-top: -12px;
+      margin-left: 0;
+      font-size: 16px;
+      height: 24px;
+      line-height: 24px;
+      font-family: 'alegreya sans';
+      font-weight: 500;
+      color: #333;
+    }
+
+    &.today .image {
+      filter: grayscale(100%);
+    }
+
+    &.today:hover .image {
+      filter: none;
+    }
+
+    &.today .overlay-link {
+      background-color: rgba($todayColor, .7);
+    }
+
+    &.today .date {
+      font-weight: 800;
+      color: $todayDateColor;
+      text-shadow: none;
+    }
+  }
+
+  .cell {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-strip,
+  .month-carousel {
+    width: 100%;
+  }
+
+  .month {
+    padding: 0;
+  }
+}

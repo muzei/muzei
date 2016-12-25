@@ -142,7 +142,7 @@ function selectMonth(month, move) {
   }
 
   renderMonth(month);
-  $month = monthNode(month);
+  var $month = monthNode(month);
 
   if (move) {
     scrollTo(($month.offset().left - $carousel.offset().left), true);
@@ -405,7 +405,7 @@ function loadArchiveData(archiveKey) {
   var imageBlobsProcessed = 0;
 
   var _processBuffer = function() {
-    lines = buffer.split(/\n/);
+    var lines = buffer.split(/\n/);
     for (var l = 0; l < lines.length; l++) {
       var line = lines[l];
       if (itemsMeta === null) {
@@ -426,7 +426,7 @@ function loadArchiveData(archiveKey) {
     for (var i = 0; i < itemsMeta.length; i++) {
       var itemMeta = itemsMeta[i];
       var date = new Date(itemMeta.publish_date);
-      $dayCell = dayNode(date);
+      var $dayCell = dayNode(date);
       $dayCell.find('.meta')
           .empty()
           .append($('<span>').addClass('title').text(itemMeta.title))
@@ -439,7 +439,7 @@ function loadArchiveData(archiveKey) {
     for (var i = imageBlobsProcessed; i < imageBlobs.length; i++) {
       var itemMeta = itemsMeta[i];
       var date = new Date(itemMeta.publish_date);
-      $dayCell = dayNode(date);
+      var $dayCell = dayNode(date);
       $dayCell.find('.image').css('background-image', 'url(' + imageBlobs[i] + ')');
     }
 

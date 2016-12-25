@@ -52,9 +52,9 @@ def make_static_page_handler(template_file):
     @pagecache('static_page')
     def render(self, template_file):
       return template.render(
-          os.path.join(os.path.dirname(__file__), '../templates/' + template_file),
+          os.path.join(os.path.dirname(__file__), '../frontend/html/' + template_file),
           values_with_defaults(dict()))
-  
+
   return StaticHandler
 
 
@@ -65,7 +65,7 @@ def make_redirect_handler(url_template):
       for i, arg in enumerate(args):
         url = url.replace("$" + str(i + 1), arg)
       self.redirect(url)
-  
+
   return RedirectHandler
 
 

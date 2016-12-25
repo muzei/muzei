@@ -192,7 +192,7 @@ class ScheduleHandler(BaseBackroomHandler):
 
   def render(self):
     return template.render(
-        os.path.join(os.path.dirname(__file__), '../templates/backroom_schedule.html'),
+        os.path.join(os.path.dirname(__file__), '../frontend/html/backroom_schedule.html'),
         values_with_defaults(dict(
             title='Schedule',
             )))

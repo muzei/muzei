@@ -1,0 +1,464 @@
+/**
+ * Copyright 2016 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-color: #fff;
+}
+
+#logo {
+  background-image: url(../images/muzei.png);
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: .7;
+  z-index: 100;
+  width: 250px;
+  height: 102px;
+}
+
+#text {
+  font-family: 'Alegreya Sans';
+  font-weight: 300;
+  font-size: 20px;
+  line-height: 26px;
+  color: #444;
+  z-index: 100;
+}
+
+#playlink {
+  display: block;
+  width: 140px;
+  height: 34px;
+  padding: 15px 20px;
+  border-radius: 4px;
+  box-shadow:
+      0 1px 5px 0 rgba(#000, .2),
+      0 2px 2px 0 rgba(#000, .14),
+      0 3px 1px -2px rgba(#000, .12);
+  background-origin: content-box;
+  background-color: #fff;
+  background-image: url(../images/onplay.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 50% 0%;
+  text-decoration: none;
+  user-select: none;
+  z-index: 100;
+  transition: box-shadow .15s ease;
+
+  &:hover {
+    box-shadow:
+        0 2px 4px -1px rgba(#000, .2),
+        0 4px 5px 0 rgba(#000, .14),
+        0 1px 10px 0 rgba(#000, .12);
+  }
+
+  &:active {
+    box-shadow:
+        0 5px 5px -3px rgba(#000, .2),
+        0 8px 10px 1px rgba(#000, .14),
+        0 3px 14px 2px rgba(#000, .12);
+  }
+}
+
+#device-frame {
+  user-select: none;
+
+  &::after {
+    pointer-events: none;
+    content: '';
+    display: block;
+  }
+
+  &.artdetailopen {
+    cursor: pointer;
+  }
+}
+
+#device-screen {
+  display: none;
+  background-color: #000;
+  color: #fff;
+  overflow: hidden;
+}
+
+.fullscreenlayer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 360px;
+  height: 640px;
+}
+
+.whenartdetailopen {
+  opacity: 0;
+}
+
+.artdetailopen .whenartdetailopen {
+  opacity: 1;
+}
+
+.artdetailopen .whenartdetailclosed {
+  opacity: 0;
+}
+
+.whenartdetailopen,
+.whenartdetailclosed {
+  transition-property: opacity;
+  transition-duration: .5s;
+}
+
+@media (min-width: 700px) {
+  body {
+    min-width: 690px;
+    min-height: 640px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #container {
+    position: relative;
+    margin: 70px;
+    width: 550px;
+    height: 500px;
+  }
+
+  #logo {
+    position: absolute;
+    left: 0;
+    top: 60px;
+  }
+
+  #text {
+    position: absolute;
+    left: 0;
+    top: 200px;
+    width: 240px;
+  }
+
+  #playlink {
+    position: absolute;
+    left: 0;
+    bottom: 100px;
+  }
+
+  #device-frame {
+    position: absolute;
+    right: -70px;
+    top: 0;
+    width: 420px;
+    height: 500px;
+    background-image: url('../images/fakeui/device_tilted_fallback.jpg');
+    background-size: cover;
+
+    &.frameonly {
+      background-image: url('../images/fakeui/device_tilted.png');
+    }
+
+    &::after {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 420px;
+      height: 500px;
+      background: url('../images/fakeui/device_tilted_fore.png');
+      background-size: cover;
+    }
+  }
+
+  #device-screen {
+    position: absolute;
+    left: 146px;
+    top: 49px;
+    width: 360px;
+    height: 640px;
+    transform-origin: 0% 0%;
+    transform:
+        perspective(2100px)
+        rotateZ(-5.2deg)
+        rotateY(-42.6deg)
+        rotateX(31deg)
+        scale(.6);
+  }
+}
+
+@media (max-width: 699px) {
+  body {
+    display: block;
+  }
+
+  #container {
+    width: 296px;
+    margin: 16px auto;
+    position: relative;
+  }
+
+  #logo {
+    width: 130px;
+    height: 54px;
+  }
+
+  #text {
+    position: absolute;
+    left: 120px;
+    top: 8px;
+    width: 180px;
+    font-size: 15px;
+    line-height: 16px;
+    display: none;
+  }
+
+  #playlink {
+    position: absolute;
+    right: 0;
+    top: 11px;
+    width: 105px;
+    height: 26px;
+    padding: 8px 16px;
+  }
+
+  #device-frame {
+    position: relative;
+    margin-top: 16px;
+    left: -28px;
+    width: 470px;
+    height: 802px;
+    background-image: url('../images/fakeui/device_flat_fallback.jpg');
+    background-size: cover;
+    transform-origin: 0% 0%;
+    transform: scale(.75);
+
+    &.frameonly {
+      background-image: url('../images/fakeui/device_flat.png');
+    }
+
+    &::after {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 470px;
+      height: 802px;
+      background: url('../images/fakeui/device_flat_fore.png');
+      background-size: cover;
+    }
+  }
+
+  #device-screen {
+    position: absolute;
+    left: 54px;
+    top: 65px;
+    width: 360px;
+    height: 640px;
+    transform: translateZ(0);
+  }
+}
+
+#layer-wall,
+#layer-wall-blurred {
+  background-size: cover;
+  background-position: 50% 50%;
+}
+
+#layer-wall-blurred {
+  -webkit-filter: blur(10px);
+  filter: url(#blur-filter);
+  filter: blur(10px);
+  opacity: .6;
+}
+
+.artdetailopen #layer-wall {
+  transition-property: opacity;
+  transition-duration: 2s;
+  transition-delay: .5s;
+}
+
+#layer-sysui {
+  background: url('../images/fakeui/systemui.png');
+}
+
+#layer-home {
+  background: url('../images/fakeui/home.png');
+}
+
+#layer-muzei-icon {
+  background: url('../images/fakeui/muzei_icon.png');
+  position: absolute;
+  left: 288px;
+  top: 525px;
+  width: 57px;
+  height: 57px;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+#layer-muzei-icon-active-state {
+  position: absolute;
+  left: 288px;
+  top: 525px;
+  width: 55px;
+  height: 55px;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.mousedown #layer-muzei-icon-active-state {
+  opacity: 1;
+}
+
+#layer-artdetail {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 321px;
+  padding: 40px 20px 60px 20px;
+  background: linear-gradient(to top, rgba(0,0,0,.8), rgba(0,0,0,0));
+}
+
+@keyframes slideup {
+  from { opacity: 0; bottom: -20px; }
+  to { opacity: 1; bottom: -1px; }
+}
+
+.artdetailopen #layer-artdetail {
+  opacity: 0;
+  animation: slideup .5s;
+  animation-delay: .75s;
+  animation-fill-mode: forwards;
+}
+
+#layer-artdetail .overflow {
+  position: absolute;
+  right: 24px;
+  bottom: 65px;
+  width: 7px;
+  height: 23px;
+  background: url('../images/fakeui/overflow.png');
+}
+
+#layer-artdetail .title,
+#layer-artdetail .byline {
+  font-family: Alegreya;
+  font-weight: 400;
+  font-style: italic;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, .4);
+  margin-right: 24px;
+}
+
+#layer-artdetail .title {
+  font-size: 30px;
+  line-height: 30px;
+  font-weight: 900;
+}
+
+#layer-artdetail .byline {
+  font-size: 24px;
+  margin-top: 4px;
+  line-height: 26px;
+}
+
+#layer-artdetail-topscrim {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 361px;
+  height: 100px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, .3));
+}
+
+@keyframes topscrim-fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.artdetailopen #layer-artdetail-topscrim {
+  opacity: 0;
+  animation: topscrim-fadein .5s;
+  animation-delay: .75s;
+  animation-fill-mode: forwards;
+}
+
+@keyframes pulsate1 {
+  from {
+    opacity: .4;
+    transform: scale(0);
+    stroke-width: 15px;
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(1);
+    stroke-width: 0;
+  }
+}
+
+.openindicatorwave {
+  position: absolute;
+  left: 244px;
+  top: 481px;
+  width: 144px;
+  height: 144px;
+  animation: pulsate1 2s;
+  animation-timing-function: cubic-bezier(0, 0, .2, 1);
+  animation-iteration-count: infinite;
+  animation-direction: normal;
+  animation-fill-mode: backwards;
+  opacity: .8;
+}
+
+@keyframes pulsate2 {
+  from {
+    opacity: .6;
+    transform: scale(0);
+    stroke-width: 5px;
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(.85);
+    stroke-width: 0;
+  }
+}
+
+#layer-openindicator-wave2 {
+  animation-name: pulsate2;
+  animation-delay: .4s;
+}
+
+// additional click target for firefox
+#opentarget {
+  position: absolute;
+  left: 168px;
+  top: 328px;
+  width: 70px;
+  height: 80px;
+  cursor: pointer;
+  z-index: 1000;
+  visibility: hidden;
+}
+
+.artdetailopen .openindicatorwave,
+.artdetailopen #opentarget {
+  display: none;
+}

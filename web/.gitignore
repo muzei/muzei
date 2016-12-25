@@ -1,2 +1,5 @@
 *.pyc
 .gae
+.tmp
+dist
+node_modules
