@@ -235,14 +235,19 @@ gulp.task('serve', ['build'], () => {
 gulp.task('serve:dist', ['default'], () => {
   browserSync({
     notify: false,
-    server: 'dist'
+    server: {
+      baseDir: ['dist'],
+      serveStaticOptions: {
+        extensions: ['html']
+      },
+      index: 'frontend/html/landing.html'
+    }
   });
 });
 
 
 gulp.task('build', cb => {
-  runSequence('styles', ['html', 'scripts', 'copy', 'images']);
-  cb();
+  runSequence('styles', ['html', 'scripts', 'copy', 'images'], cb);
 });
 
 

@@ -22,11 +22,3 @@ app = webapp2.WSGIApplication([
     ('/tasks/pick_random_artwork', randomizer.PickRandomArtworkTaskHandler),
     ],
     debug=common.IS_DEVELOPMENT)
-
-
-def main():
-  app.run()
-
-
-if __name__ == '__main__':
-  main()

@@ -182,7 +182,7 @@ body {
       top: 0;
       width: 420px;
       height: 500px;
-      background: url('../images/fakeui/device_tilted_fore.png');
+      background-image: url('../images/fakeui/device_tilted_fore.png');
       background-size: cover;
     }
   }
@@ -259,7 +259,7 @@ body {
       top: 0;
       width: 470px;
       height: 802px;
-      background: url('../images/fakeui/device_flat_fore.png');
+      background-image: url('../images/fakeui/device_flat_fore.png');
       background-size: cover;
     }
   }
@@ -294,15 +294,15 @@ body {
 }
 
 #layer-sysui {
-  background: url('../images/fakeui/systemui.png');
+  background-image: url('../images/fakeui/systemui.png');
 }
 
 #layer-home {
-  background: url('../images/fakeui/home.png');
+  background-image: url('../images/fakeui/home.png');
 }
 
 #layer-muzei-icon {
-  background: url('../images/fakeui/muzei_icon.png');
+  background-image: url('../images/fakeui/muzei_icon.png');
   position: absolute;
   left: 288px;
   top: 525px;
@@ -354,7 +354,7 @@ body {
   bottom: 65px;
   width: 7px;
   height: 23px;
-  background: url('../images/fakeui/overflow.png');
+  background-image: url('../images/fakeui/overflow.png');
 }
 
 #layer-artdetail .title,
