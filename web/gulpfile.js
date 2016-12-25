@@ -212,9 +212,9 @@ gulp.task('serve', ['build'], () => {
       serveStaticOptions: {
         extensions: ['html']
       },
-      index: 'frontend/html/landing.html',
+      index: '.tmp/frontend/html/landing.html',
       routes: {
-        '/archive': 'frontend/html/archive.html'
+        '/archive': '.tmp/frontend/html/archive.html'
       },
       middleware: [
         {
@@ -228,7 +228,7 @@ gulp.task('serve', ['build'], () => {
   gulp.watch(['frontend/html/**/*.html'], ['html', browserSync.reload]);
   gulp.watch(['frontend/styles/**/*.{scss,css}'], ['styles', browserSync.reload]);
   gulp.watch(['frontend/scripts/**/*.{js,json}'], ['scripts', browserSync.reload]);
-  gulp.watch(['web/images/**/*'], browserSync.reload);
+  gulp.watch(['frontend/images/**/*'], browserSync.reload);
 });
 
 

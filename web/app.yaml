@@ -17,29 +17,47 @@ api_version: 1
 threadsafe: false
 
 handlers:
-- url: /remote_api
-  script: $PYTHON_LIB/google/appengine/ext/remote_api/handler.py
-  login: admin
 
-- url: /frontend
-  static_dir: frontend
-  application_readable: true  # for reading html templates
-
-- url: /favicon.ico
-  static_files: frontend/favicon.ico
-  upload: frontend/favicon.ico
+# admin and cron handlers
 
 - url: /admin/.*
-  script: $PYTHON_LIB/google/appengine/ext/admin
+  script: google.appengine.ext.admin.application
   login: admin
+  secure: always
 
 - url: /tasks/.*
   script: handlers/tasks.py
   login: admin
 
-- url: /backroom/.*
-  script: handlers/backroom.py
+# backroom
+
+- url: /backroom/schedule
+  static_files: frontend/html/backroom_schedule.html
+  upload: frontend/html/backroom_schedule.html
   login: admin
 
+- url: /backroom/.*
+  script: handlers.backroom.app
+  login: admin
+
+# static frontend assets
+
+- url: /frontend
+  static_dir: frontend
+
+- url: /favicon.ico
+  static_files: frontend/favicon.ico
+  upload: frontend/favicon.ico
+
+- url: /archive(/.*)?
+  static_files: frontend/html/archive.html
+  upload: frontend/html/archive.html
+
+- url: /
+  static_files: frontend/html/landing.html
+  upload: frontend/html/landing.html
+
+# other handlers
+
 - url: .*
-  script: handlers/main.py
+  script: handlers.main.app

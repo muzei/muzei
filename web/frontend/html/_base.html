@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="theme-color" content="#3c6caf">
+
+  {% block head %}
+  {% endblock %}
+
+  <link href="http://fonts.googleapis.com/css?family=Alegreya:400italic,700italic|Alegreya+Sans:300,400,500,700,800" rel="stylesheet">
+  <link href="http://yui.yahooapis.com/2.8.0r4/build/reset/reset-min.css" rel="stylesheet">
+
+  {% set siteDescription = 'Muzei Live Wallpaper for Android. A living museum for your Android home screen.' %}
+  <title>{% if title %}{{ title|safe }} - {% endif %}Muzei Live Wallpaper</title>
+  <meta name="description" content="{{description|default(siteDescription)|safe}}">
+
+  <meta name="viewport" content="width=device-width">
+</head>
+<body>
+
+{% block body %}
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-47842763-1', 'muzei.co');
+  ga('send', 'pageview');
+</script>
+
+</body>
+</html>

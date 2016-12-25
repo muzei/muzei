@@ -38,26 +38,6 @@ def date_to_timestamp(dt, epoch=date(1970,1,1)):
   return td.days * 24 * 3600
 
 
-def values_with_defaults(values):
-  v = dict()
-  v.update(values)
-  return v
-
-
-def make_static_page_handler(template_file):
-  class StaticHandler(BaseHandler):
-    def get(self):
-      self.response.out.write(self.render(template_file))
-
-    @pagecache('static_page')
-    def render(self, template_file):
-      return template.render(
-          os.path.join(os.path.dirname(__file__), '../frontend/html/' + template_file),
-          values_with_defaults(dict()))
-
-  return StaticHandler
-
-
 def make_redirect_handler(url_template):
   class RedirectHandler(BaseHandler):
     def get(self, *args):

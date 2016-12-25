@@ -18,17 +18,6 @@ from handlers import common, featuredart
 
 
 app = webapp2.WSGIApplication([
-    ('/', common.make_static_page_handler('landing.html')),
-    ('/archive', common.make_static_page_handler('archive.html')),
-    ('/archive/.*', common.make_static_page_handler('archive.html')),
     ('/featured', featuredart.FeaturedArtworkHandler),
     ],
     debug=common.IS_DEVELOPMENT)
-
-
-def main():
-  app.run()
-
-
-if __name__ == '__main__':
-  main()

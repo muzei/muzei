@@ -186,18 +186,6 @@ class ServiceRemoveHandler(BaseBackroomHandler):
     self.response.set_status(200)
 
 
-class ScheduleHandler(BaseBackroomHandler):
-  def get(self):
-    self.response.out.write(self.render())
-
-  def render(self):
-    return template.render(
-        os.path.join(os.path.dirname(__file__), '../frontend/html/backroom_schedule.html'),
-        values_with_defaults(dict(
-            title='Schedule',
-            )))
-
-
 app = webapp2.WSGIApplication([
     ('/backroom/s/list', ServiceListHandler),
     ('/backroom/s/add', ServiceAddHandler),
@@ -205,14 +193,5 @@ app = webapp2.WSGIApplication([
     ('/backroom/s/edit', ServiceEditHandler),
     ('/backroom/s/remove', ServiceRemoveHandler),
     ('/backroom/s/move', ServiceMoveHandler),
-    ('/backroom/schedule', ScheduleHandler),
     ],
     debug=IS_DEVELOPMENT)
-
-
-def main():
-  app.run()
-
-
-if __name__ == '__main__':
-  main()
