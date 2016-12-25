@@ -32,7 +32,7 @@ if (Modernizr.cssanimations &&
 
   $.ajax({
     dataType: 'jsonp',
-    url: 'http://muzei.co/featured',
+    url: '//muzei.co/featured',
     jsonpCallback: 'withfeatured',
     cache: true,
     success: data => {

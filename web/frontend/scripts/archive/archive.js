@@ -34,7 +34,7 @@ var NUM_CAROUSEL_PAGES = monthDistance(START_MONTH, TODAY_MONTH) + 1;
 var MONTH_SPACING_WIDE = 80; // pixels
 var MONTH_SPACING_NARROW = 40; // pixels
 
-var ARCHIVE_BASE_URL = 'http://storage.googleapis.com/muzeifeaturedart/archivemeta/';
+var ARCHIVE_BASE_URL = '//storage.googleapis.com/muzeifeaturedart/archivemeta/';
 
 
 var currentScrollX;
