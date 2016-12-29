@@ -49,6 +49,10 @@ handlers:
   static_files: frontend/favicon.ico
   upload: frontend/favicon.ico
 
+- url: /today
+  static_files: frontend/html/today.html
+  upload: frontend/html/today.html
+
 - url: /archive(/.*)?
   static_files: frontend/html/archive.html
   upload: frontend/html/archive.html
