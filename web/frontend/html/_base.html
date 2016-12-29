@@ -8,11 +8,22 @@
   {% block head %}
   {% endblock %}
 
+  <!-- Add to homescreen for Chrome on Android -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="icon" sizes="192x192" href="/frontend/chrome-touch-icon-192x192.png">
+
+  <!-- Add to homescreen for Safari on iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  {% set defaultWebAppTitle = 'Muzei' %}
+  <meta name="apple-mobile-web-app-title" content="{{ webAppTitle|default(defaultWebAppTitle) }}">
+  <link rel="apple-touch-icon-precomposed" href="/frontend/apple-touch-icon-precomposed.png">
+
   <link href="//fonts.googleapis.com/css?family=Alegreya:400italic,700italic,900italic|Alegreya+Sans:300,400,500,700,900" rel="stylesheet">
 
-  {% set siteDescription = 'Muzei Live Wallpaper for Android. A living museum for your Android home screen.' %}
+  {% set defaultDescription = 'Muzei Live Wallpaper for Android. A living museum for your Android home screen.' %}
   <title>{% if title %}{{ title|safe }} - {% endif %}Muzei Live Wallpaper</title>
-  <meta name="description" content="{{description|default(siteDescription)|safe}}">
+  <meta name="description" content="{{description|default(defaultDescription)|safe}}">
 
   <meta name="viewport" content="width=device-width">
 </head>
