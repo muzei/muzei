@@ -8,8 +8,7 @@
   {% block head %}
   {% endblock %}
 
-  <link href="//fonts.googleapis.com/css?family=Alegreya:400italic,700italic|Alegreya+Sans:300,400,500,700,800" rel="stylesheet">
-  <link href="//yui.yahooapis.com/2.8.0r4/build/reset/reset-min.css" rel="stylesheet">
+  <link href="//fonts.googleapis.com/css?family=Alegreya:400italic,700italic,900italic|Alegreya+Sans:300,400,500,700,900" rel="stylesheet">
 
   {% set siteDescription = 'Muzei Live Wallpaper for Android. A living museum for your Android home screen.' %}
   <title>{% if title %}{{ title|safe }} - {% endif %}Muzei Live Wallpaper</title>
@@ -18,6 +17,16 @@
   <meta name="viewport" content="width=device-width">
 </head>
 <body>
+
+{% block page-header %}
+<a class="page-header" href="/">
+  <svg class="page-header-back" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+    <path d="M18.12 4.12L10.24 12l7.88 7.88L16 22 6 12 16 2z"/>
+  </svg>
+  <img class="page-header-logotype" src="/frontend/images/logotype.svg">
+  <span class="page-header-title">{{title}}</span>
+</a>
+{% endblock %}
 
 {% block body %}
 {% endblock %}

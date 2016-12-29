@@ -14,16 +14,22 @@
  * limitations under the License.
  */
 
+@import 'base';
+
 $todayColor: rgba(242, 190, 25, 1);
 $todayDateColor: rgba(72, 48, 0, 1);
 
 html,
 body {
-  margin: 0;
-  height: 100%;
   background-color: #fff;
-  -webkit-font-smoothing: antialiased;
   color: #333;
+  height: 100%;
+}
+
+.page-header {
+  position: absolute;
+  left: 0;
+  top: 0;
 }
 
 #container {
@@ -32,41 +38,15 @@ body {
   height: 100%;
 }
 
-.main-strip,
 .month-carousel {
   width: 600px;
-}
-
-.main-strip {
+  position: relative;
   margin: 0 auto;
-}
+  flex: 1 0 auto;
 
-.header {
-  text-align: center;
-  z-index: 100;
-  margin-top: 20px;
-  margin-bottom: 8px;
-}
-
-.header img {
-  height: 24px;
-  opacity: .3;
-}
-
-.header .logo-icon {
-  display: none;
-}
-
-.header .logo-text {
-  margin-right: 4px;
-}
-
-.header span {
-  font-family: 'alegreya sans';
-  font-size: 24px;
-  font-weight: 300;
-  text-transform: uppercase;
-  opacity: .3;
+  &.animate {
+    transition: transform .2s ease;
+  }
 }
 
 .month-carousel-container {
@@ -74,27 +54,11 @@ body {
   flex-direction: column;
   align-items: center;
   flex: 1 1 auto;
+  margin-top: 72px;
   position: relative;
   overflow-x: hidden;
   cursor: -webkit-grab;
   cursor: grab;
-
-  &.panning,
-  &.panning * {
-    cursor: -webkit-grabbing;
-    cursor: grabbing;
-  }
-}
-
-.month-carousel {
-  position: relative;
-  margin: 0 auto;
-  -webkit-flex: 1 0 auto;
-  flex: 1 0 auto;
-
-  &.animate {
-    transition: transform .2s;
-  }
 }
 
 .month {
@@ -104,7 +68,7 @@ body {
   width: 100%;
   height: 100%;
   user-select: none;
-  transition: opacity .2s;
+  transition: opacity .2s ease;
   display: flex;
   flex-direction: column;
   transform: translateZ(0);
@@ -140,8 +104,8 @@ body {
   margin: 0;
 
   &.month-header {
-    font-family: 'alegreya sans';
-    font-weight: 800;
+    font-family: $fontStackSans;
+    font-weight: 900;
     font-size: 28px;
     margin-top: 16px;
     text-align: center;
@@ -153,7 +117,7 @@ body {
     width: 100%;
     margin-top: 24px;
     margin-bottom: 8px;
-    font-family: 'alegreya sans';
+    font-family: $fontStackSans;
     font-weight: 700;
     font-size: 12px;
     text-align: center;
@@ -188,31 +152,39 @@ body {
   height: 80px;
   margin-bottom: 4px;
 
+  &:not(.loaded) {
+    .meta {
+      display: none;
+    }
+  }
+
   .image {
     position: absolute;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
+    z-index: 2;
     background-size: cover;
+    background-color: #eee;
   }
 
   .meta {
     position: absolute;
-    top: 50%;
+    top: 100%;
     width: 100%;
+    transform: translateY(-100%);
     padding: 4px 8px;
     background-color: #111;
     border-bottom: 4px solid #fff;
     color: #fff;
-    font-family: 'alegreya sans';
+    font-family: $fontStackSans;
     font-weight: 500;
     font-size: 11px;
     line-height: 13px;
     pointer-events: none;
     box-sizing: border-box;
-    opacity: 0;
-    z-index: 2;
+    z-index: 1;
 
     .title {
       display: none;
@@ -224,11 +196,8 @@ body {
   }
 
   &:hover .meta {
-    opacity: 1;
-    top: 100%;
-    transition:
-        opacity .2s,
-        top .2s;
+    transform: translateY(0);
+    transition: transform .2s ease;
   }
 
   .overlay-link {
@@ -240,8 +209,8 @@ body {
     width: 100%;
     height: 100%;
     background-color: rgba(#000, .4);
-    transition: opacity .2s;
-    z-index: 1;
+    transition: opacity .2s ease;
+    z-index: 3;
   }
 
   &:hover .overlay-link {
@@ -250,7 +219,6 @@ body {
 
   &.today,
   &.past {
-    background-color: #333;
     color: #fff;
 
     .overlay-link {
@@ -262,18 +230,16 @@ body {
     margin-top: 4px;
     margin-left: 8px;
     font-size: 16px;
-    font-family: 'alegreya sans';
+    font-family: $fontStackSans;
     font-weight: 500;
     color: #fff;
   }
 
   &.today .image {
-    -webkit-filter: grayscale(100%);
     filter: grayscale(100%);
   }
 
   &.today:hover .image {
-    -webkit-filter: none;
     filter: none;
   }
 
@@ -282,64 +248,28 @@ body {
   }
 
   &.today .date {
-    font-weight: 800;
+    font-weight: 900;
     color: $todayDateColor;
     text-shadow:
-        0 0 1px #fff,
-        0 0 1px #fff,
-        0 0 1px #fff,
-        0 0 1px #fff,
-        0 0 1px #fff;
+        -1px -1px 0 #fff,
+        -1px 1px 0 #fff,
+        1px -1px 0 #fff,
+        1px 1px 0 #fff;
   }
 }
 
-@media (max-width: 800px) {
+@include breakpoint(800px) {
   .month-row.month-header {
     font-size: 16px;
     line-height: 40px;
     padding: 0;
     margin: 0;
-    border-bottom: 1px solid rgba(#000, .2);
   }
 
-  .header {
-    margin-top: 0;
-    margin-bottom: 0;
-
-    &::before {
-      position: absolute;
-      display: block;
-      left: 0;
-      top: 0;
-      width: 80px;
-      height: 40px;
-      background: linear-gradient(to right, #fff 50%, rgba(#fff, 0) 100%);
-      content: '';
-    }
+  .month-carousel-container {
+    margin-top: 52px;
   }
 
-  .header span {
-    font-size: 16px;
-    font-weight: 400;
-    display: none;
-  }
-
-  .header img {
-    height: 24px;
-  }
-
-  .header .logo-icon {
-    display: block;
-    position: absolute;
-    left: 8px;
-    top: 8px;
-  }
-
-  .header .logo-text {
-    display: none;
-  }
-
-  .main-strip,
   .month-carousel {
     width: 464px;
   }
@@ -353,10 +283,6 @@ body {
   }
 
   // cells
-
-  .days {
-    padding-top: 16px;
-  }
 
   .days .cell {
     height: 64px;
@@ -375,6 +301,8 @@ body {
       position: absolute;
       left: 96px;
       top: 0;
+      transform: none;
+      background-color: transparent !important;
       right: 0;
       width: auto;
       height: 100%;
@@ -389,6 +317,7 @@ body {
       line-height: 16px;
       box-sizing: border-box;
       opacity: 1;
+      z-index: 4;
 
       .byline {
         white-space: nowrap;
@@ -430,7 +359,6 @@ body {
 
     &.today,
     &.past {
-      background-color: transparent;
       color: #000;
 
       .overlay-link {
@@ -449,7 +377,7 @@ body {
       font-size: 16px;
       height: 24px;
       line-height: 24px;
-      font-family: 'alegreya sans';
+      font-family: $fontStackSans;
       font-weight: 500;
       color: #333;
     }
@@ -467,7 +395,7 @@ body {
     }
 
     &.today .date {
-      font-weight: 800;
+      font-weight: 900;
       color: $todayDateColor;
       text-shadow: none;
     }
@@ -479,7 +407,6 @@ body {
 }
 
 @media (max-width: 480px) {
-  .main-strip,
   .month-carousel {
     width: 100%;
   }

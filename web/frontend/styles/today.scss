@@ -1,0 +1,107 @@
+/**
+ * Copyright 2016 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@import 'base';
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+.page-header {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.loading-spinner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 48px;
+  height: 48px;
+}
+
+.artwork-container {
+  flex: 1;
+  margin: 80px;
+  position: relative;
+  opacity: 0;
+
+  @include breakpoint(500px) {
+    margin: 52px 24px 24px 24px;
+  }
+}
+
+body.loaded {
+  .loading-spinner {
+    display: none;
+  }
+
+  .artwork-container {
+    opacity: 1;
+    transition: opacity 1s ease .2s;
+  }
+}
+
+.artwork {
+  position: absolute;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  box-shadow: material-shadow(12);
+}
+
+.artwork-link {
+  color: rgba(#333, .5);
+
+  &:hover {
+    color: #333;
+    transition: color .2s ease;
+  }
+}
+
+.meta {
+  position: absolute;
+  font-family: $fontStackSerif;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 24px;
+  text-decoration: none;
+  z-index: 100;
+
+  .attribution {
+    font-family: $fontStackSans;
+    font-size: 12px;
+    line-height: 16px;
+    margin-bottom: 4px;
+  }
+
+  .title {
+    font-weight: 700;
+  }
+
+  .byline {
+    font-size: 16px;
+    line-height: 20px;
+  }
+}

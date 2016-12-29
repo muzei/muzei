@@ -61,7 +61,7 @@ gulp.task('scripts', () => {
               './node_modules/'
             ]
           })
-          .transform('babelify', {presets: ['es2015']})
+          .transform('babelify', {presets: ['es2015'], plugins: ['es6-promise']})
           .transform('require-globify')
           .bundle()
           .on('error', errorHandler)
@@ -214,7 +214,8 @@ gulp.task('serve', ['build'], () => {
       },
       index: '.tmp/frontend/html/landing.html',
       routes: {
-        '/archive': '.tmp/frontend/html/archive.html'
+        '/archive': '.tmp/frontend/html/archive.html',
+        '/today': '.tmp/frontend/html/today.html',
       },
       middleware: [
         {

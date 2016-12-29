@@ -1,50 +1,54 @@
+/**
+ * Copyright 2016 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import {FeaturedArt} from './_featuredart';
+
+const $deviceFrame = $('.device-frame');
+
+// progressive enhancement
 if (Modernizr.cssanimations &&
     Modernizr.svg &&
     Modernizr.csstransforms3d &&
     Modernizr.csstransitions) {
 
-  // progressive enhancement
-  $('#device-screen').css('display', 'block');
-  $('#device-frame').addClass('frameonly');
-  $('#opentarget').css('visibility', 'visible');
-  $('body').addClass('withvignette');
+  setDeviceScene_('home');
+  $('.device-screen').css('display', 'block');
+  $deviceFrame.addClass('frameonly');
 
-  $('#opentarget, #layer-muzei-icon')
+  $('.target-open-artdetail')
       .click(() => {
-        setTimeout(() => $('#device-frame').toggleClass('artdetailopen'), 0);
+        setTimeout(() => setDeviceScene_('artdetail'), 0);
       });
 
   $(document)
-      .on('mousedown', '#opentarget, #layer-muzei-icon', () => {
-        $('#device-frame').addClass('mousedown');
-      })
-      .on('mouseup', () => {
-        $('#device-frame').removeClass('mousedown');
-      });
+      .on('mousedown', '.target-open-artdetail', () => $deviceFrame.addClass('mousedown'))
+      .on('mouseup', () => $deviceFrame.removeClass('mousedown'));
 
-  $('#device-frame').click(function() {
-    if (!$(this).hasClass('artdetailopen')) {
-      return;
-    }
+  $deviceFrame.click(ev => setDeviceScene_('home'));
 
-    $(this).toggleClass('artdetailopen');
-  });
-
-  $.ajax({
-    dataType: 'jsonp',
-    url: '//muzei.co/featured',
-    jsonpCallback: 'withfeatured',
-    cache: true,
-    success: data => {
-      let image = data.thumbUri || data.imageUri;
-      $('#layer-wall, #layer-wall-blurred').css('background-image', `url('${image}')`);
-      $('#layer-artdetail .title').text(data.title);
-      $('#layer-artdetail .byline').text(data.byline);
-    }
+  FeaturedArt.get().then(data => {
+    let image = data.thumbUri || data.imageUri;
+    $('.layer-wall, .layer-wall-blurred').css('background-image', `url('${image}')`);
+    $('.artdetail-title').text(data.title);
+    $('.artdetail-byline').text(data.byline);
   });
 }
 
-// Hide additional target for Android to prevent disambig from showing up
-if (navigator.userAgent.indexOf('Android') >= 0) {
-  $('#opentarget').hide();
+function setDeviceScene_(scene) {
+  $deviceFrame.attr('data-scene', scene);
+  $('.device-scene').removeClass('is-active');
+  $(`.scene-${scene}`).addClass('is-active');
 }

@@ -1,6 +1,7 @@
 {% extends '_base.html' %}
 
 {% block head %}
+<link href="//yui.yahooapis.com/2.8.0r4/build/reset/reset-min.css" rel="stylesheet">
 <link href="/frontend/styles/landing.css" rel="stylesheet">
 {% endblock %}
 
@@ -10,44 +11,66 @@
 <script src="/frontend/scripts/landing.js"></script>
 {% endblock %}
 
+{% block page-header %}
+{% endblock %}
+
 {% block body %}
-<div id="container">
-  <div id="logo"></div>
-  <div id="text">
-    <p>
-      A living museum for your Android home screen.
-    </p>
+<div class="container">
+  <div class="logo">
+    <img class="logotype" src="/frontend/images/logotype.svg" alt="Muzei">
+    <img class="logotype-live-wallpaper" src="/frontend/images/logotype-live-wallpaper.svg" alt="Live Wallpaper">
+  </div>
+  <div class="tagline">
+    A living museum for your Android home screen.
   </div>
 
-  <a id="playlink" href="http://get.muzei.co">&nbsp;</a>
+  <a class="playlink" href="http://get.muzei.co">&nbsp;</a>
 
-  <div id="device-frame">
-    <div id="device-screen">
-      <div id="layer-wall-blurred" class="whenartdetailclosed fullscreenlayer"></div>
-      <div id="layer-wall" class="whenartdetailopen fullscreenlayer"></div>
-      <div id="layer-home" class="whenartdetailclosed fullscreenlayer"></div>
-      <div id="layer-artdetail-topscrim" class="whenartdetailopen"></div>
-      <div id="layer-artdetail" class="whenartdetailopen">
-        <div class="overflow"></div>
-        <div class="title"></div>
-        <div class="byline"></div>
+  <div class="device-frame-container">
+    <div class="device-frame">
+      <div class="device-screen">
+        <div class="layer-sysui is-fullscreen"></div>
+        <div class="layer-wall-blurred is-fullscreen"></div>
+
+        <div class="device-scene scene-home">
+          <div class="layer-home is-fullscreen"></div>
+          <svg class="layer-openindicator-wave1 whenartdetailclosed openindicatorwave" viewbox="0 0 100 100" width="100" height="100">
+            <circle cx="50" cy="50" r="45" fill="transparent" stroke="rgba(255,255,255,1)">
+          </svg>
+          <svg class="layer-openindicator-wave2 whenartdetailclosed openindicatorwave" viewbox="0 0 100 100" width="100" height="100">
+            <circle cx="50" cy="50" r="45" fill="transparent" stroke="rgba(255,255,255,1)">
+          </svg>
+          <div class="layer-muzei-icon target-open-artdetail whenartdetailclosed"></div>
+        </div>
+
+        <div class="device-scene scene-artdetail">
+          <div class="layer-wall is-fullscreen"></div>
+          <div class="layer-artdetail-topscrim"></div>
+          <div class="layer-artdetail">
+            <div class="artdetail-overflow"></div>
+            <div class="artdetail-title"></div>
+            <div class="artdetail-byline"></div>
+          </div>
+        </div>
+
+        <svg>
+          <filter id="blur-filter"><feGaussianBlur stdDeviation="20"/></filter>
+        </svg>
       </div>
-      <div id="layer-sysui" class="fullscreenlayer"></div>
-      <svg id="layer-openindicator-wave1" viewbox="0 0 100 100" width="100" height="100" class="whenartdetailclosed openindicatorwave">
-        <circle cx="50" cy="50" r="45" fill="transparent" stroke="rgba(255,255,255,1)">
-      </svg>
-      <svg id="layer-openindicator-wave2" viewbox="0 0 100 100" width="100" height="100" class="whenartdetailclosed openindicatorwave">
-        <circle cx="50" cy="50" r="45" fill="transparent" stroke="rgba(255,255,255,1)">
-      </svg>
-      <div id="layer-muzei-icon" class="whenartdetailclosed"></div>
-      <svg id="layer-muzei-icon-active-state" viewbox="0 0 100 100" width="100" height="100" class="whenartdetailclosed">
-        <circle cx="50" cy="50" r="50" fill="rgba(255,255,255,0.5)">
-      </svg>
-      <svg>
-        <filter id="blur-filter"><feGaussianBlur stdDeviation="20"></filter>
-      </svg>
     </div>
-    <div id="opentarget" class="whenartdetailclosed"></div>
+  </div>
+
+  <div class="nav">
+    <div class="nav-section">
+      <div class="section-title">Featured art</div>
+      <a href="/today">Today</a>
+      <a href="/archive">Archive</a>
+    </div>
+    <div class="nav-section">
+      <div class="section-title">Developers</div>
+      <a href="http://api.muzei.co" class="is-external">API</a>
+      <a href="http://code.muzei.co" class="is-external">GitHub</a>
+    </div>
   </div>
 </div>
 {% endblock %}

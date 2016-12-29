@@ -1,5 +1,5 @@
 /**
- * Copyright 2014 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,543 +14,422 @@
  * limitations under the License.
  */
 
-/*
- * Carousel
- */
+import {CarouselGestureHelper} from './_carousel-gesture-helper';
 
-var MONTHS = [
+const MONTHS = [
     'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
     'September', 'October', 'November', 'December'];
-var DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-var HOUR_MILLIS = 60 * 60 * 1000;
-var DAY_MILLIS = 24 * HOUR_MILLIS;
+const DAYS = [
+    'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-var START_DATE = new Date('2014-02-12');
-var START_MONTH = [START_DATE.getFullYear(), START_DATE.getMonth() + 1];
-var TODAY = new Date();
-var TODAY_MONTH = [TODAY.getFullYear(), TODAY.getMonth() + 1];
-var NUM_CAROUSEL_PAGES = monthDistance(START_MONTH, TODAY_MONTH) + 1;
+const HOUR_MILLIS = 60 * 60 * 1000;
+const DAY_MILLIS = 24 * HOUR_MILLIS;
 
-var MONTH_SPACING_WIDE = 80; // pixels
-var MONTH_SPACING_NARROW = 40; // pixels
+const START_DATE = new Date('2014-02-12');
+const START_MONTH = [START_DATE.getFullYear(), START_DATE.getMonth() + 1];
 
-var ARCHIVE_BASE_URL = '//storage.googleapis.com/muzeifeaturedart/archivemeta/';
+const TODAY = new Date();
+const TODAY_MONTH = [TODAY.getFullYear(), TODAY.getMonth() + 1];
 
+const NUM_CAROUSEL_PAGES = monthDistance_(START_MONTH, TODAY_MONTH) + 1;
 
-var currentScrollX;
+const MONTH_SPACING_WIDE = 80; // pixels
+const MONTH_SPACING_NARROW = 40; // pixels
 
-var $carousel = $('.month-carousel');
-var $carouselContainer = $('.month-carousel-container');
-
-var pageWidth = 0;
-var selectedMonth;
+const ARCHIVE_BASE_URL = '//storage.googleapis.com/muzeifeaturedart/archivemeta/';
 
 
-(function() {
-  var m = document.location.href.match(/\/archive\/(.+)/);
-  if (m && isMonthInValidRange(monthFromUrlPath(m[1]))) {
-    selectMonth(monthFromUrlPath(m[1])); //document.location.hash.substring(1)));
-  } else {
-    selectMonth(TODAY_MONTH);
+class ArchiveController {
+  constructor() {
+    this.currentScrollX = 0;
+    this.$carousel = $('.month-carousel');
+    this.$carouselContainer = $('.month-carousel-container');
+    this.pageWidth = 0;
+    this.selectedMonth = 0;
+
+    this.initState();
+
+    // carousel setup
+    this.setupCarouselLayoutWatchers();
+    this.setupCarouselMousewheelNavigation();
+    this.setupCarouselKeyboardNavigation();
+    this.setupCarouselClickNavigation();
+    this.setupCarouselGestureNavigation();
   }
-})();
 
-
-$(window).resize(function() {
-  var newPageWidth = $carousel.width();
-  if (pageWidth != newPageWidth) {
-    pageWidth = newPageWidth;
-    relayout();
+  initState() {
+    let m = document.location.href.match(/\/archive\/(.+)/);
+    if (m && isMonthInValidRange_(monthFromUrlPath_(m[1]))) {
+      this.selectMonth(monthFromUrlPath_(m[1]));
+    } else {
+      this.selectMonth(TODAY_MONTH);
+    }
   }
-});
 
-var mousewheelSnapTimeout = 0;
-
-$(document)
-    .on('click', '.month .click-screen', function() {
-      selectMonth(monthFromId($(this).parent().attr('id')));
-    })
-    .on('keydown', function(e) {
-      if (e.keyCode == 37) {
-        selectMonth(prevMonth(selectedMonth));
-      } else if (e.keyCode == 39) {
-        selectMonth(nextMonth(selectedMonth));
+  setupCarouselLayoutWatchers() {
+    $(window).resize(() => {
+      let newPageWidth = this.$carousel.width();
+      if (this.pageWidth != newPageWidth) {
+        this.pageWidth = newPageWidth;
+        this.relayout();
       }
-    })
-    .on('wheel', function(e) {
+    });
+  }
+
+  setupCarouselMousewheelNavigation() {
+    let mousewheelSnapTimeout = 0;
+    $(document).on('wheel', e => {
       if (Math.abs(e.originalEvent.deltaX)) {
         e.preventDefault();
       }
       if (Math.abs(e.originalEvent.deltaX) > Math.abs(e.originalEvent.deltaY)) {
-        scrollBy(e.originalEvent.deltaX);
+        this.scrollBy(e.originalEvent.deltaX);
 
         if (mousewheelSnapTimeout) {
           window.clearTimeout(mousewheelSnapTimeout);
         }
 
-        mousewheelSnapTimeout = window.setTimeout(function() {
-          selectMonth(monthAtScrollPosition());
-        }, 100);
+        mousewheelSnapTimeout = window.setTimeout(() =>
+            this.selectMonth(this.computeMonthAtScrollPosition()), 100);
+      }
+    });
+  }
+
+  setupCarouselKeyboardNavigation() {
+    $(document).on('keydown', e => {
+      if (e.keyCode == 37) {
+        this.selectMonth(prevMonth_(this.selectedMonth));
+        e.preventDefault();
+      } else if (e.keyCode == 39) {
+        this.selectMonth(nextMonth_(this.selectedMonth));
+        e.preventDefault();
+      }
+    });
+  }
+
+  setupCarouselClickNavigation() {
+    $(document).on('click', '.month .click-screen', e =>
+        this.selectMonth(monthFromId_($(e.currentTarget).parent().attr('id'))));
+  }
+
+  setupCarouselGestureNavigation() {
+    let downScrollX;
+    let gesture = new CarouselGestureHelper(this.$carouselContainer, {
+      onPanStart: e => downScrollX = this.currentScrollX,
+      onPan: e => this.scrollTo(downScrollX - e.deltaX),
+      onPanEnd: e => {
+        if (e.isFling) {
+          this.selectMonth(
+              (e.flingDirection == 'right' ? nextMonth_ : prevMonth_)(this.selectedMonth));
+        } else {
+          this.selectMonth(this.computeMonthAtScrollPosition());
+        }
       }
     });
 
-
-function renderMonth(month, force) {
-  if (!isMonthInValidRange(month)) {
-    return;
+    // when something is scrolling, pause carousel gestures
+    let resumeTimeout;
+    this.$carouselContainer.get(0).addEventListener('scroll', e => {
+      gesture.paused = true;
+      if (resumeTimeout) {
+        window.clearTimeout(resumeTimeout);
+      }
+      resumeTimeout = window.setTimeout(() => gesture.paused = false, 100);
+    }, true);
   }
 
-  if (!pageWidth) {
-    pageWidth = $carousel.width();
-  }
-
-  var $month = monthNode(month);
-  var needsRender = !!force;
-  if (!$month.length) {
-    $month = $('<div>')
-        .css('left', monthX(month) + 'px')
-        .addClass('month')
-        .attr('id', 'month-' + monthKey(month))
-        .appendTo($carousel);
-    needsRender = true;
-  }
-  if (needsRender) {
-    $month.empty();
-    renderMonthContents(month);
-  }
-  return $month;
-}
-
-
-function relayout() {
-  $('.month').each(function() {
-    var month = monthFromId($(this).attr('id'));
-    $(this).css('left', monthX(month) + 'px');
-  });
-  selectMonth(selectedMonth);
-}
-
-
-function selectMonth(month, move) {
-  if (move === undefined) {
-    move = true;
-  }
-
-  if (!isMonthInValidRange(month)) {
-    selectMonth(selectedMonth, move);
-    return;
-  }
-
-  renderMonth(month);
-  var $month = monthNode(month);
-
-  if (move) {
-    scrollTo(($month.offset().left - $carousel.offset().left), true);
-    var newUrl = '/archive/' + monthUrlPath(month);
-    window.history.replaceState('', '', newUrl);
-  }
-
-  $('.month').removeClass('active');
-  $month.toggleClass('active', true);
-
-  renderMonth(prevMonth(month));
-  renderMonth(nextMonth(month));
-  selectedMonth = month;
-}
-
-
-function scrollBy(deltaX) {
-  return scrollTo(currentScrollX + deltaX, false);
-}
-
-
-function friction_(x, dampen, max) {
-  return Math.atan(x / ((max * dampen) / Math.PI * 2) / dampen) * (max / Math.PI * 2);
-}
-
-
-function scrollTo(position, animate) {
-  animate = !!animate;
-
-  var minScrollX = monthX(START_MONTH);
-  var maxScrollX = monthX(TODAY_MONTH);
-
-  currentScrollX = Math.min(maxScrollX, Math.max(minScrollX, position));
-
-  var translatePosition = currentScrollX;
-
-  // if (translatePosition < minScrollX) {
-  //   translatePosition = minScrollX - friction_(minScrollX - translatePosition, 2, pageWidth);
-  // } else if (translatePosition > maxScrollX) {
-  //   translatePosition = maxScrollX + friction_(translatePosition - maxScrollX, 2, pageWidth);
-  // }
-
-  $carousel
-      .toggleClass('animate', animate)
-      .css({
-        'transform': 'translate3d(' + -translatePosition + 'px,0,0)'
-      });
-
-  if (selectedMonth) {
-    var m = monthAtScrollPosition();
-    if (monthDistance(m, selectedMonth) != 0) {
-      selectMonth(monthAtScrollPosition(), false);
+  renderMonth(month, force) {
+    if (!isMonthInValidRange_(month)) {
+      return;
     }
+
+    if (!this.pageWidth) {
+      this.pageWidth = this.$carousel.width();
+    }
+
+    let $month = monthNode_(month);
+    let needsRender = !!force;
+    if (!$month.length) {
+      $month = $('<div>')
+          .css('left', this.getMonthX(month) + 'px')
+          .addClass('month')
+          .attr('id', 'month-' + monthKey_(month))
+          .appendTo(this.$carousel);
+      needsRender = true;
+    }
+
+    if (needsRender) {
+      $month.empty();
+      this.renderMonthContents(month);
+    }
+
+    return $month;
   }
 
-  return true;
-}
+  relayout() {
+    $('.month').each((_, node) => {
+      let $month = $(node);
+      let month = monthFromId_($month.attr('id'));
+      $month.css('left', this.getMonthX(month) + 'px');
+    });
 
-
-function monthAtScrollPosition() {
-  var minDistanceToScrollX = 999999;
-  var minDistanceMonth = null;
-
-  for (var month = START_MONTH; monthDistance(month, TODAY_MONTH) >= 0; month = nextMonth(month)) {
-    var monthDistanceToScrollX = Math.abs(monthX(month) - currentScrollX);
-    if (monthDistanceToScrollX < minDistanceToScrollX) {
-      minDistanceMonth = month;
-      minDistanceToScrollX = monthDistanceToScrollX;
-    }
+    this.selectMonth(this.selectedMonth);
   }
 
-  return minDistanceMonth;
-}
-
-
-$(document).ready(function() {
-  var hammer = new Hammer($carouselContainer.get(0), { dragLockToAxis: true });
-  var panning = false;
-  $carouselContainer.on('dragstart', function(ev) {
-    ev.preventDefault();
-  });
-  $carouselContainer.on('click', function(ev) {
-    if (panning) {
-      ev.preventDefault();
+  selectMonth(month, move) {
+    if (move === undefined) {
+      move = true;
     }
-  });
 
-  var lastDeltaX = 0;
-  hammer.on('panend pan swipe', function(ev) {
-    // disable browser scrolling
-    ev.preventDefault();
-    ev.srcEvent.preventDefault();
-
-    var currentPage = monthDistance(START_MONTH, selectedMonth);
-    var right = ev.deltaX < 0;
-
-    switch (ev.type) {
-      case 'pan':
-        var deltaX = (ev.deltaX - lastDeltaX);
-        panning = true;
-        $carouselContainer.addClass('panning');
-        scrollBy(-deltaX);
-        lastDeltaX = ev.deltaX;
-        break;
-
-      case 'swipe':
-        lastDeltaX = 0;
-        right = (ev.direction & Hammer.DIRECTION_RIGHT) == 0;
-        $carouselContainer.removeClass('panning');
-        setTimeout(function() {
-          panning = false;
-        }, 0);
-        selectMonth((right ? nextMonth : prevMonth)(selectedMonth));
-        ev.srcEvent.stopPropagation();
-        hammer.stop(true);
-        break;
-
-      case 'panend':
-        lastDeltaX = 0;
-        $carouselContainer.removeClass('panning');
-        setTimeout(function() {
-          panning = false;
-        }, 0);
-        selectMonth(monthAtScrollPosition());
-        break;
+    if (!isMonthInValidRange_(month)) {
+      this.selectMonth(this.selectedMonth, move);
+      return;
     }
-  });
-});
 
-/*
- * Month page
- */
-function renderMonthContents(month) {
-  var $month = monthNode(month);
+    this.renderMonth(month);
+    let $month = monthNode_(month);
 
-  $('<div>')
-      .addClass('click-screen')
-      .appendTo($month);
+    if (move) {
+      this.scrollTo(($month.offset().left - this.$carousel.offset().left), true);
+      let newUrl = `/archive/${monthUrlPath_(month)}`;
+      window.history.replaceState('', '', newUrl);
+    }
 
-  // header row
-  var $monthHeader = $('<div>')
-      .text(MONTHS[month[1] - 1] + ' ' + month[0])
-      .addClass('month-row month-header').appendTo($month);
+    $('.month').removeClass('active');
+    $month.toggleClass('active', true);
 
-  // weekdays row
-  var $weekdayLabelsRow = $('<div>')
-      .addClass('month-row weekday-labels')
-      .appendTo($month);
-  for (var dow = 0; dow < 7; dow++) {
+    this.renderMonth(prevMonth_(month));
+    this.renderMonth(nextMonth_(month));
+    this.selectedMonth = month;
+  }
+
+  scrollBy(deltaX) {
+    return this.scrollTo(this.currentScrollX + deltaX, false);
+  }
+
+  scrollTo(position, animate) {
+    animate = !!animate;
+
+    let minScrollX = this.getMonthX(START_MONTH);
+    let maxScrollX = this.getMonthX(TODAY_MONTH);
+
+    this.currentScrollX = Math.min(maxScrollX, Math.max(minScrollX, position));
+
+    let translatePosition = this.currentScrollX;
+
+    this.$carousel
+        .toggleClass('animate', animate)
+        .css('transform', `translate3d(${-translatePosition}px,0,0)`);
+
+    if (this.selectedMonth) {
+      let m = this.computeMonthAtScrollPosition();
+      if (monthDistance_(m, this.selectedMonth) != 0) {
+        this.selectMonth(this.computeMonthAtScrollPosition(), false);
+      }
+    }
+
+    return true;
+  }
+
+  computeMonthAtScrollPosition() {
+    let minDistanceToScrollX = 999999;
+    let minDistanceMonth = null;
+
+    for (let month = START_MONTH;
+         monthDistance_(month, TODAY_MONTH) >= 0;
+         month = nextMonth_(month)) {
+      let monthDistanceToScrollX = Math.abs(this.getMonthX(month) - this.currentScrollX);
+      if (monthDistanceToScrollX < minDistanceToScrollX) {
+        minDistanceMonth = month;
+        minDistanceToScrollX = monthDistanceToScrollX;
+      }
+    }
+
+    return minDistanceMonth;
+  }
+
+  renderMonthContents(month) {
+    let $month = monthNode_(month);
+
     $('<div>')
-        .text(DAYS[dow])
-        .addClass('cell')
-        .appendTo($weekdayLabelsRow);
-  }
+        .addClass('click-screen')
+        .appendTo($month);
 
-  // days
-  var today = new Date(Date.now() - 2 * HOUR_MILLIS); // new paintings at 2AM UTC
-  var todayYear = today.getUTCFullYear();
-  var todayMonth = today.getUTCMonth();
-  var todayDate = today.getUTCDate();
+    // header row
+    let $monthHeader = $('<div>')
+        .text(MONTHS[month[1] - 1] + ' ' + month[0])
+        .addClass('month-row month-header').appendTo($month);
 
-  var firstOfMonthDate = new Date();
-  firstOfMonthDate.setUTCHours(0);
-  firstOfMonthDate.setUTCMinutes(0);
-  firstOfMonthDate.setUTCSeconds(0);
-  firstOfMonthDate.setUTCDate(1);
-  firstOfMonthDate.setUTCFullYear(month[0]);
-  firstOfMonthDate.setUTCMonth(month[1] - 1);
+    // weekdays row
+    let $weekdayLabelsRow = $('<div>')
+        .addClass('month-row weekday-labels')
+        .appendTo($month);
+    for (let dow = 0; dow < 7; dow++) {
+      $('<div>')
+          .text(DAYS[dow])
+          .addClass('cell')
+          .appendTo($weekdayLabelsRow);
+    }
 
-  var dowFirstOfMonth = firstOfMonthDate.getUTCDay();
-  var firstVisibleDate = new Date(firstOfMonthDate - dowFirstOfMonth * DAY_MILLIS);
-  var date = firstVisibleDate;
-  var week = 0;
-  var $daysRow = $('<div>')
-      .addClass('month-row days')
-      .appendTo($month);
+    // days
+    let today = new Date(Date.now() - 2 * HOUR_MILLIS); // new paintings at 2AM UTC
+    let todayYear = today.getUTCFullYear();
+    let todayMonth = today.getUTCMonth();
+    let todayDate = today.getUTCDate();
 
-  var monthEnded = true;
-  while (++week < 10) {
-    for (var dow = 0; dow < 7; dow++) {
-      var dayMonth = date.getUTCMonth();
-      var dayYear = date.getUTCFullYear();
-      var dayDate = date.getUTCDate();
-      var skipDay = false;
+    let firstOfMonthDate = new Date();
+    firstOfMonthDate.setUTCHours(0);
+    firstOfMonthDate.setUTCMinutes(0);
+    firstOfMonthDate.setUTCSeconds(0);
+    firstOfMonthDate.setUTCDate(1);
+    firstOfMonthDate.setUTCFullYear(month[0]);
+    firstOfMonthDate.setUTCMonth(month[1] - 1);
 
-      var classes = 'cell ';
-      if (dayMonth != month[1] - 1) {
-        // previous month
-        skipDay = true;
-        classes += 'skipped ';
-        if ((dayMonth < month[1] - 1) || (month[1] == 1 && dayMonth == 11)) {
-          classes += 'before ';
+    let dowFirstOfMonth = firstOfMonthDate.getUTCDay();
+    let firstVisibleDate = new Date(firstOfMonthDate - dowFirstOfMonth * DAY_MILLIS);
+    let date = firstVisibleDate;
+    let week = 0;
+    let $daysRow = $('<div>')
+        .addClass('month-row days')
+        .appendTo($month);
+
+    let monthEnded = true;
+    while (++week < 10) {
+      for (let dow = 0; dow < 7; dow++) {
+        let dayMonth = date.getUTCMonth();
+        let dayYear = date.getUTCFullYear();
+        let dayDate = date.getUTCDate();
+        let skipDay = false;
+
+        let classes = 'cell ';
+        if (dayMonth != month[1] - 1) {
+          // previous month
+          skipDay = true;
+          classes += 'skipped ';
+          if ((dayMonth < month[1] - 1) || (month[1] == 1 && dayMonth == 11)) {
+            classes += 'before ';
+          } else {
+            break;
+          }
+        } else if (date < START_DATE) {
+          skipDay = true;
+          classes += 'skipped before ';
+        } else if (dayYear == todayYear && dayMonth == todayMonth && dayDate == todayDate) {
+          classes += 'today ';
+        } else if (date < today) {
+          classes += 'past ';
         } else {
+          // future, don't render
+          monthEnded = false;
           break;
         }
-      } else if (date < START_DATE) {
-        skipDay = true;
-        classes += 'skipped before ';
-      } else if (dayYear == todayYear && dayMonth == todayMonth && dayDate == todayDate) {
-        classes += 'today ';
-      } else if (date < today) {
-        classes += 'past ';
-      } else {
-        // future, don't render
-        monthEnded = false;
+
+        let $dayCell = $('<div>')
+            .addClass(classes)
+            .appendTo($daysRow);
+
+        if (!skipDay) {
+          $dayCell.attr('id', `day-${dayKey_(date)}`);
+        }
+
+        if (!skipDay) {
+          // generate day cell innards
+          let $image = $('<div>')
+              .addClass('image')
+              .appendTo($dayCell);
+
+          let $meta = $('<div>')
+              .addClass('meta')
+              .appendTo($dayCell);
+
+          // show overlay and layer
+          let $overlay = $('<a>')
+              .addClass('overlay-link')
+              .attr('target', '_blank')
+              .append($('<div>').addClass('date').text(date.getUTCDate()))
+              .appendTo($dayCell);
+        }
+
+        // move on to next day
+        date = new Date(date.getTime() + DAY_MILLIS);
+      }
+
+      if (date.getUTCMonth() != month[1] - 1) {
         break;
       }
-
-      var $dayCell = $('<div>')
-          .addClass(classes)
-          .appendTo($daysRow);
-
-      if (!skipDay) {
-        $dayCell.attr('id', 'day-' + dayKey(date));
-      }
-
-      if (!skipDay) {
-        // generate day cell innards
-        var $image = $('<div>')
-            .addClass('image')
-            .appendTo($dayCell);
-
-        var $meta = $('<div>')
-            .addClass('meta')
-            .appendTo($dayCell);
-
-        // show overlay and layer
-        var $overlay = $('<a>')
-            .addClass('overlay-link')
-            .append($('<div>').addClass('date').text(date.getUTCDate()))
-            .appendTo($dayCell);
-      }
-
-      // move on to next day
-      date = new Date(date.getTime() + DAY_MILLIS);
     }
-    if (date.getUTCMonth() != month[1] - 1) {
-      break;
+
+    // fetch archive data
+    let archiveKey = dayKey_(today);
+    if (monthEnded) {
+      archiveKey = monthKey_(month);
     }
+
+    loadArchiveData_(archiveKey);
   }
 
-  // fetch archive data
-  var archiveKey = dayKey(today);
-  if (monthEnded) {
-    archiveKey = monthKey(month);
+  getMonthX(month) {
+    let monthSpacing = (this.pageWidth <= 320)
+        ? MONTH_SPACING_NARROW
+        : MONTH_SPACING_WIDE;
+    return -monthDistance_(month, TODAY_MONTH) * (this.pageWidth + monthSpacing);
   }
-
-  loadArchiveData(archiveKey);
 }
 
 
-// loosely based on http://www.kylescholz.com/blog/2010/01/progressive_xmlhttprequest_1.html
-function loadArchiveData(archiveKey) {
-  var xhr = new XMLHttpRequest();
-  var buffer = '';
-  var index = 0;
-
-  var itemsMeta = null;
-  var imageBlobs = [];
-  var imageBlobsProcessed = 0;
-
-  var _processBuffer = function() {
-    var lines = buffer.split(/\n/);
-    for (var l = 0; l < lines.length; l++) {
-      var line = lines[l];
-      if (itemsMeta === null) {
-        itemsMeta = JSON.parse(line);
-        _processItemsMeta();
-        continue;
-      }
-
-      if (line) {
-        imageBlobs.push(line);
-      }
-    }
-
-    _processImageBlobs();
-  };
-
-  var _processItemsMeta = function() {
-    for (var i = 0; i < itemsMeta.length; i++) {
-      var itemMeta = itemsMeta[i];
-      var date = new Date(itemMeta.publish_date);
-      var $dayCell = dayNode(date);
-      $dayCell.find('.meta')
-          .empty()
-          .append($('<span>').addClass('title').text(itemMeta.title))
-          .append($('<span>').addClass('byline').text(itemMeta.byline));
-      $dayCell.find('.overlay-link').attr('href', itemMeta.details_url);
-    }
-  };
-
-  var _processImageBlobs = function() {
-    for (var i = imageBlobsProcessed; i < imageBlobs.length; i++) {
-      var itemMeta = itemsMeta[i];
-      var date = new Date(itemMeta.publish_date);
-      var $dayCell = dayNode(date);
-      $dayCell.find('.image').css('background-image', 'url(' + imageBlobs[i] + ')');
-    }
-
-    imageBlobsProcessed = imageBlobs.length;
-  };
-
-  var _processMoreResponseText = function() {
-    var i = xhr.responseText.lastIndexOf('\n');
-    if (i > index) {
-      i += 1; // newline
-      var newChunk = xhr.responseText.substr(index, (i - index));
-      buffer += newChunk;
-      index = i;
-      _processBuffer();
-      buffer = '';
-    }
-  };
-
-  xhr.addEventListener('load', function(e) {
-    _processMoreResponseText();
-  }, false);
-
-  xhr.addEventListener('progress', function(e) {
-    _processMoreResponseText();
-  }, false);
-
-  xhr.addEventListener('error', function(e) {
-    // todo
-  }, false);
-
-  xhr.addEventListener('abort', function(e) {
-    // todo
-  }, false);
-
-  xhr.open('get', ARCHIVE_BASE_URL + archiveKey + '.txt', true);
-  xhr.overrideMimeType('text/plain');
-  //xhr.setRequestHeader('transfer-encoding', 'chunked');
-  xhr.send();
+function monthNode_(month) {
+  return $(`#month-${monthKey_(month)}`);
 }
 
 
-function dayNode(date) {
-  return $('#day-' + dayKey(date));
+function dayNode_(date) {
+  return $(`#day-${dayKey_(date)}`);
 }
 
 
-function dayKey(date) {
-  var y = date.getUTCFullYear();
-  var m = date.getUTCMonth() + 1;
-  var d = date.getUTCDate();
+function isMonthInValidRange_(month) {
+  return monthDistance_(START_MONTH, month) >= 0 &&
+         monthDistance_(month, TODAY_MONTH) >= 0;
+}
+
+
+function dayKey_(date) {
+  let y = date.getUTCFullYear();
+  let m = date.getUTCMonth() + 1;
+  let d = date.getUTCDate();
   return y + (m < 10 ? '0' : '') + m + (d < 10 ? '0' : '') + d;
 }
 
 
-function clearMonth(month) {
-  monthNode(month).empty();
-}
-
-
-function isMonthInValidRange(month) {
-  return monthDistance(START_MONTH, month) >= 0 &&
-         monthDistance(month, TODAY_MONTH) >= 0;
-}
-
-
-function monthX(month) {
-  var monthSpacing = (pageWidth <= 320) ? MONTH_SPACING_NARROW : MONTH_SPACING_WIDE;
-  return -monthDistance(month, TODAY_MONTH) * (pageWidth + monthSpacing);
-}
-
-
-function monthNode(month) {
-  return $('#month-' + monthKey(month));
-}
-
-
-function monthKey(month) {
+function monthKey_(month) {
   return month[0] + (month[1] < 10 ? '0' : '') + month[1];
 }
 
 
-function monthFromKey(key) {
-  return [parseInt(key.substring(0, 4), 10),
-          parseInt(key.substring(4, 6), 10)];
-}
-
-
-function monthUrlPath(month) {
+function monthUrlPath_(month) {
   return month[0] + '/' + month[1];
 }
 
 
-function monthFromUrlPath(path) {
-  var m = path.match(/(\d+)(\/(\d+))?/);
+function monthFromUrlPath_(path) {
+  let m = path.match(/(\d+)(\/(\d+))?/);
   return [parseInt(m[1], 10),
           parseInt(m[3] || 1, 10)];
 }
 
 
-function monthFromId(id) {
+function monthFromId_(id) {
   return [parseInt(id.substring(6, 10), 10),
           parseInt(id.substring(10, 12), 10)];
 }
 
 
-function monthDistance(month1, month2) {
+function monthDistance_(month1, month2) {
   return (month2[0] - month1[0]) * 12 + (month2[1] - month1[1]);
 }
 
 
-function prevMonth(month) {
+function prevMonth_(month) {
   if (month[1] == 1) {
     return [month[0] - 1, 12];
   }
@@ -559,7 +438,7 @@ function prevMonth(month) {
 }
 
 
-function nextMonth(month) {
+function nextMonth_(month) {
   if (month[1] == 12) {
     return [month[0] + 1, 1];
   }
@@ -567,3 +446,81 @@ function nextMonth(month) {
   return [month[0], month[1] + 1];
 }
 
+
+// loosely based on http://www.kylescholz.com/blog/2010/01/progressive_xmlhttprequest_1.html
+function loadArchiveData_(archiveKey) {
+  let xhr = new XMLHttpRequest();
+  let buffer = '';
+  let index = 0;
+
+  let itemsMeta = null;
+  let imageBlobs = [];
+  let imageBlobsProcessed = 0;
+
+  // construct and execute XHR
+  xhr.addEventListener('load', e => processMoreResponseText_(), false);
+  xhr.addEventListener('progress', e => processMoreResponseText_(), false);
+  xhr.addEventListener('error', e => { /* todo */ }, false);
+  xhr.addEventListener('abort', e => { /* todo */ }, false);
+
+  xhr.open('get', `${ARCHIVE_BASE_URL}${archiveKey}.txt`, true);
+  xhr.overrideMimeType('text/plain');
+  //xhr.setRequestHeader('transfer-encoding', 'chunked');
+  xhr.send();
+
+  function processBuffer_() {
+    buffer.split(/\n/).forEach(line => {
+      if (itemsMeta === null) {
+        itemsMeta = JSON.parse(line);
+        processItemsMeta_();
+        return;
+      }
+
+      if (line) {
+        imageBlobs.push(line);
+      }
+    });
+
+    processImageBlobs_();
+  }
+
+  function processItemsMeta_() {
+    itemsMeta.forEach(itemMeta => {
+      let date = new Date(itemMeta.publish_date);
+      let $dayCell = dayNode_(date);
+      $dayCell.addClass('loaded');
+      $dayCell.find('.meta')
+          .empty()
+          .css('background-color', itemMeta.color)
+          .append($('<span>').addClass('title').text(itemMeta.title))
+          .append($('<span>').addClass('byline').text(itemMeta.byline));
+      $dayCell.find('.overlay-link').attr('href', itemMeta.details_url);
+    });
+  }
+
+  function processImageBlobs_() {
+    for (let i = imageBlobsProcessed; i < imageBlobs.length; i++) {
+      let itemMeta = itemsMeta[i];
+      let date = new Date(itemMeta.publish_date);
+      let $dayCell = dayNode_(date);
+      $dayCell.find('.image').css('background-image', `url(${imageBlobs[i]})`);
+    }
+
+    imageBlobsProcessed = imageBlobs.length;
+  }
+
+  function processMoreResponseText_() {
+    let i = xhr.responseText.lastIndexOf('\n');
+    if (i > index) {
+      i += 1; // newline
+      let newChunk = xhr.responseText.substr(index, (i - index));
+      buffer += newChunk;
+      index = i;
+      processBuffer_();
+      buffer = '';
+    }
+  }
+}
+
+
+new ArchiveController();

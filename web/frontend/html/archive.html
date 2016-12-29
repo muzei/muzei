@@ -15,23 +15,17 @@ description: An archive of featured photos from Muzei Live Wallpaper for Android
 <meta name="apple-mobile-web-app-title" content="Muzei Archive">
 <link rel="apple-touch-icon-precomposed" href="/frontend/apple-touch-icon-precomposed.png">
 
+<link href="//yui.yahooapis.com/2.8.0r4/build/reset/reset-min.css" rel="stylesheet">
 <link href="/frontend/styles/archive.css" rel="stylesheet">
 {% endblock %}
 
 {% block scripts %}
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-<script src="/frontend/lib/hammer.min.js"></script>
 <script src="/frontend/scripts/archive/archive.js"></script>
 {% endblock %}
 
 {% block body %}
 <div id="container">
-
-  <div class="main-strip header">
-    <img src="/frontend/images/logo.svg" alt="Muzei" class="logo-text">
-    <span>archive</span>
-    <img src="/frontend/images/icon_flat.svg" class="logo-icon">
-  </div>
   <div class="month-carousel-container">
     <div class="month-carousel"></div>
   </div>
