@@ -52,7 +52,11 @@ def add_art_from_external_details_url(publish_date, url):
     author = soup.find('a', class_='artist-name').get_text()
     completion_year = None
     try:
-      completion_year = unicode(soup.find(text='Date:').parent.next_sibling).strip()
+      completion_year = unicode(soup
+          .find(text='Date:')
+          .parent
+          .find_next_sibling('span')
+          .text).strip()
     except:
       pass
     byline = author + ((', ' + completion_year) if completion_year else '')
