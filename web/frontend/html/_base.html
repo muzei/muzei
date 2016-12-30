@@ -3,29 +3,39 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="theme-color" content="#3c6caf">
-
-  {% block head %}
-  {% endblock %}
-
-  <!-- Add to homescreen for Chrome on Android -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <link rel="icon" sizes="192x192" href="/frontend/chrome-touch-icon-192x192.png">
-
-  <!-- Add to homescreen for Safari on iOS -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  {% set defaultWebAppTitle = 'Muzei' %}
-  <meta name="apple-mobile-web-app-title" content="{{ webAppTitle|default(defaultWebAppTitle) }}">
-  <link rel="apple-touch-icon-precomposed" href="/frontend/apple-touch-icon-precomposed.png">
-
-  <link href="//fonts.googleapis.com/css?family=Alegreya:400italic,700italic,900italic|Alegreya+Sans:300,400,500,700,900" rel="stylesheet">
 
   {% set defaultDescription = 'Muzei Live Wallpaper for Android. A living museum for your Android home screen.' %}
   <title>{% if title %}{{ title|safe }} - {% endif %}Muzei Live Wallpaper</title>
   <meta name="description" content="{{description|default(defaultDescription)|safe}}">
-
+  <meta name="theme-color" content="#3c6caf">
   <meta name="viewport" content="width=device-width">
+
+  <!-- Social sharing -->
+  <meta property="og:title" content="{% if title %}{{ title|safe }} - {% endif %}Muzei Live Wallpaper">
+  <meta property="og:site_name" content="Muzei Live Wallpaper">
+  <meta property="og:description" content="{{description|default(defaultDescription)|safe}}">
+  <meta property="og:image" content="http://muzei.co/frontend/images/social-thumb.jpg">
+  <meta property="og:url" content="http://muzei.co{{shareUrl|default('')}}">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{% if title %}{{ title|safe }} - {% endif %}Muzei Live Wallpaper">
+  <meta name="twitter:description" content="{{description|default(defaultDescription)|safe}}">
+  <meta name="twitter:image" content="http://muzei.co/frontend/images/social-thumb.jpg">
+
+  <!-- Add to homescreen for Chrome and Safari -->
+  {% set defaultWebAppTitle = 'Muzei' %}
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="icon" sizes="192x192" href="/frontend/chrome-touch-icon-192x192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="{{ webAppTitle|default(defaultWebAppTitle) }}">
+  <link rel="apple-touch-icon-precomposed" href="/frontend/apple-touch-icon-precomposed.png">
+
+  <!-- Styles -->
+  <link href="//fonts.googleapis.com/css?family=Alegreya:400italic,700italic,900italic|Alegreya+Sans:300,400,500,700,900" rel="stylesheet">
+
+  {% block head %}
+  {% endblock %}
 </head>
 <body>
 
