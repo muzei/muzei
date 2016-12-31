@@ -83,16 +83,55 @@ body {
 
 .tagline {
   margin-top: 24px;
-  width: 240px;
+  width: 260px;
   font-weight: 400;
   font-size: 20px;
   line-height: 24px;
 
   @include narrow {
-    width: 200px;
+    width: 240px;
     font-size: 16px;
     line-height: 20px;
     text-align: center;
+  }
+}
+
+.tagline-story-link {
+  color: #888;
+  white-space: nowrap;
+  text-decoration: none;
+  position: relative;
+  transition: color .2s ease;
+  outline: 0;
+
+  &::before,
+  &::after {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    height: 1px;
+    background-color: rgba(#000, .15);
+    transition: transform .4s cubic-bezier(.3, .2, 0, 1);
+    transform-origin: 100% 0%;
+  }
+
+  &::after {
+    background-color: $colorPrimary;
+    transform: scaleX(0);
+  }
+
+  &:hover,
+  &:focus {
+    color: $colorPrimary;
+
+    &::after {
+      transition: transform .2s cubic-bezier(.5, .5, 0, 1);
+      transform-origin: 0% 0%;
+      transform: scaleX(1);
+    }
   }
 }
 
