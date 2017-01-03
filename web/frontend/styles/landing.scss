@@ -330,7 +330,6 @@ body {
 
 .layer-wall-blurred {
   filter: blur(10px);
-  filter: url(#blur-filter);
   opacity: .6 !important;
 }
 

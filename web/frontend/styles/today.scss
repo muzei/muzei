@@ -48,7 +48,8 @@ body {
   position: relative;
   opacity: 0;
 
-  @include breakpoint(500px) {
+  @media only screen and (max-width: (499px)),
+         only screen and (max-height: (329px)) {
     margin: 52px 24px 24px 24px;
   }
 }
