@@ -35,6 +35,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.provider.BaseColumns;
@@ -306,7 +307,8 @@ public class GalleryProvider extends ContentProvider {
                 // We'll still have access to it directly
             }
         } else {
-            boolean haveUriPermission = context.checkCallingUriPermission(uriToTake,
+            boolean haveUriPermission = context.checkUriPermission(uriToTake,
+                    Binder.getCallingPid(), Binder.getCallingUid(),
                     Intent.FLAG_GRANT_READ_URI_PERMISSION) == PackageManager.PERMISSION_GRANTED;
             // If we only have permission to this URI via URI permissions (rather than directly,
             // such as if the URI is from our own app), it is from an external source and we need
