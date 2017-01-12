@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Update the latest artwork in the Direct Boot cache directory whenever the artwork changes
@@ -26,6 +27,7 @@ import java.io.InputStream;
 public class DirectBootCacheJobService extends JobService {
     private static final String TAG = "DirectBootCacheJS";
     private static final int DIRECT_BOOT_CACHE_JOB_ID = 68;
+    private static final long DIRECT_BOOT_CACHE_DELAY_MILLIS = TimeUnit.SECONDS.toMillis(15);
     private static final String DIRECT_BOOT_CACHE_FILENAME = "current";
 
     private AsyncTask<Void, Void, Boolean> mCacheTask = null;
@@ -37,6 +39,9 @@ public class DirectBootCacheJobService extends JobService {
                 .addTriggerContentUri(new JobInfo.TriggerContentUri(
                         MuzeiContract.Artwork.CONTENT_URI,
                         JobInfo.TriggerContentUri.FLAG_NOTIFY_FOR_DESCENDANTS))
+                // Wait to avoid unnecessarily copying artwork when the user is
+                // quickly switching artwork
+                .setTriggerContentUpdateDelay(DIRECT_BOOT_CACHE_DELAY_MILLIS)
                 .build());
     }
 
