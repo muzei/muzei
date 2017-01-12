@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.provider;
 
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
@@ -51,6 +52,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -458,6 +460,28 @@ public class MuzeiProvider extends ContentProvider {
                 !TextUtils.equals(callingPackageName, componentName.getPackageName())) {
             throw new IllegalArgumentException("Calling package name (" + callingPackageName +
                     ") must match the source's package name (" + componentName.getPackageName() + ")");
+        }
+
+        if (values.containsKey(MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT)) {
+            String viewIntentString = values.getAsString(MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT);
+            Intent viewIntent;
+            try {
+                if (!TextUtils.isEmpty(viewIntentString)) {
+                    // Make sure it is a valid Intent URI
+                    viewIntent = Intent.parseUri(viewIntentString, Intent.URI_INTENT_SCHEME);
+                    // Make sure we can construct a PendingIntent for the Intent
+                    PendingIntent.getActivity(context, 0, viewIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                }
+            } catch (URISyntaxException e) {
+                Log.w(TAG, "Removing invalid View Intent: " + viewIntentString, e);
+                values.remove(MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT);
+            } catch (RuntimeException e) {
+                // This is actually meant to catch a FileUriExposedException, but you can't
+                // have catch statements for exceptions that don't exist at your minSdkVersion
+                Log.w(TAG, "Removing invalid View Intent that contains a file:// URI: " +
+                        viewIntentString, e);
+                values.remove(MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT);
+            }
         }
 
         // Ensure the related source has been added to the database.
