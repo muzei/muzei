@@ -1,0 +1,113 @@
+<!--
+  Copyright 2014 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+    <string name="app_name">Музеј</string>
+    <string name="app_description">Музеј тапет уживо</string>
+
+    <string name="settings_title">Поставке Музеја</string>
+    <string name="settings_blur_amount_title">Замућење</string>
+    <string name="settings_dim_amount_title">Затамњење</string>
+    <string name="settings_grey_amount_title">Сивило</string>
+    <string name="settings_notify_new_wallpaper">Обавештења о новом тапету</string>
+    <string name="settings_blur_on_lockscreen">Примени замућење на екрану закључавања</string>
+
+    <string name="notification_new_wallpaper">Нови тапет</string>
+
+    <string name="gallery_source_title">Моје слике</string>
+    <string name="gallery_source_description">Насумичне слике камере</string>
+    <plurals name="gallery_source_description_choice_template">
+        <item quantity="one">1 слика</item>
+        <item quantity="few">%1$d слике</item>
+        <item quantity="other">%1$d слика</item>
+    </plurals>
+    <string name="gallery_source_settings_title">Моје слике</string>
+    <string name="gallery_source_settings_empty">Насумичне слике камере</string>
+    <string name="gallery_source_settings_empty_subtitle">Изаберите одређене слике</string>
+    <string name="gallery_source_temporary_force_image">Тапет постављен на изабрану слику.</string>
+    <string name="gallery_source_from_gallery">Из ваше галерије</string>
+    <string name="gallery_source_touch_to_view">Додирните за приказ</string>
+
+    <string name="dummy_source_title">Лажни извор</string>
+    <string name="dummy_source_description">Пример уметничког дела</string>
+
+    <string name="featuredart_source_title">Истакнута дела</string>
+    <string name="featuredart_source_description">Нова слика сваког дана</string>
+    <string name="featuredart_source_error_no_artwork_to_share">Нема ништа за дељење.</string>
+
+    <string name="webstream_source_title">Са веба</string>
+    <string name="webstream_source_description">Уметничко дело са интернета</string>
+
+    <string name="action_activate">Активирај</string>
+    <string name="action_settings">Прилагоди</string>
+    <string name="action_source_settings">Прилагоди извор</string>
+
+    <string name="contentdesc_overflow">Још опција</string>
+    <string name="error_view_details">Не могу да прикажем детаље уметничког дела.</string>
+    <string name="error_easter_egg">Изгледа да се ова слика не учитава. Грампију Мекпазлсу је веома жао због тога, и препоручује да пробате други извор за тапете.</string>
+    <string name="error_wallpaper_chooser">Не могу да покренем бирач тапета. И даље можете да активирате Музеј избором „Тапете уживо“ у вашем бирачу позадина за почетни екран.</string>
+
+    <string name="section_choose_source">Извори</string>
+    <string name="section_advanced">Напредно</string>
+
+    <string name="action_previous_artwork">Претходно дело</string>
+    <string name="action_next_artwork">Следеће дело</string>
+
+    <string name="done">Готово</string>
+    <string name="retry">Покушај поново</string>
+
+    <string name="action_clear_photos">Уклони све слике</string>
+    <string name="action_add_photos">Додај слике</string>
+    <string name="action_rotate_interval">Промени интервал</string>
+    <string name="action_share_artwork">Подели дело</string>
+
+    <string name="action_remove">Уклони</string>
+
+    <string name="set_as_wallpaper_using_muzei">Постави за тапет (користећи Музеј)</string>
+
+    <string name="tutorial_main">Отворите апликацију Музеј да бисте видели ваш тапет.</string>
+    <string name="tutorial_subtitle">Додирните двапут замућени тапет на вашем почетном екрану да бисте га привремено фокусирали.</string>
+
+    <string name="get_more_sources">Добавите још извора</string>
+    <string name="play_store_not_found">Не могу да отворим Плеј Продавницу.</string>
+
+    <string name="about_title">О Музеју</string>
+    <string name="about_body"><![CDATA[
+        Направио у Њу Јорку Роман Нурик (Roman Nurik). <i>Muzei</i> је са руског пресловљена ријеч
+        <a href="http://translate.google.com/#sr/ru/muzej"><i>музей</i></a>, што значи
+        &#8220;музеј.&#8221;<br><br>
+
+        Ауторско право 2013&ndash;2014 Google Inc.<br>
+        Сва права задржана.<br><br>
+
+        <a href="http://m.google.com/utos">Услови коришћења</a>,
+        <a href="http://www.google.com/policies/privacy/">Политика приватности</a>&nbsp;<br><br>
+
+        Хвала много овим пројектима отвореног кода:<br><br>
+
+        <b><a href="http://square.github.io/okhttp/">OkHttp</a> и <a href="http://square.github.io/picasso/">Picasso</a>&nbsp;</b><br>
+        <i>од Square</i><br><br>
+
+        <b><a href="https://github.com/greenrobot/EventBus">EventBus</a>&nbsp;</b><br>
+        <i>од greenrobot</i><br><br>
+
+        <b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a>&nbsp;</b><br>
+        <i>од Роберта Грина (Robert Green), Марка Ф. Гуере (Mark F. Guerra), и осталих</i><br><br>
+    ]]></string>
+    <string name="about_version_template">в%1$s</string>
+    <string name="app_author">Roman Nurik</string>
+
+</resources>
