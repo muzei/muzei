@@ -31,6 +31,7 @@ import android.content.UriMatcher;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -270,15 +271,15 @@ public class MuzeiProvider extends ContentProvider {
             Log.w(TAG, "Deletes are not supported until the user is unlocked");
             return 0;
         }
+        String callingPackageName = context.getPackageManager().getNameForUid(
+                Binder.getCallingUid());
+        // Only allow Muzei to delete content
+        if (!context.getPackageName().equals(callingPackageName)) {
+            throw new UnsupportedOperationException("Deletes are not supported");
+        }
         if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK ||
                 MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK_ID) {
-            String callingPackageName = context.getPackageManager().getNameForUid(
-                    Binder.getCallingUid());
-            if (context.getPackageName().equals(callingPackageName)) {
-                return deleteArtwork(uri, selection, selectionArgs);
-            } else {
-                throw new UnsupportedOperationException("Deletes are not supported");
-            }
+            return deleteArtwork(uri, selection, selectionArgs);
         } else if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCES ||
                 MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCE_ID) {
             return deleteSource(uri, selection, selectionArgs);
@@ -439,13 +440,22 @@ public class MuzeiProvider extends ContentProvider {
 
     @Override
     public Uri insert(@NonNull final Uri uri, final ContentValues values) {
-        if (!UserManagerCompat.isUserUnlocked(getContext())) {
+        Context context = getContext();
+        if (context == null) {
+            return null;
+        }
+        if (!UserManagerCompat.isUserUnlocked(context)) {
             Log.w(TAG, "Inserts are not supported until the user is unlocked");
             return null;
         }
         if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK) {
             return insertArtwork(uri, values);
         } else if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCES) {
+            // Ensure the app inserting the source is Muzei
+            String callingPackageName = context.getPackageManager().getNameForUid(Binder.getCallingUid());
+            if (!context.getPackageName().equals(callingPackageName)) {
+                throw new UnsupportedOperationException("Inserting sources is not supported, use update");
+            }
             return insertSource(uri, values);
         } else {
             throw new IllegalArgumentException("Unknown URI " + uri);
@@ -887,26 +897,23 @@ public class MuzeiProvider extends ContentProvider {
         }
 
         final SQLiteDatabase db = databaseHelper.getWritableDatabase();
-        int count;
-        switch (MuzeiProvider.uriMatcher.match(uri))
-        {
-            case SOURCES:
-                // If the incoming URI matches the general sources pattern, does the update based on the incoming
-                // data.
-                count = db.update(MuzeiContract.Sources.TABLE_NAME, values, selection, selectionArgs);
-                break;
-            case SOURCE_ID:
-                // If the incoming URI matches a single source ID, does the update based on the incoming data, but
-                // modifies the where clause to restrict it to the particular source ID.
-                String finalWhere = BaseColumns._ID + " = " + uri.getLastPathSegment();
-                // If there were additional selection criteria, append them to the final WHERE clause
-                if (selection != null)
-                    finalWhere = finalWhere + " AND " + selection;
-                count = db.update(MuzeiContract.Sources.TABLE_NAME, values, finalWhere, selectionArgs);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
+        String finalWhere = selection;
+        String[] finalSelectionArgs = selectionArgs;
+        if (MuzeiProvider.uriMatcher.match(uri) == SOURCE_ID) {
+            // If the incoming URI matches a single source ID, does the update based on the incoming data, but
+            // modifies the where clause to restrict it to the particular source ID.
+            finalWhere = DatabaseUtils.concatenateWhere(finalWhere,
+                    BaseColumns._ID + " = " + uri.getLastPathSegment());
         }
+        String callingPackageName = context.getPackageManager().getNameForUid(Binder.getCallingUid());
+        if (!context.getPackageName().equals(callingPackageName)) {
+            // Only allow other apps to update their own source
+            finalWhere = DatabaseUtils.concatenateWhere(finalWhere,
+                    MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + " LIKE ?");
+            finalSelectionArgs = DatabaseUtils.appendSelectionArgs(finalSelectionArgs,
+                    new String[] {callingPackageName +"/%"});
+        }
+        int count = db.update(MuzeiContract.Sources.TABLE_NAME, values, finalWhere, finalSelectionArgs);
         if (count > 0) {
             notifyChange(uri);
         } else if (values.containsKey(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME)) {

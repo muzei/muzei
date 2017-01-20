@@ -51,6 +51,15 @@ import java.util.List;
  */
 public class MuzeiContract {
     /**
+     * To insert new artwork and update their source information, apps must hold this permission by declaring
+     * it in their manifest:
+     * <pre>
+     *     <uses-permission android:name="com.google.android.apps.muzei.WRITE_PROVIDER" />
+     * </pre>
+     *
+     */
+    public static final String WRITE_PERMISSION = "com.google.android.apps.muzei.WRITE_PROVIDER";
+    /**
      * Base authority for this content provider
      */
     public static final String AUTHORITY = "com.google.android.apps.muzei";
@@ -201,6 +210,13 @@ public class MuzeiContract {
         /**
          * The content:// style URL for this table. This is the main entry point for queries and for
          * opening an {@link java.io.InputStream InputStream} to the current artwork's image.
+         * <p>
+         * All apps can {@link ContentResolver#query query} for artwork, but only apps holding
+         * {@link #WRITE_PERMISSION} can {@link ContentResolver#insert insert} new artwork.
+         *
+         * @see #getCurrentArtwork
+         * @see #getCurrentArtworkBitmap
+         * @see #createArtwork
          */
         public static final Uri CONTENT_URI = Uri.parse(MuzeiContract.SCHEME + MuzeiContract.AUTHORITY
                 + "/" + Artwork.TABLE_NAME);
@@ -605,6 +621,11 @@ public class MuzeiContract {
 
         /**
          * The content:// style URL for this table.
+         * <p>
+         * All apps can {@link ContentResolver#query query} for source info, but only apps holding
+         * {@link #WRITE_PERMISSION} can {@link ContentResolver#update update} their source info.
+         *
+         * @see #updateSource
          */
         public static final Uri CONTENT_URI = Uri.parse(MuzeiContract.SCHEME + MuzeiContract.AUTHORITY
                 + "/" + Sources.TABLE_NAME);
