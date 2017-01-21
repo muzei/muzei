@@ -22,15 +22,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 import com.google.android.apps.muzei.event.LockScreenVisibleChangedEvent;
+import com.google.android.apps.muzei.settings.Prefs;
 
 import org.greenrobot.eventbus.EventBus;
 
 public class LockScreenVisibleReceiver extends BroadcastReceiver {
-    public static final String PREF_ENABLED = "disable_blur_when_screen_locked_enabled";
-
     private boolean mRegistered = false;
     private Context mRegisterDeregisterContext;
 
@@ -38,8 +36,8 @@ public class LockScreenVisibleReceiver extends BroadcastReceiver {
             = new SharedPreferences.OnSharedPreferenceChangeListener() {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sp, String key) {
-            if (PREF_ENABLED.equals(key)) {
-                registerDeregister(sp.getBoolean(PREF_ENABLED, false));
+            if (Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED.equals(key)) {
+                registerDeregister(sp.getBoolean(Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED, false));
             }
         }
     };
@@ -70,10 +68,10 @@ public class LockScreenVisibleReceiver extends BroadcastReceiver {
 
     public void setupRegisterDeregister(Context context) {
         mRegisterDeregisterContext = context;
-        PreferenceManager.getDefaultSharedPreferences(context)
+        Prefs.getSharedPreferences(context)
                 .registerOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
         mOnSharedPreferenceChangeListener.onSharedPreferenceChanged(
-                PreferenceManager.getDefaultSharedPreferences(context), PREF_ENABLED);
+                Prefs.getSharedPreferences(context), Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED);
     }
 
     private void registerDeregister(boolean register) {
@@ -93,7 +91,7 @@ public class LockScreenVisibleReceiver extends BroadcastReceiver {
     public void destroy() {
         registerDeregister(false);
         if (mRegisterDeregisterContext != null) {
-            PreferenceManager.getDefaultSharedPreferences(mRegisterDeregisterContext)
+            Prefs.getSharedPreferences(mRegisterDeregisterContext)
                     .unregisterOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
         }
     }

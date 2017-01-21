@@ -139,13 +139,13 @@ public class SettingsAdvancedFragment extends Fragment
                     @Override
                     public void onCheckedChanged(CompoundButton button, boolean checked) {
                         getSharedPreferences().edit()
-                                .putBoolean(LockScreenVisibleReceiver.PREF_ENABLED, !checked)
+                                .putBoolean(Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED, !checked)
                                 .apply();
                     }
                 }
         );
         mBlurOnLockScreenCheckBox.setChecked(!getSharedPreferences()
-                .getBoolean(LockScreenVisibleReceiver.PREF_ENABLED, false));
+                .getBoolean(Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED, false));
         return rootView;
     }
 
@@ -162,7 +162,7 @@ public class SettingsAdvancedFragment extends Fragment
     }
 
     private SharedPreferences getSharedPreferences() {
-        return PreferenceManager.getDefaultSharedPreferences(getActivity());
+        return Prefs.getSharedPreferences(getActivity());
     }
 
     private Runnable mUpdateBlurRunnable = new Runnable() {

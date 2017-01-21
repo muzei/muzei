@@ -74,6 +74,8 @@ public class MuzeiWallpaperService extends GLWallpaperService {
     @Override
     public void onCreate() {
         super.onCreate();
+        mLockScreenVisibleReceiver = new LockScreenVisibleReceiver();
+        mLockScreenVisibleReceiver.setupRegisterDeregister(this);
         if (UserManagerCompat.isUserUnlocked(this)) {
             initialize();
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -91,8 +93,6 @@ public class MuzeiWallpaperService extends GLWallpaperService {
 
     private void initialize() {
         FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE);
-        mLockScreenVisibleReceiver = new LockScreenVisibleReceiver();
-        mLockScreenVisibleReceiver.setupRegisterDeregister(this);
         SourceManager.subscribeToSelectedSource(MuzeiWallpaperService.this);
         mNetworkChangeReceiver = new NetworkChangeReceiver();
         IntentFilter networkChangeFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
@@ -164,12 +164,12 @@ public class MuzeiWallpaperService extends GLWallpaperService {
                 mNetworkChangeReceiver = null;
             }
             SourceManager.unsubscribeToSelectedSource(MuzeiWallpaperService.this);
-            if (mLockScreenVisibleReceiver != null) {
-                mLockScreenVisibleReceiver.destroy();
-                mLockScreenVisibleReceiver = null;
-            }
         } else {
             unregisterReceiver(mUnlockReceiver);
+        }
+        if (mLockScreenVisibleReceiver != null) {
+            mLockScreenVisibleReceiver.destroy();
+            mLockScreenVisibleReceiver = null;
         }
     }
 
