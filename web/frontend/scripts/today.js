@@ -142,8 +142,8 @@ class TodayController {
 };
 
 
-function computeElementHeightAtWidth_($el, width) {
-  let $clone = $($el)
+function computeElementHeightAtWidth_(el, width) {
+  let $clone = $(el)
       .clone()
       .css({
         width: width,
