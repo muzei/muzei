@@ -17,8 +17,9 @@
 import {FeaturedArt} from './_featuredart';
 
 const META_SPACING = 30;
-const META_COLUMN_MAX_WIDTH = 200;
-const META_ROW_MAX_HEIGHT = 68;
+const META_MAX_WIDTH = 300;
+const META_SIDE_MIN_WIDTH = 200;
+const META_STACKED_MAX_HEIGHT = 68;
 
 class TodayController {
   constructor() {
@@ -78,10 +79,11 @@ class TodayController {
 
     let metaRect = {
       left: artworkRect.left + artworkWidth + META_SPACING,
-      top: artworkRect.top
+      top: artworkRect.top,
+      maxWidth: META_MAX_WIDTH
     };
 
-    let metaDistToRightEdge = containerWidth - (metaRect.left + META_COLUMN_MAX_WIDTH);
+    let metaDistToRightEdge = containerWidth - (metaRect.left + META_SIDE_MIN_WIDTH);
 
     if (metaDistToRightEdge < 0) {
       // switch to layout #2
@@ -90,12 +92,14 @@ class TodayController {
 
       if (artworkRect.left < 0) {
         // switch to layout #3
-        artworkHeight = containerHeight - (META_ROW_MAX_HEIGHT + META_SPACING);
+        let metaHeight = computeElementHeightAtWidth_(this.$meta, META_MAX_WIDTH);
+
+        artworkHeight = containerHeight - (metaHeight + META_SPACING);
         artworkWidth = this.artworkAspectRatio * artworkHeight;
 
         artworkRect = {
           left: (containerWidth - artworkWidth) / 2,
-          top: (containerHeight - (artworkHeight + META_ROW_MAX_HEIGHT + META_SPACING)) / 2,
+          top: (containerHeight - (artworkHeight + metaHeight + META_SPACING)) / 2,
           width: Math.round(artworkWidth),
           height: Math.round(artworkHeight)
         };
@@ -122,7 +126,7 @@ class TodayController {
             top: artworkRect.top + artworkHeight + META_SPACING
           };
 
-          let metaDistToBottomEdge = containerHeight - (metaRect.top + META_ROW_MAX_HEIGHT);
+          let metaDistToBottomEdge = containerHeight - (metaRect.top + metaHeight);
           if (metaDistToBottomEdge < 0) {
             // switch to layout #5
             metaRect.top += metaDistToBottomEdge;
@@ -136,6 +140,21 @@ class TodayController {
     this.$meta.css(metaRect);
   }
 };
+
+
+function computeElementHeightAtWidth_($el, width) {
+  let $clone = $($el)
+      .clone()
+      .css({
+        width: width,
+        position: 'fixed',
+        left: -9999
+      })
+      .appendTo(document.body);
+  let height = $clone.outerHeight();
+  $clone.remove();
+  return height;
+}
 
 
 function loadImage_(url) {
