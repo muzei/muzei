@@ -20,7 +20,6 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -30,13 +29,10 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 
-import com.google.android.apps.muzei.LockScreenVisibleReceiver;
 import com.google.android.apps.muzei.NewWallpaperNotificationReceiver;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
 
 import net.nurik.roman.muzei.R;
-
-import org.greenrobot.eventbus.EventBus;
 
 /**
  * Fragment for allowing the user to configure advanced settings.
