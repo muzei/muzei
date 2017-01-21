@@ -20,7 +20,6 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -30,13 +29,10 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 
-import com.google.android.apps.muzei.LockScreenVisibleReceiver;
 import com.google.android.apps.muzei.NewWallpaperNotificationReceiver;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
 
 import net.nurik.roman.muzei.R;
-
-import org.greenrobot.eventbus.EventBus;
 
 /**
  * Fragment for allowing the user to configure advanced settings.
@@ -139,13 +135,13 @@ public class SettingsAdvancedFragment extends Fragment
                     @Override
                     public void onCheckedChanged(CompoundButton button, boolean checked) {
                         getSharedPreferences().edit()
-                                .putBoolean(LockScreenVisibleReceiver.PREF_ENABLED, !checked)
+                                .putBoolean(Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED, !checked)
                                 .apply();
                     }
                 }
         );
         mBlurOnLockScreenCheckBox.setChecked(!getSharedPreferences()
-                .getBoolean(LockScreenVisibleReceiver.PREF_ENABLED, false));
+                .getBoolean(Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED, false));
         return rootView;
     }
 
@@ -162,7 +158,7 @@ public class SettingsAdvancedFragment extends Fragment
     }
 
     private SharedPreferences getSharedPreferences() {
-        return PreferenceManager.getDefaultSharedPreferences(getActivity());
+        return Prefs.getSharedPreferences(getActivity());
     }
 
     private Runnable mUpdateBlurRunnable = new Runnable() {

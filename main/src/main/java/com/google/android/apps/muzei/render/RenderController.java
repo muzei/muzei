@@ -21,7 +21,6 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
 
 import com.google.android.apps.muzei.settings.Prefs;
 
@@ -52,7 +51,7 @@ public abstract class RenderController {
         mRenderer = renderer;
         mContext = context;
         mCallbacks = callbacks;
-        PreferenceManager.getDefaultSharedPreferences(context)
+        Prefs.getSharedPreferences(context)
                 .registerOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
     }
 
@@ -60,7 +59,7 @@ public abstract class RenderController {
         if (mQueuedBitmapRegionLoader != null) {
             mQueuedBitmapRegionLoader.destroy();
         }
-        PreferenceManager.getDefaultSharedPreferences(mContext)
+        Prefs.getSharedPreferences(mContext)
                 .unregisterOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
     }
 
