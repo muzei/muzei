@@ -39,8 +39,16 @@ import java.util.Date;
  * <p> To create an instance, use the {@link Artwork.Builder} class.
  */
 public class Artwork {
-    public static final String FONT_TYPE_DEFAULT = "";
-    public static final String FONT_TYPE_ELEGANT = "elegant";
+    /**
+     * @deprecated use {@link com.google.android.apps.muzei.api.MuzeiContract.Artwork#META_FONT_TYPE_DEFAULT}
+     */
+    @Deprecated
+    public static final String FONT_TYPE_DEFAULT = MuzeiContract.Artwork.META_FONT_TYPE_DEFAULT;
+    /**
+     * @deprecated use {@link com.google.android.apps.muzei.api.MuzeiContract.Artwork#META_FONT_TYPE_ELEGANT}
+     */
+    @Deprecated
+    public static final String FONT_TYPE_ELEGANT = MuzeiContract.Artwork.META_FONT_TYPE_ELEGANT;
 
     private static final String KEY_COMPONENT_NAME = "componentName";
     private static final String KEY_IMAGE_URI = "imageUri";
@@ -355,8 +363,8 @@ public class Artwork {
         /**
          * Sets the font type to use to show metadata for the artwork.
          *
-         * @see #FONT_TYPE_DEFAULT
-         * @see #FONT_TYPE_ELEGANT
+         * @see com.google.android.apps.muzei.api.MuzeiContract.Artwork#META_FONT_TYPE_DEFAULT
+         * @see com.google.android.apps.muzei.api.MuzeiContract.Artwork#META_FONT_TYPE_ELEGANT
          */
         public Builder metaFont(String metaFont) {
             mArtwork.mMetaFont = metaFont;
