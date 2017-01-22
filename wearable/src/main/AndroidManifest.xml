@@ -110,5 +110,9 @@
 
         <service android:name="com.google.android.apps.muzei.datalayer.ActivateMuzeiIntentService" />
         <activity android:name="android.support.wearable.activity.ConfirmationActivity" />
+
+        <meta-data
+            android:name="com.google.android.wearable.standalone"
+            android:value="false" />
     </application>
 </manifest>
