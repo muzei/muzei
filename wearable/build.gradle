@@ -96,14 +96,15 @@ android {
 }
 
 dependencies {
-    compile "com.android.support:support-v4:$rootProject.ext.supportLibraryVersion"
+    compile "com.android.support:support-compat:$rootProject.ext.supportLibraryVersion"
     compile "com.android.support:exifinterface:$rootProject.ext.supportLibraryVersion"
     provided "com.google.android.wearable:wearable:2.0.0-beta2"
     compile "com.google.android.support:wearable:2.0.0-beta2"
-    // Only used because wearable:2.0.0-beta uses an old version of the Support Library
+    // Only used because wearable dependency depends on an old version of the Support Library
+    compile "com.android.support:support-v4:$rootProject.ext.supportLibraryVersion"
     compile "com.android.support:recyclerview-v7:$rootProject.ext.supportLibraryVersion"
-    // Only used because wearable:2.0.0-beta uses an old version of the Support Library
     compile "com.android.support:percent:$rootProject.ext.supportLibraryVersion"
+
     compile "com.google.android.gms:play-services-wearable:$rootProject.ext.googlePlayServicesVersion"
     compile "com.google.firebase:firebase-core:$rootProject.ext.googlePlayServicesVersion"
     // Only use crash reporting in the "prod" product flavor
