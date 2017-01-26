@@ -15,7 +15,7 @@
  */
 
 ext {
-    toolsPluginVersion = "2.3.0-beta2"
+    toolsPluginVersion = "2.3.0-beta3"
     googleServicesPluginVersion = "3.0.0"
     compileSdkVersion = 25
     buildToolsVersion = "25.0.2"
