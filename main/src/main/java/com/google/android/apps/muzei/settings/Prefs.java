@@ -35,13 +35,9 @@ public class Prefs {
     private static final String WALLPAPER_PREFERENCES_NAME = "wallpaper_preferences";
     private static final String PREF_MIGRATED_FROM_DEFAULT = "migrated_from_default";
 
-
-    public static SharedPreferences getSharedPreferences(Context context) {
+    public synchronized static SharedPreferences getSharedPreferences(Context context) {
         Context deviceProtectedContext =
                 ContextCompat.createDeviceProtectedStorageContext(context);
-        SharedPreferences deviceProtectedSharedPreferences = deviceProtectedContext != null
-                ? deviceProtectedContext.getSharedPreferences(WALLPAPER_PREFERENCES_NAME, Context.MODE_PRIVATE)
-                : null;
         if (UserManagerCompat.isUserUnlocked(context)) {
             SharedPreferences defaultSharedPreferences =
                     PreferenceManager.getDefaultSharedPreferences(context);
@@ -75,11 +71,10 @@ public class Prefs {
                 defaultEditor.apply();
                 editor.apply();
             }
-        }
-        // Now migrate the file to device protected storage if available
-        if (UserManagerCompat.isUserUnlocked(context) && deviceProtectedContext != null
-                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            deviceProtectedContext.moveSharedPreferencesFrom(context, WALLPAPER_PREFERENCES_NAME);
+            // Now migrate the file to device protected storage if available
+            if (deviceProtectedContext != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                deviceProtectedContext.moveSharedPreferencesFrom(context, WALLPAPER_PREFERENCES_NAME);
+            }
         }
         // Now open the correct SharedPreferences
         Context contextToUse = deviceProtectedContext != null ? deviceProtectedContext : context;
