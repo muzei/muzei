@@ -61,7 +61,7 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
     private boolean mDemoMode;
     private boolean mPreview;
     private int mMaxPrescaledBlurPixels;
-    private int mBlurKeyframes = 3;
+    private int mBlurKeyframes;
     private int mBlurredSampleSize;
     private int mMaxDim;
     private int mMaxGrey;
@@ -112,7 +112,7 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
     private int getNumberOfKeyframes() {
         ActivityManager activityManager = (ActivityManager)
                 mContext.getSystemService(Context.ACTIVITY_SERVICE);
-        return activityManager.isLowRamDevice() ? 1 : 5;
+        return activityManager.isLowRamDevice() ? 1 : 2;
     }
 
     public void recomputeMaxPrescaledBlurPixels() {

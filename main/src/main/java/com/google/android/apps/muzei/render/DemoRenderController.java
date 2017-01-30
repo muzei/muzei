@@ -84,6 +84,7 @@ public class DemoRenderController extends RenderController {
         super.destroy();
         if (mCurrentScrollAnimator != null) {
             mCurrentScrollAnimator.cancel();
+            mCurrentScrollAnimator.removeAllListeners();
         }
         mHandler.removeCallbacksAndMessages(null);
     }

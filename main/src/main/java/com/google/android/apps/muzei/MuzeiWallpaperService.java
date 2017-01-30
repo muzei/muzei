@@ -288,7 +288,6 @@ public class MuzeiWallpaperService extends GLWallpaperService {
 
         @Override
         public void onDestroy() {
-            super.onDestroy();
             EventBus.getDefault().unregister(this);
             if (mWallpaperActivated) {
                 FirebaseAnalytics.getInstance(MuzeiWallpaperService.this).logEvent("wallpaper_destroyed", null);
@@ -310,6 +309,7 @@ public class MuzeiWallpaperService extends GLWallpaperService {
                 }
             });
             mRenderController.destroy();
+            super.onDestroy();
         }
 
         @Subscribe
