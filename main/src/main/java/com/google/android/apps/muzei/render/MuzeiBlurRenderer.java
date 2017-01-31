@@ -26,7 +26,6 @@ import android.graphics.RectF;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
-import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -62,7 +61,7 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
     private boolean mDemoMode;
     private boolean mPreview;
     private int mMaxPrescaledBlurPixels;
-    private int mBlurKeyframes = 3;
+    private int mBlurKeyframes;
     private int mBlurredSampleSize;
     private int mMaxDim;
     private int mMaxGrey;
@@ -113,14 +112,14 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
     private int getNumberOfKeyframes() {
         ActivityManager activityManager = (ActivityManager)
                 mContext.getSystemService(Context.ACTIVITY_SERVICE);
-        return activityManager.isLowRamDevice() ? 1 : 5;
+        return activityManager.isLowRamDevice() ? 1 : 2;
     }
 
     public void recomputeMaxPrescaledBlurPixels() {
         // Compute blur sizes
         int blurAmount = mDemoMode
                 ? DEMO_BLUR
-                : PreferenceManager.getDefaultSharedPreferences(mContext)
+                : Prefs.getSharedPreferences(mContext)
                 .getInt(Prefs.PREF_BLUR_AMOUNT, DEFAULT_BLUR);
         float maxBlurRadiusOverScreenHeight = blurAmount * 0.0001f;
         DisplayMetrics dm = mContext.getResources().getDisplayMetrics();
@@ -133,15 +132,14 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
     }
 
     public void recomputeMaxDimAmount() {
-        mMaxDim = PreferenceManager
-                .getDefaultSharedPreferences(mContext).getInt(
+        mMaxDim = Prefs.getSharedPreferences(mContext).getInt(
                         Prefs.PREF_DIM_AMOUNT, DEFAULT_MAX_DIM);
     }
 
     public void recomputeGreyAmount() {
         mMaxGrey = mDemoMode
                 ? DEMO_GREY
-                : PreferenceManager.getDefaultSharedPreferences(mContext)
+                : Prefs.getSharedPreferences(mContext)
                 .getInt(Prefs.PREF_GREY_AMOUNT, DEFAULT_GREY);
     }
 

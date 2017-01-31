@@ -57,6 +57,10 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
     public static final String PREF_ENABLED = "new_wallpaper_notification_enabled";
     private static final String PREF_LAST_READ_NOTIFICATION_ARTWORK_ID
             = "last_read_notification_artwork_id";
+    private static final String PREF_LAST_READ_NOTIFICATION_ARTWORK_IMAGE_URI
+            = "last_read_notification_artwork_image_uri";
+    private static final String PREF_LAST_READ_NOTIFICATION_ARTWORK_TOKEN
+            = "last_read_notification_artwork_token";
 
     private static final int NOTIFICATION_ID = 1234;
 
@@ -111,11 +115,19 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
 
     public static void markNotificationRead(Context context) {
         Cursor lastArtwork = context.getContentResolver().query(
-                MuzeiContract.Artwork.CONTENT_URI, new String[] {BaseColumns._ID}, null, null, null);
+                MuzeiContract.Artwork.CONTENT_URI,
+                new String[] {
+                        BaseColumns._ID,
+                        MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI,
+                        MuzeiContract.Artwork.COLUMN_NAME_TOKEN},
+                null, null, null);
         if (lastArtwork != null && lastArtwork.moveToFirst()) {
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-            sp.edit().putLong(PREF_LAST_READ_NOTIFICATION_ARTWORK_ID,
-                    lastArtwork.getLong(0)).apply();
+            sp.edit()
+                    .putLong(PREF_LAST_READ_NOTIFICATION_ARTWORK_ID, lastArtwork.getLong(0))
+                    .putString(PREF_LAST_READ_NOTIFICATION_ARTWORK_IMAGE_URI, lastArtwork.getString(1))
+                    .putString(PREF_LAST_READ_NOTIFICATION_ARTWORK_TOKEN, lastArtwork.getString(2))
+                    .apply();
         }
         if (lastArtwork != null) {
             lastArtwork.close();
@@ -141,11 +153,13 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
         Cursor artwork = contentResolver.query(
                 MuzeiContract.Artwork.CONTENT_URI,
                 new String[] {BaseColumns._ID,
-                MuzeiContract.Artwork.COLUMN_NAME_TITLE,
-                MuzeiContract.Artwork.COLUMN_NAME_BYLINE,
-                MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT,
-                MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,
-                MuzeiContract.Sources.COLUMN_NAME_COMMANDS},
+                        MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI,
+                        MuzeiContract.Artwork.COLUMN_NAME_TOKEN,
+                        MuzeiContract.Artwork.COLUMN_NAME_TITLE,
+                        MuzeiContract.Artwork.COLUMN_NAME_BYLINE,
+                        MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT,
+                        MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,
+                        MuzeiContract.Sources.COLUMN_NAME_COMMANDS},
                 null, null, null);
         if (artwork == null || !artwork.moveToFirst()) {
             if (artwork != null) {
@@ -154,8 +168,23 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
             return;
         }
 
+        long currentArtworkId = artwork.getLong(artwork.getColumnIndex(BaseColumns._ID));
         long lastReadArtworkId = sp.getLong(PREF_LAST_READ_NOTIFICATION_ARTWORK_ID, -1);
-        if (lastReadArtworkId == artwork.getLong(0)) {
+        String currentImageUri = artwork.getString(artwork.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI));
+        String lastReadImageUri = sp.getString(PREF_LAST_READ_NOTIFICATION_ARTWORK_IMAGE_URI, null);
+        String currentToken = artwork.getString(artwork.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_TOKEN));
+        String lastReadToken = sp.getString(PREF_LAST_READ_NOTIFICATION_ARTWORK_TOKEN, null);
+        // We've already dismissed the notification if the IDs match
+        boolean previouslyDismissedNotification = lastReadArtworkId == currentArtworkId;
+        // We've already dismissed the notification if the image URIs match and both are not empty
+        previouslyDismissedNotification = previouslyDismissedNotification ||
+                (!TextUtils.isEmpty(lastReadImageUri) && !TextUtils.isEmpty(currentImageUri) &&
+                    TextUtils.equals(lastReadImageUri, currentImageUri));
+        // We've already dismissed the notification if the tokens match and both are not empty
+        previouslyDismissedNotification = previouslyDismissedNotification ||
+                (!TextUtils.isEmpty(lastReadToken) && !TextUtils.isEmpty(currentToken) &&
+                        TextUtils.equals(lastReadToken, currentToken));
+        if (previouslyDismissedNotification) {
             artwork.close();
             return;
         }

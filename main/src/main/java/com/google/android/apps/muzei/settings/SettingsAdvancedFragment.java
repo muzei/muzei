@@ -17,7 +17,6 @@
 package com.google.android.apps.muzei.settings;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -30,13 +29,10 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 
-import com.google.android.apps.muzei.LockScreenVisibleReceiver;
 import com.google.android.apps.muzei.NewWallpaperNotificationReceiver;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
 
 import net.nurik.roman.muzei.R;
-
-import org.greenrobot.eventbus.EventBus;
 
 /**
  * Fragment for allowing the user to configure advanced settings.
@@ -58,8 +54,8 @@ public class SettingsAdvancedFragment extends Fragment
         View rootView = inflater.inflate(R.layout.settings_advanced_fragment, container, false);
 
         mBlurSeekBar = (SeekBar) rootView.findViewById(R.id.blur_amount);
-        mBlurSeekBar.setProgress(getSharedPreferences().getInt(Prefs.PREF_BLUR_AMOUNT,
-                MuzeiBlurRenderer.DEFAULT_BLUR));
+        mBlurSeekBar.setProgress(Prefs.getSharedPreferences(getContext())
+                .getInt(Prefs.PREF_BLUR_AMOUNT, MuzeiBlurRenderer.DEFAULT_BLUR));
         mBlurSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int value, boolean fromUser) {
@@ -79,8 +75,8 @@ public class SettingsAdvancedFragment extends Fragment
         });
 
         mDimSeekBar = (SeekBar) rootView.findViewById(R.id.dim_amount);
-        mDimSeekBar.setProgress(getSharedPreferences().getInt(Prefs.PREF_DIM_AMOUNT,
-                MuzeiBlurRenderer.DEFAULT_MAX_DIM));
+        mDimSeekBar.setProgress(Prefs.getSharedPreferences(getContext())
+                .getInt(Prefs.PREF_DIM_AMOUNT, MuzeiBlurRenderer.DEFAULT_MAX_DIM));
         mDimSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int value, boolean fromUser) {
@@ -100,8 +96,8 @@ public class SettingsAdvancedFragment extends Fragment
         });
 
         mGreySeekBar = (SeekBar) rootView.findViewById(R.id.grey_amount);
-        mGreySeekBar.setProgress(getSharedPreferences().getInt(Prefs.PREF_GREY_AMOUNT,
-                MuzeiBlurRenderer.DEFAULT_GREY));
+        mGreySeekBar.setProgress(Prefs.getSharedPreferences(getContext())
+                .getInt(Prefs.PREF_GREY_AMOUNT, MuzeiBlurRenderer.DEFAULT_GREY));
         mGreySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int value, boolean fromUser) {
@@ -125,12 +121,12 @@ public class SettingsAdvancedFragment extends Fragment
                 new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton button, boolean checked) {
-                        getSharedPreferences().edit()
+                        PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
                                 .putBoolean(NewWallpaperNotificationReceiver.PREF_ENABLED, checked)
                                 .apply();
                     }
                 });
-        mNotifyNewWallpaperCheckBox.setChecked(getSharedPreferences()
+        mNotifyNewWallpaperCheckBox.setChecked(PreferenceManager.getDefaultSharedPreferences(getContext())
                 .getBoolean(NewWallpaperNotificationReceiver.PREF_ENABLED, true));
         CheckBox mBlurOnLockScreenCheckBox = (CheckBox) rootView.findViewById(
                 R.id.blur_on_lockscreen_checkbox);
@@ -138,14 +134,14 @@ public class SettingsAdvancedFragment extends Fragment
                 new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton button, boolean checked) {
-                        getSharedPreferences().edit()
-                                .putBoolean(LockScreenVisibleReceiver.PREF_ENABLED, !checked)
+                        Prefs.getSharedPreferences(getContext()).edit()
+                                .putBoolean(Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED, !checked)
                                 .apply();
                     }
                 }
         );
-        mBlurOnLockScreenCheckBox.setChecked(!getSharedPreferences()
-                .getBoolean(LockScreenVisibleReceiver.PREF_ENABLED, false));
+        mBlurOnLockScreenCheckBox.setChecked(!Prefs.getSharedPreferences(getContext())
+                .getBoolean(Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED, false));
         return rootView;
     }
 
@@ -161,14 +157,10 @@ public class SettingsAdvancedFragment extends Fragment
         mHandler.removeCallbacksAndMessages(null);
     }
 
-    private SharedPreferences getSharedPreferences() {
-        return PreferenceManager.getDefaultSharedPreferences(getActivity());
-    }
-
     private Runnable mUpdateBlurRunnable = new Runnable() {
         @Override
         public void run() {
-            getSharedPreferences().edit()
+            Prefs.getSharedPreferences(getContext()).edit()
                     .putInt(Prefs.PREF_BLUR_AMOUNT, mBlurSeekBar.getProgress())
                     .apply();
         }
@@ -177,7 +169,7 @@ public class SettingsAdvancedFragment extends Fragment
     private Runnable mUpdateDimRunnable = new Runnable() {
         @Override
         public void run() {
-            getSharedPreferences().edit()
+            Prefs.getSharedPreferences(getContext()).edit()
                     .putInt(Prefs.PREF_DIM_AMOUNT, mDimSeekBar.getProgress())
                     .apply();
         }
@@ -186,7 +178,7 @@ public class SettingsAdvancedFragment extends Fragment
     private Runnable mUpdateGreyRunnable = new Runnable() {
         @Override
         public void run() {
-            getSharedPreferences().edit()
+            Prefs.getSharedPreferences(getContext()).edit()
                     .putInt(Prefs.PREF_GREY_AMOUNT, mGreySeekBar.getProgress())
                     .apply();
         }
@@ -195,7 +187,7 @@ public class SettingsAdvancedFragment extends Fragment
     @Override
     public void onSettingsActivityMenuItemClick(MenuItem item) {
         if (item.getItemId() == R.id.action_reset_defaults) {
-            getSharedPreferences().edit()
+            Prefs.getSharedPreferences(getContext()).edit()
                     .putInt(Prefs.PREF_BLUR_AMOUNT, MuzeiBlurRenderer.DEFAULT_BLUR)
                     .putInt(Prefs.PREF_DIM_AMOUNT, MuzeiBlurRenderer.DEFAULT_MAX_DIM)
                     .putInt(Prefs.PREF_GREY_AMOUNT, MuzeiBlurRenderer.DEFAULT_GREY)

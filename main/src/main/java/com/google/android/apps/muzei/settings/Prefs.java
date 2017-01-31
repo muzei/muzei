@@ -16,11 +16,71 @@
 
 package com.google.android.apps.muzei.settings;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Build;
+import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.os.UserManagerCompat;
+
 /**
  * Preference constants/helpers.
  */
-public interface Prefs {
-    String PREF_GREY_AMOUNT = "grey_amount";
-    String PREF_DIM_AMOUNT = "dim_amount";
-    String PREF_BLUR_AMOUNT = "blur_amount";
+public class Prefs {
+    public static final String PREF_GREY_AMOUNT = "grey_amount";
+    public static final String PREF_DIM_AMOUNT = "dim_amount";
+    public static final String PREF_BLUR_AMOUNT = "blur_amount";
+    public static final String PREF_DISABLE_BLUR_WHEN_LOCKED = "disable_blur_when_screen_locked_enabled";
+
+    private static final String WALLPAPER_PREFERENCES_NAME = "wallpaper_preferences";
+    private static final String PREF_MIGRATED_FROM_DEFAULT = "migrated_from_default";
+
+    public synchronized static SharedPreferences getSharedPreferences(Context context) {
+        Context deviceProtectedContext =
+                ContextCompat.createDeviceProtectedStorageContext(context);
+        if (UserManagerCompat.isUserUnlocked(context)) {
+            SharedPreferences defaultSharedPreferences =
+                    PreferenceManager.getDefaultSharedPreferences(context);
+            // First migrate the wallpaper settings to their own file
+            if (!defaultSharedPreferences.getBoolean(PREF_MIGRATED_FROM_DEFAULT, false)) {
+                SharedPreferences.Editor defaultEditor = defaultSharedPreferences.edit();
+                SharedPreferences.Editor editor = context.getSharedPreferences(
+                        WALLPAPER_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
+
+                if (defaultSharedPreferences.contains(PREF_GREY_AMOUNT)) {
+                    editor.putInt(PREF_GREY_AMOUNT,
+                            defaultSharedPreferences.getInt(PREF_GREY_AMOUNT, 0));
+                    defaultEditor.remove(PREF_GREY_AMOUNT);
+                }
+                if (defaultSharedPreferences.contains(PREF_DIM_AMOUNT)) {
+                    editor.putInt(PREF_DIM_AMOUNT,
+                            defaultSharedPreferences.getInt(PREF_DIM_AMOUNT, 0));
+                    defaultEditor.remove(PREF_DIM_AMOUNT);
+                }
+                if (defaultSharedPreferences.contains(PREF_BLUR_AMOUNT)) {
+                    editor.putInt(PREF_BLUR_AMOUNT,
+                            defaultSharedPreferences.getInt(PREF_BLUR_AMOUNT, 0));
+                    defaultEditor.remove(PREF_BLUR_AMOUNT);
+                }
+                if (defaultSharedPreferences.contains(PREF_DISABLE_BLUR_WHEN_LOCKED)) {
+                    editor.putBoolean(PREF_DISABLE_BLUR_WHEN_LOCKED,
+                            defaultSharedPreferences.getBoolean(PREF_DISABLE_BLUR_WHEN_LOCKED, false));
+                    defaultEditor.remove(PREF_DISABLE_BLUR_WHEN_LOCKED);
+                }
+                defaultEditor.putBoolean(PREF_MIGRATED_FROM_DEFAULT, true);
+                defaultEditor.apply();
+                editor.apply();
+            }
+            // Now migrate the file to device protected storage if available
+            if (deviceProtectedContext != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                deviceProtectedContext.moveSharedPreferencesFrom(context, WALLPAPER_PREFERENCES_NAME);
+            }
+        }
+        // Now open the correct SharedPreferences
+        Context contextToUse = deviceProtectedContext != null ? deviceProtectedContext : context;
+        return contextToUse.getSharedPreferences(WALLPAPER_PREFERENCES_NAME, Context.MODE_PRIVATE);
+    }
+
+    private Prefs() {
+    }
 }

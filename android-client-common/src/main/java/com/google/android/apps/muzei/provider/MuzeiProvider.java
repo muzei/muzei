@@ -31,6 +31,7 @@ import android.content.UriMatcher;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -270,15 +271,15 @@ public class MuzeiProvider extends ContentProvider {
             Log.w(TAG, "Deletes are not supported until the user is unlocked");
             return 0;
         }
+        String callingPackageName = context.getPackageManager().getNameForUid(
+                Binder.getCallingUid());
+        // Only allow Muzei to delete content
+        if (!context.getPackageName().equals(callingPackageName)) {
+            throw new UnsupportedOperationException("Deletes are not supported");
+        }
         if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK ||
                 MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK_ID) {
-            String callingPackageName = context.getPackageManager().getNameForUid(
-                    Binder.getCallingUid());
-            if (context.getPackageName().equals(callingPackageName)) {
-                return deleteArtwork(uri, selection, selectionArgs);
-            } else {
-                throw new UnsupportedOperationException("Deletes are not supported");
-            }
+            return deleteArtwork(uri, selection, selectionArgs);
         } else if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCES ||
                 MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCE_ID) {
             return deleteSource(uri, selection, selectionArgs);
@@ -302,7 +303,8 @@ public class MuzeiProvider extends ContentProvider {
         // and manually delete each artwork file
         String[] projection = new String[] {
                 MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID,
-                MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI};
+                MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI,
+                MuzeiContract.Artwork.COLUMN_NAME_TOKEN};
         Cursor rowsToDelete = queryArtwork(uri, projection, finalWhere, selectionArgs,
                 MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI);
         if (rowsToDelete == null) {
@@ -325,13 +327,33 @@ public class MuzeiProvider extends ContentProvider {
             Uri artworkUri = ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI,
                     rowsToDelete.getLong(0));
             String imageUri = rowsToDelete.getString(1);
-            if (TextUtils.isEmpty(imageUri)) {
-                // An empty image URI means the artwork is unique to this specific row
+            String token = rowsToDelete.getString(2);
+            if (TextUtils.isEmpty(imageUri) && TextUtils.isEmpty(token)) {
+                // An empty image URI and token means the artwork is unique to this specific row
                 // so we can always delete it when the associated row is deleted
                 File artwork = getCacheFileForArtworkUri(artworkUri);
                 if (artwork != null && artwork.exists()) {
                     artwork.delete();
                 }
+            } else if (TextUtils.isEmpty(imageUri)) {
+                // Check if there are other rows using this same token that aren't
+                // in the list of ids to delete
+                Cursor otherArtwork = queryArtwork(MuzeiContract.Artwork.CONTENT_URI,
+                        new String[] {MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID},
+                        MuzeiContract.Artwork.COLUMN_NAME_TOKEN + "=? AND " + notInDeleteIds,
+                        new String[] { token }, null);
+                if (otherArtwork == null) {
+                    continue;
+                }
+                if (otherArtwork.getCount() == 0) {
+                    // There's no non-deleted rows that reference this same artwork URI
+                    // so we can delete the artwork
+                    File artwork = getCacheFileForArtworkUri(artworkUri);
+                    if (artwork != null && artwork.exists()) {
+                        artwork.delete();
+                    }
+                }
+                otherArtwork.close();
             } else {
                 // Check if there are other rows using this same image URI that aren't
                 // in the list of ids to delete
@@ -418,13 +440,22 @@ public class MuzeiProvider extends ContentProvider {
 
     @Override
     public Uri insert(@NonNull final Uri uri, final ContentValues values) {
-        if (!UserManagerCompat.isUserUnlocked(getContext())) {
+        Context context = getContext();
+        if (context == null) {
+            return null;
+        }
+        if (!UserManagerCompat.isUserUnlocked(context)) {
             Log.w(TAG, "Inserts are not supported until the user is unlocked");
             return null;
         }
         if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK) {
             return insertArtwork(uri, values);
         } else if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCES) {
+            // Ensure the app inserting the source is Muzei
+            String callingPackageName = context.getPackageManager().getNameForUid(Binder.getCallingUid());
+            if (!context.getPackageName().equals(callingPackageName)) {
+                throw new UnsupportedOperationException("Inserting sources is not supported, use update");
+            }
             return insertSource(uri, values);
         } else {
             throw new IllegalArgumentException("Unknown URI " + uri);
@@ -781,7 +812,8 @@ public class MuzeiProvider extends ContentProvider {
         if (!directory.exists() && !directory.mkdirs()) {
             return null;
         }
-        String[] projection = { BaseColumns._ID, MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI };
+        String[] projection = { BaseColumns._ID, MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI,
+                MuzeiContract.Artwork.COLUMN_NAME_TOKEN };
         Cursor data = queryArtwork(artworkUri, projection, null, null, null);
         if (data == null) {
             return null;
@@ -793,27 +825,32 @@ public class MuzeiProvider extends ContentProvider {
         // While normally we'd use data.getLong(), we later need this as a String so the automatic conversion helps here
         String id = data.getString(0);
         String imageUri = data.getString(1);
+        String token = data.getString(2);
         data.close();
-        if (TextUtils.isEmpty(imageUri)) {
+        if (TextUtils.isEmpty(imageUri) && TextUtils.isEmpty(token)) {
             return new File(directory, id);
         }
-        // Otherwise, create a unique filename based on the imageUri
-        Uri uri = Uri.parse(imageUri);
+        // Otherwise, create a unique filename based on the imageUri and token
         StringBuilder filename = new StringBuilder();
-        filename.append(uri.getScheme()).append("_")
-                .append(uri.getHost()).append("_");
-        String encodedPath = uri.getEncodedPath();
-        if (!TextUtils.isEmpty(encodedPath)) {
-            int length = encodedPath.length();
-            if (length > 60) {
-                encodedPath = encodedPath.substring(length - 60);
+        if (!TextUtils.isEmpty(imageUri)) {
+            Uri uri = Uri.parse(imageUri);
+            filename.append(uri.getScheme()).append("_")
+                    .append(uri.getHost()).append("_");
+            String encodedPath = uri.getEncodedPath();
+            if (!TextUtils.isEmpty(encodedPath)) {
+                int length = encodedPath.length();
+                if (length > 60) {
+                    encodedPath = encodedPath.substring(length - 60);
+                }
+                encodedPath = encodedPath.replace('/', '_');
+                filename.append(encodedPath).append("_");
             }
-            encodedPath = encodedPath.replace('/', '_');
-            filename.append(encodedPath).append("_");
         }
+        // Use the imageUri if available, otherwise use the token
+        String unique = !TextUtils.isEmpty(imageUri) ? imageUri : token;
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
-            md.update(uri.toString().getBytes("UTF-8"));
+            md.update(unique.getBytes("UTF-8"));
             byte[] digest = md.digest();
             for (byte b : digest) {
                 if ((0xff & b) < 0x10) {
@@ -823,7 +860,7 @@ public class MuzeiProvider extends ContentProvider {
                 }
             }
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-            filename.append(uri.toString().hashCode());
+            filename.append(unique.hashCode());
         }
         return new File(directory, filename.toString());
     }
@@ -860,26 +897,23 @@ public class MuzeiProvider extends ContentProvider {
         }
 
         final SQLiteDatabase db = databaseHelper.getWritableDatabase();
-        int count;
-        switch (MuzeiProvider.uriMatcher.match(uri))
-        {
-            case SOURCES:
-                // If the incoming URI matches the general sources pattern, does the update based on the incoming
-                // data.
-                count = db.update(MuzeiContract.Sources.TABLE_NAME, values, selection, selectionArgs);
-                break;
-            case SOURCE_ID:
-                // If the incoming URI matches a single source ID, does the update based on the incoming data, but
-                // modifies the where clause to restrict it to the particular source ID.
-                String finalWhere = BaseColumns._ID + " = " + uri.getLastPathSegment();
-                // If there were additional selection criteria, append them to the final WHERE clause
-                if (selection != null)
-                    finalWhere = finalWhere + " AND " + selection;
-                count = db.update(MuzeiContract.Sources.TABLE_NAME, values, finalWhere, selectionArgs);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
+        String finalWhere = selection;
+        String[] finalSelectionArgs = selectionArgs;
+        if (MuzeiProvider.uriMatcher.match(uri) == SOURCE_ID) {
+            // If the incoming URI matches a single source ID, does the update based on the incoming data, but
+            // modifies the where clause to restrict it to the particular source ID.
+            finalWhere = DatabaseUtils.concatenateWhere(finalWhere,
+                    BaseColumns._ID + " = " + uri.getLastPathSegment());
         }
+        String callingPackageName = context.getPackageManager().getNameForUid(Binder.getCallingUid());
+        if (!context.getPackageName().equals(callingPackageName)) {
+            // Only allow other apps to update their own source
+            finalWhere = DatabaseUtils.concatenateWhere(finalWhere,
+                    MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + " LIKE ?");
+            finalSelectionArgs = DatabaseUtils.appendSelectionArgs(finalSelectionArgs,
+                    new String[] {callingPackageName +"/%"});
+        }
+        int count = db.update(MuzeiContract.Sources.TABLE_NAME, values, finalWhere, finalSelectionArgs);
         if (count > 0) {
             notifyChange(uri);
         } else if (values.containsKey(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME)) {

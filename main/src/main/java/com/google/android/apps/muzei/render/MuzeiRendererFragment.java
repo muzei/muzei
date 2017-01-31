@@ -216,7 +216,6 @@ public class MuzeiRendererFragment extends Fragment implements
 
         @Override
         protected void onDetachedFromWindow() {
-            super.onDetachedFromWindow();
             mRenderController.destroy();
             queueEventOnGlThread(new Runnable() {
                 @Override
@@ -224,6 +223,7 @@ public class MuzeiRendererFragment extends Fragment implements
                     mRenderer.destroy();
                 }
             });
+            super.onDetachedFromWindow();
         }
     }
 }
