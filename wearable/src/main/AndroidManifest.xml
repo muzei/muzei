@@ -65,6 +65,7 @@
 
         <service
             android:name="com.google.android.apps.muzei.complications.ArtworkComplicationProviderService"
+            android:icon="@drawable/ic_complication"
             android:label="@string/complication_artwork_label"
             android:enabled="false"
             tools:ignore="ExportedService">
@@ -74,7 +75,7 @@
 
             <meta-data
                 android:name="android.support.wearable.complications.SUPPORTED_TYPES"
-                android:value="LARGE_IMAGE" />
+                android:value="LONG_TEXT,SMALL_IMAGE,LARGE_IMAGE" />
             <meta-data
                 android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
                 android:value="0" />
@@ -84,7 +85,8 @@
             android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE" />
         <receiver
-            android:name="com.google.android.apps.muzei.complications.ArtworkComplicationBootReceiver">
+            android:name="com.google.android.apps.muzei.complications.ArtworkComplicationBootReceiver"
+            android:enabled="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>

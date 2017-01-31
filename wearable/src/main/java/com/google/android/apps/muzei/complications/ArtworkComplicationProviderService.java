@@ -17,14 +17,21 @@
 package com.google.android.apps.muzei.complications;
 
 import android.annotation.TargetApi;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Icon;
 import android.os.Build;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.wearable.complications.ComplicationData;
 import android.support.wearable.complications.ComplicationManager;
 import android.support.wearable.complications.ComplicationProviderService;
+import android.support.wearable.complications.ComplicationText;
+import android.text.TextUtils;
 
+import com.google.android.apps.muzei.FullScreenActivity;
+import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
@@ -49,7 +56,9 @@ public class ArtworkComplicationProviderService extends ComplicationProviderServ
     @Override
     public void onComplicationActivated(int complicationId, int type, ComplicationManager manager) {
         addComplication(complicationId);
-        FirebaseAnalytics.getInstance(this).logEvent("complication_artwork_activated", null);
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, Integer.toString(type));
+        FirebaseAnalytics.getInstance(this).logEvent("complication_artwork_activated", bundle);
     }
 
     private void addComplication(int complicationId) {
@@ -84,8 +93,44 @@ public class ArtworkComplicationProviderService extends ComplicationProviderServ
         if (!complications.contains(Integer.toString(complicationId))) {
             addComplication(complicationId);
         }
-        ComplicationData.Builder builder = new ComplicationData.Builder(type)
-                .setLargeImage(Icon.createWithContentUri(MuzeiContract.Artwork.CONTENT_URI));
+        Artwork artwork = MuzeiContract.Artwork.getCurrentArtwork(this);
+        if (artwork == null) {
+            complicationManager.updateComplicationData(complicationId,
+                    new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build());
+            return;
+        }
+        ComplicationData.Builder builder = new ComplicationData.Builder(type);
+        Intent intent = new Intent(this, FullScreenActivity.class);
+        PendingIntent tapAction = PendingIntent.getActivity(this, 0, intent, 0);
+        switch (type) {
+            case ComplicationData.TYPE_LONG_TEXT:
+                String title = artwork.getTitle();
+                String byline = artwork.getByline();
+                if (TextUtils.isEmpty(title) && TextUtils.isEmpty(byline)) {
+                    // Both are empty so we don't have any data to show
+                    complicationManager.updateComplicationData(complicationId,
+                            new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build());
+                    return;
+                } else if (TextUtils.isEmpty(title)) {
+                    // We only have the byline, so use that as the long text
+                    builder.setLongText(ComplicationText.plainText(byline));
+                } else {
+                    if (!TextUtils.isEmpty(byline)) {
+                        builder.setLongTitle(ComplicationText.plainText(byline));
+                    }
+                    builder.setLongText(ComplicationText.plainText(title));
+                }
+                builder.setTapAction(tapAction);
+                break;
+            case ComplicationData.TYPE_SMALL_IMAGE:
+                builder.setImageStyle(ComplicationData.IMAGE_STYLE_PHOTO)
+                        .setSmallImage(Icon.createWithContentUri(MuzeiContract.Artwork.CONTENT_URI));
+                builder.setTapAction(tapAction);
+                break;
+            case ComplicationData.TYPE_LARGE_IMAGE:
+                builder.setLargeImage(Icon.createWithContentUri(MuzeiContract.Artwork.CONTENT_URI));
+                break;
+        }
         complicationManager.updateComplicationData(complicationId, builder.build());
     }
 }
