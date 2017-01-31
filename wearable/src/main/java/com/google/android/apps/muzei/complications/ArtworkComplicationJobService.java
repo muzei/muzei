@@ -24,6 +24,7 @@ import android.app.job.JobService;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.wearable.complications.ProviderUpdateRequester;
@@ -48,11 +49,21 @@ public class ArtworkComplicationJobService extends JobService {
                         MuzeiContract.Artwork.CONTENT_URI,
                         JobInfo.TriggerContentUri.FLAG_NOTIFY_FOR_DESCENDANTS))
                 .build());
+        // Enable the BOOT_COMPLETED receiver to reschedule the job on reboot
+        ComponentName bootReceivedComponentName = new ComponentName(context,
+                ArtworkComplicationBootReceiver.class);
+        context.getPackageManager().setComponentEnabledSetting(bootReceivedComponentName,
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
     }
 
     static void cancelComplicationUpdateJob(Context context) {
         JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
         jobScheduler.cancel(ARTWORK_COMPLICATION_JOB_ID);
+        // Disable the BOOT_COMPLETED receiver to reduce memory pressure on boot
+        ComponentName bootReceivedComponentName = new ComponentName(context,
+                ArtworkComplicationBootReceiver.class);
+        context.getPackageManager().setComponentEnabledSetting(bootReceivedComponentName,
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
     }
 
     @Override
