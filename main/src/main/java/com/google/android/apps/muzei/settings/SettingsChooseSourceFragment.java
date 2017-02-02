@@ -41,6 +41,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -329,6 +330,10 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
 
     private void animateSettingsButton(final View settingsButton, final boolean show,
                                        boolean allowAnimate) {
+        if ((show && settingsButton.getVisibility() == View.VISIBLE) ||
+                (!show && settingsButton.getVisibility() == View.INVISIBLE)) {
+            return;
+        }
         settingsButton.setVisibility(View.VISIBLE);
         settingsButton.animate()
                 .translationY(show ? 0 : (-getResources().getDimensionPixelSize(
