@@ -329,6 +329,10 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
 
     private void animateSettingsButton(final View settingsButton, final boolean show,
                                        boolean allowAnimate) {
+        if ((show && settingsButton.getVisibility() == View.VISIBLE) ||
+                (!show && settingsButton.getVisibility() == View.INVISIBLE)) {
+            return;
+        }
         settingsButton.setVisibility(View.VISIBLE);
         settingsButton.animate()
                 .translationY(show ? 0 : (-getResources().getDimensionPixelSize(
