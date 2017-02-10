@@ -14,32 +14,67 @@
  * limitations under the License.
  */
 
+$loadingSpinnerRadius: 20px;
+$loadingSpinnerDelay: 2s;
+
+@function dashdeg($deg) {
+  @return $deg * 2 * $loadingSpinnerRadius * 3.14159265359 / 360;
+}
+
 @mixin loading-spinner($color, $diameter) {
   $thickness: $diameter / 16;
 
   width: $diameter;
   height: $diameter;
-  border-radius: 50%;
   box-sizing: border-box;
-  border: $thickness solid rgba($color, .1);
-  border-left-color: $color;
-
+  transform: translate(-50%, -50%) scale($diameter / 48px);
   pointer-events: none;
-
-  animation:
-      loading-spinner-spin 1s linear 0s infinite,
-      loading-spinner-appear .5s ease .5s;
+  animation: loading-spinner-rotate-#{$diameter} 5s linear $loadingSpinnerDelay infinite;
   animation-fill-mode: backwards;
+
+  circle {
+    fill: none;
+    stroke: $color;
+    stroke-width: 4px;
+    stroke-dasharray: dashdeg(10), 1000;
+    transform-origin: 50% 50%;
+    animation:
+        loading-circle-dash 1.5s linear $loadingSpinnerDelay infinite,
+        loading-circle-rotate 1.5s linear $loadingSpinnerDelay infinite,
+        loading-circle-appear 3s ease $loadingSpinnerDelay;
+    animation-fill-mode: backwards;
+  }
+
+  @keyframes loading-circle-rotate {
+    from { transform: rotate(0); }
+    to { transform: rotate(100deg); }
+  }
+
+  @keyframes loading-spinner-rotate-#{$diameter} {
+    from { transform: translate(-50%, -50%) scale($diameter / 48px) rotate(-90deg); }
+    to { transform: translate(-50%, -50%) scale($diameter / 48px) rotate(270deg); }
+  }
 }
 
-@keyframes loading-spinner-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+@keyframes loading-circle-dash {
+  0% {
+    stroke-dasharray: 0, 0, dashdeg(10), 1000;
+    animation-timing-function: cubic-bezier(.5, 0, 0, 1);
+  }
+
+  50% {
+    stroke-dasharray: 0, 0, dashdeg(270), 1000;
+    animation-timing-function: cubic-bezier(.5, 0, 0, 1);
+  }
+
+  100% {
+    stroke-dasharray: 0, dashdeg(260), dashdeg(10), 1000;
+  }
 }
 
-@keyframes loading-spinner-appear {
-  from { opacity: 0; }
-  to { opacity: 1; }
+@keyframes loading-circle-appear {
+  from { stroke-width: 0; }
+  to { stroke-width: 4px; }
 }
 
 .loading-spinner {
