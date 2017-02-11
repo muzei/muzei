@@ -3,19 +3,12 @@ package com.google.android.apps.muzei;
 import android.os.Build;
 import android.util.Log;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
@@ -89,12 +82,10 @@ public class OkHttpClientFactory {
             }
             X509TrustManager trustManager = (X509TrustManager) trustManagers[0];
 
-            SSLContext sc = SSLContext.getInstance("TLSv1.2");
-            sc.init(null, null, null);
-            client.sslSocketFactory(new Tls12SocketFactory(sc.getSocketFactory()), trustManager);
+            client.sslSocketFactory(new TLSSocketFactory(), trustManager);
 
             ConnectionSpec cs = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
-                    .tlsVersions(TlsVersion.TLS_1_2)
+                    .tlsVersions(TlsVersion.TLS_1_2, TlsVersion.TLS_1_1)
                     .build();
 
             List<ConnectionSpec> specs = new ArrayList<>();
@@ -104,65 +95,11 @@ public class OkHttpClientFactory {
 
             client.connectionSpecs(specs);
         } catch (Exception exc) {
-            Log.e(TAG, "Error while setting TLS 1.2", exc);
+            Log.e(TAG, "Error while setting TLS", exc);
         }
 
         return client;
     }
 
-    /**
-     * Socket factory enabling TLS
-     */
-    private static class Tls12SocketFactory extends SSLSocketFactory {
-        private static final String[] TLS = {"TLSv1.2"};
 
-        final SSLSocketFactory delegate;
-
-        public Tls12SocketFactory(SSLSocketFactory base) {
-            this.delegate = base;
-        }
-
-        @Override
-        public String[] getDefaultCipherSuites() {
-            return delegate.getDefaultCipherSuites();
-        }
-
-        @Override
-        public String[] getSupportedCipherSuites() {
-            return delegate.getSupportedCipherSuites();
-        }
-
-        @Override
-        public Socket createSocket(Socket s, String host, int port, boolean autoClose) throws IOException {
-            return enableTLS(delegate.createSocket(s, host, port, autoClose));
-        }
-
-        @Override
-        public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
-            return enableTLS(delegate.createSocket(host, port));
-        }
-
-        @Override
-        public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException, UnknownHostException {
-            return enableTLS(delegate.createSocket(host, port, localHost, localPort));
-        }
-
-        @Override
-        public Socket createSocket(InetAddress host, int port) throws IOException {
-            return enableTLS(delegate.createSocket(host, port));
-        }
-
-        @Override
-        public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
-            return enableTLS(delegate.createSocket(address, port, localAddress, localPort));
-        }
-
-        private Socket enableTLS(Socket s) {
-            if (s instanceof SSLSocket) {
-                ((SSLSocket) s).setEnabledProtocols(TLS);
-            }
-            return s;
-        }
-
-    }
 }
