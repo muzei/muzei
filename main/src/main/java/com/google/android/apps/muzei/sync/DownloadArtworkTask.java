@@ -40,7 +40,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -48,10 +47,6 @@ import okhttp3.Response;
 
 public class DownloadArtworkTask extends AsyncTask<Void, Void, Boolean> {
     private static final String TAG = "DownloadArtworkTask";
-
-    private static final int DEFAULT_READ_TIMEOUT = 30; // in seconds
-    private static final int DEFAULT_CONNECT_TIMEOUT = 15; // in seconds
-
     private final Context mApplicationContext;
 
     public DownloadArtworkTask(Context context) {
@@ -66,7 +61,7 @@ public class DownloadArtworkTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected Boolean doInBackground(Void... voids) {
         ContentResolver resolver = mApplicationContext.getContentResolver();
-        String[] projection = {BaseColumns._ID, MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI };
+        String[] projection = {BaseColumns._ID, MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI};
         Cursor data = resolver.query(MuzeiContract.Artwork.CONTENT_URI, projection, null, null, null);
         if (data == null || !data.moveToFirst()) {
             if (data != null) {
@@ -152,10 +147,7 @@ public class DownloadArtworkTask extends AsyncTask<Void, Void, Boolean> {
             }
 
         } else if ("http".equals(scheme) || "https".equals(scheme)) {
-            OkHttpClient client = new OkHttpClient.Builder()
-                    .connectTimeout(DEFAULT_CONNECT_TIMEOUT, TimeUnit.SECONDS)
-                    .readTimeout(DEFAULT_READ_TIMEOUT, TimeUnit.SECONDS)
-                    .build();
+            OkHttpClient client = OkHttpClientFactory.getNewOkHttpsSafeClient();
             Request request;
             request = new Request.Builder().url(new URL(uri.toString())).build();
 
