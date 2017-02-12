@@ -1,4 +1,20 @@
-package com.google.android.apps.muzei;
+/*
+ * Copyright 2014 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.android.apps.muzei.sync;
 
 import android.os.Build;
 import android.util.Log;
@@ -20,13 +36,10 @@ import okhttp3.TlsVersion;
 /**
  * Factory for OkHttpClient, supports the creation of clients enabling TLS on devices where it's not enabled by default (mainly pre lollipop)
  */
-
 public class OkHttpClientFactory {
     private static final String TAG = "OkHttpClientFactory";
-
     private static final int DEFAULT_READ_TIMEOUT = 30; // in seconds
     private static final int DEFAULT_CONNECT_TIMEOUT = 15; // in seconds
-
 
     /**
      * Creates an OkHttpClient optionally enabling TLS
@@ -59,12 +72,11 @@ public class OkHttpClientFactory {
      * True if enabling TLS is needed on current device (SDK version >= 16 and < 22)
      */
     public static boolean isTLSEnableNeeded() {
-        if (Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT < 22) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
             return true;
         }
         return false;
     }
-
 
     /**
      * Enable TLS on the OKHttp builder by setting a custom SocketFactory
@@ -97,9 +109,6 @@ public class OkHttpClientFactory {
         } catch (Exception exc) {
             Log.e(TAG, "Error while setting TLS", exc);
         }
-
         return client;
     }
-
-
 }

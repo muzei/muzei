@@ -27,7 +27,6 @@ import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.google.android.apps.muzei.OkHttpClientFactory;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.event.ArtworkLoadingStateChangedEvent;
 
