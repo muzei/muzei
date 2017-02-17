@@ -87,7 +87,8 @@ public abstract class RenderController {
 
             @Override
             protected void onPostExecute(final BitmapRegionLoader bitmapRegionLoader) {
-                if (bitmapRegionLoader == null) {
+                if (bitmapRegionLoader == null || bitmapRegionLoader.getWidth() == 0 ||
+                        bitmapRegionLoader.getHeight() == 0) {
                     return;
                 }
 
