@@ -769,8 +769,15 @@ public class MuzeiProvider extends ContentProvider {
             if (context == null) {
                 return null;
             }
-            String callingPackageName = context.getPackageManager().getNameForUid(
-                    Binder.getCallingUid());
+            String callingPackageName;
+            try {
+                callingPackageName = context.getPackageManager().getNameForUid(
+                        Binder.getCallingUid());
+            } catch (RuntimeException e) {
+                // PackageManager died? Something serious must be going on...
+                Log.e(TAG, "Unable to determine write permissions due to system instability", e);
+                return null;
+            }
             if (!context.getPackageName().equals(callingPackageName)) {
                 Log.w(TAG, "Writing to an existing artwork file is not allowed: insert a new row");
             }
