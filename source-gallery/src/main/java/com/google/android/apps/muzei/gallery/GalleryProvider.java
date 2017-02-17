@@ -380,6 +380,9 @@ public class GalleryProvider extends ContentProvider {
         if (context == null) {
             return;
         }
+        if (destFile == null) {
+            throw new IOException("Invalid destination for " + uri);
+        }
         try (InputStream in = context.getContentResolver().openInputStream(Uri.parse(uri));
              OutputStream out = in != null ? new FileOutputStream(destFile) : null) {
             if (in == null) {
