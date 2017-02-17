@@ -852,9 +852,11 @@ public class GallerySettingsActivity extends AppCompatActivity
                 @Override
                 public void onClick(View view) {
                     mUpdatePosition = vh.getAdapterPosition();
-                    Uri contentUri = ContentUris.withAppendedId(GalleryContract.ChosenPhotos.CONTENT_URI,
-                            getItemId(mUpdatePosition));
-                    mMultiSelectionController.toggle(contentUri, true);
+                    if (mUpdatePosition != RecyclerView.NO_POSITION) {
+                        Uri contentUri = ContentUris.withAppendedId(GalleryContract.ChosenPhotos.CONTENT_URI,
+                                getItemId(mUpdatePosition));
+                        mMultiSelectionController.toggle(contentUri, true);
+                    }
                 }
             });
 
