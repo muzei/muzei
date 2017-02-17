@@ -339,7 +339,7 @@ public class GalleryProvider extends ContentProvider {
                         writeUriToFile(context, imageUri, getCacheFileForUri(context, imageUri));
                     } catch (IOException e) {
                         Log.e(TAG, "Error downloading gallery image " + imageUri, e);
-                        throw new SQLException("Error downloading gallery image " + imageUri);
+                        throw new SQLException("Error downloading gallery image " + imageUri, e);
                     }
                 }
             }
