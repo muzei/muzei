@@ -126,7 +126,13 @@ public class NextArtworkTileService extends TileService {
 
     @Override
     public void onClick() {
-        if (getQsTile().getState() == Tile.STATE_ACTIVE) {
+        Tile tile = getQsTile();
+        if (tile == null) {
+            // We're outside of the onStartListening / onStopListening window,
+            // ignore late arriving clicks
+            return;
+        }
+        if (tile.getState() == Tile.STATE_ACTIVE) {
             FirebaseAnalytics.getInstance(NextArtworkTileService.this).logEvent(
                     "tile_next_artwork_click", null);
             // Active means we send the 'Next Artwork' command
