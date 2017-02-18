@@ -66,9 +66,7 @@ public class ArtworkComplicationProviderService extends ComplicationProviderServ
         Set<String> complications = preferences.getStringSet(KEY_COMPLICATION_IDS, new TreeSet<String>());
         complications.add(Integer.toString(complicationId));
         preferences.edit().putStringSet(KEY_COMPLICATION_IDS, complications).apply();
-        if (complications.size() == 1) {
-            ArtworkComplicationJobService.scheduleComplicationUpdateJob(this);
-        }
+        ArtworkComplicationJobService.scheduleComplicationUpdateJob(this);
     }
 
     @Override
