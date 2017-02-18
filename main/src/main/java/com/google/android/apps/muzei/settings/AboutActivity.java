@@ -109,7 +109,7 @@ public class AboutActivity extends AppCompatActivity {
         mAnimator = demoContainerView.animate()
                 .alpha(1)
                 .setStartDelay(250)
-                .setDuration(10000)
+                .setDuration(1000)
                 .withEndAction(new Runnable() {
                     @Override
                     public void run() {
