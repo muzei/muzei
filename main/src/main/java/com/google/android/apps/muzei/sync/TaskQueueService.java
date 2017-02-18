@@ -124,7 +124,9 @@ public class TaskQueueService extends Service {
             JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
             jobScheduler.schedule(new JobInfo.Builder(LOAD_ARTWORK_JOB_ID,
                     new ComponentName(this, DownloadArtworkJobService.class))
-                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                    .setRequiredNetworkType(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
+                            ? JobInfo.NETWORK_TYPE_NOT_ROAMING
+                            : JobInfo.NETWORK_TYPE_ANY)
                     .build());
         } else {
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
