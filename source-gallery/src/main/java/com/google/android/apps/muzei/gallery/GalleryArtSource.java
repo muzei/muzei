@@ -411,7 +411,12 @@ public class GalleryArtSource extends MuzeiArtSource {
                 float[] latlong = new float[2];
                 if (exifInterface.getLatLong(latlong)) {
                     // Reverse geocode
-                    List<Address> addresses = mGeocoder.getFromLocation(latlong[0], latlong[1], 1);
+                    List<Address> addresses = null;
+                    try {
+                        addresses = mGeocoder.getFromLocation(latlong[0], latlong[1], 1);
+                    } catch (IllegalArgumentException e) {
+                        Log.w(TAG, "Invalid latitude/longitude, skipping location metadata", e);
+                    }
                     if (addresses != null && addresses.size() > 0) {
                         Address addr = addresses.get(0);
                         String locality = addr.getLocality();
@@ -439,7 +444,7 @@ public class GalleryArtSource extends MuzeiArtSource {
                 }
 
                 getContentResolver().insert(GalleryContract.MetadataCache.CONTENT_URI, values);
-            } catch (ParseException|IOException|StackOverflowError e) {
+            } catch (ParseException|IOException|NumberFormatException|StackOverflowError e) {
                 Log.w(TAG, "Couldn't read image metadata.", e);
             }
         }

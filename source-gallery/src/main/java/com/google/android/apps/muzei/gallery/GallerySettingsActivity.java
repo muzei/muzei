@@ -20,6 +20,7 @@ import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ComponentName;
 import android.content.ContentProviderOperation;
@@ -32,6 +33,7 @@ import android.content.OperationApplicationException;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
@@ -47,6 +49,7 @@ import android.provider.BaseColumns;
 import android.provider.DocumentsContract;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
@@ -96,6 +99,7 @@ import static com.google.android.apps.muzei.gallery.GalleryArtSource.EXTRA_FORCE
 public class GallerySettingsActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = "GallerySettingsActivity";
+    private static final String DOCUMENTS_UI_PACKAGE_NAME = "com.android.documentsui";
     private static final String SHARED_PREF_NAME = "GallerySettingsActivity";
     private static final String SHOW_INTERNAL_STORAGE_MESSAGE = "show_internal_storage_message";
     private static final int REQUEST_CHOOSE_PHOTOS = 1;
@@ -270,11 +274,17 @@ public class GallerySettingsActivity extends AppCompatActivity
             @Override
             public void onClick(final View v) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-                startActivityForResult(intent, REQUEST_CHOOSE_FOLDER);
-                SharedPreferences preferences = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
-                if (preferences.getBoolean(SHOW_INTERNAL_STORAGE_MESSAGE, true)) {
-                    Toast.makeText(GallerySettingsActivity.this, R.string.gallery_internal_storage_message,
-                            Toast.LENGTH_LONG).show();
+                try {
+                    startActivityForResult(intent, REQUEST_CHOOSE_FOLDER);
+                    SharedPreferences preferences = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+                    if (preferences.getBoolean(SHOW_INTERNAL_STORAGE_MESSAGE, true)) {
+                        Toast.makeText(GallerySettingsActivity.this, R.string.gallery_internal_storage_message,
+                                Toast.LENGTH_LONG).show();
+                    }
+                } catch (ActivityNotFoundException e) {
+                    Snackbar.make(mPhotoGridView, R.string.gallery_add_folder_error,
+                            Snackbar.LENGTH_LONG).show();
+                    hideAddToolbar(true);
                 }
             }
         });
@@ -290,7 +300,15 @@ public class GallerySettingsActivity extends AppCompatActivity
         intent.setType("image/*");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        startActivityForResult(intent, REQUEST_CHOOSE_PHOTOS);
+        try {
+            startActivityForResult(intent, REQUEST_CHOOSE_PHOTOS);
+        } catch (ActivityNotFoundException e) {
+            Snackbar.make(mPhotoGridView, R.string.gallery_add_photos_error,
+                    Snackbar.LENGTH_LONG).show();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                hideAddToolbar(true);
+            }
+        }
     }
 
     @Override
@@ -834,9 +852,11 @@ public class GallerySettingsActivity extends AppCompatActivity
                 @Override
                 public void onClick(View view) {
                     mUpdatePosition = vh.getAdapterPosition();
-                    Uri contentUri = ContentUris.withAppendedId(GalleryContract.ChosenPhotos.CONTENT_URI,
-                            getItemId(mUpdatePosition));
-                    mMultiSelectionController.toggle(contentUri, true);
+                    if (mUpdatePosition != RecyclerView.NO_POSITION) {
+                        Uri contentUri = ContentUris.withAppendedId(GalleryContract.ChosenPhotos.CONTENT_URI,
+                                getItemId(mUpdatePosition));
+                        mMultiSelectionController.toggle(contentUri, true);
+                    }
                 }
             });
 

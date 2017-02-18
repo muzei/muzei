@@ -339,7 +339,7 @@ public class GalleryProvider extends ContentProvider {
                         writeUriToFile(context, imageUri, getCacheFileForUri(context, imageUri));
                     } catch (IOException e) {
                         Log.e(TAG, "Error downloading gallery image " + imageUri, e);
-                        throw new SQLException("Error downloading gallery image " + imageUri);
+                        throw new SQLException("Error downloading gallery image " + imageUri, e);
                     }
                 }
             }
@@ -379,6 +379,9 @@ public class GalleryProvider extends ContentProvider {
     private static void writeUriToFile(Context context, String uri, File destFile) throws IOException {
         if (context == null) {
             return;
+        }
+        if (destFile == null) {
+            throw new IOException("Invalid destination for " + uri);
         }
         try (InputStream in = context.getContentResolver().openInputStream(Uri.parse(uri));
              OutputStream out = in != null ? new FileOutputStream(destFile) : null) {

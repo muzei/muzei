@@ -29,6 +29,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
+import android.view.ViewPropertyAnimator;
 import android.widget.TextView;
 
 import com.google.android.apps.muzei.render.MuzeiRendererFragment;
@@ -39,7 +40,7 @@ import net.nurik.roman.muzei.R;
 public class AboutActivity extends AppCompatActivity {
     private static final String VERSION_UNAVAILABLE = "N/A";
 
-    private Handler mHandler = new Handler();
+    private ViewPropertyAnimator mAnimator = null;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,18 +106,25 @@ public class AboutActivity extends AppCompatActivity {
 
         View demoContainerView = findViewById(R.id.demo_view_container);
         demoContainerView.setAlpha(0);
-        demoContainerView.animate()
+        mAnimator = demoContainerView.animate()
                 .alpha(1)
                 .setStartDelay(250)
-                .setDuration(1000);
+                .setDuration(10000)
+                .withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        AnimatedMuzeiLogoFragment logoFragment = (AnimatedMuzeiLogoFragment)
+                                getFragmentManager().findFragmentById(R.id.animated_logo_fragment);
+                        logoFragment.start();
+                    }
+                });
+    }
 
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                AnimatedMuzeiLogoFragment logoFragment = (AnimatedMuzeiLogoFragment)
-                        getFragmentManager().findFragmentById(R.id.animated_logo_fragment);
-                logoFragment.start();
-            }
-        }, 1000);
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mAnimator != null) {
+            mAnimator.cancel();
+        }
     }
 }

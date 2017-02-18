@@ -49,10 +49,10 @@ public class PhotoSetAsTargetActivity extends Activity {
         // Add and publish the chosen photo
         ContentValues values = new ContentValues();
         values.put(GalleryContract.ChosenPhotos.COLUMN_NAME_URI, photoUri.toString());
-        getContentResolver().insert(GalleryContract.ChosenPhotos.CONTENT_URI, values);
+        Uri uri = getContentResolver().insert(GalleryContract.ChosenPhotos.CONTENT_URI, values);
         startService(new Intent(this, GalleryArtSource.class)
                 .setAction(GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM)
-                .putExtra(GalleryArtSource.EXTRA_FORCE_URI, photoUri));
+                .putExtra(GalleryArtSource.EXTRA_FORCE_URI, uri));
 
         // Launch main activity
         startActivity(Intent.makeMainActivity(new ComponentName(this, MuzeiActivity.class))
