@@ -77,9 +77,9 @@ public class SourceManager {
         final ArrayList<ContentProviderOperation> operations = new ArrayList<>();
         for (String sourceStatesPair : sourceStates) {
             String[] pair = sourceStatesPair.split("\\|", 2);
+            ComponentName source = ComponentName.unflattenFromString(pair[0]);
             try {
                 ContentValues values = new ContentValues();
-                ComponentName source = ComponentName.unflattenFromString(pair[0]);
                 try {
                     // Ensure the source is a valid Service
                     context.getPackageManager().getServiceInfo(source, 0);
@@ -111,7 +111,7 @@ public class SourceManager {
                 operations.add(ContentProviderOperation.newInsert(MuzeiContract.Sources.CONTENT_URI)
                     .withValues(values).build());
             } catch (JSONException e) {
-                Log.e(TAG, "Error loading source state.", e);
+                Log.e(TAG, "Error loading source state for " + source, e);
             }
         }
         try {

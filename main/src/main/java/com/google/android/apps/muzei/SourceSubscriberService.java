@@ -64,7 +64,8 @@ public class SourceSubscriberService extends IntentService {
         ComponentName selectedSource = SourceManager.getSelectedSource(this);
         if (selectedSource == null ||
                 !TextUtils.equals(token, selectedSource.flattenToShortString())) {
-            Log.w(TAG, "Dropping update from non-selected source.");
+            Log.w(TAG, "Dropping update from non-selected source, token=" + token
+                    + " does not match token for " + selectedSource);
             return;
         }
 

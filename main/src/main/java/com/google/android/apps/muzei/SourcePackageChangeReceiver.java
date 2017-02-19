@@ -50,14 +50,15 @@ public class SourcePackageChangeReceiver extends WakefulBroadcastReceiver {
         try {
             context.getPackageManager().getServiceInfo(selectedComponent, 0);
         } catch (PackageManager.NameNotFoundException e) {
-            Log.i(TAG, "Selected source no longer available; switching to default.");
+            Log.i(TAG, "Selected source " + selectedComponent
+                    + " is no longer available; switching to default.");
             SourceManager.selectSource(context,
                     new ComponentName(context, FeaturedArtSource.class));
             return;
         }
 
         // Some other change.
-        Log.i(TAG, "Source package changed or replaced. Re-subscribing.");
+        Log.i(TAG, "Source package changed or replaced. Re-subscribing to " + selectedComponent);
         SourceManager.subscribeToSelectedSource(context);
     }
 }
