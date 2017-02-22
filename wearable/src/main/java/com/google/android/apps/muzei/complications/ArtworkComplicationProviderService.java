@@ -29,6 +29,7 @@ import android.support.wearable.complications.ComplicationManager;
 import android.support.wearable.complications.ComplicationProviderService;
 import android.support.wearable.complications.ComplicationText;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.android.apps.muzei.FullScreenActivity;
 import com.google.android.apps.muzei.api.Artwork;
@@ -45,6 +46,8 @@ import java.util.TreeSet;
  */
 @TargetApi(Build.VERSION_CODES.N)
 public class ArtworkComplicationProviderService extends ComplicationProviderService {
+    private static final String TAG = "ArtworkComplProvider";
+
     static String KEY_COMPLICATION_IDS = "complication_ids";
 
     @Override
@@ -55,6 +58,9 @@ public class ArtworkComplicationProviderService extends ComplicationProviderServ
 
     @Override
     public void onComplicationActivated(int complicationId, int type, ComplicationManager manager) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Activated " + complicationId);
+        }
         addComplication(complicationId);
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, Integer.toString(type));
@@ -66,16 +72,25 @@ public class ArtworkComplicationProviderService extends ComplicationProviderServ
         Set<String> complications = preferences.getStringSet(KEY_COMPLICATION_IDS, new TreeSet<String>());
         complications.add(Integer.toString(complicationId));
         preferences.edit().putStringSet(KEY_COMPLICATION_IDS, complications).apply();
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "addComplication: " + complications);
+        }
         ArtworkComplicationJobService.scheduleComplicationUpdateJob(this);
     }
 
     @Override
     public void onComplicationDeactivated(int complicationId) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Deactivated " + complicationId);
+        }
         FirebaseAnalytics.getInstance(this).logEvent("complication_artwork_deactivated", null);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         Set<String> complications = preferences.getStringSet(KEY_COMPLICATION_IDS, new TreeSet<String>());
         complications.remove(Integer.toString(complicationId));
         preferences.edit().putStringSet(KEY_COMPLICATION_IDS, complications).apply();
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Current complications: " + complications);
+        }
         if (complications.isEmpty()) {
             ArtworkComplicationJobService.cancelComplicationUpdateJob(this);
         }
@@ -89,10 +104,16 @@ public class ArtworkComplicationProviderService extends ComplicationProviderServ
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         Set<String> complications = preferences.getStringSet(KEY_COMPLICATION_IDS, new TreeSet<String>());
         if (!complications.contains(Integer.toString(complicationId))) {
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Update missing id " + complicationId);
+            }
             addComplication(complicationId);
         }
         Artwork artwork = MuzeiContract.Artwork.getCurrentArtwork(this);
         if (artwork == null) {
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Update no artwork for " + complicationId);
+            }
             complicationManager.updateComplicationData(complicationId,
                     new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build());
             return;
@@ -128,6 +149,9 @@ public class ArtworkComplicationProviderService extends ComplicationProviderServ
             case ComplicationData.TYPE_LARGE_IMAGE:
                 builder.setLargeImage(Icon.createWithContentUri(MuzeiContract.Artwork.CONTENT_URI));
                 break;
+        }
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Updated " + complicationId);
         }
         complicationManager.updateComplicationData(complicationId, builder.build());
     }
