@@ -21,7 +21,7 @@ ext {
     buildToolsVersion = "25.0.2"
     targetSdkVersion = 25
 
-    supportLibraryVersion = "25.1.1"
+    supportLibraryVersion = "25.2.0"
     googlePlayServicesVersion = "10.2.0"
     okhttpVersion = "3.5.0"
     picassoVersion = "2.5.2"
