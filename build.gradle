@@ -23,6 +23,6 @@ ext {
 
     supportLibraryVersion = "25.2.0"
     googlePlayServicesVersion = "10.2.0"
-    okhttpVersion = "3.5.0"
+    okhttpVersion = "3.6.0"
     picassoVersion = "2.5.2"
 }
