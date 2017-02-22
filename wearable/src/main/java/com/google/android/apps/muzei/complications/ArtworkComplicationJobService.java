@@ -28,8 +28,11 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.wearable.complications.ProviderUpdateRequester;
+import android.util.Log;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
+
+import net.nurik.roman.muzei.BuildConfig;
 
 import java.util.Set;
 import java.util.TreeSet;
@@ -39,20 +42,27 @@ import java.util.TreeSet;
  */
 @TargetApi(Build.VERSION_CODES.N)
 public class ArtworkComplicationJobService extends JobService {
+    private static final String TAG = "ArtworkComplJobService";
     private static final int ARTWORK_COMPLICATION_JOB_ID = 65;
 
     static void scheduleComplicationUpdateJob(Context context) {
         JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
         if (jobScheduler.getPendingJob(ARTWORK_COMPLICATION_JOB_ID) != null) {
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Job already scheduled");
+            }
             // Already scheduled, nothing else to do
             return;
         }
         ComponentName componentName = new ComponentName(context, ArtworkComplicationJobService.class);
-        jobScheduler.schedule(new JobInfo.Builder(ARTWORK_COMPLICATION_JOB_ID, componentName)
+        int result = jobScheduler.schedule(new JobInfo.Builder(ARTWORK_COMPLICATION_JOB_ID, componentName)
                 .addTriggerContentUri(new JobInfo.TriggerContentUri(
                         MuzeiContract.Artwork.CONTENT_URI,
                         JobInfo.TriggerContentUri.FLAG_NOTIFY_FOR_DESCENDANTS))
                 .build());
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Job scheduled with " + (result == JobScheduler.RESULT_SUCCESS ? "success" : "failure"));
+        }
         // Enable the BOOT_COMPLETED receiver to reschedule the job on reboot
         ComponentName bootReceivedComponentName = new ComponentName(context,
                 ArtworkComplicationBootReceiver.class);
@@ -63,6 +73,9 @@ public class ArtworkComplicationJobService extends JobService {
     static void cancelComplicationUpdateJob(Context context) {
         JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
         jobScheduler.cancel(ARTWORK_COMPLICATION_JOB_ID);
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Job cancelled");
+        }
         // Disable the BOOT_COMPLETED receiver to reduce memory pressure on boot
         ComponentName bootReceivedComponentName = new ComponentName(context,
                 ArtworkComplicationBootReceiver.class);
@@ -82,6 +95,9 @@ public class ArtworkComplicationJobService extends JobService {
             int index = 0;
             for (String complicationId : complicationSet) {
                 complicationIds[index++] = Integer.parseInt(complicationId);
+            }
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Job running, updating " + complicationSet);
             }
             providerUpdateRequester.requestUpdate(complicationIds);
         }
