@@ -96,6 +96,27 @@
             </intent-filter>
         </service>
 
+        <!-- AppWidget -->
+
+        <receiver android:name="com.google.android.apps.muzei.widget.MuzeiAppWidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/appwidget_info"/>
+        </receiver>
+        <!-- Receive update broadcasts. Disabled by default until you add at least one widget instance -->
+        <receiver
+            android:name="com.google.android.apps.muzei.widget.AppWidgetUpdateReceiver"
+            android:enabled="false"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.apps.muzei.ACTION_ARTWORK_CHANGED"/>
+                <action android:name="com.google.android.apps.muzei.ACTION_SOURCE_CHANGED"/>
+            </intent-filter>
+        </receiver>
+
         <!-- Target for "Set As" intent -->
 
         <activity android:name="com.google.android.apps.muzei.PhotoSetAsTargetActivity"
