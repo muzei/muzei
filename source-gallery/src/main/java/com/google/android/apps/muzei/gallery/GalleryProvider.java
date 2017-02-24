@@ -171,11 +171,13 @@ public class GalleryProvider extends ContentProvider {
             Context context = getContext();
             if (context != null) {
                 ContentResolver contentResolver = context.getContentResolver();
-                Iterator<Uri> iterator = pendingNotifyChange.iterator();
-                while (iterator.hasNext()) {
-                    Uri uri = iterator.next();
-                    contentResolver.notifyChange(uri, null);
-                    iterator.remove();
+                synchronized (pendingNotifyChange) {
+                    Iterator<Uri> iterator = pendingNotifyChange.iterator();
+                    while (iterator.hasNext()) {
+                        Uri uri = iterator.next();
+                        contentResolver.notifyChange(uri, null);
+                        iterator.remove();
+                    }
                 }
             }
         }
@@ -183,7 +185,9 @@ public class GalleryProvider extends ContentProvider {
 
     private void notifyChange(Uri uri) {
         if (holdNotifyChange) {
-            pendingNotifyChange.add(uri);
+            synchronized (pendingNotifyChange) {
+                pendingNotifyChange.add(uri);
+            }
         } else {
             Context context = getContext();
             if (context == null) {
