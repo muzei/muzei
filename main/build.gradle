@@ -79,6 +79,7 @@ android {
 
         wear2 {
             wearAppUnbundled true
+            versionCode versionProps['codeAlpha'].toInteger()
         }
     }
 
