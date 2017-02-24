@@ -167,6 +167,7 @@ public class GalleryProvider extends ContentProvider {
         try {
             return super.applyBatch(operations);
         } finally {
+            holdNotifyChange = false;
             Context context = getContext();
             if (context != null) {
                 ContentResolver contentResolver = context.getContentResolver();
