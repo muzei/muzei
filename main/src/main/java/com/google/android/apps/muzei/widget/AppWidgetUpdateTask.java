@@ -126,12 +126,15 @@ class AppWidgetUpdateTask extends AsyncTask<Void,Void,Boolean> {
                 Log.e(TAG, "Could not find current artwork image", e);
                 return false;
             }
+            // Even after using sample size to scale an image down, it might be larger than the
+            // maximum bitmap memory usage for widgets
+            Bitmap scaledImage = scaleBitmap(image, widgetWidth, widgetHeight);
             @LayoutRes int widgetLayout = widgetHeight < smallWidgetHeight
                     ? R.layout.widget_small
                     : R.layout.widget;
             RemoteViews remoteViews = new RemoteViews(mContext.getPackageName(), widgetLayout);
             remoteViews.setContentDescription(R.id.widget_background, contentDescription);
-            remoteViews.setImageViewBitmap(R.id.widget_background, image);
+            remoteViews.setImageViewBitmap(R.id.widget_background, scaledImage);
             remoteViews.setOnClickPendingIntent(R.id.widget_background, launchPendingIntent);
             remoteViews.setOnClickPendingIntent(R.id.widget_next_artwork, nextArtworkPendingIntent);
             if (supportsNextArtwork) {
@@ -142,5 +145,29 @@ class AppWidgetUpdateTask extends AsyncTask<Void,Void,Boolean> {
             appWidgetManager.updateAppWidget(widgetId, remoteViews);
         }
         return true;
+    }
+
+    private Bitmap scaleBitmap(Bitmap image, int widgetWidth, int widgetHeight) {
+        if (image == null) {
+            return null;
+        }
+        int largestDimension = Math.max(widgetWidth, widgetHeight);
+        int width = image.getWidth();
+        int height = image.getHeight();
+        if (width > height) {
+            // landscape
+            float ratio = (float) width / largestDimension;
+            width = largestDimension;
+            height = (int) (height / ratio);
+        } else if (height > width) {
+            // portrait
+            float ratio = (float) height / largestDimension;
+            height = largestDimension;
+            width = (int) (width / ratio);
+        } else {
+            height = largestDimension;
+            width = largestDimension;
+        }
+        return Bitmap.createScaledBitmap(image, width, height, true);
     }
 }
