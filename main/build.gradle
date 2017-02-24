@@ -76,6 +76,10 @@ android {
 
         prod {
         }
+
+        wear2 {
+            wearAppUnbundled true
+        }
     }
 
     buildTypes {
@@ -109,6 +113,10 @@ android {
     }
 }
 
+configurations {
+    prodReleaseWearApp
+    prodPublicBetaWearApp
+}
 dependencies {
     compile "com.squareup.okhttp3:okhttp:$rootProject.ext.okhttpVersion"
     compile "com.squareup.picasso:picasso:$rootProject.ext.picassoVersion"
@@ -128,8 +136,8 @@ dependencies {
     compile project(':android-client-common')
     compile project(':source-featured-art')
     compile project(':source-gallery')
-    releaseWearApp project(path: ':wearable', configuration: 'prodRelease')
-    publicBetaWearApp project(path: ':wearable', configuration: 'prodPublicBeta')
+    prodReleaseWearApp project(path: ':wearable', configuration: 'prodRelease')
+    prodPublicBetaWearApp project(path: ':wearable', configuration: 'prodPublicBeta')
 }
 
 apply plugin: 'com.google.gms.google-services'
