@@ -128,6 +128,13 @@
             </intent-filter>
         </activity>
 
+        <!-- Hidden activity usable by third party launchers to trigger the 'Next Artwork' action -->
+
+        <activity android:name="com.google.android.apps.muzei.NextArtworkActivity"
+            android:label="@string/action_next_artwork"
+            android:icon="@drawable/ic_next_artwork"
+            android:theme="@android:style/Theme.NoDisplay"/>
+
         <!-- Watch for source package changes -->
 
         <receiver android:name="com.google.android.apps.muzei.SourcePackageChangeReceiver">
