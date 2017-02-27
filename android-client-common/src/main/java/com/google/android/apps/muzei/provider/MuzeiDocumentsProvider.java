@@ -580,6 +580,7 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
             // Clear the calling identity to denote that this delete request is coming from
             // Muzei itself, even if it is on behalf of the user or an app the user has trusted
             long token = Binder.clearCallingIdentity();
+            //noinspection MissingPermission
             contentResolver.delete(
                     MuzeiContract.Artwork.CONTENT_URI,
                     MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI + "=?",

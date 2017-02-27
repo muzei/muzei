@@ -548,6 +548,7 @@ public class Artwork {
      * @return the artwork from the given {@link Bundle}
      */
     public static Artwork fromBundle(Bundle bundle) {
+        @SuppressWarnings("WrongConstant") // Assume the KEY_META_FONT is valid
         Builder builder = new Builder()
                 .title(bundle.getString(KEY_TITLE))
                 .byline(bundle.getString(KEY_BYLINE))
@@ -607,6 +608,7 @@ public class Artwork {
      * @return the artwork from the given {@link JSONObject}
      */
     public static Artwork fromJson(JSONObject jsonObject) {
+        @SuppressWarnings("WrongConstant") // Assume the KEY_META_FONT is valid
         Builder builder = new Builder()
                 .title(jsonObject.optString(KEY_TITLE))
                 .byline(jsonObject.optString(KEY_BYLINE))
@@ -714,6 +716,8 @@ public class Artwork {
         }
         int metaFontColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_META_FONT);
         if (metaFontColumnIndex != -1) {
+            // Assume the COLUMN_NAME_META_FONT value is valid
+            //noinspection WrongConstant
             builder.metaFont(cursor.getString(metaFontColumnIndex));
         }
         int dateAddedColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED);
