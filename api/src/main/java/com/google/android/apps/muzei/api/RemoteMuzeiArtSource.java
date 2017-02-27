@@ -21,6 +21,8 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.PowerManager;
+import android.support.annotation.CallSuper;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 /**
@@ -62,7 +64,7 @@ public abstract class RemoteMuzeiArtSource extends MuzeiArtSource {
     /**
      * Remember to call this constructor from an empty constructor!
      */
-    public RemoteMuzeiArtSource(String name) {
+    public RemoteMuzeiArtSource(@NonNull String name) {
         super(name);
     }
 
@@ -71,14 +73,15 @@ public abstract class RemoteMuzeiArtSource extends MuzeiArtSource {
      * update, throwing a {@link RetryException} in case of a retryable error such as an HTTP
      * 500-level server error or a read error.
      */
-    protected abstract void onTryUpdate(int reason) throws RetryException;
+    protected abstract void onTryUpdate(@UpdateReason int reason) throws RetryException;
 
     /**
      * Subclasses of {@link RemoteMuzeiArtSource} should implement {@link #onTryUpdate(int)}
      * instead of this method.
      */
+    @CallSuper
     @Override
-    protected void onUpdate(int reason) {
+    protected void onUpdate(@UpdateReason int reason) {
         PowerManager pwm = (PowerManager) getSystemService(POWER_SERVICE);
         PowerManager.WakeLock lock = pwm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, mName);
         lock.acquire(FETCH_WAKELOCK_TIMEOUT_MILLIS);
@@ -118,6 +121,7 @@ public abstract class RemoteMuzeiArtSource extends MuzeiArtSource {
         }
     }
 
+    @CallSuper
     @Override
     protected void onDisabled() {
         super.onDisabled();
@@ -125,6 +129,7 @@ public abstract class RemoteMuzeiArtSource extends MuzeiArtSource {
         setWantsNetworkAvailable(false);
     }
 
+    @CallSuper
     @Override
     protected void onNetworkAvailable() {
         super.onNetworkAvailable();

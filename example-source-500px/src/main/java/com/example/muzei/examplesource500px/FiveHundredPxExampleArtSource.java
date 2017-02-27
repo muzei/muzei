@@ -55,7 +55,7 @@ public class FiveHundredPxExampleArtSource extends RemoteMuzeiArtSource {
     }
 
     @Override
-    protected void onTryUpdate(int reason) throws RetryException {
+    protected void onTryUpdate(@UpdateReason int reason) throws RetryException {
         String currentToken = (getCurrentArtwork() != null) ? getCurrentArtwork().getToken() : null;
 
         OkHttpClient okHttpClient = new OkHttpClient.Builder()

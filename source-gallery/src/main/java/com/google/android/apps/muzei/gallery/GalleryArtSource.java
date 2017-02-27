@@ -150,7 +150,7 @@ public class GalleryArtSource extends MuzeiArtSource {
     }
 
     @Override
-    protected void onUpdate(int reason) {
+    protected void onUpdate(@UpdateReason int reason) {
         if (reason == UPDATE_REASON_INITIAL) {
             updateMeta();
         }

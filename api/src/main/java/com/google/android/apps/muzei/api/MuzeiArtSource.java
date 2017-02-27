@@ -32,6 +32,10 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.CallSuper;
+import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -41,6 +45,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -232,6 +238,18 @@ public abstract class MuzeiArtSource extends Service {
     protected static final int MAX_CUSTOM_COMMAND_ID = FIRST_BUILTIN_COMMAND_ID - 1;
 
     /**
+     * The set of valid update reasons
+     *
+     * @see #UPDATE_REASON_OTHER
+     * @see #UPDATE_REASON_INITIAL
+     * @see #UPDATE_REASON_USER_NEXT
+     * @see #UPDATE_REASON_SCHEDULED
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({UPDATE_REASON_OTHER, UPDATE_REASON_INITIAL, UPDATE_REASON_USER_NEXT, UPDATE_REASON_SCHEDULED})
+    public @interface UpdateReason {}
+
+    /**
      * Indicates that {@link #onUpdate(int)} was triggered for some reason not represented by
      * another known reason constant.
      */
@@ -301,7 +319,7 @@ public abstract class MuzeiArtSource extends Service {
      *             not user-visible and is only used for {@linkplain #getSharedPreferences()
      *             storing preferences} and in system log output.
      */
-    public MuzeiArtSource(String name) {
+    public MuzeiArtSource(@NonNull String name) {
         super();
         mName = name;
     }
@@ -355,7 +373,7 @@ public abstract class MuzeiArtSource extends Service {
      *
      * @return true if the subscription should be allowed, false if it should be denied.
      */
-    protected boolean onAllowSubscription(ComponentName subscriber) {
+    protected boolean onAllowSubscription(@NonNull ComponentName subscriber) {
         return true;
     }
 
@@ -364,7 +382,7 @@ public abstract class MuzeiArtSource extends Service {
      * override this. For more details on the source lifecycle, see the discussion in the
      * {@link MuzeiArtSource} reference.
      */
-    protected void onSubscriberAdded(ComponentName subscriber) {
+    protected void onSubscriberAdded(@NonNull ComponentName subscriber) {
     }
 
     /**
@@ -372,7 +390,7 @@ public abstract class MuzeiArtSource extends Service {
      * override this. For more details on the source lifecycle, see the discussion in the
      * {@link MuzeiArtSource} reference.
      */
-    protected void onSubscriberRemoved(ComponentName subscriber) {
+    protected void onSubscriberRemoved(@NonNull ComponentName subscriber) {
     }
 
     /**
@@ -405,7 +423,7 @@ public abstract class MuzeiArtSource extends Service {
      * @param reason The reason for the update. See {@link #UPDATE_REASON_INITIAL} and related
      *               constants for more details.
      */
-    protected abstract void onUpdate(int reason);
+    protected abstract void onUpdate(@UpdateReason int reason);
 
     /**
      * Callback method indicating that the user has selected a custom command.
@@ -428,7 +446,7 @@ public abstract class MuzeiArtSource extends Service {
      * Publishes the provided {@link Artwork} object. This will be sent to all current subscribers
      * and to all future subscribers, until a new artwork is published.
      */
-    protected final void publishArtwork(Artwork artwork) {
+    protected final void publishArtwork(@NonNull Artwork artwork) {
         artwork.setComponentName(new ComponentName(this, getClass()));
         mCurrentState.setCurrentArtwork(artwork);
         mServiceHandler.removeCallbacks(mPublishStateRunnable);
@@ -518,6 +536,7 @@ public abstract class MuzeiArtSource extends Service {
      * Returns the most recently {@linkplain #publishArtwork(Artwork) published} artwork, or null
      * if none has been published.
      */
+    @Nullable
     protected final Artwork getCurrentArtwork() {
         return mCurrentState != null ? mCurrentState.getCurrentArtwork() : null;
     }
@@ -585,6 +604,7 @@ public abstract class MuzeiArtSource extends Service {
     /**
      * @see IntentService#onHandleIntent(Intent)
      */
+    @CallSuper
     protected void onHandleIntent(Intent intent) {
         if (intent == null) {
             return;

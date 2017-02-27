@@ -28,6 +28,9 @@ allprojects { ext."signing.keyId" = props["signing.keyId"] }
 allprojects { ext."signing.password" = props["signing.password"] }
 allprojects { ext."signing.secretKeyRingFile" = props["signing.secretKeyRingFile"] }
 
+dependencies {
+    compile "com.android.support:support-annotations:$rootProject.ext.supportLibraryVersion"
+}
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion

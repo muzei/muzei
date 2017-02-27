@@ -16,7 +16,6 @@
 
 package com.google.android.apps.muzei.api;
 
-import android.annotation.TargetApi;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -30,6 +29,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Looper;
 import android.provider.BaseColumns;
+import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
+import android.support.annotation.RequiresPermission;
+import android.support.annotation.StringDef;
+import android.support.annotation.WorkerThread;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -41,6 +45,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -126,6 +132,16 @@ public class MuzeiContract {
      * other processing.
      */
     public static final class Artwork implements BaseColumns {
+        /**
+         * The set of valid font types to use to display artwork meta info
+         *
+         * @see Artwork#COLUMN_NAME_META_FONT
+         * @see #META_FONT_TYPE_DEFAULT
+         * @see #META_FONT_TYPE_ELEGANT
+         */
+        @Retention(RetentionPolicy.SOURCE)
+        @StringDef({META_FONT_TYPE_DEFAULT, META_FONT_TYPE_ELEGANT})
+        public @interface MetaFontType {}
         /**
          * The default font type for {@link #COLUMN_NAME_META_FONT}
          */
@@ -220,6 +236,7 @@ public class MuzeiContract {
          * @see #getCurrentArtworkBitmap
          * @see #createArtwork
          */
+        @RequiresPermission.Write(@RequiresPermission(WRITE_PERMISSION))
         public static final Uri CONTENT_URI = Uri.parse(MuzeiContract.SCHEME + MuzeiContract.AUTHORITY
                 + "/" + Artwork.TABLE_NAME);
         /**
@@ -239,6 +256,7 @@ public class MuzeiContract {
          * @return a {@link ArtworkPublishRequest} that should be filled in and then used to <code>publish</code>
          * the artwork
          */
+        @RequiresApi(Build.VERSION_CODES.KITKAT)
         public static ArtworkPublishRequest createArtwork(Context context,
                                                           Class<? extends MuzeiArtSource> source) {
             return new ArtworkPublishRequest(context, new ComponentName(context, source));
@@ -254,7 +272,8 @@ public class MuzeiContract {
          * @return a {@link ArtworkPublishRequest} that should be filled in and then used to <code>publish</code>
          * the artwork
          */
-        public static ArtworkPublishRequest createArtwork(Context context, ComponentName source) {
+        @RequiresApi(Build.VERSION_CODES.KITKAT)
+        public static ArtworkPublishRequest createArtwork(@NonNull Context context, @NonNull ComponentName source) {
             return new ArtworkPublishRequest(context, source);
         }
 
@@ -280,6 +299,7 @@ public class MuzeiContract {
          *     .publish(Uri.parse("http://example.com/image.jpg"));
          * </pre>
          */
+        @RequiresApi(Build.VERSION_CODES.KITKAT)
         public static class ArtworkPublishRequest {
             private static final int DEFAULT_READ_TIMEOUT = 30000; // in milliseconds
             private static final int DEFAULT_CONNECT_TIMEOUT = 15000; // in milliseconds
@@ -289,7 +309,11 @@ public class MuzeiContract {
             private final ContentValues values = new ContentValues();
             private final ArrayList<Uri> contentUris = new ArrayList<>();
 
-            ArtworkPublishRequest(Context context, ComponentName source) {
+            ArtworkPublishRequest(@NonNull Context context, Class<? extends MuzeiArtSource> source) {
+                this(context, new ComponentName(context, source));
+            }
+
+            ArtworkPublishRequest(@NonNull Context context, @NonNull ComponentName source) {
                 contentResolver = context.getContentResolver();
                 assetManager = context.getAssets();
                 values.put(Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME,
@@ -370,6 +394,8 @@ public class MuzeiContract {
                 if (viewIntent != null) {
                     values.put(Artwork.COLUMN_NAME_VIEW_INTENT,
                             viewIntent.toUri(Intent.URI_INTENT_SCHEME));
+                } else {
+                    values.remove(Artwork.COLUMN_NAME_VIEW_INTENT);
                 }
                 return this;
             }
@@ -382,7 +408,7 @@ public class MuzeiContract {
              * @see Artwork#META_FONT_TYPE_DEFAULT
              * @see Artwork#META_FONT_TYPE_ELEGANT
              */
-            public ArtworkPublishRequest metaFont(String metaFont) {
+            public ArtworkPublishRequest metaFont(@MetaFontType String metaFont) {
                 values.put(Artwork.COLUMN_NAME_META_FONT, metaFont);
                 return this;
             }
@@ -409,8 +435,9 @@ public class MuzeiContract {
              * @param imageUri URI of the image to load
              * @throws IOException if an error occurs while publishing the image
              */
-            @TargetApi(Build.VERSION_CODES.KITKAT)
-            public void publish(Uri imageUri) throws IOException {
+            @RequiresPermission(WRITE_PERMISSION)
+            @WorkerThread
+            public void publish(@NonNull Uri imageUri) throws IOException {
                 values.put(Artwork.COLUMN_NAME_IMAGE_URI, imageUri.toString());
                 try (InputStream in = openUri(imageUri)) {
                     publish(in);
@@ -430,8 +457,9 @@ public class MuzeiContract {
              * @param bitmap The artwork to display
              * @throws IOException if an error occurs while publishing the image
              */
-            @TargetApi(Build.VERSION_CODES.KITKAT)
-            public void publish(Bitmap bitmap) throws IOException {
+            @RequiresPermission(WRITE_PERMISSION)
+            @WorkerThread
+            public void publish(@NonNull Bitmap bitmap) throws IOException {
                 if (Looper.myLooper() == Looper.getMainLooper()) {
                     throw new IllegalStateException("publish cannot be called on the main thread");
                 }
@@ -459,8 +487,9 @@ public class MuzeiContract {
              * @param in An InputStream pointing to a valid JPEG or PNG image
              * @throws IOException if an error occurs while publishing the image
              */
-            @TargetApi(Build.VERSION_CODES.KITKAT)
-            public void publish(InputStream in) throws IOException {
+            @RequiresPermission(WRITE_PERMISSION)
+            @WorkerThread
+            public void publish(@NonNull InputStream in) throws IOException {
                 if (Looper.myLooper() == Looper.getMainLooper()) {
                     throw new IllegalStateException("publish cannot be called on the main thread");
                 }
@@ -480,12 +509,8 @@ public class MuzeiContract {
                 }
             }
 
-            private InputStream openUri(Uri uri)
+            private InputStream openUri(@NonNull Uri uri)
                     throws IOException {
-                if (uri == null) {
-                    throw new IllegalArgumentException("Uri cannot be empty");
-                }
-
                 String scheme = uri.getScheme();
                 if (scheme == null) {
                     throw new IOException("Uri had no scheme");
@@ -541,14 +566,18 @@ public class MuzeiContract {
          * @param context Context to retrieve a ContentResolver
          * @return the current Artwork or null if one could not be found
          */
-        @TargetApi(Build.VERSION_CODES.KITKAT)
         public static com.google.android.apps.muzei.api.Artwork getCurrentArtwork(Context context) {
             ContentResolver contentResolver = context.getContentResolver();
-            try (Cursor cursor = contentResolver.query(CONTENT_URI, null, null, null, null)) {
+            Cursor cursor = contentResolver.query(CONTENT_URI, null, null, null, null);
+            try {
                 if (cursor == null || !cursor.moveToFirst()) {
                     return null;
                 }
                 return com.google.android.apps.muzei.api.Artwork.fromCursor(cursor);
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
             }
         }
 
@@ -561,6 +590,7 @@ public class MuzeiContract {
          * @return A Bitmap of the current artwork or null if the image could not be decoded
          * @throws FileNotFoundException If no cached artwork image was found
          */
+        @WorkerThread
         public static Bitmap getCurrentArtworkBitmap(Context context) throws FileNotFoundException {
             if (Looper.myLooper() == Looper.getMainLooper()) {
                 throw new IllegalStateException("getCurrentArtworkBitmap cannot be called on the main thread");
@@ -633,6 +663,7 @@ public class MuzeiContract {
          *
          * @see #updateSource
          */
+        @RequiresPermission.Write(@RequiresPermission(WRITE_PERMISSION))
         public static final Uri CONTENT_URI = Uri.parse(MuzeiContract.SCHEME + MuzeiContract.AUTHORITY
                 + "/" + Sources.TABLE_NAME);
         /**
@@ -652,7 +683,8 @@ public class MuzeiContract {
          * @return a {@link SourceUpdateRequest} that should be filled in and then used to
          * {@link SourceUpdateRequest#send()} the source update
          */
-        public static SourceUpdateRequest updateSource(Context context,
+        @RequiresApi(Build.VERSION_CODES.KITKAT)
+        public static SourceUpdateRequest updateSource(@NonNull Context context,
                 Class<? extends MuzeiArtSource> source) {
             return new SourceUpdateRequest(context, new ComponentName(context, source));
         }
@@ -667,7 +699,8 @@ public class MuzeiContract {
          * @return a {@link SourceUpdateRequest} that should be filled in and then used to
          * {@link SourceUpdateRequest#send()} the source update
          */
-        public static SourceUpdateRequest updateSource(Context context, ComponentName source) {
+        @RequiresApi(Build.VERSION_CODES.KITKAT)
+        public static SourceUpdateRequest updateSource(@NonNull Context context, @NonNull ComponentName source) {
             return new SourceUpdateRequest(context, source);
         }
 
@@ -690,6 +723,7 @@ public class MuzeiContract {
          *     .send();
          * </pre>
          */
+        @RequiresApi(Build.VERSION_CODES.KITKAT)
         public static class SourceUpdateRequest {
             private final ContentResolver contentResolver;
             private final ContentValues values = new ContentValues();
@@ -811,6 +845,7 @@ public class MuzeiContract {
          * @param commandsString The serialized commands found in {@link #COLUMN_NAME_COMMANDS}
          * @return A deserialized List of {@link UserCommand}s
          */
+        @NonNull
         public static List<UserCommand> parseCommands(String commandsString) {
             ArrayList<UserCommand> commands = new ArrayList<>();
             if (commandsString == null) {

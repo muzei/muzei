@@ -68,7 +68,7 @@ public class Artwork {
     private String mAttribution;
     private String mToken;
     private Intent mViewIntent;
-    private String mMetaFont;
+    private @MuzeiContract.Artwork.MetaFontType String mMetaFont;
     private Date mDateAdded;
 
     private Artwork() {
@@ -145,6 +145,7 @@ public class Artwork {
      *
      * @see Artwork.Builder#metaFont(String)
      */
+    @MuzeiContract.Artwork.MetaFontType
     public String getMetaFont() {
         return mMetaFont;
     }
@@ -232,7 +233,7 @@ public class Artwork {
      *
      * @see Artwork.Builder#metaFont(String)
      */
-    public void setMetaFont(String metaFont) {
+    public void setMetaFont(@MuzeiContract.Artwork.MetaFontType String metaFont) {
         mMetaFont = metaFont;
     }
 
@@ -366,7 +367,7 @@ public class Artwork {
          * @see com.google.android.apps.muzei.api.MuzeiContract.Artwork#META_FONT_TYPE_DEFAULT
          * @see com.google.android.apps.muzei.api.MuzeiContract.Artwork#META_FONT_TYPE_ELEGANT
          */
-        public Builder metaFont(String metaFont) {
+        public Builder metaFont(@MuzeiContract.Artwork.MetaFontType String metaFont) {
             mArtwork.mMetaFont = metaFont;
             return this;
         }

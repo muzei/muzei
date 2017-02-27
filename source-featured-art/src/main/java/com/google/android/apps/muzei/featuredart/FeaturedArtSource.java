@@ -76,7 +76,7 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
     }
 
     @Override
-    protected void onUpdate(int reason) {
+    protected void onUpdate(@UpdateReason int reason) {
         List<UserCommand> commands = new ArrayList<>();
         if (reason == UPDATE_REASON_INITIAL) {
             // Show initial photo (starry night)
@@ -251,24 +251,5 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
             throw new JSONException("Expected JSON object.");
         }
         return (JSONObject) val;
-    }
-
-    @Override
-    protected void onHandleIntent(Intent intent) {
-        if (BuildConfig.DEBUG && intent != null && "demoartwork".equals(intent.getAction())) {
-            publishArtwork(new Artwork.Builder()
-                    .imageUri(Uri.parse(intent.getStringExtra("image")))
-                    .title(intent.getStringExtra("title"))
-                    .token(intent.getStringExtra("image"))
-                    .byline(intent.getStringExtra("byline"))
-                    .attribution(intent.getStringExtra("attribution"))
-                    .viewIntent(new Intent(Intent.ACTION_VIEW,
-                            Uri.parse(intent.getStringExtra("details"))))
-                    .metaFont(intent.getStringExtra("metafont"))
-                    .build());
-            removeAllUserCommands();
-        }
-
-        super.onHandleIntent(intent);
     }
 }
