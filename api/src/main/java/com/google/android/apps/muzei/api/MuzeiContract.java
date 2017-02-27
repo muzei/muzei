@@ -54,7 +54,7 @@ public class MuzeiContract {
      * To insert new artwork and update their source information, apps must hold this permission by declaring
      * it in their manifest:
      * <pre>
-     *     <uses-permission android:name="com.google.android.apps.muzei.WRITE_PROVIDER" />
+     *     &lt;uses-permission android:name="com.google.android.apps.muzei.WRITE_PROVIDER" /&gt;
      * </pre>
      *
      */
