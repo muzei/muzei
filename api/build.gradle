@@ -35,6 +35,8 @@ android {
     defaultConfig {
         minSdkVersion 18
         targetSdkVersion rootProject.ext.targetSdkVersion
+
+        manifestPlaceholders = [api_version: version]
     }
 
     compileOptions {

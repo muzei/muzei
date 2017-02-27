@@ -18,5 +18,8 @@
           package="com.google.android.apps.muzei.api" >
 
     <application>
+        <meta-data
+            android:name="com.google.android.apps.muzei.api.VERSION"
+            android:value="${api_version}" />
     </application>
 </manifest>
