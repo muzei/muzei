@@ -268,7 +268,7 @@ public abstract class MuzeiArtSource extends Service {
     private Map<ComponentName, String> mSubscriptions;
     private SourceState mCurrentState;
 
-    private Runnable mPublishStateRunnable = new Runnable() {
+    private final Runnable mPublishStateRunnable = new Runnable() {
         @Override
         public void run() {
             publishCurrentState();
@@ -277,13 +277,13 @@ public abstract class MuzeiArtSource extends Service {
     };
 
     // From IntentService
-    private String mName;
+    protected String mName;
     private boolean mRedelivery;
     private volatile Looper mServiceLooper;
     private volatile ServiceHandler mServiceHandler;
 
     private final class ServiceHandler extends Handler {
-        public ServiceHandler(Looper looper) {
+        ServiceHandler(Looper looper) {
             super(looper);
         }
 
@@ -321,22 +321,15 @@ public abstract class MuzeiArtSource extends Service {
     }
 
     /**
-     * @see IntentService#onStart(Intent, int)
-     */
-    @Override
-    public void onStart(Intent intent, int startId) {
-        Message msg = mServiceHandler.obtainMessage();
-        msg.arg1 = startId;
-        msg.obj = intent;
-        mServiceHandler.sendMessage(msg);
-    }
-
-    /**
      * @see IntentService#onStartCommand(Intent, int, int)
      */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        onStart(intent, startId);
+        super.onStartCommand(intent, flags, startId);
+        Message msg = mServiceHandler.obtainMessage();
+        msg.arg1 = startId;
+        msg.obj = intent;
+        mServiceHandler.sendMessage(msg);
         return mRedelivery ? START_REDELIVER_INTENT : START_NOT_STICKY;
     }
 
@@ -485,7 +478,7 @@ public abstract class MuzeiArtSource extends Service {
 
     /**
      * Sets the list of available user-visible commands for the source. Shorthand for
-     * {@link #setUserCommands(int...)} using only the {@link UserCommand#UserCommand(int)}
+     * {@link #setUserCommands(UserCommand...)} using only the {@link UserCommand#UserCommand(int)}
      * constructor.
      *
      * @see #BUILTIN_COMMAND_ID_NEXT_ARTWORK
@@ -544,7 +537,7 @@ public abstract class MuzeiArtSource extends Service {
      */
     protected final void scheduleUpdate(long scheduledUpdateTimeMillis) {
         getSharedPreferences().edit()
-                .putLong(PREF_SCHEDULED_UPDATE_TIME_MILLIS, scheduledUpdateTimeMillis).commit();
+                .putLong(PREF_SCHEDULED_UPDATE_TIME_MILLIS, scheduledUpdateTimeMillis).apply();
         setUpdateAlarm(scheduledUpdateTimeMillis);
     }
 
@@ -798,7 +791,7 @@ public abstract class MuzeiArtSource extends Service {
             serializedSubscriptions.add(subscriber.flattenToShortString() + "|"
                     + mSubscriptions.get(subscriber));
         }
-        mSharedPrefs.edit().putStringSet(PREF_SUBSCRIPTIONS, serializedSubscriptions).commit();
+        mSharedPrefs.edit().putStringSet(PREF_SUBSCRIPTIONS, serializedSubscriptions).apply();
     }
 
     private void loadState() {
@@ -817,7 +810,7 @@ public abstract class MuzeiArtSource extends Service {
 
     private void saveState() {
         try {
-            mSharedPrefs.edit().putString(PREF_STATE, mCurrentState.toJson().toString()).commit();
+            mSharedPrefs.edit().putString(PREF_STATE, mCurrentState.toJson().toString()).apply();
         } catch (JSONException e) {
             Log.e(TAG, "Couldn't serialize current state, id=" + mName, e);
         }

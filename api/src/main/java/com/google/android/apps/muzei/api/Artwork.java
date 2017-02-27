@@ -265,7 +265,7 @@ public class Artwork {
      * should really provide all the metadata, especially title, byline, and view intent.
      */
     public static class Builder {
-        private Artwork mArtwork;
+        private final Artwork mArtwork;
 
         public Builder() {
             mArtwork = new Artwork();
@@ -460,7 +460,7 @@ public class Artwork {
     /**
      * Deserializes an artwork object from a {@link JSONObject}.
      */
-    public static Artwork fromJson(JSONObject jsonObject) throws JSONException {
+    public static Artwork fromJson(JSONObject jsonObject) {
         Builder builder = new Builder()
                 .title(jsonObject.optString(KEY_TITLE))
                 .byline(jsonObject.optString(KEY_BYLINE))

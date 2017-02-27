@@ -59,14 +59,11 @@ public abstract class RemoteMuzeiArtSource extends MuzeiArtSource {
 
     private static final String PREF_RETRY_ATTEMPT = "retry_attempt";
 
-    private String mName;
-
     /**
      * Remember to call this constructor from an empty constructor!
      */
     public RemoteMuzeiArtSource(String name) {
         super(name);
-        mName = name;
     }
 
     /**
@@ -124,7 +121,7 @@ public abstract class RemoteMuzeiArtSource extends MuzeiArtSource {
     @Override
     protected void onDisabled() {
         super.onDisabled();
-        getSharedPreferences().edit().remove(PREF_RETRY_ATTEMPT).commit();
+        getSharedPreferences().edit().remove(PREF_RETRY_ATTEMPT).apply();
         setWantsNetworkAvailable(false);
     }
 

@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.api;
 
+import android.annotation.TargetApi;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -26,6 +27,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Looper;
 import android.provider.BaseColumns;
 import android.util.Log;
@@ -407,6 +409,7 @@ public class MuzeiContract {
              * @param imageUri URI of the image to load
              * @throws IOException if an error occurs while publishing the image
              */
+            @TargetApi(Build.VERSION_CODES.KITKAT)
             public void publish(Uri imageUri) throws IOException {
                 values.put(Artwork.COLUMN_NAME_IMAGE_URI, imageUri.toString());
                 try (InputStream in = openUri(imageUri)) {
@@ -427,6 +430,7 @@ public class MuzeiContract {
              * @param bitmap The artwork to display
              * @throws IOException if an error occurs while publishing the image
              */
+            @TargetApi(Build.VERSION_CODES.KITKAT)
             public void publish(Bitmap bitmap) throws IOException {
                 if (Looper.myLooper() == Looper.getMainLooper()) {
                     throw new IllegalStateException("publish cannot be called on the main thread");
@@ -455,6 +459,7 @@ public class MuzeiContract {
              * @param in An InputStream pointing to a valid JPEG or PNG image
              * @throws IOException if an error occurs while publishing the image
              */
+            @TargetApi(Build.VERSION_CODES.KITKAT)
             public void publish(InputStream in) throws IOException {
                 if (Looper.myLooper() == Looper.getMainLooper()) {
                     throw new IllegalStateException("publish cannot be called on the main thread");
@@ -536,6 +541,7 @@ public class MuzeiContract {
          * @param context Context to retrieve a ContentResolver
          * @return the current Artwork or null if one could not be found
          */
+        @TargetApi(Build.VERSION_CODES.KITKAT)
         public static com.google.android.apps.muzei.api.Artwork getCurrentArtwork(Context context) {
             ContentResolver contentResolver = context.getContentResolver();
             try (Cursor cursor = contentResolver.query(CONTENT_URI, null, null, null, null)) {
