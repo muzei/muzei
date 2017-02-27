@@ -17,6 +17,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.google.android.apps.muzei.api" >
 
+    <!-- Used to write source information and artwork to Muzei -->
+    <uses-permission android:name="com.google.android.apps.muzei.WRITE_PROVIDER" />
+
     <application>
         <meta-data
             android:name="com.google.android.apps.muzei.api.VERSION"

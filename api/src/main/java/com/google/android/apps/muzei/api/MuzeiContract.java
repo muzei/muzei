@@ -56,7 +56,7 @@ public class MuzeiContract {
      * <pre>
      *     &lt;uses-permission android:name="com.google.android.apps.muzei.WRITE_PROVIDER" /&gt;
      * </pre>
-     *
+     * If you are using Gradle, this permission is automatically added to your manifest.
      */
     public static final String WRITE_PERMISSION = "com.google.android.apps.muzei.WRITE_PROVIDER";
     /**
