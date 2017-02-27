@@ -78,6 +78,13 @@ task androidJavadoc(type: Javadoc) {
     }
 }
 
+// Add in dependency classpath
+afterEvaluate {
+    androidJavadoc.classpath += files(android.libraryVariants.collect { variant ->
+        variant.javaCompile.classpath.files
+    })
+}
+
 task javadocJar(type: Jar, dependsOn: androidJavadoc) {
     classifier = 'javadoc'
     from androidJavadoc.destinationDir
