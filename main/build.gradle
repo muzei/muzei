@@ -14,16 +14,6 @@
  * limitations under the License.
  */
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath "com.android.tools.build:gradle:$rootProject.ext.toolsPluginVersion"
-        classpath "com.google.gms:google-services:$rootProject.ext.googleServicesPluginVersion"
-    }
-}
-
 apply plugin: 'com.android.application'
 
 project.archivesBaseName = "muzei"
