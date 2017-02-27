@@ -13,69 +13,70 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import org.gradle.api.artifacts.maven.MavenDeployment
 
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:$rootProject.ext.toolsPluginVersion"
+    }
+}
+
+apply plugin: 'com.android.library'
 apply plugin: 'maven'
 apply plugin: 'signing'
-apply plugin: 'java'
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
 
-jar.baseName = 'muzei-api'
 group = 'com.google.android.apps.muzei'
 version = '2.0'
 
 def Properties props = new Properties()
 props.load(new FileInputStream(file('../local.properties')))
 
-def android = [
-        sdk: props["sdk.dir"],
-        target: 'android-25'
-]
-
 allprojects { ext."signing.keyId" = props["signing.keyId"] }
 allprojects { ext."signing.password" = props["signing.password"] }
 allprojects { ext."signing.secretKeyRingFile" = props["signing.secretKeyRingFile"] }
 
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
-sourceSets {
-    main {
-        java {
-            srcDir 'build/source/aidl/debug'
-        }
+    defaultConfig {
+        minSdkVersion 18
+        targetSdkVersion rootProject.ext.targetSdkVersion
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
     }
 }
 
-task javadoc(type: Exec, overwrite: true, dependsOn: 'jar') {
-    commandLine './javadoc-scripts/generate_javadoc.sh'
+task androidJavadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
+task javadocJar(type: Jar, dependsOn: androidJavadoc) {
     classifier = 'javadoc'
-    baseName = jar.baseName
-    from 'build/javadoc'
+    from androidJavadoc.destinationDir
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
+task sourcesJar(type: Jar) {
     classifier = 'sources'
-    baseName = jar.baseName
-    from sourceSets.main.allSource
+    from android.sourceSets.main.java.srcDirs
 }
 
 artifacts {
-    archives jar
     archives sourcesJar
     archives javadocJar
-}
-
-dependencies {
-    compile files("${android.sdk}/platforms/${android.target}/android.jar")
 }
 
 // http://jedicoder.blogspot.com/2011/11/automated-gradle-project-deployment-to.html
 // TODO: switch to http://www.gradle.org/docs/current/userguide/publishing_maven.html
 
 signing {
+    required { gradle.taskGraph.hasTask("uploadArchives") }
     sign configurations.archives
 }
 
@@ -94,7 +95,7 @@ uploadArchives {
 
             pom.project {
                name 'Muzei API'
-               packaging 'jar'
+               packaging 'aar'
                description 'The Muzei API allows you to extend Muzei with custom sources'
                url 'http://api.muzei.co'
 
