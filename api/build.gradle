@@ -48,6 +48,31 @@ android {
 task androidJavadoc(type: Javadoc) {
     source = android.sourceSets.main.java.srcDirs
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+
+    configure(options) {
+        windowTitle = "Muzei API"
+        docTitle = "Muzei API"
+        noTree = true
+        noNavBar = true
+        noHelp = true
+        noDeprecated = true
+    }
+    doLast {
+        copy {
+            from "javadoc-scripts"
+            into new File(destinationDir, "resources")
+            include "prettify.*"
+            include "javadoc_stylesheet.css"
+        }
+        exec {
+            commandLine "python", "javadoc-scripts/tweak_javadoc_html.py", destinationDir.toString()
+        }
+        copy {
+            from "javadoc-scripts"
+            into destinationDir
+            include "index.html"
+        }
+    }
 }
 
 task javadocJar(type: Jar, dependsOn: androidJavadoc) {

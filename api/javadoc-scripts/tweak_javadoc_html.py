@@ -34,7 +34,7 @@ def main():
       toroot = '.'
       if path.startswith(root):
         subpath = path[len(root):]
-        toroot = '../' * (subpath.count('/') + 1)
+        toroot = ('..' + os.sep) * (subpath.count(os.sep))
 
       html = process(toroot, html)
       if f.endswith('package-summary.html'):
@@ -43,8 +43,6 @@ def main():
       fp = open(os.path.join(path, f), 'w')
       fp.write(html)
       fp.close()
-
-  shutil.copy('index.html', root)
 
 
 def process(toroot, html):
