@@ -47,13 +47,6 @@ public class ArtworkComplicationJobService extends JobService {
 
     static void scheduleComplicationUpdateJob(Context context) {
         JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
-        if (jobScheduler.getPendingJob(ARTWORK_COMPLICATION_JOB_ID) != null) {
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "Job already scheduled");
-            }
-            // Already scheduled, nothing else to do
-            return;
-        }
         ComponentName componentName = new ComponentName(context, ArtworkComplicationJobService.class);
         int result = jobScheduler.schedule(new JobInfo.Builder(ARTWORK_COMPLICATION_JOB_ID, componentName)
                 .addTriggerContentUri(new JobInfo.TriggerContentUri(
