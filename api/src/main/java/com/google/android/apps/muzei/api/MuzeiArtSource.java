@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -358,7 +359,12 @@ public abstract class MuzeiArtSource extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mServiceLooper.quitSafely();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            mServiceLooper.quitSafely();
+        } else {
+            // Risk losing some messages, but we're being destroyed anyways so...
+            mServiceLooper.quit();
+        }
     }
 
     /**
