@@ -14,9 +14,17 @@
  * limitations under the License.
  */
 
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.3.0-rc1'
+        classpath 'com.google.gms:google-services:3.0.0'
+    }
+}
+
 ext {
-    toolsPluginVersion = "2.3.0-rc1"
-    googleServicesPluginVersion = "3.0.0"
     compileSdkVersion = 25
     buildToolsVersion = "25.0.2"
     targetSdkVersion = 25
