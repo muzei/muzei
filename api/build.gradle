@@ -19,7 +19,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 group = 'com.google.android.apps.muzei'
-version = '2.0'
+version = '2.3'
 
 def Properties props = new Properties()
 props.load(new FileInputStream(file('../local.properties')))
