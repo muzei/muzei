@@ -148,7 +148,8 @@ class AppWidgetUpdateTask extends AsyncTask<Void,Void,Boolean> {
     }
 
     private Bitmap scaleBitmap(Bitmap image, int widgetWidth, int widgetHeight) {
-        if (image == null || image.getWidth() == 0 || image.getHeight() == 0) {
+        if (image == null || image.getWidth() == 0 || image.getHeight() == 0 ||
+                widgetWidth == 0 || widgetHeight == 0) {
             return null;
         }
         int largestDimension = Math.max(widgetWidth, widgetHeight);
