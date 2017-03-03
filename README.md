@@ -9,7 +9,8 @@ Muzei is a live wallpaper that gently refreshes your home screen each day with f
 
 Alternatively, you can choose your favorite photos from your own gallery or other apps to use on your home screen. To keep your wallpaper fresh, Muzei will rotate through your favorite photos every few hours.
 
-**[Install on Google Play](https://play.google.com/store/apps/details?id=net.nurik.roman.muzei)**
+<a href="https://play.google.com/store/apps/details?id=net.nurik.roman.muzei" target="_blank">
+<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" alt="Get it on Google Play" height="90"/></a>
 
 Muzei API
 =========
