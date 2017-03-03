@@ -1048,10 +1048,17 @@ public class GallerySettingsActivity extends AppCompatActivity
         if (clipData != null) {
             int count = clipData.getItemCount();
             for (int i = 0; i < count; i++) {
-                uris.add(clipData.getItemAt(i).getUri());
+                Uri uri = clipData.getItemAt(i).getUri();
+                if (uri != null) {
+                    uris.add(uri);
+                }
             }
         }
 
+        if (uris.isEmpty()) {
+            // Nothing to do, so we can avoid posting the runnable at all
+            return;
+        }
         // Update chosen URIs
         runOnHandlerThread(new Runnable() {
             @Override
