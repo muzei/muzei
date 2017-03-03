@@ -25,6 +25,8 @@ android {
 
     publishNonDefault true
 
+    dexOptions.preDexLibraries true
+
     defaultConfig {
         applicationId "net.nurik.roman.muzei"
         minSdkVersion 23
@@ -55,6 +57,7 @@ android {
         dev {
             // Pre-dex each module and produce an APK to avoid the time consuming dex merging process
             multiDexEnabled true
+            resConfigs "en"
         }
 
         prod {

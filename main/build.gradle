@@ -29,6 +29,8 @@ android {
     def Properties versionProps = new Properties()
     versionProps.load(new FileInputStream(file('../version.properties')))
 
+    dexOptions.preDexLibraries true
+
     defaultConfig {
         applicationId "net.nurik.roman.muzei"
         minSdkVersion 19
@@ -62,6 +64,7 @@ android {
             // Android Lollipop without time consuming dex merging processes.
             minSdkVersion 21
             multiDexEnabled true
+            resConfigs "en"
         }
 
         prod {
