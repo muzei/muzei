@@ -18,8 +18,12 @@ apply plugin: 'com.android.library'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
+def Properties versionProps = new Properties()
+versionProps.load(new FileInputStream(file('../version.properties')))
+
 group = 'com.google.android.apps.muzei'
-version = '2.3'
+version = versionProps['apiName']
+
 
 def Properties props = new Properties()
 props.load(new FileInputStream(file('../local.properties')))
@@ -39,7 +43,7 @@ android {
         minSdkVersion 11
         targetSdkVersion rootProject.ext.targetSdkVersion
 
-        manifestPlaceholders = [api_version: version]
+        manifestPlaceholders = [api_version: versionProps['apiCode'].toInteger()]
     }
 
     compileOptions {
