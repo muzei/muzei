@@ -271,10 +271,8 @@ public class MuzeiProvider extends ContentProvider {
             Log.w(TAG, "Deletes are not supported until the user is unlocked");
             return 0;
         }
-        String callingPackageName = context.getPackageManager().getNameForUid(
-                Binder.getCallingUid());
         // Only allow Muzei to delete content
-        if (!context.getPackageName().equals(callingPackageName)) {
+        if (!context.getPackageName().equals(getCallingPackage())) {
             throw new UnsupportedOperationException("Deletes are not supported");
         }
         if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK ||
@@ -452,8 +450,7 @@ public class MuzeiProvider extends ContentProvider {
             return insertArtwork(uri, values);
         } else if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCES) {
             // Ensure the app inserting the source is Muzei
-            String callingPackageName = context.getPackageManager().getNameForUid(Binder.getCallingUid());
-            if (!context.getPackageName().equals(callingPackageName)) {
+            if (!context.getPackageName().equals(getCallingPackage())) {
                 throw new UnsupportedOperationException("Inserting sources is not supported, use update");
             }
             return insertSource(uri, values);
@@ -486,7 +483,7 @@ public class MuzeiProvider extends ContentProvider {
         values.put(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME, componentName.flattenToShortString());
 
         // Ensure the app inserting the artwork is either Muzei or the same app as the source
-        String callingPackageName = context.getPackageManager().getNameForUid(Binder.getCallingUid());
+        String callingPackageName = getCallingPackage();
         if (!context.getPackageName().equals(callingPackageName) &&
                 !TextUtils.equals(callingPackageName, componentName.getPackageName())) {
             throw new IllegalArgumentException("Calling package name (" + callingPackageName +
@@ -584,9 +581,7 @@ public class MuzeiProvider extends ContentProvider {
 
         // Only Muzei can set the IS_SELECTED field
         if (initialValues.containsKey(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED)) {
-            String callingPackageName = context.getPackageManager().getNameForUid(
-                    Binder.getCallingUid());
-            if (!context.getPackageName().equals(callingPackageName)) {
+            if (!context.getPackageName().equals(getCallingPackage())) {
                 Log.w(TAG, "Only Muzei can set the " + MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED +
                         " column. Ignoring the value in " + initialValues);
                 initialValues.remove(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED);
@@ -740,9 +735,7 @@ public class MuzeiProvider extends ContentProvider {
                 return null;
             }
             if (!data.moveToFirst()) {
-                String callingPackageName = getContext().getPackageManager().getNameForUid(
-                        Binder.getCallingUid());
-                if (!getContext().getPackageName().equals(callingPackageName)) {
+                if (!getContext().getPackageName().equals(getCallingPackage())) {
                     Log.w(TAG, "You must insert at least one row to read or write artwork");
                 }
                 return null;
@@ -769,16 +762,7 @@ public class MuzeiProvider extends ContentProvider {
             if (context == null) {
                 return null;
             }
-            String callingPackageName;
-            try {
-                callingPackageName = context.getPackageManager().getNameForUid(
-                        Binder.getCallingUid());
-            } catch (RuntimeException e) {
-                // PackageManager died? Something serious must be going on...
-                Log.e(TAG, "Unable to determine write permissions due to system instability", e);
-                return null;
-            }
-            if (!context.getPackageName().equals(callingPackageName)) {
+            if (!context.getPackageName().equals(getCallingPackage())) {
                 Log.w(TAG, "Writing to an existing artwork file is not allowed: insert a new row");
             }
             return null;
@@ -894,9 +878,7 @@ public class MuzeiProvider extends ContentProvider {
 
         // Only Muzei can set the IS_SELECTED field
         if (values.containsKey(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED)) {
-            String callingPackageName = context.getPackageManager().getNameForUid(
-                    Binder.getCallingUid());
-            if (!context.getPackageName().equals(callingPackageName)) {
+            if (!context.getPackageName().equals(getCallingPackage())) {
                 Log.w(TAG, "Only Muzei can set the " + MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED +
                         " column. Ignoring the value in " + values);
                 values.remove(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED);
@@ -912,7 +894,7 @@ public class MuzeiProvider extends ContentProvider {
             finalWhere = DatabaseUtils.concatenateWhere(finalWhere,
                     BaseColumns._ID + " = " + uri.getLastPathSegment());
         }
-        String callingPackageName = context.getPackageManager().getNameForUid(Binder.getCallingUid());
+        String callingPackageName = getCallingPackage();
         if (!context.getPackageName().equals(callingPackageName)) {
             // Only allow other apps to update their own source
             finalWhere = DatabaseUtils.concatenateWhere(finalWhere,
