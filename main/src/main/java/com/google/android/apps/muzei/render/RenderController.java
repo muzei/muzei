@@ -24,11 +24,15 @@ import android.os.Message;
 
 import com.google.android.apps.muzei.settings.Prefs;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public abstract class RenderController {
     protected Context mContext;
     protected MuzeiBlurRenderer mRenderer;
     protected Callbacks mCallbacks;
     protected boolean mVisible;
+    private ExecutorService mExecutorService = Executors.newSingleThreadExecutor();
     private BitmapRegionLoader mQueuedBitmapRegionLoader;
     private SharedPreferences.OnSharedPreferenceChangeListener mOnSharedPreferenceChangeListener =
             new SharedPreferences.OnSharedPreferenceChangeListener() {
@@ -61,6 +65,7 @@ public abstract class RenderController {
         }
         Prefs.getSharedPreferences(mContext)
                 .unregisterOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
+        mExecutorService.shutdownNow();
     }
 
     private void throttledForceReloadCurrentArtwork() {
@@ -103,7 +108,7 @@ public abstract class RenderController {
                     }
                 });
             }
-        }.execute((Void) null);
+        }.executeOnExecutor(mExecutorService, (Void) null);
     }
 
     public void setVisible(boolean visible) {

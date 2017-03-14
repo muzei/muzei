@@ -83,7 +83,7 @@ public class DirectBootCacheJobService extends JobService {
                 jobFinished(params, !success);
             }
         };
-        mCacheTask.execute();
+        mCacheTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         // Schedule the job again to catch the next update to the artwork
         scheduleDirectBootCacheJob(this);
         return true;
