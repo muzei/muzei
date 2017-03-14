@@ -138,6 +138,20 @@
             android:taskAffinity=""
             android:theme="@android:style/Theme.NoDisplay"/>
 
+        <!-- Activity and receiver which allows Tasker to trigger the 'Next Artwork' action -->
+        <activity android:name="com.google.android.apps.muzei.tasker.TaskerSettingActivity"
+            android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING" />
+            </intent-filter>
+        </activity>
+        <receiver android:name="com.google.android.apps.muzei.tasker.TaskerActionReceiver"
+            tools:ignore="ExportedReceiver">
+            <intent-filter>
+                <action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING" />
+            </intent-filter>
+        </receiver>
+
         <!-- Watch for source package changes -->
 
         <receiver android:name="com.google.android.apps.muzei.SourcePackageChangeReceiver">

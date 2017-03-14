@@ -118,6 +118,7 @@ dependencies {
     compile "com.google.firebase:firebase-core:$rootProject.ext.googlePlayServicesVersion"
     // Only use crash reporting in the "prod" product flavor
     prodCompile "com.google.firebase:firebase-crash:$rootProject.ext.googlePlayServicesVersion"
+    compile "com.twofortyfouram:android-plugin-api-for-locale:1.0.2"
     compile "org.greenrobot:eventbus:3.0.0"
     compile "com.android.support:appcompat-v7:$rootProject.ext.supportLibraryVersion"
     compile "com.android.support:recyclerview-v7:$rootProject.ext.supportLibraryVersion"
