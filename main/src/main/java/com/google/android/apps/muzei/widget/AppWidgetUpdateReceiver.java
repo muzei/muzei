@@ -19,6 +19,7 @@ package com.google.android.apps.muzei.widget;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
@@ -39,7 +40,7 @@ public class AppWidgetUpdateReceiver extends BroadcastReceiver {
                     protected void onPostExecute(Boolean success) {
                         result.finish();
                     }
-                }.execute();
+                }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
         }
     }

@@ -22,6 +22,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import com.google.android.apps.muzei.SourceManager;
@@ -70,7 +71,7 @@ public class MuzeiAppWidgetProvider extends AppWidgetProvider {
             protected void onPostExecute(Boolean success) {
                 result.finish();
             }
-        }.execute();
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     @Override
