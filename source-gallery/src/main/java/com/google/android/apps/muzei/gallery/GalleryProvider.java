@@ -519,7 +519,7 @@ public class GalleryProvider extends ContentProvider {
             // Assume we have persisted URI permission to the imageUri and can read the image directly from the imageUri
             try {
                 return getContext().getContentResolver().openFileDescriptor(Uri.parse(imageUri), mode);
-            } catch (SecurityException e) {
+            } catch (SecurityException|IllegalArgumentException e) {
                 Log.d(TAG, "Unable to load " + uri + ", deleting the row", e);
                 deleteChosenPhotos(uri, null, null);
                 throw new FileNotFoundException("No permission to load " + uri);
