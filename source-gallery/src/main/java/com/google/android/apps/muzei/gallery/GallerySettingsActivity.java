@@ -371,9 +371,20 @@ public class GallerySettingsActivity extends AppCompatActivity
         mGetContentActivites.clear();
         for (ResolveInfo info : getContentActivities) {
             // Filter out the default system UI
-            if (!TextUtils.equals(info.activityInfo.packageName, "com.android.documentsui")) {
-                mGetContentActivites.add(info.activityInfo);
+            if (TextUtils.equals(info.activityInfo.packageName, "com.android.documentsui")) {
+                continue;
             }
+            // Filter out non-exported activities
+            if (!info.activityInfo.exported) {
+                continue;
+            }
+            // Filter out activities we don't have permission to start
+            if (!TextUtils.isEmpty(info.activityInfo.permission)
+                    && getPackageManager().checkPermission(info.activityInfo.permission,
+                    getPackageName()) != PackageManager.PERMISSION_GRANTED) {
+                continue;
+            }
+            mGetContentActivites.add(info.activityInfo);
         }
 
         // Hide the 'Import photos' action if there are no activities found
