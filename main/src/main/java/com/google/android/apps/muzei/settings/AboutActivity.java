@@ -115,7 +115,9 @@ public class AboutActivity extends AppCompatActivity {
                     public void run() {
                         AnimatedMuzeiLogoFragment logoFragment = (AnimatedMuzeiLogoFragment)
                                 getFragmentManager().findFragmentById(R.id.animated_logo_fragment);
-                        logoFragment.start();
+                        if (logoFragment != null) {
+                            logoFragment.start();
+                        }
                     }
                 });
     }
