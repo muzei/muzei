@@ -35,6 +35,9 @@
         android:icon="@mipmap/ic_launcher"
         android:supportsRtl="true">
 
+        <!-- Needed to support long aspect ratio devices as Muzei has resizeableActivity="false" -->
+        <meta-data android:name="android.max_aspect" android:value="2.1" />
+
         <activity
             android:name="com.google.android.apps.muzei.MuzeiActivity"
             android:theme="@style/Theme.MuzeiActivity"
