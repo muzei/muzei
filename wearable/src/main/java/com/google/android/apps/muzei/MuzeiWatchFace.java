@@ -336,8 +336,8 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
                         (int) (scalingFactor * mBackgroundBitmap.getHeight()),
                         true /* filter */);
             }
-            ImageBlurrer blurrer = new ImageBlurrer(MuzeiWatchFace.this);
-            mBackgroundScaledBlurredBitmap = blurrer.blurBitmap(mBackgroundScaledBitmap,
+            ImageBlurrer blurrer = new ImageBlurrer(MuzeiWatchFace.this, mBackgroundScaledBitmap);
+            mBackgroundScaledBlurredBitmap = blurrer.blurBitmap(
                     ImageBlurrer.MAX_SUPPORTED_BLUR_PIXELS / 2, 0f);
             blurrer.destroy();
         }

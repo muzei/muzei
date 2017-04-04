@@ -107,9 +107,8 @@ public class MuzeiRendererFragment extends Fragment implements
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
             if (!mDemoFocus) {
                 // Blur
-                ImageBlurrer blurrer = new ImageBlurrer(getActivity());
-                Bitmap blurred = blurrer.blurBitmap(bitmap,
-                        ImageBlurrer.MAX_SUPPORTED_BLUR_PIXELS, 0);
+                ImageBlurrer blurrer = new ImageBlurrer(getActivity(), bitmap);
+                Bitmap blurred = blurrer.blurBitmap(ImageBlurrer.MAX_SUPPORTED_BLUR_PIXELS, 0);
                 blurrer.destroy();
 
                 // Dim
