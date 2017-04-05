@@ -384,15 +384,14 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
                         }
 
                         // And finally, create a blurred copy for each keyframe.
-                        ImageBlurrer blurrer = new ImageBlurrer(mContext);
+                        ImageBlurrer blurrer = new ImageBlurrer(mContext, scaledBitmap);
                         for (int f = 1; f <= mBlurKeyframes; f++) {
                             float desaturateAmount = mMaxGrey / 500f * f / mBlurKeyframes;
                             float blurRadius = 0f;
                             if (mMaxPrescaledBlurPixels > 0) {
                                 blurRadius = blurRadiusAtFrame(f);
                             }
-                            Bitmap blurredBitmap = blurrer.blurBitmap(
-                                    scaledBitmap, blurRadius, desaturateAmount);
+                            Bitmap blurredBitmap = blurrer.blurBitmap(blurRadius, desaturateAmount);
                             mPictures[f] = new GLPicture(blurredBitmap);
                             if (blurredBitmap != null) {
                                 blurredBitmap.recycle();

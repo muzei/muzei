@@ -31,48 +31,42 @@ public class ImageBlurrer {
     private final RenderScript mRS;
     private final ScriptIntrinsicBlur mSIBlur;
     private final ScriptIntrinsicColorMatrix mSIGrey;
+    private final Bitmap mSourceBitmap;
+    private final Allocation mAllocationSrc;
 
-    private Allocation mAllocationSrc;
-    private Allocation mAllocationDest;
-
-    public ImageBlurrer(Context context) {
+    public ImageBlurrer(Context context, Bitmap src) {
         mRS = RenderScript.create(context);
         mSIBlur = ScriptIntrinsicBlur.create(mRS, Element.U8_4(mRS));
-        mSIGrey = ScriptIntrinsicColorMatrix.create(mRS, Element.U8_4(mRS));
+        mSIGrey = ScriptIntrinsicColorMatrix.create(mRS);
+
+        mSourceBitmap = src;
+        mAllocationSrc = src != null ? Allocation.createFromBitmap(mRS, src) : null;
     }
 
-    public Bitmap blurBitmap(Bitmap src, float radius, float desaturateAmount) {
-        if (src == null) {
+    public Bitmap blurBitmap(float radius, float desaturateAmount) {
+        if (mSourceBitmap == null) {
             return null;
         }
 
-        Bitmap dest = src.copy(src.getConfig(), true);
+        Bitmap dest = mSourceBitmap.copy(mSourceBitmap.getConfig(), true);
         if (radius == 0f && desaturateAmount == 0f) {
             return dest;
         }
 
-        if (mAllocationSrc == null) {
-            mAllocationSrc = Allocation.createFromBitmap(mRS, src);
-        } else {
-            mAllocationSrc.copyFrom(src);
-        }
-        if (mAllocationDest == null) {
-            mAllocationDest = Allocation.createFromBitmap(mRS, dest);
-        } else {
-            mAllocationDest.copyFrom(dest);
-        }
+        Allocation allocationDest = Allocation.createFromBitmap(mRS, dest);
 
         if (radius > 0f && desaturateAmount > 0f) {
-            doBlur(radius, mAllocationSrc, mAllocationDest);
-            doDesaturate(MathUtil.constrain(0, 1, desaturateAmount), mAllocationDest, mAllocationSrc);
+            doBlur(radius, mAllocationSrc, allocationDest);
+            doDesaturate(MathUtil.constrain(0, 1, desaturateAmount), allocationDest, mAllocationSrc);
             mAllocationSrc.copyTo(dest);
         } else if (radius > 0f) {
-            doBlur(radius, mAllocationSrc, mAllocationDest);
-            mAllocationDest.copyTo(dest);
+            doBlur(radius, mAllocationSrc, allocationDest);
+            allocationDest.copyTo(dest);
         } else {
-            doDesaturate(MathUtil.constrain(0, 1, desaturateAmount), mAllocationSrc, mAllocationDest);
-            mAllocationDest.copyTo(dest);
+            doDesaturate(MathUtil.constrain(0, 1, desaturateAmount), mAllocationSrc, allocationDest);
+            allocationDest.copyTo(dest);
         }
+        allocationDest.destroy();
         return dest;
     }
 
@@ -102,11 +96,9 @@ public class ImageBlurrer {
 
     public void destroy() {
         mSIBlur.destroy();
+        mSIGrey.destroy();
         if (mAllocationSrc != null) {
             mAllocationSrc.destroy();
-        }
-        if (mAllocationDest != null) {
-            mAllocationDest.destroy();
         }
         mRS.destroy();
     }
