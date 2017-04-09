@@ -17,11 +17,8 @@
 package com.google.android.apps.muzei.settings;
 
 import android.content.ActivityNotFoundException;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -35,10 +32,10 @@ import android.widget.TextView;
 import com.google.android.apps.muzei.render.MuzeiRendererFragment;
 import com.google.android.apps.muzei.util.AnimatedMuzeiLogoFragment;
 
+import net.nurik.roman.muzei.BuildConfig;
 import net.nurik.roman.muzei.R;
 
 public class AboutActivity extends AppCompatActivity {
-    private static final String VERSION_UNAVAILABLE = "N/A";
 
     private ViewPropertyAnimator mAnimator = null;
 
@@ -65,21 +62,10 @@ public class AboutActivity extends AppCompatActivity {
                     .commit();
         }
 
-        // Get app version
-        PackageManager pm = getPackageManager();
-        String packageName = getPackageName();
-        String versionName;
-        try {
-            PackageInfo info = pm.getPackageInfo(packageName, 0);
-            versionName = info.versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            versionName = VERSION_UNAVAILABLE;
-        }
-
         // Build the about body view and append the link to see OSS licenses
         TextView versionView = (TextView) findViewById(R.id.app_version);
         versionView.setText(Html.fromHtml(
-                getString(R.string.about_version_template, versionName)));
+                getString(R.string.about_version_template, BuildConfig.VERSION_NAME)));
 
         TextView aboutBodyView = (TextView) findViewById(R.id.about_body);
         aboutBodyView.setText(Html.fromHtml(getString(R.string.about_body)));
