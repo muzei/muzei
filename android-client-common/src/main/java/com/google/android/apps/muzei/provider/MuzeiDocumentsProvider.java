@@ -21,6 +21,8 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.UriPermission;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.AssetFileDescriptor;
@@ -32,8 +34,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.ParcelFileDescriptor;
+import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
 import android.provider.DocumentsContract;
 import android.provider.DocumentsProvider;
@@ -43,6 +47,7 @@ import android.util.Log;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
 
+import net.nurik.roman.muzei.androidclientcommon.BuildConfig;
 import net.nurik.roman.muzei.androidclientcommon.R;
 
 import java.io.File;
@@ -55,12 +60,30 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * DocumentsProvider that allows users to view previous Muzei wallpapers
  */
 public class MuzeiDocumentsProvider extends DocumentsProvider {
     private static final String TAG = "MuzeiDocumentsProvider";
+    /**
+     * Method to manually persist a URI permission, required on API 25 or lower
+     * devices when attempting to persist URIs from our own package.
+     * @see #call(String, String, Bundle)
+     */
+    private static final String TAKE_PERSISTABLE_URI_PERMISSION = "takePersistableUriPermission";
+    /**
+     * Method to manually release a persisted a URI permission, required on API 25 or lower
+     * devices when attempting to persist URIs from our own package.
+     * @see #call(String, String, Bundle)
+     */
+    private static final String RELEASE_PERSISTABLE_URI_PERMISSION = "releasePersistableUriPermission";
+    /**
+     * On API 25 or lower devices, we don't get URI permissions to URIs
+     * from our own package so we store them manually with this key.
+     */
+    private static final String KEY_PERSISTED_URIS = "KEY_PERSISTED_URIS";
     /**
      * Default root projection
      */
@@ -101,6 +124,82 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
 
     private static final String ARTWORK_DOCUMENT_ID_PREFIX = "artwork_";
     private static final String SOURCE_DOCUMENT_ID_PREFIX = "source_";
+
+    /**
+     * Transform a Document URI into the underlying Artwork URI
+     */
+    private static Uri getArtworkUriForDocumentUri(Uri documentUri) {
+        String documentId = DocumentsContract.getDocumentId(documentUri);
+        if (documentId != null && documentId.startsWith(ARTWORK_DOCUMENT_ID_PREFIX)) {
+            long artworkId = Long.parseLong(documentId.replace(ARTWORK_DOCUMENT_ID_PREFIX, ""));
+            return ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI, artworkId);
+        }
+        return null;
+    }
+
+    /**
+     * Gets the set of artwork that other apps (or other parts of Muzei) have persistent access to.
+     * This artwork should be preserved for as long as possible to avoid breaking others that are relying
+     * on the artwork being persistently available.
+     *
+     * @param context Context used to retrieve the persisted URIs
+     * @return A Set of {@link MuzeiContract.Artwork artwork} URIs that have persisted access
+     */
+    static Set<Uri> getPersistedArtworkUris(@NonNull Context context) {
+        // Get the set of persisted URIs - we never want to delete persisted artwork
+        List<UriPermission> persistedUriPermissions = context.getContentResolver().getPersistedUriPermissions();
+        TreeSet<Uri> persistedUris = new TreeSet<>();
+        for (UriPermission persistedUriPermission : persistedUriPermissions) {
+            Uri persistedUri = persistedUriPermission.getUri();
+            // Translate MuzeiDocumentsProvider URIs to artwork URIs
+            if (persistedUri.getAuthority().equals(BuildConfig.DOCUMENTS_AUTHORITY)) {
+                persistedUri = getArtworkUriForDocumentUri(persistedUri);
+                if (persistedUri != null) {
+                    persistedUris.add(persistedUri);
+                }
+            }
+        }
+        // On API 25 or lower devices, we don't get URI permissions to URIs
+        // from our own package so we need to store them manually.
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        for (String persistedUri : preferences.getStringSet(KEY_PERSISTED_URIS, new TreeSet<String>())) {
+            persistedUris.add(Uri.parse(persistedUri));
+        }
+        return persistedUris;
+    }
+
+    /**
+     * On API 25 or lower devices, we don't get URI permissions to URIs
+     * from our own package so we manage those URI permissions manually by
+     * passing through requests here.
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    public Bundle call(@NonNull final String method, final String arg, final Bundle extras) {
+        if (TAKE_PERSISTABLE_URI_PERMISSION.equals(method)){
+            Uri artworkUri = getArtworkUriForDocumentUri(Uri.parse(arg));
+            if (artworkUri != null) {
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+                Set<String> persistedUris = preferences.getStringSet(KEY_PERSISTED_URIS, new TreeSet<String>());
+                if (persistedUris.add(artworkUri.toString())) {
+                    preferences.edit().putStringSet(KEY_PERSISTED_URIS, persistedUris).apply();
+                }
+            }
+            return new Bundle();
+        } else if (RELEASE_PERSISTABLE_URI_PERMISSION.equals(method)) {
+            Uri artworkUri = getArtworkUriForDocumentUri(Uri.parse(arg));
+            if (artworkUri != null) {
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+                Set<String> persistedUris = preferences.getStringSet(KEY_PERSISTED_URIS, new TreeSet<String>());
+                if (persistedUris.remove(artworkUri.toString())) {
+                    preferences.edit().putStringSet(KEY_PERSISTED_URIS, persistedUris).apply();
+                }
+            }
+            return new Bundle();
+        }
+        return super.call(method, arg, extras);
+    }
 
     @Override
     public Cursor queryRoots(String[] projection) throws FileNotFoundException {

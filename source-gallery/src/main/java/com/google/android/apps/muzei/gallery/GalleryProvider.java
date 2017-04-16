@@ -83,7 +83,7 @@ public class GalleryProvider extends ContentProvider {
     /**
      * The database version
      */
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
     /**
      * A UriMatcher instance
      */
@@ -210,6 +210,10 @@ public class GalleryProvider extends ContentProvider {
     }
 
     private int deleteChosenPhotos(@NonNull final Uri uri, final String selection, final String[] selectionArgs) {
+        Context context = getContext();
+        if (context == null) {
+            return 0;
+        }
         // Opens the database object in "write" mode.
         final SQLiteDatabase db = databaseHelper.getWritableDatabase();
         // We can't just simply delete the rows as that won't free up the space occupied by the
@@ -229,17 +233,27 @@ public class GalleryProvider extends ContentProvider {
                 if (!file.delete()) {
                     Log.w(TAG, "Unable to delete " + file);
                 }
-            } else if (getContext() != null) {
-                // Try to release any persisted URI permission for the imageUri
+            } else {
                 Uri uriToRelease = Uri.parse(imageUri);
-                ContentResolver contentResolver = getContext().getContentResolver();
-                List<UriPermission> persistedUriPermissions = contentResolver.getPersistedUriPermissions();
-                for (UriPermission persistedUriPermission : persistedUriPermissions) {
-                    if (persistedUriPermission.getUri().equals(uriToRelease)) {
-                        contentResolver.releasePersistableUriPermission(
-                                uriToRelease, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                        break;
+                ContentResolver contentResolver = context.getContentResolver();
+                boolean haveUriPermission = context.checkUriPermission(uriToRelease,
+                        Binder.getCallingPid(), Binder.getCallingUid(),
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION) == PackageManager.PERMISSION_GRANTED;
+                if (haveUriPermission) {
+                    // Try to release any persisted URI permission for the imageUri
+                    List<UriPermission> persistedUriPermissions = contentResolver.getPersistedUriPermissions();
+                    for (UriPermission persistedUriPermission : persistedUriPermissions) {
+                        if (persistedUriPermission.getUri().equals(uriToRelease)) {
+                            contentResolver.releasePersistableUriPermission(
+                                    uriToRelease, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            break;
+                        }
                     }
+                } else {
+                    // On API 25 and lower, we don't get URI permissions to URIs
+                    // from our own package so we manage those URI permissions manually
+                    contentResolver.call(uriToRelease, "releasePersistableUriPermission",
+                            uriToRelease.toString(), null);
                 }
             }
             rowsToDelete.moveToNext();
@@ -346,6 +360,12 @@ public class GalleryProvider extends ContentProvider {
                         throw new SQLException("Error downloading gallery image " + imageUri, e);
                     }
                 }
+            } else {
+                // On API 25 and lower, we don't get URI permissions to URIs
+                // from our own package so we manage those URI permissions manually
+                ContentResolver resolver = context.getContentResolver();
+                resolver.call(uriToTake, "takePersistableUriPermission",
+                        uriToTake.toString(), null);
             }
         }
         final SQLiteDatabase db = databaseHelper.getWritableDatabase();
@@ -583,8 +603,11 @@ public class GalleryProvider extends ContentProvider {
      */
     static class DatabaseHelper extends SQLiteOpenHelper {
 
+        private Context mContext;
+
         DatabaseHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
+            mContext = context;
         }
 
         /**
@@ -642,6 +665,37 @@ public class GalleryProvider extends ContentProvider {
                     db.execSQL("ALTER TABLE " + GalleryContract.ChosenPhotos.TABLE_NAME
                             + " ADD COLUMN " + GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI + " INTEGER");
                 }
+            }
+            if (oldVersion < 5) {
+                // Double check all existing artwork to make sure we've
+                // persisted URI permissions where possible
+                ContentResolver contentResolver = mContext.getContentResolver();
+                Cursor data = db.query(GalleryContract.ChosenPhotos.TABLE_NAME,
+                        new String[] {GalleryContract.ChosenPhotos.COLUMN_NAME_URI},
+                        null, null, null, null, null);
+                while (data.moveToNext()) {
+                    String imageUri = data.getString(0);
+                    File cachedFile = getCacheFileForUri(mContext, imageUri);
+                    if (cachedFile == null || !cachedFile.exists()) {
+                        // If we don't have a cached file, then we must have permission to the
+                        // underlying URI
+                        Uri uri = Uri.parse(imageUri);
+                        boolean haveUriPermission = mContext.checkUriPermission(uri,
+                                Binder.getCallingPid(), Binder.getCallingUid(),
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION) == PackageManager.PERMISSION_GRANTED;
+                        if (!haveUriPermission) {
+                            // On API 25 and lower, we don't get URI permissions to URIs
+                            // from our own package so we manage those URI permissions manually
+                            try {
+                                contentResolver.call(uri, "takePersistableUriPermission",
+                                        uri.toString(), null);
+                            } catch (Exception e) {
+                                Log.w(TAG, "Unable to manually persist uri permissions to " + uri);
+                            }
+                        }
+                    }
+                }
+                data.close();
             }
         }
     }
