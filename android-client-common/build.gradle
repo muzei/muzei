@@ -28,6 +28,13 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion rootProject.ext.targetSdkVersion
+
+        def documentsAuthorityValue = "com.google.android.apps.muzei.documents"
+        manifestPlaceholders =
+                [documentsAuthority: documentsAuthorityValue]
+        buildConfigField("String",
+                "DOCUMENTS_AUTHORITY",
+                "\"${documentsAuthorityValue}\"")
     }
 
     compileOptions {

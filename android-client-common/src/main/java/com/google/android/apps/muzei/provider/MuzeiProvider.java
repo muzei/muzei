@@ -60,12 +60,19 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Provides access to a the most recent artwork
  */
 public class MuzeiProvider extends ContentProvider {
     private static final String TAG = "MuzeiProvider";
+    /**
+     * Maximum number of previous artwork to keep per source, with the exception of artwork that
+     * has a persisted permission.
+     * @see #cleanupCachedFiles
+     */
+    private static final int MAX_CACHE_SIZE = 10;
     /**
      * The incoming URI matches the ARTWORK URI pattern
      */
@@ -764,6 +771,7 @@ public class MuzeiProvider extends ContentProvider {
             if (!context.getPackageName().equals(getCallingPackage())) {
                 Log.w(TAG, "Writing to an existing artwork file is not allowed: insert a new row");
             }
+            cleanupCachedFiles();
             return null;
         }
         try {
@@ -782,14 +790,15 @@ public class MuzeiProvider extends ContentProvider {
                                 } else {
                                     // The file was successfully written, notify listeners of the new artwork
                                     notifyChange(uri);
+                                    cleanupCachedFiles();
                                 }
                             }
 
                         }
                     });
         } catch (IOException e) {
-            Log.e(TAG, "Error opening artwork", e);
-            throw new FileNotFoundException("Error opening artwork");
+            Log.e(TAG, "Error opening artwork " + uri, e);
+            throw new FileNotFoundException("Error opening artwork " + uri);
         }
     }
 
@@ -853,6 +862,87 @@ public class MuzeiProvider extends ContentProvider {
             filename.append(unique.hashCode());
         }
         return new File(directory, filename.toString());
+    }
+
+    /**
+     * Limit the number of cached files per art source to {@link #MAX_CACHE_SIZE}.
+     * @see #MAX_CACHE_SIZE
+     */
+    private void cleanupCachedFiles() {
+        Context context = getContext();
+        if (context == null) {
+            return;
+        }
+        Cursor sources = querySource(MuzeiContract.Sources.CONTENT_URI,
+                new String[] {MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME},
+                null, null, null);
+        if (sources == null) {
+            return;
+        }
+        // Access to certain artwork can be persisted through MuzeiDocumentsProvider
+        // We never want to delete these artwork as that would break other apps
+        Set<Uri> persistedUris = MuzeiDocumentsProvider.getPersistedArtworkUris(context);
+        // Loop through each source, cleaning up old artwork
+        while (sources.moveToNext()) {
+            String componentName = sources.getString(0);
+            // Now use that ComponentName to look through the past artwork from that source
+            Cursor artworkBySource = queryArtwork(MuzeiContract.Artwork.CONTENT_URI,
+                    new String[] {BaseColumns._ID, MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI,
+                        MuzeiContract.Artwork.COLUMN_NAME_TOKEN},
+                    MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME + "=?",
+                    new String[] {componentName},
+                    MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED + " DESC");
+            if (artworkBySource == null) {
+                continue;
+            }
+            List<String> artworkIdsToKeep = new ArrayList<>();
+            List<String> artworkToKeep = new ArrayList<>();
+            // First find all of the persisted artwork from this source and mark them as artwork to keep
+            while (artworkBySource.moveToNext()) {
+                long id = artworkBySource.getLong(0);
+                Uri uri = ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI, id);
+                String artworkUri = artworkBySource.getString(1);
+                String artworkToken = artworkBySource.getString(2);
+                String unique = !TextUtils.isEmpty(artworkUri) ? artworkUri : artworkToken;
+                if (persistedUris.contains(uri)) {
+                    // Always keep artwork that is persisted
+                    Log.d(TAG, "Keeping persisted " + uri + " pointing to " + unique);
+                    artworkIdsToKeep.add(Long.toString(id));
+                    artworkToKeep.add(unique);
+                }
+            }
+            // Now go through the artwork from this source and find the most recent artwork
+            // and mark them as artwork to keep
+            int count = 0;
+            artworkBySource.moveToPosition(-1);
+            while (artworkBySource.moveToNext()) {
+                long id = artworkBySource.getLong(0);
+                Uri uri = ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI, id);
+                String artworkUri = artworkBySource.getString(1);
+                String artworkToken = artworkBySource.getString(2);
+                String unique = !TextUtils.isEmpty(artworkUri) ? artworkUri : artworkToken;
+                if (artworkToKeep.contains(unique)) {
+                    // This ensures we are double counting the same artwork in our count
+                    Log.d(TAG, "Already kept " + uri + " pointing to " + unique);
+                    artworkIdsToKeep.add(Long.toString(id));
+                    continue;
+                }
+                if (count++ < MAX_CACHE_SIZE) {
+                    // Keep artwork below the MAX_CACHE_SIZE
+                    Log.d(TAG, "Keeping number " + count + " artwork " + uri + " pointing to " + unique);
+                    artworkIdsToKeep.add(Long.toString(id));
+                    artworkToKeep.add(unique);
+                }
+            }
+            // Now delete all artwork not in the keep list
+            deleteArtwork(MuzeiContract.Artwork.CONTENT_URI,
+                    MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME + "=?"
+                    + " AND " + MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID
+                    + " NOT IN (" + TextUtils.join(",", artworkIdsToKeep) + ")",
+                    new String[] {componentName});
+            artworkBySource.close();
+        }
+        sources.close();
     }
 
     @Override
