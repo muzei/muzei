@@ -132,17 +132,19 @@ public class PanView extends View {
     }
 
     private void updateScaledImage() {
-        if (mImage == null) {
+        if (mImage == null || mImage.getWidth() == 0 || mImage.getHeight() == 0) {
             return;
         }
         int width = mImage.getWidth();
         int height = mImage.getHeight();
         if (width > height) {
             float scalingFactor = mHeight * 1f / height;
-            mScaledImage = Bitmap.createScaledBitmap(mImage, (int)(scalingFactor * width), mHeight, true);
+            int scaledWidth = Math.max(1, (int) (scalingFactor * width));
+            mScaledImage = Bitmap.createScaledBitmap(mImage, scaledWidth, mHeight, true);
         } else {
             float scalingFactor = mWidth * 1f / width;
-            mScaledImage = Bitmap.createScaledBitmap(mImage, mWidth, (int)(scalingFactor * height), true);
+            int scaledHeight = Math.max(1, (int) (scalingFactor * height));
+            mScaledImage = Bitmap.createScaledBitmap(mImage, mWidth, scaledHeight, true);
         }
         ImageBlurrer blurrer = new ImageBlurrer(getContext(), mScaledImage);
         mBlurredImage = blurrer.blurBitmap(ImageBlurrer.MAX_SUPPORTED_BLUR_PIXELS, 0f);
