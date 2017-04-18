@@ -129,10 +129,15 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
      * Transform a Document URI into the underlying Artwork URI
      */
     private static Uri getArtworkUriForDocumentUri(Uri documentUri) {
-        String documentId = DocumentsContract.getDocumentId(documentUri);
-        if (documentId != null && documentId.startsWith(ARTWORK_DOCUMENT_ID_PREFIX)) {
-            long artworkId = Long.parseLong(documentId.replace(ARTWORK_DOCUMENT_ID_PREFIX, ""));
-            return ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI, artworkId);
+        try {
+            String documentId = DocumentsContract.getDocumentId(documentUri);
+            if (documentId != null && documentId.startsWith(ARTWORK_DOCUMENT_ID_PREFIX)) {
+                long artworkId = Long.parseLong(documentId.replace(ARTWORK_DOCUMENT_ID_PREFIX, ""));
+                return ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI, artworkId);
+            }
+        } catch (IllegalArgumentException e) {
+            // We'll get an IllegalArgumentException on tree URIs, but these don't correspond with
+            // individual artwork, so we can ignore them
         }
         return null;
     }
