@@ -252,8 +252,12 @@ public class GalleryProvider extends ContentProvider {
                 } else {
                     // On API 25 and lower, we don't get URI permissions to URIs
                     // from our own package so we manage those URI permissions manually
-                    contentResolver.call(uriToRelease, "releasePersistableUriPermission",
-                            uriToRelease.toString(), null);
+                    try {
+                        contentResolver.call(uriToRelease, "releasePersistableUriPermission",
+                                uriToRelease.toString(), null);
+                    } catch (Exception e) {
+                        Log.w(TAG, "Unable to manually release uri permissions to " + uri, e);
+                    }
                 }
             }
             rowsToDelete.moveToNext();
@@ -364,8 +368,12 @@ public class GalleryProvider extends ContentProvider {
                 // On API 25 and lower, we don't get URI permissions to URIs
                 // from our own package so we manage those URI permissions manually
                 ContentResolver resolver = context.getContentResolver();
-                resolver.call(uriToTake, "takePersistableUriPermission",
-                        uriToTake.toString(), null);
+                try {
+                    resolver.call(uriToTake, "takePersistableUriPermission",
+                           uriToTake.toString(), null);
+                } catch (Exception e) {
+                    Log.w(TAG, "Unable to manually persist uri permissions to " + uri, e);
+                }
             }
         }
         final SQLiteDatabase db = databaseHelper.getWritableDatabase();
@@ -690,7 +698,7 @@ public class GalleryProvider extends ContentProvider {
                                 contentResolver.call(uri, "takePersistableUriPermission",
                                         uri.toString(), null);
                             } catch (Exception e) {
-                                Log.w(TAG, "Unable to manually persist uri permissions to " + uri);
+                                Log.w(TAG, "Unable to manually persist uri permissions to " + uri, e);
                             }
                         }
                     }
