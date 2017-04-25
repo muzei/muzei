@@ -408,8 +408,8 @@ public class GalleryArtSource extends MuzeiArtSource {
                     values.put(GalleryContract.MetadataCache.COLUMN_NAME_DATETIME, date.getTime());
                 }
 
-                float[] latlong = new float[2];
-                if (exifInterface.getLatLong(latlong)) {
+                double[] latlong = exifInterface.getLatLong();
+                if (latlong != null) {
                     // Reverse geocode
                     List<Address> addresses = null;
                     try {
