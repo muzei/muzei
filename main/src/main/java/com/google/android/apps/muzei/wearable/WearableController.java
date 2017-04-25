@@ -117,7 +117,7 @@ public class WearableController {
                 case ExifInterface.ORIENTATION_ROTATE_180: rotation = 180; break;
                 case ExifInterface.ORIENTATION_ROTATE_270: rotation = 270; break;
             }
-        } catch (IOException|StackOverflowError ignored) {
+        } catch (IOException|NumberFormatException|StackOverflowError ignored) {
         }
         return rotation;
     }
