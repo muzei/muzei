@@ -71,7 +71,7 @@ public class RealRenderController extends RenderController {
                     case ExifInterface.ORIENTATION_ROTATE_180: rotation = 180; break;
                     case ExifInterface.ORIENTATION_ROTATE_270: rotation = 270; break;
                 }
-            } catch (IOException|StackOverflowError e) {
+            } catch (IOException|NumberFormatException|StackOverflowError e) {
                 Log.w(TAG, "Couldn't open EXIF interface on artwork", e);
             }
             return BitmapRegionLoader.newInstance(
