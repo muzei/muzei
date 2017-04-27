@@ -297,9 +297,14 @@ public class GalleryArtSource extends MuzeiArtSource {
     private int addAllImagesFromTree(final List<Uri> allImages, final Uri treeUri, final String parentDocumentId) {
         final Uri childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri,
                 parentDocumentId);
-        Cursor children = getContentResolver().query(childrenUri,
-                new String[] { DocumentsContract.Document.COLUMN_DOCUMENT_ID, DocumentsContract.Document.COLUMN_MIME_TYPE},
-                null, null, null);
+        Cursor children = null;
+        try {
+            children = getContentResolver().query(childrenUri,
+                    new String[]{DocumentsContract.Document.COLUMN_DOCUMENT_ID, DocumentsContract.Document.COLUMN_MIME_TYPE},
+                    null, null, null);
+        } catch (NullPointerException e) {
+            Log.e(TAG, "Error reading " + childrenUri, e);
+        }
         if (children == null) {
             return 0;
         }
