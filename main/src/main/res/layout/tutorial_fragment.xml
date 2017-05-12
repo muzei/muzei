@@ -16,7 +16,6 @@
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:visibility="gone">
-    <include layout="@layout/muzei_include_tutorial_content" />
+    android:layout_height="match_parent">
+    <include layout="@layout/tutorial_content" />
 </FrameLayout>

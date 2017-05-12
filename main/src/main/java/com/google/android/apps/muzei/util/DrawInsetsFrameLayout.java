@@ -26,6 +26,8 @@ import android.widget.FrameLayout;
 
 import net.nurik.roman.muzei.R;
 
+import java.util.ArrayList;
+
 public class DrawInsetsFrameLayout extends FrameLayout {
     private Drawable mInsetBackground;
     private Drawable mTopInsetBackground;
@@ -34,7 +36,7 @@ public class DrawInsetsFrameLayout extends FrameLayout {
 
     private Rect mInsets;
     private Rect mTempRect = new Rect();
-    private OnInsetsCallback mOnInsetsCallback;
+    private ArrayList<OnInsetsCallback> mOnInsetsCallbacks = new ArrayList<>();
 
     public DrawInsetsFrameLayout(Context context) {
         super(context);
@@ -99,8 +101,15 @@ public class DrawInsetsFrameLayout extends FrameLayout {
         }
     }
 
-    public void setOnInsetsCallback(OnInsetsCallback onInsetsCallback) {
-        mOnInsetsCallback = onInsetsCallback;
+    public void addOnInsetsCallback(OnInsetsCallback onInsetsCallback) {
+        mOnInsetsCallbacks.add(onInsetsCallback);
+        if (mInsets != null) {
+            onInsetsCallback.onInsetsChanged(mInsets);
+        }
+    }
+
+    public void removeOnInsetsCallback(OnInsetsCallback onInsetsCallback) {
+        mOnInsetsCallbacks.remove(onInsetsCallback);
     }
 
     @Override
@@ -108,8 +117,8 @@ public class DrawInsetsFrameLayout extends FrameLayout {
         mInsets = new Rect(insets);
         setWillNotDraw(false);
         postInvalidateOnAnimation();
-        if (mOnInsetsCallback != null) {
-            mOnInsetsCallback.onInsetsChanged(insets);
+        for (OnInsetsCallback onInsetsCallback : mOnInsetsCallbacks) {
+            onInsetsCallback.onInsetsChanged(insets);
         }
         return true;
     }

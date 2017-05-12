@@ -100,7 +100,7 @@ public class AboutActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         AnimatedMuzeiLogoFragment logoFragment = (AnimatedMuzeiLogoFragment)
-                                getFragmentManager().findFragmentById(R.id.animated_logo_fragment);
+                                getSupportFragmentManager().findFragmentById(R.id.animated_logo_fragment);
                         if (logoFragment != null) {
                             logoFragment.start();
                         }

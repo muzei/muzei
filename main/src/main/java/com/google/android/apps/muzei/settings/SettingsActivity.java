@@ -101,7 +101,7 @@ public class SettingsActivity extends AppCompatActivity
         // Set up UI widgets
         setupAppBar();
 
-        ((DrawInsetsFrameLayout) findViewById(R.id.draw_insets_frame_layout)).setOnInsetsCallback(
+        ((DrawInsetsFrameLayout) findViewById(R.id.draw_insets_frame_layout)).addOnInsetsCallback(
                 new DrawInsetsFrameLayout.OnInsetsCallback() {
                     @Override
                     public void onInsetsChanged(Rect insets) {
