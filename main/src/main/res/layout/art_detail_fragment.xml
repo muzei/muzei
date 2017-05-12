@@ -1,0 +1,179 @@
+<!--
+  Copyright 2014 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.apps.muzei.util.PanScaleProxyView
+        android:id="@+id/pan_scale_proxy"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <FrameLayout android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/image_loading_container"
+        android:clickable="true"
+        android:background="#c000"
+        android:visibility="gone"
+        android:alpha="0">
+
+        <com.google.android.apps.muzei.util.AnimatedMuzeiLoadingSpinnerView
+            android:id="@+id/image_loading_indicator"
+            android:layout_width="132dp"
+            android:layout_height="88dp"
+            android:layout_gravity="center" />
+
+    </FrameLayout>
+
+    <FrameLayout android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/image_error_container"
+        android:clickable="true"
+        android:orientation="vertical"
+        android:background="#c000"
+        android:visibility="gone"
+        android:alpha="0">
+
+        <TextView android:id="@+id/error_easter_egg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center_horizontal"
+            android:fontFamily="sans-serif-condensed"
+            android:textStyle="italic"
+            android:textSize="16sp"
+            android:layout_marginTop="32dp"
+            android:layout_marginStart="48dp"
+            android:layout_marginEnd="48dp"
+            android:textColor="#cfff"
+            android:text="@string/error_easter_egg"/>
+
+        <Button android:id="@+id/image_error_retry_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="?selectableItemBackground"
+            android:paddingTop="24dp"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingBottom="16dp"
+            android:drawableTop="@drawable/grumpy_mcpuzzles"
+            android:text="@string/retry"
+            android:drawablePadding="8dp"
+            android:textSize="22sp"
+            android:fontFamily="sans-serif-condensed"
+            android:textStyle="italic"
+            android:textColor="#fff" />
+
+    </FrameLayout>
+
+    <View android:id="@+id/statusbar_scrim"
+          android:layout_width="match_parent"
+          android:layout_height="160dp"
+          android:layout_gravity="top"
+          android:background="@android:color/transparent" />
+
+    <LinearLayout android:id="@+id/chrome_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="bottom"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal">
+
+        <FrameLayout android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingTop="192dp"> <!-- extend gradient -->
+
+            <LinearLayout android:id="@+id/metadata"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?selectableItemBackground"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.apps.muzei.util.ShadowDipsTextView
+                    android:id="@+id/attribution"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/art_detail_attribution_text_size"
+                    android:textColor="#cfff"
+                    app:shadowColor="#8000"
+                    app:shadowDx="0dp"
+                    app:shadowDy="1dp"
+                    app:shadowRadius="3dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:paddingStart="@dimen/art_detail_metadata_margin"
+                    android:layout_marginBottom="@dimen/art_detail_attribution_title_margin"
+                    android:paddingTop="@dimen/art_detail_metadata_margin"
+                    android:paddingEnd="@dimen/art_detail_metadata_margin" />
+
+                <com.google.android.apps.muzei.util.ShadowDipsTextView
+                    android:id="@+id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/art_detail_title_text_size"
+                    android:textColor="#fff"
+                    app:shadowColor="#8000"
+                    app:shadowDx="0dp"
+                    app:shadowDy="1dp"
+                    app:shadowRadius="3dp"
+                    android:paddingBottom="@dimen/art_detail_title_bottom_padding"
+                    android:layout_marginBottom="@dimen/art_detail_title_byline_margin"
+                    android:paddingTop="@dimen/art_detail_metadata_margin"
+                    android:paddingStart="@dimen/art_detail_metadata_margin"
+                    android:paddingEnd="@dimen/art_detail_metadata_margin" />
+
+                <com.google.android.apps.muzei.util.ShadowDipsTextView
+                    android:id="@+id/byline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/art_detail_byline_text_size"
+                    android:textColor="#fff"
+                    app:shadowColor="#8000"
+                    app:shadowDx="0dp"
+                    app:shadowDy="1dp"
+                    app:shadowRadius="3dp"
+                    android:paddingStart="@dimen/art_detail_metadata_margin"
+                    android:paddingBottom="@dimen/art_detail_metadata_margin_bottom"
+                    android:paddingEnd="@dimen/art_detail_metadata_margin" />
+
+            </LinearLayout>
+        </FrameLayout>
+
+        <ImageButton android:id="@+id/next_button"
+            android:layout_width="@dimen/art_detail_button_width"
+            android:layout_height="@dimen/art_detail_button_height"
+            android:background="?selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_skip"
+            android:scaleType="center"
+            android:contentDescription="@string/action_next_artwork"
+            android:visibility="gone" />
+
+        <ImageButton android:id="@+id/overflow_button"
+            android:layout_width="@dimen/art_detail_button_width"
+            android:layout_height="@dimen/art_detail_button_height"
+            android:background="?selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_overflow"
+            android:scaleType="center"
+            android:contentDescription="@string/contentdesc_overflow" />
+
+    </LinearLayout>
+
+</FrameLayout>

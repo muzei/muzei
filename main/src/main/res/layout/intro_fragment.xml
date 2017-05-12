@@ -17,11 +17,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/intro_container"
     android:layout_height="match_parent"
-    android:layout_width="match_parent"
-    android:alpha="0"
-    android:visibility="gone">
+    android:layout_width="match_parent">
 
-    <FrameLayout android:id="@+id/demo_view_container"
+    <fragment android:name="com.google.android.apps.muzei.render.MuzeiRendererFragment"
+        android:id="@+id/demo_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
@@ -29,7 +28,7 @@
         android:layout_width="match_parent"
         android:background="@drawable/intro_background_protection" />
 
-    <fragment android:name="com.google.android.apps.muzei.util.AnimatedMuzeiLogoFragment"
+    <FrameLayout
         android:id="@+id/animated_logo_fragment"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"

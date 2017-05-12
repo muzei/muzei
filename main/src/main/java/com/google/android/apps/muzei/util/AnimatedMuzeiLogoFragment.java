@@ -18,8 +18,9 @@ package com.google.android.apps.muzei.util;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.app.Fragment;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,10 +46,14 @@ public class AnimatedMuzeiLogoFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.animated_logo_fragment, container, false);
-        mSubtitleView = rootView.findViewById(R.id.logo_subtitle);
+        return inflater.inflate(R.layout.animated_logo_fragment, container, false);
+    }
 
-        mLogoView = (AnimatedMuzeiLogoView) rootView.findViewById(R.id.animated_logo);
+    @Override
+    public void onViewCreated(final View view, @Nullable final Bundle savedInstanceState) {
+        mSubtitleView = view.findViewById(R.id.logo_subtitle);
+
+        mLogoView = (AnimatedMuzeiLogoView) view.findViewById(R.id.animated_logo);
         mLogoView.setOnStateChangeListener(new AnimatedMuzeiLogoView.OnStateChangeListener() {
             @Override
             public void onStateChange(int state) {
@@ -75,8 +80,9 @@ public class AnimatedMuzeiLogoFragment extends Fragment {
                 }
             }
         });
-        reset();
-        return rootView;
+        if (savedInstanceState == null) {
+            reset();
+        }
     }
 
     public void start() {

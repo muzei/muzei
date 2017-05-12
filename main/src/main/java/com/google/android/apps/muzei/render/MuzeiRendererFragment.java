@@ -16,7 +16,6 @@
 
 package com.google.android.apps.muzei.render;
 
-import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -24,7 +23,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.opengl.GLSurfaceView;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
@@ -66,8 +64,8 @@ public class MuzeiRendererFragment extends Fragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
-        mDemoMode = args.getBoolean(ARG_DEMO_MODE, false);
-        mDemoFocus = args.getBoolean(ARG_DEMO_FOCUS, false);
+        mDemoMode = args == null || args.getBoolean(ARG_DEMO_MODE, false);
+        mDemoFocus = args == null || args.getBoolean(ARG_DEMO_FOCUS, false);
     }
 
     @Override
