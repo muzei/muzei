@@ -24,13 +24,22 @@ buildscript {
     }
 }
 
+allprojects {
+    repositories {
+        jcenter()
+        maven {
+            url 'https://maven.google.com'
+        }
+    }
+}
+
 ext {
     compileSdkVersion = 25
     buildToolsVersion = "25.0.2"
     targetSdkVersion = 25
 
     supportLibraryVersion = "25.3.1"
-    googlePlayServicesVersion = "10.2.1"
+    googlePlayServicesVersion = "10.2.6"
     okhttpVersion = "3.6.0"
     picassoVersion = "2.5.2"
 }
