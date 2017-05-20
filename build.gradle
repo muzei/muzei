@@ -39,7 +39,7 @@ ext {
     targetSdkVersion = 25
 
     supportLibraryVersion = "25.3.1"
-    googlePlayServicesVersion = "10.2.1"
+    googlePlayServicesVersion = "10.2.6"
     okhttpVersion = "3.6.0"
     picassoVersion = "2.5.2"
 }
