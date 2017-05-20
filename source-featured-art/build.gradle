@@ -16,10 +16,6 @@
 
 apply plugin: 'com.android.library'
 
-repositories {
-    jcenter()
-}
-
 dependencies {
     compile project(':api')
     compile "com.squareup.okhttp3:okhttp:$rootProject.ext.okhttpVersion"
