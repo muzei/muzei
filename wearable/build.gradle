@@ -15,6 +15,7 @@
  */
 
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.firebase.firebase-perf'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -100,6 +101,7 @@ dependencies {
 
     compile "com.google.android.gms:play-services-wearable:$rootProject.ext.googlePlayServicesVersion"
     compile "com.google.firebase:firebase-core:$rootProject.ext.googlePlayServicesVersion"
+    compile "com.google.firebase:firebase-perf:$rootProject.ext.googlePlayServicesVersion"
     // Only use crash reporting in the "prod" product flavor
     prodCompile "com.google.firebase:firebase-crash:$rootProject.ext.googlePlayServicesVersion"
     compile project(':android-client-common')
