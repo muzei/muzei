@@ -54,17 +54,6 @@ android {
         }
     }
 
-    productFlavors {
-        dev {
-            // Pre-dex each module and produce an APK to avoid the time consuming dex merging process
-            multiDexEnabled true
-            resConfigs "en"
-        }
-
-        prod {
-        }
-    }
-
     buildTypes {
         debug {
             versionNameSuffix " Debug"
@@ -102,8 +91,8 @@ dependencies {
     compile "com.google.android.gms:play-services-wearable:$rootProject.ext.googlePlayServicesVersion"
     compile "com.google.firebase:firebase-core:$rootProject.ext.googlePlayServicesVersion"
     compile "com.google.firebase:firebase-perf:$rootProject.ext.googlePlayServicesVersion"
-    // Only use crash reporting in the "prod" product flavor
-    prodCompile "com.google.firebase:firebase-crash:$rootProject.ext.googlePlayServicesVersion"
+    // Only use crash reporting in release builds
+    releaseCompile "com.google.firebase:firebase-crash:$rootProject.ext.googlePlayServicesVersion"
     compile project(':android-client-common')
 }
 
