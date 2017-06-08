@@ -36,6 +36,7 @@ android {
         versionName versionProps['name']
         versionCode versionProps['code'].toInteger()
 
+        wearAppUnbundled true
         buildConfigField "String", "DEVICE_TYPE", "\"android\""
     }
 
@@ -51,25 +52,6 @@ android {
             keyAlias keyProps["alias"] ?: ""
             storePassword keyProps["storePass"] ?: ""
             keyPassword keyProps["pass"] ?: ""
-        }
-    }
-
-    productFlavors {
-        dev {
-            // dev utilizes minSDKVersion = 21 to allow the Android gradle plugin
-            // to pre-dex each module and produce an APK that can be tested on
-            // Android Lollipop without time consuming dex merging processes.
-            minSdkVersion 21
-            multiDexEnabled true
-            resConfigs "en"
-        }
-
-        prod {
-        }
-
-        wear2 {
-            wearAppUnbundled true
-            versionCode versionProps['codeAlpha'].toInteger()
         }
     }
 
@@ -104,18 +86,14 @@ android {
     }
 }
 
-configurations {
-    prodReleaseWearApp
-    prodPublicBetaWearApp
-}
 dependencies {
     compile "com.squareup.okhttp3:okhttp:$rootProject.ext.okhttpVersion"
     compile "com.squareup.picasso:picasso:$rootProject.ext.picassoVersion"
     compile "com.google.android.gms:play-services-wearable:$rootProject.ext.googlePlayServicesVersion"
     compile "com.google.firebase:firebase-core:$rootProject.ext.googlePlayServicesVersion"
     compile "com.google.firebase:firebase-perf:$rootProject.ext.googlePlayServicesVersion"
-    // Only use crash reporting in the "prod" product flavor
-    prodCompile "com.google.firebase:firebase-crash:$rootProject.ext.googlePlayServicesVersion"
+    // Only use crash reporting in release builds
+    releaseCompile "com.google.firebase:firebase-crash:$rootProject.ext.googlePlayServicesVersion"
     compile "com.twofortyfouram:android-plugin-api-for-locale:1.0.2"
     compile "org.greenrobot:eventbus:3.0.0"
     compile "com.android.support:appcompat-v7:$rootProject.ext.supportLibraryVersion"
@@ -129,8 +107,6 @@ dependencies {
     compile project(':android-client-common')
     compile project(':source-featured-art')
     compile project(':source-gallery')
-    prodReleaseWearApp project(path: ':wearable', configuration: 'prodRelease')
-    prodPublicBetaWearApp project(path: ':wearable', configuration: 'prodPublicBeta')
 }
 
 apply plugin: 'com.google.gms.google-services'
