@@ -104,12 +104,16 @@ class AppWidgetUpdateTask extends AsyncTask<Void,Void,Boolean> {
         DisplayMetrics displayMetrics = mContext.getResources().getDisplayMetrics();
         int smallWidgetHeight = mContext.getResources().getDimensionPixelSize(
                 R.dimen.widget_small_height_breakpoint);
+        int minWidgetSize = mContext.getResources().getDimensionPixelSize(
+                R.dimen.widget_min_size);
         for (int widgetId : appWidgetIds) {
             Bundle extras = appWidgetManager.getAppWidgetOptions(widgetId);
             int widgetWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                     extras.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH), displayMetrics);
+            widgetWidth = Math.max(widgetWidth, minWidgetSize);
             int widgetHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                     extras.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT), displayMetrics);
+            widgetHeight = Math.max(widgetHeight, minWidgetSize);
             Bitmap image;
             try {
                 BitmapFactory.Options options = new BitmapFactory.Options();
