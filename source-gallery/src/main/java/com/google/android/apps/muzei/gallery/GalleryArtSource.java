@@ -449,7 +449,7 @@ public class GalleryArtSource extends MuzeiArtSource {
                 }
 
                 getContentResolver().insert(GalleryContract.MetadataCache.CONTENT_URI, values);
-            } catch (ParseException|IOException|NumberFormatException|StackOverflowError
+            } catch (ParseException|IOException|IllegalArgumentException|StackOverflowError
                     |NullPointerException e) {
                 Log.w(TAG, "Couldn't read image metadata.", e);
             }
