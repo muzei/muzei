@@ -93,7 +93,7 @@ public class DownloadArtworkTask extends AsyncTask<Void, Void, Boolean> {
                 out.write(buffer, 0, bytesRead);
             }
             out.flush();
-        } catch (IOException e) {
+        } catch (IOException|IllegalArgumentException e) {
             Log.e(TAG, "Error downloading artwork", e);
             return false;
         }
