@@ -21,7 +21,9 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.0-alpha3'
         classpath 'com.google.gms:google-services:3.0.0'
-        classpath 'com.google.firebase:firebase-plugins:1.1.0'
+        classpath ('com.google.firebase:firebase-plugins:1.1.0') {
+            exclude group: 'com.google.guava', module: 'guava-jdk5'
+        }
     }
 }
 
@@ -39,7 +41,7 @@ ext {
     buildToolsVersion = "26.0.0"
     targetSdkVersion = 25
 
-    supportLibraryVersion = "25.3.1"
+    supportLibraryVersion = "26.0.0-beta2"
     googlePlayServicesVersion = "10.2.6"
     okhttpVersion = "3.6.0"
     picassoVersion = "2.5.2"
