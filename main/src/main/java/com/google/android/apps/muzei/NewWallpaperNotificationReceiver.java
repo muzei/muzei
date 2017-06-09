@@ -16,7 +16,8 @@
 
 package com.google.android.apps.muzei;
 
-import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -27,9 +28,11 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.RemoteInput;
@@ -45,11 +48,11 @@ import com.google.android.apps.muzei.render.ImageUtil;
 
 import net.nurik.roman.muzei.R;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.FileNotFoundException;
 import java.net.URISyntaxException;
 import java.util.List;
-
-import org.greenrobot.eventbus.EventBus;
 
 public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
     private static final String TAG = "NewWallpaperNotif";
@@ -62,6 +65,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
     private static final String PREF_LAST_READ_NOTIFICATION_ARTWORK_TOKEN
             = "last_read_notification_artwork_token";
 
+    private static final String NOTIFICATION_CHANNEL = "new_wallpaper";
     private static final int NOTIFICATION_ID = 1234;
 
     private static final String ACTION_MARK_NOTIFICATION_READ
@@ -216,14 +220,18 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
             return;
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createNotificationChannel(context);
+        }
+
         String artworkTitle = artwork.getString(artwork.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_TITLE));
         String title = TextUtils.isEmpty(artworkTitle)
                 ? context.getString(R.string.app_name)
                 : artworkTitle;
-        NotificationCompat.Builder nb = new NotificationCompat.Builder(context)
+        NotificationCompat.Builder nb = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL)
                 .setSmallIcon(R.drawable.ic_stat_muzei)
                 .setColor(ContextCompat.getColor(context, R.color.notification))
-                .setPriority(Notification.PRIORITY_MIN)
+                .setPriority(NotificationCompat.PRIORITY_MIN)
                 .setAutoCancel(true)
                 .setContentTitle(title)
                 .setContentText(context.getString(R.string.notification_new_wallpaper))
@@ -322,10 +330,10 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
         nb.extend(extender);
 
         // Hide the image and artwork title for the public version
-        NotificationCompat.Builder publicBuilder = new NotificationCompat.Builder(context)
+        NotificationCompat.Builder publicBuilder = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL)
                 .setSmallIcon(R.drawable.ic_stat_muzei)
                 .setColor(ContextCompat.getColor(context, R.color.notification))
-                .setPriority(Notification.PRIORITY_MIN)
+                .setPriority(NotificationCompat.PRIORITY_MIN)
                 .setAutoCancel(true)
                 .setContentTitle(context.getString(R.string.app_name))
                 .setContentText(context.getString(R.string.notification_new_wallpaper))
@@ -343,5 +351,14 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
         nm.notify(NOTIFICATION_ID, nb.build());
 
         artwork.close();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private static void createNotificationChannel(Context context) {
+        NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+        NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL,
+                context.getString(R.string.notification_new_wallpaper_channel_name),
+                NotificationManager.IMPORTANCE_MIN);
+        notificationManager.createNotificationChannel(channel);
     }
 }

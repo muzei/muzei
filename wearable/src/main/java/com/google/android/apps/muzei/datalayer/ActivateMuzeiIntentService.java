@@ -17,6 +17,7 @@
 package com.google.android.apps.muzei.datalayer;
 
 import android.app.IntentService;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -25,11 +26,13 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
 import android.service.notification.StatusBarNotification;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.wearable.activity.ConfirmationActivity;
@@ -55,6 +58,7 @@ import java.util.concurrent.TimeUnit;
 
 public class ActivateMuzeiIntentService extends IntentService {
     private static final String TAG = "ActivateMuzeiService";
+    private static final String NOTIFICATION_CHANNEL = "activate_muzei";
     private static final int INSTALL_NOTIFICATION_ID = 3113;
     private static final int ACTIVATE_NOTIFICATION_ID = 3114;
     private static final String ACTIVATE_MUZEI_NOTIF_SHOWN_PREF_KEY = "ACTIVATE_MUZEI_NOTIF_SHOWN";
@@ -80,7 +84,10 @@ public class ActivateMuzeiIntentService extends IntentService {
                 hasActivateNotification = true;
             }
         }
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createNotificationChannel(context);
+        }
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL);
         builder.setSmallIcon(R.drawable.ic_stat_muzei)
                 .setColor(ContextCompat.getColor(context, R.color.notification))
                 .setPriority(NotificationCompat.PRIORITY_MAX)
@@ -161,6 +168,16 @@ public class ActivateMuzeiIntentService extends IntentService {
                 .setBackground(background));
         FirebaseAnalytics.getInstance(context).logEvent("activate_notif_installed", null);
         notificationManager.notify(ACTIVATE_NOTIFICATION_ID, builder.build());
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private static void createNotificationChannel(Context context) {
+        NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+        NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL,
+                context.getString(R.string.activate_channel_name),
+                NotificationManager.IMPORTANCE_MAX);
+        channel.enableVibration(true);
+        notificationManager.createNotificationChannel(channel);
     }
 
     public static void clearNotifications(Context context) {
