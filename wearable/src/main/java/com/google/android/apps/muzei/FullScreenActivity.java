@@ -25,7 +25,6 @@ import android.content.AsyncTaskLoader;
 import android.content.Loader;
 import android.database.ContentObserver;
 import android.graphics.Bitmap;
-import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -40,7 +39,6 @@ import android.widget.TextView;
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.util.PanView;
-import com.google.android.apps.muzei.util.TypefaceUtil;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.BuildConfig;
@@ -79,14 +77,6 @@ public class FullScreenActivity extends Activity implements LoaderManager.Loader
         mMetadataContainerView = findViewById(R.id.metadata_container);
         mTitleView = (TextView) findViewById(R.id.title);
         mBylineView = (TextView) findViewById(R.id.byline);
-
-        Typeface tf = TypefaceUtil.getAndCache(this, "Alegreya-BlackItalic.ttf");
-        mTitleView = (TextView) findViewById(R.id.title);
-        mTitleView.setTypeface(tf);
-
-        tf = TypefaceUtil.getAndCache(this, "Alegreya-Italic.ttf");
-        mBylineView = (TextView) findViewById(R.id.byline);
-        mBylineView.setTypeface(tf);
 
         mDismissOverlay = (DismissOverlayView) findViewById(R.id.dismiss_overlay);
         // Only show the dismiss overlay on Wear 1.0 devices
