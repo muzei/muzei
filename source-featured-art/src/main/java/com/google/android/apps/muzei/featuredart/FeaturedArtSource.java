@@ -76,6 +76,17 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
     }
 
     @Override
+    protected void onEnabled() {
+        long nextUpdateTimeMillis = getSharedPreferences()
+                .getLong("scheduled_update_time_millis", 0);
+        if (nextUpdateTimeMillis == 0 && getCurrentArtwork() != null) {
+            // Handle cases where we've crashed midway through updating the image
+            // and lost our scheduled update
+            onUpdate(UPDATE_REASON_OTHER);
+        }
+    }
+
+    @Override
     protected void onUpdate(@UpdateReason int reason) {
         List<UserCommand> commands = new ArrayList<>();
         if (reason == UPDATE_REASON_INITIAL) {
