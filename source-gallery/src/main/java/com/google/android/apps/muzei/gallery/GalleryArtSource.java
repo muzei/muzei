@@ -95,25 +95,25 @@ public class GalleryArtSource extends MuzeiArtSource {
         super.onCreate();
         mGeocoder = new Geocoder(this);
         mContentObserver = new ContentObserver(new Handler()) {
+            private int numImages = 0;
+
             @Override
             public void onChange(boolean selfChange, Uri uri) {
+                int oldCount = numImages;
                 // Update the metadata
-                updateMeta();
+                numImages = updateMeta();
 
-                // See if we've just added the very first image
                 Artwork currentArtwork = getCurrentArtwork();
-                if (currentArtwork == null) {
-                    publishNextArtwork(null);
-                    return;
-                }
-
-                // See if the current artwork was removed
-                Uri currentArtworkUri = currentArtwork.getToken() != null
+                Uri currentArtworkUri = currentArtwork != null && currentArtwork.getToken() != null
                         ? Uri.parse(currentArtwork.getToken())
                         : null;
                 if (uri.equals(currentArtworkUri)) {
                     // We're showing a removed URI
                     publishNextArtwork(null);
+                } else if (!GalleryContract.ChosenPhotos.CONTENT_URI.equals(uri)
+                        && oldCount == 0 && numImages > 0) {
+                    // If we've transitioned from a count of zero to a count greater than zero
+                    publishNextArtwork(uri);
                 }
             }
         };
@@ -329,7 +329,7 @@ public class GalleryArtSource extends MuzeiArtSource {
         return numImagesAdded;
     }
 
-    private void updateMeta() {
+    private int updateMeta() {
         Cursor chosenUris = getContentResolver().query(GalleryContract.ChosenPhotos.CONTENT_URI,
                 new String[] {
                         BaseColumns._ID,
@@ -376,6 +376,7 @@ public class GalleryArtSource extends MuzeiArtSource {
         } else {
             removeAllUserCommands();
         }
+        return numImages;
     }
 
     private void scheduleNext() {

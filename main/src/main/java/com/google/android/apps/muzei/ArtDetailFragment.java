@@ -57,7 +57,6 @@ import com.google.android.apps.muzei.util.CheatSheet;
 import com.google.android.apps.muzei.util.DrawInsetsFrameLayout;
 import com.google.android.apps.muzei.util.PanScaleProxyView;
 import com.google.android.apps.muzei.util.ScrimUtil;
-import com.google.android.apps.muzei.util.TypefaceUtil;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.R;
