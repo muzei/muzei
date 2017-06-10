@@ -34,6 +34,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
@@ -224,8 +225,8 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
             mDateMinAvailableMargin = getResources().getDimension(R.dimen.date_min_available_margin);
             mBackgroundPaint = new Paint();
             mBackgroundPaint.setColor(Color.BLACK);
-            mHeavyTypeface = Typeface.createFromAsset(getAssets(), "NunitoClock-Bold.ttf");
-            mLightTypeface = Typeface.createFromAsset(getAssets(), "NunitoClock-Regular.ttf");
+            mHeavyTypeface = ResourcesCompat.getFont(MuzeiWatchFace.this, R.font.nunito_clock_bold);
+            mLightTypeface = ResourcesCompat.getFont(MuzeiWatchFace.this, R.font.nunito_clock_regular);
 
             float densityMultiplier = getResources().getDisplayMetrics().density;
 
