@@ -27,6 +27,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.content.res.ResourcesCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseIntArray;
@@ -123,17 +124,17 @@ public class ArtDetailFragment extends Fragment
                 return;
             }
             Artwork currentArtwork = Artwork.fromCursor(data);
-            String titleFont = "AlegreyaSans-Black.ttf";
-            String bylineFont = "AlegreyaSans-Medium.ttf";
+            int titleFont = R.font.alegreya_sans_black;
+            int bylineFont = R.font.alegreya_sans_medium;
             if (MuzeiContract.Artwork.META_FONT_TYPE_ELEGANT.equals(currentArtwork.getMetaFont())) {
-                titleFont = "Alegreya-BlackItalic.ttf";
-                bylineFont = "Alegreya-Italic.ttf";
+                titleFont = R.font.alegreya_black_italic;
+                bylineFont = R.font.alegreya_italic;
             }
 
-            mTitleView.setTypeface(TypefaceUtil.getAndCache(getContext(), titleFont));
+            mTitleView.setTypeface(ResourcesCompat.getFont(getContext(), titleFont));
             mTitleView.setText(currentArtwork.getTitle());
 
-            mBylineView.setTypeface(TypefaceUtil.getAndCache(getContext(), bylineFont));
+            mBylineView.setTypeface(ResourcesCompat.getFont(getContext(), bylineFont));
             mBylineView.setText(currentArtwork.getByline());
 
             String attribution = currentArtwork.getAttribution();
