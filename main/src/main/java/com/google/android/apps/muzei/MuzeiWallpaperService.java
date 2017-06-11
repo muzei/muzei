@@ -44,7 +44,6 @@ import android.view.ViewConfiguration;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
-import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
 import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
 import com.google.android.apps.muzei.render.RealRenderController;
@@ -52,10 +51,9 @@ import com.google.android.apps.muzei.render.RenderController;
 import com.google.android.apps.muzei.settings.Prefs;
 import com.google.android.apps.muzei.shortcuts.ArtworkInfoShortcutController;
 import com.google.android.apps.muzei.sync.TaskQueueService;
+import com.google.android.apps.muzei.wallpaper.WallpaperAnalytics;
 import com.google.android.apps.muzei.wearable.WearableController;
-import com.google.firebase.analytics.FirebaseAnalytics;
 
-import net.nurik.roman.muzei.BuildConfig;
 import net.rbgrn.android.glwallpaperservice.GLWallpaperService;
 
 import org.greenrobot.eventbus.EventBus;
@@ -82,6 +80,7 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
     public void onCreate() {
         super.onCreate();
         mLifecycle = new LifecycleRegistry(this);
+        mLifecycle.addObserver(new WallpaperAnalytics(this));
         if (UserManagerCompat.isUserUnlocked(this)) {
             mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
             initialize();
@@ -105,7 +104,6 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
     }
 
     private void initialize() {
-        FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE);
         SourceManager.subscribeToSelectedSource(MuzeiWallpaperService.this);
         mNetworkChangeReceiver = new NetworkChangeReceiver();
         IntentFilter networkChangeFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
@@ -184,6 +182,7 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
     }
 
     private class MuzeiWallpaperEngine extends GLEngine implements
+            LifecycleOwner,
             LifecycleObserver,
             RenderController.Callbacks,
             MuzeiBlurRenderer.Callbacks {
@@ -199,6 +198,8 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
         private boolean mArtDetailMode = false;
         private boolean mVisible = true;
         private boolean mValidDoubleTap;
+
+        private LifecycleRegistry mEngineLifecycle;
 
         private boolean mIsLockScreenVisibleReceiverRegistered = false;
         private SharedPreferences.OnSharedPreferenceChangeListener
@@ -258,6 +259,10 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
 
             mGestureDetector = new GestureDetector(MuzeiWallpaperService.this, mGestureListener);
 
+            mEngineLifecycle = new LifecycleRegistry(this);
+            mEngineLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
+            mEngineLifecycle.addObserver(new WallpaperAnalytics(MuzeiWallpaperService.this));
+
             SharedPreferences sp = Prefs.getSharedPreferences(MuzeiWallpaperService.this);
             sp.registerOnSharedPreferenceChangeListener(mLockScreenPreferenceChangeListener);
             // Trigger the initial registration if needed
@@ -273,15 +278,16 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
             EventBus.getDefault().register(this);
         }
 
+        @Override
+        public Lifecycle getLifecycle() {
+            return mEngineLifecycle;
+        }
+
         @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
         public void onUserUnlocked() {
             // The MuzeiWallpaperService only gets to ON_CREATE when the user is unlocked
-            activateWallpaper();
-        }
-
-        private void activateWallpaper() {
-            FirebaseAnalytics.getInstance(MuzeiWallpaperService.this).logEvent("wallpaper_created", null);
-            EventBus.getDefault().postSticky(new WallpaperActiveStateChangedEvent(true));
+            // At that point, we can proceed with the engine's lifecycle
+            mEngineLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START);
         }
 
         @Override
@@ -297,12 +303,9 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
         public void onDestroy() {
             EventBus.getDefault().unregister(this);
             if (!isPreview()) {
-                if (mLifecycle.getCurrentState().isAtLeast(Lifecycle.State.CREATED)) {
-                    FirebaseAnalytics.getInstance(MuzeiWallpaperService.this).logEvent("wallpaper_destroyed", null);
-                    EventBus.getDefault().postSticky(new WallpaperActiveStateChangedEvent(false));
-                }
                 mLifecycle.removeObserver(this);
             }
+            mEngineLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
             if (mIsLockScreenVisibleReceiverRegistered) {
                 unregisterReceiver(mLockScreenVisibleReceiver);
             }
