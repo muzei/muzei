@@ -50,6 +50,7 @@ import com.google.android.apps.muzei.render.RenderController;
 import com.google.android.apps.muzei.settings.Prefs;
 import com.google.android.apps.muzei.shortcuts.ArtworkInfoShortcutController;
 import com.google.android.apps.muzei.wallpaper.NetworkChangeObserver;
+import com.google.android.apps.muzei.wallpaper.NotificationUpdater;
 import com.google.android.apps.muzei.wallpaper.WallpaperAnalytics;
 import com.google.android.apps.muzei.wearable.WearableController;
 
@@ -62,8 +63,6 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
     private LifecycleRegistry mLifecycle;
     private boolean mInitialized = false;
     private BroadcastReceiver mUnlockReceiver;
-    private HandlerThread mNotificationHandlerThread;
-    private ContentObserver mNotificationContentObserver;
     private HandlerThread mWearableHandlerThread;
     private ContentObserver mWearableContentObserver;
     private HandlerThread mArtworkInfoShortcutHandlerThread;
@@ -81,6 +80,7 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
         mLifecycle.addObserver(new WallpaperAnalytics(this));
         mLifecycle.addObserver(new SourceManager(this));
         mLifecycle.addObserver(new NetworkChangeObserver(this));
+        mLifecycle.addObserver(new NotificationUpdater(this));
         if (UserManagerCompat.isUserUnlocked(this)) {
             mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
             initialize();
@@ -104,18 +104,6 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
     }
 
     private void initialize() {
-        // Set up a thread to update notifications whenever the artwork changes
-        mNotificationHandlerThread = new HandlerThread("MuzeiWallpaperService-Notification");
-        mNotificationHandlerThread.start();
-        mNotificationContentObserver = new ContentObserver(new Handler(mNotificationHandlerThread.getLooper())) {
-            @Override
-            public void onChange(final boolean selfChange, final Uri uri) {
-                NewWallpaperNotificationReceiver.maybeShowNewArtworkNotification(MuzeiWallpaperService.this);
-            }
-        };
-        getContentResolver().registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
-                true, mNotificationContentObserver);
-
         // Set up a thread to update Android Wear whenever the artwork changes
         mWearableHandlerThread = new HandlerThread("MuzeiWallpaperService-Wearable");
         mWearableHandlerThread.start();
@@ -155,8 +143,6 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
             }
             getContentResolver().unregisterContentObserver(mWearableContentObserver);
             mWearableHandlerThread.quitSafely();
-            getContentResolver().unregisterContentObserver(mNotificationContentObserver);
-            mNotificationHandlerThread.quitSafely();
         } else {
             unregisterReceiver(mUnlockReceiver);
         }
