@@ -16,7 +16,6 @@
 
 package com.google.android.apps.muzei;
 
-import android.app.KeyguardManager;
 import android.app.WallpaperManager;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
@@ -27,7 +26,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -42,8 +40,8 @@ import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
 import com.google.android.apps.muzei.render.RealRenderController;
 import com.google.android.apps.muzei.render.RenderController;
-import com.google.android.apps.muzei.settings.Prefs;
 import com.google.android.apps.muzei.shortcuts.ArtworkInfoShortcutController;
+import com.google.android.apps.muzei.wallpaper.LockscreenObserver;
 import com.google.android.apps.muzei.wallpaper.NetworkChangeObserver;
 import com.google.android.apps.muzei.wallpaper.NotificationUpdater;
 import com.google.android.apps.muzei.wallpaper.WallpaperAnalytics;
@@ -104,7 +102,7 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
         super.onDestroy();
     }
 
-    private class MuzeiWallpaperEngine extends GLEngine implements
+    public class MuzeiWallpaperEngine extends GLEngine implements
             LifecycleOwner,
             LifecycleObserver,
             RenderController.Callbacks,
@@ -124,49 +122,6 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
 
         private LifecycleRegistry mEngineLifecycle;
 
-        private boolean mIsLockScreenVisibleReceiverRegistered = false;
-        private SharedPreferences.OnSharedPreferenceChangeListener
-                mLockScreenPreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(final SharedPreferences sp, final String key) {
-                if (Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED.equals(key)) {
-                    if (sp.getBoolean(Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED, false)) {
-                        IntentFilter intentFilter = new IntentFilter();
-                        intentFilter.addAction(Intent.ACTION_USER_PRESENT);
-                        intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
-                        intentFilter.addAction(Intent.ACTION_SCREEN_ON);
-                        registerReceiver(mLockScreenVisibleReceiver, intentFilter);
-                        mIsLockScreenVisibleReceiverRegistered = true;
-                        // If the user is not yet unlocked (i.e., using Direct Boot), we should
-                        // immediately send the lock screen visible callback
-                        if (!UserManagerCompat.isUserUnlocked(MuzeiWallpaperService.this)) {
-                            lockScreenVisibleChanged(true);
-                        }
-                    } else if (mIsLockScreenVisibleReceiverRegistered) {
-                        unregisterReceiver(mLockScreenVisibleReceiver);
-                        mIsLockScreenVisibleReceiverRegistered = false;
-                    }
-                }
-            }
-        };
-        private BroadcastReceiver mLockScreenVisibleReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(final Context context, final Intent intent) {
-                if (intent != null) {
-                    if (Intent.ACTION_USER_PRESENT.equals(intent.getAction())) {
-                        lockScreenVisibleChanged(false);
-                    } else if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
-                        lockScreenVisibleChanged(true);
-                    } else if (Intent.ACTION_SCREEN_ON.equals(intent.getAction())) {
-                        KeyguardManager kgm = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
-                        if (!kgm.inKeyguardRestrictedInputMode()) {
-                            lockScreenVisibleChanged(false);
-                        }
-                    }
-                }
-            }
-        };
-
         @Override
         public void onCreate(SurfaceHolder surfaceHolder) {
             super.onCreate(surfaceHolder);
@@ -185,12 +140,7 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
             mEngineLifecycle = new LifecycleRegistry(this);
             mEngineLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
             mEngineLifecycle.addObserver(new WallpaperAnalytics(MuzeiWallpaperService.this));
-
-            SharedPreferences sp = Prefs.getSharedPreferences(MuzeiWallpaperService.this);
-            sp.registerOnSharedPreferenceChangeListener(mLockScreenPreferenceChangeListener);
-            // Trigger the initial registration if needed
-            mLockScreenPreferenceChangeListener.onSharedPreferenceChanged(sp,
-                    Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED);
+            mEngineLifecycle.addObserver(new LockscreenObserver(MuzeiWallpaperService.this, this));
 
             if (!isPreview()) {
                 // Use the MuzeiWallpaperService's lifecycle to wait for the user to unlock
@@ -229,11 +179,6 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
                 mLifecycle.removeObserver(this);
             }
             mEngineLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
-            if (mIsLockScreenVisibleReceiverRegistered) {
-                unregisterReceiver(mLockScreenVisibleReceiver);
-            }
-            Prefs.getSharedPreferences(MuzeiWallpaperService.this)
-                    .unregisterOnSharedPreferenceChangeListener(mLockScreenPreferenceChangeListener);
             queueEvent(new Runnable() {
                 @Override
                 public void run() {
@@ -267,7 +212,7 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
             requestRender();
         }
 
-        private void lockScreenVisibleChanged(final boolean isLockScreenVisible) {
+        public void lockScreenVisibleChanged(final boolean isLockScreenVisible) {
             cancelDelayedBlur();
             queueEvent(new Runnable() {
                 @Override
