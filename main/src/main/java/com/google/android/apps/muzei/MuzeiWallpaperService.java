@@ -28,20 +28,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.database.ContentObserver;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.HandlerThread;
-import android.support.annotation.RequiresApi;
 import android.support.v4.os.UserManagerCompat;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.ViewConfiguration;
 
-import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
 import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
@@ -61,10 +56,7 @@ import org.greenrobot.eventbus.Subscribe;
 
 public class MuzeiWallpaperService extends GLWallpaperService implements LifecycleOwner {
     private LifecycleRegistry mLifecycle;
-    private boolean mInitialized = false;
     private BroadcastReceiver mUnlockReceiver;
-    private HandlerThread mArtworkInfoShortcutHandlerThread;
-    private ContentObserver mArtworkInfoShortcutContentObserver;
 
     @Override
     public Engine onCreateEngine() {
@@ -80,15 +72,16 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
         mLifecycle.addObserver(new NetworkChangeObserver(this));
         mLifecycle.addObserver(new NotificationUpdater(this));
         mLifecycle.addObserver(new WearableController(this));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+            mLifecycle.addObserver(new ArtworkInfoShortcutController(this));
+        }
         if (UserManagerCompat.isUserUnlocked(this)) {
             mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
-            initialize();
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             mUnlockReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
-                    initialize();
                     unregisterReceiver(this);
                 }
             };
@@ -102,33 +95,9 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
         return mLifecycle;
     }
 
-    private void initialize() {
-        // Set up a thread to update the Artwork Info shortcut whenever the artwork changes
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-            mArtworkInfoShortcutHandlerThread = new HandlerThread("MuzeiWallpaperService-ArtworkInfoShortcut");
-            mArtworkInfoShortcutHandlerThread.start();
-            mArtworkInfoShortcutContentObserver = new ContentObserver(new Handler(
-                    mArtworkInfoShortcutHandlerThread.getLooper())) {
-                @RequiresApi(api = Build.VERSION_CODES.N_MR1)
-                @Override
-                public void onChange(final boolean selfChange, final Uri uri) {
-                    ArtworkInfoShortcutController.updateShortcut(MuzeiWallpaperService.this);
-                }
-            };
-            getContentResolver().registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
-                    true, mArtworkInfoShortcutContentObserver);
-        }
-        mInitialized = true;
-    }
-
     @Override
     public void onDestroy() {
-        if (mInitialized) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-                getContentResolver().unregisterContentObserver(mArtworkInfoShortcutContentObserver);
-                mArtworkInfoShortcutHandlerThread.quitSafely();
-            }
-        } else {
+        if (mUnlockReceiver != null) {
             unregisterReceiver(mUnlockReceiver);
         }
         mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
