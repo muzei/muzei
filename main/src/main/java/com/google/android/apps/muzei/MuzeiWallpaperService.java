@@ -63,8 +63,6 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
     private LifecycleRegistry mLifecycle;
     private boolean mInitialized = false;
     private BroadcastReceiver mUnlockReceiver;
-    private HandlerThread mWearableHandlerThread;
-    private ContentObserver mWearableContentObserver;
     private HandlerThread mArtworkInfoShortcutHandlerThread;
     private ContentObserver mArtworkInfoShortcutContentObserver;
 
@@ -81,6 +79,7 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
         mLifecycle.addObserver(new SourceManager(this));
         mLifecycle.addObserver(new NetworkChangeObserver(this));
         mLifecycle.addObserver(new NotificationUpdater(this));
+        mLifecycle.addObserver(new WearableController(this));
         if (UserManagerCompat.isUserUnlocked(this)) {
             mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
             initialize();
@@ -104,18 +103,6 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
     }
 
     private void initialize() {
-        // Set up a thread to update Android Wear whenever the artwork changes
-        mWearableHandlerThread = new HandlerThread("MuzeiWallpaperService-Wearable");
-        mWearableHandlerThread.start();
-        mWearableContentObserver = new ContentObserver(new Handler(mWearableHandlerThread.getLooper())) {
-            @Override
-            public void onChange(final boolean selfChange, final Uri uri) {
-                WearableController.updateArtwork(MuzeiWallpaperService.this);
-            }
-        };
-        getContentResolver().registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
-                true, mWearableContentObserver);
-
         // Set up a thread to update the Artwork Info shortcut whenever the artwork changes
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
             mArtworkInfoShortcutHandlerThread = new HandlerThread("MuzeiWallpaperService-ArtworkInfoShortcut");
@@ -141,8 +128,6 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
                 getContentResolver().unregisterContentObserver(mArtworkInfoShortcutContentObserver);
                 mArtworkInfoShortcutHandlerThread.quitSafely();
             }
-            getContentResolver().unregisterContentObserver(mWearableContentObserver);
-            mWearableHandlerThread.quitSafely();
         } else {
             unregisterReceiver(mUnlockReceiver);
         }

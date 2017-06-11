@@ -16,11 +16,18 @@
 
 package com.google.android.apps.muzei.wearable;
 
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.net.Uri;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.support.media.ExifInterface;
 import android.util.Log;
 
@@ -42,17 +49,45 @@ import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Controller for working with the Android Wear API. Also in charge of dealing with
- * Google Play Services.
+ * Controller for updating Android Wear devices with new wallpapers.
  */
-public class WearableController {
+public class WearableController implements LifecycleObserver {
     private static final String TAG = "WearableController";
 
-    public static synchronized void updateArtwork(Context context) {
-        if (ConnectionResult.SUCCESS != GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context)) {
+    private final Context mContext;
+    private HandlerThread mWearableHandlerThread;
+    private ContentObserver mWearableContentObserver;
+
+    public WearableController(Context context) {
+        mContext = context;
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    public void registerContentObserver() {
+        // Set up a thread to update Android Wear whenever the artwork changes
+        mWearableHandlerThread = new HandlerThread("MuzeiWallpaperService-Wearable");
+        mWearableHandlerThread.start();
+        mWearableContentObserver = new ContentObserver(new Handler(mWearableHandlerThread.getLooper())) {
+            @Override
+            public void onChange(final boolean selfChange, final Uri uri) {
+                updateArtwork();
+            }
+        };
+        mContext.getContentResolver().registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
+                true, mWearableContentObserver);
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    public void unregisterContentObserver() {
+        mContext.getContentResolver().unregisterContentObserver(mWearableContentObserver);
+        mWearableHandlerThread.quitSafely();
+    }
+
+    private void updateArtwork() {
+        if (ConnectionResult.SUCCESS != GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(mContext)) {
             return;
         }
-        GoogleApiClient googleApiClient = new GoogleApiClient.Builder(context)
+        GoogleApiClient googleApiClient = new GoogleApiClient.Builder(mContext)
                 .addApi(Wearable.API)
                 .build();
         ConnectionResult connectionResult = googleApiClient.blockingConnect(5, TimeUnit.SECONDS);
@@ -62,7 +97,7 @@ public class WearableController {
             }
             return;
         }
-        ContentResolver contentResolver = context.getContentResolver();
+        ContentResolver contentResolver = mContext.getContentResolver();
         Bitmap image = null;
         try {
             BitmapFactory.Options options = new BitmapFactory.Options();
@@ -81,7 +116,7 @@ public class WearableController {
             Log.e(TAG, "Unable to read artwork to update Android Wear", e);
         }
         if (image != null) {
-            int rotation = getRotation(context);
+            int rotation = getRotation();
             if (rotation != 0) {
                 // Rotate the image so that Wear always gets a right side up image
                 Matrix matrix = new Matrix();
@@ -93,7 +128,7 @@ public class WearableController {
             image.compress(Bitmap.CompressFormat.PNG, 100, byteStream);
             Asset asset = Asset.createFromBytes(byteStream.toByteArray());
             PutDataMapRequest dataMapRequest = PutDataMapRequest.create("/artwork");
-            Artwork artwork = MuzeiContract.Artwork.getCurrentArtwork(context);
+            Artwork artwork = MuzeiContract.Artwork.getCurrentArtwork(mContext);
             dataMapRequest.getDataMap().putDataMap("artwork", DataMap.fromBundle(artwork.toBundle()));
             dataMapRequest.getDataMap().putAsset("image", asset);
             Wearable.DataApi.putDataItem(googleApiClient, dataMapRequest.asPutDataRequest().setUrgent()).await();
@@ -101,8 +136,8 @@ public class WearableController {
         googleApiClient.disconnect();
     }
 
-    private static int getRotation(Context context) {
-        ContentResolver contentResolver = context.getContentResolver();
+    private int getRotation() {
+        ContentResolver contentResolver = mContext.getContentResolver();
         int rotation = 0;
         try (InputStream in = contentResolver.openInputStream(
                 MuzeiContract.Artwork.CONTENT_URI)) {
