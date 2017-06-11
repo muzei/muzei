@@ -23,7 +23,7 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
 
-    def Properties versionProps = new Properties()
+    Properties versionProps = new Properties()
     versionProps.load(new FileInputStream(file('../version.properties')))
 
     dexOptions.preDexLibraries true

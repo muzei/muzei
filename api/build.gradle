@@ -18,14 +18,14 @@ apply plugin: 'com.android.library'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
-def Properties versionProps = new Properties()
+Properties versionProps = new Properties()
 versionProps.load(new FileInputStream(file('../version.properties')))
 
 group = 'com.google.android.apps.muzei'
 version = versionProps['apiName']
 
 
-def Properties props = new Properties()
+Properties props = new Properties()
 props.load(new FileInputStream(file('../local.properties')))
 
 allprojects { ext."signing.keyId" = props["signing.keyId"] }
