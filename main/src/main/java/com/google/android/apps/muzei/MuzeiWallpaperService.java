@@ -18,6 +18,11 @@ package com.google.android.apps.muzei;
 
 import android.app.KeyguardManager;
 import android.app.WallpaperManager;
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LifecycleRegistry;
+import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -56,7 +61,8 @@ import net.rbgrn.android.glwallpaperservice.GLWallpaperService;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-public class MuzeiWallpaperService extends GLWallpaperService {
+public class MuzeiWallpaperService extends GLWallpaperService implements LifecycleOwner {
+    private LifecycleRegistry mLifecycle;
     private boolean mInitialized = false;
     private BroadcastReceiver mUnlockReceiver;
     private NetworkChangeReceiver mNetworkChangeReceiver;
@@ -75,12 +81,15 @@ public class MuzeiWallpaperService extends GLWallpaperService {
     @Override
     public void onCreate() {
         super.onCreate();
+        mLifecycle = new LifecycleRegistry(this);
         if (UserManagerCompat.isUserUnlocked(this)) {
+            mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
             initialize();
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             mUnlockReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
+                    mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
                     initialize();
                     unregisterReceiver(this);
                 }
@@ -88,6 +97,11 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             IntentFilter filter = new IntentFilter(Intent.ACTION_USER_UNLOCKED);
             registerReceiver(mUnlockReceiver, filter);
         }
+    }
+
+    @Override
+    public Lifecycle getLifecycle() {
+        return mLifecycle;
     }
 
     private void initialize() {
@@ -148,7 +162,6 @@ public class MuzeiWallpaperService extends GLWallpaperService {
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         if (mInitialized) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
                 getContentResolver().unregisterContentObserver(mArtworkInfoShortcutContentObserver);
@@ -166,6 +179,8 @@ public class MuzeiWallpaperService extends GLWallpaperService {
         } else {
             unregisterReceiver(mUnlockReceiver);
         }
+        mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
+        super.onDestroy();
     }
 
     private class MuzeiWallpaperEngine extends GLEngine implements
