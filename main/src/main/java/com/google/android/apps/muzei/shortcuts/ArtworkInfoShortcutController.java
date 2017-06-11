@@ -16,13 +16,20 @@
 
 package com.google.android.apps.muzei.shortcuts;
 
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.drawable.Icon;
+import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 
@@ -35,14 +42,40 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Static controller for updating the Artwork Info Shortcut whenever the current artwork changes
+ * Controller responsible for updating the Artwork Info Shortcut whenever the current artwork changes
  */
 @RequiresApi(api = Build.VERSION_CODES.N_MR1)
-public class ArtworkInfoShortcutController {
+public class ArtworkInfoShortcutController implements LifecycleObserver {
     private static final String ARTWORK_INFO_SHORTCUT_ID = "artwork_info";
+    private final Context mContext;
+    private HandlerThread mArtworkInfoShortcutHandlerThread;
+    private ContentObserver mArtworkInfoShortcutContentObserver;
 
-    public static void updateShortcut(Context context) {
-        Cursor data = context.getContentResolver().query(MuzeiContract.Artwork.CONTENT_URI,
+    public ArtworkInfoShortcutController(Context context) {
+        mContext = context;
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    public void registerContentObserver() {
+        mArtworkInfoShortcutHandlerThread = new HandlerThread("MuzeiWallpaperService-ArtworkInfoShortcut");
+        mArtworkInfoShortcutHandlerThread.start();
+        mArtworkInfoShortcutContentObserver = new ContentObserver(new Handler(
+                mArtworkInfoShortcutHandlerThread.getLooper())) {
+            @Override
+            public void onChange(final boolean selfChange, final Uri uri) {
+                updateShortcut();
+            }
+        };
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    public void unregisterContentObserver() {
+        mContext.getContentResolver().unregisterContentObserver(mArtworkInfoShortcutContentObserver);
+        mArtworkInfoShortcutHandlerThread.quitSafely();
+    }
+
+    private void updateShortcut() {
+        Cursor data = mContext.getContentResolver().query(MuzeiContract.Artwork.CONTENT_URI,
                 new String[] {MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT}, null, null, null);
         if (data == null) {
             return;
@@ -58,7 +91,7 @@ public class ArtworkInfoShortcutController {
             }
         }
         data.close();
-        ShortcutManager shortcutManager = context.getSystemService(ShortcutManager.class);
+        ShortcutManager shortcutManager = mContext.getSystemService(ShortcutManager.class);
         List<ShortcutInfo> dynamicShortcuts = shortcutManager.getDynamicShortcuts();
         ShortcutInfo artworkInfoShortcutInfo = null;
         for (ShortcutInfo shortcutInfo : dynamicShortcuts) {
@@ -74,10 +107,10 @@ public class ArtworkInfoShortcutController {
                         Collections.singletonList(ARTWORK_INFO_SHORTCUT_ID));
             }
             ShortcutInfo shortcutInfo = new ShortcutInfo.Builder(
-                    context, ARTWORK_INFO_SHORTCUT_ID)
-                    .setIcon(Icon.createWithResource(context,
+                    mContext, ARTWORK_INFO_SHORTCUT_ID)
+                    .setIcon(Icon.createWithResource(mContext,
                             R.drawable.ic_shortcut_artwork_info))
-                    .setShortLabel(context.getString(R.string.action_artwork_info))
+                    .setShortLabel(mContext.getString(R.string.action_artwork_info))
                     .setIntent(artworkInfo.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION))
                     .build();
             shortcutManager.addDynamicShortcuts(
@@ -87,12 +120,9 @@ public class ArtworkInfoShortcutController {
                 if (artworkInfoShortcutInfo.isEnabled()) {
                     shortcutManager.disableShortcuts(
                             Collections.singletonList(ARTWORK_INFO_SHORTCUT_ID),
-                            context.getString(R.string.action_artwork_info_disabled));
+                            mContext.getString(R.string.action_artwork_info_disabled));
                 }
             }
         }
-    }
-
-    private ArtworkInfoShortcutController() {
     }
 }

@@ -16,56 +16,45 @@
 
 package com.google.android.apps.muzei;
 
-import android.app.KeyguardManager;
 import android.app.WallpaperManager;
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LifecycleRegistry;
+import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.database.ContentObserver;
-import android.net.ConnectivityManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.HandlerThread;
-import android.support.annotation.RequiresApi;
 import android.support.v4.os.UserManagerCompat;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.ViewConfiguration;
 
-import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
-import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
 import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
 import com.google.android.apps.muzei.render.RealRenderController;
 import com.google.android.apps.muzei.render.RenderController;
-import com.google.android.apps.muzei.settings.Prefs;
 import com.google.android.apps.muzei.shortcuts.ArtworkInfoShortcutController;
-import com.google.android.apps.muzei.sync.TaskQueueService;
+import com.google.android.apps.muzei.wallpaper.LockscreenObserver;
+import com.google.android.apps.muzei.wallpaper.NetworkChangeObserver;
+import com.google.android.apps.muzei.wallpaper.NotificationUpdater;
+import com.google.android.apps.muzei.wallpaper.WallpaperAnalytics;
 import com.google.android.apps.muzei.wearable.WearableController;
-import com.google.firebase.analytics.FirebaseAnalytics;
 
-import net.nurik.roman.muzei.BuildConfig;
 import net.rbgrn.android.glwallpaperservice.GLWallpaperService;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-public class MuzeiWallpaperService extends GLWallpaperService {
-    private boolean mInitialized = false;
+public class MuzeiWallpaperService extends GLWallpaperService implements LifecycleOwner {
+    private LifecycleRegistry mLifecycle;
     private BroadcastReceiver mUnlockReceiver;
-    private NetworkChangeReceiver mNetworkChangeReceiver;
-    private HandlerThread mNotificationHandlerThread;
-    private ContentObserver mNotificationContentObserver;
-    private HandlerThread mWearableHandlerThread;
-    private ContentObserver mWearableContentObserver;
-    private HandlerThread mArtworkInfoShortcutHandlerThread;
-    private ContentObserver mArtworkInfoShortcutContentObserver;
 
     @Override
     public Engine onCreateEngine() {
@@ -75,13 +64,22 @@ public class MuzeiWallpaperService extends GLWallpaperService {
     @Override
     public void onCreate() {
         super.onCreate();
+        mLifecycle = new LifecycleRegistry(this);
+        mLifecycle.addObserver(new WallpaperAnalytics(this));
+        mLifecycle.addObserver(new SourceManager(this));
+        mLifecycle.addObserver(new NetworkChangeObserver(this));
+        mLifecycle.addObserver(new NotificationUpdater(this));
+        mLifecycle.addObserver(new WearableController(this));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+            mLifecycle.addObserver(new ArtworkInfoShortcutController(this));
+        }
         if (UserManagerCompat.isUserUnlocked(this)) {
-            initialize();
+            mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             mUnlockReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    initialize();
+                    mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
                     unregisterReceiver(this);
                 }
             };
@@ -90,85 +88,23 @@ public class MuzeiWallpaperService extends GLWallpaperService {
         }
     }
 
-    private void initialize() {
-        FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE);
-        SourceManager.subscribeToSelectedSource(MuzeiWallpaperService.this);
-        mNetworkChangeReceiver = new NetworkChangeReceiver();
-        IntentFilter networkChangeFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(mNetworkChangeReceiver, networkChangeFilter);
-        // Ensure we retry loading the artwork if the network changed while the wallpaper was disabled
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        Intent retryIntent = TaskQueueService.maybeRetryDownloadDueToGainedConnectivity(this);
-        if (retryIntent != null && connectivityManager.getActiveNetworkInfo() != null &&
-                connectivityManager.getActiveNetworkInfo().isConnected()) {
-            startService(retryIntent);
-        }
-
-        // Set up a thread to update notifications whenever the artwork changes
-        mNotificationHandlerThread = new HandlerThread("MuzeiWallpaperService-Notification");
-        mNotificationHandlerThread.start();
-        mNotificationContentObserver = new ContentObserver(new Handler(mNotificationHandlerThread.getLooper())) {
-            @Override
-            public void onChange(final boolean selfChange, final Uri uri) {
-                NewWallpaperNotificationReceiver.maybeShowNewArtworkNotification(MuzeiWallpaperService.this);
-            }
-        };
-        getContentResolver().registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
-                true, mNotificationContentObserver);
-
-        // Set up a thread to update Android Wear whenever the artwork changes
-        mWearableHandlerThread = new HandlerThread("MuzeiWallpaperService-Wearable");
-        mWearableHandlerThread.start();
-        mWearableContentObserver = new ContentObserver(new Handler(mWearableHandlerThread.getLooper())) {
-            @Override
-            public void onChange(final boolean selfChange, final Uri uri) {
-                WearableController.updateArtwork(MuzeiWallpaperService.this);
-            }
-        };
-        getContentResolver().registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
-                true, mWearableContentObserver);
-
-        // Set up a thread to update the Artwork Info shortcut whenever the artwork changes
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-            mArtworkInfoShortcutHandlerThread = new HandlerThread("MuzeiWallpaperService-ArtworkInfoShortcut");
-            mArtworkInfoShortcutHandlerThread.start();
-            mArtworkInfoShortcutContentObserver = new ContentObserver(new Handler(
-                    mArtworkInfoShortcutHandlerThread.getLooper())) {
-                @RequiresApi(api = Build.VERSION_CODES.N_MR1)
-                @Override
-                public void onChange(final boolean selfChange, final Uri uri) {
-                    ArtworkInfoShortcutController.updateShortcut(MuzeiWallpaperService.this);
-                }
-            };
-            getContentResolver().registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
-                    true, mArtworkInfoShortcutContentObserver);
-        }
-        mInitialized = true;
+    @Override
+    public Lifecycle getLifecycle() {
+        return mLifecycle;
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
-        if (mInitialized) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-                getContentResolver().unregisterContentObserver(mArtworkInfoShortcutContentObserver);
-                mArtworkInfoShortcutHandlerThread.quitSafely();
-            }
-            getContentResolver().unregisterContentObserver(mWearableContentObserver);
-            mWearableHandlerThread.quitSafely();
-            getContentResolver().unregisterContentObserver(mNotificationContentObserver);
-            mNotificationHandlerThread.quitSafely();
-            if (mNetworkChangeReceiver != null) {
-                unregisterReceiver(mNetworkChangeReceiver);
-                mNetworkChangeReceiver = null;
-            }
-            SourceManager.unsubscribeToSelectedSource(MuzeiWallpaperService.this);
-        } else {
+        if (mUnlockReceiver != null) {
             unregisterReceiver(mUnlockReceiver);
         }
+        mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
+        super.onDestroy();
     }
 
-    private class MuzeiWallpaperEngine extends GLEngine implements
+    public class MuzeiWallpaperEngine extends GLEngine implements
+            LifecycleOwner,
+            LifecycleObserver,
             RenderController.Callbacks,
             MuzeiBlurRenderer.Callbacks {
 
@@ -184,51 +120,7 @@ public class MuzeiWallpaperService extends GLWallpaperService {
         private boolean mVisible = true;
         private boolean mValidDoubleTap;
 
-        private boolean mIsLockScreenVisibleReceiverRegistered = false;
-        private SharedPreferences.OnSharedPreferenceChangeListener
-                mLockScreenPreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(final SharedPreferences sp, final String key) {
-                if (Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED.equals(key)) {
-                    if (sp.getBoolean(Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED, false)) {
-                        IntentFilter intentFilter = new IntentFilter();
-                        intentFilter.addAction(Intent.ACTION_USER_PRESENT);
-                        intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
-                        intentFilter.addAction(Intent.ACTION_SCREEN_ON);
-                        registerReceiver(mLockScreenVisibleReceiver, intentFilter);
-                        mIsLockScreenVisibleReceiverRegistered = true;
-                        // If the user is not yet unlocked (i.e., using Direct Boot), we should
-                        // immediately send the lock screen visible callback
-                        if (!UserManagerCompat.isUserUnlocked(MuzeiWallpaperService.this)) {
-                            lockScreenVisibleChanged(true);
-                        }
-                    } else if (mIsLockScreenVisibleReceiverRegistered) {
-                        unregisterReceiver(mLockScreenVisibleReceiver);
-                        mIsLockScreenVisibleReceiverRegistered = false;
-                    }
-                }
-            }
-        };
-        private BroadcastReceiver mLockScreenVisibleReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(final Context context, final Intent intent) {
-                if (intent != null) {
-                    if (Intent.ACTION_USER_PRESENT.equals(intent.getAction())) {
-                        lockScreenVisibleChanged(false);
-                    } else if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
-                        lockScreenVisibleChanged(true);
-                    } else if (Intent.ACTION_SCREEN_ON.equals(intent.getAction())) {
-                        KeyguardManager kgm = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
-                        if (!kgm.inKeyguardRestrictedInputMode()) {
-                            lockScreenVisibleChanged(false);
-                        }
-                    }
-                }
-            }
-        };
-
-        private boolean mWallpaperActivated = false;
-        private BroadcastReceiver mEngineUnlockReceiver;
+        private LifecycleRegistry mEngineLifecycle;
 
         @Override
         public void onCreate(SurfaceHolder surfaceHolder) {
@@ -245,36 +137,30 @@ public class MuzeiWallpaperService extends GLWallpaperService {
 
             mGestureDetector = new GestureDetector(MuzeiWallpaperService.this, mGestureListener);
 
-            SharedPreferences sp = Prefs.getSharedPreferences(MuzeiWallpaperService.this);
-            sp.registerOnSharedPreferenceChangeListener(mLockScreenPreferenceChangeListener);
-            // Trigger the initial registration if needed
-            mLockScreenPreferenceChangeListener.onSharedPreferenceChanged(sp,
-                    Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED);
+            mEngineLifecycle = new LifecycleRegistry(this);
+            mEngineLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
+            mEngineLifecycle.addObserver(new WallpaperAnalytics(MuzeiWallpaperService.this));
+            mEngineLifecycle.addObserver(new LockscreenObserver(MuzeiWallpaperService.this, this));
 
             if (!isPreview()) {
-                if (UserManagerCompat.isUserUnlocked(MuzeiWallpaperService.this)) {
-                    activateWallpaper();
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    mEngineUnlockReceiver = new BroadcastReceiver() {
-                        @Override
-                        public void onReceive(Context context, Intent intent) {
-                            activateWallpaper();
-                            unregisterReceiver(this);
-                        }
-                    };
-                    IntentFilter filter = new IntentFilter(Intent.ACTION_USER_UNLOCKED);
-                    registerReceiver(mEngineUnlockReceiver, filter);
-                }
+                // Use the MuzeiWallpaperService's lifecycle to wait for the user to unlock
+                mLifecycle.addObserver(this);
             }
             setTouchEventsEnabled(true);
             setOffsetNotificationsEnabled(true);
             EventBus.getDefault().register(this);
         }
 
-        private void activateWallpaper() {
-            mWallpaperActivated = true;
-            FirebaseAnalytics.getInstance(MuzeiWallpaperService.this).logEvent("wallpaper_created", null);
-            EventBus.getDefault().postSticky(new WallpaperActiveStateChangedEvent(true));
+        @Override
+        public Lifecycle getLifecycle() {
+            return mEngineLifecycle;
+        }
+
+        @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        public void onUserUnlocked() {
+            // The MuzeiWallpaperService only gets to ON_CREATE when the user is unlocked
+            // At that point, we can proceed with the engine's lifecycle
+            mEngineLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START);
         }
 
         @Override
@@ -289,17 +175,10 @@ public class MuzeiWallpaperService extends GLWallpaperService {
         @Override
         public void onDestroy() {
             EventBus.getDefault().unregister(this);
-            if (mWallpaperActivated) {
-                FirebaseAnalytics.getInstance(MuzeiWallpaperService.this).logEvent("wallpaper_destroyed", null);
-                EventBus.getDefault().postSticky(new WallpaperActiveStateChangedEvent(false));
-            } else if (!isPreview()) {
-                unregisterReceiver(mEngineUnlockReceiver);
+            if (!isPreview()) {
+                mLifecycle.removeObserver(this);
             }
-            if (mIsLockScreenVisibleReceiverRegistered) {
-                unregisterReceiver(mLockScreenVisibleReceiver);
-            }
-            Prefs.getSharedPreferences(MuzeiWallpaperService.this)
-                    .unregisterOnSharedPreferenceChangeListener(mLockScreenPreferenceChangeListener);
+            mEngineLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
             queueEvent(new Runnable() {
                 @Override
                 public void run() {
@@ -333,7 +212,7 @@ public class MuzeiWallpaperService extends GLWallpaperService {
             requestRender();
         }
 
-        private void lockScreenVisibleChanged(final boolean isLockScreenVisible) {
+        public void lockScreenVisibleChanged(final boolean isLockScreenVisible) {
             cancelDelayedBlur();
             queueEvent(new Runnable() {
                 @Override
