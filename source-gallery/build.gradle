@@ -40,6 +40,11 @@ android {
         buildConfigField "String", "GALLERY_AUTHORITY", "\"${galleryAuthorityValue}\""
     }
 
+    buildTypes {
+        publicBeta
+        publicDebug
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7

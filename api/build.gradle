@@ -46,6 +46,11 @@ android {
         manifestPlaceholders = [api_version: versionProps['apiCode'].toInteger()]
     }
 
+    buildTypes {
+        publicBeta
+        publicDebug
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
