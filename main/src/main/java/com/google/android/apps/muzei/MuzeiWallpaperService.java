@@ -81,6 +81,7 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
         super.onCreate();
         mLifecycle = new LifecycleRegistry(this);
         mLifecycle.addObserver(new WallpaperAnalytics(this));
+        mLifecycle.addObserver(new SourceManager(this));
         if (UserManagerCompat.isUserUnlocked(this)) {
             mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
             initialize();
@@ -104,7 +105,6 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
     }
 
     private void initialize() {
-        SourceManager.subscribeToSelectedSource(MuzeiWallpaperService.this);
         mNetworkChangeReceiver = new NetworkChangeReceiver();
         IntentFilter networkChangeFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(mNetworkChangeReceiver, networkChangeFilter);
@@ -173,7 +173,6 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
                 unregisterReceiver(mNetworkChangeReceiver);
                 mNetworkChangeReceiver = null;
             }
-            SourceManager.unsubscribeToSelectedSource(MuzeiWallpaperService.this);
         } else {
             unregisterReceiver(mUnlockReceiver);
         }

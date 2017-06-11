@@ -16,6 +16,9 @@
 
 package com.google.android.apps.muzei;
 
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.ComponentName;
 import android.content.ContentProviderOperation;
 import android.content.ContentValues;
@@ -52,14 +55,30 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_SUBSCRIBER_COMPONENT;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_TOKEN;
 
-public class SourceManager {
+/**
+ * Class responsible for managing interactions with sources such as subscribing, unsubscribing, and sending actions.
+ */
+public class SourceManager implements LifecycleObserver {
     private static final String TAG = "SourceManager";
     private static final String PREF_SELECTED_SOURCE = "selected_source";
     private static final String PREF_SOURCE_STATES = "source_states";
     private static final String USER_PROPERTY_SELECTED_SOURCE = "selected_source";
     private static final String USER_PROPERTY_SELECTED_SOURCE_PACKAGE = "selected_source_package";
 
-    private SourceManager() {
+    private final Context mContext;
+
+    public SourceManager(Context context) {
+        mContext = context;
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    public void subscribeToSelectedSource() {
+        subscribeToSelectedSource(mContext);
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    public void unsubscribeToSelectedSource() {
+        unsubscribeToSelectedSource(mContext);
     }
 
     /**
