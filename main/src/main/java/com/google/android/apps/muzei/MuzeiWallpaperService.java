@@ -29,7 +29,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.ContentObserver;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -50,7 +49,7 @@ import com.google.android.apps.muzei.render.RealRenderController;
 import com.google.android.apps.muzei.render.RenderController;
 import com.google.android.apps.muzei.settings.Prefs;
 import com.google.android.apps.muzei.shortcuts.ArtworkInfoShortcutController;
-import com.google.android.apps.muzei.sync.TaskQueueService;
+import com.google.android.apps.muzei.wallpaper.NetworkChangeObserver;
 import com.google.android.apps.muzei.wallpaper.WallpaperAnalytics;
 import com.google.android.apps.muzei.wearable.WearableController;
 
@@ -63,7 +62,6 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
     private LifecycleRegistry mLifecycle;
     private boolean mInitialized = false;
     private BroadcastReceiver mUnlockReceiver;
-    private NetworkChangeReceiver mNetworkChangeReceiver;
     private HandlerThread mNotificationHandlerThread;
     private ContentObserver mNotificationContentObserver;
     private HandlerThread mWearableHandlerThread;
@@ -82,6 +80,7 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
         mLifecycle = new LifecycleRegistry(this);
         mLifecycle.addObserver(new WallpaperAnalytics(this));
         mLifecycle.addObserver(new SourceManager(this));
+        mLifecycle.addObserver(new NetworkChangeObserver(this));
         if (UserManagerCompat.isUserUnlocked(this)) {
             mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
             initialize();
@@ -105,17 +104,6 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
     }
 
     private void initialize() {
-        mNetworkChangeReceiver = new NetworkChangeReceiver();
-        IntentFilter networkChangeFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(mNetworkChangeReceiver, networkChangeFilter);
-        // Ensure we retry loading the artwork if the network changed while the wallpaper was disabled
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        Intent retryIntent = TaskQueueService.maybeRetryDownloadDueToGainedConnectivity(this);
-        if (retryIntent != null && connectivityManager.getActiveNetworkInfo() != null &&
-                connectivityManager.getActiveNetworkInfo().isConnected()) {
-            startService(retryIntent);
-        }
-
         // Set up a thread to update notifications whenever the artwork changes
         mNotificationHandlerThread = new HandlerThread("MuzeiWallpaperService-Notification");
         mNotificationHandlerThread.start();
@@ -169,10 +157,6 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
             mWearableHandlerThread.quitSafely();
             getContentResolver().unregisterContentObserver(mNotificationContentObserver);
             mNotificationHandlerThread.quitSafely();
-            if (mNetworkChangeReceiver != null) {
-                unregisterReceiver(mNetworkChangeReceiver);
-                mNetworkChangeReceiver = null;
-            }
         } else {
             unregisterReceiver(mUnlockReceiver);
         }
