@@ -21,7 +21,7 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
 
-    def Properties versionProps = new Properties()
+    Properties versionProps = new Properties()
     versionProps.load(new FileInputStream(file('../version.properties')))
 
     publishNonDefault true
@@ -41,9 +41,9 @@ android {
 
     signingConfigs {
         release {
-            def Properties localProps = new Properties()
+            Properties localProps = new Properties()
             localProps.load(new FileInputStream(file('../local.properties')))
-            def Properties keyProps = new Properties()
+            Properties keyProps = new Properties()
             if (localProps['keystore.props.file'] != null) {
                 keyProps.load(new FileInputStream(file(localProps['keystore.props.file'])))
             }
@@ -76,24 +76,32 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
     }
+
+    lintOptions {
+        // Needed until 3.0.0-alpha4 is released per https://issuetracker.google.com/issues/62318360
+        abortOnError false
+    }
+
 }
 
 dependencies {
-    compile "com.android.support:support-compat:$rootProject.ext.supportLibraryVersion"
-    compile "com.android.support:exifinterface:$rootProject.ext.supportLibraryVersion"
-    provided "com.google.android.wearable:wearable:2.0.2"
-    compile "com.google.android.support:wearable:2.0.2"
+    implementation "com.android.support:support-compat:$rootProject.ext.supportLibraryVersion"
+    implementation "com.android.support:exifinterface:$rootProject.ext.supportLibraryVersion"
+    compileOnly "com.google.android.wearable:wearable:2.0.2"
+    implementation "com.google.android.support:wearable:2.0.2"
     // Only used because wearable dependency depends on an old version of the Support Library
-    compile "com.android.support:support-v4:$rootProject.ext.supportLibraryVersion"
-    compile "com.android.support:recyclerview-v7:$rootProject.ext.supportLibraryVersion"
-    compile "com.android.support:percent:$rootProject.ext.supportLibraryVersion"
+    implementation "com.android.support:support-v4:$rootProject.ext.supportLibraryVersion"
+    implementation "com.android.support:recyclerview-v7:$rootProject.ext.supportLibraryVersion"
+    implementation "com.android.support:percent:$rootProject.ext.supportLibraryVersion"
 
-    compile "com.google.android.gms:play-services-wearable:$rootProject.ext.googlePlayServicesVersion"
-    compile "com.google.firebase:firebase-core:$rootProject.ext.googlePlayServicesVersion"
-    compile "com.google.firebase:firebase-perf:$rootProject.ext.googlePlayServicesVersion"
+    implementation "com.google.android.gms:play-services-wearable:$rootProject.ext.googlePlayServicesVersion"
+    implementation "com.google.firebase:firebase-core:$rootProject.ext.googlePlayServicesVersion"
+    implementation "com.google.firebase:firebase-perf:$rootProject.ext.googlePlayServicesVersion"
     // Only use crash reporting in release builds
-    releaseCompile "com.google.firebase:firebase-crash:$rootProject.ext.googlePlayServicesVersion"
-    compile project(':android-client-common')
+    releaseImplementation "com.google.firebase:firebase-crash:$rootProject.ext.googlePlayServicesVersion"
+
+    implementation project(':api')
+    implementation project(':android-client-common')
 }
 
 apply plugin: 'com.google.gms.google-services'

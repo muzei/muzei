@@ -17,10 +17,10 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    compile "com.squareup.retrofit2:retrofit:2.1.0"
-    compile "com.squareup.retrofit2:converter-gson:2.1.0"
-    //compile "com.google.android.apps.muzei:muzei-api:+"
-    compile project(':api')
+    implementation "com.squareup.retrofit2:retrofit:2.1.0"
+    implementation "com.squareup.retrofit2:converter-gson:2.1.0"
+    //implementation "com.google.android.apps.muzei:muzei-api:+"
+    implementation project(':api')
 }
 
 android {

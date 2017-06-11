@@ -17,8 +17,8 @@
 apply plugin: 'com.android.library'
 
 dependencies {
-    compile project(':api')
-    compile "com.android.support:support-compat:$rootProject.ext.supportLibraryVersion"
+    implementation project(':api')
+    implementation "com.android.support:support-compat:$rootProject.ext.supportLibraryVersion"
 }
 
 android {
@@ -35,6 +35,11 @@ android {
         buildConfigField("String",
                 "DOCUMENTS_AUTHORITY",
                 "\"${documentsAuthorityValue}\"")
+    }
+
+    buildTypes {
+        publicBeta
+        publicDebug
     }
 
     compileOptions {

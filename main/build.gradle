@@ -23,7 +23,7 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
 
-    def Properties versionProps = new Properties()
+    Properties versionProps = new Properties()
     versionProps.load(new FileInputStream(file('../version.properties')))
 
     dexOptions.preDexLibraries true
@@ -87,27 +87,26 @@ android {
 }
 
 dependencies {
-    compile "com.squareup.okhttp3:okhttp:$rootProject.ext.okhttpVersion"
-    compile "com.squareup.picasso:picasso:$rootProject.ext.picassoVersion"
-    compile "com.google.android.gms:play-services-wearable:$rootProject.ext.googlePlayServicesVersion"
-    compile "com.google.firebase:firebase-core:$rootProject.ext.googlePlayServicesVersion"
-    compile "com.google.firebase:firebase-perf:$rootProject.ext.googlePlayServicesVersion"
+    implementation "com.squareup.okhttp3:okhttp:$rootProject.ext.okhttpVersion"
+    implementation "com.squareup.picasso:picasso:$rootProject.ext.picassoVersion"
+    implementation "com.google.android.gms:play-services-wearable:$rootProject.ext.googlePlayServicesVersion"
+    implementation "com.google.firebase:firebase-core:$rootProject.ext.googlePlayServicesVersion"
+    implementation "com.google.firebase:firebase-perf:$rootProject.ext.googlePlayServicesVersion"
     // Only use crash reporting in release builds
-    releaseCompile "com.google.firebase:firebase-crash:$rootProject.ext.googlePlayServicesVersion"
-    compile "com.twofortyfouram:android-plugin-api-for-locale:1.0.2"
-    compile "org.greenrobot:eventbus:3.0.0"
-    compile "com.android.support:appcompat-v7:$rootProject.ext.supportLibraryVersion"
-    compile "com.android.support:recyclerview-v7:$rootProject.ext.supportLibraryVersion"
-    compile "com.android.support:design:$rootProject.ext.supportLibraryVersion"
-    compile "com.android.support:customtabs:$rootProject.ext.supportLibraryVersion"
-    compile "com.android.support:exifinterface:$rootProject.ext.supportLibraryVersion"
-    compile "android.arch.lifecycle:runtime:1.0.0-alpha2"
+    releaseImplementation "com.google.firebase:firebase-crash:$rootProject.ext.googlePlayServicesVersion"
+    implementation "com.twofortyfouram:android-plugin-api-for-locale:1.0.2"
+    implementation "org.greenrobot:eventbus:3.0.0"
+    implementation "com.android.support:appcompat-v7:$rootProject.ext.supportLibraryVersion"
+    implementation "com.android.support:recyclerview-v7:$rootProject.ext.supportLibraryVersion"
+    implementation "com.android.support:design:$rootProject.ext.supportLibraryVersion"
+    implementation "com.android.support:customtabs:$rootProject.ext.supportLibraryVersion"
+    implementation "com.android.support:exifinterface:$rootProject.ext.supportLibraryVersion"
+    implementation "android.arch.lifecycle:runtime:1.0.0-alpha2"
 
-    // :api is included as a transitive dependency from :android-client-common
-    // compile project(':api')
-    compile project(':android-client-common')
-    compile project(':source-featured-art')
-    compile project(':source-gallery')
+    implementation project(':api')
+    implementation project(':android-client-common')
+    implementation project(':source-featured-art')
+    implementation project(':source-gallery')
 }
 
 apply plugin: 'com.google.gms.google-services'
