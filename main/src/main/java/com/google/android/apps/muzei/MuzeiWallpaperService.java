@@ -184,6 +184,7 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
     }
 
     private class MuzeiWallpaperEngine extends GLEngine implements
+            LifecycleObserver,
             RenderController.Callbacks,
             MuzeiBlurRenderer.Callbacks {
 
@@ -242,9 +243,6 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
             }
         };
 
-        private boolean mWallpaperActivated = false;
-        private BroadcastReceiver mEngineUnlockReceiver;
-
         @Override
         public void onCreate(SurfaceHolder surfaceHolder) {
             super.onCreate(surfaceHolder);
@@ -267,27 +265,21 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
                     Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED);
 
             if (!isPreview()) {
-                if (UserManagerCompat.isUserUnlocked(MuzeiWallpaperService.this)) {
-                    activateWallpaper();
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    mEngineUnlockReceiver = new BroadcastReceiver() {
-                        @Override
-                        public void onReceive(Context context, Intent intent) {
-                            activateWallpaper();
-                            unregisterReceiver(this);
-                        }
-                    };
-                    IntentFilter filter = new IntentFilter(Intent.ACTION_USER_UNLOCKED);
-                    registerReceiver(mEngineUnlockReceiver, filter);
-                }
+                // Use the MuzeiWallpaperService's lifecycle to wait for the user to unlock
+                mLifecycle.addObserver(this);
             }
             setTouchEventsEnabled(true);
             setOffsetNotificationsEnabled(true);
             EventBus.getDefault().register(this);
         }
 
+        @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        public void onUserUnlocked() {
+            // The MuzeiWallpaperService only gets to ON_CREATE when the user is unlocked
+            activateWallpaper();
+        }
+
         private void activateWallpaper() {
-            mWallpaperActivated = true;
             FirebaseAnalytics.getInstance(MuzeiWallpaperService.this).logEvent("wallpaper_created", null);
             EventBus.getDefault().postSticky(new WallpaperActiveStateChangedEvent(true));
         }
@@ -304,11 +296,12 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
         @Override
         public void onDestroy() {
             EventBus.getDefault().unregister(this);
-            if (mWallpaperActivated) {
-                FirebaseAnalytics.getInstance(MuzeiWallpaperService.this).logEvent("wallpaper_destroyed", null);
-                EventBus.getDefault().postSticky(new WallpaperActiveStateChangedEvent(false));
-            } else if (!isPreview()) {
-                unregisterReceiver(mEngineUnlockReceiver);
+            if (!isPreview()) {
+                if (mLifecycle.getCurrentState().isAtLeast(Lifecycle.State.CREATED)) {
+                    FirebaseAnalytics.getInstance(MuzeiWallpaperService.this).logEvent("wallpaper_destroyed", null);
+                    EventBus.getDefault().postSticky(new WallpaperActiveStateChangedEvent(false));
+                }
+                mLifecycle.removeObserver(this);
             }
             if (mIsLockScreenVisibleReceiverRegistered) {
                 unregisterReceiver(mLockScreenVisibleReceiver);
