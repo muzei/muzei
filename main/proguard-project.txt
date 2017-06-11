@@ -34,3 +34,10 @@
 # okio
 
 -dontwarn okio.**
+
+# Android architecture components: Lifecycle
+-keepclassmembers class android.arch.lifecycle.Lifecycle$State { *; }
+-keepclassmembers class android.arch.lifecycle.Lifecycle$Event { *; }
+-keepclassmembers class * implements android.arch.lifecycle.LifecycleObserver {
+    @android.arch.lifecycle.OnLifecycleEvent *;
+}
