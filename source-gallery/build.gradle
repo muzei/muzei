@@ -17,14 +17,14 @@
 apply plugin: 'com.android.library'
 
 dependencies {
-    compile project(':api')
-    compile "com.squareup.okhttp3:okhttp:$rootProject.ext.okhttpVersion"
-    compile "com.squareup.picasso:picasso:$rootProject.ext.picassoVersion"
-    compile "com.android.support:appcompat-v7:$rootProject.ext.supportLibraryVersion"
-    compile "com.android.support:design:$rootProject.ext.supportLibraryVersion"
-    compile "com.android.support:recyclerview-v7:$rootProject.ext.supportLibraryVersion"
-    compile "com.android.support:percent:$rootProject.ext.supportLibraryVersion"
-    compile "com.android.support:exifinterface:$rootProject.ext.supportLibraryVersion"
+    implementation project(':api')
+    implementation "com.squareup.okhttp3:okhttp:$rootProject.ext.okhttpVersion"
+    implementation "com.squareup.picasso:picasso:$rootProject.ext.picassoVersion"
+    implementation "com.android.support:appcompat-v7:$rootProject.ext.supportLibraryVersion"
+    implementation "com.android.support:design:$rootProject.ext.supportLibraryVersion"
+    implementation "com.android.support:recyclerview-v7:$rootProject.ext.supportLibraryVersion"
+    implementation "com.android.support:percent:$rootProject.ext.supportLibraryVersion"
+    implementation "com.android.support:exifinterface:$rootProject.ext.supportLibraryVersion"
 }
 
 android {

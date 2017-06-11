@@ -85,21 +85,23 @@ android {
 }
 
 dependencies {
-    compile "com.android.support:support-compat:$rootProject.ext.supportLibraryVersion"
-    compile "com.android.support:exifinterface:$rootProject.ext.supportLibraryVersion"
-    provided "com.google.android.wearable:wearable:2.0.2"
-    compile "com.google.android.support:wearable:2.0.2"
+    implementation "com.android.support:support-compat:$rootProject.ext.supportLibraryVersion"
+    implementation "com.android.support:exifinterface:$rootProject.ext.supportLibraryVersion"
+    compileOnly "com.google.android.wearable:wearable:2.0.2"
+    implementation "com.google.android.support:wearable:2.0.2"
     // Only used because wearable dependency depends on an old version of the Support Library
-    compile "com.android.support:support-v4:$rootProject.ext.supportLibraryVersion"
-    compile "com.android.support:recyclerview-v7:$rootProject.ext.supportLibraryVersion"
-    compile "com.android.support:percent:$rootProject.ext.supportLibraryVersion"
+    implementation "com.android.support:support-v4:$rootProject.ext.supportLibraryVersion"
+    implementation "com.android.support:recyclerview-v7:$rootProject.ext.supportLibraryVersion"
+    implementation "com.android.support:percent:$rootProject.ext.supportLibraryVersion"
 
-    compile "com.google.android.gms:play-services-wearable:$rootProject.ext.googlePlayServicesVersion"
-    compile "com.google.firebase:firebase-core:$rootProject.ext.googlePlayServicesVersion"
-    compile "com.google.firebase:firebase-perf:$rootProject.ext.googlePlayServicesVersion"
+    implementation "com.google.android.gms:play-services-wearable:$rootProject.ext.googlePlayServicesVersion"
+    implementation "com.google.firebase:firebase-core:$rootProject.ext.googlePlayServicesVersion"
+    implementation "com.google.firebase:firebase-perf:$rootProject.ext.googlePlayServicesVersion"
     // Only use crash reporting in release builds
-    releaseCompile "com.google.firebase:firebase-crash:$rootProject.ext.googlePlayServicesVersion"
-    compile project(':android-client-common')
+    releaseImplementation "com.google.firebase:firebase-crash:$rootProject.ext.googlePlayServicesVersion"
+
+    implementation project(':api')
+    implementation project(':android-client-common')
 }
 
 apply plugin: 'com.google.gms.google-services'
