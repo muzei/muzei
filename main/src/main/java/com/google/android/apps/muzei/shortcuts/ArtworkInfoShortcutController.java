@@ -66,6 +66,8 @@ public class ArtworkInfoShortcutController implements LifecycleObserver {
                 updateShortcut();
             }
         };
+        mContext.getContentResolver().registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
+                true, mArtworkInfoShortcutContentObserver);
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
