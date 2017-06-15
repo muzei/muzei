@@ -15,10 +15,10 @@
   -->
 
 <gradient xmlns:android="http://schemas.android.com/apk/res/android"
-          android:endColor="#0000"
-          android:endX="36.814"
-          android:endY="41.655"
-          android:startColor="#F000"
-          android:startX="18.691"
-          android:startY="13.748"
-          android:type="linear"/>
+      android:endColor="#0000"
+      android:endX="90"
+      android:endY="90"
+      android:startColor="#F000"
+      android:startX="60"
+      android:startY="60"
+      android:type="linear"/>
