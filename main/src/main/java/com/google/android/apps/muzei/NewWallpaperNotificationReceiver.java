@@ -359,6 +359,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
         NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL,
                 context.getString(R.string.notification_new_wallpaper_channel_name),
                 NotificationManager.IMPORTANCE_MIN);
+        channel.setShowBadge(false);
         notificationManager.createNotificationChannel(channel);
     }
 }
