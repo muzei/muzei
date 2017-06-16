@@ -18,10 +18,8 @@ package com.google.android.apps.muzei.widget;
 
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -34,15 +32,6 @@ import com.google.android.apps.muzei.api.MuzeiArtSource;
  */
 public class MuzeiAppWidgetProvider extends AppWidgetProvider {
     static final String ACTION_NEXT_ARTWORK = "com.google.android.apps.muzei.action.WIDGET_NEXT_ARTWORK";
-
-    @Override
-    public void onEnabled(final Context context) {
-        // Enable the AppWidgetUpdateReceiver as we now have widgets that need to be updated
-        PackageManager packageManager = context.getPackageManager();
-        ComponentName componentName = new ComponentName(context, AppWidgetUpdateReceiver.class);
-        packageManager.setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-                PackageManager.DONT_KILL_APP);
-    }
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -66,20 +55,20 @@ public class MuzeiAppWidgetProvider extends AppWidgetProvider {
 
     private void updateWidgets(final Context context) {
         final PendingResult result = goAsync();
-        new AppWidgetUpdateTask(context) {
-            @Override
-            protected void onPostExecute(Boolean success) {
-                result.finish();
-            }
-        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        new PendingResultUpdateTask(context, result).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
-    @Override
-    public void onDisabled(final Context context) {
-        // Disable the AppWidgetUpdateReceiver as we no longer have widgets that need to be updated
-        PackageManager packageManager = context.getPackageManager();
-        ComponentName componentName = new ComponentName(context, AppWidgetUpdateReceiver.class);
-        packageManager.setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                PackageManager.DONT_KILL_APP);
+    private static class PendingResultUpdateTask extends AppWidgetUpdateTask {
+        private final PendingResult mResult;
+
+        PendingResultUpdateTask(Context context, PendingResult result) {
+            super(context.getApplicationContext());
+            mResult = result;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            mResult.finish();
+        }
     }
 }

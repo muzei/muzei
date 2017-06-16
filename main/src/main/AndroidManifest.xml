@@ -109,16 +109,6 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/appwidget_info"/>
         </receiver>
-        <!-- Receive update broadcasts. Disabled by default until you add at least one widget instance -->
-        <receiver
-            android:name="com.google.android.apps.muzei.widget.AppWidgetUpdateReceiver"
-            android:enabled="false"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.android.apps.muzei.ACTION_ARTWORK_CHANGED"/>
-                <action android:name="com.google.android.apps.muzei.ACTION_SOURCE_CHANGED"/>
-            </intent-filter>
-        </receiver>
 
         <!-- Target for "Set As" intent -->
 
@@ -152,17 +142,6 @@
             tools:ignore="ExportedReceiver">
             <intent-filter>
                 <action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING" />
-            </intent-filter>
-        </receiver>
-
-        <!-- Watch for source package changes -->
-
-        <receiver android:name="com.google.android.apps.muzei.SourcePackageChangeReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.PACKAGE_CHANGED" />
-                <action android:name="android.intent.action.PACKAGE_REPLACED" />
-                <action android:name="android.intent.action.PACKAGE_REMOVED" />
-                <data android:scheme="package" />
             </intent-filter>
         </receiver>
 

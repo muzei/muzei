@@ -24,6 +24,7 @@ import android.content.ContentProviderOperation;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -67,18 +68,30 @@ public class SourceManager implements LifecycleObserver {
 
     private final Context mContext;
 
+    private SourcePackageChangeReceiver mSourcePackageChangeReceiver;
+
     public SourceManager(Context context) {
         mContext = context;
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     public void subscribeToSelectedSource() {
+        // Register for package change events
+        mSourcePackageChangeReceiver = new SourcePackageChangeReceiver();
+        IntentFilter packageChangeFilter = new IntentFilter();
+        packageChangeFilter.addDataScheme("package");
+        packageChangeFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
+        packageChangeFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+        packageChangeFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        mContext.registerReceiver(mSourcePackageChangeReceiver, packageChangeFilter);
+
         subscribeToSelectedSource(mContext);
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     public void unsubscribeToSelectedSource() {
         unsubscribeToSelectedSource(mContext);
+        mContext.unregisterReceiver(mSourcePackageChangeReceiver);
     }
 
     /**
@@ -235,11 +248,19 @@ public class SourceManager implements LifecycleObserver {
         migrateDataToContentProvider(context);
         ComponentName selectedSource = getSelectedSource(context);
         if (selectedSource != null) {
-            context.startService(new Intent(ACTION_SUBSCRIBE)
-                    .setComponent(selectedSource)
-                    .putExtra(EXTRA_SUBSCRIBER_COMPONENT,
-                            new ComponentName(context, SourceSubscriberService.class))
-                    .putExtra(EXTRA_TOKEN, selectedSource.flattenToShortString()));
+            try {
+                // Ensure that we have a valid service before subscribing
+                context.getPackageManager().getServiceInfo(selectedSource, 0);
+                context.startService(new Intent(ACTION_SUBSCRIBE)
+                        .setComponent(selectedSource)
+                        .putExtra(EXTRA_SUBSCRIBER_COMPONENT,
+                                new ComponentName(context, SourceSubscriberService.class))
+                        .putExtra(EXTRA_TOKEN, selectedSource.flattenToShortString()));
+            } catch (PackageManager.NameNotFoundException e) {
+                Log.i(TAG, "Selected source " + selectedSource
+                        + " is no longer available; switching to default.");
+                selectSource(context, new ComponentName(context, FeaturedArtSource.class));
+            }
         } else {
             // Select the default source
             selectSource(context, new ComponentName(context, FeaturedArtSource.class));

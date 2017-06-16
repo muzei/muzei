@@ -46,6 +46,7 @@ import com.google.android.apps.muzei.wallpaper.NetworkChangeObserver;
 import com.google.android.apps.muzei.wallpaper.NotificationUpdater;
 import com.google.android.apps.muzei.wallpaper.WallpaperAnalytics;
 import com.google.android.apps.muzei.wearable.WearableController;
+import com.google.android.apps.muzei.widget.WidgetUpdater;
 
 import net.rbgrn.android.glwallpaperservice.GLWallpaperService;
 
@@ -70,6 +71,7 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
         mLifecycle.addObserver(new NetworkChangeObserver(this));
         mLifecycle.addObserver(new NotificationUpdater(this));
         mLifecycle.addObserver(new WearableController(this));
+        mLifecycle.addObserver(new WidgetUpdater(this));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
             mLifecycle.addObserver(new ArtworkInfoShortcutController(this));
         }
