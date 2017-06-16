@@ -145,17 +145,6 @@
             </intent-filter>
         </receiver>
 
-        <!-- Watch for source package changes -->
-
-        <receiver android:name="com.google.android.apps.muzei.SourcePackageChangeReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.PACKAGE_CHANGED" />
-                <action android:name="android.intent.action.PACKAGE_REPLACED" />
-                <action android:name="android.intent.action.PACKAGE_REMOVED" />
-                <data android:scheme="package" />
-            </intent-filter>
-        </receiver>
-
         <!-- New wallpaper notification receiver -->
 
         <receiver android:name="com.google.android.apps.muzei.NewWallpaperNotificationReceiver" />
