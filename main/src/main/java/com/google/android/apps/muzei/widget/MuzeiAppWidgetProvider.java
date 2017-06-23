@@ -62,7 +62,7 @@ public class MuzeiAppWidgetProvider extends AppWidgetProvider {
         private final PendingResult mResult;
 
         PendingResultUpdateTask(Context context, PendingResult result) {
-            super(context.getApplicationContext());
+            super(context.getApplicationContext(), false);
             mResult = result;
         }
 

@@ -43,6 +43,8 @@
 
     <dimen name="widget_small_height_breakpoint">110dp</dimen>
     <dimen name="widget_min_size">48dp</dimen>
+    <dimen name="widget_min_height">110dp</dimen>
+    <dimen name="widget_min_width">180dp</dimen>
     <dimen name="widget_padding">16dp</dimen>
     <dimen name="widget_scrim_height">160dp</dimen>
 

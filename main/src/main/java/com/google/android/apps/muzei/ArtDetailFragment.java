@@ -57,6 +57,7 @@ import com.google.android.apps.muzei.util.CheatSheet;
 import com.google.android.apps.muzei.util.DrawInsetsFrameLayout;
 import com.google.android.apps.muzei.util.PanScaleProxyView;
 import com.google.android.apps.muzei.util.ScrimUtil;
+import com.google.android.apps.muzei.widget.AppWidgetUpdateTask;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.R;
@@ -348,6 +349,11 @@ public class ArtDetailFragment extends Fragment
                     public void onSingleTapUp() {
                         showHideChrome((mContainerView.getSystemUiVisibility()
                                 & View.SYSTEM_UI_FLAG_LOW_PROFILE) != 0);
+                    }
+
+                    @Override
+                    public void onLongPress() {
+                        new AppWidgetUpdateTask(getContext(), true).execute();
                     }
                 });
 
