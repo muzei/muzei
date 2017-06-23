@@ -24,8 +24,6 @@ android {
     Properties versionProps = new Properties()
     versionProps.load(new FileInputStream(file('../version.properties')))
 
-    publishNonDefault true
-
     dexOptions.preDexLibraries true
 
     defaultConfig {
@@ -87,8 +85,8 @@ android {
 dependencies {
     implementation "com.android.support:support-compat:$rootProject.ext.supportLibraryVersion"
     implementation "com.android.support:exifinterface:$rootProject.ext.supportLibraryVersion"
-    compileOnly "com.google.android.wearable:wearable:2.0.2"
-    implementation "com.google.android.support:wearable:2.0.2"
+    compileOnly "com.google.android.wearable:wearable:2.0.3"
+    implementation "com.google.android.support:wearable:2.0.3"
     // Only used because wearable dependency depends on an old version of the Support Library
     implementation "com.android.support:support-v4:$rootProject.ext.supportLibraryVersion"
     implementation "com.android.support:recyclerview-v7:$rootProject.ext.supportLibraryVersion"
