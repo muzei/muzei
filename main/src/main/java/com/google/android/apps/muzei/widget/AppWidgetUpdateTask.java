@@ -29,9 +29,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -47,15 +49,17 @@ import net.nurik.roman.muzei.R;
 import java.io.FileNotFoundException;
 
 /**
- * Async operation used to update the AppWidget.
+ * Async operation used to update the widget or provide a preview for pinning the widget.
  */
-class AppWidgetUpdateTask extends AsyncTask<Void,Void,Boolean> {
+public class AppWidgetUpdateTask extends AsyncTask<Void,Void,Boolean> {
     private static final String TAG = "AppWidgetUpdateTask";
 
     private final Context mContext;
+    private final boolean mShowingPreview;
 
-    AppWidgetUpdateTask(Context context) {
+    public AppWidgetUpdateTask(Context context, boolean showingPreview) {
         mContext = context;
+        mShowingPreview = showingPreview;
     }
 
     @Override
@@ -63,10 +67,14 @@ class AppWidgetUpdateTask extends AsyncTask<Void,Void,Boolean> {
         ComponentName widget = new ComponentName(mContext, MuzeiAppWidgetProvider.class);
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext);
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(widget);
-        if (appWidgetIds.length == 0) {
+        if (!mShowingPreview && appWidgetIds.length == 0) {
             // No app widgets, nothing to do
             Log.i(TAG, "No AppWidgets found");
             return true;
+        } else if (mShowingPreview && (Build.VERSION.SDK_INT < Build.VERSION_CODES.O ||
+                !appWidgetManager.isRequestPinAppWidgetSupported())) {
+            // No preview to show
+            return false;
         }
         String[] projection = new String[] {BaseColumns._ID,
             MuzeiContract.Artwork.COLUMN_NAME_TITLE,
@@ -101,9 +109,20 @@ class AppWidgetUpdateTask extends AsyncTask<Void,Void,Boolean> {
         nextArtworkIntent.setAction(MuzeiAppWidgetProvider.ACTION_NEXT_ARTWORK);
         PendingIntent nextArtworkPendingIntent = PendingIntent.getBroadcast(mContext,
                 0, nextArtworkIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        if (mShowingPreview) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+                    appWidgetManager.isRequestPinAppWidgetSupported()) {
+                RemoteViews remoteViews = createRemoteViews(imageUri, contentDescription,
+                        launchPendingIntent, nextArtworkPendingIntent, supportsNextArtwork,
+                        mContext.getResources().getDimensionPixelSize(R.dimen.widget_min_width),
+                        mContext.getResources().getDimensionPixelSize(R.dimen.widget_min_height));
+                Bundle extras = new Bundle();
+                extras.putParcelable(AppWidgetManager.EXTRA_APPWIDGET_PREVIEW, remoteViews);
+                return appWidgetManager.requestPinAppWidget(widget, extras, null);
+            }
+            return false;
+        }
         DisplayMetrics displayMetrics = mContext.getResources().getDisplayMetrics();
-        int smallWidgetHeight = mContext.getResources().getDimensionPixelSize(
-                R.dimen.widget_small_height_breakpoint);
         int minWidgetSize = mContext.getResources().getDimensionPixelSize(
                 R.dimen.widget_min_size);
         for (int widgetId : appWidgetIds) {
@@ -114,41 +133,57 @@ class AppWidgetUpdateTask extends AsyncTask<Void,Void,Boolean> {
             int widgetHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                     extras.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT), displayMetrics);
             widgetHeight = Math.max(widgetHeight, minWidgetSize);
-            Bitmap image;
-            try {
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inJustDecodeBounds = true;
-                BitmapFactory.decodeStream(contentResolver.openInputStream(imageUri), null, options);
-                int width = options.outWidth;
-                int height = options.outHeight;
-                options.inJustDecodeBounds = false;
-                options.inSampleSize = Math.min(ImageUtil.calculateSampleSize(width, widgetWidth),
-                        ImageUtil.calculateSampleSize(height, widgetHeight));
-                image = BitmapFactory.decodeStream(
-                        contentResolver.openInputStream(imageUri), null, options);
-            } catch (FileNotFoundException e) {
-                Log.e(TAG, "Could not find current artwork image", e);
+            RemoteViews remoteViews = createRemoteViews(imageUri, contentDescription, launchPendingIntent,
+                    nextArtworkPendingIntent, supportsNextArtwork, widgetWidth, widgetHeight);
+            if (remoteViews == null) {
                 return false;
-            }
-            // Even after using sample size to scale an image down, it might be larger than the
-            // maximum bitmap memory usage for widgets
-            Bitmap scaledImage = scaleBitmap(image, widgetWidth, widgetHeight);
-            @LayoutRes int widgetLayout = widgetHeight < smallWidgetHeight
-                    ? R.layout.widget_small
-                    : R.layout.widget;
-            RemoteViews remoteViews = new RemoteViews(mContext.getPackageName(), widgetLayout);
-            remoteViews.setContentDescription(R.id.widget_background, contentDescription);
-            remoteViews.setImageViewBitmap(R.id.widget_background, scaledImage);
-            remoteViews.setOnClickPendingIntent(R.id.widget_background, launchPendingIntent);
-            remoteViews.setOnClickPendingIntent(R.id.widget_next_artwork, nextArtworkPendingIntent);
-            if (supportsNextArtwork) {
-                remoteViews.setViewVisibility(R.id.widget_next_artwork, View.VISIBLE);
-            } else {
-                remoteViews.setViewVisibility(R.id.widget_next_artwork, View.GONE);
             }
             appWidgetManager.updateAppWidget(widgetId, remoteViews);
         }
         return true;
+    }
+
+    @Nullable
+    private RemoteViews createRemoteViews(Uri imageUri, String contentDescription,
+                                          PendingIntent launchPendingIntent,
+                                          PendingIntent nextArtworkPendingIntent, boolean supportsNextArtwork,
+                                          int widgetWidth, int widgetHeight) {
+        ContentResolver contentResolver = mContext.getContentResolver();
+        int smallWidgetHeight = mContext.getResources().getDimensionPixelSize(
+                R.dimen.widget_small_height_breakpoint);
+        Bitmap image;
+        try {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeStream(contentResolver.openInputStream(imageUri), null, options);
+            int width = options.outWidth;
+            int height = options.outHeight;
+            options.inJustDecodeBounds = false;
+            options.inSampleSize = Math.min(ImageUtil.calculateSampleSize(width, widgetWidth),
+                    ImageUtil.calculateSampleSize(height, widgetHeight));
+            image = BitmapFactory.decodeStream(
+                    contentResolver.openInputStream(imageUri), null, options);
+        } catch (FileNotFoundException e) {
+            Log.e(TAG, "Could not find current artwork image", e);
+            return null;
+        }
+        // Even after using sample size to scale an image down, it might be larger than the
+        // maximum bitmap memory usage for widgets
+        Bitmap scaledImage = scaleBitmap(image, widgetWidth, widgetHeight);
+        @LayoutRes int widgetLayout = widgetHeight < smallWidgetHeight
+                ? R.layout.widget_small
+                : R.layout.widget;
+        RemoteViews remoteViews = new RemoteViews(mContext.getPackageName(), widgetLayout);
+        remoteViews.setContentDescription(R.id.widget_background, contentDescription);
+        remoteViews.setImageViewBitmap(R.id.widget_background, scaledImage);
+        remoteViews.setOnClickPendingIntent(R.id.widget_background, launchPendingIntent);
+        remoteViews.setOnClickPendingIntent(R.id.widget_next_artwork, nextArtworkPendingIntent);
+        if (supportsNextArtwork) {
+            remoteViews.setViewVisibility(R.id.widget_next_artwork, View.VISIBLE);
+        } else {
+            remoteViews.setViewVisibility(R.id.widget_next_artwork, View.GONE);
+        }
+        return remoteViews;
     }
 
     private Bitmap scaleBitmap(Bitmap image, int widgetWidth, int widgetHeight) {

@@ -44,7 +44,8 @@ public class WidgetUpdater implements LifecycleObserver {
         mWidgetContentObserver = new ContentObserver(new Handler()) {
             @Override
             public void onChange(final boolean selfChange, final Uri uri) {
-                new AppWidgetUpdateTask(mContext).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                new AppWidgetUpdateTask(mContext, false)
+                        .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
         };
         mContext.getContentResolver().registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,

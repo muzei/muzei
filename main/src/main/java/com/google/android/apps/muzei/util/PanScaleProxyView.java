@@ -243,6 +243,13 @@ public class PanScaleProxyView extends View {
         }
 
         @Override
+        public void onLongPress(final MotionEvent e) {
+            if (mOnOtherGestureListener != null) {
+                mOnOtherGestureListener.onLongPress();
+            }
+        }
+
+        @Override
         public boolean onDoubleTapEvent(MotionEvent e) {
             if (!mPanScaleEnabled || mDragZoomed || e.getActionMasked() != MotionEvent.ACTION_UP) {
                 return false;
@@ -535,5 +542,6 @@ public class PanScaleProxyView extends View {
 
     public interface OnOtherGestureListener {
         void onSingleTapUp();
+        void onLongPress();
     }
 }
