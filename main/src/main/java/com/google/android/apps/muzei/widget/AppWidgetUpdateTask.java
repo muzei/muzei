@@ -42,9 +42,12 @@ import android.view.View;
 import android.widget.RemoteViews;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
+import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
 import com.google.android.apps.muzei.render.ImageUtil;
 
 import net.nurik.roman.muzei.R;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.FileNotFoundException;
 
@@ -96,7 +99,9 @@ public class AppWidgetUpdateTask extends AsyncTask<Void,Void,Boolean> {
                 : byline;
         Uri imageUri = ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI,
                 artwork.getLong(artwork.getColumnIndex(BaseColumns._ID)));
-        boolean supportsNextArtwork = artwork.getInt(
+        WallpaperActiveStateChangedEvent e = EventBus.getDefault().getStickyEvent(
+                WallpaperActiveStateChangedEvent.class);
+        boolean supportsNextArtwork = e != null && e.isActive() && artwork.getInt(
                 artwork.getColumnIndex(MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND)) != 0;
         artwork.close();
 

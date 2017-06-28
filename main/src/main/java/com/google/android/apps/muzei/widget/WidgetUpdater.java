@@ -52,10 +52,15 @@ public class WidgetUpdater implements LifecycleObserver {
                 true, mWidgetContentObserver);
         mContext.getContentResolver().registerContentObserver(MuzeiContract.Sources.CONTENT_URI,
                 true, mWidgetContentObserver);
+        // Update the widget now that the wallpaper is active to enable the 'Next' button if supported
+        mWidgetContentObserver.onChange(true);
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     public void unregisterContentObserver() {
         mContext.getContentResolver().unregisterContentObserver(mWidgetContentObserver);
+        // Update the widget one last time to disable the 'Next' button until Muzei is reactivated
+        new AppWidgetUpdateTask(mContext, false)
+                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 }
