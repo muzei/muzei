@@ -380,7 +380,7 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
                             source.componentName.getPackageName(), 0);
                     Resources packageRes = packageContext.getResources();
                     source.description = packageRes.getString(ri.serviceInfo.descriptionRes);
-                } catch (PackageManager.NameNotFoundException e) {
+                } catch (PackageManager.NameNotFoundException|Resources.NotFoundException e) {
                     Log.e(TAG, "Can't read package resources for source " + source.componentName);
                 }
             }

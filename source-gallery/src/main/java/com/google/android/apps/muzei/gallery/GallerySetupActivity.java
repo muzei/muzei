@@ -61,7 +61,7 @@ public class GallerySetupActivity extends FragmentActivity {
             return;
         }
 
-        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             setResult(RESULT_OK);
             finish();
         } else {
