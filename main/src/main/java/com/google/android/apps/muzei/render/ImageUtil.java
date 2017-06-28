@@ -22,7 +22,7 @@ import android.graphics.Color;
 public class ImageUtil {
     // Make sure input images are very small!
     public static float calculateDarkness(Bitmap bitmap) {
-        if (bitmap == null) {
+        if (bitmap == null || bitmap.getWidth() == 0 || bitmap.getHeight() == 0) {
             return 0;
         }
 
