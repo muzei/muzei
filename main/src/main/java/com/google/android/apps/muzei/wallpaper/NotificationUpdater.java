@@ -59,5 +59,6 @@ public class NotificationUpdater implements LifecycleObserver {
     public void unregisterContentObserver() {
         mContext.getContentResolver().unregisterContentObserver(mNotificationContentObserver);
         mNotificationHandlerThread.quitSafely();
+        NewWallpaperNotificationReceiver.cancelNotification(mContext);
     }
 }

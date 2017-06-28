@@ -137,6 +137,10 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
             lastArtwork.close();
         }
 
+        cancelNotification(context);
+    }
+
+    public static void cancelNotification(Context context) {
         NotificationManagerCompat nm = NotificationManagerCompat.from(context);
         nm.cancel(NOTIFICATION_ID);
     }
