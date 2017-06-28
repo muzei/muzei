@@ -123,8 +123,6 @@ public class MuzeiActivity extends AppCompatActivity
                     .setDuration(300);
             mFadeIn = false;
         }
-
-        NewWallpaperNotificationReceiver.markNotificationRead(this);
     }
 
     @Subscribe

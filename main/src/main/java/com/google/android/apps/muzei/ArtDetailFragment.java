@@ -432,6 +432,7 @@ public class ArtDetailFragment extends Fragment
     public void onResume() {
         super.onResume();
         mConsecutiveLoadErrorCount = 0;
+        NewWallpaperNotificationReceiver.markNotificationRead(getContext());
     }
 
     @Override
