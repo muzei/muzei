@@ -83,6 +83,7 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
                 public void onReceive(Context context, Intent intent) {
                     mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
                     unregisterReceiver(this);
+                    mUnlockReceiver = null;
                 }
             };
             IntentFilter filter = new IntentFilter(Intent.ACTION_USER_UNLOCKED);
