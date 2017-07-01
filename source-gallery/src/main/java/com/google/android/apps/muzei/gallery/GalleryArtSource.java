@@ -104,10 +104,10 @@ public class GalleryArtSource extends MuzeiArtSource {
                 numImages = updateMeta();
 
                 Artwork currentArtwork = getCurrentArtwork();
-                Uri currentArtworkUri = currentArtwork != null && currentArtwork.getToken() != null
+                Uri currentArtworkToken = currentArtwork != null && currentArtwork.getToken() != null
                         ? Uri.parse(currentArtwork.getToken())
                         : null;
-                if (uri.equals(currentArtworkUri)) {
+                if (uri.equals(currentArtworkToken)) {
                     // We're showing a removed URI
                     publishNextArtwork(null);
                 } else if (!GalleryContract.ChosenPhotos.CONTENT_URI.equals(uri)
@@ -172,16 +172,35 @@ public class GalleryArtSource extends MuzeiArtSource {
         int numChosenUris = (chosenUris != null) ? chosenUris.getCount() : 0;
 
         Artwork currentArtwork = getCurrentArtwork();
-        String lastToken = (currentArtwork != null) ? currentArtwork.getToken() : null;
+        Uri lastImageUri = (currentArtwork != null) ? currentArtwork.getImageUri() : null;
 
         Uri imageUri;
+        Uri token;
         Random random = new Random();
         if (forceUri != null) {
-            imageUri = forceUri;
-
+            // Assume the forceUri is to a single image
+            imageUri = token = forceUri;
+            // But if it is a tree URI, pick a random image to show from that tree
+            Cursor data = getContentResolver().query(forceUri,
+                    new String[] { GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI,
+                            GalleryContract.ChosenPhotos.COLUMN_NAME_URI },
+                    null, null, null);
+            if (data != null && data.moveToNext()) {
+                boolean isTreeUri = data.getInt(0) != 0;
+                if (isTreeUri && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    Uri treeUri = Uri.parse(data.getString(1));
+                    List<Uri> photoUris = new ArrayList<>();
+                    addAllImagesFromTree(photoUris, treeUri, DocumentsContract.getTreeDocumentId(treeUri));
+                    imageUri = photoUris.get(new Random().nextInt(photoUris.size()));
+                }
+            }
+            if (data != null) {
+                data.close();
+            }
         } else if (numChosenUris > 0) {
             // First build a list of all image URIs, recursively exploring any tree URIs that were added
             List<Uri> allImages = new ArrayList<>(numChosenUris);
+            List<Uri> tokens = new ArrayList<>(numChosenUris);
             while (chosenUris.moveToNext()) {
                 Uri chosenUri = ContentUris.withAppendedId(GalleryContract.ChosenPhotos.CONTENT_URI,
                         chosenUris.getLong(chosenUris.getColumnIndex(BaseColumns._ID)));
@@ -190,9 +209,14 @@ public class GalleryArtSource extends MuzeiArtSource {
                 if (isTreeUri && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     Uri treeUri = Uri.parse(chosenUris.getString(
                             chosenUris.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_URI)));
-                    addAllImagesFromTree(allImages, treeUri, DocumentsContract.getTreeDocumentId(treeUri));
+                    int numAdded = addAllImagesFromTree(allImages, treeUri,
+                            DocumentsContract.getTreeDocumentId(treeUri));
+                    for (int h=0; h<numAdded; h++) {
+                        tokens.add(chosenUri);
+                    }
                 } else {
                     allImages.add(chosenUri);
+                    tokens.add(chosenUri);
                 }
             }
             int numImages = allImages.size();
@@ -201,8 +225,10 @@ public class GalleryArtSource extends MuzeiArtSource {
                 return;
             }
             while (true) {
-                imageUri = allImages.get(random.nextInt(numImages));
-                if (numImages <= 1 || !imageUri.toString().equals(lastToken)) {
+                int index = random.nextInt(numImages);
+                imageUri = allImages.get(index);
+                if (numImages <= 1 || !imageUri.equals(lastImageUri)) {
+                    token = tokens.get(index);
                     break;
                 }
             }
@@ -233,7 +259,8 @@ public class GalleryArtSource extends MuzeiArtSource {
                 cursor.moveToPosition(random.nextInt(count));
                 imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                         cursor.getLong(0));
-                if (!imageUri.toString().equals(lastToken)) {
+                if (!imageUri.equals(lastImageUri)) {
+                    token = imageUri;
                     break;
                 }
             }
@@ -243,8 +270,6 @@ public class GalleryArtSource extends MuzeiArtSource {
         if (chosenUris != null) {
             chosenUris.close();
         }
-
-        String token = imageUri.toString();
 
         // Retrieve metadata for item
         ensureMetadataExists(imageUri);
@@ -287,7 +312,7 @@ public class GalleryArtSource extends MuzeiArtSource {
                 .imageUri(imageUri)
                 .title(title)
                 .byline(byline)
-                .token(token)
+                .token(token.toString())
                 .viewIntent(new Intent(Intent.ACTION_VIEW)
                         .setDataAndType(imageUri, "image/jpeg"))
                 .build());

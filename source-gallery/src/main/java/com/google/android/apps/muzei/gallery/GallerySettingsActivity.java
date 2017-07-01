@@ -33,7 +33,6 @@ import android.content.OperationApplicationException;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
@@ -90,7 +89,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Random;
 import java.util.Set;
 
 import static com.google.android.apps.muzei.gallery.GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM;
@@ -99,7 +97,6 @@ import static com.google.android.apps.muzei.gallery.GalleryArtSource.EXTRA_FORCE
 public class GallerySettingsActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = "GallerySettingsActivity";
-    private static final String DOCUMENTS_UI_PACKAGE_NAME = "com.android.documentsui";
     private static final String SHARED_PREF_NAME = "GallerySettingsActivity";
     private static final String SHOW_INTERNAL_STORAGE_MESSAGE = "show_internal_storage_message";
     private static final int REQUEST_CHOOSE_PHOTOS = 1;
@@ -488,22 +485,6 @@ public class GallerySettingsActivity extends AppCompatActivity
                     Set<Uri> selection = mMultiSelectionController.getSelection();
                     if (selection.size() > 0) {
                         Uri selectedUri = selection.iterator().next();
-                        // Check to see if it is tree URI, if so, force a random photo from the tree
-                        Cursor data = getContentResolver().query(selectedUri,
-                                new String[] { GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI,
-                                        GalleryContract.ChosenPhotos.COLUMN_NAME_URI },
-                                null, null, null);
-                        if (data != null && data.moveToNext()) {
-                            boolean isTreeUri = data.getInt(0) != 0;
-                            if (isTreeUri) {
-                                Uri treeUri = Uri.parse(data.getString(1));
-                                List<Uri> photoUris = getImagesFromTreeUri(treeUri, Integer.MAX_VALUE);
-                                selectedUri = photoUris.get(new Random().nextInt(photoUris.size()));
-                            }
-                        }
-                        if (data != null) {
-                            data.close();
-                        }
                         startService(
                                 new Intent(GallerySettingsActivity.this, GalleryArtSource.class)
                                         .setAction(ACTION_PUBLISH_NEXT_GALLERY_ITEM)
