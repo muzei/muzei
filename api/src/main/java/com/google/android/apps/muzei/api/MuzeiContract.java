@@ -501,7 +501,7 @@ public class MuzeiContract {
                 }
                 for (Uri contentUri : contentUris) {
                     Uri artworkUri = contentResolver.insert(contentUri, values);
-                    try (OutputStream out = contentResolver.openOutputStream(artworkUri)) {
+                    try (OutputStream out = artworkUri != null ? contentResolver.openOutputStream(artworkUri) : null) {
                         if (out == null) {
                             continue;
                         }
@@ -532,7 +532,7 @@ public class MuzeiContract {
                 }
                 for (Uri contentUri : contentUris) {
                     Uri artworkUri = contentResolver.insert(contentUri, values);
-                    try (OutputStream out = contentResolver.openOutputStream(artworkUri)) {
+                    try (OutputStream out = artworkUri != null ? contentResolver.openOutputStream(artworkUri) : null) {
                         if (out == null) {
                             continue;
                         }
