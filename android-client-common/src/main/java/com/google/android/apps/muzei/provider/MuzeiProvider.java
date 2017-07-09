@@ -32,7 +32,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
@@ -218,7 +217,23 @@ public class MuzeiProvider extends ContentProvider {
             throws OperationApplicationException {
         holdNotifyChange = true;
         try {
-            return super.applyBatch(operations);
+            OperationApplicationException firstCaughtException = null;
+            final int numOperations = operations.size();
+            final ContentProviderResult[] results = new ContentProviderResult[numOperations];
+            for (int i = 0; i < numOperations; i++) {
+                try {
+                    results[i] = operations.get(i).apply(this, results, i);
+                } catch (OperationApplicationException e) {
+                    Log.e(TAG, "Unable to apply " + operations.get(i), e);
+                    if (firstCaughtException == null) {
+                        firstCaughtException = e;
+                    }
+                }
+            }
+            if (firstCaughtException != null) {
+                throw firstCaughtException;
+            }
+            return results;
         } finally {
             holdNotifyChange = false;
             boolean broadcastSourceChanged = false;
@@ -554,7 +569,7 @@ public class MuzeiProvider extends ContentProvider {
             return artworkUri;
         }
         // If the insert didn't succeed, then the rowID is <= 0
-        throw new SQLException("Failed to insert row into " + uri);
+        return null;
     }
 
     private Uri insertSource(@NonNull final Uri uri, final ContentValues initialValues) {
@@ -617,7 +632,7 @@ public class MuzeiProvider extends ContentProvider {
             return sourceUri;
         }
         // If the insert didn't succeed, then the rowID is <= 0
-        throw new SQLException("Failed to insert row into " + uri);
+        return null;
     }
 
     /**
