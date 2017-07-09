@@ -30,6 +30,8 @@
 # okhttp
 
 -dontwarn com.squareup.okhttp.**
+-dontwarn javax.annotation.Nullable
+-dontwarn javax.annotation.ParametersAreNonnullByDefault
 
 # okio
 
