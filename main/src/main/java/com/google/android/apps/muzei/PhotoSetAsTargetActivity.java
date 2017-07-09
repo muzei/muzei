@@ -20,7 +20,6 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.database.SQLException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -45,32 +44,32 @@ public class PhotoSetAsTargetActivity extends Activity {
 
         Uri photoUri = getIntent().getData();
 
-
-        try {
-            // Add the chosen photo
-            ContentValues values = new ContentValues();
-            values.put(GalleryContract.ChosenPhotos.COLUMN_NAME_URI, photoUri.toString());
-            Uri uri = getContentResolver().insert(GalleryContract.ChosenPhotos.CONTENT_URI, values);
-
-            // If adding the artwork succeeded, select the gallery source and publish the new image
-            Bundle bundle = new Bundle();
-            bundle.putString(FirebaseAnalytics.Param.ITEM_ID,
-                    new ComponentName(this, GalleryArtSource.class).flattenToShortString());
-            bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sources");
-            FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
-            SourceManager.selectSource(this, new ComponentName(this, GalleryArtSource.class));
-
-            startService(new Intent(this, GalleryArtSource.class)
-                    .setAction(GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM)
-                    .putExtra(GalleryArtSource.EXTRA_FORCE_URI, uri));
-
-            // Launch main activity
-            startActivity(Intent.makeMainActivity(new ComponentName(this, MuzeiActivity.class))
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-        } catch (SQLException e) {
-            Log.e(TAG, "Unable to insert chosen artwork", e);
+        // Add the chosen photo
+        ContentValues values = new ContentValues();
+        values.put(GalleryContract.ChosenPhotos.COLUMN_NAME_URI, photoUri.toString());
+        Uri uri = getContentResolver().insert(GalleryContract.ChosenPhotos.CONTENT_URI, values);
+        if (uri == null) {
+            Log.e(TAG, "Unable to insert chosen artwork for " + photoUri);
             Toast.makeText(this, R.string.set_as_wallpaper_failed, Toast.LENGTH_SHORT).show();
+            finish();
+            return;
         }
+
+        // If adding the artwork succeeded, select the gallery source and publish the new image
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID,
+                new ComponentName(this, GalleryArtSource.class).flattenToShortString());
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sources");
+        FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+        SourceManager.selectSource(this, new ComponentName(this, GalleryArtSource.class));
+
+        startService(new Intent(this, GalleryArtSource.class)
+                .setAction(GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM)
+                .putExtra(GalleryArtSource.EXTRA_FORCE_URI, uri));
+
+        // Launch main activity
+        startActivity(Intent.makeMainActivity(new ComponentName(this, MuzeiActivity.class))
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         finish();
     }
 }
