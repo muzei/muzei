@@ -83,6 +83,10 @@ public abstract class RenderController {
     protected abstract BitmapRegionLoader openDownloadedCurrentArtwork(boolean forceReload);
 
     public void reloadCurrentArtwork(final boolean forceReload) {
+        if (mExecutorService.isShutdown() || mExecutorService.isTerminated()) {
+            // Don't reload artwork for shutdown or destroyed RenderControllers
+            return;
+        }
         new AsyncTask<Void, Void, BitmapRegionLoader>() {
             @Override
             protected BitmapRegionLoader doInBackground(Void... voids) {
