@@ -72,7 +72,7 @@ public class MuzeiRendererFragment extends Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         ActivityManager activityManager = (ActivityManager)
-                getActivity().getSystemService(Context.ACTIVITY_SERVICE);
+                getContext().getSystemService(Context.ACTIVITY_SERVICE);
 
         if (mDemoMode && activityManager.isLowRamDevice()) {
             DisplayMetrics dm = getResources().getDisplayMetrics();
@@ -85,16 +85,16 @@ public class MuzeiRendererFragment extends Fragment implements
                         (int) (dm.widthPixels * 1f / dm.heightPixels * targetHeight));
             }
 
-            mSimpleDemoModeImageView = new ImageView(container.getContext());
+            mSimpleDemoModeImageView = new ImageView(getContext());
             mSimpleDemoModeImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            Picasso.with(getActivity())
+            Picasso.with(getContext())
                     .load("file:///android_asset/starrynight.jpg")
                     .resize(targetWidth, targetHeight)
                     .centerCrop()
                     .into(mSimpleDemoModeLoadedTarget);
             return mSimpleDemoModeImageView;
         } else {
-            mView = new MuzeiView(getActivity());
+            mView = new MuzeiView(getContext());
             mView.setPreserveEGLContextOnPause(true);
             return mView;
         }
@@ -105,7 +105,7 @@ public class MuzeiRendererFragment extends Fragment implements
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
             if (!mDemoFocus) {
                 // Blur
-                ImageBlurrer blurrer = new ImageBlurrer(getActivity(), bitmap);
+                ImageBlurrer blurrer = new ImageBlurrer(getContext(), bitmap);
                 Bitmap blurred = blurrer.blurBitmap(ImageBlurrer.MAX_SUPPORTED_BLUR_PIXELS, 0);
                 blurrer.destroy();
 
