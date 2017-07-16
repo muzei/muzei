@@ -901,62 +901,68 @@ public class MuzeiProvider extends ContentProvider {
         while (sources.moveToNext()) {
             String componentName = sources.getString(0);
             // Now use that ComponentName to look through the past artwork from that source
-            Cursor artworkBySource = queryArtwork(MuzeiContract.Artwork.CONTENT_URI,
+            try (Cursor artworkBySource = queryArtwork(MuzeiContract.Artwork.CONTENT_URI,
                     new String[] {BaseColumns._ID, MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI,
                         MuzeiContract.Artwork.COLUMN_NAME_TOKEN},
                     MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME + "=?",
                     new String[] {componentName},
-                    MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED + " DESC");
-            if (artworkBySource == null) {
-                continue;
-            }
-            List<String> artworkIdsToKeep = new ArrayList<>();
-            List<String> artworkToKeep = new ArrayList<>();
-            // First find all of the persisted artwork from this source and mark them as artwork to keep
-            while (artworkBySource.moveToNext()) {
-                long id = artworkBySource.getLong(0);
-                Uri uri = ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI, id);
-                String artworkUri = artworkBySource.getString(1);
-                String artworkToken = artworkBySource.getString(2);
-                String unique = !TextUtils.isEmpty(artworkUri) ? artworkUri : artworkToken;
-                if (persistedUris.contains(uri)) {
-                    // Always keep artwork that is persisted
-                    artworkIdsToKeep.add(Long.toString(id));
-                    artworkToKeep.add(unique);
-                }
-            }
-            // Now go through the artwork from this source and find the most recent artwork
-            // and mark them as artwork to keep
-            int count = 0;
-            artworkBySource.moveToPosition(-1);
-            while (artworkBySource.moveToNext()) {
-                // BaseColumns._ID is a long, but we need it as a String later anyways
-                String id = artworkBySource.getString(0);
-                String artworkUri = artworkBySource.getString(1);
-                String artworkToken = artworkBySource.getString(2);
-                String unique = !TextUtils.isEmpty(artworkUri) ? artworkUri : artworkToken;
-                if (artworkToKeep.contains(unique)) {
-                    // This ensures we are double counting the same artwork in our count
-                    artworkIdsToKeep.add(id);
+                    MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED + " DESC")) {
+                if (artworkBySource == null) {
                     continue;
                 }
-                if (count++ < MAX_CACHE_SIZE) {
-                    // Keep artwork below the MAX_CACHE_SIZE
-                    artworkIdsToKeep.add(id);
-                    artworkToKeep.add(unique);
+                List<String> artworkIdsToKeep = new ArrayList<>();
+                List<String> artworkToKeep = new ArrayList<>();
+                // First find all of the persisted artwork from this source and mark them as artwork to keep
+                while (artworkBySource.moveToNext()) {
+                    long id = artworkBySource.getLong(0);
+                    Uri uri = ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI, id);
+                    String artworkUri = artworkBySource.getString(1);
+                    String artworkToken = artworkBySource.getString(2);
+                    String unique = !TextUtils.isEmpty(artworkUri) ? artworkUri : artworkToken;
+                    if (persistedUris.contains(uri)) {
+                        // Always keep artwork that is persisted
+                        artworkIdsToKeep.add(Long.toString(id));
+                        artworkToKeep.add(unique);
+                    }
                 }
+                // Now go through the artwork from this source and find the most recent artwork
+                // and mark them as artwork to keep
+                int count = 0;
+                artworkBySource.moveToPosition(-1);
+                while (artworkBySource.moveToNext()) {
+                    // BaseColumns._ID is a long, but we need it as a String later anyways
+                    String id = artworkBySource.getString(0);
+                    String artworkUri = artworkBySource.getString(1);
+                    String artworkToken = artworkBySource.getString(2);
+                    String unique = !TextUtils.isEmpty(artworkUri) ? artworkUri : artworkToken;
+                    if (artworkToKeep.contains(unique)) {
+                        // This ensures we are double counting the same artwork in our count
+                        artworkIdsToKeep.add(id);
+                        continue;
+                    }
+                    if (count++ < MAX_CACHE_SIZE) {
+                        // Keep artwork below the MAX_CACHE_SIZE
+                        artworkIdsToKeep.add(id);
+                        artworkToKeep.add(unique);
+                    }
+                }
+                // Now delete all artwork not in the keep list
+                int numDeleted = deleteArtwork(MuzeiContract.Artwork.CONTENT_URI,
+                        MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME + "=?"
+                        + " AND " + MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID
+                        + " NOT IN (" + TextUtils.join(",", artworkIdsToKeep) + ")",
+                        new String[] {componentName});
+                if (numDeleted > 0) {
+                    Log.d(TAG, "For " + componentName + " kept " + artworkToKeep.size()
+                            + " artwork, deleted " + numDeleted);
+                }
+            } catch (IllegalStateException e) {
+                Log.e(TAG, "Unable to read all artwork for " + componentName +
+                        ", deleting all in an attempt to get back to a good state", e);
+                deleteArtwork(MuzeiContract.Artwork.CONTENT_URI,
+                        MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME + "=?",
+                        new String[] {componentName});
             }
-            // Now delete all artwork not in the keep list
-            int numDeleted = deleteArtwork(MuzeiContract.Artwork.CONTENT_URI,
-                    MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME + "=?"
-                    + " AND " + MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID
-                    + " NOT IN (" + TextUtils.join(",", artworkIdsToKeep) + ")",
-                    new String[] {componentName});
-            if (numDeleted > 0) {
-                Log.d(TAG, "For " + componentName + " kept " + artworkToKeep.size()
-                        + " artwork, deleted " + numDeleted);
-            }
-            artworkBySource.close();
         }
         sources.close();
     }
