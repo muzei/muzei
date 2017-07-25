@@ -1,5 +1,5 @@
 <!--
-  Copyright 2014 Google Inc.
+  Copyright 2017 Google Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,13 +14,9 @@
   limitations under the License.
   -->
 
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:bottom="2dp"
-        android:drawable="@drawable/ic_shortcut_background"
-        android:left="2dp"
-        android:right="2dp"
-        android:top="2dp" />
-
-    <item android:drawable="@drawable/ic_shortcut_artwork_info_foreground" />
-</layer-list>
+<shape
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="@color/shortcut_background" />
+    <size android:width="44dp" android:height="44dp" />
+</shape>
