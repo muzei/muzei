@@ -15,12 +15,7 @@
   -->
 
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:bottom="2dp"
-        android:drawable="@drawable/ic_shortcut_background"
-        android:left="2dp"
-        android:right="2dp"
-        android:top="2dp" />
+    <item android:drawable="@drawable/ic_shortcut_background"/>
 
     <item android:drawable="@drawable/ic_shortcut_artwork_info_foreground" />
 </layer-list>
