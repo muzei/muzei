@@ -27,7 +27,6 @@ import android.content.ContentProviderOperation;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.content.ServiceConnection;
@@ -57,7 +56,6 @@ import android.support.v4.content.Loader;
 import android.support.v4.view.OnApplyWindowInsetsListener;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowInsetsCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -94,8 +92,8 @@ import java.util.Set;
 import static com.google.android.apps.muzei.gallery.GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM;
 import static com.google.android.apps.muzei.gallery.GalleryArtSource.EXTRA_FORCE_URI;
 
-public class GallerySettingsActivity extends AppCompatActivity
-        implements LoaderManager.LoaderCallbacks<Cursor> {
+public class GallerySettingsActivity extends AppCompatActivity implements
+        LoaderManager.LoaderCallbacks<Cursor>, GalleryImportPhotosDialogFragment.OnRequestContentListener {
     private static final String TAG = "GallerySettingsActivity";
     private static final String SHARED_PREF_NAME = "GallerySettingsActivity";
     private static final String SHOW_INTERNAL_STORAGE_MESSAGE = "show_internal_storage_message";
@@ -361,29 +359,8 @@ public class GallerySettingsActivity extends AppCompatActivity
         // 0 = hide the MenuItem
         // 1 = show 'Import photos from APP_NAME' to go to the one app that exists
         // 2 = show 'Import photos...' to have the user pick which app to import photos from
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/*");
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        List<ResolveInfo> getContentActivities = getPackageManager().queryIntentActivities(intent, 0);
         mGetContentActivites.clear();
-        for (ResolveInfo info : getContentActivities) {
-            // Filter out the default system UI
-            if (TextUtils.equals(info.activityInfo.packageName, "com.android.documentsui")) {
-                continue;
-            }
-            // Filter out non-exported activities
-            if (!info.activityInfo.exported) {
-                continue;
-            }
-            // Filter out activities we don't have permission to start
-            if (!TextUtils.isEmpty(info.activityInfo.permission)
-                    && getPackageManager().checkPermission(info.activityInfo.permission,
-                    getPackageName()) != PackageManager.PERMISSION_GRANTED) {
-                continue;
-            }
-            mGetContentActivites.add(info.activityInfo);
-        }
-
+        mGetContentActivites = getGetContentActivityInfoList();
         // Hide the 'Import photos' action if there are no activities found
         MenuItem importPhotosMenuItem = menu.findItem(R.id.action_import_photos);
         importPhotosMenuItem.setVisible(!mGetContentActivites.isEmpty());
@@ -415,20 +392,8 @@ public class GallerySettingsActivity extends AppCompatActivity
                 requestGetContent(mGetContentActivites.get(0));
             } else {
                 // Let the user pick which app they want to import photos from
-                PackageManager packageManager = getPackageManager();
-                final CharSequence[] items = new CharSequence[mGetContentActivites.size()];
-                for (int h = 0; h < mGetContentActivites.size(); h++) {
-                    items[h] = mGetContentActivites.get(h).loadLabel(packageManager);
-                }
-                new AlertDialog.Builder(this)
-                        .setTitle(R.string.gallery_import_dialog_title)
-                        .setItems(items, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                requestGetContent(mGetContentActivites.get(which));
-                            }
-                        })
-                        .show();
+                GalleryImportPhotosDialogFragment.createInstance()
+                        .show(getSupportFragmentManager(), GalleryImportPhotosDialogFragment.TAG);
             }
             return true;
         } else if (itemId == R.id.action_clear_photos) {
@@ -444,13 +409,41 @@ public class GallerySettingsActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    private void requestGetContent(ActivityInfo info) {
+    @Override
+    public void requestGetContent(ActivityInfo info) {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setClassName(info.packageName, info.name);
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         startActivityForResult(intent, REQUEST_CHOOSE_PHOTOS);
+    }
+
+    @Override
+    public List<ActivityInfo> getGetContentActivityInfoList() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        List<ResolveInfo> getContentActivities = getPackageManager().queryIntentActivities(intent, 0);
+        List<ActivityInfo> contentActivities = new ArrayList<>(getContentActivities.size());
+        for (ResolveInfo info : getContentActivities) {
+            // Filter out the default system UI
+            if (TextUtils.equals(info.activityInfo.packageName, "com.android.documentsui")) {
+                continue;
+            }
+            // Filter out non-exported activities
+            if (!info.activityInfo.exported) {
+                continue;
+            }
+            // Filter out activities we don't have permission to start
+            if (!TextUtils.isEmpty(info.activityInfo.permission)
+                    && getPackageManager().checkPermission(info.activityInfo.permission,
+                    getPackageName()) != PackageManager.PERMISSION_GRANTED) {
+                continue;
+            }
+            contentActivities.add(info.activityInfo);
+        }
+        return contentActivities;
     }
 
     private void runOnHandlerThread(Runnable runnable) {
