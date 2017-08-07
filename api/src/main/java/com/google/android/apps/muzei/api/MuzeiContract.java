@@ -554,7 +554,7 @@ public class MuzeiContract {
                 }
 
                 InputStream in = null;
-                if ("content".equals(scheme)) {
+                if ("content".equals(scheme) || "android.resource".equals(scheme)) {
                     try {
                         in = contentResolver.openInputStream(uri);
                     } catch (SecurityException e) {

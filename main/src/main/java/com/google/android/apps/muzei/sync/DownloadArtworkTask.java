@@ -122,7 +122,7 @@ public class DownloadArtworkTask extends AsyncTask<Void, Void, Boolean> {
         }
 
         InputStream in = null;
-        if ("content".equals(scheme)) {
+        if ("content".equals(scheme) || "android.resource".equals(scheme)) {
             try {
                 in = context.getContentResolver().openInputStream(uri);
             } catch (SecurityException e) {
