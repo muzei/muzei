@@ -75,6 +75,8 @@ public class GalleryArtSource extends MuzeiArtSource {
     public static final String EXTRA_FORCE_URI
             = "com.google.android.apps.muzei.gallery.extra.FORCE_URI";
 
+    private static final Random sRandom = new Random();
+
     @SuppressLint("SimpleDateFormat")
     private static final SimpleDateFormat sExifDateFormat = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
 
@@ -176,7 +178,6 @@ public class GalleryArtSource extends MuzeiArtSource {
 
         Uri imageUri;
         Uri token;
-        Random random = new Random();
         if (forceUri != null) {
             // Assume the forceUri is to a single image
             imageUri = token = forceUri;
@@ -225,7 +226,7 @@ public class GalleryArtSource extends MuzeiArtSource {
                 return;
             }
             while (true) {
-                int index = random.nextInt(numImages);
+                int index = sRandom.nextInt(numImages);
                 imageUri = allImages.get(index);
                 if (numImages <= 1 || !imageUri.equals(lastImageUri)) {
                     token = tokens.get(index);
@@ -256,7 +257,7 @@ public class GalleryArtSource extends MuzeiArtSource {
             }
 
             while (true) {
-                cursor.moveToPosition(random.nextInt(count));
+                cursor.moveToPosition(sRandom.nextInt(count));
                 imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                         cursor.getLong(0));
                 if (!imageUri.equals(lastImageUri)) {
