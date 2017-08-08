@@ -77,7 +77,9 @@ def add_art_from_external_details_url(publish_date, url):
     except:
       pass
     byline = author + ((', ' + completion_year) if completion_year else '')
-    image_url = soup.find('a', class_='download').attrs['href']
+    #image_url = soup.find('a', class_='download').attrs['href']
+    image_url = soup.find('a', href=re.compile(r'original.*jpg')).attrs['href']
+    image_url = re.search(r'http.*jpg', image_url).group(0)
   else:
     webapp2.abort(400, message='Unrecognized URL')
 
