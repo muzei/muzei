@@ -381,6 +381,9 @@ public class Artwork {
          * permissions). To build a file-based content provider, see the
          * <a href="https://developer.android.com/reference/android/support/v4/content/FileProvider.html">FileProvider</a>
          * class in the Android support library.</li>
+         * <li><code>android.resource://...</code>. Resource URLs are recommended to be identified
+         * by resource type name and entry name instead of resource ID, to be more reliable after
+         * source app updates.</li>
          * <li><code>http://...</code> or <code>https://...</code>. These URLs must be
          * publicly accessible (i.e. not require authentication of any kind).</li>
          * </ul>
