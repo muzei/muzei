@@ -453,6 +453,7 @@ public class MuzeiContract {
              *
              * <ul>
              * <li><code>content://...</code>.</li>
+             * <li><code>android.resource://...</code>.</li>
              * <li><code>file://...</code>.</li>
              * <li><code>file:///android_asset/...</code>.</li>
              * <li><code>http://...</code> or <code>https://...</code>.</li>
@@ -554,7 +555,7 @@ public class MuzeiContract {
                 }
 
                 InputStream in = null;
-                if ("content".equals(scheme)) {
+                if ("content".equals(scheme) || "android.resource".equals(scheme)) {
                     try {
                         in = contentResolver.openInputStream(uri);
                     } catch (SecurityException e) {
