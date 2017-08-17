@@ -17,7 +17,6 @@
 package com.google.android.apps.muzei.util;
 
 import android.os.Bundle;
-import android.os.Parcelable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,9 +24,9 @@ import java.util.Set;
 /**
  * Utilities for storing multiple selection information in collection views.
  */
-public class MultiSelectionController<T extends Parcelable> {
+public class MultiSelectionController {
     private String mStateKey;
-    private Set<T> mSelection = new HashSet<>();
+    private Set<Long> mSelection = new HashSet<>();
     private Callbacks mCallbacks = DUMMY_CALLBACKS;
 
     public MultiSelectionController(String stateKey) {
@@ -37,10 +36,10 @@ public class MultiSelectionController<T extends Parcelable> {
     public void restoreInstanceState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             mSelection.clear();
-            Parcelable[] selection = savedInstanceState.getParcelableArray(mStateKey);
+            long[] selection = savedInstanceState.getLongArray(mStateKey);
             if (selection != null && selection.length > 0) {
-                for (Parcelable item : selection) {
-                    mSelection.add((T) item);
+                for (long item : selection) {
+                    mSelection.add(item);
                 }
             }
         }
@@ -49,14 +48,14 @@ public class MultiSelectionController<T extends Parcelable> {
     }
 
     public void saveInstanceState(Bundle outBundle) {
-        Parcelable[] selection = new Parcelable[mSelection.size()];
+        long[] selection = new long[mSelection.size()];
         int i = 0;
-        for (Parcelable item : mSelection) {
+        for (Long item : mSelection) {
             selection[i] = item;
             ++i;
         }
 
-        outBundle.putParcelableArray(mStateKey, selection);
+        outBundle.putLongArray(mStateKey, selection);
     }
 
     public void setCallbacks(Callbacks callbacks) {
@@ -66,7 +65,7 @@ public class MultiSelectionController<T extends Parcelable> {
         }
     }
 
-    public Set<T> getSelection() {
+    public Set<Long> getSelection() {
         return new HashSet<>(mSelection);
     }
 
@@ -78,7 +77,7 @@ public class MultiSelectionController<T extends Parcelable> {
         return mSelection.size() > 0;
     }
 
-    public void toggle(T item, boolean fromUser) {
+    public void toggle(long item, boolean fromUser) {
         if (mSelection.contains(item)) {
             mSelection.remove(item);
         } else {
@@ -93,7 +92,7 @@ public class MultiSelectionController<T extends Parcelable> {
         mCallbacks.onSelectionChanged(false, fromUser);
     }
 
-    public boolean isSelected(T item) {
+    public boolean isSelected(long item) {
         return mSelection.contains(item);
     }
 

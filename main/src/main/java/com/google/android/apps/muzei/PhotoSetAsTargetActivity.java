@@ -17,16 +17,20 @@
 package com.google.android.apps.muzei;
 
 import android.app.Activity;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.content.ComponentName;
-import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.apps.muzei.gallery.ChosenPhoto;
 import com.google.android.apps.muzei.gallery.GalleryArtSource;
-import com.google.android.apps.muzei.gallery.GalleryContract;
+import com.google.android.apps.muzei.gallery.GalleryDatabase;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.R;
@@ -42,34 +46,41 @@ public class PhotoSetAsTargetActivity extends Activity {
             return;
         }
 
-        Uri photoUri = getIntent().getData();
+        final Uri photoUri = getIntent().getData();
+        ChosenPhoto chosenPhoto = new ChosenPhoto(photoUri);
 
-        // Add the chosen photo
-        ContentValues values = new ContentValues();
-        values.put(GalleryContract.ChosenPhotos.COLUMN_NAME_URI, photoUri.toString());
-        Uri uri = getContentResolver().insert(GalleryContract.ChosenPhotos.CONTENT_URI, values);
-        if (uri == null) {
-            Log.e(TAG, "Unable to insert chosen artwork for " + photoUri);
-            Toast.makeText(this, R.string.set_as_wallpaper_failed, Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
+        final LiveData<Long> insertLiveData = GalleryDatabase.getInstance(this).chosenPhotoDao()
+                .insert(this, chosenPhoto);
+        insertLiveData.observeForever(new Observer<Long>() {
+            @Override
+            public void onChanged(@Nullable Long id) {
+                insertLiveData.removeObserver(this);
+                Context context = PhotoSetAsTargetActivity.this;
+                if (id == null || id == 0L) {
+                    Log.e(TAG, "Unable to insert chosen artwork for " + photoUri);
+                    Toast.makeText(context, R.string.set_as_wallpaper_failed, Toast.LENGTH_SHORT).show();
+                    finish();
+                    return;
+                }
 
-        // If adding the artwork succeeded, select the gallery source and publish the new image
-        Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.ITEM_ID,
-                new ComponentName(this, GalleryArtSource.class).flattenToShortString());
-        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sources");
-        FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
-        SourceManager.selectSource(this, new ComponentName(this, GalleryArtSource.class));
+                // If adding the artwork succeeded, select the gallery source and publish the new image
+                Bundle bundle = new Bundle();
+                bundle.putString(FirebaseAnalytics.Param.ITEM_ID,
+                        new ComponentName(context, GalleryArtSource.class).flattenToShortString());
+                bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sources");
+                FirebaseAnalytics.getInstance(context).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+                SourceManager.selectSource(context, new ComponentName(context, GalleryArtSource.class));
 
-        startService(new Intent(this, GalleryArtSource.class)
-                .setAction(GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM)
-                .putExtra(GalleryArtSource.EXTRA_FORCE_URI, uri));
+                Uri uri = ChosenPhoto.getContentUri(id);
+                startService(new Intent(context, GalleryArtSource.class)
+                        .setAction(GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM)
+                        .putExtra(GalleryArtSource.EXTRA_FORCE_URI, uri));
 
-        // Launch main activity
-        startActivity(Intent.makeMainActivity(new ComponentName(this, MuzeiActivity.class))
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-        finish();
+                startActivity(Intent.makeMainActivity(new ComponentName(
+                        context, MuzeiActivity.class))
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                finish();
+            }
+        });
     }
 }

@@ -113,7 +113,7 @@
         <!-- Target for "Set As" intent -->
 
         <activity android:name="com.google.android.apps.muzei.PhotoSetAsTargetActivity"
-            android:theme="@android:style/Theme.NoDisplay">
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter android:label="@string/set_as_wallpaper_using_muzei">
                 <action android:name="android.intent.action.ATTACH_DATA" />
                 <category android:name="android.intent.category.DEFAULT" />

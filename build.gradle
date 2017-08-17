@@ -40,6 +40,7 @@ ext {
 
     supportLibraryVersion = "26.0.1"
     lifecycleVersion = "1.0.0-alpha9"
+    roomVersion = "1.0.0-alpha9"
     googlePlayServicesVersion = "11.2.0"
     wearableVersion = "2.0.3"
     okhttpVersion = "3.8.1"
