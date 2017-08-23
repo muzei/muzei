@@ -101,7 +101,7 @@ dependencies {
     implementation "com.android.support:design:$rootProject.ext.supportLibraryVersion"
     implementation "com.android.support:customtabs:$rootProject.ext.supportLibraryVersion"
     implementation "com.android.support:exifinterface:$rootProject.ext.supportLibraryVersion"
-    implementation "android.arch.lifecycle:runtime:1.0.0-alpha7"
+    implementation "android.arch.lifecycle:runtime:$rootProject.ext.lifecycleVersion"
 
     implementation project(':api')
     implementation project(':android-client-common')

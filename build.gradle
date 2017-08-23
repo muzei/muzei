@@ -17,9 +17,7 @@
 buildscript {
     repositories {
         jcenter()
-        maven {
-            url 'https://maven.google.com'
-        }
+        google()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.0-beta2'
@@ -31,9 +29,7 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
-        maven {
-            url 'https://maven.google.com'
-        }
+        google()
     }
 }
 
@@ -43,7 +39,9 @@ ext {
     targetSdkVersion = 25
 
     supportLibraryVersion = "26.0.1"
-    googlePlayServicesVersion = "11.0.4"
+    lifecycleVersion = "1.0.0-alpha9"
+    googlePlayServicesVersion = "11.2.0"
+    wearableVersion = "2.0.4"
     okhttpVersion = "3.8.1"
     picassoVersion = "2.5.2"
 }
