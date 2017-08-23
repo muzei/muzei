@@ -22,6 +22,7 @@ import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -38,6 +39,7 @@ import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
@@ -46,6 +48,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -81,6 +84,7 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
 
     private static final int SCROLLBAR_HIDE_DELAY_MILLIS = 1000;
 
+    private static final float ALPHA_DISABLED = 0.2f;
     private static final float ALPHA_UNSELECTED = 0.4f;
 
     private static final int REQUEST_EXTENSION_SETUP = 1;
@@ -127,15 +131,15 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        if (!(activity instanceof Callbacks)) {
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (!(context instanceof Callbacks)) {
             throw new ClassCastException("Activity must implement fragment callbacks.");
         }
 
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "sources");
-        FirebaseAnalytics.getInstance(getActivity()).logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST, bundle);
+        FirebaseAnalytics.getInstance(getContext()).logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST, bundle);
     }
 
     @Override
@@ -165,9 +169,8 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
             Bundle savedInstanceState) {
         mRootView = (ViewGroup) inflater.inflate(
                 R.layout.settings_choose_source_fragment, container, false);
-        mScrollbar = (Scrollbar) mRootView.findViewById(R.id.source_scrollbar);
-        mSourceScrollerView = (ObservableHorizontalScrollView)
-                mRootView.findViewById(R.id.source_scroller);
+        mScrollbar = mRootView.findViewById(R.id.source_scrollbar);
+        mSourceScrollerView = mRootView.findViewById(R.id.source_scroller);
         mSourceScrollerView.setCallbacks(new ObservableHorizontalScrollView.Callbacks() {
             @Override
             public void onScrollChanged(int scrollX) {
@@ -182,7 +185,7 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
                 }
             }
         });
-        mSourceContainerView = (ViewGroup) mRootView.findViewById(R.id.source_container);
+        mSourceContainerView = mRootView.findViewById(R.id.source_container);
 
         redrawSources();
 
@@ -255,13 +258,13 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
         packageChangeIntentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
         packageChangeIntentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
         packageChangeIntentFilter.addDataScheme("package");
-        getActivity().registerReceiver(mPackagesChangedReceiver, packageChangeIntentFilter);
+        getContext().registerReceiver(mPackagesChangedReceiver, packageChangeIntentFilter);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        getActivity().unregisterReceiver(mPackagesChangedReceiver);
+        getContext().unregisterReceiver(mPackagesChangedReceiver);
     }
 
     private void updateSelectedItem(boolean allowAnimate) {
@@ -301,7 +304,7 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
             drawable.setColorFilter(source.color, PorterDuff.Mode.SRC_ATOP);
             sourceImageButton.setBackground(drawable);
 
-            float alpha = selected ? 1f : ALPHA_UNSELECTED;
+            float alpha = selected ? 1f : source.targetSdkVersion >= Build.VERSION_CODES.O ? ALPHA_DISABLED : ALPHA_UNSELECTED;
             source.rootView.animate()
                     .alpha(alpha)
                     .setDuration(mAnimationDuration);
@@ -363,7 +366,7 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
     public void updateSources() {
         mSelectedSource = null;
         Intent queryIntent = new Intent(ACTION_MUZEI_ART_SOURCE);
-        PackageManager pm = getActivity().getPackageManager();
+        PackageManager pm = getContext().getPackageManager();
         mSources.clear();
         List<ResolveInfo> resolveInfos = pm.queryIntentServices(queryIntent,
                 PackageManager.GET_META_DATA);
@@ -372,11 +375,12 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
             Source source = new Source();
             source.label = ri.loadLabel(pm).toString();
             source.icon = new BitmapDrawable(getResources(), generateSourceImage(ri.loadIcon(pm)));
+            source.targetSdkVersion = ri.serviceInfo.applicationInfo.targetSdkVersion;
             source.componentName = new ComponentName(ri.serviceInfo.packageName,
                     ri.serviceInfo.name);
             if (ri.serviceInfo.descriptionRes != 0) {
                 try {
-                    Context packageContext = getActivity().createPackageContext(
+                    Context packageContext = getContext().createPackageContext(
                             source.componentName.getPackageName(), 0);
                     Resources packageRes = packageContext.getResources();
                     source.description = packageRes.getString(ri.serviceInfo.descriptionRes);
@@ -429,10 +433,17 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
             mSources.add(source);
         }
 
-        final String appPackage = getActivity().getPackageName();
+        final String appPackage = getContext().getPackageName();
         Collections.sort(mSources, new Comparator<Source>() {
             @Override
             public int compare(Source s1, Source s2) {
+                boolean target1IsO = s1.targetSdkVersion >= Build.VERSION_CODES.O;
+                boolean target2IsO = s2.targetSdkVersion >= Build.VERSION_CODES.O;
+                if (target1IsO && !target2IsO) {
+                    return 1;
+                } else if (!target1IsO && target2IsO) {
+                    return -1;
+                }
                 String pn1 = s1.componentName.getPackageName();
                 String pn2 = s2.componentName.getPackageName();
                 if (!pn1.equals(pn2)) {
@@ -456,7 +467,7 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
 
         mSourceContainerView.removeAllViews();
         for (final Source source : mSources) {
-            source.rootView = LayoutInflater.from(getActivity()).inflate(
+            source.rootView = LayoutInflater.from(getContext()).inflate(
                     R.layout.settings_choose_source_item, mSourceContainerView, false);
 
             source.selectSourceButton = source.rootView.findViewById(R.id.source_image);
@@ -464,20 +475,47 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
                 @Override
                 public void onClick(View view) {
                     if (source.componentName.equals(mSelectedSource)) {
-                        ((Callbacks) getActivity()).onRequestCloseActivity();
+                        ((Callbacks) getContext()).onRequestCloseActivity();
+                    } else if (source.targetSdkVersion >= Build.VERSION_CODES.O) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
+                                .setTitle(R.string.action_source_target_too_high_title)
+                                .setMessage(R.string.action_source_target_too_high_message)
+                                .setNegativeButton(R.string.action_source_target_too_high_learn_more,
+                                        new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                startActivity(new Intent(Intent.ACTION_VIEW,
+                                                        Uri.parse("https://medium.com/@ianhlake/the-muzei-plugin-api-and-androids-evolution-9b9979265cfb")));
+                                            }
+                                        })
+                                .setPositiveButton(R.string.action_source_target_too_high_dismiss, null);
+                        final Intent sendFeedbackIntent = new Intent(Intent.ACTION_VIEW,
+                                Uri.parse("https://play.google.com/store/apps/details?id="
+                                        + source.componentName.getPackageName()));
+                        if (sendFeedbackIntent.resolveActivity(getContext().getPackageManager()) != null) {
+                            builder.setNeutralButton(
+                                    getString(R.string.action_source_target_too_high_send_feedback, source.label),
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            startActivity(sendFeedbackIntent);
+                                        }
+                                    });
+                        }
+                        builder.show();
                     } else if (source.setupActivity != null) {
                         Bundle bundle = new Bundle();
                         bundle.putString(FirebaseAnalytics.Param.ITEM_ID, source.componentName.flattenToShortString());
                         bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, source.label);
                         bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "sources");
-                        FirebaseAnalytics.getInstance(getActivity()).logEvent(FirebaseAnalytics.Event.VIEW_ITEM, bundle);
+                        FirebaseAnalytics.getInstance(getContext()).logEvent(FirebaseAnalytics.Event.VIEW_ITEM, bundle);
                         mCurrentInitialSetupSource = source.componentName;
                         launchSourceSetup(source);
                     } else {
                         Bundle bundle = new Bundle();
                         bundle.putString(FirebaseAnalytics.Param.ITEM_ID, source.componentName.flattenToShortString());
                         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sources");
-                        FirebaseAnalytics.getInstance(getActivity()).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+                        FirebaseAnalytics.getInstance(getContext()).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
                         SourceManager.selectSource(getContext(), source.componentName);
                     }
                 }
@@ -488,7 +526,7 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
                 @Override
                 public boolean onLongClick(View v) {
                     final String pkg = source.componentName.getPackageName();
-                    if (TextUtils.equals(pkg, getActivity().getPackageName())) {
+                    if (TextUtils.equals(pkg, getContext().getPackageName())) {
                         // Don't open Muzei's app info
                         return false;
                     }
@@ -503,12 +541,15 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
                 }
             });
 
-            source.rootView.setAlpha(ALPHA_UNSELECTED);
+            float alpha = source.targetSdkVersion >= Build.VERSION_CODES.O
+                    ? ALPHA_DISABLED
+                    : ALPHA_UNSELECTED;
+            source.rootView.setAlpha(alpha);
 
             source.icon.setColorFilter(source.color, PorterDuff.Mode.SRC_ATOP);
             source.selectSourceButton.setBackground(source.icon);
 
-            TextView titleView = (TextView) source.rootView.findViewById(R.id.source_title);
+            TextView titleView = source.rootView.findViewById(R.id.source_title);
             titleView.setText(source.label);
             titleView.setTextColor(source.color);
 
@@ -560,7 +601,7 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
                 Bundle bundle = new Bundle();
                 bundle.putString(FirebaseAnalytics.Param.ITEM_ID, mCurrentInitialSetupSource.flattenToShortString());
                 bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sources");
-                FirebaseAnalytics.getInstance(getActivity()).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+                FirebaseAnalytics.getInstance(getContext()).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
                 SourceManager.selectSource(getContext(), mCurrentInitialSetupSource);
             }
 
@@ -629,17 +670,18 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
         }
     };
 
-    public class Source {
-        public View rootView;
-        public Drawable icon;
-        public int color;
-        public String label;
-        public ComponentName componentName;
-        public String description;
-        public ComponentName settingsActivity;
-        public View selectSourceButton;
-        public View settingsButton;
-        public ComponentName setupActivity;
+    class Source {
+        View rootView;
+        Drawable icon;
+        int color;
+        String label;
+        int targetSdkVersion;
+        ComponentName componentName;
+        String description;
+        ComponentName settingsActivity;
+        View selectSourceButton;
+        View settingsButton;
+        ComponentName setupActivity;
     }
 
     public interface Callbacks {

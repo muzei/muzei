@@ -237,9 +237,15 @@ public class SourceManager implements LifecycleObserver {
     public static void sendAction(Context context, int id) {
         ComponentName selectedSource = getSelectedSource(context);
         if (selectedSource != null) {
-            context.startService(new Intent(ACTION_HANDLE_COMMAND)
-                    .setComponent(selectedSource)
-                    .putExtra(EXTRA_COMMAND_ID, id));
+            try {
+                context.startService(new Intent(ACTION_HANDLE_COMMAND)
+                        .setComponent(selectedSource)
+                        .putExtra(EXTRA_COMMAND_ID, id));
+            } catch (IllegalStateException e) {
+                Log.i(TAG, "Sending action + " + id + " to " + selectedSource
+                        + " failed; switching to default.", e);
+                selectSource(context, new ComponentName(context, FeaturedArtSource.class));
+            }
         }
     }
 
@@ -256,9 +262,9 @@ public class SourceManager implements LifecycleObserver {
                         .putExtra(EXTRA_SUBSCRIBER_COMPONENT,
                                 new ComponentName(context, SourceSubscriberService.class))
                         .putExtra(EXTRA_TOKEN, selectedSource.flattenToShortString()));
-            } catch (PackageManager.NameNotFoundException e) {
+            } catch (PackageManager.NameNotFoundException|IllegalStateException e) {
                 Log.i(TAG, "Selected source " + selectedSource
-                        + " is no longer available; switching to default.");
+                        + " is no longer available; switching to default.", e);
                 selectSource(context, new ComponentName(context, FeaturedArtSource.class));
             }
         } else {
@@ -270,11 +276,16 @@ public class SourceManager implements LifecycleObserver {
     public static void unsubscribeToSelectedSource(Context context) {
         ComponentName selectedSource = getSelectedSource(context);
         if (selectedSource != null) {
-            context.startService(new Intent(ACTION_SUBSCRIBE)
-                    .setComponent(selectedSource)
-                    .putExtra(EXTRA_SUBSCRIBER_COMPONENT,
-                            new ComponentName(context, SourceSubscriberService.class))
-                    .putExtra(EXTRA_TOKEN, (String) null));
+            try {
+                context.startService(new Intent(ACTION_SUBSCRIBE)
+                        .setComponent(selectedSource)
+                        .putExtra(EXTRA_SUBSCRIBER_COMPONENT,
+                                new ComponentName(context, SourceSubscriberService.class))
+                        .putExtra(EXTRA_TOKEN, (String) null));
+            } catch (IllegalStateException e) {
+                Log.i(TAG, "Unsubscribing to " + selectedSource
+                        + " failed.", e);
+            }
         }
     }
 }
