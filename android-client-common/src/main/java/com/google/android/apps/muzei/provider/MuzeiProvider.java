@@ -292,10 +292,6 @@ public class MuzeiProvider extends ContentProvider {
             Log.w(TAG, "Deletes are not supported until the user is unlocked");
             return 0;
         }
-        // Only allow Muzei to delete content
-        if (!context.getPackageName().equals(getCallingPackage())) {
-            throw new UnsupportedOperationException("Deletes are not supported");
-        }
         if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK ||
                 MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK_ID) {
             return deleteArtwork(uri, selection, selectionArgs);
@@ -470,10 +466,6 @@ public class MuzeiProvider extends ContentProvider {
         if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK) {
             return insertArtwork(uri, values);
         } else if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCES) {
-            // Ensure the app inserting the source is Muzei
-            if (!context.getPackageName().equals(getCallingPackage())) {
-                throw new UnsupportedOperationException("Inserting sources is not supported, use update");
-            }
             return insertSource(uri, values);
         } else {
             throw new IllegalArgumentException("Unknown URI " + uri);
@@ -502,14 +494,6 @@ public class MuzeiProvider extends ContentProvider {
         }
         // Make sure they are using the short string format
         values.put(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME, componentName.flattenToShortString());
-
-        // Ensure the app inserting the artwork is either Muzei or the same app as the source
-        String callingPackageName = getCallingPackage();
-        if (!context.getPackageName().equals(callingPackageName) &&
-                !TextUtils.equals(callingPackageName, componentName.getPackageName())) {
-            throw new IllegalArgumentException("Calling package name (" + callingPackageName +
-                    ") must match the source's package name (" + componentName.getPackageName() + ")");
-        }
 
         if (values.containsKey(MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT)) {
             String viewIntentString = values.getAsString(MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT);
@@ -598,16 +582,6 @@ public class MuzeiProvider extends ContentProvider {
         }
         // Make sure they are using the short string format
         initialValues.put(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, componentName.flattenToShortString());
-
-
-        // Only Muzei can set the IS_SELECTED field
-        if (initialValues.containsKey(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED)) {
-            if (!context.getPackageName().equals(getCallingPackage())) {
-                Log.w(TAG, "Only Muzei can set the " + MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED +
-                        " column. Ignoring the value in " + initialValues);
-                initialValues.remove(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED);
-            }
-        }
 
         // Disable network access callbacks if we're running on an API 24 device and the source app
         // targets API 24. This is to be consistent with the Behavior Changes in Android N
@@ -756,9 +730,6 @@ public class MuzeiProvider extends ContentProvider {
                 return null;
             }
             if (!data.moveToFirst()) {
-                if (!getContext().getPackageName().equals(getCallingPackage())) {
-                    Log.w(TAG, "You must insert at least one row to read or write artwork");
-                }
                 return null;
             }
             File foundFile = null;
@@ -782,9 +753,6 @@ public class MuzeiProvider extends ContentProvider {
             Context context = getContext();
             if (context == null) {
                 return null;
-            }
-            if (!context.getPackageName().equals(getCallingPackage())) {
-                Log.w(TAG, "Writing to an existing artwork file is not allowed: insert a new row");
             }
             cleanupCachedFiles();
             return null;
@@ -987,33 +955,15 @@ public class MuzeiProvider extends ContentProvider {
             return 0;
         }
 
-        // Only Muzei can set the IS_SELECTED field
-        if (values.containsKey(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED)) {
-            if (!context.getPackageName().equals(getCallingPackage())) {
-                Log.w(TAG, "Only Muzei can set the " + MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED +
-                        " column. Ignoring the value in " + values);
-                values.remove(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED);
-            }
-        }
-
         final SQLiteDatabase db = databaseHelper.getWritableDatabase();
         String finalWhere = selection;
-        String[] finalSelectionArgs = selectionArgs;
         if (MuzeiProvider.uriMatcher.match(uri) == SOURCE_ID) {
             // If the incoming URI matches a single source ID, does the update based on the incoming data, but
             // modifies the where clause to restrict it to the particular source ID.
             finalWhere = DatabaseUtils.concatenateWhere(finalWhere,
                     BaseColumns._ID + " = " + uri.getLastPathSegment());
         }
-        String callingPackageName = getCallingPackage();
-        if (!context.getPackageName().equals(callingPackageName)) {
-            // Only allow other apps to update their own source
-            finalWhere = DatabaseUtils.concatenateWhere(finalWhere,
-                    MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + " LIKE ?");
-            finalSelectionArgs = DatabaseUtils.appendSelectionArgs(finalSelectionArgs,
-                    new String[] {callingPackageName +"/%"});
-        }
-        int count = db.update(MuzeiContract.Sources.TABLE_NAME, values, finalWhere, finalSelectionArgs);
+        int count = db.update(MuzeiContract.Sources.TABLE_NAME, values, finalWhere, selectionArgs);
         if (count > 0) {
             notifyChange(uri);
         } else if (values.containsKey(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME)) {
