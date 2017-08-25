@@ -1,6 +1,11 @@
 package com.google.android.apps.muzei.gallery;
 
 import android.app.Dialog;
+import android.arch.lifecycle.LifecycleRegistry;
+import android.arch.lifecycle.LifecycleRegistryOwner;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
@@ -17,18 +22,26 @@ import android.widget.ArrayAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GalleryImportPhotosDialogFragment extends DialogFragment {
+public class GalleryImportPhotosDialogFragment extends DialogFragment
+        implements LifecycleRegistryOwner {
     public static final String TAG = "GalleryImportPhotosDialogFragment";
 
-    private List<ActivityInfo> mGetContentActivities = new ArrayList<>();
+    private LifecycleRegistry mLifecycle = new LifecycleRegistry(this);
+    private LiveData<List<ActivityInfo>> mGetContentActivitiesLiveData;
     private OnRequestContentListener mListener;
     private ArrayAdapter<CharSequence> mAdapter;
 
+    @NonNull
     public static GalleryImportPhotosDialogFragment createInstance() {
         return new GalleryImportPhotosDialogFragment();
     }
 
     public GalleryImportPhotosDialogFragment () {
+    }
+
+    @Override
+    public LifecycleRegistry getLifecycle() {
+        return mLifecycle;
     }
 
     @Override
@@ -49,7 +62,10 @@ public class GalleryImportPhotosDialogFragment extends DialogFragment {
                 .setAdapter(mAdapter, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mListener.requestGetContent(mGetContentActivities.get(which));
+                        List<ActivityInfo> getContentActivites = mGetContentActivitiesLiveData.getValue();
+                        if (getContentActivites != null) {
+                            mListener.requestGetContent(mGetContentActivitiesLiveData.getValue().get(which));
+                        }
                     }
                 }).create();
     }
@@ -62,6 +78,19 @@ public class GalleryImportPhotosDialogFragment extends DialogFragment {
         } else {
             throw new IllegalArgumentException(context.getClass().getSimpleName() + " must implement OnRequestContentListener");
         }
+        mGetContentActivitiesLiveData = ViewModelProviders.of(getActivity())
+                .get(GallerySettingsViewModel.class)
+                .getGetContentActivityInfoList();
+        mGetContentActivitiesLiveData.observe(this, new Observer<List<ActivityInfo>>() {
+            @Override
+            public void onChanged(@Nullable List<ActivityInfo> getContentActivites) {
+                if (getContentActivites == null || getContentActivites.isEmpty()) {
+                    dismiss();
+                    return;
+                }
+                updateAdapter(getContentActivites);
+            }
+        });
     }
 
     @Override
@@ -70,24 +99,12 @@ public class GalleryImportPhotosDialogFragment extends DialogFragment {
         mListener = null;
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        mGetContentActivities = mListener.getGetContentActivityInfoList();
-        if (mAdapter == null || mGetContentActivities == null || mGetContentActivities.isEmpty()) {
-            this.dismiss();
-            return;
-        }
-
-        updateAdapter();
-    }
-
-    private void updateAdapter() {
+    private void updateAdapter(@NonNull List<ActivityInfo> getContentActivites) {
         PackageManager packageManager = getContext().getPackageManager();
-        int size = mGetContentActivities.size();
+        int size = getContentActivites.size();
         List<CharSequence> items = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
-            items.add(mGetContentActivities.get(i).loadLabel(packageManager));
+            items.add(getContentActivites.get(i).loadLabel(packageManager));
         }
         mAdapter.clear();
         mAdapter.addAll(items);
@@ -96,6 +113,5 @@ public class GalleryImportPhotosDialogFragment extends DialogFragment {
 
     public interface OnRequestContentListener {
         void requestGetContent(ActivityInfo info);
-        List<ActivityInfo> getGetContentActivityInfoList();
     }
 }
