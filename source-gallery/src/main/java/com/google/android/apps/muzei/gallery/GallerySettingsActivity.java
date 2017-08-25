@@ -19,7 +19,13 @@ package com.google.android.apps.muzei.gallery;
 import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.arch.lifecycle.LifecycleRegistry;
+import android.arch.lifecycle.LifecycleRegistryOwner;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ComponentName;
@@ -33,7 +39,6 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -47,6 +52,7 @@ import android.provider.BaseColumns;
 import android.provider.DocumentsContract;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
@@ -92,8 +98,9 @@ import java.util.Set;
 import static com.google.android.apps.muzei.gallery.GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM;
 import static com.google.android.apps.muzei.gallery.GalleryArtSource.EXTRA_FORCE_URI;
 
-public class GallerySettingsActivity extends AppCompatActivity implements
-        LoaderManager.LoaderCallbacks<Cursor>, GalleryImportPhotosDialogFragment.OnRequestContentListener {
+public class GallerySettingsActivity extends AppCompatActivity
+        implements LifecycleRegistryOwner, LoaderManager.LoaderCallbacks<Cursor>,
+        GalleryImportPhotosDialogFragment.OnRequestContentListener {
     private static final String TAG = "GallerySettingsActivity";
     private static final String SHARED_PREF_NAME = "GallerySettingsActivity";
     private static final String SHOW_INTERNAL_STORAGE_MESSAGE = "show_internal_storage_message";
@@ -111,6 +118,7 @@ public class GallerySettingsActivity extends AppCompatActivity implements
         }
     };
 
+    private LifecycleRegistry mLifecycle = new LifecycleRegistry(this);
     private Cursor mChosenUris;
 
     private Toolbar mSelectionToolbar;
@@ -141,17 +149,22 @@ public class GallerySettingsActivity extends AppCompatActivity implements
         }
     }
 
-    private List<ActivityInfo> mGetContentActivites = new ArrayList<>();
+    private LiveData<List<ActivityInfo>> mGetContentActivitiesLiveData;
 
     private int mUpdatePosition = -1;
     private View mAddButton;
     private View mAddToolbar;
 
     @Override
+    public LifecycleRegistry getLifecycle() {
+        return mLifecycle;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gallery_activity);
-        Toolbar appBar = (Toolbar) findViewById(R.id.app_bar);
+        Toolbar appBar = findViewById(R.id.app_bar);
         setSupportActionBar(appBar);
 
         getSupportLoaderManager().initLoader(0, null, this);
@@ -164,7 +177,7 @@ public class GallerySettingsActivity extends AppCompatActivity implements
         mPlaceholderSmallDrawable = new ColorDrawable(ContextCompat.getColor(this,
                 R.color.gallery_chosen_photo_placeholder));
 
-        mPhotoGridView = (RecyclerView) findViewById(R.id.photo_grid);
+        mPhotoGridView = findViewById(R.id.photo_grid);
         DefaultItemAnimator itemAnimator = new DefaultItemAnimator();
         itemAnimator.setSupportsChangeAnimations(false);
         mPhotoGridView.setItemAnimator(itemAnimator);
@@ -226,7 +239,7 @@ public class GallerySettingsActivity extends AppCompatActivity implements
             }
         });
 
-        Button enableRandomImages = (Button) findViewById(R.id.gallery_enable_random);
+        Button enableRandomImages = findViewById(R.id.gallery_enable_random);
         enableRandomImages.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
@@ -234,7 +247,7 @@ public class GallerySettingsActivity extends AppCompatActivity implements
                         Manifest.permission.READ_EXTERNAL_STORAGE }, REQUEST_STORAGE_PERMISSION);
             }
         });
-        Button permissionSettings = (Button) findViewById(R.id.gallery_edit_permission_settings);
+        Button permissionSettings = findViewById(R.id.gallery_edit_permission_settings);
         permissionSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
@@ -281,6 +294,16 @@ public class GallerySettingsActivity extends AppCompatActivity implements
                             Snackbar.LENGTH_LONG).show();
                     hideAddToolbar(true);
                 }
+            }
+        });
+
+        mGetContentActivitiesLiveData = ViewModelProviders.of(this)
+                .get(GallerySettingsViewModel.class)
+                .getGetContentActivityInfoList();
+        mGetContentActivitiesLiveData.observe(this, new Observer<List<ActivityInfo>>() {
+            @Override
+            public void onChanged(@Nullable List<ActivityInfo> activityInfos) {
+                supportInvalidateOptionsMenu();
             }
         });
     }
@@ -359,15 +382,18 @@ public class GallerySettingsActivity extends AppCompatActivity implements
         // 0 = hide the MenuItem
         // 1 = show 'Import photos from APP_NAME' to go to the one app that exists
         // 2 = show 'Import photos...' to have the user pick which app to import photos from
-        mGetContentActivites.clear();
-        mGetContentActivites = getGetContentActivityInfoList();
+        List<ActivityInfo> getContentActivites = mGetContentActivitiesLiveData.getValue();
+        if (getContentActivites == null) {
+            // We'll get another chance when the list is populated
+            return false;
+        }
         // Hide the 'Import photos' action if there are no activities found
         MenuItem importPhotosMenuItem = menu.findItem(R.id.action_import_photos);
-        importPhotosMenuItem.setVisible(!mGetContentActivites.isEmpty());
+        importPhotosMenuItem.setVisible(!getContentActivites.isEmpty());
         // If there's only one app that supports ACTION_GET_CONTENT, tell the user what that app is
-        if (mGetContentActivites.size() == 1) {
+        if (getContentActivites.size() == 1) {
             importPhotosMenuItem.setTitle(getString(R.string.gallery_action_import_photos_from,
-                    mGetContentActivites.get(0).loadLabel(getPackageManager())));
+                    getContentActivites.get(0).loadLabel(getPackageManager())));
         } else {
             importPhotosMenuItem.setTitle(R.string.gallery_action_import_photos);
         }
@@ -387,9 +413,13 @@ public class GallerySettingsActivity extends AppCompatActivity implements
         }
 
         if (itemId == R.id.action_import_photos) {
-            if (mGetContentActivites.size() == 1) {
+            List<ActivityInfo> getContentActivities = mGetContentActivitiesLiveData.getValue();
+            if (getContentActivities == null || getContentActivities.isEmpty()) {
+                // Ignore
+                return true;
+            } else if (getContentActivities.size() == 1) {
                 // Just start the one ACTION_GET_CONTENT app
-                requestGetContent(mGetContentActivites.get(0));
+                requestGetContent(getContentActivities.get(0));
             } else {
                 // Let the user pick which app they want to import photos from
                 GalleryImportPhotosDialogFragment.createInstance()
@@ -419,33 +449,6 @@ public class GallerySettingsActivity extends AppCompatActivity implements
         startActivityForResult(intent, REQUEST_CHOOSE_PHOTOS);
     }
 
-    @Override
-    public List<ActivityInfo> getGetContentActivityInfoList() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/*");
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        List<ResolveInfo> getContentActivities = getPackageManager().queryIntentActivities(intent, 0);
-        List<ActivityInfo> contentActivities = new ArrayList<>(getContentActivities.size());
-        for (ResolveInfo info : getContentActivities) {
-            // Filter out the default system UI
-            if (TextUtils.equals(info.activityInfo.packageName, "com.android.documentsui")) {
-                continue;
-            }
-            // Filter out non-exported activities
-            if (!info.activityInfo.exported) {
-                continue;
-            }
-            // Filter out activities we don't have permission to start
-            if (!TextUtils.isEmpty(info.activityInfo.permission)
-                    && getPackageManager().checkPermission(info.activityInfo.permission,
-                    getPackageName()) != PackageManager.PERMISSION_GRANTED) {
-                continue;
-            }
-            contentActivities.add(info.activityInfo);
-        }
-        return contentActivities;
-    }
-
     private void runOnHandlerThread(Runnable runnable) {
         if (mHandlerThread == null) {
             mHandlerThread = new HandlerThread("GallerySettingsActivity");
@@ -460,7 +463,7 @@ public class GallerySettingsActivity extends AppCompatActivity implements
 
     private void setupMultiSelect() {
         // Set up toolbar
-        mSelectionToolbar = (Toolbar) findViewById(R.id.selection_toolbar);
+        mSelectionToolbar = findViewById(R.id.selection_toolbar);
 
         mSelectionToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -726,7 +729,7 @@ public class GallerySettingsActivity extends AppCompatActivity implements
 
     private void onDataSetChanged() {
         View emptyView = findViewById(android.R.id.empty);
-        TextView emptyDescription = (TextView) findViewById(R.id.empty_description);
+        TextView emptyDescription = findViewById(R.id.empty_description);
         if (mChosenUris != null && mChosenUris.getCount() > 0) {
             emptyView.setVisibility(View.GONE);
             // We have at least one image, so consider the Gallery source properly setup
@@ -734,7 +737,7 @@ public class GallerySettingsActivity extends AppCompatActivity implements
         } else {
             // No chosen images, show the empty View
             emptyView.setVisibility(View.VISIBLE);
-            ViewAnimator animator = (ViewAnimator) findViewById(R.id.empty_animator);
+            ViewAnimator animator = findViewById(R.id.empty_animator);
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED) {
                 // Permission is granted, we can show the random camera photos image
@@ -781,7 +784,7 @@ public class GallerySettingsActivity extends AppCompatActivity implements
 
         PhotoViewHolder(View root) {
             super(root);
-            mThumbView = (ImageView) root.findViewById(R.id.thumbnail);
+            mThumbView = root.findViewById(R.id.thumbnail);
         }
     }
 
@@ -823,6 +826,7 @@ public class GallerySettingsActivity extends AppCompatActivity implements
 
             v.getLayoutParams().height = mItemSize;
             v.setOnTouchListener(new View.OnTouchListener() {
+                @SuppressLint("ClickableViewAccessibility")
                 @Override
                 public boolean onTouch(View view, MotionEvent motionEvent) {
                     if (motionEvent.getActionMasked() != MotionEvent.ACTION_CANCEL) {
