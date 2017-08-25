@@ -304,7 +304,8 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
             drawable.setColorFilter(source.color, PorterDuff.Mode.SRC_ATOP);
             sourceImageButton.setBackground(drawable);
 
-            float alpha = selected ? 1f : source.targetSdkVersion >= Build.VERSION_CODES.O ? ALPHA_DISABLED : ALPHA_UNSELECTED;
+            float alpha = selected ? 1f : Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                            && source.targetSdkVersion >= Build.VERSION_CODES.O ? ALPHA_DISABLED : ALPHA_UNSELECTED;
             source.rootView.animate()
                     .alpha(alpha)
                     .setDuration(mAnimationDuration);
@@ -437,12 +438,14 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
         Collections.sort(mSources, new Comparator<Source>() {
             @Override
             public int compare(Source s1, Source s2) {
-                boolean target1IsO = s1.targetSdkVersion >= Build.VERSION_CODES.O;
-                boolean target2IsO = s2.targetSdkVersion >= Build.VERSION_CODES.O;
-                if (target1IsO && !target2IsO) {
-                    return 1;
-                } else if (!target1IsO && target2IsO) {
-                    return -1;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    boolean target1IsO = s1.targetSdkVersion >= Build.VERSION_CODES.O;
+                    boolean target2IsO = s2.targetSdkVersion >= Build.VERSION_CODES.O;
+                    if (target1IsO && !target2IsO) {
+                        return 1;
+                    } else if (!target1IsO && target2IsO) {
+                        return -1;
+                    }
                 }
                 String pn1 = s1.componentName.getPackageName();
                 String pn2 = s2.componentName.getPackageName();
@@ -476,7 +479,8 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
                 public void onClick(View view) {
                     if (source.componentName.equals(mSelectedSource)) {
                         ((Callbacks) getContext()).onRequestCloseActivity();
-                    } else if (source.targetSdkVersion >= Build.VERSION_CODES.O) {
+                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                            && source.targetSdkVersion >= Build.VERSION_CODES.O) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
                                 .setTitle(R.string.action_source_target_too_high_title)
                                 .setMessage(R.string.action_source_target_too_high_message)
@@ -541,7 +545,8 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
                 }
             });
 
-            float alpha = source.targetSdkVersion >= Build.VERSION_CODES.O
+            float alpha = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                    && source.targetSdkVersion >= Build.VERSION_CODES.O
                     ? ALPHA_DISABLED
                     : ALPHA_UNSELECTED;
             source.rootView.setAlpha(alpha);
