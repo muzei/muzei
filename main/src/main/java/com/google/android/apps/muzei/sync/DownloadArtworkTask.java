@@ -20,15 +20,14 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.provider.BaseColumns;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.event.ArtworkLoadingStateChangedEvent;
+import com.google.android.apps.muzei.room.Artwork;
+import com.google.android.apps.muzei.room.MuzeiDatabase;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -60,26 +59,19 @@ public class DownloadArtworkTask extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(Void... voids) {
+        Artwork artwork = MuzeiDatabase.getInstance(mApplicationContext).artworkDao().getCurrentArtworkBlocking();
         ContentResolver resolver = mApplicationContext.getContentResolver();
-        String[] projection = {BaseColumns._ID, MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI};
-        Cursor data = resolver.query(MuzeiContract.Artwork.CONTENT_URI, projection, null, null, null);
-        if (data == null || !data.moveToFirst()) {
-            if (data != null) {
-                data.close();
-            }
+        if (artwork == null) {
             return false;
         }
         Uri artworkUri = ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI,
-                data.getLong(0));
-        String imageUriString = data.getString(1);
-        if (TextUtils.isEmpty(imageUriString)) {
+                artwork.id);
+        if (artwork.imageUri == null) {
             // There's nothing else we can do here so declare success
             return true;
         }
-        Uri imageUri = Uri.parse(imageUriString);
-        data.close();
         try (OutputStream out = resolver.openOutputStream(artworkUri);
-             InputStream in = out != null ? openUri(mApplicationContext, imageUri) : null) {
+             InputStream in = out != null ? openUri(mApplicationContext, artwork.imageUri) : null) {
             if (out == null) {
                 // We've already downloaded the file
                 return true;

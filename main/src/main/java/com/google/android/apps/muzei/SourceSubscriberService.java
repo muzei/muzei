@@ -17,30 +17,25 @@
 package com.google.android.apps.muzei;
 
 import android.app.IntentService;
-import android.content.ComponentName;
-import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.ContentValues;
+import android.app.PendingIntent;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
-import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.api.UserCommand;
 import com.google.android.apps.muzei.api.internal.SourceState;
+import com.google.android.apps.muzei.room.Artwork;
+import com.google.android.apps.muzei.room.MuzeiDatabase;
+import com.google.android.apps.muzei.room.Source;
 import com.google.android.apps.muzei.sync.TaskQueueService;
+
+import java.util.ArrayList;
 
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_PUBLISH_STATE;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_STATE;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_TOKEN;
-
-import org.json.JSONArray;
 
 public class SourceSubscriberService extends IntentService {
     private static final String TAG = "SourceSubscriberService";
@@ -61,11 +56,11 @@ public class SourceSubscriberService extends IntentService {
         }
         // Handle API call from source
         String token = intent.getStringExtra(EXTRA_TOKEN);
-        ComponentName selectedSource = SourceManager.getSelectedSource(this);
-        if (selectedSource == null ||
-                !TextUtils.equals(token, selectedSource.flattenToShortString())) {
+        Source source = MuzeiDatabase.getInstance(this).sourceDao().getCurrentSourceBlocking();
+        if (source == null ||
+                !TextUtils.equals(token, source.componentName.flattenToShortString())) {
             Log.w(TAG, "Dropping update from non-selected source, token=" + token
-                    + " does not match token for " + selectedSource);
+                    + " does not match token for " + source);
             return;
         }
 
@@ -82,47 +77,53 @@ public class SourceSubscriberService extends IntentService {
             return;
         }
 
-        ContentValues values = new ContentValues();
-        values.put(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, selectedSource.flattenToShortString());
-        values.put(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, true);
-        values.put(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION, state.getDescription());
-        values.put(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE, state.getWantsNetworkAvailable());
-        JSONArray commandsSerialized = new JSONArray();
+        source.description = state.getDescription();
+        source.wantsNetworkAvailable = state.getWantsNetworkAvailable();
+        source.commands = new ArrayList<>();
         int numSourceActions = state.getNumUserCommands();
-        boolean supportsNextArtwork = false;
         for (int i = 0; i < numSourceActions; i++) {
             UserCommand command = state.getUserCommandAt(i);
             if (command.getId() == MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK) {
-                supportsNextArtwork = true;
+                source.supportsNextArtwork = true;
             } else {
-                commandsSerialized.put(command.serialize());
+                source.commands.add(command);
             }
         }
-        values.put(MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND, supportsNextArtwork);
-        values.put(MuzeiContract.Sources.COLUMN_NAME_COMMANDS, commandsSerialized.toString());
-        ContentResolver contentResolver = getContentResolver();
-        Cursor existingSource = contentResolver.query(MuzeiContract.Sources.CONTENT_URI,
-                new String[]{BaseColumns._ID},
-                MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + "=?",
-                new String[] {selectedSource.flattenToShortString()}, null, null);
-        if (existingSource != null && existingSource.moveToFirst()) {
-            Uri sourceUri = ContentUris.withAppendedId(MuzeiContract.Sources.CONTENT_URI,
-                    existingSource.getLong(0));
-            contentResolver.update(sourceUri, values, null, null);
-        } else {
-            contentResolver.insert(MuzeiContract.Sources.CONTENT_URI, values);
-        }
-        if (existingSource != null) {
-            existingSource.close();
-        }
 
-        Artwork artwork = state.getCurrentArtwork();
-        if (artwork != null) {
-            artwork.setComponentName(selectedSource);
-            contentResolver.insert(MuzeiContract.Artwork.CONTENT_URI, artwork.toContentValues());
+        com.google.android.apps.muzei.api.Artwork currentArtwork = state.getCurrentArtwork();
+        if (currentArtwork != null) {
+            MuzeiDatabase database = MuzeiDatabase.getInstance(this);
+            database.beginTransaction();
+            database.sourceDao().update(source);
+            Artwork artwork = new Artwork();
+            artwork.sourceComponentName = source.componentName;
+            artwork.imageUri = currentArtwork.getImageUri();
+            artwork.title = currentArtwork.getTitle();
+            artwork.byline = currentArtwork.getByline();
+            artwork.attribution = currentArtwork.getAttribution();
+            artwork.token = currentArtwork.getToken();
+            artwork.metaFont = currentArtwork.getMetaFont();
+            artwork.viewIntent = currentArtwork.getViewIntent();
+
+            try {
+                // Make sure we can construct a PendingIntent for the Intent
+                PendingIntent.getActivity(this, 0, artwork.viewIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+            } catch (RuntimeException e) {
+                // This is actually meant to catch a FileUriExposedException, but you can't
+                // have catch statements for exceptions that don't exist at your minSdkVersion
+                Log.w(TAG, "Removing invalid View Intent that contains a file:// URI: " +
+                        artwork.viewIntent, e);
+                artwork.viewIntent = null;
+            }
+
+            database.artworkDao().insert(this, artwork);
 
             // Download the artwork contained from the newly published SourceState
             startService(TaskQueueService.getDownloadCurrentArtworkIntent(this));
+
+            database.setTransactionSuccessful();
+            database.endTransaction();
         }
     }
 }

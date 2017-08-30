@@ -53,9 +53,9 @@ public class PhotoSetAsTargetActivity extends Activity {
                 .insert(this, chosenPhoto);
         insertLiveData.observeForever(new Observer<Long>() {
             @Override
-            public void onChanged(@Nullable Long id) {
+            public void onChanged(@Nullable final Long id) {
                 insertLiveData.removeObserver(this);
-                Context context = PhotoSetAsTargetActivity.this;
+                final Context context = PhotoSetAsTargetActivity.this;
                 if (id == null || id == 0L) {
                     Log.e(TAG, "Unable to insert chosen artwork for " + photoUri);
                     Toast.makeText(context, R.string.set_as_wallpaper_failed, Toast.LENGTH_SHORT).show();
@@ -69,17 +69,22 @@ public class PhotoSetAsTargetActivity extends Activity {
                         new ComponentName(context, GalleryArtSource.class).flattenToShortString());
                 bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sources");
                 FirebaseAnalytics.getInstance(context).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
-                SourceManager.selectSource(context, new ComponentName(context, GalleryArtSource.class));
+                SourceManager.selectSource(context, new ComponentName(context, GalleryArtSource.class),
+                        new SourceManager.Callback() {
+                            @Override
+                            public void onSourceSelected() {
+                                Uri uri = ChosenPhoto.getContentUri(id);
+                                startService(new Intent(context, GalleryArtSource.class)
+                                        .setAction(GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM)
+                                        .putExtra(GalleryArtSource.EXTRA_FORCE_URI, uri));
 
-                Uri uri = ChosenPhoto.getContentUri(id);
-                startService(new Intent(context, GalleryArtSource.class)
-                        .setAction(GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM)
-                        .putExtra(GalleryArtSource.EXTRA_FORCE_URI, uri));
+                                startActivity(Intent.makeMainActivity(new ComponentName(
+                                        context, MuzeiActivity.class))
+                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                                finish();
+                            }
+                        });
 
-                startActivity(Intent.makeMainActivity(new ComponentName(
-                        context, MuzeiActivity.class))
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                finish();
             }
         });
     }

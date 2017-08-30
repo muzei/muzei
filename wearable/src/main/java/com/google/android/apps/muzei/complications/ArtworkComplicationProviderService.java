@@ -18,12 +18,16 @@ package com.google.android.apps.muzei.complications;
 
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.wearable.complications.ComplicationData;
 import android.support.wearable.complications.ComplicationManager;
 import android.support.wearable.complications.ComplicationProviderService;
@@ -32,8 +36,9 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.apps.muzei.FullScreenActivity;
-import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiContract;
+import com.google.android.apps.muzei.room.Artwork;
+import com.google.android.apps.muzei.room.MuzeiDatabase;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.BuildConfig;
@@ -97,7 +102,7 @@ public class ArtworkComplicationProviderService extends ComplicationProviderServ
     }
 
     @Override
-    public void onComplicationUpdate(int complicationId, int type, ComplicationManager complicationManager) {
+    public void onComplicationUpdate(final int complicationId, final int type, final ComplicationManager complicationManager) {
         // Make sure that the complicationId is really in our set of added complications
         // This fixes corner cases like Muzei being uninstalled and reinstalled
         // (which wipes out our SharedPreferences but keeps any complications activated)
@@ -109,50 +114,57 @@ public class ArtworkComplicationProviderService extends ComplicationProviderServ
             }
             addComplication(complicationId);
         }
-        Artwork artwork = MuzeiContract.Artwork.getCurrentArtwork(this);
-        if (artwork == null) {
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "Update no artwork for " + complicationId);
-            }
-            complicationManager.updateComplicationData(complicationId,
-                    new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build());
-            return;
-        }
-        ComplicationData.Builder builder = new ComplicationData.Builder(type);
-        Intent intent = new Intent(this, FullScreenActivity.class);
-        PendingIntent tapAction = PendingIntent.getActivity(this, 0, intent, 0);
-        switch (type) {
-            case ComplicationData.TYPE_LONG_TEXT:
-                String title = artwork.getTitle();
-                String byline = artwork.getByline();
-                if (TextUtils.isEmpty(title) && TextUtils.isEmpty(byline)) {
-                    // Both are empty so we don't have any data to show
+        final Context applicationContext = getApplicationContext();
+        final LiveData<Artwork> artworkLiveData = MuzeiDatabase.getInstance(this).artworkDao().getCurrentArtwork();
+        artworkLiveData.observeForever(new Observer<Artwork>() {
+            @Override
+            public void onChanged(@Nullable final Artwork artwork) {
+                artworkLiveData.removeObserver(this);
+                if (artwork == null) {
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "Update no artwork for " + complicationId);
+                    }
                     complicationManager.updateComplicationData(complicationId,
                             new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build());
                     return;
-                } else if (TextUtils.isEmpty(title)) {
-                    // We only have the byline, so use that as the long text
-                    builder.setLongText(ComplicationText.plainText(byline));
-                } else {
-                    if (!TextUtils.isEmpty(byline)) {
-                        builder.setLongTitle(ComplicationText.plainText(byline));
-                    }
-                    builder.setLongText(ComplicationText.plainText(title));
                 }
-                builder.setTapAction(tapAction);
-                break;
-            case ComplicationData.TYPE_SMALL_IMAGE:
-                builder.setImageStyle(ComplicationData.IMAGE_STYLE_PHOTO)
-                        .setSmallImage(Icon.createWithContentUri(MuzeiContract.Artwork.CONTENT_URI));
-                builder.setTapAction(tapAction);
-                break;
-            case ComplicationData.TYPE_LARGE_IMAGE:
-                builder.setLargeImage(Icon.createWithContentUri(MuzeiContract.Artwork.CONTENT_URI));
-                break;
-        }
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "Updated " + complicationId);
-        }
-        complicationManager.updateComplicationData(complicationId, builder.build());
+                ComplicationData.Builder builder = new ComplicationData.Builder(type);
+                Intent intent = new Intent(applicationContext, FullScreenActivity.class);
+                PendingIntent tapAction = PendingIntent.getActivity(applicationContext, 0, intent, 0);
+                switch (type) {
+                    case ComplicationData.TYPE_LONG_TEXT:
+                        String title = artwork.title;
+                        String byline = artwork.byline;
+                        if (TextUtils.isEmpty(title) && TextUtils.isEmpty(byline)) {
+                            // Both are empty so we don't have any data to show
+                            complicationManager.updateComplicationData(complicationId,
+                                    new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build());
+                            return;
+                        } else if (TextUtils.isEmpty(title)) {
+                            // We only have the byline, so use that as the long text
+                            builder.setLongText(ComplicationText.plainText(byline));
+                        } else {
+                            if (!TextUtils.isEmpty(byline)) {
+                                builder.setLongTitle(ComplicationText.plainText(byline));
+                            }
+                            builder.setLongText(ComplicationText.plainText(title));
+                        }
+                        builder.setTapAction(tapAction);
+                        break;
+                    case ComplicationData.TYPE_SMALL_IMAGE:
+                        builder.setImageStyle(ComplicationData.IMAGE_STYLE_PHOTO)
+                                .setSmallImage(Icon.createWithContentUri(MuzeiContract.Artwork.CONTENT_URI));
+                        builder.setTapAction(tapAction);
+                        break;
+                    case ComplicationData.TYPE_LARGE_IMAGE:
+                        builder.setLargeImage(Icon.createWithContentUri(MuzeiContract.Artwork.CONTENT_URI));
+                        break;
+                }
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "Updated " + complicationId);
+                }
+                complicationManager.updateComplicationData(complicationId, builder.build());
+            }
+        });
     }
 }

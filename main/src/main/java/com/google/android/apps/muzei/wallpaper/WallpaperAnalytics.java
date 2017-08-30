@@ -43,13 +43,13 @@ public class WallpaperAnalytics implements LifecycleObserver {
         FirebaseAnalytics.getInstance(mContext).setUserProperty("device_type", BuildConfig.DEVICE_TYPE);
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
+    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     public void triggerWallpaperCreated() {
         FirebaseAnalytics.getInstance(mContext).logEvent("wallpaper_created", null);
         EventBus.getDefault().postSticky(new WallpaperActiveStateChangedEvent(true));
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     public void triggerWallpaperDestroyed() {
         FirebaseAnalytics.getInstance(mContext).logEvent("wallpaper_destroyed", null);
         EventBus.getDefault().postSticky(new WallpaperActiveStateChangedEvent(false));

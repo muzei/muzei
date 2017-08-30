@@ -73,15 +73,15 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
         mLifecycle.addObserver(new WearableController(this));
         mLifecycle.addObserver(new WidgetUpdater(this));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-            mLifecycle.addObserver(new ArtworkInfoShortcutController(this));
+            mLifecycle.addObserver(new ArtworkInfoShortcutController(this, this));
         }
         if (UserManagerCompat.isUserUnlocked(this)) {
-            mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
+            mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             mUnlockReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
+                    mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START);
                     unregisterReceiver(this);
                     mUnlockReceiver = null;
                 }
@@ -159,11 +159,11 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
             return mEngineLifecycle;
         }
 
-        @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        @OnLifecycleEvent(Lifecycle.Event.ON_START)
         public void onUserUnlocked() {
-            // The MuzeiWallpaperService only gets to ON_CREATE when the user is unlocked
+            // The MuzeiWallpaperService only gets to ON_START when the user is unlocked
             // At that point, we can proceed with the engine's lifecycle
-            mEngineLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START);
+            mEngineLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME);
         }
 
         @Override

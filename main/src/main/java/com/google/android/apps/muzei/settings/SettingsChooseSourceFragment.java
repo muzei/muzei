@@ -18,6 +18,9 @@ package com.google.android.apps.muzei.settings;
 
 import android.animation.ObjectAnimator;
 import android.app.Activity;
+import android.arch.lifecycle.LifecycleFragment;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -28,7 +31,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -43,10 +45,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
+import android.support.annotation.Nullable;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
@@ -59,7 +58,7 @@ import android.widget.TextView;
 
 import com.google.android.apps.muzei.SourceManager;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
-import com.google.android.apps.muzei.api.MuzeiContract;
+import com.google.android.apps.muzei.room.MuzeiDatabase;
 import com.google.android.apps.muzei.util.CheatSheet;
 import com.google.android.apps.muzei.util.ObservableHorizontalScrollView;
 import com.google.android.apps.muzei.util.Scrollbar;
@@ -67,19 +66,19 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.R;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import org.greenrobot.eventbus.EventBus;
 
 import static com.google.android.apps.muzei.api.MuzeiArtSource.ACTION_MUZEI_ART_SOURCE;
 
 /**
  * Fragment for allowing the user to choose the active source.
  */
-public class SettingsChooseSourceFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class SettingsChooseSourceFragment extends LifecycleFragment {
     private static final String TAG = "SettingsChooseSourceFrg";
 
     private static final int SCROLLBAR_HIDE_DELAY_MILLIS = 1000;
@@ -90,6 +89,7 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
     private static final int REQUEST_EXTENSION_SETUP = 1;
 
     private ComponentName mSelectedSource;
+    private LiveData<com.google.android.apps.muzei.room.Source> mCurrentSourceLiveData;
     private List<Source> mSources = new ArrayList<>();
 
     private Handler mHandler = new Handler();
@@ -140,28 +140,15 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "sources");
         FirebaseAnalytics.getInstance(getContext()).logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST, bundle);
-    }
 
-    @Override
-    public void onActivityCreated(final Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(0, null, this);
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
-        return new CursorLoader(getContext(), MuzeiContract.Sources.CONTENT_URI,
-                new String[]{MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME},
-                MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED + "=1", null, null);
-    }
-
-    @Override
-    public void onLoadFinished(final Loader<Cursor> loader, final Cursor data) {
-        updateSelectedItem(true);
-    }
-
-    @Override
-    public void onLoaderReset(final Loader<Cursor> loader) {
+        mCurrentSourceLiveData = MuzeiDatabase.getInstance(context).sourceDao().getCurrentSource();
+        mCurrentSourceLiveData.observe(this,
+                new Observer<com.google.android.apps.muzei.room.Source>() {
+                    @Override
+                    public void onChanged(@Nullable final com.google.android.apps.muzei.room.Source source) {
+                        updateSelectedItem(source, true);
+                    }
+                });
     }
 
     @Override
@@ -267,9 +254,11 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
         getContext().unregisterReceiver(mPackagesChangedReceiver);
     }
 
-    private void updateSelectedItem(boolean allowAnimate) {
+    private void updateSelectedItem(com.google.android.apps.muzei.room.Source selectedSource, boolean allowAnimate) {
         ComponentName previousSelectedSource = mSelectedSource;
-        mSelectedSource = SourceManager.getSelectedSource(getContext());
+        if (selectedSource != null) {
+            mSelectedSource = selectedSource.componentName;
+        }
         if (previousSelectedSource != null && previousSelectedSource.equals(mSelectedSource)) {
             // Only update status
             for (final Source source : mSources) {
@@ -574,7 +563,7 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
             mSourceContainerView.addView(source.rootView);
         }
 
-        updateSelectedItem(false);
+        updateSelectedItem(mCurrentSourceLiveData.getValue(), false);
     }
 
     private void launchSourceSettings(Source source) {
@@ -617,21 +606,23 @@ public class SettingsChooseSourceFragment extends Fragment implements LoaderMana
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void updateSourceStatusUi(Source source) {
+    private void updateSourceStatusUi(final Source source) {
         if (source.rootView == null) {
             return;
         }
-        Cursor state = getContext().getContentResolver().query(MuzeiContract.Sources.CONTENT_URI,
-                new String[] {MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION},
-                MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + "=?",
-                new String[] { source.componentName.flattenToShortString()},
-                null);
-        String description = state != null && state.moveToFirst() ? state.getString(0) : null;
-        if (state != null) {
-            state.close();
-        }
-        ((TextView) source.rootView.findViewById(R.id.source_status)).setText(
-                !TextUtils.isEmpty(description) ? description : source.description);
+        final LiveData<com.google.android.apps.muzei.room.Source> sourceLiveData = MuzeiDatabase
+                .getInstance(getContext())
+                .sourceDao()
+                .getSourceByComponentName(source.componentName);
+        sourceLiveData.observeForever(new Observer<com.google.android.apps.muzei.room.Source>() {
+            @Override
+            public void onChanged(@Nullable final com.google.android.apps.muzei.room.Source storedSource) {
+                sourceLiveData.removeObserver(this);
+                String description = storedSource != null ? storedSource.description : null;
+                ((TextView) source.rootView.findViewById(R.id.source_status)).setText(
+                        !TextUtils.isEmpty(description) ? description : source.description);
+            }
+        });
     }
 
     private void prepareGenerateSourceImages() {

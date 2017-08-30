@@ -16,17 +16,14 @@
 
 package com.google.android.apps.muzei;
 
+import android.arch.lifecycle.LifecycleFragment;
+import android.arch.lifecycle.Observer;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v4.content.res.ResourcesCompat;
 import android.text.TextUtils;
 import android.util.Log;
@@ -41,7 +38,6 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.api.UserCommand;
@@ -50,6 +46,9 @@ import com.google.android.apps.muzei.event.ArtworkLoadingStateChangedEvent;
 import com.google.android.apps.muzei.event.ArtworkSizeChangedEvent;
 import com.google.android.apps.muzei.event.SwitchingPhotosStateChangedEvent;
 import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent;
+import com.google.android.apps.muzei.room.Artwork;
+import com.google.android.apps.muzei.room.MuzeiDatabase;
+import com.google.android.apps.muzei.room.Source;
 import com.google.android.apps.muzei.settings.SettingsActivity;
 import com.google.android.apps.muzei.sync.TaskQueueService;
 import com.google.android.apps.muzei.util.AnimatedMuzeiLoadingSpinnerView;
@@ -67,7 +66,7 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.List;
 
-public class ArtDetailFragment extends Fragment
+public class ArtDetailFragment extends LifecycleFragment
         implements DrawInsetsFrameLayout.OnInsetsCallback {
     private static final String TAG = "ArtDetailFragment";
 
@@ -76,25 +75,16 @@ public class ArtDetailFragment extends Fragment
     private float mArtworkAspectRatio;
 
     public boolean mSupportsNextArtwork = false;
-    private LoaderManager.LoaderCallbacks<Cursor> mSourceLoaderCallbacks = new LoaderManager.LoaderCallbacks<Cursor>() {
-
+    private Observer<Source> mSourceObserver = new Observer<Source>() {
         @Override
-        public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
-            return new CursorLoader(getContext(), MuzeiContract.Sources.CONTENT_URI,
-                    new String[]{MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,
-                            MuzeiContract.Sources.COLUMN_NAME_COMMANDS},
-                    MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED + "=1", null, null);
-        }
-
-        @Override
-        public void onLoadFinished(final Loader<Cursor> loader, final Cursor data) {
+        public void onChanged(@Nullable final Source source) {
             // Update overflow and next button
             mOverflowSourceActionMap.clear();
             mOverflowMenu.getMenu().clear();
             mOverflowMenu.inflate(R.menu.muzei_overflow);
-            if (data.moveToFirst()) {
-                mSupportsNextArtwork = data.getInt(0) != 0;
-                List<UserCommand> commands = MuzeiContract.Sources.parseCommands(data.getString(1));
+            if (source != null) {
+                mSupportsNextArtwork = source.supportsNextArtwork;
+                List<UserCommand> commands = source.commands;
                 int numSourceActions = Math.min(SOURCE_ACTION_IDS.length,
                         commands.size());
                 for (int i = 0; i < numSourceActions; i++) {
@@ -105,39 +95,28 @@ public class ArtDetailFragment extends Fragment
             }
             mNextButton.setVisibility(mSupportsNextArtwork && !mArtworkLoading ? View.VISIBLE : View.GONE);
         }
-
-        @Override
-        public void onLoaderReset(final Loader<Cursor> loader) {
-        }
     };
 
-    private LoaderManager.LoaderCallbacks<Cursor> mArtworkLoaderCallbacks = new LoaderManager.LoaderCallbacks<Cursor>() {
+    private Observer<Artwork> mArtworkObserver = new Observer<Artwork>() {
         @Override
-        public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
-            return new CursorLoader(getContext(), MuzeiContract.Artwork.CONTENT_URI,
-                    null, null, null, null);
-        }
-
-        @Override
-        public void onLoadFinished(final Loader<Cursor> loader, final Cursor data) {
-            if (!data.moveToFirst()) {
+        public void onChanged(@Nullable final Artwork currentArtwork) {
+            if (currentArtwork == null) {
                 return;
             }
-            Artwork currentArtwork = Artwork.fromCursor(data);
             int titleFont = R.font.alegreya_sans_black;
             int bylineFont = R.font.alegreya_sans_medium;
-            if (MuzeiContract.Artwork.META_FONT_TYPE_ELEGANT.equals(currentArtwork.getMetaFont())) {
+            if (MuzeiContract.Artwork.META_FONT_TYPE_ELEGANT.equals(currentArtwork.metaFont)) {
                 titleFont = R.font.alegreya_black_italic;
                 bylineFont = R.font.alegreya_italic;
             }
 
             mTitleView.setTypeface(ResourcesCompat.getFont(getContext(), titleFont));
-            mTitleView.setText(currentArtwork.getTitle());
+            mTitleView.setText(currentArtwork.title);
 
             mBylineView.setTypeface(ResourcesCompat.getFont(getContext(), bylineFont));
-            mBylineView.setText(currentArtwork.getByline());
+            mBylineView.setText(currentArtwork.byline);
 
-            String attribution = currentArtwork.getAttribution();
+            String attribution = currentArtwork.attribution;
             if (!TextUtils.isEmpty(attribution)) {
                 mAttributionView.setText(attribution);
                 mAttributionView.setVisibility(View.VISIBLE);
@@ -145,7 +124,7 @@ public class ArtDetailFragment extends Fragment
                 mAttributionView.setVisibility(View.GONE);
             }
 
-            final Intent viewIntent = currentArtwork.getViewIntent();
+            final Intent viewIntent = currentArtwork.viewIntent;
             mMetadataView.setEnabled(viewIntent != null);
             if (viewIntent != null) {
                 mMetadataView.setOnClickListener(new View.OnClickListener() {
@@ -169,10 +148,6 @@ public class ArtDetailFragment extends Fragment
             } else {
                 mMetadataView.setOnClickListener(null);
             }
-        }
-
-        @Override
-        public void onLoaderReset(final Loader<Cursor> loader) {
         }
     };
 
@@ -405,9 +380,9 @@ public class ArtDetailFragment extends Fragment
         if (spsce != null) {
             onEventMainThread(spsce);
         }
-
-        getLoaderManager().initLoader(0, null, mSourceLoaderCallbacks);
-        getLoaderManager().initLoader(1, null, mArtworkLoaderCallbacks);
+        MuzeiDatabase database = MuzeiDatabase.getInstance(getContext());
+        database.sourceDao().getCurrentSource().observe(this, mSourceObserver);
+        database.artworkDao().getCurrentArtwork().observe(this, mArtworkObserver);
     }
 
     @Override

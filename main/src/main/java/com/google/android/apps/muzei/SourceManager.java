@@ -16,39 +16,29 @@
 
 package com.google.android.apps.muzei;
 
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.ComponentName;
-import android.content.ContentProviderOperation;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.OperationApplicationException;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.os.RemoteException;
+import android.os.AsyncTask;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.google.android.apps.muzei.api.MuzeiArtSource;
-import com.google.android.apps.muzei.api.MuzeiContract;
-import com.google.android.apps.muzei.api.UserCommand;
 import com.google.android.apps.muzei.featuredart.FeaturedArtSource;
+import com.google.android.apps.muzei.room.MuzeiDatabase;
+import com.google.android.apps.muzei.room.Source;
 import com.google.android.apps.muzei.sync.TaskQueueService;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.BuildConfig;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_HANDLE_COMMAND;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_SUBSCRIBE;
@@ -61,8 +51,6 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA
  */
 public class SourceManager implements LifecycleObserver {
     private static final String TAG = "SourceManager";
-    private static final String PREF_SELECTED_SOURCE = "selected_source";
-    private static final String PREF_SOURCE_STATES = "source_states";
     private static final String USER_PROPERTY_SELECTED_SOURCE = "selected_source";
     private static final String USER_PROPERTY_SELECTED_SOURCE_PACKAGE = "selected_source_package";
 
@@ -85,125 +73,98 @@ public class SourceManager implements LifecycleObserver {
         packageChangeFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
         mContext.registerReceiver(mSourcePackageChangeReceiver, packageChangeFilter);
 
-        subscribeToSelectedSource(mContext);
+        final LiveData<Source> sourceLiveData = MuzeiDatabase.getInstance(mContext).sourceDao().getCurrentSource();
+        sourceLiveData.observeForever(new Observer<Source>() {
+            @Override
+            public void onChanged(@Nullable final Source source) {
+                sourceLiveData.removeObserver(this);
+                if (source != null) {
+                    subscribe(mContext, source);
+                } else {
+                    // Select the default source
+                    selectSource(mContext, new ComponentName(mContext, FeaturedArtSource.class));
+                }
+            }
+        });
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     public void unsubscribeToSelectedSource() {
-        unsubscribeToSelectedSource(mContext);
+        final LiveData<Source> sourceLiveData = MuzeiDatabase.getInstance(mContext).sourceDao().getCurrentSource();
+        sourceLiveData.observeForever(new Observer<Source>() {
+            @Override
+            public void onChanged(@Nullable final Source source) {
+                sourceLiveData.removeObserver(this);
+                if (source != null) {
+                    unsubscribe(mContext, source);
+                }
+            }
+        });
         mContext.unregisterReceiver(mSourcePackageChangeReceiver);
     }
 
-    /**
-     * One time migration of source data from SharedPreferences to the ContentProvider
-     */
-    private static void migrateDataToContentProvider(Context context) {
-        SharedPreferences sharedPrefs = context.getSharedPreferences("muzei_art_sources", 0);
-        String selectedSourceString = sharedPrefs.getString(PREF_SELECTED_SOURCE, null);
-        Set<String> sourceStates = sharedPrefs.getStringSet(PREF_SOURCE_STATES, null);
-        if (selectedSourceString == null || sourceStates == null) {
-            return;
-        }
-        ComponentName selectedSource = ComponentName.unflattenFromString(selectedSourceString);
-
-        final ArrayList<ContentProviderOperation> operations = new ArrayList<>();
-        for (String sourceStatesPair : sourceStates) {
-            String[] pair = sourceStatesPair.split("\\|", 2);
-            ComponentName source = ComponentName.unflattenFromString(pair[0]);
-            try {
-                ContentValues values = new ContentValues();
-                try {
-                    // Ensure the source is a valid Service
-                    context.getPackageManager().getServiceInfo(source, 0);
-                } catch (PackageManager.NameNotFoundException e) {
-                    // No need to keep no longer valid sources
-                    continue;
-                }
-                values.put(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, source.flattenToShortString());
-                values.put(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, source.equals(selectedSource));
-                JSONObject jsonObject = (JSONObject) new JSONTokener(pair[1]).nextValue();
-                values.put(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION, jsonObject.optString("description"));
-                values.put(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE,
-                        jsonObject.optBoolean("wantsNetworkAvailable"));
-                // Parse out the UserCommands. This ensures it is properly formatted and extracts the
-                // Next Artwork built in command from the list
-                List<UserCommand> commands = MuzeiContract.Sources.parseCommands(
-                        jsonObject.optJSONArray("userCommands").toString());
-                JSONArray commandsSerialized = new JSONArray();
-                boolean supportsNextArtwork = false;
-                for (UserCommand command : commands) {
-                    if (command.getId() == MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK) {
-                        supportsNextArtwork = true;
-                    } else {
-                        commandsSerialized.put(command.serialize());
-                    }
-                }
-                values.put(MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND, supportsNextArtwork);
-                values.put(MuzeiContract.Sources.COLUMN_NAME_COMMANDS, commandsSerialized.toString());
-                operations.add(ContentProviderOperation.newInsert(MuzeiContract.Sources.CONTENT_URI)
-                    .withValues(values).build());
-            } catch (JSONException e) {
-                Log.e(TAG, "Error loading source state for " + source, e);
-            }
-        }
-        try {
-            context.getContentResolver().applyBatch(MuzeiContract.AUTHORITY, operations);
-            sharedPrefs.edit().remove(PREF_SELECTED_SOURCE).remove(PREF_SOURCE_STATES).apply();
-            sendSelectedSourceAnalytics(context, selectedSource);
-        } catch (RemoteException | OperationApplicationException e) {
-            Log.e(TAG, "Error writing sources to ContentProvider", e);
-        }
+    public interface Callback {
+        void onSourceSelected();
     }
 
-    public static void selectSource(Context context, ComponentName source) {
-        if (source == null) {
-            Log.e(TAG, "selectSource: Empty source");
-            return;
-        }
+    public static void selectSource(Context context, @NonNull ComponentName source) {
+        selectSource(context, source, null);
+    }
 
-        ComponentName selectedSource = getSelectedSource(context);
-        if (source.equals(selectedSource)) {
-            return;
-        }
+    @SuppressLint("StaticFieldLeak")
+    public static void selectSource(final Context context, @NonNull final ComponentName source,
+                                    @Nullable final Callback callback) {
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(final Void... voids) {
+                MuzeiDatabase database = MuzeiDatabase.getInstance(context);
+                Source selectedSource = database.sourceDao().getCurrentSourceBlocking();
+                if (selectedSource != null && source.equals(selectedSource.componentName)) {
+                    return null;
+                }
 
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "Source " + source + " selected.");
-        }
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "Source " + source + " selected.");
+                }
 
-        final ArrayList<ContentProviderOperation> operations = new ArrayList<>();
-        if (selectedSource != null) {
-            unsubscribeToSelectedSource(context);
+                database.beginTransaction();
+                if (selectedSource != null) {
+                    unsubscribe(context, selectedSource);
 
-            // Unselect the old source
-            operations.add(ContentProviderOperation.newUpdate(MuzeiContract.Sources.CONTENT_URI)
-                    .withValue(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME,
-                            selectedSource.flattenToShortString())
-                    .withValue(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, false)
-                    .withSelection(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + "=?",
-                            new String[] {selectedSource.flattenToShortString()})
-                    .build());
-        }
+                    // Unselect the old source
+                    selectedSource.selected = false;
+                    database.sourceDao().update(selectedSource);
+                }
 
-        // Select the new source
-        operations.add(ContentProviderOperation.newUpdate(MuzeiContract.Sources.CONTENT_URI)
-                .withValue(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME,
-                        source.flattenToShortString())
-                .withValue(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, true)
-                .withSelection(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + "=?",
-                        new String[] {source.flattenToShortString()})
-                .build());
+                // Select the new source
+                Source newSource = database.sourceDao().getSourceByComponentNameBlocking(source);
+                if (newSource != null) {
+                    newSource.selected = true;
+                    database.sourceDao().update(newSource);
+                } else {
+                    newSource = new Source(source);
+                    newSource.selected = true;
+                    database.sourceDao().insert(newSource);
+                }
 
-        try {
-            context.getContentResolver().applyBatch(MuzeiContract.AUTHORITY, operations);
-            sendSelectedSourceAnalytics(context, source);
-        } catch (RemoteException | OperationApplicationException e) {
-            Log.e(TAG, "Error writing sources to ContentProvider", e);
-        }
+                database.setTransactionSuccessful();
+                database.endTransaction();
+                sendSelectedSourceAnalytics(context, source);
 
-        subscribeToSelectedSource(context);
+                subscribe(context, newSource);
 
-        // Ensure the artwork from the newly selected source is downloaded
-        context.startService(TaskQueueService.getDownloadCurrentArtworkIntent(context));
+                // Ensure the artwork from the newly selected source is downloaded
+                context.startService(TaskQueueService.getDownloadCurrentArtworkIntent(context));
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(final Void aVoid) {
+                if (callback != null) {
+                    callback.onSourceSelected();
+                }
+            }
+        }.execute();
     }
 
     private static void sendSelectedSourceAnalytics(Context context, ComponentName selectedSource) {
@@ -224,68 +185,56 @@ public class SourceManager implements LifecycleObserver {
                 className);
     }
 
-    public static ComponentName getSelectedSource(Context context) {
-        try (Cursor data = context.getContentResolver().query(MuzeiContract.Sources.CONTENT_URI,
-                new String[] {MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME},
-                MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED + "=1", null, null)) {
-            return data != null && data.moveToFirst()
-                    ? ComponentName.unflattenFromString(data.getString(0))
-                    : null;
-        }
-    }
-
-    public static void sendAction(Context context, int id) {
-        ComponentName selectedSource = getSelectedSource(context);
-        if (selectedSource != null) {
-            try {
-                context.startService(new Intent(ACTION_HANDLE_COMMAND)
-                        .setComponent(selectedSource)
-                        .putExtra(EXTRA_COMMAND_ID, id));
-            } catch (IllegalStateException e) {
-                Log.i(TAG, "Sending action + " + id + " to " + selectedSource
-                        + " failed; switching to default.", e);
-                selectSource(context, new ComponentName(context, FeaturedArtSource.class));
+    public static void sendAction(final Context context, final int id) {
+        final LiveData<Source> sourceLiveData = MuzeiDatabase.getInstance(context).sourceDao().getCurrentSource();
+        sourceLiveData.observeForever(new Observer<Source>() {
+            @Override
+            public void onChanged(@Nullable final Source source) {
+                sourceLiveData.removeObserver(this);
+                if (source != null) {
+                    ComponentName selectedSource = source.componentName;
+                    try {
+                        context.startService(new Intent(ACTION_HANDLE_COMMAND)
+                                .setComponent(selectedSource)
+                                .putExtra(EXTRA_COMMAND_ID, id));
+                    } catch (IllegalStateException e) {
+                        Log.i(TAG, "Sending action + " + id + " to " + selectedSource
+                                + " failed; switching to default.", e);
+                        selectSource(context, new ComponentName(context, FeaturedArtSource.class));
+                    }
+                }
             }
-        }
+        });
     }
 
-    public static void subscribeToSelectedSource(Context context) {
+    static void subscribe(Context context, @NonNull Source source) {
         // Migrate any legacy data to the ContentProvider
-        migrateDataToContentProvider(context);
-        ComponentName selectedSource = getSelectedSource(context);
-        if (selectedSource != null) {
-            try {
-                // Ensure that we have a valid service before subscribing
-                context.getPackageManager().getServiceInfo(selectedSource, 0);
-                context.startService(new Intent(ACTION_SUBSCRIBE)
-                        .setComponent(selectedSource)
-                        .putExtra(EXTRA_SUBSCRIBER_COMPONENT,
-                                new ComponentName(context, SourceSubscriberService.class))
-                        .putExtra(EXTRA_TOKEN, selectedSource.flattenToShortString()));
-            } catch (PackageManager.NameNotFoundException|IllegalStateException e) {
-                Log.i(TAG, "Selected source " + selectedSource
-                        + " is no longer available; switching to default.", e);
-                selectSource(context, new ComponentName(context, FeaturedArtSource.class));
-            }
-        } else {
-            // Select the default source
+        ComponentName selectedSource = source.componentName;
+        try {
+            // Ensure that we have a valid service before subscribing
+            context.getPackageManager().getServiceInfo(selectedSource, 0);
+            context.startService(new Intent(ACTION_SUBSCRIBE)
+                    .setComponent(selectedSource)
+                    .putExtra(EXTRA_SUBSCRIBER_COMPONENT,
+                            new ComponentName(context, SourceSubscriberService.class))
+                    .putExtra(EXTRA_TOKEN, selectedSource.flattenToShortString()));
+        } catch (PackageManager.NameNotFoundException|IllegalStateException e) {
+            Log.i(TAG, "Selected source " + selectedSource
+                    + " is no longer available; switching to default.", e);
             selectSource(context, new ComponentName(context, FeaturedArtSource.class));
         }
     }
 
-    public static void unsubscribeToSelectedSource(Context context) {
-        ComponentName selectedSource = getSelectedSource(context);
-        if (selectedSource != null) {
-            try {
-                context.startService(new Intent(ACTION_SUBSCRIBE)
-                        .setComponent(selectedSource)
-                        .putExtra(EXTRA_SUBSCRIBER_COMPONENT,
-                                new ComponentName(context, SourceSubscriberService.class))
-                        .putExtra(EXTRA_TOKEN, (String) null));
-            } catch (IllegalStateException e) {
-                Log.i(TAG, "Unsubscribing to " + selectedSource
-                        + " failed.", e);
-            }
+    private static void unsubscribe(Context context, @NonNull Source source) {
+        try {
+            context.startService(new Intent(ACTION_SUBSCRIBE)
+                    .setComponent(source.componentName)
+                    .putExtra(EXTRA_SUBSCRIBER_COMPONENT,
+                            new ComponentName(context, SourceSubscriberService.class))
+                    .putExtra(EXTRA_TOKEN, (String) null));
+        } catch (IllegalStateException e) {
+            Log.i(TAG, "Unsubscribing to " + source.componentName
+                    + " failed.", e);
         }
     }
 }

@@ -36,8 +36,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiContract;
+import com.google.android.apps.muzei.room.Artwork;
+import com.google.android.apps.muzei.room.MuzeiDatabase;
 import com.google.android.apps.muzei.util.PanView;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
@@ -169,7 +170,8 @@ public class FullScreenActivity extends Activity implements LoaderManager.Loader
             @Override
             public Bitmap loadInBackground() {
                 try {
-                    mArtwork = MuzeiContract.Artwork.getCurrentArtwork(FullScreenActivity.this);
+                    mArtwork = MuzeiDatabase.getInstance(FullScreenActivity.this)
+                            .artworkDao().getCurrentArtworkBlocking();
                     mImage = MuzeiContract.Artwork.getCurrentArtworkBitmap(FullScreenActivity.this);
                     return mImage;
                 } catch (FileNotFoundException e) {
@@ -199,8 +201,8 @@ public class FullScreenActivity extends Activity implements LoaderManager.Loader
         mLoadingIndicatorView.setVisibility(View.GONE);
         mPanView.setVisibility(View.VISIBLE);
         mPanView.setImage(image);
-        mTitleView.setText(mArtwork.getTitle());
-        mBylineView.setText(mArtwork.getByline());
+        mTitleView.setText(mArtwork.title);
+        mBylineView.setText(mArtwork.byline);
     }
 
     @Override

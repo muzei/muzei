@@ -16,22 +16,37 @@
 
 package com.google.android.apps.muzei;
 
-import android.content.ComponentName;
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LifecycleRegistry;
+import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.os.Build;
+import android.support.annotation.Nullable;
 import android.support.v4.content.WakefulBroadcastReceiver;
 
-import com.google.android.apps.muzei.api.MuzeiContract;
+import com.google.android.apps.muzei.room.MuzeiDatabase;
+import com.google.android.apps.muzei.room.Source;
 import com.google.android.apps.muzei.sync.TaskQueueService;
+
+import java.util.List;
 
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_NETWORK_AVAILABLE;
 
-public class NetworkChangeReceiver extends WakefulBroadcastReceiver {
+public class NetworkChangeReceiver extends WakefulBroadcastReceiver implements LifecycleOwner {
+    private LifecycleRegistry mLifecycle;
+
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public Lifecycle getLifecycle() {
+        return mLifecycle;
+    }
+
+    @Override
+    public void onReceive(final Context context, Intent intent) {
+        mLifecycle = new LifecycleRegistry(this);
+        mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START);
         boolean hasConnectivity = !intent.getBooleanExtra(
                 ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
         if (hasConnectivity) {
@@ -45,20 +60,21 @@ public class NetworkChangeReceiver extends WakefulBroadcastReceiver {
             }
 
             // TODO: wakeful broadcast?
-            Cursor selectedSources = context.getContentResolver().query(MuzeiContract.Sources.CONTENT_URI,
-                    new String[]{MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME},
-                    MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED + "=1 AND " +
-                    MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE + "=1", null, null, null);
-            if (selectedSources != null && selectedSources.moveToPosition(-1)) {
-                while (selectedSources.moveToNext()) {
-                    String componentName = selectedSources.getString(0);
-                    context.startService(new Intent(ACTION_NETWORK_AVAILABLE)
-                            .setComponent(ComponentName.unflattenFromString(componentName)));
-                }
-            }
-            if (selectedSources != null) {
-                selectedSources.close();
-            }
+            final PendingResult pendingResult = goAsync();
+            MuzeiDatabase.getInstance(context).sourceDao().getCurrentSourcesThatWantNetwork().observe(this,
+                    new Observer<List<Source>>() {
+                        @Override
+                        public void onChanged(@Nullable final List<Source> sources) {
+                            if (sources != null) {
+                                for (Source source : sources) {
+                                    context.startService(new Intent(ACTION_NETWORK_AVAILABLE)
+                                            .setComponent(source.componentName));
+                                }
+                            }
+                            mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
+                            pendingResult.finish();
+                        }
+                    });
         }
     }
 }

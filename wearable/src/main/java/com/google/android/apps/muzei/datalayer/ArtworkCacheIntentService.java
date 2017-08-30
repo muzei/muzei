@@ -18,17 +18,16 @@ package com.google.android.apps.muzei.datalayer;
 
 import android.app.IntentService;
 import android.content.ComponentName;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.net.Uri;
 import android.util.Log;
 
 import com.google.android.apps.muzei.FullScreenActivity;
-import com.google.android.apps.muzei.api.Artwork;
-import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.complications.ArtworkComplicationProviderService;
+import com.google.android.apps.muzei.room.Artwork;
+import com.google.android.apps.muzei.room.MuzeiDatabase;
+import com.google.android.apps.muzei.room.Source;
+import com.google.android.apps.muzei.wearable.ArtworkTransfer;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.Asset;
@@ -113,32 +112,28 @@ public class ArtworkCacheIntentService extends IntentService {
             Log.w(TAG, "No image asset in datamap.");
             return false;
         }
-        final Artwork artwork = Artwork.fromBundle(artworkDataMap.toBundle());
+        Artwork artwork = ArtworkTransfer.fromDataMap(artworkDataMap);
         // Change it so that all Artwork from the phone is attributed to the DataLayerArtSource
-        artwork.setComponentName(this, DataLayerArtSource.class);
+        artwork.sourceComponentName = new ComponentName(this, DataLayerArtSource.class);
         // Check if the source info row exists at all.
-        ComponentName componentName = artwork.getComponentName();
-        Cursor sourceQuery = getContentResolver().query(MuzeiContract.Sources.CONTENT_URI, null,
-                MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + "=?",
-                new String[] {componentName.flattenToShortString()}, null);
-        if (sourceQuery == null || !sourceQuery.moveToFirst()) {
-            // If the row does not exist, insert a dummy row
-            ContentValues values = new ContentValues();
-            values.put(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, componentName.flattenToShortString());
-            values.put(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, true);
-            getContentResolver().insert(MuzeiContract.Sources.CONTENT_URI, values);
+        MuzeiDatabase database = MuzeiDatabase.getInstance(this);
+        Source existingSource = database.sourceDao().getSourceByComponentNameBlocking(artwork.sourceComponentName);
+        if (existingSource != null) {
+            existingSource.selected = true;
+            database.sourceDao().update(existingSource);
+        } else {
+            Source newSource = new Source(artwork.sourceComponentName);
+            newSource.selected = true;
+            database.sourceDao().insert(newSource);
         }
-        if (sourceQuery != null) {
-            sourceQuery.close();
-        }
-        Uri artworkUri = getContentResolver().insert(MuzeiContract.Artwork.CONTENT_URI, artwork.toContentValues());
-        if (artworkUri == null) {
+        long id = database.artworkDao().insert(this, artwork);
+        if (id == 0) {
             Log.w(TAG, "Unable to write artwork information to MuzeiProvider");
             return false;
         }
         DataApi.GetFdForAssetResult result = null;
         InputStream in = null;
-        try (OutputStream out = getContentResolver().openOutputStream(artworkUri)) {
+        try (OutputStream out = getContentResolver().openOutputStream(Artwork.getContentUri(id))) {
             if (out == null) {
                 // We've already cached the artwork previously, so call this a success
                 return true;

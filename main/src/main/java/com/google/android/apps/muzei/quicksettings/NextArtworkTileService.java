@@ -17,24 +17,28 @@
 package com.google.android.apps.muzei.quicksettings;
 
 import android.app.WallpaperManager;
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LifecycleRegistry;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Intent;
-import android.database.ContentObserver;
-import android.database.Cursor;
 import android.graphics.drawable.Icon;
-import android.net.Uri;
 import android.os.Build;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.widget.Toast;
 
 import com.google.android.apps.muzei.MuzeiWallpaperService;
 import com.google.android.apps.muzei.SourceManager;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
-import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
+import com.google.android.apps.muzei.room.MuzeiDatabase;
+import com.google.android.apps.muzei.room.Source;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.R;
@@ -48,9 +52,22 @@ import org.greenrobot.eventbus.Subscribe;
  * from the tile
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
-public class NextArtworkTileService extends TileService {
-    private ContentObserver mSourceContentObserver;
+public class NextArtworkTileService extends TileService implements LifecycleOwner {
+    private LifecycleRegistry mLifecycle;
+    private LiveData<Source> mSourceLiveData;
     private boolean mWallpaperActive = false;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mLifecycle = new LifecycleRegistry(this);
+        mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
+    }
+
+    @Override
+    public Lifecycle getLifecycle() {
+        return mLifecycle;
+    }
 
     @Override
     public void onTileAdded() {
@@ -61,37 +78,36 @@ public class NextArtworkTileService extends TileService {
     public void onStartListening() {
         // Start listening for source changes, which will include when a source
         // starts or stops supporting the 'Next Artwork' command
-        mSourceContentObserver = new ContentObserver(null) {
+        mSourceLiveData = MuzeiDatabase.getInstance(this).sourceDao().getCurrentSource();
+        mSourceLiveData.observe(this, new Observer<Source>() {
             @Override
-            public void onChange(final boolean selfChange, final Uri uri) {
-                updateTile();
+            public void onChanged(@Nullable final Source source) {
+                updateTile(source);
             }
-        };
-        getContentResolver().registerContentObserver(MuzeiContract.Sources.CONTENT_URI,
-                true, mSourceContentObserver);
+        });
 
         // Check if the wallpaper is currently active
         EventBus.getDefault().register(this);
         WallpaperActiveStateChangedEvent e = EventBus.getDefault().getStickyEvent(
                 WallpaperActiveStateChangedEvent.class);
-        // This will call through to updateTile()
-        onEventMainThread(e);
+        mWallpaperActive = e != null && e.isActive();
+        mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START);
     }
 
     @Subscribe
     public void onEventMainThread(final WallpaperActiveStateChangedEvent e) {
         mWallpaperActive = e != null && e.isActive();
-        updateTile();
+        updateTile(mSourceLiveData.getValue());
     }
 
-    private void updateTile() {
+    private void updateTile(Source source) {
         Tile tile = getQsTile();
         if (tile == null) {
             // We're outside of the onStartListening / onStopListening window
             // We'll update the tile next time onStartListening is called.
             return;
         }
-        if (!mWallpaperActive) {
+        if (!mWallpaperActive && tile.getState() != Tile.STATE_INACTIVE) {
             // If the wallpaper isn't active, the quick tile will activate it
             tile.setState(Tile.STATE_INACTIVE);
             tile.setLabel(getString(R.string.action_activate));
@@ -99,20 +115,10 @@ public class NextArtworkTileService extends TileService {
             tile.updateTile();
             return;
         }
-        // Else, the wallpaper is active so we query on whether the 'Next Artwork' command
-        // is available
-        Cursor data = getContentResolver().query(MuzeiContract.Sources.CONTENT_URI,
-                new String[]{MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND},
-                MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED + "=1", null, null);
-        if (data == null) {
+        if (source == null) {
             return;
         }
-        boolean supportsNextArtwork = false;
-        if (data.moveToFirst()) {
-            supportsNextArtwork = data.getInt(0) != 0;
-        }
-        data.close();
-        if (supportsNextArtwork) {
+        if (source.supportsNextArtwork) {
             tile.setState(Tile.STATE_ACTIVE);
             tile.setLabel(getString(R.string.action_next_artwork));
             tile.setIcon(Icon.createWithResource(this, R.drawable.ic_notif_full_next_artwork));
@@ -167,11 +173,17 @@ public class NextArtworkTileService extends TileService {
     @Override
     public void onStopListening() {
         EventBus.getDefault().unregister(this);
-        getContentResolver().unregisterContentObserver(mSourceContentObserver);
+        mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
     }
 
     @Override
     public void onTileRemoved() {
         FirebaseAnalytics.getInstance(this).logEvent("tile_next_artwork_removed", null);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
     }
 }
