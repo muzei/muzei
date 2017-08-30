@@ -20,18 +20,15 @@ import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.BaseColumns;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -41,9 +38,10 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.RemoteViews;
 
-import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
 import com.google.android.apps.muzei.render.ImageUtil;
+import com.google.android.apps.muzei.room.ArtworkSource;
+import com.google.android.apps.muzei.room.MuzeiDatabase;
 
 import net.nurik.roman.muzei.R;
 
@@ -54,7 +52,7 @@ import java.io.FileNotFoundException;
 /**
  * Async operation used to update the widget or provide a preview for pinning the widget.
  */
-public class AppWidgetUpdateTask extends AsyncTask<Void,Void,Boolean> {
+public class AppWidgetUpdateTask extends AsyncTask<ArtworkSource,Void,Boolean> {
     private static final String TAG = "AppWidgetUpdateTask";
 
     private final Context mContext;
@@ -66,7 +64,7 @@ public class AppWidgetUpdateTask extends AsyncTask<Void,Void,Boolean> {
     }
 
     @Override
-    protected Boolean doInBackground(Void... params) {
+    protected Boolean doInBackground(ArtworkSource... params) {
         ComponentName widget = new ComponentName(mContext, MuzeiAppWidgetProvider.class);
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext);
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(widget);
@@ -79,31 +77,22 @@ public class AppWidgetUpdateTask extends AsyncTask<Void,Void,Boolean> {
             // No preview to show
             return false;
         }
-        String[] projection = new String[] {BaseColumns._ID,
-            MuzeiContract.Artwork.COLUMN_NAME_TITLE,
-            MuzeiContract.Artwork.COLUMN_NAME_BYLINE,
-        MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND};
-        ContentResolver contentResolver = mContext.getContentResolver();
-        Cursor artwork = contentResolver.query(MuzeiContract.Artwork.CONTENT_URI, projection, null, null, null);
-        if (artwork == null || !artwork.moveToFirst()) {
+        ArtworkSource artworkSource = params != null && params.length == 1
+                ? params[0]
+                : MuzeiDatabase.getInstance(mContext).artworkDao().getCurrentArtworkWithSourceBlocking();
+        if (artworkSource == null) {
             Log.w(TAG, "No current artwork found");
-            if (artwork != null) {
-                artwork.close();
-            }
             return false;
         }
-        String title = artwork.getString(artwork.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_TITLE));
-        String byline = artwork.getString(artwork.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_BYLINE));
+        String title = artworkSource.artwork.title;
+        String byline = artworkSource.artwork.byline;
         String contentDescription = !TextUtils.isEmpty(title)
                 ? title
                 : byline;
-        Uri imageUri = ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI,
-                artwork.getLong(artwork.getColumnIndex(BaseColumns._ID)));
+        Uri imageUri = artworkSource.artwork.getContentUri();
         WallpaperActiveStateChangedEvent e = EventBus.getDefault().getStickyEvent(
                 WallpaperActiveStateChangedEvent.class);
-        boolean supportsNextArtwork = e != null && e.isActive() && artwork.getInt(
-                artwork.getColumnIndex(MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND)) != 0;
-        artwork.close();
+        boolean supportsNextArtwork = e != null && e.isActive() && artworkSource.supportsNextArtwork;
 
         // Update the widget(s) with the new artwork information
         PackageManager packageManager = mContext.getPackageManager();

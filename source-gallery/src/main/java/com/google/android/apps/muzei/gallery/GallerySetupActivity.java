@@ -17,40 +17,45 @@
 package com.google.android.apps.muzei.gallery;
 
 import android.Manifest;
+import android.arch.lifecycle.LifecycleActivity;
+import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 
 import com.google.android.apps.muzei.api.MuzeiArtSource;
 
-public class GallerySetupActivity extends FragmentActivity {
+import java.util.List;
+
+public class GallerySetupActivity extends LifecycleActivity {
     private static final int REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 1;
     private static final int REQUEST_CHOOSE_IMAGES = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Cursor chosenUris = getContentResolver().query(GalleryContract.ChosenPhotos.CONTENT_URI,
-                null, null, null, null);
-        int numChosenUris = chosenUris != null ? chosenUris.getCount() : 0;
-        if (chosenUris != null) {
-            chosenUris.close();
-        }
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED || numChosenUris > 0) {
-            // If we have permission or have any previously selected images
-            setResult(RESULT_OK);
-            finish();
-        } else {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
-        }
+        GalleryDatabase.getInstance(this).chosenPhotoDao().getChosenPhotos().observe(this,
+                new Observer<List<ChosenPhoto>>() {
+                    @Override
+                    public void onChanged(@Nullable List<ChosenPhoto> chosenUris) {
+                        int numChosenUris = chosenUris != null ? chosenUris.size() : 0;
+                        if (ContextCompat.checkSelfPermission(GallerySetupActivity.this,
+                                Manifest.permission.READ_EXTERNAL_STORAGE)
+                                == PackageManager.PERMISSION_GRANTED || numChosenUris > 0) {
+                            // If we have permission or have any previously selected images
+                            setResult(RESULT_OK);
+                            finish();
+                        } else {
+                            ActivityCompat.requestPermissions(GallerySetupActivity.this,
+                                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                                    REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
+                        }
+                    }
+                });
     }
 
     @Override

@@ -19,19 +19,20 @@ package com.google.android.apps.muzei;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.BaseColumns;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
@@ -45,13 +46,16 @@ import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.api.UserCommand;
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
 import com.google.android.apps.muzei.render.ImageUtil;
+import com.google.android.apps.muzei.room.Artwork;
+import com.google.android.apps.muzei.room.ArtworkSource;
+import com.google.android.apps.muzei.room.MuzeiDatabase;
+import com.google.android.apps.muzei.room.Source;
 
 import net.nurik.roman.muzei.R;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.FileNotFoundException;
-import java.net.URISyntaxException;
 import java.util.List;
 
 public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
@@ -94,50 +98,49 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
         }
     }
 
-    private void triggerUserCommandFromRemoteInput(Context context, Intent intent) {
+    private void triggerUserCommandFromRemoteInput(final Context context, Intent intent) {
         Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
         if (remoteInput == null) {
             return;
         }
-        String selectedCommand = remoteInput.getCharSequence(EXTRA_USER_COMMAND).toString();
-        Cursor selectedSource = context.getContentResolver().query(MuzeiContract.Sources.CONTENT_URI,
-                new String[]{MuzeiContract.Sources.COLUMN_NAME_COMMANDS},
-                MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED + "=1", null, null, null);
-        if (selectedSource != null && selectedSource.moveToFirst()) {
-            List<UserCommand> commands = MuzeiContract.Sources.parseCommands(selectedSource.getString(0));
-            for (UserCommand action : commands) {
-                if (TextUtils.equals(selectedCommand, action.getTitle())) {
-                    SourceManager.sendAction(context, action.getId());
-                    break;
+        final String selectedCommand = remoteInput.getCharSequence(EXTRA_USER_COMMAND).toString();
+        final PendingResult pendingResult = goAsync();
+        final LiveData<Source> sourceLiveData = MuzeiDatabase.getInstance(context).sourceDao().getCurrentSource();
+        sourceLiveData.observeForever(new Observer<Source>() {
+            @Override
+            public void onChanged(@Nullable final Source selectedSource) {
+                sourceLiveData.removeObserver(this);
+                if (selectedSource != null) {
+                    for (UserCommand action : selectedSource.commands) {
+                        if (TextUtils.equals(selectedCommand, action.getTitle())) {
+                            SourceManager.sendAction(context, action.getId());
+                            break;
+                        }
+                        pendingResult.finish();
+                    }
                 }
             }
-        }
-        if (selectedSource != null) {
-            selectedSource.close();
-        }
+        });
     }
 
-    public static void markNotificationRead(Context context) {
-        Cursor lastArtwork = context.getContentResolver().query(
-                MuzeiContract.Artwork.CONTENT_URI,
-                new String[] {
-                        BaseColumns._ID,
-                        MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI,
-                        MuzeiContract.Artwork.COLUMN_NAME_TOKEN},
-                null, null, null);
-        if (lastArtwork != null && lastArtwork.moveToFirst()) {
-            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-            sp.edit()
-                    .putLong(PREF_LAST_READ_NOTIFICATION_ARTWORK_ID, lastArtwork.getLong(0))
-                    .putString(PREF_LAST_READ_NOTIFICATION_ARTWORK_IMAGE_URI, lastArtwork.getString(1))
-                    .putString(PREF_LAST_READ_NOTIFICATION_ARTWORK_TOKEN, lastArtwork.getString(2))
-                    .apply();
-        }
-        if (lastArtwork != null) {
-            lastArtwork.close();
-        }
+    public static void markNotificationRead(final Context context) {
+        final LiveData<Artwork> artworkLiveData = MuzeiDatabase.getInstance(context).artworkDao().getCurrentArtwork();
+        artworkLiveData.observeForever(new Observer<Artwork>() {
+            @Override
+            public void onChanged(@Nullable final Artwork lastArtwork) {
+                artworkLiveData.removeObserver(this);
+                if (lastArtwork != null) {
+                    SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+                    sp.edit()
+                            .putLong(PREF_LAST_READ_NOTIFICATION_ARTWORK_ID, lastArtwork.id)
+                            .putString(PREF_LAST_READ_NOTIFICATION_ARTWORK_IMAGE_URI, lastArtwork.imageUri.toString())
+                            .putString(PREF_LAST_READ_NOTIFICATION_ARTWORK_TOKEN, lastArtwork.token)
+                            .apply();
+                }
 
-        cancelNotification(context);
+                cancelNotification(context);
+            }
+        });
     }
 
     public static void cancelNotification(Context context) {
@@ -158,29 +161,18 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
         }
 
         ContentResolver contentResolver = context.getContentResolver();
-        Cursor artwork = contentResolver.query(
-                MuzeiContract.Artwork.CONTENT_URI,
-                new String[] {BaseColumns._ID,
-                        MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI,
-                        MuzeiContract.Artwork.COLUMN_NAME_TOKEN,
-                        MuzeiContract.Artwork.COLUMN_NAME_TITLE,
-                        MuzeiContract.Artwork.COLUMN_NAME_BYLINE,
-                        MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT,
-                        MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,
-                        MuzeiContract.Sources.COLUMN_NAME_COMMANDS},
-                null, null, null);
-        if (artwork == null || !artwork.moveToFirst()) {
-            if (artwork != null) {
-                artwork.close();
-            }
+        ArtworkSource artworkSource = MuzeiDatabase.getInstance(context)
+                .artworkDao()
+                .getCurrentArtworkWithSourceBlocking();
+        if (artworkSource == null) {
             return;
         }
 
-        long currentArtworkId = artwork.getLong(artwork.getColumnIndex(BaseColumns._ID));
+        long currentArtworkId = artworkSource.artwork.id;
         long lastReadArtworkId = sp.getLong(PREF_LAST_READ_NOTIFICATION_ARTWORK_ID, -1);
-        String currentImageUri = artwork.getString(artwork.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI));
+        String currentImageUri = artworkSource.artwork.imageUri.toString();
         String lastReadImageUri = sp.getString(PREF_LAST_READ_NOTIFICATION_ARTWORK_IMAGE_URI, null);
-        String currentToken = artwork.getString(artwork.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_TOKEN));
+        String currentToken = artworkSource.artwork.token;
         String lastReadToken = sp.getString(PREF_LAST_READ_NOTIFICATION_ARTWORK_TOKEN, null);
         // We've already dismissed the notification if the IDs match
         boolean previouslyDismissedNotification = lastReadArtworkId == currentArtworkId;
@@ -193,7 +185,6 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
                 (!TextUtils.isEmpty(lastReadToken) && !TextUtils.isEmpty(currentToken) &&
                         TextUtils.equals(lastReadToken, currentToken));
         if (previouslyDismissedNotification) {
-            artwork.close();
             return;
         }
 
@@ -228,7 +219,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
             createNotificationChannel(context);
         }
 
-        String artworkTitle = artwork.getString(artwork.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_TITLE));
+        String artworkTitle = artworkSource.artwork.title;
         String title = TextUtils.isEmpty(artworkTitle)
                 ? context.getString(R.string.app_name)
                 : artworkTitle;
@@ -250,14 +241,14 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
         NotificationCompat.BigPictureStyle style = new NotificationCompat.BigPictureStyle()
                 .bigLargeIcon(null)
                 .setBigContentTitle(title)
-                .setSummaryText(artwork.getString(artwork.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_BYLINE)))
+                .setSummaryText(artworkSource.artwork.byline)
                 .bigPicture(background);
         nb.setStyle(style);
 
         NotificationCompat.WearableExtender extender = new NotificationCompat.WearableExtender();
 
         // Support Next Artwork
-        if (artwork.getInt(artwork.getColumnIndex(MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND)) != 0) {
+        if (artworkSource.supportsNextArtwork) {
             PendingIntent nextPendingIntent = PendingIntent.getBroadcast(context, 0,
                     new Intent(context, NewWallpaperNotificationReceiver.class)
                             .setAction(ACTION_NEXT_ARTWORK),
@@ -275,8 +266,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
                     .extend(new NotificationCompat.Action.WearableExtender().setAvailableOffline(false))
                     .build());
         }
-        List<UserCommand> commands = MuzeiContract.Sources.parseCommands(
-                artwork.getString(artwork.getColumnIndex(MuzeiContract.Sources.COLUMN_NAME_COMMANDS)));
+        List<UserCommand> commands = artworkSource.commands;
         // Show custom actions as a selectable list on Android Wear devices
         if (!commands.isEmpty()) {
             String[] actions = new String[commands.size()];
@@ -299,14 +289,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
                     .extend(new NotificationCompat.Action.WearableExtender().setAvailableOffline(false))
                     .build());
         }
-        Intent viewIntent = null;
-        try {
-            String viewIntentString = artwork.getString(artwork.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT));
-            if (!TextUtils.isEmpty(viewIntentString)) {
-                viewIntent = Intent.parseUri(viewIntentString, Intent.URI_INTENT_SCHEME);
-            }
-        } catch (URISyntaxException ignored) {
-        }
+        Intent viewIntent = artworkSource.artwork.viewIntent;
         if (viewIntent != null) {
             viewIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             try {
@@ -353,8 +336,6 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
 
         NotificationManagerCompat nm = NotificationManagerCompat.from(context);
         nm.notify(NOTIFICATION_ID, nb.build());
-
-        artwork.close();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)

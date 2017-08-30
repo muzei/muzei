@@ -18,26 +18,25 @@ package com.google.android.apps.muzei.shortcuts;
 
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
-import android.database.ContentObserver;
-import android.database.Cursor;
 import android.graphics.drawable.Icon;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import android.text.TextUtils;
 
-import com.google.android.apps.muzei.api.MuzeiContract;
+import com.google.android.apps.muzei.room.Artwork;
+import com.google.android.apps.muzei.room.MuzeiDatabase;
 
 import net.nurik.roman.muzei.R;
 
-import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
 
@@ -48,51 +47,43 @@ import java.util.List;
 public class ArtworkInfoShortcutController implements LifecycleObserver {
     private static final String ARTWORK_INFO_SHORTCUT_ID = "artwork_info";
     private final Context mContext;
+    private final LifecycleOwner mLifecycleOwner;
     private HandlerThread mArtworkInfoShortcutHandlerThread;
-    private ContentObserver mArtworkInfoShortcutContentObserver;
+    private Handler mArtworkInfoShortcutHandler;
 
-    public ArtworkInfoShortcutController(Context context) {
+    public ArtworkInfoShortcutController(Context context, LifecycleOwner lifecycleOwner) {
         mContext = context;
+        mLifecycleOwner = lifecycleOwner;
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     public void registerContentObserver() {
         mArtworkInfoShortcutHandlerThread = new HandlerThread("MuzeiWallpaperService-ArtworkInfoShortcut");
         mArtworkInfoShortcutHandlerThread.start();
-        mArtworkInfoShortcutContentObserver = new ContentObserver(new Handler(
-                mArtworkInfoShortcutHandlerThread.getLooper())) {
-            @Override
-            public void onChange(final boolean selfChange, final Uri uri) {
-                updateShortcut();
-            }
-        };
-        mContext.getContentResolver().registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
-                true, mArtworkInfoShortcutContentObserver);
+        mArtworkInfoShortcutHandler = new Handler(mArtworkInfoShortcutHandlerThread.getLooper());
+        MuzeiDatabase.getInstance(mContext).artworkDao().getCurrentArtwork().observe(mLifecycleOwner,
+                new Observer<Artwork>() {
+                    @Override
+                    public void onChanged(@Nullable final Artwork artwork) {
+                        mArtworkInfoShortcutHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateShortcut(artwork);
+                            }
+                        });
+                    }
+                });
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     public void unregisterContentObserver() {
-        mContext.getContentResolver().unregisterContentObserver(mArtworkInfoShortcutContentObserver);
         mArtworkInfoShortcutHandlerThread.quitSafely();
     }
 
-    private void updateShortcut() {
-        Cursor data = mContext.getContentResolver().query(MuzeiContract.Artwork.CONTENT_URI,
-                new String[] {MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT}, null, null, null);
-        if (data == null) {
+    private void updateShortcut(Artwork artwork) {
+        if (artwork == null) {
             return;
         }
-        Intent artworkInfo = null;
-        if (data.moveToFirst()) {
-            try {
-                String viewIntent = data.getString(0);
-                if (!TextUtils.isEmpty(viewIntent)) {
-                    artworkInfo = Intent.parseUri(viewIntent, Intent.URI_INTENT_SCHEME);
-                }
-            } catch (URISyntaxException ignored) {
-            }
-        }
-        data.close();
         ShortcutManager shortcutManager = mContext.getSystemService(ShortcutManager.class);
         List<ShortcutInfo> dynamicShortcuts = shortcutManager.getDynamicShortcuts();
         ShortcutInfo artworkInfoShortcutInfo = null;
@@ -102,7 +93,7 @@ public class ArtworkInfoShortcutController implements LifecycleObserver {
             }
         }
 
-        if (artworkInfo != null) {
+        if (artwork.viewIntent != null) {
             if (artworkInfoShortcutInfo != null && !artworkInfoShortcutInfo.isEnabled()) {
                 // Re-enable a disabled Artwork Info Shortcut
                 shortcutManager.enableShortcuts(
@@ -113,7 +104,7 @@ public class ArtworkInfoShortcutController implements LifecycleObserver {
                     .setIcon(Icon.createWithResource(mContext,
                             R.drawable.ic_shortcut_artwork_info))
                     .setShortLabel(mContext.getString(R.string.action_artwork_info))
-                    .setIntent(artworkInfo.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION))
+                    .setIntent(artwork.viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION))
                     .build();
             shortcutManager.addDynamicShortcuts(
                     Collections.singletonList(shortcutInfo));

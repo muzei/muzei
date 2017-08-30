@@ -17,28 +17,26 @@
 package com.google.android.apps.muzei.gallery;
 
 import android.annotation.SuppressLint;
-import android.content.ContentProviderOperation;
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LifecycleRegistry;
+import android.arch.lifecycle.Observer;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.ContentObserver;
 import android.database.Cursor;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.RemoteException;
-import android.provider.BaseColumns;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.media.ExifInterface;
 import android.support.v4.content.ContextCompat;
@@ -54,13 +52,12 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-public class GalleryArtSource extends MuzeiArtSource {
+public class GalleryArtSource extends MuzeiArtSource implements LifecycleOwner {
     private static final String TAG = "GalleryArtSource";
     private static final String SOURCE_NAME = "GalleryArtSource";
 
@@ -85,43 +82,60 @@ public class GalleryArtSource extends MuzeiArtSource {
         sOmitCountryCodes.add("US");
     }
 
+    private final LifecycleRegistry mLifecycle = new LifecycleRegistry(this);
     private Geocoder mGeocoder;
-    private ContentObserver mContentObserver;
 
     public GalleryArtSource() {
         super(SOURCE_NAME);
     }
 
     @Override
+    public Lifecycle getLifecycle() {
+        return mLifecycle;
+    }
+
+    @Override
     public void onCreate() {
         super.onCreate();
+        mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START);
         mGeocoder = new Geocoder(this);
-        mContentObserver = new ContentObserver(new Handler()) {
-            private int numImages = 0;
 
-            @Override
-            public void onChange(boolean selfChange, Uri uri) {
-                int oldCount = numImages;
-                // Update the metadata
-                numImages = updateMeta();
+        GalleryDatabase.getInstance(this).chosenPhotoDao().getChosenPhotos().observe(this,
+                new Observer<List<ChosenPhoto>>() {
+                    private int numImages = -1;
 
-                Artwork currentArtwork = getCurrentArtwork();
-                Uri currentArtworkToken = currentArtwork != null && currentArtwork.getToken() != null
-                        ? Uri.parse(currentArtwork.getToken())
-                        : null;
-                if (uri.equals(currentArtworkToken)) {
-                    // We're showing a removed URI
-                    publishNextArtwork(null);
-                } else if (!GalleryContract.ChosenPhotos.CONTENT_URI.equals(uri)
-                        && oldCount == 0 && numImages > 0) {
-                    // If we've transitioned from a count of zero to a count greater than zero
-                    publishNextArtwork(uri);
-                }
-            }
-        };
-        // Make any changes since the last time the GalleryArtSource was created
-        mContentObserver.onChange(false, GalleryContract.ChosenPhotos.CONTENT_URI);
-        getContentResolver().registerContentObserver(GalleryContract.ChosenPhotos.CONTENT_URI, true, mContentObserver);
+                    @Override
+                    public void onChanged(@Nullable final List<ChosenPhoto> chosenPhotos) {
+                        int oldCount = numImages;
+                        // Update the metadata
+                        numImages = updateMeta(chosenPhotos);
+
+                        Artwork currentArtwork = getCurrentArtwork();
+                        Uri currentArtworkToken = currentArtwork != null && currentArtwork.getToken() != null
+                                ? Uri.parse(currentArtwork.getToken())
+                                : null;
+                        boolean foundCurrentArtwork = false;
+                        if (chosenPhotos != null) {
+                            for (ChosenPhoto chosenPhoto : chosenPhotos) {
+                                Uri chosenPhotoUri = chosenPhoto.getContentUri();
+                                if (chosenPhotoUri.equals(currentArtworkToken)) {
+                                    foundCurrentArtwork = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!foundCurrentArtwork) {
+                            // We're showing a removed URI
+                            startService(new Intent(GalleryArtSource.this, GalleryArtSource.class)
+                                    .setAction(ACTION_PUBLISH_NEXT_GALLERY_ITEM));
+                        } else if (oldCount == 0 && numImages > 0) {
+                            // If we've transitioned from a count of zero to a count greater than zero
+                            startService(new Intent(GalleryArtSource.this, GalleryArtSource.class)
+                                    .setAction(ACTION_PUBLISH_NEXT_GALLERY_ITEM)
+                                    .putExtra(EXTRA_FORCE_URI, chosenPhotos.get(0).getContentUri()));
+                        }
+                    }
+                });
     }
 
     @Override
@@ -135,7 +149,7 @@ public class GalleryArtSource extends MuzeiArtSource {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        getContentResolver().unregisterContentObserver(mContentObserver);
+        mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
     }
 
     @Override
@@ -154,7 +168,7 @@ public class GalleryArtSource extends MuzeiArtSource {
     @Override
     protected void onUpdate(@UpdateReason int reason) {
         if (reason == UPDATE_REASON_INITIAL) {
-            updateMeta();
+            updateMeta(GalleryDatabase.getInstance(this).chosenPhotoDao().getChosenPhotosBlocking());
         }
         publishNextArtwork(null);
     }
@@ -167,11 +181,9 @@ public class GalleryArtSource extends MuzeiArtSource {
         // schedule next
         scheduleNext();
 
-        Cursor chosenUris = getContentResolver().query(GalleryContract.ChosenPhotos.CONTENT_URI,
-                new String[] { BaseColumns._ID, GalleryContract.ChosenPhotos.COLUMN_NAME_URI,
-                        GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI },
-                null, null, null);
-        int numChosenUris = (chosenUris != null) ? chosenUris.getCount() : 0;
+        List<ChosenPhoto> chosenPhotos = GalleryDatabase.getInstance(this)
+                .chosenPhotoDao().getChosenPhotosBlocking();
+        int numChosenUris = (chosenPhotos != null) ? chosenPhotos.size() : 0;
 
         Artwork currentArtwork = getCurrentArtwork();
         Uri lastImageUri = (currentArtwork != null) ? currentArtwork.getImageUri() : null;
@@ -182,34 +194,24 @@ public class GalleryArtSource extends MuzeiArtSource {
             // Assume the forceUri is to a single image
             imageUri = token = forceUri;
             // But if it is a tree URI, pick a random image to show from that tree
-            Cursor data = getContentResolver().query(forceUri,
-                    new String[] { GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI,
-                            GalleryContract.ChosenPhotos.COLUMN_NAME_URI },
-                    null, null, null);
-            if (data != null && data.moveToNext()) {
-                boolean isTreeUri = data.getInt(0) != 0;
-                if (isTreeUri && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    Uri treeUri = Uri.parse(data.getString(1));
+            ChosenPhoto chosenPhoto = GalleryDatabase.getInstance(this)
+                    .chosenPhotoDao().getChosenPhotoBlocking(ContentUris.parseId(forceUri));
+            if (chosenPhoto != null)  {
+                if (chosenPhoto.isTreeUri && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    Uri treeUri = chosenPhoto.uri;
                     List<Uri> photoUris = new ArrayList<>();
                     addAllImagesFromTree(photoUris, treeUri, DocumentsContract.getTreeDocumentId(treeUri));
                     imageUri = photoUris.get(new Random().nextInt(photoUris.size()));
                 }
             }
-            if (data != null) {
-                data.close();
-            }
         } else if (numChosenUris > 0) {
             // First build a list of all image URIs, recursively exploring any tree URIs that were added
             List<Uri> allImages = new ArrayList<>(numChosenUris);
             List<Uri> tokens = new ArrayList<>(numChosenUris);
-            while (chosenUris.moveToNext()) {
-                Uri chosenUri = ContentUris.withAppendedId(GalleryContract.ChosenPhotos.CONTENT_URI,
-                        chosenUris.getLong(chosenUris.getColumnIndex(BaseColumns._ID)));
-                boolean isTreeUri = chosenUris.getInt(
-                        chosenUris.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI)) != 0;
-                if (isTreeUri && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    Uri treeUri = Uri.parse(chosenUris.getString(
-                            chosenUris.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_URI)));
+            for (ChosenPhoto chosenPhoto : chosenPhotos) {
+                Uri chosenUri = chosenPhoto.getContentUri();
+                if (chosenPhoto.isTreeUri && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    Uri treeUri = chosenPhoto.uri;
                     int numAdded = addAllImagesFromTree(allImages, treeUri,
                             DocumentsContract.getTreeDocumentId(treeUri));
                     for (int h=0; h<numAdded; h++) {
@@ -268,34 +270,14 @@ public class GalleryArtSource extends MuzeiArtSource {
 
             cursor.close();
         }
-        if (chosenUris != null) {
-            chosenUris.close();
-        }
 
         // Retrieve metadata for item
-        ensureMetadataExists(imageUri);
-        String[] projection = {
-                GalleryContract.MetadataCache.COLUMN_NAME_DATETIME,
-                GalleryContract.MetadataCache.COLUMN_NAME_LOCATION};
-        Cursor metadata = getContentResolver().query(GalleryContract.MetadataCache.CONTENT_URI,
-                projection,
-                GalleryContract.MetadataCache.COLUMN_NAME_URI + "=?",
-                new String[] { imageUri.toString() },
-                null);
-        long datetime = 0;
-        String location = null;
-        if (metadata != null && metadata.moveToFirst()) {
-            datetime = metadata.getLong(metadata.getColumnIndex(GalleryContract.MetadataCache.COLUMN_NAME_DATETIME));
-            location = metadata.getString(metadata.getColumnIndex(GalleryContract.MetadataCache.COLUMN_NAME_LOCATION));
-        }
-        if (metadata != null) {
-            metadata.close();
-        }
+        Metadata metadata = ensureMetadataExists(imageUri);
 
         // Publish the actual artwork
         String title;
-        if (datetime > 0) {
-            title = DateUtils.formatDateTime(this, datetime,
+        if (metadata != null && metadata.date != null) {
+            title = DateUtils.formatDateTime(this, metadata.date.getTime(),
                     DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR
                             | DateUtils.FORMAT_SHOW_WEEKDAY);
         } else {
@@ -303,8 +285,8 @@ public class GalleryArtSource extends MuzeiArtSource {
         }
 
         String byline;
-        if (!TextUtils.isEmpty(location)) {
-            byline = location;
+        if (metadata != null && !TextUtils.isEmpty(metadata.location)) {
+            byline = metadata.location;
         } else {
             byline = getString(R.string.gallery_touch_to_view);
         }
@@ -355,42 +337,31 @@ public class GalleryArtSource extends MuzeiArtSource {
         return numImagesAdded;
     }
 
-    private int updateMeta() {
-        Cursor chosenUris = getContentResolver().query(GalleryContract.ChosenPhotos.CONTENT_URI,
-                new String[] {
-                        BaseColumns._ID,
-                        GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI,
-                        GalleryContract.ChosenPhotos.COLUMN_NAME_URI },
-                null, null, null);
+    private int updateMeta(List<ChosenPhoto> chosenPhotos) {
         int numImages = 0;
-        ArrayList<ContentProviderOperation> rowsToDelete = new ArrayList<>();
-        while (chosenUris != null && chosenUris.moveToNext()) {
-            boolean isTreeUri = chosenUris.getInt(
-                    chosenUris.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_IS_TREE_URI)) != 0;
-            if (isTreeUri && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                Uri treeUri = Uri.parse(chosenUris.getString(
-                        chosenUris.getColumnIndex(GalleryContract.ChosenPhotos.COLUMN_NAME_URI)));
+        final ArrayList<Long> idsToDelete = new ArrayList<>();
+        for (ChosenPhoto chosenPhoto : chosenPhotos) {
+            if (chosenPhoto.isTreeUri && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                Uri treeUri = chosenPhoto.uri;
                 try {
                     numImages += addAllImagesFromTree(null, treeUri, DocumentsContract.getTreeDocumentId(treeUri));
                 } catch (SecurityException e) {
                     Log.w(TAG, "Unable to load images from " + treeUri + ", deleting row", e);
-                    rowsToDelete.add(ContentProviderOperation.newDelete(
-                            ContentUris.withAppendedId(GalleryContract.ChosenPhotos.CONTENT_URI,
-                                    chosenUris.getLong(chosenUris.getColumnIndex(BaseColumns._ID)))).build());
+                    idsToDelete.add(chosenPhoto.id);
                 }
             } else {
                 numImages++;
             }
         }
-        if (chosenUris != null) {
-            chosenUris.close();
-        }
-        if (!rowsToDelete.isEmpty()) {
-            try {
-                getContentResolver().applyBatch(GalleryContract.AUTHORITY, rowsToDelete);
-            } catch (RemoteException | OperationApplicationException e) {
-                Log.e(TAG, "Error deleting invalid rows", e);
-            }
+        if (!idsToDelete.isEmpty()) {
+            final Context applicationContext = getApplicationContext();
+            new Thread() {
+                @Override
+                public void run() {
+                    GalleryDatabase.getInstance(applicationContext).chosenPhotoDao()
+                            .delete(applicationContext, idsToDelete);
+                }
+            }.start();
         }
         setDescription(numImages > 0
                 ? getResources().getQuantityString(
@@ -413,73 +384,66 @@ public class GalleryArtSource extends MuzeiArtSource {
         }
     }
 
-    private void ensureMetadataExists(@NonNull Uri imageUri) {
-        Cursor existingMetadata = getContentResolver().query(GalleryContract.MetadataCache.CONTENT_URI,
-                new String[] {BaseColumns._ID},
-                GalleryContract.MetadataCache.COLUMN_NAME_URI + "=?",
-                new String[] { imageUri.toString() },
-                null);
-        if (existingMetadata == null) {
-            return;
+    private Metadata ensureMetadataExists(@NonNull Uri imageUri) {
+        MetadataDao metadataDao = GalleryDatabase.getInstance(this).metadataDao();
+        Metadata existingMetadata = metadataDao.getMetadataForUri(imageUri);
+        if (existingMetadata != null) {
+            return existingMetadata;
         }
-        boolean metadataExists = existingMetadata.moveToFirst();
-        existingMetadata.close();
-        if (!metadataExists) {
-            // No cached metadata or it's stale, need to pull it separately using Exif
-            ContentValues values = new ContentValues();
-            values.put(GalleryContract.MetadataCache.COLUMN_NAME_URI, imageUri.toString());
+        // No cached metadata or it's stale, need to pull it separately using Exif
+        Metadata metadata = new Metadata(imageUri);
 
-            try (InputStream in = getContentResolver().openInputStream(imageUri)) {
-                if (in == null) {
-                    return;
-                }
-                ExifInterface exifInterface = new ExifInterface(in);
-                String dateString = exifInterface.getAttribute(ExifInterface.TAG_DATETIME);
-                if (!TextUtils.isEmpty(dateString)) {
-                    Date date = sExifDateFormat.parse(dateString);
-                    values.put(GalleryContract.MetadataCache.COLUMN_NAME_DATETIME, date.getTime());
-                }
-
-                double[] latlong = exifInterface.getLatLong();
-                if (latlong != null) {
-                    // Reverse geocode
-                    List<Address> addresses = null;
-                    try {
-                        addresses = mGeocoder.getFromLocation(latlong[0], latlong[1], 1);
-                    } catch (IllegalArgumentException e) {
-                        Log.w(TAG, "Invalid latitude/longitude, skipping location metadata", e);
-                    }
-                    if (addresses != null && addresses.size() > 0) {
-                        Address addr = addresses.get(0);
-                        String locality = addr.getLocality();
-                        String adminArea = addr.getAdminArea();
-                        String countryCode = addr.getCountryCode();
-                        StringBuilder sb = new StringBuilder();
-                        if (!TextUtils.isEmpty(locality)) {
-                            sb.append(locality);
-                        }
-                        if (!TextUtils.isEmpty(adminArea)) {
-                            if (sb.length() > 0) {
-                                sb.append(", ");
-                            }
-                            sb.append(adminArea);
-                        }
-                        if (!TextUtils.isEmpty(countryCode)
-                                && !sOmitCountryCodes.contains(countryCode)) {
-                            if (sb.length() > 0) {
-                                sb.append(", ");
-                            }
-                            sb.append(countryCode);
-                        }
-                        values.put(GalleryContract.MetadataCache.COLUMN_NAME_LOCATION, sb.toString());
-                    }
-                }
-
-                getContentResolver().insert(GalleryContract.MetadataCache.CONTENT_URI, values);
-            } catch (ParseException|IOException|IllegalArgumentException|StackOverflowError
-                    |NullPointerException|SecurityException e) {
-                Log.w(TAG, "Couldn't read image metadata.", e);
+        try (InputStream in = getContentResolver().openInputStream(imageUri)) {
+            if (in == null) {
+                return null;
             }
+            ExifInterface exifInterface = new ExifInterface(in);
+            String dateString = exifInterface.getAttribute(ExifInterface.TAG_DATETIME);
+            if (!TextUtils.isEmpty(dateString)) {
+                metadata.date = sExifDateFormat.parse(dateString);
+            }
+
+            double[] latlong = exifInterface.getLatLong();
+            if (latlong != null) {
+                // Reverse geocode
+                List<Address> addresses = null;
+                try {
+                    addresses = mGeocoder.getFromLocation(latlong[0], latlong[1], 1);
+                } catch (IllegalArgumentException e) {
+                    Log.w(TAG, "Invalid latitude/longitude, skipping location metadata", e);
+                }
+                if (addresses != null && addresses.size() > 0) {
+                    Address addr = addresses.get(0);
+                    String locality = addr.getLocality();
+                    String adminArea = addr.getAdminArea();
+                    String countryCode = addr.getCountryCode();
+                    StringBuilder sb = new StringBuilder();
+                    if (!TextUtils.isEmpty(locality)) {
+                        sb.append(locality);
+                    }
+                    if (!TextUtils.isEmpty(adminArea)) {
+                        if (sb.length() > 0) {
+                            sb.append(", ");
+                        }
+                        sb.append(adminArea);
+                    }
+                    if (!TextUtils.isEmpty(countryCode)
+                            && !sOmitCountryCodes.contains(countryCode)) {
+                        if (sb.length() > 0) {
+                            sb.append(", ");
+                        }
+                        sb.append(countryCode);
+                    }
+                    metadata.location = sb.toString();
+                }
+            }
+
+            metadataDao.insert(metadata);
+            return metadata;
+        } catch (ParseException|IOException|IllegalArgumentException|StackOverflowError
+                |NullPointerException|SecurityException e) {
+            Log.w(TAG, "Couldn't read image metadata.", e);
         }
+        return null;
     }
 }

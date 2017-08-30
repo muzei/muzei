@@ -16,7 +16,6 @@
 
 package com.google.android.apps.muzei.provider;
 
-import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -33,7 +32,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.net.Uri;
-import android.os.Binder;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.ParcelFileDescriptor;
@@ -46,6 +44,10 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
+import com.google.android.apps.muzei.room.Artwork;
+import com.google.android.apps.muzei.room.ArtworkDao;
+import com.google.android.apps.muzei.room.MuzeiDatabase;
+import com.google.android.apps.muzei.room.Source;
 
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig;
 import net.nurik.roman.muzei.androidclientcommon.R;
@@ -57,6 +59,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -106,18 +109,6 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
             DocumentsContract.Document.COLUMN_SIZE,
             DocumentsContract.Document.COLUMN_LAST_MODIFIED};
 
-    private static final String[] ARTWORK_PROJECTION = new String[]{
-            MuzeiContract.Artwork._ID,
-            MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI,
-            MuzeiContract.Artwork.COLUMN_NAME_TITLE,
-            MuzeiContract.Artwork.COLUMN_NAME_BYLINE,
-            MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED};
-
-    private static final String[] SOURCE_PROJECTION = new String[]{
-            MuzeiContract.Sources._ID,
-            MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME,
-            MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION};
-
     private static final String ROOT_DOCUMENT_ID = "root";
     private static final String BY_DATE_DOCUMENT_ID = "by_date";
     private static final String BY_SOURCE_DOCUMENT_ID = "by_source";
@@ -133,7 +124,7 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
             String documentId = DocumentsContract.getDocumentId(documentUri);
             if (documentId != null && documentId.startsWith(ARTWORK_DOCUMENT_ID_PREFIX)) {
                 long artworkId = Long.parseLong(documentId.replace(ARTWORK_DOCUMENT_ID_PREFIX, ""));
-                return ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI, artworkId);
+                return Artwork.getContentUri(artworkId);
             }
         } catch (IllegalArgumentException e) {
             // We'll get an IllegalArgumentException on tree URIs, but these don't correspond with
@@ -229,19 +220,14 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
     @Override
     public Cursor querySearchDocuments(final String rootId, final String query, final String[] projection) throws FileNotFoundException {
         final MatrixCursor result = new MatrixCursor(projection != null ? projection : DEFAULT_DOCUMENT_PROJECTION);
-        ContentResolver contentResolver = getContext() != null ? getContext().getContentResolver() : null;
-        if (contentResolver == null) {
+        Context context = getContext();
+        if (context == null) {
             return result;
         }
-        String selection = MuzeiContract.Artwork.COLUMN_NAME_TITLE + " LIKE ? OR " +
-                MuzeiContract.Artwork.COLUMN_NAME_BYLINE + " LIKE ? OR " +
-                MuzeiContract.Artwork.COLUMN_NAME_ATTRIBUTION + " LIKE ?";
+
         String likeAnyPositionQuery = "%" + query + "%";
-        includeAllArtwork(result, contentResolver.query(
-                MuzeiContract.Artwork.CONTENT_URI, ARTWORK_PROJECTION,
-                selection,
-                new String[] { likeAnyPositionQuery, likeAnyPositionQuery, likeAnyPositionQuery },
-                MuzeiContract.Artwork.DEFAULT_SORT_ORDER));
+        includeAllArtwork(result, MuzeiDatabase.getInstance(context).artworkDao()
+                .searchArtworkBlocking(likeAnyPositionQuery));
         return result;
     }
 
@@ -259,21 +245,12 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
                 long sourceId = Long.parseLong(parentDocumentId.replace(SOURCE_DOCUMENT_ID_PREFIX, ""));
                 long artworkId = Long.parseLong(documentId.replace(ARTWORK_DOCUMENT_ID_PREFIX, ""));
                 String[] projection = new String[] { MuzeiContract.Sources.TABLE_NAME + "." + BaseColumns._ID };
-                ContentResolver contentResolver = getContext() != null ? getContext().getContentResolver() : null;
-                if (contentResolver == null) {
+                Context context = getContext();
+                if (context == null) {
                     return false;
                 }
-                Cursor data = contentResolver.query(
-                        ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI, artworkId),
-                        projection, null, null, null);
-                if (data == null) {
-                    return false;
-                }
-                long artworkSourceId = -1;
-                if (data.moveToFirst()) {
-                    artworkSourceId = data.getLong(0);
-                }
-                data.close();
+                long artworkSourceId = MuzeiDatabase.getInstance(context).sourceDao()
+                        .getSourceIdForArtworkId(artworkId);
                 // The source id of the parent must match the artwork's source id for it to be a child
                 return sourceId == artworkSourceId;
             }
@@ -296,27 +273,23 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
     @Override
     public Cursor queryChildDocuments(String parentDocumentId, String[] projection, String sortOrder) throws FileNotFoundException {
         final MatrixCursor result = new MatrixCursor(projection != null ? projection : DEFAULT_DOCUMENT_PROJECTION);
-        ContentResolver contentResolver = getContext() != null ? getContext().getContentResolver() : null;
-        if (contentResolver == null) {
+        Context context = getContext();
+        if (context == null) {
             return result;
         }
         if (ROOT_DOCUMENT_ID.equals(parentDocumentId)) {
             includeByDateRow(result.newRow());
             includeBySourceRow(result.newRow());
-        } else if (BY_DATE_DOCUMENT_ID.equals(parentDocumentId)) {
-            includeAllArtwork(result, contentResolver.query(
-                    MuzeiContract.Artwork.CONTENT_URI, ARTWORK_PROJECTION, null, null,
-                    MuzeiContract.Artwork.DEFAULT_SORT_ORDER));
-        } else if (BY_SOURCE_DOCUMENT_ID.equals(parentDocumentId)) {
-            includeAllSources(result, contentResolver.query(
-                    MuzeiContract.Sources.CONTENT_URI, SOURCE_PROJECTION, null, null, null));
-        } else if (parentDocumentId != null && parentDocumentId.startsWith(SOURCE_DOCUMENT_ID_PREFIX)) {
-            long sourceId = Long.parseLong(parentDocumentId.replace(SOURCE_DOCUMENT_ID_PREFIX, ""));
-            includeAllArtwork(result, contentResolver.query(
-                    MuzeiContract.Artwork.CONTENT_URI, ARTWORK_PROJECTION,
-                    MuzeiContract.Sources.TABLE_NAME + "." + BaseColumns._ID + "=?",
-                    new String[] { Long.toString(sourceId) },
-                    null));
+        } else {
+            MuzeiDatabase database = MuzeiDatabase.getInstance(context);
+            if (BY_DATE_DOCUMENT_ID.equals(parentDocumentId)) {
+                includeAllArtwork(result, database.artworkDao().getArtworkBlocking());
+            } else if (BY_SOURCE_DOCUMENT_ID.equals(parentDocumentId)) {
+                includeAllSources(result, database.sourceDao().getSourcesBlocking());
+            } else if (parentDocumentId != null && parentDocumentId.startsWith(SOURCE_DOCUMENT_ID_PREFIX)) {
+                long sourceId = Long.parseLong(parentDocumentId.replace(SOURCE_DOCUMENT_ID_PREFIX, ""));
+                includeAllArtwork(result, database.artworkDao().getArtworkForSourceIdBlocking(sourceId));
+            }
         }
         return result;
     }
@@ -349,100 +322,74 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
         row.add(DocumentsContract.Document.COLUMN_SIZE, null);
     }
 
-    private void includeAllArtwork(MatrixCursor result, Cursor data) {
-        if (data == null) {
-            return;
-        }
-        ContentResolver contentResolver = getContext() != null ? getContext().getContentResolver() : null;
-        if (contentResolver == null) {
-            data.close();
-            return;
-        }
-        // Retrieve the latest artwork _ID for use when determining whether the user should be
-        // able to delete the artwork
-        Cursor currentArtwork = contentResolver.query(MuzeiContract.Artwork.CONTENT_URI,
-                new String[] { BaseColumns._ID }, null, null, null);
-        if (currentArtwork == null || !currentArtwork.moveToFirst()) {
-            data.close();
-            if (currentArtwork != null) {
-                currentArtwork.close();
-            }
-            return;
-        }
-        long currentArtworkId = currentArtwork.getLong(0);
-        currentArtwork.close();
-        // Add the artwork from the given Cursor
-        Set<String> addedImageUris = new HashSet<>();
-        data.moveToFirst();
-        while (!data.isAfterLast()) {
-            String imageUri = data.getString(data.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI));
-            // We can't skip null image URIs (those are unique images), but we do want to skip
-            // duplicates of the same underlying artwork as determined by a shared image URI
-            if (TextUtils.isEmpty(imageUri) || !addedImageUris.contains(imageUri)) {
-                if (!TextUtils.isEmpty(imageUri)) {
-                    addedImageUris.add(imageUri);
-                }
-                final MatrixCursor.RowBuilder row = result.newRow();
-                long id = data.getLong(data.getColumnIndex(BaseColumns._ID));
-                row.add(DocumentsContract.Document.COLUMN_DOCUMENT_ID,
-                        ARTWORK_DOCUMENT_ID_PREFIX + Long.toString(id));
-                String title = data.getString(data.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_TITLE));
-                row.add(DocumentsContract.Document.COLUMN_DISPLAY_NAME, title);
-                String byline = data.getString(data.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_BYLINE));
-                row.add(DocumentsContract.Document.COLUMN_SUMMARY, byline);
-                row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, "image/*");
-                // Don't allow deleting the currently displayed artwork
-                row.add(DocumentsContract.Document.COLUMN_FLAGS,
-                        DocumentsContract.Document.FLAG_SUPPORTS_THUMBNAIL |
-                        (id != currentArtworkId ? DocumentsContract.Document.FLAG_SUPPORTS_DELETE : 0));
-                row.add(DocumentsContract.Document.COLUMN_SIZE, null);
-                long dateAdded = data.getLong(data.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED));
-                row.add(DocumentsContract.Document.COLUMN_LAST_MODIFIED, dateAdded);
-            }
-            data.moveToNext();
-        }
-        data.close();
-    }
-
-    private void includeAllSources(MatrixCursor result, Cursor data) {
-        if (data == null) {
+    private void includeAllArtwork(MatrixCursor result, List<Artwork> artworkList) {
+        if (artworkList == null) {
             return;
         }
         Context context = getContext();
         if (context == null) {
-            data.close();
             return;
         }
-        data.moveToFirst();
-        while (!data.isAfterLast()) {
+        long currentArtworkId = MuzeiDatabase.getInstance(context).artworkDao().getCurrentArtworkBlocking().id;
+        // Add the artwork from the given List
+        Set<Uri> addedImageUris = new HashSet<>();
+        for (Artwork artwork : artworkList) {
+            // We can't skip null image URIs (those are unique images), but we do want to skip
+            // duplicates of the same underlying artwork as determined by a shared image URI
+            if (artwork.imageUri == null || !addedImageUris.contains(artwork.imageUri)) {
+                if (artwork.imageUri != null) {
+                    addedImageUris.add(artwork.imageUri);
+                }
+                final MatrixCursor.RowBuilder row = result.newRow();
+                row.add(DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                        ARTWORK_DOCUMENT_ID_PREFIX + Long.toString(artwork.id));
+                row.add(DocumentsContract.Document.COLUMN_DISPLAY_NAME, artwork.title);
+                row.add(DocumentsContract.Document.COLUMN_SUMMARY, artwork.byline);
+                row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, "image/*");
+                // Don't allow deleting the currently displayed artwork
+                row.add(DocumentsContract.Document.COLUMN_FLAGS,
+                        DocumentsContract.Document.FLAG_SUPPORTS_THUMBNAIL |
+                        (artwork.id != currentArtworkId ? DocumentsContract.Document.FLAG_SUPPORTS_DELETE : 0));
+                row.add(DocumentsContract.Document.COLUMN_SIZE, null);
+                row.add(DocumentsContract.Document.COLUMN_LAST_MODIFIED, artwork.dateAdded.getTime());
+            }
+        }
+    }
+
+    private void includeAllSources(MatrixCursor result, List<Source> sources) {
+        if (sources == null) {
+            return;
+        }
+        Context context = getContext();
+        if (context == null) {
+            return;
+        }
+        for (Source source : sources) {
             final MatrixCursor.RowBuilder row = result.newRow();
-            long id = data.getLong(data.getColumnIndex(BaseColumns._ID));
             row.add(DocumentsContract.Document.COLUMN_DOCUMENT_ID,
-                    SOURCE_DOCUMENT_ID_PREFIX + Long.toString(id));
+                    SOURCE_DOCUMENT_ID_PREFIX + Long.toString(source.id));
             row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, DocumentsContract.Document.MIME_TYPE_DIR);
             row.add(DocumentsContract.Document.COLUMN_FLAGS,
                     DocumentsContract.Document.FLAG_DIR_PREFERS_GRID |
                     DocumentsContract.Document.FLAG_DIR_PREFERS_LAST_MODIFIED);
             row.add(DocumentsContract.Document.COLUMN_SIZE, null);
-            ComponentName componentName = ComponentName.unflattenFromString(
-                    data.getString(data.getColumnIndex(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME)));
             Intent sourceIntent = new Intent();
-            sourceIntent.setComponent(componentName);
+            sourceIntent.setComponent(source.componentName);
             PackageManager packageManager = context.getPackageManager();
             List<ResolveInfo> resolveInfoList = packageManager.queryIntentServices(sourceIntent, 0);
             if (resolveInfoList.isEmpty()) {
-                row.add(DocumentsContract.Document.COLUMN_DISPLAY_NAME, componentName.getShortClassName());
+                row.add(DocumentsContract.Document.COLUMN_DISPLAY_NAME, source.componentName.getShortClassName());
                 continue;
             }
             ResolveInfo resolveInfo = resolveInfoList.get(0);
             String title = resolveInfo.loadLabel(packageManager).toString();
             row.add(DocumentsContract.Document.COLUMN_DISPLAY_NAME, title);
-            String description = data.getString(data.getColumnIndex(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION));
+            String description = source.description;
             if (TextUtils.isEmpty(description) && resolveInfo.serviceInfo.descriptionRes != 0) {
                 // Load the default description
                 try {
                     Context packageContext = context.createPackageContext(
-                            componentName.getPackageName(), 0);
+                            source.componentName.getPackageName(), 0);
                     Resources packageRes = packageContext.getResources();
                     description = packageRes.getString(resolveInfo.serviceInfo.descriptionRes);
                 } catch (PackageManager.NameNotFoundException ignored) {
@@ -451,16 +398,14 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
             if (!TextUtils.isEmpty(description)) {
                 row.add(DocumentsContract.Document.COLUMN_SUMMARY, description);
             }
-            data.moveToNext();
         }
-        data.close();
     }
 
     @Override
     public Cursor queryDocument(String documentId, String[] projection) throws FileNotFoundException {
         final MatrixCursor result = new MatrixCursor(projection != null ? projection : DEFAULT_DOCUMENT_PROJECTION);
-        ContentResolver contentResolver = getContext() != null ? getContext().getContentResolver() : null;
-        if (contentResolver == null) {
+        Context context = getContext();
+        if (context == null) {
             return result;
         }
         if (ROOT_DOCUMENT_ID.equals(documentId)) {
@@ -477,14 +422,12 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
             includeBySourceRow(result.newRow());
         } else if (documentId != null && documentId.startsWith(ARTWORK_DOCUMENT_ID_PREFIX)) {
             long artworkId = Long.parseLong(documentId.replace(ARTWORK_DOCUMENT_ID_PREFIX, ""));
-            includeAllArtwork(result, contentResolver.query(
-                    ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI, artworkId),
-                    ARTWORK_PROJECTION, null, null, null));
+            includeAllArtwork(result, Collections.singletonList(
+                    MuzeiDatabase.getInstance(context).artworkDao().getArtworkById(artworkId)));
         } else if (documentId != null && documentId.startsWith(SOURCE_DOCUMENT_ID_PREFIX)) {
             long sourceId = Long.parseLong(documentId.replace(SOURCE_DOCUMENT_ID_PREFIX, ""));
-            includeAllSources(result, contentResolver.query(
-                    ContentUris.withAppendedId(MuzeiContract.Sources.CONTENT_URI, sourceId),
-                    SOURCE_PROJECTION, null, null, null));
+            includeAllSources(result, Collections.singletonList(
+                    MuzeiDatabase.getInstance(context).sourceDao().getSourceById(sourceId)));
         }
         return result;
     }
@@ -499,16 +442,14 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
             return null;
         }
         long artworkId = Long.parseLong(documentId.replace(ARTWORK_DOCUMENT_ID_PREFIX, ""));
-        return contentResolver.openFileDescriptor(
-                ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI, artworkId), mode, signal);
+        return contentResolver.openFileDescriptor(Artwork.getContentUri(artworkId), mode, signal);
     }
 
     @Override
     public AssetFileDescriptor openDocumentThumbnail(final String documentId, final Point sizeHint, final CancellationSignal signal) throws FileNotFoundException {
         if (documentId != null && documentId.startsWith(ARTWORK_DOCUMENT_ID_PREFIX)) {
             long artworkId = Long.parseLong(documentId.replace(ARTWORK_DOCUMENT_ID_PREFIX, ""));
-            Uri artworkUri = ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI, artworkId);
-            return openArtworkThumbnail(artworkUri, sizeHint, signal);
+            return openArtworkThumbnail(Artwork.getContentUri(artworkId), sizeHint, signal);
         }
         return null;
     }
@@ -518,7 +459,8 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
         if (contentResolver == null) {
             return null;
         }
-        File tempFile = getCacheFileForArtworkUri(artworkUri);
+        long artworkId = ContentUris.parseId(artworkUri);
+        File tempFile = getCacheFileForArtworkUri(artworkId);
         if (tempFile != null && tempFile.exists() && tempFile.length() != 0) {
             // We already have a cached thumbnail
             return new AssetFileDescriptor(ParcelFileDescriptor.open(tempFile, ParcelFileDescriptor.MODE_READ_ONLY), 0,
@@ -568,7 +510,7 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
     }
 
     // This is very similar to MuzeiProvider.getCacheFileForArtworkUri, but uses the getCacheDir()
-    private File getCacheFileForArtworkUri(@NonNull Uri artworkUri) {
+    private File getCacheFileForArtworkUri(long artworkId) {
         Context context = getContext();
         if (context == null) {
             return null;
@@ -577,27 +519,18 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
         if (!directory.exists() && !directory.mkdirs()) {
             return null;
         }
-        String[] projection = { BaseColumns._ID, MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI };
-        Cursor data = getContext().getContentResolver().query(artworkUri, projection, null, null, null);
-        if (data == null) {
+        Artwork artwork = MuzeiDatabase.getInstance(context).artworkDao().getArtworkById(artworkId);
+        if (artwork == null) {
             return null;
         }
-        if (!data.moveToFirst()) {
-            throw new IllegalStateException("Invalid URI: " + artworkUri);
-        }
-        // While normally we'd use data.getLong(), we later need this as a String so the automatic conversion helps here
-        String id = data.getString(0);
-        String imageUri = data.getString(1);
-        data.close();
-        if (TextUtils.isEmpty(imageUri)) {
-            return new File(directory, id);
+        if (artwork.imageUri == null) {
+            return new File(directory, Long.toString(artwork.id));
         }
         // Otherwise, create a unique filename based on the imageUri
-        Uri uri = Uri.parse(imageUri);
         StringBuilder filename = new StringBuilder();
-        filename.append(uri.getScheme()).append("_")
-                .append(uri.getHost()).append("_");
-        String encodedPath = uri.getEncodedPath();
+        filename.append(artwork.imageUri.getScheme()).append("_")
+                .append(artwork.imageUri.getHost()).append("_");
+        String encodedPath = artwork.imageUri.getEncodedPath();
         if (!TextUtils.isEmpty(encodedPath)) {
             int length = encodedPath.length();
             if (length > 60) {
@@ -608,7 +541,7 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
         }
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
-            md.update(uri.toString().getBytes("UTF-8"));
+            md.update(artwork.imageUri.toString().getBytes("UTF-8"));
             byte[] digest = md.digest();
             for (byte b : digest) {
                 if ((0xff & b) < 0x10) {
@@ -618,7 +551,7 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
                 }
             }
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-            filename.append(uri.toString().hashCode());
+            filename.append(artwork.imageUri.toString().hashCode());
         }
         return new File(directory, filename.toString());
     }
@@ -628,14 +561,13 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
         if (documentId == null || !documentId.startsWith(ARTWORK_DOCUMENT_ID_PREFIX)) {
             return;
         }
-        ContentResolver contentResolver = getContext() != null ? getContext().getContentResolver() : null;
-        if (contentResolver == null) {
+        Context context = getContext();
+        if (context == null) {
             return;
         }
         long artworkId = Long.parseLong(documentId.replace(ARTWORK_DOCUMENT_ID_PREFIX, ""));
-        Uri artworkUri = ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI, artworkId);
         // Delete any thumbnail we have cached
-        File thumbnail = getCacheFileForArtworkUri(artworkUri);
+        File thumbnail = getCacheFileForArtworkUri(artworkId);
         if (thumbnail != null && thumbnail.exists()) {
             thumbnail.delete();
         }
@@ -646,50 +578,27 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
         // artwork.
 
         // First we check the image URI
-        Cursor data = contentResolver.query(artworkUri,
-                new String[] { MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI }, null, null, null);
-        if (data == null) {
+        ArtworkDao artworkDao = MuzeiDatabase.getInstance(context).artworkDao();
+        Artwork artwork = artworkDao.getArtworkById(artworkId);
+        if (artwork == null) {
             return;
         }
-        if (!data.moveToFirst()) {
-            throw new IllegalStateException("Invalid URI: " + artworkUri);
-        }
-        String imageUri = data.getString(0);
-        data.close();
 
-        if (TextUtils.isEmpty(imageUri)) {
+        if (artwork.imageUri == null) {
             // The easy case: this is a unique image URI and we can just delete the single row.
             revokeDocumentPermission(documentId);
-            // Clear the calling identity to denote that this delete request is coming from
-            // Muzei itself, even if it is on behalf of the user or an app the user has trusted
-            long token = Binder.clearCallingIdentity();
-            contentResolver.delete(artworkUri, null, null);
-            Binder.restoreCallingIdentity(token);
+            artworkDao.delete(context, artwork);
         } else {
             // The hard case: we're actually deleting every row with that image URI
-            data = contentResolver.query(MuzeiContract.Artwork.CONTENT_URI,
-                    new String[] { BaseColumns._ID },
-                    MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI + "=?",
-                    new String[] { imageUri }, null);
-            if (data == null) {
+            List<Artwork> artworkToDelete = artworkDao.getArtworkByImageUri(artwork.imageUri);
+            if (artworkToDelete == null) {
                 return;
             }
-            data.moveToFirst();
-            while (!data.isAfterLast()) {
+            for (Artwork art : artworkToDelete) {
                 // We want to make sure every document being deleted is revoked
-                revokeDocumentPermission(ARTWORK_DOCUMENT_ID_PREFIX + data.getLong(0));
-                data.moveToNext();
+                revokeDocumentPermission(ARTWORK_DOCUMENT_ID_PREFIX + art.id);
             }
-            data.close();
-            // Clear the calling identity to denote that this delete request is coming from
-            // Muzei itself, even if it is on behalf of the user or an app the user has trusted
-            long token = Binder.clearCallingIdentity();
-            //noinspection MissingPermission
-            contentResolver.delete(
-                    MuzeiContract.Artwork.CONTENT_URI,
-                    MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI + "=?",
-                    new String[] { imageUri });
-            Binder.restoreCallingIdentity(token);
+            artworkDao.deleteByImageUri(context, artwork.imageUri);
         }
     }
 

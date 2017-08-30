@@ -1,0 +1,173 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 4,
+    "identityHash": "8a9d7da9db1263437e8631a92cfe26ee",
+    "entities": [
+      {
+        "tableName": "Artwork",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `sourceComponentName` TEXT, `imageUri` TEXT, `title` TEXT, `byline` TEXT, `attribution` TEXT, `token` TEXT, `metaFont` TEXT NOT NULL, `date_added` INTEGER NOT NULL, `viewIntent` TEXT, FOREIGN KEY(`sourceComponentName`) REFERENCES `sources`(`component_name`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceComponentName",
+            "columnName": "sourceComponentName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "imageUri",
+            "columnName": "imageUri",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "byline",
+            "columnName": "byline",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "attribution",
+            "columnName": "attribution",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "token",
+            "columnName": "token",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "metaFont",
+            "columnName": "metaFont",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateAdded",
+            "columnName": "date_added",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "viewIntent",
+            "columnName": "viewIntent",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_Artwork_sourceComponentName",
+            "unique": false,
+            "columnNames": [
+              "sourceComponentName"
+            ],
+            "createSql": "CREATE  INDEX `index_Artwork_sourceComponentName` ON `${TABLE_NAME}` (`sourceComponentName`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "sources",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "sourceComponentName"
+            ],
+            "referencedColumns": [
+              "component_name"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "sources",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `component_name` TEXT NOT NULL, `selected` INTEGER NOT NULL, `description` TEXT, `network` INTEGER NOT NULL, `supports_next_artwork` INTEGER NOT NULL, `commands` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "componentName",
+            "columnName": "component_name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "selected",
+            "columnName": "selected",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "wantsNetworkAvailable",
+            "columnName": "network",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "supportsNextArtwork",
+            "columnName": "supports_next_artwork",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "commands",
+            "columnName": "commands",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_sources_component_name",
+            "unique": true,
+            "columnNames": [
+              "component_name"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `index_sources_component_name` ON `${TABLE_NAME}` (`component_name`)"
+          }
+        ],
+        "foreignKeys": []
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"8a9d7da9db1263437e8631a92cfe26ee\")"
+    ]
+  }
+}

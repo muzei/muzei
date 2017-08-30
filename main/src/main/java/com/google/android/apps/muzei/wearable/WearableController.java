@@ -31,9 +31,10 @@ import android.os.HandlerThread;
 import android.support.media.ExifInterface;
 import android.util.Log;
 
-import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.render.ImageUtil;
+import com.google.android.apps.muzei.room.Artwork;
+import com.google.android.apps.muzei.room.MuzeiDatabase;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -128,8 +129,8 @@ public class WearableController implements LifecycleObserver {
             image.compress(Bitmap.CompressFormat.PNG, 100, byteStream);
             Asset asset = Asset.createFromBytes(byteStream.toByteArray());
             PutDataMapRequest dataMapRequest = PutDataMapRequest.create("/artwork");
-            Artwork artwork = MuzeiContract.Artwork.getCurrentArtwork(mContext);
-            dataMapRequest.getDataMap().putDataMap("artwork", DataMap.fromBundle(artwork.toBundle()));
+            Artwork artwork = MuzeiDatabase.getInstance(mContext).artworkDao().getCurrentArtworkBlocking();
+            dataMapRequest.getDataMap().putDataMap("artwork", ArtworkTransfer.toDataMap(artwork));
             dataMapRequest.getDataMap().putAsset("image", asset);
             Wearable.DataApi.putDataItem(googleApiClient, dataMapRequest.asPutDataRequest().setUrgent()).await();
         }

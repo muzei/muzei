@@ -16,49 +16,43 @@
 
 package com.google.android.apps.muzei.provider;
 
-import android.app.PendingIntent;
+import android.arch.persistence.db.SupportSQLiteQueryBuilder;
 import android.content.ComponentName;
 import android.content.ContentProvider;
-import android.content.ContentProviderOperation;
-import android.content.ContentProviderResult;
-import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.OperationApplicationException;
 import android.content.UriMatcher;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.os.UserManagerCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
+import com.google.android.apps.muzei.room.Artwork;
+import com.google.android.apps.muzei.room.MuzeiDatabase;
+import com.google.android.apps.muzei.room.Source;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -89,14 +83,6 @@ public class MuzeiProvider extends ContentProvider {
      */
     private static final int SOURCE_ID = 4;
     /**
-     * The database that the provider uses as its underlying data store
-     */
-    private static final String DATABASE_NAME = "muzei.db";
-    /**
-     * The database version
-     */
-    private static final int DATABASE_VERSION = 3;
-    /**
      * A UriMatcher instance
      */
     private static final UriMatcher uriMatcher = MuzeiProvider.buildUriMatcher();
@@ -111,18 +97,6 @@ public class MuzeiProvider extends ContentProvider {
     private final HashMap<String, String> allSourcesColumnProjectionMap =
             MuzeiProvider.buildAllSourcesColumnProjectionMap();
     private Handler openFileHandler;
-    /**
-     * Handle to a new DatabaseHelper.
-     */
-    private DatabaseHelper databaseHelper;
-    /**
-     * Whether we should hold notifyChange() calls due to an ongoing applyBatch operation
-     */
-    private boolean holdNotifyChange = false;
-    /**
-     * Set of Uris that should be applied when the ongoing applyBatch operation finishes
-     */
-    private final LinkedHashSet<Uri> pendingNotifyChange = new LinkedHashSet<>();
 
     /**
      * Creates and initializes a column project for all columns for Artwork
@@ -132,41 +106,41 @@ public class MuzeiProvider extends ContentProvider {
     private static HashMap<String, String> buildAllArtworkColumnProjectionMap() {
         final HashMap<String, String> allColumnProjectionMap = new HashMap<>();
         allColumnProjectionMap.put(BaseColumns._ID,
-                MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID);
+                "artwork._id");
         allColumnProjectionMap.put(MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID,
-                MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID);
+                "artwork._id");
         allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME,
-                MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME);
+                "sourceComponentName");
         allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI,
-                MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI);
+                "imageUri");
         allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_TITLE,
-                MuzeiContract.Artwork.COLUMN_NAME_TITLE);
+                "title");
         allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_BYLINE,
-                MuzeiContract.Artwork.COLUMN_NAME_BYLINE);
+                "byline");
         allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_ATTRIBUTION,
-                MuzeiContract.Artwork.COLUMN_NAME_ATTRIBUTION);
+                "attribution");
         allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_TOKEN,
-                MuzeiContract.Artwork.COLUMN_NAME_TOKEN);
+                "token");
         allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT,
-                MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT);
+                "viewIntent");
         allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_META_FONT,
-                MuzeiContract.Artwork.COLUMN_NAME_META_FONT);
+                "metaFont");
         allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED,
-                MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED);
+                "date_added");
         allColumnProjectionMap.put(MuzeiContract.Sources.TABLE_NAME + "." + BaseColumns._ID,
-                MuzeiContract.Sources.TABLE_NAME + "." + BaseColumns._ID);
+                "sources._id");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME,
-                MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME);
+                "component_name");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED,
-                MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED);
+                "selected");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION,
-                MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION);
+                "description");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE,
-                MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE);
+                "network");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,
-                MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND);
+                "supports_next_artwork");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_COMMANDS,
-                MuzeiContract.Sources.COLUMN_NAME_COMMANDS);
+                "commands");
         return allColumnProjectionMap;
     }
 
@@ -179,17 +153,17 @@ public class MuzeiProvider extends ContentProvider {
         final HashMap<String, String> allColumnProjectionMap = new HashMap<>();
         allColumnProjectionMap.put(BaseColumns._ID, BaseColumns._ID);
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME,
-                MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME);
+                "component_name");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED,
-                MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED);
+                "selected");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION,
-                MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION);
+                "description");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE,
-                MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE);
+                "network");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,
-                MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND);
+                "supports_next_artwork");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_COMMANDS,
-                MuzeiContract.Sources.COLUMN_NAME_COMMANDS);
+                "commands");
         return allColumnProjectionMap;
     }
 
@@ -211,230 +185,14 @@ public class MuzeiProvider extends ContentProvider {
         return matcher;
     }
 
-    @NonNull
-    @Override
-    public ContentProviderResult[] applyBatch(@NonNull final ArrayList<ContentProviderOperation> operations)
-            throws OperationApplicationException {
-        holdNotifyChange = true;
-        try {
-            OperationApplicationException firstCaughtException = null;
-            final int numOperations = operations.size();
-            final ContentProviderResult[] results = new ContentProviderResult[numOperations];
-            for (int i = 0; i < numOperations; i++) {
-                try {
-                    results[i] = operations.get(i).apply(this, results, i);
-                } catch (OperationApplicationException e) {
-                    Log.e(TAG, "Unable to apply " + operations.get(i), e);
-                    if (firstCaughtException == null) {
-                        firstCaughtException = e;
-                    }
-                }
-            }
-            if (firstCaughtException != null) {
-                throw firstCaughtException;
-            }
-            return results;
-        } finally {
-            holdNotifyChange = false;
-            boolean broadcastSourceChanged = false;
-            Context context = getContext();
-            if (context != null) {
-                ContentResolver contentResolver = context.getContentResolver();
-                synchronized (pendingNotifyChange) {
-                    Iterator<Uri> iterator = pendingNotifyChange.iterator();
-                    while (iterator.hasNext()) {
-                        Uri uri = iterator.next();
-                        contentResolver.notifyChange(uri, null);
-                        if (MuzeiContract.Artwork.CONTENT_URI.equals(uri)) {
-                            context.sendBroadcast(new Intent(MuzeiContract.Artwork.ACTION_ARTWORK_CHANGED));
-                        } else if (MuzeiProvider.uriMatcher.match(uri) == SOURCES ||
-                                MuzeiProvider.uriMatcher.match(uri) == SOURCE_ID) {
-                            broadcastSourceChanged = true;
-                        }
-                        iterator.remove();
-                    }
-                }
-                if (broadcastSourceChanged) {
-                    context.sendBroadcast(new Intent(MuzeiContract.Sources.ACTION_SOURCE_CHANGED));
-                }
-            }
-        }
-    }
-
-    private void notifyChange(Uri uri) {
-        if (holdNotifyChange) {
-            synchronized (pendingNotifyChange) {
-                pendingNotifyChange.add(uri);
-            }
-        } else {
-            Context context = getContext();
-            if (context == null) {
-                return;
-            }
-            context.getContentResolver().notifyChange(uri, null);
-            if (MuzeiProvider.uriMatcher.match(uri) == ARTWORK ||
-                    MuzeiProvider.uriMatcher.match(uri) == ARTWORK_ID) {
-                context.sendBroadcast(new Intent(MuzeiContract.Artwork.ACTION_ARTWORK_CHANGED));
-            } else if (MuzeiProvider.uriMatcher.match(uri) == SOURCES ||
-                    MuzeiProvider.uriMatcher.match(uri) == SOURCE_ID) {
-                context.sendBroadcast(new Intent(MuzeiContract.Sources.ACTION_SOURCE_CHANGED));
-            }
-        }
-    }
-
     @Override
     public int delete(@NonNull final Uri uri, final String selection, final String[] selectionArgs) {
-        Context context = getContext();
-        if (context == null) {
-            return 0;
-        }
-        if (!UserManagerCompat.isUserUnlocked(context)) {
-            Log.w(TAG, "Deletes are not supported until the user is unlocked");
-            return 0;
-        }
-        if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK ||
-                MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK_ID) {
-            return deleteArtwork(uri, selection, selectionArgs);
-        } else if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCES ||
-                MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCE_ID) {
-            return deleteSource(uri, selection, selectionArgs);
-        } else {
-            throw new IllegalArgumentException("Unknown URI " + uri);
-        }
-    }
-
-    private int deleteArtwork(@NonNull final Uri uri, final String selection, final String[] selectionArgs) {
-        // Opens the database object in "write" mode.
-        final SQLiteDatabase db = databaseHelper.getWritableDatabase();
-        String finalWhere = selection;
-        if (MuzeiProvider.uriMatcher.match(uri) == ARTWORK_ID) {
-            finalWhere = MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID + " = " + uri.getLastPathSegment();
-            // If there were additional selection criteria, append them to the final WHERE clause
-            if (selection != null)
-                finalWhere = finalWhere + " AND " + selection;
-        }
-        // We can't just simply delete the rows as that won't free up the space occupied by the
-        // artwork image files associated with each row being deleted. Instead we have to query
-        // and manually delete each artwork file
-        String[] projection = new String[] {
-                MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID,
-                MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI,
-                MuzeiContract.Artwork.COLUMN_NAME_TOKEN};
-        Cursor rowsToDelete = queryArtwork(uri, projection, finalWhere, selectionArgs,
-                MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI);
-        if (rowsToDelete == null) {
-            return 0;
-        }
-        // First we build a list of IDs to be deleted. This will be used if we need to determine
-        // if a given image URI needs to be deleted
-        List<String> idsToDelete = new ArrayList<>();
-        rowsToDelete.moveToFirst();
-        while (!rowsToDelete.isAfterLast()) {
-            idsToDelete.add(Long.toString(rowsToDelete.getLong(0)));
-            rowsToDelete.moveToNext();
-        }
-        String notInDeleteIds = MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID +
-                " NOT IN (" + TextUtils.join(",", idsToDelete) + ")";
-        // Now we actually go through the list of rows to be deleted
-        // and check if we can delete the artwork image file associated with each one
-        rowsToDelete.moveToFirst();
-        while (!rowsToDelete.isAfterLast()) {
-            Uri artworkUri = ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI,
-                    rowsToDelete.getLong(0));
-            String imageUri = rowsToDelete.getString(1);
-            String token = rowsToDelete.getString(2);
-            if (TextUtils.isEmpty(imageUri) && TextUtils.isEmpty(token)) {
-                // An empty image URI and token means the artwork is unique to this specific row
-                // so we can always delete it when the associated row is deleted
-                File artwork = getCacheFileForArtworkUri(artworkUri);
-                if (artwork != null && artwork.exists()) {
-                    artwork.delete();
-                }
-            } else if (TextUtils.isEmpty(imageUri)) {
-                // Check if there are other rows using this same token that aren't
-                // in the list of ids to delete
-                Cursor otherArtwork = queryArtwork(MuzeiContract.Artwork.CONTENT_URI,
-                        new String[] {MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID},
-                        MuzeiContract.Artwork.COLUMN_NAME_TOKEN + "=? AND " + notInDeleteIds,
-                        new String[] { token }, null);
-                if (otherArtwork == null) {
-                    continue;
-                }
-                if (otherArtwork.getCount() == 0) {
-                    // There's no non-deleted rows that reference this same artwork URI
-                    // so we can delete the artwork
-                    File artwork = getCacheFileForArtworkUri(artworkUri);
-                    if (artwork != null && artwork.exists()) {
-                        artwork.delete();
-                    }
-                }
-                otherArtwork.close();
-            } else {
-                // Check if there are other rows using this same image URI that aren't
-                // in the list of ids to delete
-                Cursor otherArtwork = queryArtwork(MuzeiContract.Artwork.CONTENT_URI,
-                        new String[] {MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID},
-                        MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI + "=? AND " + notInDeleteIds,
-                        new String[] { imageUri }, null);
-                if (otherArtwork == null) {
-                    continue;
-                }
-                if (otherArtwork.getCount() == 0) {
-                    // There's no non-deleted rows that reference this same artwork URI
-                    // so we can delete the artwork
-                    File artwork = getCacheFileForArtworkUri(artworkUri);
-                    if (artwork != null && artwork.exists()) {
-                        artwork.delete();
-                    }
-                }
-                otherArtwork.close();
-            }
-            rowsToDelete.moveToNext();
-        }
-        rowsToDelete.close();
-        int count = db.delete(MuzeiContract.Artwork.TABLE_NAME, finalWhere, selectionArgs);
-        if (count > 0) {
-            notifyChange(uri);
-        }
-        return count;
-    }
-
-    private int deleteSource(@NonNull final Uri uri, final String selection, final String[] selectionArgs) {
-        // Opens the database object in "write" mode.
-        final SQLiteDatabase db = databaseHelper.getWritableDatabase();
-        int count;
-        // Does the delete based on the incoming URI pattern.
-        switch (MuzeiProvider.uriMatcher.match(uri)) {
-            case SOURCES:
-                // If the incoming pattern matches the general pattern for
-                // sources, does a delete based on the incoming "where"
-                // column and arguments.
-                count = db.delete(MuzeiContract.Sources.TABLE_NAME, selection, selectionArgs);
-                break;
-            case SOURCE_ID:
-                // If the incoming URI matches a single source ID, does the
-                // delete based on the incoming data, but modifies the where
-                // clause to restrict it to the particular source ID.
-                String finalWhere = BaseColumns._ID + " = " + uri.getLastPathSegment();
-                // If there were additional selection criteria, append them to the final WHERE clause
-                if (selection != null)
-                    finalWhere = finalWhere + " AND " + selection;
-                count = db.delete(MuzeiContract.Sources.TABLE_NAME, finalWhere, selectionArgs);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
-        }
-        if (count > 0) {
-            notifyChange(uri);
-        }
-        return count;
+        throw new UnsupportedOperationException("Deletes are not supported");
     }
 
     @Override
     public String getType(@NonNull final Uri uri) {
-        /**
-         * Chooses the MIME type based on the incoming URI pattern
-         */
+        // Chooses the MIME type based on the incoming URI pattern
         switch (MuzeiProvider.uriMatcher.match(uri)) {
             case ARTWORK:
                 // If the pattern is for artwork, returns the artwork content type.
@@ -455,158 +213,7 @@ public class MuzeiProvider extends ContentProvider {
 
     @Override
     public Uri insert(@NonNull final Uri uri, final ContentValues values) {
-        Context context = getContext();
-        if (context == null) {
-            return null;
-        }
-        if (!UserManagerCompat.isUserUnlocked(context)) {
-            Log.w(TAG, "Inserts are not supported until the user is unlocked");
-            return null;
-        }
-        if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK) {
-            return insertArtwork(uri, values);
-        } else if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCES) {
-            return insertSource(uri, values);
-        } else {
-            throw new IllegalArgumentException("Unknown URI " + uri);
-        }
-    }
-
-    private Uri insertArtwork(@NonNull final Uri uri, final ContentValues values) {
-        Context context = getContext();
-        if (context == null) {
-            return null;
-        }
-        if (values == null) {
-            throw new IllegalArgumentException("Invalid ContentValues: must not be null");
-        }
-        if (!values.containsKey(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME) ||
-                TextUtils.isEmpty(values.getAsString(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME))) {
-            throw new IllegalArgumentException("Initial values must contain component name: " + values);
-        }
-
-        // Check to make sure the component name is valid
-        ComponentName componentName = ComponentName.unflattenFromString(
-                values.getAsString(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME));
-        if (componentName == null) {
-            throw new IllegalArgumentException("Invalid component name: " +
-                    values.getAsString(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME));
-        }
-        // Make sure they are using the short string format
-        values.put(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME, componentName.flattenToShortString());
-
-        if (values.containsKey(MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT)) {
-            String viewIntentString = values.getAsString(MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT);
-            Intent viewIntent;
-            try {
-                if (!TextUtils.isEmpty(viewIntentString)) {
-                    // Make sure it is a valid Intent URI
-                    viewIntent = Intent.parseUri(viewIntentString, Intent.URI_INTENT_SCHEME);
-                    // Make sure we can construct a PendingIntent for the Intent
-                    PendingIntent.getActivity(context, 0, viewIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                }
-            } catch (URISyntaxException e) {
-                Log.w(TAG, "Removing invalid View Intent: " + viewIntentString, e);
-                values.remove(MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT);
-            } catch (RuntimeException e) {
-                // This is actually meant to catch a FileUriExposedException, but you can't
-                // have catch statements for exceptions that don't exist at your minSdkVersion
-                Log.w(TAG, "Removing invalid View Intent that contains a file:// URI: " +
-                        viewIntentString, e);
-                values.remove(MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT);
-            }
-        }
-
-        // Ensure the related source has been added to the database.
-        // This should be true in 99.9% of cases, but the insert will fail if this isn't true
-        Cursor sourceQuery = querySource(MuzeiContract.Sources.CONTENT_URI,
-                new String[] { BaseColumns._ID },
-                MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + "=?",
-                new String[] { componentName.flattenToShortString() },
-                null);
-        if (sourceQuery == null || sourceQuery.getCount() == 0) {
-            ContentValues initialValues = new ContentValues();
-            initialValues.put(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME,
-                    componentName.flattenToShortString());
-            insertSource(MuzeiContract.Sources.CONTENT_URI, initialValues);
-        }
-        if (sourceQuery != null) {
-            sourceQuery.close();
-        }
-
-        values.put(MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED, System.currentTimeMillis());
-        final SQLiteDatabase db = databaseHelper.getWritableDatabase();
-        long rowId = db.insert(MuzeiContract.Artwork.TABLE_NAME,
-                MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI, values);
-        // If the insert succeeded, the row ID exists.
-        if (rowId > 0)
-        {
-            // Creates a URI with the artwork ID pattern and the new row ID appended to it.
-            final Uri artworkUri = ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI, rowId);
-            File artwork = getCacheFileForArtworkUri(artworkUri);
-            if (artwork != null && artwork.exists()) {
-                // The image already exists so we'll notifyChange() to say the new artwork is ready
-                // Otherwise, this will be called when the file is written with openFile()
-                // using this Uri and the actual artwork is written successfully
-                notifyChange(artworkUri);
-            }
-            return artworkUri;
-        }
-        // If the insert didn't succeed, then the rowID is <= 0
-        return null;
-    }
-
-    private Uri insertSource(@NonNull final Uri uri, final ContentValues initialValues) {
-        Context context = getContext();
-        if (context == null) {
-            return null;
-        }
-        if (!initialValues.containsKey(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME) ||
-                TextUtils.isEmpty(initialValues.getAsString(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME))) {
-            throw new IllegalArgumentException(
-                    "Initial values must contain component name " + initialValues);
-        }
-        ComponentName componentName = ComponentName.unflattenFromString(
-                initialValues.getAsString(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME));
-        if (componentName == null) {
-            throw new IllegalArgumentException("Invalid component name: " +
-                    initialValues.getAsString(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME));
-        }
-        ApplicationInfo info;
-        try {
-            // Ensure the service is valid and extract the application info
-            info = context.getPackageManager().getServiceInfo(componentName, 0).applicationInfo;
-        } catch (PackageManager.NameNotFoundException e) {
-            throw new IllegalArgumentException("Invalid component name " +
-                    initialValues.getAsString(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME), e);
-        }
-        // Make sure they are using the short string format
-        initialValues.put(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, componentName.flattenToShortString());
-
-        // Disable network access callbacks if we're running on an API 24 device and the source app
-        // targets API 24. This is to be consistent with the Behavior Changes in Android N
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
-                initialValues.containsKey(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE) &&
-                initialValues.getAsBoolean(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE)) {
-            if (info.targetSdkVersion >= Build.VERSION_CODES.N) {
-                Log.w(TAG, "Sources targeting API 24 cannot receive network access callbacks. Changing " +
-                        componentName + " to false for " + MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE);
-                initialValues.put(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE, false);
-            }
-        }
-        final SQLiteDatabase db = databaseHelper.getWritableDatabase();
-        final long rowId = db.insert(MuzeiContract.Sources.TABLE_NAME,
-                MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, initialValues);
-        // If the insert succeeded, the row ID exists.
-        if (rowId > 0)
-        {
-            // Creates a URI with the source ID pattern and the new row ID appended to it.
-            final Uri sourceUri = ContentUris.withAppendedId(MuzeiContract.Sources.CONTENT_URI, rowId);
-            notifyChange(sourceUri);
-            return sourceUri;
-        }
-        // If the insert didn't succeed, then the rowID is <= 0
-        return null;
+        throw new UnsupportedOperationException("Inserts are not supported");
     }
 
     /**
@@ -617,7 +224,6 @@ public class MuzeiProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         openFileHandler = new Handler();
-        databaseHelper = new DatabaseHelper(getContext());
         // Schedule a job that will update the latest artwork in the Direct Boot cache directory
         // whenever the artwork changes
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -646,58 +252,96 @@ public class MuzeiProvider extends ContentProvider {
 
     private Cursor queryArtwork(@NonNull final Uri uri, final String[] projection, final String selection,
                         final String[] selectionArgs, final String sortOrder) {
-        ContentResolver contentResolver = getContext() != null ? getContext().getContentResolver() : null;
-        if (contentResolver == null) {
+        Context context = getContext();
+        if (context == null) {
             return null;
         }
-        final SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-        qb.setTables(MuzeiContract.Artwork.TABLE_NAME + " INNER JOIN " +
-                MuzeiContract.Sources.TABLE_NAME + " ON " +
-                MuzeiContract.Artwork.TABLE_NAME + "." +
-                MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME + "=" +
-                MuzeiContract.Sources.TABLE_NAME + "." +
-                MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME);
-        qb.setProjectionMap(allArtworkColumnProjectionMap);
-        final SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        SupportSQLiteQueryBuilder qb = SupportSQLiteQueryBuilder.builder(
+                "artwork INNER JOIN sources ON " +
+                "artwork.sourceComponentName=sources.component_name");
+        qb.columns(computeColumns(projection, allArtworkColumnProjectionMap));
+        String finalSelection = selection;
         if (MuzeiProvider.uriMatcher.match(uri) == ARTWORK_ID) {
             // If the incoming URI is for a single source identified by its ID, appends "_ID = <artworkId>"
             // to the where clause, so that it selects that single piece of artwork
-            qb.appendWhere(MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID + "=" + uri.getLastPathSegment());
+            finalSelection = DatabaseUtils.concatenateWhere(selection,
+                    "artwork._id = " + uri.getLastPathSegment());
         }
+        qb.selection(finalSelection, selectionArgs);
         String orderBy;
-        if (TextUtils.isEmpty(sortOrder))
-            orderBy = MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED + " DESC, " +
-                    MuzeiContract.Artwork.DEFAULT_SORT_ORDER;
-        else
+        if (TextUtils.isEmpty(sortOrder)) {
+            orderBy = "selected DESC, date_added DESC";
+        } else {
             orderBy = sortOrder;
-        final Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy, null);
-        c.setNotificationUri(contentResolver, uri);
+        }
+        qb.orderBy(orderBy);
+        final Cursor c = MuzeiDatabase.getInstance(context).query(qb.create());
+        c.setNotificationUri(context.getContentResolver(), uri);
         return c;
     }
 
     private Cursor querySource(@NonNull final Uri uri, final String[] projection, final String selection,
                                 final String[] selectionArgs, final String sortOrder) {
-        ContentResolver contentResolver = getContext() != null ? getContext().getContentResolver() : null;
-        if (contentResolver == null) {
+        Context context = getContext();
+        if (context == null) {
             return null;
         }
-        final SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-        qb.setTables(MuzeiContract.Sources.TABLE_NAME);
-        qb.setProjectionMap(allSourcesColumnProjectionMap);
-        final SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        SupportSQLiteQueryBuilder qb = SupportSQLiteQueryBuilder.builder("sources");
+        qb.columns(computeColumns(projection, allSourcesColumnProjectionMap));
+        String finalSelection = selection;
         if (MuzeiProvider.uriMatcher.match(uri) == SOURCE_ID) {
             // If the incoming URI is for a single source identified by its ID, appends "_ID = <sourceId>"
             // to the where clause, so that it selects that single source
-            qb.appendWhere(BaseColumns._ID + "=" + uri.getLastPathSegment());
+            finalSelection = DatabaseUtils.concatenateWhere(selection,
+                    "_id = " + uri.getLastPathSegment());
         }
+        qb.selection(finalSelection, selectionArgs);
         String orderBy;
         if (TextUtils.isEmpty(sortOrder))
-            orderBy = MuzeiContract.Sources.DEFAULT_SORT_ORDER;
+            orderBy = "selected DESC, component_name";
         else
             orderBy = sortOrder;
-        final Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy, null);
-        c.setNotificationUri(contentResolver, uri);
+        qb.orderBy(orderBy);
+        final Cursor c = MuzeiDatabase.getInstance(context).query(qb.create());
+        c.setNotificationUri(context.getContentResolver(), uri);
         return c;
+    }
+
+    private String[] computeColumns(String[] projectionIn, @NonNull HashMap<String, String> projectionMap) {
+        if (projectionIn != null && projectionIn.length > 0) {
+            String[] projection = new String[projectionIn.length];
+            int length = projectionIn.length;
+            for (int i = 0; i < length; i++) {
+                String userColumn = projectionIn[i];
+                String column = projectionMap.get(userColumn);
+                if (column != null) {
+                    projection[i] = column;
+                    continue;
+                }
+                if (userColumn.contains(" AS ") || userColumn.contains(" as ")) {
+                    /* A column alias already exist */
+                    projection[i] = userColumn;
+                    continue;
+                }
+                throw new IllegalArgumentException("Invalid column "
+                        + projectionIn[i]);
+            }
+            return projection;
+        }
+        // Return all columns in projection map.
+        Set<Map.Entry<String, String>> entrySet = projectionMap.entrySet();
+        String[] projection = new String[entrySet.size()];
+        Iterator<Map.Entry<String, String>> entryIter = entrySet.iterator();
+        int i = 0;
+        while (entryIter.hasNext()) {
+            Map.Entry<String, String> entry = entryIter.next();
+            // Don't include the _count column when people ask for no projection.
+            if (entry.getKey().equals(BaseColumns._COUNT)) {
+                continue;
+            }
+            projection[i++] = entry.getValue();
+        }
+        return projection;
     }
 
     @Override
@@ -710,51 +354,51 @@ public class MuzeiProvider extends ContentProvider {
         }
     }
 
+    @Nullable
     private ParcelFileDescriptor openFileArtwork(@NonNull final Uri uri, @NonNull final String mode) throws FileNotFoundException {
-        String[] projection = { BaseColumns._ID, MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI };
+        final Context context = getContext();
+        if (context == null) {
+            return null;
+        }
         final boolean isWriteOperation = mode.contains("w");
         final File file;
-        if (!UserManagerCompat.isUserUnlocked(getContext())) {
+        if (!UserManagerCompat.isUserUnlocked(context)) {
             if (isWriteOperation) {
                 Log.w(TAG, "Wallpaper is read only until the user is unlocked");
                 return null;
             }
-            file = DirectBootCacheJobService.getCachedArtwork(getContext());
+            file = DirectBootCacheJobService.getCachedArtwork(context);
         } else if (!isWriteOperation && MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK) {
             // If it isn't a write operation, then we should attempt to find the latest artwork
             // that does have a cached artwork file. This prevents race conditions where
             // an external app attempts to load the latest artwork while an art source is inserting a
             // new artwork
-            Cursor data = queryArtwork(MuzeiContract.Artwork.CONTENT_URI, projection, null, null, null);
-            if (data == null) {
-                return null;
-            }
-            if (!data.moveToFirst()) {
+            List<Artwork> artworkList = MuzeiDatabase.getInstance(context).artworkDao().getArtworkBlocking();
+            if (artworkList == null || artworkList.isEmpty()) {
+                if (!context.getPackageName().equals(getCallingPackage())) {
+                    Log.w(TAG, "You must insert at least one row to read or write artwork");
+                }
                 return null;
             }
             File foundFile = null;
-            while (!data.isAfterLast()) {
-                Uri possibleArtworkUri = ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI, data.getLong(0));
-                File possibleFile = getCacheFileForArtworkUri(possibleArtworkUri);
+            for (Artwork artwork : artworkList) {
+                File possibleFile = getCacheFileForArtworkUri(context, artwork.id);
                 if (possibleFile != null && possibleFile.exists()) {
                     foundFile = possibleFile;
                     break;
                 }
-                data.moveToNext();
             }
             file = foundFile;
         } else {
-            file = getCacheFileForArtworkUri(uri);
+            file = getCacheFileForArtworkUri(context, ContentUris.parseId(uri));
         }
         if (file == null) {
-            throw new FileNotFoundException("Could not create artwork file");
+            throw new FileNotFoundException("Could not create artwork file for " + uri + " for mode " + mode);
         }
         if (file.exists() && file.length() > 0 && isWriteOperation) {
-            Context context = getContext();
-            if (context == null) {
-                return null;
+            if (!context.getPackageName().equals(getCallingPackage())) {
+                Log.w(TAG, "Writing to an existing artwork file is not allowed: insert a new row");
             }
-            cleanupCachedFiles();
             return null;
         }
         try {
@@ -772,8 +416,11 @@ public class MuzeiProvider extends ContentProvider {
                                     }
                                 } else {
                                     // The file was successfully written, notify listeners of the new artwork
-                                    notifyChange(uri);
-                                    cleanupCachedFiles();
+                                    context.getContentResolver()
+                                            .notifyChange(MuzeiContract.Artwork.CONTENT_URI, null);
+                                    context.sendBroadcast(
+                                            new Intent(MuzeiContract.Artwork.ACTION_ARTWORK_CHANGED));
+                                    cleanupCachedFiles(context);
                                 }
                             }
 
@@ -785,40 +432,25 @@ public class MuzeiProvider extends ContentProvider {
         }
     }
 
-    private File getCacheFileForArtworkUri(Uri artworkUri) {
-        Context context = getContext();
-        if (context == null || artworkUri == null) {
-            return null;
-        }
+    @Nullable
+    public static File getCacheFileForArtworkUri(Context context, long artworkId) {
         File directory = new File(context.getFilesDir(), "artwork");
         if (!directory.exists() && !directory.mkdirs()) {
             return null;
         }
-        String[] projection = { BaseColumns._ID, MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI,
-                MuzeiContract.Artwork.COLUMN_NAME_TOKEN };
-        Cursor data = queryArtwork(artworkUri, projection, null, null, null);
-        if (data == null) {
+        Artwork artwork = MuzeiDatabase.getInstance(context).artworkDao().getArtworkById(artworkId);
+        if (artwork == null) {
             return null;
         }
-        if (!data.moveToFirst()) {
-            Log.e(TAG, "Invalid artwork URI " + artworkUri);
-            return null;
-        }
-        // While normally we'd use data.getLong(), we later need this as a String so the automatic conversion helps here
-        String id = data.getString(0);
-        String imageUri = data.getString(1);
-        String token = data.getString(2);
-        data.close();
-        if (TextUtils.isEmpty(imageUri) && TextUtils.isEmpty(token)) {
-            return new File(directory, id);
+        if (artwork.imageUri == null && TextUtils.isEmpty(artwork.token)) {
+            return new File(directory, Long.toString(artwork.id));
         }
         // Otherwise, create a unique filename based on the imageUri and token
         StringBuilder filename = new StringBuilder();
-        if (!TextUtils.isEmpty(imageUri)) {
-            Uri uri = Uri.parse(imageUri);
-            filename.append(uri.getScheme()).append("_")
-                    .append(uri.getHost()).append("_");
-            String encodedPath = uri.getEncodedPath();
+        if (artwork.imageUri != null) {
+            filename.append(artwork.imageUri.getScheme()).append("_")
+                    .append(artwork.imageUri.getHost()).append("_");
+            String encodedPath = artwork.imageUri.getEncodedPath();
             if (!TextUtils.isEmpty(encodedPath)) {
                 int length = encodedPath.length();
                 if (length > 60) {
@@ -829,7 +461,7 @@ public class MuzeiProvider extends ContentProvider {
             }
         }
         // Use the imageUri if available, otherwise use the token
-        String unique = !TextUtils.isEmpty(imageUri) ? imageUri : token;
+        String unique = artwork.imageUri != null ? artwork.imageUri.toString() : artwork.token;
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             md.update(unique.getBytes("UTF-8"));
@@ -851,182 +483,71 @@ public class MuzeiProvider extends ContentProvider {
      * Limit the number of cached files per art source to {@link #MAX_CACHE_SIZE}.
      * @see #MAX_CACHE_SIZE
      */
-    private void cleanupCachedFiles() {
-        Context context = getContext();
-        if (context == null) {
-            return;
-        }
-        Cursor sources = querySource(MuzeiContract.Sources.CONTENT_URI,
-                new String[] {MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME},
-                null, null, null);
-        if (sources == null) {
-            return;
-        }
-        // Access to certain artwork can be persisted through MuzeiDocumentsProvider
-        // We never want to delete these artwork as that would break other apps
-        Set<Uri> persistedUris = MuzeiDocumentsProvider.getPersistedArtworkUris(context);
-        // Loop through each source, cleaning up old artwork
-        while (sources.moveToNext()) {
-            String componentName = sources.getString(0);
-            // Now use that ComponentName to look through the past artwork from that source
-            try (Cursor artworkBySource = queryArtwork(MuzeiContract.Artwork.CONTENT_URI,
-                    new String[] {BaseColumns._ID, MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI,
-                        MuzeiContract.Artwork.COLUMN_NAME_TOKEN},
-                    MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME + "=?",
-                    new String[] {componentName},
-                    MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED + " DESC")) {
-                if (artworkBySource == null) {
-                    continue;
+    public static void cleanupCachedFiles(final Context context) {
+        new Thread() {
+            @Override
+            public void run() {
+                final MuzeiDatabase database = MuzeiDatabase.getInstance(context);
+                final List<Source> sources = database.sourceDao().getSourcesBlocking();
+                if (sources == null) {
+                    return;
                 }
-                List<String> artworkIdsToKeep = new ArrayList<>();
-                List<String> artworkToKeep = new ArrayList<>();
-                // First find all of the persisted artwork from this source and mark them as artwork to keep
-                while (artworkBySource.moveToNext()) {
-                    long id = artworkBySource.getLong(0);
-                    Uri uri = ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI, id);
-                    String artworkUri = artworkBySource.getString(1);
-                    String artworkToken = artworkBySource.getString(2);
-                    String unique = !TextUtils.isEmpty(artworkUri) ? artworkUri : artworkToken;
-                    if (persistedUris.contains(uri)) {
-                        // Always keep artwork that is persisted
-                        artworkIdsToKeep.add(Long.toString(id));
-                        artworkToKeep.add(unique);
-                    }
-                }
-                // Now go through the artwork from this source and find the most recent artwork
-                // and mark them as artwork to keep
-                int count = 0;
-                artworkBySource.moveToPosition(-1);
-                while (artworkBySource.moveToNext()) {
-                    // BaseColumns._ID is a long, but we need it as a String later anyways
-                    String id = artworkBySource.getString(0);
-                    String artworkUri = artworkBySource.getString(1);
-                    String artworkToken = artworkBySource.getString(2);
-                    String unique = !TextUtils.isEmpty(artworkUri) ? artworkUri : artworkToken;
-                    if (artworkToKeep.contains(unique)) {
-                        // This ensures we are double counting the same artwork in our count
-                        artworkIdsToKeep.add(id);
+                // Access to certain artwork can be persisted through MuzeiDocumentsProvider
+                // We never want to delete these artwork as that would break other apps
+                final Set<Uri> persistedUris = MuzeiDocumentsProvider.getPersistedArtworkUris(context);
+                // Loop through each source, cleaning up old artwork
+                for (Source source : sources) {
+                    final ComponentName componentName = source.componentName;
+                    // Now use that ComponentName to look through the past artwork from that source
+                    final List<Artwork> artworkList = database.artworkDao()
+                            .getArtworkForSourceIdBlocking(source.id);
+                    if (artworkList == null || artworkList.isEmpty()) {
                         continue;
                     }
-                    if (count++ < MAX_CACHE_SIZE) {
-                        // Keep artwork below the MAX_CACHE_SIZE
-                        artworkIdsToKeep.add(id);
-                        artworkToKeep.add(unique);
+                    List<Long> artworkIdsToKeep = new ArrayList<>();
+                    List<String> artworkToKeep = new ArrayList<>();
+                    // First find all of the persisted artwork from this source and mark them as artwork to keep
+                    for (Artwork artwork : artworkList) {
+                        Uri uri = artwork.getContentUri();
+                        String unique = artwork.imageUri != null ? artwork.imageUri.toString() : artwork.token;
+                        if (persistedUris.contains(uri)) {
+                            // Always keep artwork that is persisted
+                            artworkIdsToKeep.add(artwork.id);
+                            artworkToKeep.add(unique);
+                        }
+                    }
+                    // Now go through the artwork from this source and find the most recent artwork
+                    // and mark them as artwork to keep
+                    int count = 0;
+                    for (Artwork artwork : artworkList) {
+                        String unique = artwork.imageUri != null ? artwork.imageUri.toString() : artwork.token;
+                        if (artworkToKeep.contains(unique)) {
+                            // This ensures we are double counting the same artwork in our count
+                            artworkIdsToKeep.add(artwork.id);
+                            continue;
+                        }
+                        if (count++ < MAX_CACHE_SIZE) {
+                            // Keep artwork below the MAX_CACHE_SIZE
+                            artworkIdsToKeep.add(artwork.id);
+                            artworkToKeep.add(unique);
+                        }
+                    }
+                    // Now delete all artwork not in the keep list
+                    try {
+                        database.artworkDao().deleteNonMatching(context,
+                                componentName, artworkIdsToKeep);
+                    } catch (IllegalStateException e) {
+                        Log.e(TAG, "Unable to read all artwork for " + componentName +
+                                ", deleting all in an attempt to get back to a good state", e);
+                        database.artworkDao().deleteAll(context, componentName);
                     }
                 }
-                // Now delete all artwork not in the keep list
-                int numDeleted = deleteArtwork(MuzeiContract.Artwork.CONTENT_URI,
-                        MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME + "=?"
-                        + " AND " + MuzeiContract.Artwork.TABLE_NAME + "." + BaseColumns._ID
-                        + " NOT IN (" + TextUtils.join(",", artworkIdsToKeep) + ")",
-                        new String[] {componentName});
-                if (numDeleted > 0) {
-                    Log.d(TAG, "For " + componentName + " kept " + artworkToKeep.size()
-                            + " artwork, deleted " + numDeleted);
-                }
-            } catch (IllegalStateException e) {
-                Log.e(TAG, "Unable to read all artwork for " + componentName +
-                        ", deleting all in an attempt to get back to a good state", e);
-                deleteArtwork(MuzeiContract.Artwork.CONTENT_URI,
-                        MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME + "=?",
-                        new String[] {componentName});
             }
-        }
-        sources.close();
+        }.start();
     }
 
     @Override
     public int update(@NonNull final Uri uri, final ContentValues values, final String selection, final String[] selectionArgs) {
-        if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK ||
-                MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK_ID) {
-            throw new UnsupportedOperationException("Updates are not allowed: insert a new row");
-        } else if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCES ||
-                MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCE_ID) {
-            return updateSource(uri, values, selection, selectionArgs);
-        } else {
-            throw new IllegalArgumentException("Unknown URI " + uri);
-        }
-    }
-
-    private int updateSource(@NonNull final Uri uri, final ContentValues values, final String selection,
-                             final String[] selectionArgs) {
-        Context context = getContext();
-        if (context == null) {
-            return 0;
-        }
-
-        final SQLiteDatabase db = databaseHelper.getWritableDatabase();
-        String finalWhere = selection;
-        if (MuzeiProvider.uriMatcher.match(uri) == SOURCE_ID) {
-            // If the incoming URI matches a single source ID, does the update based on the incoming data, but
-            // modifies the where clause to restrict it to the particular source ID.
-            finalWhere = DatabaseUtils.concatenateWhere(finalWhere,
-                    BaseColumns._ID + " = " + uri.getLastPathSegment());
-        }
-        int count = db.update(MuzeiContract.Sources.TABLE_NAME, values, finalWhere, selectionArgs);
-        if (count > 0) {
-            notifyChange(uri);
-        } else if (values.containsKey(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME)) {
-            insertSource(MuzeiContract.Sources.CONTENT_URI, values);
-            count = 1;
-        }
-        return count;
-    }
-
-    /**
-     * This class helps open, create, and upgrade the database file.
-     */
-    static class DatabaseHelper extends SQLiteOpenHelper {
-        /**
-         * Creates a new DatabaseHelper
-         *
-         * @param context context of this database
-         */
-        DatabaseHelper(final Context context) {
-            super(context, MuzeiProvider.DATABASE_NAME, null, MuzeiProvider.DATABASE_VERSION);
-        }
-
-        /**
-         * Creates the underlying database with table name and column names taken from the MuzeiContract class.
-         */
-        @Override
-        public void onCreate(final SQLiteDatabase db) {
-            db.execSQL("CREATE TABLE " + MuzeiContract.Sources.TABLE_NAME + " ("
-                    + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + " TEXT,"
-                    + MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED + " INTEGER,"
-                    + MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION + " TEXT,"
-                    + MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE + " INTEGER,"
-                    + MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND + " INTEGER,"
-                    + MuzeiContract.Sources.COLUMN_NAME_COMMANDS + " TEXT);");
-            db.execSQL("CREATE TABLE " + MuzeiContract.Artwork.TABLE_NAME + " ("
-                    + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME + " TEXT,"
-                    + MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI + " TEXT,"
-                    + MuzeiContract.Artwork.COLUMN_NAME_TITLE + " TEXT,"
-                    + MuzeiContract.Artwork.COLUMN_NAME_BYLINE + " TEXT,"
-                    + MuzeiContract.Artwork.COLUMN_NAME_ATTRIBUTION + " TEXT,"
-                    + MuzeiContract.Artwork.COLUMN_NAME_TOKEN + " TEXT,"
-                    + MuzeiContract.Artwork.COLUMN_NAME_META_FONT + " TEXT,"
-                    + MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED + " INTEGER,"
-                    + MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT + " TEXT,"
-                    + " CONSTRAINT fk_source_artwork FOREIGN KEY ("
-                    + MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME + ") REFERENCES "
-                    + MuzeiContract.Sources.TABLE_NAME + " ("
-                    + MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME + ") ON DELETE CASCADE);");
-        }
-
-        /**
-         * Upgrades the database.
-         */
-        @Override
-        public void onUpgrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
-            if (oldVersion < 3) {
-                // We can't ALTER TABLE to add a foreign key and we wouldn't know what the FK should be
-                // at this point anyways so we'll wipe and recreate the artwork table
-                db.execSQL("DROP TABLE " + MuzeiContract.Artwork.TABLE_NAME);
-                onCreate(db);
-            }
-        }
+        throw new UnsupportedOperationException("Updates are not supported");
     }
 }
