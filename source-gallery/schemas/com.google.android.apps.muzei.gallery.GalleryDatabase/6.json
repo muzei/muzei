@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 6,
-    "identityHash": "23468f673566d03bf453fc5be209b711",
+    "identityHash": "ad83af959f44d71e1ed01d3f18be8cf6",
     "entities": [
       {
         "tableName": "chosen_photos",
@@ -40,7 +40,7 @@
             "columnNames": [
               "uri"
             ],
-            "createSql": "CREATE UNIQUE INDEX `index_chosen_photos_uri`\nON `${TABLE_NAME}` (`uri`)"
+            "createSql": "CREATE UNIQUE INDEX `index_chosen_photos_uri` ON `${TABLE_NAME}` (`uri`)"
           }
         ],
         "foreignKeys": []
@@ -87,7 +87,7 @@
             "columnNames": [
               "uri"
             ],
-            "createSql": "CREATE UNIQUE INDEX `index_metadata_cache_uri`\nON `${TABLE_NAME}` (`uri`)"
+            "createSql": "CREATE UNIQUE INDEX `index_metadata_cache_uri` ON `${TABLE_NAME}` (`uri`)"
           }
         ],
         "foreignKeys": []
@@ -95,7 +95,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"23468f673566d03bf453fc5be209b711\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"ad83af959f44d71e1ed01d3f18be8cf6\")"
     ]
   }
 }

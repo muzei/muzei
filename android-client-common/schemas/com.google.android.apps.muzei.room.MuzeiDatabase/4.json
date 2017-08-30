@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 4,
-    "identityHash": "4cbe9c568f4abe4ee768381a0d149988",
+    "identityHash": "8a9d7da9db1263437e8631a92cfe26ee",
     "entities": [
       {
         "tableName": "Artwork",
@@ -82,7 +82,7 @@
             "columnNames": [
               "sourceComponentName"
             ],
-            "createSql": "CREATE  INDEX `index_Artwork_sourceComponentName`\nON `${TABLE_NAME}` (`sourceComponentName`)"
+            "createSql": "CREATE  INDEX `index_Artwork_sourceComponentName` ON `${TABLE_NAME}` (`sourceComponentName`)"
           }
         ],
         "foreignKeys": [
@@ -159,7 +159,7 @@
             "columnNames": [
               "component_name"
             ],
-            "createSql": "CREATE UNIQUE INDEX `index_sources_component_name`\nON `${TABLE_NAME}` (`component_name`)"
+            "createSql": "CREATE UNIQUE INDEX `index_sources_component_name` ON `${TABLE_NAME}` (`component_name`)"
           }
         ],
         "foreignKeys": []
@@ -167,7 +167,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"4cbe9c568f4abe4ee768381a0d149988\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"8a9d7da9db1263437e8631a92cfe26ee\")"
     ]
   }
 }
