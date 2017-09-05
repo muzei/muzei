@@ -20,7 +20,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0-beta3'
+        classpath 'com.android.tools.build:gradle:3.0.0-beta4'
         classpath 'com.google.gms:google-services:3.1.0'
         classpath 'com.google.firebase:firebase-plugins:1.1.1'
     }
@@ -38,7 +38,7 @@ ext {
     buildToolsVersion = "26.0.0"
     targetSdkVersion = 25
 
-    supportLibraryVersion = "26.0.1"
+    supportLibraryVersion = "26.0.2"
     lifecycleVersion = "1.0.0-alpha9"
     roomVersion = "1.0.0-alpha9"
     googlePlayServicesVersion = "11.2.0"
