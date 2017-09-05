@@ -38,7 +38,7 @@ ext {
     buildToolsVersion = "26.0.0"
     targetSdkVersion = 25
 
-    supportLibraryVersion = "26.0.1"
+    supportLibraryVersion = "26.0.2"
     lifecycleVersion = "1.0.0-alpha9"
     roomVersion = "1.0.0-alpha9"
     googlePlayServicesVersion = "11.2.0"
