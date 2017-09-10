@@ -20,7 +20,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0-beta4'
+        classpath 'com.android.tools.build:gradle:3.0.0-beta5'
         classpath 'com.google.gms:google-services:3.1.0'
         classpath 'com.google.firebase:firebase-plugins:1.1.1'
     }
@@ -41,7 +41,7 @@ ext {
     supportLibraryVersion = "26.0.2"
     lifecycleVersion = "1.0.0-alpha9"
     roomVersion = "1.0.0-alpha9"
-    googlePlayServicesVersion = "11.2.0"
+    googlePlayServicesVersion = "11.2.2"
     wearableVersion = "2.0.3"
     okhttpVersion = "3.8.1"
     picassoVersion = "2.5.2"
