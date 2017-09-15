@@ -21,11 +21,11 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.arch.lifecycle.LifecycleRegistry;
-import android.arch.lifecycle.LifecycleRegistryOwner;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.arch.paging.PagedList;
+import android.arch.paging.PagedListAdapter;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ComponentName;
@@ -54,7 +54,7 @@ import android.support.v4.view.OnApplyWindowInsetsListener;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowInsetsCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.util.DiffUtil;
+import android.support.v7.recyclerview.extensions.DiffCallback;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -79,6 +79,7 @@ import com.google.android.apps.muzei.util.MultiSelectionController;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -89,7 +90,7 @@ import static com.google.android.apps.muzei.gallery.GalleryArtSource.ACTION_PUBL
 import static com.google.android.apps.muzei.gallery.GalleryArtSource.EXTRA_FORCE_URI;
 
 public class GallerySettingsActivity extends AppCompatActivity
-        implements LifecycleRegistryOwner, Observer<List<ChosenPhoto>>,
+        implements Observer<PagedList<ChosenPhoto>>,
         GalleryImportPhotosDialogFragment.OnRequestContentListener {
     private static final String SHARED_PREF_NAME = "GallerySettingsActivity";
     private static final String SHOW_INTERNAL_STORAGE_MESSAGE = "show_internal_storage_message";
@@ -107,8 +108,7 @@ public class GallerySettingsActivity extends AppCompatActivity
         }
     };
 
-    private LifecycleRegistry mLifecycle = new LifecycleRegistry(this);
-    private LiveData<List<ChosenPhoto>> mChosenPhotosLiveData;
+    private LiveData<PagedList<ChosenPhoto>> mChosenPhotosLiveData;
 
     private Toolbar mSelectionToolbar;
 
@@ -121,7 +121,6 @@ public class GallerySettingsActivity extends AppCompatActivity
             = new MultiSelectionController(STATE_SELECTION);
 
     private ColorDrawable mPlaceholderDrawable;
-    private ColorDrawable mPlaceholderSmallDrawable;
 
     private static final SparseIntArray sRotateMenuIdsByMin = new SparseIntArray();
     private static final SparseIntArray sRotateMinsByMenuId = new SparseIntArray();
@@ -145,26 +144,16 @@ public class GallerySettingsActivity extends AppCompatActivity
     private View mAddToolbar;
 
     @Override
-    public LifecycleRegistry getLifecycle() {
-        return mLifecycle;
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gallery_activity);
         Toolbar appBar = findViewById(R.id.app_bar);
         setSupportActionBar(appBar);
 
-        mChosenPhotosLiveData = GalleryDatabase.getInstance(this).chosenPhotoDao().getChosenPhotos();
-        mChosenPhotosLiveData.observe(this, this);
-
         bindService(new Intent(this, GalleryArtSource.class).setAction(GalleryArtSource.ACTION_BIND_GALLERY),
                 mServiceConnection, BIND_AUTO_CREATE);
 
         mPlaceholderDrawable = new ColorDrawable(ContextCompat.getColor(this,
-                R.color.gallery_chosen_photo_placeholder));
-        mPlaceholderSmallDrawable = new ColorDrawable(ContextCompat.getColor(this,
                 R.color.gallery_chosen_photo_placeholder));
 
         mPhotoGridView = findViewById(R.id.photo_grid);
@@ -286,10 +275,11 @@ public class GallerySettingsActivity extends AppCompatActivity
                 }
             }
         });
-
-        mGetContentActivitiesLiveData = ViewModelProviders.of(this)
-                .get(GallerySettingsViewModel.class)
-                .getGetContentActivityInfoList();
+        GallerySettingsViewModel viewModel = ViewModelProviders.of(this)
+                .get(GallerySettingsViewModel.class);
+        mChosenPhotosLiveData = viewModel.getChosenPhotos();
+        mChosenPhotosLiveData.observe(this, this);
+        mGetContentActivitiesLiveData = viewModel.getGetContentActivityInfoList();
         mGetContentActivitiesLiveData.observe(this, new Observer<List<ActivityInfo>>() {
             @Override
             public void onChanged(@Nullable List<ActivityInfo> activityInfos) {
@@ -755,63 +745,37 @@ public class GallerySettingsActivity extends AppCompatActivity
         mMultiSelectionController.restoreInstanceState(savedInstanceState);
     }
 
-    abstract static class CheckableViewHolder extends RecyclerView.ViewHolder {
+    static class PhotoViewHolder extends RecyclerView.ViewHolder {
         final View mRootView;
         final View mCheckedOverlayView;
-
-        CheckableViewHolder(View root) {
-            super(root);
-            mRootView = root;
-            mCheckedOverlayView = root.findViewById(R.id.checked_overlay);
-        }
-    }
-
-    static class PhotoViewHolder extends CheckableViewHolder {
-        final ImageView mThumbView;
+        final List<ImageView> mThumbViews = new ArrayList<>();
+        final View mFolderIcon;
 
         PhotoViewHolder(View root) {
             super(root);
-            mThumbView = root.findViewById(R.id.thumbnail);
-        }
-    }
-
-    static class TreeViewHolder extends CheckableViewHolder {
-        final List<ImageView> mThumbViews = new ArrayList<>();
-
-        TreeViewHolder(View root) {
-            super(root);
+            mRootView = root;
+            mCheckedOverlayView = root.findViewById(R.id.checked_overlay);
             mThumbViews.add((ImageView) root.findViewById(R.id.thumbnail1));
             mThumbViews.add((ImageView) root.findViewById(R.id.thumbnail2));
             mThumbViews.add((ImageView) root.findViewById(R.id.thumbnail3));
             mThumbViews.add((ImageView) root.findViewById(R.id.thumbnail4));
+            mFolderIcon = root.findViewById(R.id.folder_icon);
         }
     }
 
     private final GalleryAdapter mChosenPhotosAdapter = new GalleryAdapter();
 
-    private class GalleryAdapter extends RecyclerView.Adapter<CheckableViewHolder>
+    private class GalleryAdapter extends PagedListAdapter<ChosenPhoto, PhotoViewHolder>
     {
-        List<ChosenPhoto> mChosenPhotos;
-
-        @Override
-        public int getItemViewType(final int position) {
-            return mChosenPhotos.get(position).isTreeUri ? 1 : 0;
+        GalleryAdapter() {
+            super(CHOSEN_PHOTO_DIFF_CALLBACK);
         }
 
         @Override
-        public CheckableViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            boolean isTreeUri = viewType != 0;
-            View v;
-            final CheckableViewHolder vh;
-            if (isTreeUri) {
-                v = LayoutInflater.from(GallerySettingsActivity.this)
-                        .inflate(R.layout.gallery_chosen_photo_tree_item, parent, false);
-                vh = new TreeViewHolder(v);
-            } else {
-                v = LayoutInflater.from(GallerySettingsActivity.this)
-                        .inflate(R.layout.gallery_chosen_photo_item, parent, false);
-                vh = new PhotoViewHolder(v);
-            }
+        public PhotoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(GallerySettingsActivity.this)
+                    .inflate(R.layout.gallery_chosen_photo_item, parent, false);
+            final PhotoViewHolder vh = new PhotoViewHolder(v);
 
             v.getLayoutParams().height = mItemSize;
             v.setOnTouchListener(new View.OnTouchListener() {
@@ -840,33 +804,40 @@ public class GallerySettingsActivity extends AppCompatActivity
         }
 
         @Override
-        public void onBindViewHolder(final CheckableViewHolder vh, int position) {
-            ChosenPhoto chosenPhoto = mChosenPhotos.get(position);
+        public void onBindViewHolder(final PhotoViewHolder vh, int position) {
+            ChosenPhoto chosenPhoto = getItem(position);
+            if (chosenPhoto == null) {
+                for (int h=0; h<vh.mThumbViews.size(); h++) {
+                    ImageView thumbView = vh.mThumbViews.get(h);
+                    thumbView.setVisibility(h == 0 ? View.VISIBLE : View.GONE);
+                    thumbView.setImageDrawable(mPlaceholderDrawable);
+                }
+                vh.mFolderIcon.setVisibility(View.GONE);
+                return;
+            }
+            vh.mFolderIcon.setVisibility(chosenPhoto.isTreeUri ? View.VISIBLE : View.GONE);
             Uri contentUri = chosenPhoto.getContentUri();
-            if (chosenPhoto.isTreeUri) {
-                TreeViewHolder treeVh = (TreeViewHolder) vh;
-                int maxImages = treeVh.mThumbViews.size();
-                List<Uri> images = getImagesFromTreeUri(chosenPhoto.uri, maxImages);
-                int numImages = images.size();
-                for (int h=0; h<numImages; h++) {
-                    Picasso.with(GallerySettingsActivity.this)
-                            .load(images.get(h))
-                            .resize(mItemSize / 2, mItemSize / 2)
-                            .centerCrop()
-                            .placeholder(mPlaceholderSmallDrawable)
-                            .into(treeVh.mThumbViews.get(h));
-                }
-                for (int h=numImages; h<maxImages; h++) {
-                    treeVh.mThumbViews.get(h).setImageDrawable(mPlaceholderSmallDrawable);
-                }
-            } else {
-                PhotoViewHolder photoVh = (PhotoViewHolder) vh;
+            int maxImages = vh.mThumbViews.size();
+            List<Uri> images = chosenPhoto.isTreeUri
+                    ? getImagesFromTreeUri(chosenPhoto.uri, maxImages)
+                    : Collections.singletonList(contentUri);
+            int numImages = images.size();
+            for (int h=0; h<numImages; h++) {
+                ImageView thumbView = vh.mThumbViews.get(h);
+                thumbView.setVisibility(View.VISIBLE);
                 Picasso.with(GallerySettingsActivity.this)
-                        .load(contentUri)
-                        .resize(mItemSize, mItemSize)
+                        .load(images.get(h))
+                        .resize(mItemSize / 2, mItemSize / 2)
                         .centerCrop()
                         .placeholder(mPlaceholderDrawable)
-                        .into(photoVh.mThumbView);
+                        .into(thumbView);
+            }
+            for (int h=numImages; h<maxImages; h++) {
+                ImageView thumbView = vh.mThumbViews.get(h);
+                // Show either just the one image or all the images even if
+                // they are just placeholders
+                thumbView.setVisibility(numImages == 1 ? View.GONE : View.VISIBLE);
+                thumbView.setImageDrawable(mPlaceholderDrawable);
             }
             final boolean checked = mMultiSelectionController.isSelected(chosenPhoto.id);
             vh.mRootView.setTag(R.id.gallery_viewtag_position, position);
@@ -926,13 +897,9 @@ public class GallerySettingsActivity extends AppCompatActivity
         }
 
         @Override
-        public int getItemCount() {
-            return mChosenPhotos != null ? mChosenPhotos.size() : 0;
-        }
-
-        @Override
         public long getItemId(int position) {
-            return mChosenPhotos.get(position).id;
+            ChosenPhoto chosenPhoto = getItem(position);
+            return chosenPhoto != null ? chosenPhoto.id : -1;
         }
     }
 
@@ -1040,40 +1007,25 @@ public class GallerySettingsActivity extends AppCompatActivity
         });
     }
 
-    @Override
-    public void onChanged(@Nullable final List<ChosenPhoto> chosenPhotos) {
-        if (chosenPhotos == null) {
-            mChosenPhotosAdapter.notifyItemRangeRemoved(0, mChosenPhotosAdapter.getItemCount());
-            onDataSetChanged();
-            return;
+    static final DiffCallback<ChosenPhoto> CHOSEN_PHOTO_DIFF_CALLBACK = new DiffCallback<ChosenPhoto>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull final ChosenPhoto oldItem, @NonNull final ChosenPhoto newItem) {
+            Uri oldImageUri = oldItem.uri;
+            Uri newImageUri = newItem.uri;
+            return oldImageUri.equals(newImageUri);
         }
-        final List<ChosenPhoto> previousData = mChosenPhotosAdapter.mChosenPhotos;
-        mChosenPhotosAdapter.mChosenPhotos = chosenPhotos;
-        DiffUtil.calculateDiff(new DiffUtil.Callback() {
-            @Override
-            public int getOldListSize() {
-                return previousData != null ? previousData.size() : 0;
-            }
 
-            @Override
-            public int getNewListSize() {
-                return chosenPhotos.size();
-            }
+        @Override
+        public boolean areContentsTheSame(@NonNull final ChosenPhoto oldItem, @NonNull final ChosenPhoto newItem) {
+            // If the items are the same (same image URI), then they are equivalent and
+            // no change animation is needed
+            return true;
+        }
+    };
 
-            @Override
-            public boolean areItemsTheSame(final int oldItemPosition, final int newItemPosition) {
-                Uri oldImageUri = previousData.get(oldItemPosition).uri;
-                Uri newImageUri = chosenPhotos.get(newItemPosition).uri;
-                return oldImageUri.equals(newImageUri);
-            }
-
-            @Override
-            public boolean areContentsTheSame(final int oldItemPosition, final int newItemPosition) {
-                // If the items are the same (same image URI), then they are equivalent and
-                // no change animation is needed
-                return true;
-            }
-        }).dispatchUpdatesTo(mChosenPhotosAdapter);
+    @Override
+    public void onChanged(@Nullable final PagedList<ChosenPhoto> chosenPhotos) {
+        mChosenPhotosAdapter.setList(chosenPhotos);
         onDataSetChanged();
     }
 

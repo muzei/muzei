@@ -102,7 +102,9 @@ public class SourceSubscriberService extends IntentService {
             artwork.byline = currentArtwork.getByline();
             artwork.attribution = currentArtwork.getAttribution();
             artwork.token = currentArtwork.getToken();
-            artwork.metaFont = currentArtwork.getMetaFont();
+            if (currentArtwork.getMetaFont() != null) {
+                artwork.metaFont = currentArtwork.getMetaFont();
+            }
             artwork.viewIntent = currentArtwork.getViewIntent();
 
             try {

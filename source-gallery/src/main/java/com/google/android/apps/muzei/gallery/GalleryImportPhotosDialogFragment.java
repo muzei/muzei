@@ -1,8 +1,6 @@
 package com.google.android.apps.muzei.gallery;
 
 import android.app.Dialog;
-import android.arch.lifecycle.LifecycleRegistry;
-import android.arch.lifecycle.LifecycleRegistryOwner;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
@@ -22,11 +20,9 @@ import android.widget.ArrayAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GalleryImportPhotosDialogFragment extends DialogFragment
-        implements LifecycleRegistryOwner {
+public class GalleryImportPhotosDialogFragment extends DialogFragment {
     public static final String TAG = "GalleryImportPhotosDialogFragment";
 
-    private LifecycleRegistry mLifecycle = new LifecycleRegistry(this);
     private LiveData<List<ActivityInfo>> mGetContentActivitiesLiveData;
     private OnRequestContentListener mListener;
     private ArrayAdapter<CharSequence> mAdapter;
@@ -37,11 +33,6 @@ public class GalleryImportPhotosDialogFragment extends DialogFragment
     }
 
     public GalleryImportPhotosDialogFragment () {
-    }
-
-    @Override
-    public LifecycleRegistry getLifecycle() {
-        return mLifecycle;
     }
 
     @Override

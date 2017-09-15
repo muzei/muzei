@@ -18,7 +18,6 @@ package com.google.android.apps.muzei.settings;
 
 import android.animation.ObjectAnimator;
 import android.app.Activity;
-import android.arch.lifecycle.LifecycleFragment;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.content.ActivityNotFoundException;
@@ -46,6 +45,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
@@ -78,7 +78,7 @@ import static com.google.android.apps.muzei.api.MuzeiArtSource.ACTION_MUZEI_ART_
 /**
  * Fragment for allowing the user to choose the active source.
  */
-public class SettingsChooseSourceFragment extends LifecycleFragment {
+public class SettingsChooseSourceFragment extends Fragment {
     private static final String TAG = "SettingsChooseSourceFrg";
 
     private static final int SCROLLBAR_HIDE_DELAY_MILLIS = 1000;

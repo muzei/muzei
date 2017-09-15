@@ -20,6 +20,7 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.paging.PagedList;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -37,10 +38,16 @@ import java.util.List;
  * changes.
  */
 public class GallerySettingsViewModel extends AndroidViewModel {
-    private LiveData<List<ActivityInfo>> mGetContentActivityInfoListLiveData;
+    private final LiveData<PagedList<ChosenPhoto>> mChosenPhotos;
+    private final LiveData<List<ActivityInfo>> mGetContentActivityInfoListLiveData;
 
     public GallerySettingsViewModel(Application application) {
         super(application);
+        mChosenPhotos = GalleryDatabase.getInstance(application).chosenPhotoDao()
+                .getChosenPhotosPaged().create(0,
+                        new PagedList.Config.Builder()
+                                .setPageSize(24)
+                                .build());
         mGetContentActivityInfoListLiveData = new MutableLiveData<List<ActivityInfo>>() {
             private BroadcastReceiver mPackagesChangedReceiver = new BroadcastReceiver() {
                 @Override
@@ -95,6 +102,10 @@ public class GallerySettingsViewModel extends AndroidViewModel {
                 setValue(contentActivities);
             }
         };
+    }
+
+    LiveData<PagedList<ChosenPhoto>> getChosenPhotos() {
+        return mChosenPhotos;
     }
 
     LiveData<List<ActivityInfo>> getGetContentActivityInfoList() {
