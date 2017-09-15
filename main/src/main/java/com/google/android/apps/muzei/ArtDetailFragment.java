@@ -16,7 +16,6 @@
 
 package com.google.android.apps.muzei;
 
-import android.arch.lifecycle.LifecycleFragment;
 import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.graphics.Rect;
@@ -24,6 +23,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.res.ResourcesCompat;
 import android.text.TextUtils;
 import android.util.Log;
@@ -66,7 +66,7 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.List;
 
-public class ArtDetailFragment extends LifecycleFragment
+public class ArtDetailFragment extends Fragment
         implements DrawInsetsFrameLayout.OnInsetsCallback {
     private static final String TAG = "ArtDetailFragment";
 

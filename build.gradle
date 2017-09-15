@@ -38,9 +38,11 @@ ext {
     buildToolsVersion = "26.0.0"
     targetSdkVersion = 25
 
-    supportLibraryVersion = "26.0.2"
-    lifecycleVersion = "1.0.0-alpha9"
-    roomVersion = "1.0.0-alpha9"
+    supportLibraryVersion = "26.1.0"
+    constraintLayoutVersion = "1.0.2"
+    lifecycleVersion = "1.0.0-alpha9-1"
+    roomVersion = "1.0.0-alpha9-1"
+    pagingVersion = "1.0.0-alpha1"
     googlePlayServicesVersion = "11.2.2"
     wearableVersion = "2.0.3"
     okhttpVersion = "3.8.1"
