@@ -806,28 +806,19 @@ public class GallerySettingsActivity extends AppCompatActivity
         @Override
         public void onBindViewHolder(final PhotoViewHolder vh, int position) {
             ChosenPhoto chosenPhoto = getItem(position);
-            if (chosenPhoto == null) {
-                for (int h=0; h<vh.mThumbViews.size(); h++) {
-                    ImageView thumbView = vh.mThumbViews.get(h);
-                    thumbView.setVisibility(h == 0 ? View.VISIBLE : View.GONE);
-                    thumbView.setImageDrawable(mPlaceholderDrawable);
-                }
-                vh.mFolderIcon.setVisibility(View.GONE);
-                return;
-            }
-            vh.mFolderIcon.setVisibility(chosenPhoto.isTreeUri ? View.VISIBLE : View.GONE);
-            Uri contentUri = chosenPhoto.getContentUri();
+            vh.mFolderIcon.setVisibility(chosenPhoto != null && chosenPhoto.isTreeUri ? View.VISIBLE : View.GONE);
             int maxImages = vh.mThumbViews.size();
-            List<Uri> images = chosenPhoto.isTreeUri
+            List<Uri> images = chosenPhoto == null ? new ArrayList<Uri>() : chosenPhoto.isTreeUri
                     ? getImagesFromTreeUri(chosenPhoto.uri, maxImages)
-                    : Collections.singletonList(contentUri);
+                    : Collections.singletonList(chosenPhoto.getContentUri());
             int numImages = images.size();
+            int targetSize = numImages <= 1 ? mItemSize : mItemSize / 2;
             for (int h=0; h<numImages; h++) {
                 ImageView thumbView = vh.mThumbViews.get(h);
                 thumbView.setVisibility(View.VISIBLE);
                 Picasso.with(GallerySettingsActivity.this)
                         .load(images.get(h))
-                        .resize(mItemSize / 2, mItemSize / 2)
+                        .resize(targetSize, targetSize)
                         .centerCrop()
                         .placeholder(mPlaceholderDrawable)
                         .into(thumbView);
@@ -836,10 +827,10 @@ public class GallerySettingsActivity extends AppCompatActivity
                 ImageView thumbView = vh.mThumbViews.get(h);
                 // Show either just the one image or all the images even if
                 // they are just placeholders
-                thumbView.setVisibility(numImages == 1 ? View.GONE : View.VISIBLE);
+                thumbView.setVisibility(numImages <= 1 ? View.GONE : View.VISIBLE);
                 thumbView.setImageDrawable(mPlaceholderDrawable);
             }
-            final boolean checked = mMultiSelectionController.isSelected(chosenPhoto.id);
+            final boolean checked = chosenPhoto != null && mMultiSelectionController.isSelected(chosenPhoto.id);
             vh.mRootView.setTag(R.id.gallery_viewtag_position, position);
             if (mLastTouchPosition == vh.getAdapterPosition()
                     && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
