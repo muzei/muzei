@@ -35,16 +35,16 @@ allprojects {
 
 ext {
     compileSdkVersion = 26
-    buildToolsVersion = "26.0.0"
+    buildToolsVersion = "26.0.1"
     targetSdkVersion = 25
 
     supportLibraryVersion = "26.1.0"
     constraintLayoutVersion = "1.0.2"
-    lifecycleVersion = "1.0.0-alpha9-1"
-    roomVersion = "1.0.0-alpha9-1"
-    pagingVersion = "1.0.0-alpha1"
-    googlePlayServicesVersion = "11.2.2"
-    wearableVersion = "2.0.3"
-    okhttpVersion = "3.8.1"
+    lifecycleVersion = "1.0.0-beta1"
+    roomVersion = "1.0.0-beta1"
+    pagingVersion = "1.0.0-alpha2"
+    googlePlayServicesVersion = "11.4.0"
+    wearableVersion = "2.0.5"
+    okhttpVersion = "3.9.0"
     picassoVersion = "2.5.2"
 }

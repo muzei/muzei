@@ -31,7 +31,7 @@ import com.google.android.apps.muzei.api.MuzeiContract;
 /**
  * Room Database for Muzei
  */
-@Database(entities = {Artwork.class, Source.class}, version = 4)
+@Database(entities = {Artwork.class, Source.class}, version = 5)
 public abstract class MuzeiDatabase extends RoomDatabase {
     private static MuzeiDatabase sInstance;
 
@@ -45,7 +45,7 @@ public abstract class MuzeiDatabase extends RoomDatabase {
             sInstance = Room.databaseBuilder(applicationContext,
                     MuzeiDatabase.class, "muzei.db")
                     .allowMainThreadQueries()
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                     .build();
             sInstance.sourceDao().getCurrentSource().observeForever(
                     new Observer<Source>() {
@@ -139,6 +139,13 @@ public abstract class MuzeiDatabase extends RoomDatabase {
                     + "SELECT * FROM artwork");
             database.execSQL("DROP TABLE artwork");
             database.execSQL("ALTER TABLE artwork2 RENAME TO artwork");
+        }
+    };
+
+    private static Migration MIGRATION_4_5 = new Migration(4, 5) {
+        @Override
+        public void migrate(final SupportSQLiteDatabase database) {
+            // NO-OP
         }
     };
 }
