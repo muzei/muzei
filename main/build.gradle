@@ -21,7 +21,6 @@ project.archivesBaseName = "muzei"
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
 
     Properties versionProps = new Properties()
     versionProps.load(new FileInputStream(file('../version.properties')))
