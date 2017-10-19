@@ -79,6 +79,7 @@ public class SourceSubscriberService extends IntentService {
 
         source.description = state.getDescription();
         source.wantsNetworkAvailable = state.getWantsNetworkAvailable();
+        source.supportsNextArtwork = false;
         source.commands = new ArrayList<>();
         int numSourceActions = state.getNumUserCommands();
         for (int i = 0; i < numSourceActions; i++) {
