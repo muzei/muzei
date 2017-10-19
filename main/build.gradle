@@ -100,7 +100,6 @@ dependencies {
     implementation "com.android.support:design:$rootProject.ext.supportLibraryVersion"
     implementation "com.android.support:customtabs:$rootProject.ext.supportLibraryVersion"
     implementation "com.android.support:exifinterface:$rootProject.ext.supportLibraryVersion"
-    implementation "android.arch.lifecycle:runtime:$rootProject.ext.lifecycleVersion"
     implementation "android.arch.lifecycle:extensions:$rootProject.ext.lifecycleVersion"
     annotationProcessor "android.arch.lifecycle:compiler:$rootProject.ext.lifecycleVersion"
 

@@ -19,7 +19,6 @@ apply plugin: 'com.android.library'
 dependencies {
     implementation project(':api')
     implementation "com.android.support:support-compat:$rootProject.ext.supportLibraryVersion"
-    api "android.arch.lifecycle:runtime:$rootProject.ext.lifecycleVersion"
     api "android.arch.lifecycle:extensions:$rootProject.ext.lifecycleVersion"
     annotationProcessor "android.arch.lifecycle:compiler:$rootProject.ext.lifecycleVersion"
     implementation "com.android.support:support-core-ui:$rootProject.ext.supportLibraryVersion"
