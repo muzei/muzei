@@ -107,13 +107,12 @@ public abstract class RemoteMuzeiArtSource extends MuzeiArtSource {
                 throw new RetryException();
             }
 
-            // In anticipation of update success, reset update attempt
-            // Any alarms will be cleared before onUpdate is called
-            sp.edit().remove(PREF_RETRY_ATTEMPT).apply();
-            setWantsNetworkAvailable(false);
-
             // Attempt an update
             onTryUpdate(reason);
+
+            // No RetryException, so declare success and reset update attempt
+            sp.edit().remove(PREF_RETRY_ATTEMPT).apply();
+            setWantsNetworkAvailable(false);
 
         } catch (RetryException e) {
             Log.w(TAG, "Error fetching, scheduling retry, id=" + mName);
