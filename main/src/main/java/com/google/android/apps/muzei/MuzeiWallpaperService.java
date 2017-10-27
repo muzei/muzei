@@ -46,6 +46,7 @@ import android.view.ViewConfiguration;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
 import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent;
+import com.google.android.apps.muzei.render.ImageUtil;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
 import com.google.android.apps.muzei.render.RealRenderController;
 import com.google.android.apps.muzei.render.RenderController;
@@ -213,22 +214,13 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
                 BitmapFactory.decodeStream(
                         getContentResolver().openInputStream(MuzeiContract.Artwork.CONTENT_URI),
                         null, options);
-                final int height = options.outHeight;
-                final int width = options.outWidth;
-                options.inSampleSize = 1;
-                if (height > MAX_ARTWORK_SIZE || width > MAX_ARTWORK_SIZE) {
-                    // Double the inSampleSize value until both dimensions are
-                    // under the maximum artwork size
-                    while ((height / options.inSampleSize) > MAX_ARTWORK_SIZE
-                            || (width / options.inSampleSize) > MAX_ARTWORK_SIZE) {
-                        options.inSampleSize *= 2;
-                    }
-                }
+                options.inSampleSize = Math.max(
+                        ImageUtil.calculateSampleSize(options.outHeight, MAX_ARTWORK_SIZE / 2),
+                        ImageUtil.calculateSampleSize(options.outWidth, MAX_ARTWORK_SIZE / 2));
                 options.inJustDecodeBounds = false;
                 mCurrentArtwork = BitmapFactory.decodeStream(
                         getContentResolver().openInputStream(MuzeiContract.Artwork.CONTENT_URI),
                         null, options);
-                Log.w(TAG, "Height: " + mCurrentArtwork.getHeight() + ", width: " + mCurrentArtwork.getWidth());
                 notifyColorsChanged();
             } catch (FileNotFoundException e) {
                 Log.w(TAG, "Error reading current artwork", e);

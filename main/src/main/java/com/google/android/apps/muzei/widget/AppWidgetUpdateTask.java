@@ -153,8 +153,8 @@ public class AppWidgetUpdateTask extends AsyncTask<ArtworkSource,Void,Boolean> {
             int width = options.outWidth;
             int height = options.outHeight;
             options.inJustDecodeBounds = false;
-            options.inSampleSize = Math.min(ImageUtil.calculateSampleSize(width, widgetWidth),
-                    ImageUtil.calculateSampleSize(height, widgetHeight));
+            options.inSampleSize = Math.max(ImageUtil.calculateSampleSize(width, widgetWidth / 2),
+                    ImageUtil.calculateSampleSize(height, widgetHeight / 2));
             image = BitmapFactory.decodeStream(
                     contentResolver.openInputStream(imageUri), null, options);
         } catch (FileNotFoundException e) {
