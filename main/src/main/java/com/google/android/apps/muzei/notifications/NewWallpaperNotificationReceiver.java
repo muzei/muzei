@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei;
+package com.google.android.apps.muzei.notifications;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -22,7 +22,6 @@ import android.app.PendingIntent;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -41,6 +40,7 @@ import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.android.apps.muzei.SourceManager;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.api.UserCommand;
@@ -69,7 +69,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
     private static final String PREF_LAST_READ_NOTIFICATION_ARTWORK_TOKEN
             = "last_read_notification_artwork_token";
 
-    private static final String NOTIFICATION_CHANNEL = "new_wallpaper";
+    static final String NOTIFICATION_CHANNEL = "new_wallpaper";
     private static final int NOTIFICATION_ID = 1234;
 
     private static final String ACTION_MARK_NOTIFICATION_READ
@@ -232,7 +232,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
                 .setContentText(context.getString(R.string.notification_new_wallpaper))
                 .setLargeIcon(largeIcon)
                 .setContentIntent(PendingIntent.getActivity(context, 0,
-                        Intent.makeMainActivity(new ComponentName(context, MuzeiActivity.class)),
+                        context.getPackageManager().getLaunchIntentForPackage(context.getPackageName()),
                         PendingIntent.FLAG_UPDATE_CURRENT))
                 .setDeleteIntent(PendingIntent.getBroadcast(context, 0,
                         new Intent(context, NewWallpaperNotificationReceiver.class)
@@ -325,7 +325,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
                 .setContentTitle(context.getString(R.string.app_name))
                 .setContentText(context.getString(R.string.notification_new_wallpaper))
                 .setContentIntent(PendingIntent.getActivity(context, 0,
-                        Intent.makeMainActivity(new ComponentName(context, MuzeiActivity.class)),
+                        context.getPackageManager().getLaunchIntentForPackage(context.getPackageName()),
                         PendingIntent.FLAG_UPDATE_CURRENT))
                 .setDeleteIntent(PendingIntent.getBroadcast(context, 0,
                         new Intent(context, NewWallpaperNotificationReceiver.class)

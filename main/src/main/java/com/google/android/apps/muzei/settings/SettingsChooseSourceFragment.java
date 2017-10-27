@@ -52,6 +52,9 @@ import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -59,6 +62,7 @@ import android.widget.TextView;
 
 import com.google.android.apps.muzei.SourceManager;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
+import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment;
 import com.google.android.apps.muzei.room.MuzeiDatabase;
 import com.google.android.apps.muzei.util.CheatSheet;
 import com.google.android.apps.muzei.util.ObservableHorizontalScrollView;
@@ -118,6 +122,7 @@ public class SettingsChooseSourceFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         mAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
         mItemWidth = getResources().getDimensionPixelSize(
                 R.dimen.settings_choose_source_item_width);
@@ -148,6 +153,23 @@ public class SettingsChooseSourceFragment extends Fragment {
                         updateSelectedItem(source, true);
                     }
                 });
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.settings_choose_source, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_notification_settings:
+                NotificationSettingsDialogFragment.showSettings(this);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -293,7 +315,7 @@ public class SettingsChooseSourceFragment extends Fragment {
             sourceImageButton.setBackground(drawable);
 
             float alpha = selected ? 1f : Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-                            && source.targetSdkVersion >= Build.VERSION_CODES.O ? ALPHA_DISABLED : ALPHA_UNSELECTED;
+                    && source.targetSdkVersion >= Build.VERSION_CODES.O ? ALPHA_DISABLED : ALPHA_UNSELECTED;
             source.rootView.animate()
                     .alpha(alpha)
                     .setDuration(mAnimationDuration);

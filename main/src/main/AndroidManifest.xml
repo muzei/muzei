@@ -147,7 +147,7 @@
 
         <!-- New wallpaper notification receiver -->
 
-        <receiver android:name="com.google.android.apps.muzei.NewWallpaperNotificationReceiver" />
+        <receiver android:name="com.google.android.apps.muzei.notifications.NewWallpaperNotificationReceiver" />
 
         <service android:name="com.google.android.apps.muzei.wearable.NotificationOpenListenerService"
             tools:ignore="ExportedService">

@@ -21,11 +21,12 @@
     <string name="settings_blur_amount_title">Blur</string>
     <string name="settings_dim_amount_title">Dim</string>
     <string name="settings_grey_amount_title">Grey</string>
-    <string name="settings_notify_new_wallpaper">New wallpaper notifications</string>
     <string name="settings_blur_on_lockscreen">Apply blur on lockscreen</string>
 
     <string name="notification_new_wallpaper">New wallpaper</string>
     <string name="notification_new_wallpaper_channel_name">New wallpapers</string>
+    <string name="notification_settings">Notification Settings</string>
+    <string name="notification_settings_done">Done</string>
 
     <string name="action_activate">Activate</string>
     <string name="action_settings">Customize</string>

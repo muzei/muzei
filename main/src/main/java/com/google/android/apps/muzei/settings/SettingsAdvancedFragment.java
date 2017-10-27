@@ -18,7 +18,6 @@ package com.google.android.apps.muzei.settings;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -32,7 +31,6 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 
-import com.google.android.apps.muzei.NewWallpaperNotificationReceiver;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
 
 import net.nurik.roman.muzei.R;
@@ -120,19 +118,6 @@ public class SettingsAdvancedFragment extends Fragment {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-        CheckBox mNotifyNewWallpaperCheckBox = rootView.findViewById(
-                R.id.notify_new_wallpaper_checkbox);
-        mNotifyNewWallpaperCheckBox.setOnCheckedChangeListener(
-                new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton button, boolean checked) {
-                        PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
-                                .putBoolean(NewWallpaperNotificationReceiver.PREF_ENABLED, checked)
-                                .apply();
-                    }
-                });
-        mNotifyNewWallpaperCheckBox.setChecked(PreferenceManager.getDefaultSharedPreferences(getContext())
-                .getBoolean(NewWallpaperNotificationReceiver.PREF_ENABLED, true));
         CheckBox mBlurOnLockScreenCheckBox = rootView.findViewById(
                 R.id.blur_on_lockscreen_checkbox);
         mBlurOnLockScreenCheckBox.setOnCheckedChangeListener(
