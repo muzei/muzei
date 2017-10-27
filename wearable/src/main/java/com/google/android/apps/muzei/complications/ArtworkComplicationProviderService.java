@@ -53,7 +53,7 @@ import java.util.TreeSet;
 public class ArtworkComplicationProviderService extends ComplicationProviderService {
     private static final String TAG = "ArtworkComplProvider";
 
-    static String KEY_COMPLICATION_IDS = "complication_ids";
+    static final String KEY_COMPLICATION_IDS = "complication_ids";
 
     @Override
     public void onCreate() {

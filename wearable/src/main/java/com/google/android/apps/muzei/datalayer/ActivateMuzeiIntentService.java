@@ -175,7 +175,7 @@ public class ActivateMuzeiIntentService extends IntentService {
         NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
         NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL,
                 context.getString(R.string.activate_channel_name),
-                NotificationManager.IMPORTANCE_MAX);
+                NotificationManager.IMPORTANCE_HIGH);
         channel.enableVibration(true);
         notificationManager.createNotificationChannel(channel);
     }

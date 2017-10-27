@@ -68,7 +68,7 @@ public class FullScreenActivity extends Activity implements LoaderManager.Loader
         super.onCreate(savedState);
         setContentView(R.layout.full_screen_activity);
         FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE);
-        mPanView = (PanView) findViewById(R.id.pan_view);
+        mPanView = findViewById(R.id.pan_view);
         getLoaderManager().initLoader(0, null, this);
 
         mScrimView = findViewById(R.id.scrim);
@@ -76,10 +76,10 @@ public class FullScreenActivity extends Activity implements LoaderManager.Loader
         mHandler.postDelayed(mShowLoadingIndicatorRunnable, 500);
 
         mMetadataContainerView = findViewById(R.id.metadata_container);
-        mTitleView = (TextView) findViewById(R.id.title);
-        mBylineView = (TextView) findViewById(R.id.byline);
+        mTitleView = findViewById(R.id.title);
+        mBylineView = findViewById(R.id.byline);
 
-        mDismissOverlay = (DismissOverlayView) findViewById(R.id.dismiss_overlay);
+        mDismissOverlay = findViewById(R.id.dismiss_overlay);
         // Only show the dismiss overlay on Wear 1.0 devices
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             mDismissOverlay.setIntroText(R.string.dismiss_overlay_intro);

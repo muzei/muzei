@@ -63,11 +63,11 @@ public class AboutActivity extends AppCompatActivity {
         }
 
         // Build the about body view and append the link to see OSS licenses
-        TextView versionView = (TextView) findViewById(R.id.app_version);
+        TextView versionView = findViewById(R.id.app_version);
         versionView.setText(Html.fromHtml(
                 getString(R.string.about_version_template, BuildConfig.VERSION_NAME)));
 
-        TextView aboutBodyView = (TextView) findViewById(R.id.about_body);
+        TextView aboutBodyView = findViewById(R.id.about_body);
         aboutBodyView.setText(Html.fromHtml(getString(R.string.about_body)));
         aboutBodyView.setMovementMethod(new LinkMovementMethod());
 

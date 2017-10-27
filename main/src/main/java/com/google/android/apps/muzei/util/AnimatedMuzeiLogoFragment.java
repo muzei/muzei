@@ -53,7 +53,7 @@ public class AnimatedMuzeiLogoFragment extends Fragment {
     public void onViewCreated(final View view, @Nullable final Bundle savedInstanceState) {
         mSubtitleView = view.findViewById(R.id.logo_subtitle);
 
-        mLogoView = (AnimatedMuzeiLogoView) view.findViewById(R.id.animated_logo);
+        mLogoView = view.findViewById(R.id.animated_logo);
         mLogoView.setOnStateChangeListener(new AnimatedMuzeiLogoView.OnStateChangeListener() {
             @Override
             public void onStateChange(int state) {

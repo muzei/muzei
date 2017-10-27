@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.WakefulBroadcastReceiver;
 
@@ -38,6 +39,7 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTIO
 public class NetworkChangeReceiver extends WakefulBroadcastReceiver implements LifecycleOwner {
     private LifecycleRegistry mLifecycle;
 
+    @NonNull
     @Override
     public Lifecycle getLifecycle() {
         return mLifecycle;

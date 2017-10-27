@@ -18,10 +18,13 @@ package com.google.android.apps.muzei.sync;
 
 import android.app.job.JobParameters;
 import android.app.job.JobService;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 
 /**
  * JobService that handles reloading artwork after any initial failure
  */
+@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class DownloadArtworkJobService extends JobService {
     private DownloadArtworkTask mDownloadArtworkTask = null;
 

@@ -118,9 +118,8 @@ public class TutorialFragment extends Fragment
                 mAnimator.addListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        if (isAdded()) {
-                            ImageView emanateView = (ImageView)
-                                    view.findViewById(R.id.tutorial_icon_emanate);
+                        if (isAdded() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            ImageView emanateView = view.findViewById(R.id.tutorial_icon_emanate);
                             AnimatedVectorDrawable avd = (AnimatedVectorDrawable)
                                     getResources().getDrawable(
                                             R.drawable.avd_tutorial_icon_emanate,
@@ -133,8 +132,7 @@ public class TutorialFragment extends Fragment
             }
             mAnimator.start();
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            ImageView emanateView = (ImageView)
-                    view.findViewById(R.id.tutorial_icon_emanate);
+            ImageView emanateView = view.findViewById(R.id.tutorial_icon_emanate);
             AnimatedVectorDrawable avd = (AnimatedVectorDrawable)
                     getResources().getDrawable(
                             R.drawable.avd_tutorial_icon_emanate,

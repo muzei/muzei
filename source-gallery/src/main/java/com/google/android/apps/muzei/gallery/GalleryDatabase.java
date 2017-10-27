@@ -28,6 +28,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Binder;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.File;
@@ -62,7 +63,7 @@ public abstract class GalleryDatabase extends RoomDatabase {
 
     private static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
-        public void migrate(SupportSQLiteDatabase database) {
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("DROP TABLE IF EXISTS metadata_cache");
             database.execSQL("CREATE TABLE metadata_cache ("
                     + "_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
@@ -75,7 +76,7 @@ public abstract class GalleryDatabase extends RoomDatabase {
 
     private static final Migration MIGRATION_2_3 = new Migration(2, 3) {
         @Override
-        public void migrate(SupportSQLiteDatabase database) {
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("ALTER TABLE chosen_photos"
                     + " ADD COLUMN is_tree_uri INTEGER");
         }
@@ -83,7 +84,7 @@ public abstract class GalleryDatabase extends RoomDatabase {
 
     private static final Migration MIGRATION_3_4 = new Migration(3, 4) {
         @Override
-        public void migrate(SupportSQLiteDatabase database) {
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
             // Due to an issue with upgrading version 2 to 3, some users might have the
             // COLUMN_NAME_IS_TREE_URI column and some might not. Awkward.
             // We'll check if the column exists and add it if it doesn't exist
@@ -116,7 +117,7 @@ public abstract class GalleryDatabase extends RoomDatabase {
             applicationContext = context.getApplicationContext();
         }
         @Override
-        public void migrate(SupportSQLiteDatabase database) {
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
             // Double check all existing artwork to make sure we've
             // persisted URI permissions where possible
             ContentResolver contentResolver = applicationContext.getContentResolver();
@@ -148,7 +149,7 @@ public abstract class GalleryDatabase extends RoomDatabase {
 
     private static final Migration MIGRATION_5_6 = new Migration(5, 6) {
         @Override
-        public void migrate(SupportSQLiteDatabase database) {
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
             // Handle Chosen Photos
             database.execSQL("CREATE TABLE chosen_photos2 ("
                     + "_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
