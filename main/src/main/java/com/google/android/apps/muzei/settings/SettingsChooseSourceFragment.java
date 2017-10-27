@@ -18,6 +18,7 @@ package com.google.android.apps.muzei.settings;
 
 import android.animation.ObjectAnimator;
 import android.app.Activity;
+import android.app.Notification;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.content.ActivityNotFoundException;
@@ -143,7 +144,7 @@ public class SettingsChooseSourceFragment extends Fragment {
 
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "sources");
-        FirebaseAnalytics.getInstance(getContext()).logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST, bundle);
+        FirebaseAnalytics.getInstance(context).logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST, bundle);
 
         mCurrentSourceLiveData = MuzeiDatabase.getInstance(context).sourceDao().getCurrentSource();
         mCurrentSourceLiveData.observe(this,
@@ -153,6 +154,13 @@ public class SettingsChooseSourceFragment extends Fragment {
                         updateSelectedItem(source, true);
                     }
                 });
+
+        Intent intent = ((Activity) context).getIntent();
+        if (intent != null && intent.getCategories() != null &&
+                intent.getCategories().contains(Notification.INTENT_CATEGORY_NOTIFICATION_PREFERENCES)) {
+            FirebaseAnalytics.getInstance(context).logEvent("notification_preferences_open", null);
+            NotificationSettingsDialogFragment.showSettings(this);
+        }
     }
 
     @Override

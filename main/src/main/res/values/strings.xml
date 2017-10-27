@@ -27,6 +27,8 @@
     <string name="notification_new_wallpaper_channel_name">New wallpapers</string>
     <string name="notification_settings">Notification Settings</string>
     <string name="notification_settings_done">Done</string>
+    <string name="notification_settings_moved_title">Notification settings have moved</string>
+    <string name="notification_settings_moved_text">Review your notification settings</string>
 
     <string name="action_activate">Activate</string>
     <string name="action_settings">Customize</string>

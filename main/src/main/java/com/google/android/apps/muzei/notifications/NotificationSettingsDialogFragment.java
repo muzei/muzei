@@ -72,7 +72,7 @@ public class NotificationSettingsDialogFragment extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                         sharedPreferences.edit().putBoolean(
-                                NewWallpaperNotificationReceiver.PREF_ENABLED, isChecked);
+                                NewWallpaperNotificationReceiver.PREF_ENABLED, isChecked).apply();
                     }
                 })
                 .setPositiveButton(R.string.notification_settings_done, null)

@@ -79,8 +79,6 @@ public class SettingsActivity extends AppCompatActivity
 
     private int mStartSection = START_SECTION_SOURCE;
 
-    private Toolbar mAppBar;
-
     private ObjectAnimator mBackgroundAnimator;
     private boolean mPaused;
     private boolean mRenderLocally;
@@ -92,12 +90,6 @@ public class SettingsActivity extends AppCompatActivity
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
         setContentView(R.layout.settings_activity);
-
-        if (getIntent() != null && getIntent().getCategories() != null &&
-                getIntent().getCategories().contains(Notification.INTENT_CATEGORY_NOTIFICATION_PREFERENCES)) {
-            FirebaseAnalytics.getInstance(this).logEvent("notification_preferences_open", null);
-            mStartSection = START_SECTION_ADVANCED;
-        }
 
         // Set up UI widgets
         setupAppBar();
@@ -139,8 +131,8 @@ public class SettingsActivity extends AppCompatActivity
     }
 
     private void setupAppBar() {
-        mAppBar = findViewById(R.id.app_bar);
-        setSupportActionBar(mAppBar);
+        Toolbar toolbar = findViewById(R.id.app_bar);
+        setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         final LayoutInflater inflater = LayoutInflater.from(this);
