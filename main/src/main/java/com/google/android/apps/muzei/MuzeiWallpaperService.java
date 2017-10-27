@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei;
 
+import android.app.WallpaperColors;
 import android.app.WallpaperManager;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
@@ -26,16 +27,23 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.ContentObserver;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.os.UserManagerCompat;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.ViewConfiguration;
 
+import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
 import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
@@ -54,7 +62,11 @@ import net.rbgrn.android.glwallpaperservice.GLWallpaperService;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.io.FileNotFoundException;
+
 public class MuzeiWallpaperService extends GLWallpaperService implements LifecycleOwner {
+    private static final String TAG = "MuzeiWallpaperService";
+
     private LifecycleRegistry mLifecycle;
     private BroadcastReceiver mUnlockReceiver;
 
@@ -114,12 +126,14 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
             MuzeiBlurRenderer.Callbacks {
 
         private static final long TEMPORARY_FOCUS_DURATION_MILLIS = 3000;
+        private static final int MAX_ARTWORK_SIZE = 110; // px
 
         private Handler mMainThreadHandler = new Handler();
 
         private RenderController mRenderController;
         private GestureDetector mGestureDetector;
         private MuzeiBlurRenderer mRenderer;
+        private Bitmap mCurrentArtwork;
 
         private boolean mArtDetailMode = false;
         private boolean mVisible = true;
@@ -146,6 +160,29 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
             mEngineLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
             mEngineLifecycle.addObserver(new WallpaperAnalytics(MuzeiWallpaperService.this));
             mEngineLifecycle.addObserver(new LockscreenObserver(MuzeiWallpaperService.this, this));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                mEngineLifecycle.addObserver(new LifecycleObserver() {
+                    private ContentObserver mContentObserver;
+
+                    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+                    public void registerArtworkObserver() {
+                        mContentObserver = new ContentObserver(new Handler()) {
+                            @Override
+                            public void onChange(boolean selfChange, Uri uri) {
+                                updateCurrentArtwork();
+                            }
+                        };
+                        getContentResolver().registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
+                                true, mContentObserver);
+                        mContentObserver.onChange(true, MuzeiContract.Artwork.CONTENT_URI);
+                    }
+
+                    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+                    public void unregisterArtworkObserver() {
+                        getContentResolver().unregisterContentObserver(mContentObserver);
+                    }
+                });
+            }
 
             if (!isPreview()) {
                 // Use the MuzeiWallpaperService's lifecycle to wait for the user to unlock
@@ -167,6 +204,43 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
             // The MuzeiWallpaperService only gets to ON_START when the user is unlocked
             // At that point, we can proceed with the engine's lifecycle
             mEngineLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME);
+        }
+
+        private void updateCurrentArtwork() {
+            try {
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                BitmapFactory.decodeStream(
+                        getContentResolver().openInputStream(MuzeiContract.Artwork.CONTENT_URI),
+                        null, options);
+                final int height = options.outHeight;
+                final int width = options.outWidth;
+                options.inSampleSize = 1;
+                if (height > MAX_ARTWORK_SIZE || width > MAX_ARTWORK_SIZE) {
+                    // Double the inSampleSize value until both dimensions are
+                    // under the maximum artwork size
+                    while ((height / options.inSampleSize) > MAX_ARTWORK_SIZE
+                            || (width / options.inSampleSize) > MAX_ARTWORK_SIZE) {
+                        options.inSampleSize *= 2;
+                    }
+                }
+                options.inJustDecodeBounds = false;
+                mCurrentArtwork = BitmapFactory.decodeStream(
+                        getContentResolver().openInputStream(MuzeiContract.Artwork.CONTENT_URI),
+                        null, options);
+                Log.w(TAG, "Height: " + mCurrentArtwork.getHeight() + ", width: " + mCurrentArtwork.getWidth());
+                notifyColorsChanged();
+            } catch (FileNotFoundException e) {
+                Log.w(TAG, "Error reading current artwork", e);
+            }
+        }
+
+        @RequiresApi(api = 27)
+        @Override
+        public WallpaperColors onComputeColors() {
+            return mCurrentArtwork != null
+                    ? WallpaperColors.fromBitmap(mCurrentArtwork)
+                    : super.onComputeColors();
         }
 
         @Override
