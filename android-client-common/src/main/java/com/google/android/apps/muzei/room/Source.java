@@ -44,7 +44,7 @@ public class Source {
     @TypeConverters({ComponentNameTypeConverter.class})
     @ColumnInfo(name = "component_name")
     @NonNull
-    public ComponentName componentName;
+    public final ComponentName componentName;
 
     public boolean selected;
 

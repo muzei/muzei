@@ -26,6 +26,7 @@ import android.graphics.drawable.AnimatedVectorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.TypedValue;
@@ -53,8 +54,8 @@ public class TutorialFragment extends Fragment
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         mTutorialContainerView = inflater.inflate(R.layout.tutorial_fragment, container, false);
 
         mContainerView = (DrawInsetsFrameLayout) container;
@@ -64,7 +65,7 @@ public class TutorialFragment extends Fragment
     }
 
     @Override
-    public void onViewCreated(final View view, @Nullable final Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull final View view, @Nullable final Bundle savedInstanceState) {
         view.findViewById(R.id.tutorial_icon_affordance).setOnClickListener(
                 new View.OnClickListener() {
                     @Override

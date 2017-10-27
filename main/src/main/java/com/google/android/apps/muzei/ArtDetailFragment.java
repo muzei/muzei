@@ -22,6 +22,7 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.res.ResourcesCompat;
@@ -74,7 +75,7 @@ public class ArtDetailFragment extends Fragment
     private float mWallpaperAspectRatio;
     private float mArtworkAspectRatio;
 
-    public boolean mSupportsNextArtwork = false;
+    private boolean mSupportsNextArtwork = false;
     private Observer<Source> mSourceObserver = new Observer<Source>() {
         @Override
         public void onChanged(@Nullable final Source source) {
@@ -193,7 +194,8 @@ public class ArtDetailFragment extends Fragment
 
     @Nullable
     @Override
-    public View onCreateView(final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
+    public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container,
+            @Nullable final Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.art_detail_fragment, container, false);
 
         mChromeContainerView = view.findViewById(R.id.chrome_container);
@@ -205,7 +207,7 @@ public class ArtDetailFragment extends Fragment
     }
 
     @Override
-    public void onViewCreated(final View view, @Nullable final Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull final View view, @Nullable final Bundle savedInstanceState) {
         mStatusBarScrimView = view.findViewById(R.id.statusbar_scrim);
 
         mChromeContainerView.setBackground(ScrimUtil.makeCubicGradientScrimDrawable(

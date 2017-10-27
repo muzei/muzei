@@ -66,14 +66,14 @@ public abstract class MuzeiDatabase extends RoomDatabase {
         return sInstance;
     }
 
-    private static Migration MIGRATION_1_2 = new Migration(1, 2) {
+    private static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
         public void migrate(@NonNull final SupportSQLiteDatabase database) {
             // NO-OP
         }
     };
 
-    private static Migration MIGRATION_2_3 = new Migration(2, 3) {
+    private static final Migration MIGRATION_2_3 = new Migration(2, 3) {
         @Override
         public void migrate(@NonNull final SupportSQLiteDatabase database) {
             // We can't ALTER TABLE to add a foreign key and we wouldn't know what the FK should be
@@ -104,7 +104,7 @@ public abstract class MuzeiDatabase extends RoomDatabase {
         }
     };
 
-    private static Migration MIGRATION_3_4 = new Migration(3, 4) {
+    private static final Migration MIGRATION_3_4 = new Migration(3, 4) {
         @Override
         public void migrate(@NonNull final SupportSQLiteDatabase database) {
             // Handle Sources
@@ -143,7 +143,7 @@ public abstract class MuzeiDatabase extends RoomDatabase {
         }
     };
 
-    private static Migration MIGRATION_4_5 = new Migration(4, 5) {
+    private static final Migration MIGRATION_4_5 = new Migration(4, 5) {
         @Override
         public void migrate(@NonNull final SupportSQLiteDatabase database) {
             // NO-OP
