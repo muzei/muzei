@@ -260,9 +260,9 @@ public class ArtDetailFragment extends Fragment
                     }
                 });
 
-        mTitleView = (TextView) view.findViewById(R.id.title);
-        mBylineView = (TextView) view.findViewById(R.id.byline);
-        mAttributionView = (TextView) view.findViewById(R.id.attribution);
+        mTitleView = view.findViewById(R.id.title);
+        mBylineView = view.findViewById(R.id.byline);
+        mAttributionView = view.findViewById(R.id.attribution);
 
         final View overflowButton = view.findViewById(R.id.overflow_button);
         mOverflowMenu = new PopupMenu(getContext(), overflowButton);
@@ -304,7 +304,7 @@ public class ArtDetailFragment extends Fragment
         });
         CheatSheet.setup(mNextButton);
 
-        mPanScaleProxyView = (PanScaleProxyView) view.findViewById(R.id.pan_scale_proxy);
+        mPanScaleProxyView = view.findViewById(R.id.pan_scale_proxy);
         mPanScaleProxyView.setMaxZoom(5);
         mPanScaleProxyView.setOnViewportChangedListener(
                 new PanScaleProxyView.OnViewportChangedListener() {
@@ -333,8 +333,7 @@ public class ArtDetailFragment extends Fragment
                 });
 
         mLoadingContainerView = view.findViewById(R.id.image_loading_container);
-        mLoadingIndicatorView = (AnimatedMuzeiLoadingSpinnerView)
-                view.findViewById(R.id.image_loading_indicator);
+        mLoadingIndicatorView = view.findViewById(R.id.image_loading_indicator);
         mLoadErrorContainerView = view.findViewById(R.id.image_error_container);
         mLoadErrorEasterEggView = view.findViewById(R.id.error_easter_egg);
 

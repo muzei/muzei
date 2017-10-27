@@ -24,6 +24,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.text.TextUtils;
@@ -43,6 +44,7 @@ public class SourcePackageChangeReceiver extends WakefulBroadcastReceiver implem
 
     private LifecycleRegistry mLifecycle;
 
+    @NonNull
     @Override
     public Lifecycle getLifecycle() {
         return mLifecycle;

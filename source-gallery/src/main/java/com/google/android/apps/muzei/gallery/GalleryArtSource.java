@@ -89,6 +89,7 @@ public class GalleryArtSource extends MuzeiArtSource implements LifecycleOwner {
         super(SOURCE_NAME);
     }
 
+    @NonNull
     @Override
     public Lifecycle getLifecycle() {
         return mLifecycle;

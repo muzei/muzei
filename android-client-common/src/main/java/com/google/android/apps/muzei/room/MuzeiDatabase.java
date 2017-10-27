@@ -24,6 +24,7 @@ import android.arch.persistence.room.RoomDatabase;
 import android.arch.persistence.room.migration.Migration;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
@@ -67,14 +68,14 @@ public abstract class MuzeiDatabase extends RoomDatabase {
 
     private static Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
-        public void migrate(final SupportSQLiteDatabase database) {
+        public void migrate(@NonNull final SupportSQLiteDatabase database) {
             // NO-OP
         }
     };
 
     private static Migration MIGRATION_2_3 = new Migration(2, 3) {
         @Override
-        public void migrate(final SupportSQLiteDatabase database) {
+        public void migrate(@NonNull final SupportSQLiteDatabase database) {
             // We can't ALTER TABLE to add a foreign key and we wouldn't know what the FK should be
             // at this point anyways so we'll wipe and recreate the artwork table
             database.execSQL("DROP TABLE " + MuzeiContract.Artwork.TABLE_NAME);
@@ -105,7 +106,7 @@ public abstract class MuzeiDatabase extends RoomDatabase {
 
     private static Migration MIGRATION_3_4 = new Migration(3, 4) {
         @Override
-        public void migrate(final SupportSQLiteDatabase database) {
+        public void migrate(@NonNull final SupportSQLiteDatabase database) {
             // Handle Sources
             database.execSQL("CREATE TABLE sources2 ("
                     + "_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
@@ -144,7 +145,7 @@ public abstract class MuzeiDatabase extends RoomDatabase {
 
     private static Migration MIGRATION_4_5 = new Migration(4, 5) {
         @Override
-        public void migrate(final SupportSQLiteDatabase database) {
+        public void migrate(@NonNull final SupportSQLiteDatabase database) {
             // NO-OP
         }
     };

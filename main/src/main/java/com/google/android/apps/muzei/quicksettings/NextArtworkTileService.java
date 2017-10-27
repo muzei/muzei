@@ -29,6 +29,7 @@ import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.widget.Toast;
@@ -64,6 +65,7 @@ public class NextArtworkTileService extends TileService implements LifecycleOwne
         mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
     }
 
+    @NonNull
     @Override
     public Lifecycle getLifecycle() {
         return mLifecycle;

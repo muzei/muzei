@@ -115,7 +115,7 @@ public class TaskQueueService extends Service {
             AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             am.cancel(TaskQueueService.getArtworkDownloadRetryPendingIntent(this));
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-            sp.edit().putInt(PREF_ARTWORK_DOWNLOAD_ATTEMPT, 0).commit();
+            sp.edit().putInt(PREF_ARTWORK_DOWNLOAD_ATTEMPT, 0).apply();
         }
     }
 
@@ -131,7 +131,7 @@ public class TaskQueueService extends Service {
         } else {
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
             int reloadAttempt = sp.getInt(PREF_ARTWORK_DOWNLOAD_ATTEMPT, 0);
-            sp.edit().putInt(PREF_ARTWORK_DOWNLOAD_ATTEMPT, reloadAttempt + 1).commit();
+            sp.edit().putInt(PREF_ARTWORK_DOWNLOAD_ATTEMPT, reloadAttempt + 1).apply();
             AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             long retryTimeMillis = SystemClock.elapsedRealtime() + (1 << reloadAttempt) * 2000;
             am.set(AlarmManager.ELAPSED_REALTIME, retryTimeMillis,

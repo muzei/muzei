@@ -23,9 +23,8 @@ import android.graphics.Paint;
 import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.Keep;
 import android.support.annotation.NonNull;
-import android.support.v4.os.ParcelableCompat;
-import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -155,6 +154,7 @@ public class PanView extends View {
         invalidate();
     }
 
+    @Keep
     public void setBlurAmount(float blurAmount) {
         mBlurAmount = blurAmount;
         postInvalidateOnAnimation();
@@ -471,9 +471,14 @@ public class PanView extends View {
         }
 
         public static final Creator<SavedState> CREATOR
-                = ParcelableCompat.newCreator(new ParcelableCompatCreatorCallbacks<SavedState>() {
+                = new ClassLoaderCreator<SavedState>() {
             @Override
             public SavedState createFromParcel(Parcel in, ClassLoader loader) {
+                return createFromParcel(in);
+            }
+
+            @Override
+            public SavedState createFromParcel(Parcel in) {
                 return new SavedState(in);
             }
 
@@ -481,7 +486,7 @@ public class PanView extends View {
             public SavedState[] newArray(int size) {
                 return new SavedState[size];
             }
-        });
+        };
 
         SavedState(Parcel in) {
             super(in);

@@ -29,6 +29,7 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.os.UserManagerCompat;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -91,6 +92,7 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
         }
     }
 
+    @NonNull
     @Override
     public Lifecycle getLifecycle() {
         return mLifecycle;
@@ -154,6 +156,7 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
             EventBus.getDefault().register(this);
         }
 
+        @NonNull
         @Override
         public Lifecycle getLifecycle() {
             return mEngineLifecycle;

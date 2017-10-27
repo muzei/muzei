@@ -138,7 +138,7 @@ public class SettingsActivity extends AppCompatActivity
     }
 
     private void setupAppBar() {
-        mAppBar = (Toolbar) findViewById(R.id.app_bar);
+        mAppBar = findViewById(R.id.app_bar);
         mAppBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -147,7 +147,7 @@ public class SettingsActivity extends AppCompatActivity
         });
 
         final LayoutInflater inflater = LayoutInflater.from(this);
-        Spinner sectionSpinner = (Spinner) findViewById(R.id.section_spinner);
+        Spinner sectionSpinner = findViewById(R.id.section_spinner);
         sectionSpinner.setAdapter(new BaseAdapter() {
             @Override
             public int getCount() {
@@ -307,8 +307,7 @@ public class SettingsActivity extends AppCompatActivity
         mRenderLocally = renderLocally;
 
         final View uiContainer = findViewById(R.id.container);
-        final ViewGroup localRenderContainer = (ViewGroup)
-                findViewById(R.id.local_render_container);
+        final ViewGroup localRenderContainer = findViewById(R.id.local_render_container);
 
         FragmentManager fm = getSupportFragmentManager();
         Fragment localRenderFragment = fm.findFragmentById(R.id.local_render_container);

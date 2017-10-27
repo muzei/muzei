@@ -44,7 +44,7 @@ public class MuzeiActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.muzei_activity);
         FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE);
-        final DrawInsetsFrameLayout mContainerView = (DrawInsetsFrameLayout) findViewById(R.id.container);
+        final DrawInsetsFrameLayout mContainerView = findViewById(R.id.container);
 
         mContainerView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION

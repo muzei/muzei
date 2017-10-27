@@ -53,7 +53,7 @@ public class SettingsAdvancedFragment extends Fragment
             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.settings_advanced_fragment, container, false);
 
-        mBlurSeekBar = (SeekBar) rootView.findViewById(R.id.blur_amount);
+        mBlurSeekBar = rootView.findViewById(R.id.blur_amount);
         mBlurSeekBar.setProgress(Prefs.getSharedPreferences(getContext())
                 .getInt(Prefs.PREF_BLUR_AMOUNT, MuzeiBlurRenderer.DEFAULT_BLUR));
         mBlurSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -74,7 +74,7 @@ public class SettingsAdvancedFragment extends Fragment
             }
         });
 
-        mDimSeekBar = (SeekBar) rootView.findViewById(R.id.dim_amount);
+        mDimSeekBar = rootView.findViewById(R.id.dim_amount);
         mDimSeekBar.setProgress(Prefs.getSharedPreferences(getContext())
                 .getInt(Prefs.PREF_DIM_AMOUNT, MuzeiBlurRenderer.DEFAULT_MAX_DIM));
         mDimSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -95,7 +95,7 @@ public class SettingsAdvancedFragment extends Fragment
             }
         });
 
-        mGreySeekBar = (SeekBar) rootView.findViewById(R.id.grey_amount);
+        mGreySeekBar = rootView.findViewById(R.id.grey_amount);
         mGreySeekBar.setProgress(Prefs.getSharedPreferences(getContext())
                 .getInt(Prefs.PREF_GREY_AMOUNT, MuzeiBlurRenderer.DEFAULT_GREY));
         mGreySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -115,7 +115,7 @@ public class SettingsAdvancedFragment extends Fragment
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-        CheckBox mNotifyNewWallpaperCheckBox = (CheckBox) rootView.findViewById(
+        CheckBox mNotifyNewWallpaperCheckBox = rootView.findViewById(
                 R.id.notify_new_wallpaper_checkbox);
         mNotifyNewWallpaperCheckBox.setOnCheckedChangeListener(
                 new CompoundButton.OnCheckedChangeListener() {
@@ -128,7 +128,7 @@ public class SettingsAdvancedFragment extends Fragment
                 });
         mNotifyNewWallpaperCheckBox.setChecked(PreferenceManager.getDefaultSharedPreferences(getContext())
                 .getBoolean(NewWallpaperNotificationReceiver.PREF_ENABLED, true));
-        CheckBox mBlurOnLockScreenCheckBox = (CheckBox) rootView.findViewById(
+        CheckBox mBlurOnLockScreenCheckBox = rootView.findViewById(
                 R.id.blur_on_lockscreen_checkbox);
         mBlurOnLockScreenCheckBox.setOnCheckedChangeListener(
                 new CompoundButton.OnCheckedChangeListener() {

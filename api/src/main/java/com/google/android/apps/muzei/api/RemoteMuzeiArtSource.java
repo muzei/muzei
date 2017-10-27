@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.api;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
@@ -23,6 +24,7 @@ import android.net.NetworkInfo;
 import android.os.PowerManager;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresPermission;
 import android.util.Log;
 
 /**
@@ -68,6 +70,8 @@ public abstract class RemoteMuzeiArtSource extends MuzeiArtSource {
      *             not user-visible and is only used for {@linkplain #getSharedPreferences()
      *             storing preferences} and in system log output.
      */
+    @RequiresPermission(allOf =
+            {Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.WAKE_LOCK})
     public RemoteMuzeiArtSource(@NonNull String name) {
         super(name);
     }
@@ -90,6 +94,8 @@ public abstract class RemoteMuzeiArtSource extends MuzeiArtSource {
      * Subclasses of {@link RemoteMuzeiArtSource} should implement {@link #onTryUpdate(int)}
      * instead of this method.
      */
+    @RequiresPermission(allOf =
+            {Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.WAKE_LOCK})
     @CallSuper
     @Override
     protected void onUpdate(@UpdateReason int reason) {
@@ -139,6 +145,8 @@ public abstract class RemoteMuzeiArtSource extends MuzeiArtSource {
         setWantsNetworkAvailable(false);
     }
 
+    @RequiresPermission(allOf =
+            {Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.WAKE_LOCK})
     @CallSuper
     @Override
     protected void onNetworkAvailable() {

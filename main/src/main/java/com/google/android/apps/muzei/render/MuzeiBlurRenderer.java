@@ -26,6 +26,7 @@ import android.graphics.RectF;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.support.annotation.Keep;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -218,6 +219,7 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
         }
     }
 
+    @Keep
     public void setNormalOffsetX(float x) {
         mNormalOffsetX = MathUtil.constrain(0, 1, x);
         onViewportChanged();
