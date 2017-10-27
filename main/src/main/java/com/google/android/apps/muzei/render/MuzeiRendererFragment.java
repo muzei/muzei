@@ -24,6 +24,8 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -69,7 +71,7 @@ public class MuzeiRendererFragment extends Fragment implements
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             Bundle savedInstanceState) {
         ActivityManager activityManager = (ActivityManager)
                 getContext().getSystemService(Context.ACTIVITY_SERVICE);
