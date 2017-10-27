@@ -120,8 +120,13 @@ public abstract class MuzeiDatabase extends RoomDatabase {
                     + "SELECT * FROM sources");
             database.execSQL("DROP TABLE sources");
             database.execSQL("ALTER TABLE sources2 RENAME TO sources");
+            database.execSQL("CREATE UNIQUE INDEX index_sources_component_name "
+                    + "ON sources (component_name)");
 
             // Handle Artwork
+            database.execSQL("UPDATE artwork "
+                    + "SET metaFont = \"\""
+                    + "WHERE metaFont IS NULL");
             database.execSQL("CREATE TABLE artwork2 ("
                     + "_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
                     + "sourceComponentName TEXT,"
@@ -140,6 +145,8 @@ public abstract class MuzeiDatabase extends RoomDatabase {
                     + "SELECT * FROM artwork");
             database.execSQL("DROP TABLE artwork");
             database.execSQL("ALTER TABLE artwork2 RENAME TO artwork");
+            database.execSQL("CREATE INDEX index_Artwork_sourceComponentName "
+                    + "ON artwork (sourceComponentName)");
         }
     };
 

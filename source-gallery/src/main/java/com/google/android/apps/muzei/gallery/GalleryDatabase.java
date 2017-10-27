@@ -160,6 +160,8 @@ public abstract class GalleryDatabase extends RoomDatabase {
                     + "SELECT * FROM chosen_photos");
             database.execSQL("DROP TABLE chosen_photos");
             database.execSQL("ALTER TABLE chosen_photos2 RENAME TO chosen_photos");
+            database.execSQL("CREATE UNIQUE INDEX index_chosen_photos_uri "
+                    + "ON chosen_photos (uri)");
 
             // Handle Metadata
             database.execSQL("CREATE TABLE metadata_cache2 ("
@@ -172,6 +174,8 @@ public abstract class GalleryDatabase extends RoomDatabase {
                     + "SELECT * FROM metadata_cache");
             database.execSQL("DROP TABLE metadata_cache");
             database.execSQL("ALTER TABLE metadata_cache2 RENAME TO metadata_cache");
+            database.execSQL("CREATE UNIQUE INDEX index_metadata_cache_uri "
+                    + "ON metadata_cache (uri)");
         }
     };
 }
