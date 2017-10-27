@@ -123,10 +123,10 @@ public class AppWidgetUpdateTask extends AsyncTask<ArtworkSource,Void,Boolean> {
             Bundle extras = appWidgetManager.getAppWidgetOptions(widgetId);
             int widgetWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                     extras.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH), displayMetrics);
-            widgetWidth = Math.max(widgetWidth, minWidgetSize);
+            widgetWidth = Math.max(Math.min(widgetWidth, displayMetrics.widthPixels), minWidgetSize);
             int widgetHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                     extras.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT), displayMetrics);
-            widgetHeight = Math.max(widgetHeight, minWidgetSize);
+            widgetHeight = Math.max(Math.min(widgetHeight, displayMetrics.heightPixels), minWidgetSize);
             RemoteViews remoteViews = createRemoteViews(imageUri, contentDescription, launchPendingIntent,
                     nextArtworkPendingIntent, supportsNextArtwork, widgetWidth, widgetHeight);
             if (remoteViews == null) {
