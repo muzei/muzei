@@ -191,7 +191,7 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
             }
             setTouchEventsEnabled(true);
             setOffsetNotificationsEnabled(true);
-            EventBus.getDefault().register(this);
+            EventBus.getDefault().register(mEventBusSubscriber);
         }
 
         @NonNull
@@ -246,7 +246,7 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
 
         @Override
         public void onDestroy() {
-            EventBus.getDefault().unregister(this);
+            EventBus.getDefault().unregister(mEventBusSubscriber);
             if (!isPreview()) {
                 mLifecycle.removeObserver(this);
             }
@@ -263,26 +263,29 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
             super.onDestroy();
         }
 
-        @Subscribe
-        public void onEventMainThread(final ArtDetailOpenedClosedEvent e) {
-            if (e.isArtDetailOpened() == mArtDetailMode) {
-                return;
+        class EventBusSubscriber {
+            @Subscribe
+            public void onEventMainThread(final ArtDetailOpenedClosedEvent e) {
+                if (e.isArtDetailOpened() == mArtDetailMode) {
+                    return;
+                }
+
+                mArtDetailMode = e.isArtDetailOpened();
+                cancelDelayedBlur();
+                queueEvent(new Runnable() {
+                    @Override
+                    public void run() {
+                        mRenderer.setIsBlurred(!e.isArtDetailOpened(), true);
+                    }
+                });
             }
 
-            mArtDetailMode = e.isArtDetailOpened();
-            cancelDelayedBlur();
-            queueEvent(new Runnable() {
-                @Override
-                public void run() {
-                    mRenderer.setIsBlurred(!e.isArtDetailOpened(), true);
-                }
-            });
+            @Subscribe
+            public void onEventMainThread(ArtDetailViewport e) {
+                requestRender();
+            }
         }
-
-        @Subscribe
-        public void onEventMainThread(ArtDetailViewport e) {
-            requestRender();
-        }
+        private Object mEventBusSubscriber = new EventBusSubscriber();
 
         public void lockScreenVisibleChanged(final boolean isLockScreenVisible) {
             cancelDelayedBlur();
