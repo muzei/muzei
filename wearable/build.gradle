@@ -88,8 +88,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-wearable:$rootProject.ext.googlePlayServicesVersion"
     implementation "com.google.firebase:firebase-core:$rootProject.ext.googlePlayServicesVersion"
     implementation "com.google.firebase:firebase-perf:$rootProject.ext.googlePlayServicesVersion"
-    // Only use crash reporting in release builds
-    releaseImplementation "com.google.firebase:firebase-crash:$rootProject.ext.googlePlayServicesVersion"
+    implementation "com.google.firebase:firebase-crash:$rootProject.ext.googlePlayServicesVersion"
 
     implementation project(':api')
     implementation project(':android-client-common')

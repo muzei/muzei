@@ -91,8 +91,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-wearable:$rootProject.ext.googlePlayServicesVersion"
     implementation "com.google.firebase:firebase-core:$rootProject.ext.googlePlayServicesVersion"
     implementation "com.google.firebase:firebase-perf:$rootProject.ext.googlePlayServicesVersion"
-    // Only use crash reporting in release builds
-    releaseImplementation "com.google.firebase:firebase-crash:$rootProject.ext.googlePlayServicesVersion"
+    implementation "com.google.firebase:firebase-crash:$rootProject.ext.googlePlayServicesVersion"
     implementation "com.twofortyfouram:android-plugin-api-for-locale:1.0.2"
     implementation "org.greenrobot:eventbus:3.0.0"
     implementation "com.android.support:appcompat-v7:$rootProject.ext.supportLibraryVersion"
