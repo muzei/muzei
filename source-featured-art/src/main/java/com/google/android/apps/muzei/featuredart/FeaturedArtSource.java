@@ -152,7 +152,9 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
                     + detailUrl);
             shareIntent = Intent.createChooser(shareIntent, "Share artwork");
             shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(shareIntent);
+            if (shareIntent.resolveActivity(getPackageManager()) != null) {
+                startActivity(shareIntent);
+            }
 
         } else if (COMMAND_ID_VIEW_ARCHIVE == id) {
             CustomTabsIntent cti = new CustomTabsIntent.Builder()
