@@ -86,7 +86,7 @@ public class MuzeiActivity extends AppCompatActivity
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, new ArtDetailFragment())
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                    .commit();
+                    .commitAllowingStateLoss();
         }
     }
 
