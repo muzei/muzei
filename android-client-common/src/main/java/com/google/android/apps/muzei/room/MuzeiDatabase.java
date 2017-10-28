@@ -108,6 +108,15 @@ public abstract class MuzeiDatabase extends RoomDatabase {
         @Override
         public void migrate(@NonNull final SupportSQLiteDatabase database) {
             // Handle Sources
+            database.execSQL("UPDATE sources "
+                    + "SET network = 0 "
+                    + "WHERE network IS NULL");
+            database.execSQL("UPDATE sources "
+                    + "SET supports_next_artwork = 0 "
+                    + "WHERE supports_next_artwork IS NULL");
+            database.execSQL("UPDATE sources "
+                    + "SET commands = \"\" "
+                    + "WHERE commands IS NULL");
             database.execSQL("CREATE TABLE sources2 ("
                     + "_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
                     + "component_name TEXT UNIQUE NOT NULL,"
@@ -125,7 +134,7 @@ public abstract class MuzeiDatabase extends RoomDatabase {
 
             // Handle Artwork
             database.execSQL("UPDATE artwork "
-                    + "SET metaFont = \"\""
+                    + "SET metaFont = \"\" "
                     + "WHERE metaFont IS NULL");
             database.execSQL("CREATE TABLE artwork2 ("
                     + "_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"

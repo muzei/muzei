@@ -18,6 +18,7 @@ package com.google.android.apps.muzei.room.converter;
 
 import android.arch.persistence.room.TypeConverter;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.apps.muzei.api.UserCommand;
@@ -38,7 +39,7 @@ public class UserCommandTypeConverter {
     @NonNull
     public static List<UserCommand> fromString(String commandsString) {
         ArrayList<UserCommand> commands = new ArrayList<>();
-        if (commandsString == null) {
+        if (TextUtils.isEmpty(commandsString)) {
             return commands;
         }
         try {
