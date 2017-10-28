@@ -124,22 +124,18 @@ public abstract class ArtworkDao {
     @TypeConverters(ComponentNameTypeConverter.class)
     @Query("DELETE FROM artwork WHERE sourceComponentName = :sourceComponentName " +
             "AND _id NOT IN (:ids)")
-    abstract void deleteNonMatchingInternal(ComponentName sourceComponentName, List<Long> ids);
+    abstract void deleteNonMatchingInternal(ComponentName sourceComponentName, String ids);
 
     @TypeConverters(ComponentNameTypeConverter.class)
     @Query("SELECT * FROM artwork WHERE sourceComponentName = :sourceComponentName " +
             "AND _id NOT IN (:ids)")
-    abstract List<Artwork> getNonMatchingForSource(ComponentName sourceComponentName, List<Long> ids);
+    abstract List<Artwork> getNonMatchingForSource(ComponentName sourceComponentName, String ids);
 
     public void deleteNonMatching(final Context context, final ComponentName sourceComponentName,
             final List<Long> ids) {
-        new Thread() {
-            @Override
-            public void run() {
-                deleteImages(context, getNonMatchingForSource(sourceComponentName, ids));
-                deleteNonMatchingInternal(sourceComponentName, ids);
-            }
-        }.start();
+        String delimitedIds = TextUtils.join(",", ids);
+        deleteImages(context, getNonMatchingForSource(sourceComponentName, delimitedIds));
+        deleteNonMatchingInternal(sourceComponentName, delimitedIds);
     }
 
     @TypeConverters(UriTypeConverter.class)
