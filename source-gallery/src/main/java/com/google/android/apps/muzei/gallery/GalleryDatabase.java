@@ -152,7 +152,7 @@ public abstract class GalleryDatabase extends RoomDatabase {
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             // Handle Chosen Photos
             database.execSQL("UPDATE chosen_photos "
-                    + "SET is_tree_uri = 0"
+                    + "SET is_tree_uri = 0 "
                     + "WHERE is_tree_uri IS NULL");
             database.execSQL("CREATE TABLE chosen_photos2 ("
                     + "_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
