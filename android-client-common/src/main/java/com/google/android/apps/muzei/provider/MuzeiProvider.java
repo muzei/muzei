@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -536,7 +537,7 @@ public class MuzeiProvider extends ContentProvider {
                     try {
                         database.artworkDao().deleteNonMatching(context,
                                 componentName, artworkIdsToKeep);
-                    } catch (IllegalStateException e) {
+                    } catch (IllegalStateException|SQLiteException e) {
                         Log.e(TAG, "Unable to read all artwork for " + componentName +
                                 ", deleting all in an attempt to get back to a good state", e);
                         database.artworkDao().deleteAll(context, componentName);
