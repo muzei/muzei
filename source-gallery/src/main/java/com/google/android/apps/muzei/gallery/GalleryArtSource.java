@@ -311,7 +311,7 @@ public class GalleryArtSource extends MuzeiArtSource implements LifecycleOwner {
             children = getContentResolver().query(childrenUri,
                     new String[]{DocumentsContract.Document.COLUMN_DOCUMENT_ID, DocumentsContract.Document.COLUMN_MIME_TYPE},
                     null, null, null);
-        } catch (NullPointerException e) {
+        } catch (NullPointerException|IllegalArgumentException e) {
             Log.e(TAG, "Error reading " + childrenUri, e);
         }
         if (children == null) {
