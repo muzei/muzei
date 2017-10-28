@@ -17,6 +17,7 @@
 package com.google.android.apps.muzei;
 
 import android.arch.lifecycle.Observer;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Build;
@@ -278,16 +279,20 @@ public class ArtDetailFragment extends Fragment
         mOverflowMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
+                Context context = getContext();
+                if (context == null) {
+                    return false;
+                }
                 int id = mOverflowSourceActionMap.get(menuItem.getItemId());
                 if (id > 0) {
-                    SourceManager.sendAction(getContext(), id);
+                    SourceManager.sendAction(context, id);
                     return true;
                 }
 
                 switch (menuItem.getItemId()) {
                     case R.id.action_settings:
-                        FirebaseAnalytics.getInstance(getContext()).logEvent("settings_open", null);
-                        startActivity(new Intent(getContext(), SettingsActivity.class));
+                        FirebaseAnalytics.getInstance(context).logEvent("settings_open", null);
+                        startActivity(new Intent(context, SettingsActivity.class));
                         return true;
                 }
                 return false;
@@ -298,7 +303,11 @@ public class ArtDetailFragment extends Fragment
         mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SourceManager.sendAction(getContext(),
+                Context context = getContext();
+                if (context == null) {
+                    return;
+                }
+                SourceManager.sendAction(context,
                         MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK);
                 mNextFakeLoading = true;
                 showNextFakeLoading();
