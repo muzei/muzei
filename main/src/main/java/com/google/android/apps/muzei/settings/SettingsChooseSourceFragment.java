@@ -67,8 +67,6 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.R;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -349,7 +347,6 @@ public class SettingsChooseSourceFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        EventBus.getDefault().unregister(this);
         // remove all scheduled runnables
         mHandler.removeCallbacksAndMessages(null);
     }
