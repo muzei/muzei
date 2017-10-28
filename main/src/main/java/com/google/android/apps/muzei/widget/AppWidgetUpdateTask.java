@@ -112,7 +112,11 @@ public class AppWidgetUpdateTask extends AsyncTask<ArtworkSource,Void,Boolean> {
                         mContext.getResources().getDimensionPixelSize(R.dimen.widget_min_height));
                 Bundle extras = new Bundle();
                 extras.putParcelable(AppWidgetManager.EXTRA_APPWIDGET_PREVIEW, remoteViews);
-                return appWidgetManager.requestPinAppWidget(widget, extras, null);
+                try {
+                    return appWidgetManager.requestPinAppWidget(widget, extras, null);
+                } catch (IllegalStateException ignored) {
+                    // The user exited out of the app before we could pop up the pin widget dialog
+                }
             }
             return false;
         }
