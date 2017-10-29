@@ -360,7 +360,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private static void createNotificationChannel(Context context) {
+    static void createNotificationChannel(Context context) {
         NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         // On O+ devices, we want to push users to change the system notification setting

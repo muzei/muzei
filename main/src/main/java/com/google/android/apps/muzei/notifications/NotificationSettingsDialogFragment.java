@@ -40,6 +40,8 @@ public class NotificationSettingsDialogFragment extends DialogFragment {
     public static void showSettings(Fragment fragment) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Context context = fragment.getContext();
+            // Ensure the notification channel exists
+            NewWallpaperNotificationReceiver.createNotificationChannel(context);
             Intent intent = new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS);
             intent.putExtra(Settings.EXTRA_APP_PACKAGE, context.getPackageName());
             // Open the specific channel since we only have one notification channel
