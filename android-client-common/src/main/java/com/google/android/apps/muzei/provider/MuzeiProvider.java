@@ -520,10 +520,16 @@ public class MuzeiProvider extends ContentProvider {
                     // Now go through the artwork from this source and find the most recent artwork
                     // and mark them as artwork to keep
                     int count = 0;
+                    List<Long> mostRecentArtworkIds = new ArrayList<>();
+                    List<String> mostRecentArtwork = new ArrayList<>();
                     for (Artwork artwork : artworkList) {
                         String unique = artwork.imageUri != null ? artwork.imageUri.toString() : artwork.token;
+                        if (mostRecentArtworkIds.size() < MAX_CACHE_SIZE && !mostRecentArtwork.contains(unique)) {
+                            mostRecentArtwork.add(unique);
+                            mostRecentArtworkIds.add(artwork.id);
+                        }
                         if (artworkToKeep.contains(unique)) {
-                            // This ensures we are double counting the same artwork in our count
+                            // This ensures we aren't double counting the same artwork in our count
                             artworkIdsToKeep.add(artwork.id);
                             continue;
                         }
@@ -539,8 +545,9 @@ public class MuzeiProvider extends ContentProvider {
                                 componentName, artworkIdsToKeep);
                     } catch (IllegalStateException|SQLiteException e) {
                         Log.e(TAG, "Unable to read all artwork for " + componentName +
-                                ", deleting all in an attempt to get back to a good state", e);
-                        database.artworkDao().deleteAll(context, componentName);
+                                ", deleting everything but the latest artwork to get back to a good state", e);
+                        database.artworkDao().deleteNonMatching(context,
+                                componentName, mostRecentArtworkIds);
                     }
                 }
             }

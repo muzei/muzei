@@ -104,24 +104,6 @@ public abstract class ArtworkDao {
     }
 
     @TypeConverters(ComponentNameTypeConverter.class)
-    @Query("DELETE FROM artwork WHERE sourceComponentName = :sourceComponentName")
-    abstract void deleteAllInternal(ComponentName sourceComponentName);
-
-    @TypeConverters(ComponentNameTypeConverter.class)
-    @Query("SELECT * FROM artwork WHERE sourceComponentName = :sourceComponentName")
-    abstract List<Artwork> getArtworkForSource(ComponentName sourceComponentName);
-
-    public void deleteAll(final Context context, final ComponentName sourceComponentName) {
-        new Thread() {
-            @Override
-            public void run() {
-                deleteImages(context, getArtworkForSource(sourceComponentName));
-                deleteAllInternal(sourceComponentName);
-            }
-        }.start();
-    }
-
-    @TypeConverters(ComponentNameTypeConverter.class)
     @Query("DELETE FROM artwork WHERE sourceComponentName = :sourceComponentName " +
             "AND _id NOT IN (:ids)")
     abstract void deleteNonMatchingInternal(ComponentName sourceComponentName, List<Long> ids);
@@ -142,7 +124,15 @@ public abstract class ArtworkDao {
     public abstract void deleteByImageUriInternal(Uri imageUri);
 
     public void deleteByImageUri(Context context, Uri imageUri) {
-        deleteImages(context, getArtworkByImageUri(imageUri));
+        List<Artwork> artworkByImageUri = getArtworkByImageUri(imageUri);
+        // Assume all artwork with the same imageUri are the same artwork
+        // so deleting all of them means we can delete the cached image
+        for (Artwork artwork : artworkByImageUri) {
+            File file = MuzeiProvider.getCacheFileForArtworkUri(context, artwork.id);
+            if (file != null && file.exists()) {
+                file.delete();
+            }
+        }
         deleteByImageUriInternal(imageUri);
     }
 
