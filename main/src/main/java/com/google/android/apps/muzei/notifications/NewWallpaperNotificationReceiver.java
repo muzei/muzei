@@ -153,7 +153,11 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
     static boolean isNewWallpaperNotificationEnabled(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // On O+ devices, we defer to the system setting
-            createNotificationChannel(context);
+            if (!createNotificationChannel(context)) {
+                // Don't post the new wallpaper notification in the case where
+                // we've also posted the 'Review your settings' notification
+                return false;
+            }
             NotificationManager notificationManager = (NotificationManager)
                     context.getSystemService(Context.NOTIFICATION_SERVICE);
             if (notificationManager == null) {
@@ -359,8 +363,13 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
         nm.notify(NOTIFICATION_ID, nb.build());
     }
 
+    /**
+     * Create the notification channel for the New Wallpaper notification
+     * @return False only in the case where the user had wallpapers disabled in-app, but has not
+     * yet seen the 'Review your notification settings' notification
+     */
     @RequiresApi(api = Build.VERSION_CODES.O)
-    static void createNotificationChannel(Context context) {
+    static boolean createNotificationChannel(Context context) {
         NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         // On O+ devices, we want to push users to change the system notification setting
@@ -397,6 +406,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
                             .setStyle(new NotificationCompat.BigTextStyle()
                                     .bigText(context.getText(R.string.notification_settings_moved_text)));
                     notificationManager.notify(1, builder.build());
+                    return false;
                 }
             }
         }
@@ -405,5 +415,6 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
                 defaultImportance);
         channel.setShowBadge(false);
         notificationManager.createNotificationChannel(channel);
+        return true;
     }
 }
