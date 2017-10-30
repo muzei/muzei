@@ -16,13 +16,14 @@
 
 package com.google.android.apps.muzei.settings;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +31,6 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 
-import com.google.android.apps.muzei.NewWallpaperNotificationReceiver;
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
 
 import net.nurik.roman.muzei.R;
@@ -38,15 +38,17 @@ import net.nurik.roman.muzei.R;
 /**
  * Fragment for allowing the user to configure advanced settings.
  */
-public class SettingsAdvancedFragment extends Fragment
-        implements SettingsActivity.SettingsActivityMenuListener {
+public class SettingsAdvancedFragment extends Fragment {
 
     private Handler mHandler = new Handler();
     private SeekBar mBlurSeekBar;
     private SeekBar mDimSeekBar;
     private SeekBar mGreySeekBar;
 
-    public SettingsAdvancedFragment() {
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -116,19 +118,6 @@ public class SettingsAdvancedFragment extends Fragment
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-        CheckBox mNotifyNewWallpaperCheckBox = rootView.findViewById(
-                R.id.notify_new_wallpaper_checkbox);
-        mNotifyNewWallpaperCheckBox.setOnCheckedChangeListener(
-                new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton button, boolean checked) {
-                        PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
-                                .putBoolean(NewWallpaperNotificationReceiver.PREF_ENABLED, checked)
-                                .apply();
-                    }
-                });
-        mNotifyNewWallpaperCheckBox.setChecked(PreferenceManager.getDefaultSharedPreferences(getContext())
-                .getBoolean(NewWallpaperNotificationReceiver.PREF_ENABLED, true));
         CheckBox mBlurOnLockScreenCheckBox = rootView.findViewById(
                 R.id.blur_on_lockscreen_checkbox);
         mBlurOnLockScreenCheckBox.setOnCheckedChangeListener(
@@ -147,9 +136,9 @@ public class SettingsAdvancedFragment extends Fragment
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        ((SettingsActivity) activity).inflateMenuFromFragment(R.menu.settings_advanced);
-        super.onAttach(activity);
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.settings_advanced, menu);
     }
 
     @Override
@@ -186,16 +175,19 @@ public class SettingsAdvancedFragment extends Fragment
     };
 
     @Override
-    public void onSettingsActivityMenuItemClick(MenuItem item) {
-        if (item.getItemId() == R.id.action_reset_defaults) {
-            Prefs.getSharedPreferences(getContext()).edit()
-                    .putInt(Prefs.PREF_BLUR_AMOUNT, MuzeiBlurRenderer.DEFAULT_BLUR)
-                    .putInt(Prefs.PREF_DIM_AMOUNT, MuzeiBlurRenderer.DEFAULT_MAX_DIM)
-                    .putInt(Prefs.PREF_GREY_AMOUNT, MuzeiBlurRenderer.DEFAULT_GREY)
-                    .apply();
-            mBlurSeekBar.setProgress(MuzeiBlurRenderer.DEFAULT_BLUR);
-            mDimSeekBar.setProgress(MuzeiBlurRenderer.DEFAULT_MAX_DIM);
-            mGreySeekBar.setProgress(MuzeiBlurRenderer.DEFAULT_GREY);
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_reset_defaults:
+                Prefs.getSharedPreferences(getContext()).edit()
+                        .putInt(Prefs.PREF_BLUR_AMOUNT, MuzeiBlurRenderer.DEFAULT_BLUR)
+                        .putInt(Prefs.PREF_DIM_AMOUNT, MuzeiBlurRenderer.DEFAULT_MAX_DIM)
+                        .putInt(Prefs.PREF_GREY_AMOUNT, MuzeiBlurRenderer.DEFAULT_GREY)
+                        .apply();
+                mBlurSeekBar.setProgress(MuzeiBlurRenderer.DEFAULT_BLUR);
+                mDimSeekBar.setProgress(MuzeiBlurRenderer.DEFAULT_MAX_DIM);
+                mGreySeekBar.setProgress(MuzeiBlurRenderer.DEFAULT_GREY);
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 }

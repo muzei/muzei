@@ -32,6 +32,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -78,8 +79,6 @@ public class SettingsActivity extends AppCompatActivity
 
     private int mStartSection = START_SECTION_SOURCE;
 
-    private Toolbar mAppBar;
-
     private ObjectAnimator mBackgroundAnimator;
     private boolean mPaused;
     private boolean mRenderLocally;
@@ -91,12 +90,6 @@ public class SettingsActivity extends AppCompatActivity
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
         setContentView(R.layout.settings_activity);
-
-        if (getIntent() != null && getIntent().getCategories() != null &&
-                getIntent().getCategories().contains(Notification.INTENT_CATEGORY_NOTIFICATION_PREFERENCES)) {
-            FirebaseAnalytics.getInstance(this).logEvent("notification_preferences_open", null);
-            mStartSection = START_SECTION_ADVANCED;
-        }
 
         // Set up UI widgets
         setupAppBar();
@@ -138,13 +131,9 @@ public class SettingsActivity extends AppCompatActivity
     }
 
     private void setupAppBar() {
-        mAppBar = findViewById(R.id.app_bar);
-        mAppBar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onNavigateUp();
-            }
-        });
+        Toolbar toolbar = findViewById(R.id.app_bar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         final LayoutInflater inflater = LayoutInflater.from(this);
         Spinner sectionSpinner = findViewById(R.id.section_spinner);
@@ -197,8 +186,6 @@ public class SettingsActivity extends AppCompatActivity
                     return;
                 }
 
-                inflateMenuFromFragment(0);
-
                 try {
                     Fragment newFragment = fragmentClass.newInstance();
                     getSupportFragmentManager().beginTransaction()
@@ -217,44 +204,41 @@ public class SettingsActivity extends AppCompatActivity
         });
 
         sectionSpinner.setSelection(mStartSection);
+    }
 
-        inflateMenuFromFragment(0);
-        mAppBar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.action_get_more_sources:
-                        FirebaseAnalytics.getInstance(SettingsActivity.this).logEvent("more_sources_open", null);
-                        try {
-                            Intent playStoreIntent = new Intent(Intent.ACTION_VIEW,
-                                    Uri.parse("http://play.google.com/store/search?q=Muzei&c=apps"))
-                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-                            preferPackageForIntent(SettingsActivity.this,
-                                    playStoreIntent, PLAY_STORE_PACKAGE_NAME);
-                            startActivity(playStoreIntent);
-                        } catch (ActivityNotFoundException activityNotFoundException1) {
-                            Toast.makeText(SettingsActivity.this,
-                                    R.string.play_store_not_found, Toast.LENGTH_LONG).show();
-                        }
-                        return true;
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.settings, menu);
+        return true;
+    }
 
-                    case R.id.action_about:
-                        FirebaseAnalytics.getInstance(SettingsActivity.this).logEvent("about_open", null);
-                        startActivity(new Intent(SettingsActivity.this, AboutActivity.class));
-                        return true;
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_get_more_sources:
+                FirebaseAnalytics.getInstance(SettingsActivity.this).logEvent("more_sources_open", null);
+                try {
+                    Intent playStoreIntent = new Intent(Intent.ACTION_VIEW,
+                            Uri.parse("http://play.google.com/store/search?q=Muzei&c=apps"))
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+                    preferPackageForIntent(SettingsActivity.this,
+                            playStoreIntent, PLAY_STORE_PACKAGE_NAME);
+                    startActivity(playStoreIntent);
+                } catch (ActivityNotFoundException activityNotFoundException1) {
+                    Toast.makeText(SettingsActivity.this,
+                            R.string.play_store_not_found, Toast.LENGTH_LONG).show();
                 }
+                return true;
 
-                Fragment currentFragment = getSupportFragmentManager().findFragmentById(
-                        R.id.content_container);
-                if (currentFragment != null
-                        && currentFragment instanceof SettingsActivityMenuListener) {
-                    ((SettingsActivityMenuListener) currentFragment)
-                            .onSettingsActivityMenuItemClick(item);
-                }
+            case R.id.action_about:
+                FirebaseAnalytics.getInstance(SettingsActivity.this).logEvent("about_open", null);
+                startActivity(new Intent(SettingsActivity.this, AboutActivity.class));
+                return true;
 
-                return false;
-            }
-        });
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     public static void preferPackageForIntent(Context context, Intent intent, String packageName) {
@@ -349,21 +333,5 @@ public class SettingsActivity extends AppCompatActivity
     @Override
     public void onRequestCloseActivity() {
         finish();
-    }
-
-    void inflateMenuFromFragment(int menuResId) {
-        if (mAppBar == null) {
-            return;
-        }
-
-        mAppBar.getMenu().clear();
-        if (menuResId != 0) {
-            mAppBar.inflateMenu(menuResId);
-        }
-        mAppBar.inflateMenu(R.menu.settings);
-    }
-
-    public interface SettingsActivityMenuListener {
-        void onSettingsActivityMenuItemClick(MenuItem item);
     }
 }

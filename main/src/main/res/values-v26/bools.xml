@@ -1,5 +1,5 @@
 <!--
-  Copyright 2014 Google Inc.
+  Copyright 2017 Google Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,15 +14,6 @@
   limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/action_get_more_sources"
-        android:title="@string/get_more_sources"
-        android:menuCategory="secondary"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_about"
-        android:title="@string/about_title"
-        android:menuCategory="secondary"
-        app:showAsAction="never" />
-</menu>
+<resources>
+    <bool name="enable_notification_settings">false</bool>
+</resources>

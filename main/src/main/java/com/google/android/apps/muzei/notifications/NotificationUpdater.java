@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.wallpaper;
+package com.google.android.apps.muzei.notifications;
 
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
@@ -25,7 +25,6 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 
-import com.google.android.apps.muzei.NewWallpaperNotificationReceiver;
 import com.google.android.apps.muzei.api.MuzeiContract;
 
 /**

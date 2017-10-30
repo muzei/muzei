@@ -61,14 +61,6 @@
         android:layout_columnSpan="2"
         android:max="500" />
 
-    <CheckBox android:id="@+id/notify_new_wallpaper_checkbox"
-        style="@style/Widget.Muzei.CheckBox.SettingsAdvanced"
-        android:text="@string/settings_notify_new_wallpaper"
-        android:layout_column="@integer/settings_advanced_checkbox_column"
-        android:layout_columnSpan="@integer/settings_advanced_checkbox_column_span"
-        android:layout_marginStart="@dimen/settings_advanced_checkbox_margin_start"
-        android:layout_marginTop="24dp" />
-
     <CheckBox android:id="@+id/blur_on_lockscreen_checkbox"
         style="@style/Widget.Muzei.CheckBox.SettingsAdvanced"
         android:text="@string/settings_blur_on_lockscreen"

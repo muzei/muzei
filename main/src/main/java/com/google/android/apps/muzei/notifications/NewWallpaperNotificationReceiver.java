@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei;
+package com.google.android.apps.muzei.notifications;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -22,7 +22,6 @@ import android.app.PendingIntent;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -32,6 +31,8 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
@@ -41,6 +42,7 @@ import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.android.apps.muzei.SourceManager;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.api.UserCommand;
@@ -69,7 +71,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
     private static final String PREF_LAST_READ_NOTIFICATION_ARTWORK_TOKEN
             = "last_read_notification_artwork_token";
 
-    private static final String NOTIFICATION_CHANNEL = "new_wallpaper";
+    static final String NOTIFICATION_CHANNEL = "new_wallpaper";
     private static final int NOTIFICATION_ID = 1234;
 
     private static final String ACTION_MARK_NOTIFICATION_READ
@@ -148,6 +150,29 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
         nm.cancel(NOTIFICATION_ID);
     }
 
+    static boolean isNewWallpaperNotificationEnabled(@NonNull Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // On O+ devices, we defer to the system setting
+            if (!createNotificationChannel(context)) {
+                // Don't post the new wallpaper notification in the case where
+                // we've also posted the 'Review your settings' notification
+                return false;
+            }
+            NotificationManager notificationManager = (NotificationManager)
+                    context.getSystemService(Context.NOTIFICATION_SERVICE);
+            if (notificationManager == null) {
+                return false;
+            }
+            NotificationChannel channel = notificationManager
+                    .getNotificationChannel(NOTIFICATION_CHANNEL);
+            return channel != null &&
+                    channel.getImportance() != NotificationManager.IMPORTANCE_NONE;
+        }
+        // Prior to O, we maintain our own preference
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        return sp.getBoolean(PREF_ENABLED, true);
+    }
+
     public static void maybeShowNewArtworkNotification(Context context) {
         ArtDetailOpenedClosedEvent adoce = EventBus.getDefault().getStickyEvent(
                 ArtDetailOpenedClosedEvent.class);
@@ -155,8 +180,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
             return;
         }
 
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-        if (!sp.getBoolean(PREF_ENABLED, true)) {
+        if (!isNewWallpaperNotificationEnabled(context)) {
             return;
         }
 
@@ -168,6 +192,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
             return;
         }
 
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         long currentArtworkId = artworkSource.artwork.id;
         long lastReadArtworkId = sp.getLong(PREF_LAST_READ_NOTIFICATION_ARTWORK_ID, -1);
         String currentImageUri = artworkSource.artwork.imageUri.toString();
@@ -232,7 +257,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
                 .setContentText(context.getString(R.string.notification_new_wallpaper))
                 .setLargeIcon(largeIcon)
                 .setContentIntent(PendingIntent.getActivity(context, 0,
-                        Intent.makeMainActivity(new ComponentName(context, MuzeiActivity.class)),
+                        context.getPackageManager().getLaunchIntentForPackage(context.getPackageName()),
                         PendingIntent.FLAG_UPDATE_CURRENT))
                 .setDeleteIntent(PendingIntent.getBroadcast(context, 0,
                         new Intent(context, NewWallpaperNotificationReceiver.class)
@@ -325,7 +350,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
                 .setContentTitle(context.getString(R.string.app_name))
                 .setContentText(context.getString(R.string.notification_new_wallpaper))
                 .setContentIntent(PendingIntent.getActivity(context, 0,
-                        Intent.makeMainActivity(new ComponentName(context, MuzeiActivity.class)),
+                        context.getPackageManager().getLaunchIntentForPackage(context.getPackageName()),
                         PendingIntent.FLAG_UPDATE_CURRENT))
                 .setDeleteIntent(PendingIntent.getBroadcast(context, 0,
                         new Intent(context, NewWallpaperNotificationReceiver.class)
@@ -338,13 +363,58 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
         nm.notify(NOTIFICATION_ID, nb.build());
     }
 
+    /**
+     * Create the notification channel for the New Wallpaper notification
+     * @return False only in the case where the user had wallpapers disabled in-app, but has not
+     * yet seen the 'Review your notification settings' notification
+     */
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private static void createNotificationChannel(Context context) {
+    static boolean createNotificationChannel(Context context) {
         NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        // On O+ devices, we want to push users to change the system notification setting
+        // but we'll use their current value to set the default importance
+        int defaultImportance = sp.getBoolean(PREF_ENABLED, true)
+                ? NotificationManager.IMPORTANCE_MIN
+                : NotificationManager.IMPORTANCE_NONE;
+        if (sp.contains(PREF_ENABLED)) {
+            sp.edit().remove(PREF_ENABLED).apply();
+            if (defaultImportance == NotificationManager.IMPORTANCE_NONE) {
+                // Check to see if there was already a channel and give users an
+                // easy way to review their notification settings if they had
+                // previously disabled notifications but have not yet disabled
+                // the channel
+                NotificationChannel existingChannel = notificationManager
+                        .getNotificationChannel(NOTIFICATION_CHANNEL);
+                if (existingChannel != null &&
+                        existingChannel.getImportance() != NotificationManager.IMPORTANCE_NONE) {
+                    // Construct an Intent to get to the notification settings screen
+                    Intent settingsIntent = new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS);
+                    settingsIntent.putExtra(Settings.EXTRA_APP_PACKAGE, context.getPackageName());
+                    settingsIntent.putExtra(Settings.EXTRA_CHANNEL_ID,
+                            NewWallpaperNotificationReceiver.NOTIFICATION_CHANNEL);
+                    // Build the notification
+                    NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL)
+                            .setSmallIcon(R.drawable.ic_stat_muzei)
+                            .setColor(ContextCompat.getColor(context, R.color.notification))
+                            .setAutoCancel(true)
+                            .setContentTitle(context.getText(R.string.notification_settings_moved_title))
+                            .setContentText(context.getText(R.string.notification_settings_moved_text))
+                            .setContentIntent(PendingIntent.getActivity(context, 0,
+                                    settingsIntent,
+                                    PendingIntent.FLAG_UPDATE_CURRENT))
+                            .setStyle(new NotificationCompat.BigTextStyle()
+                                    .bigText(context.getText(R.string.notification_settings_moved_text)));
+                    notificationManager.notify(1, builder.build());
+                    return false;
+                }
+            }
+        }
         NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL,
                 context.getString(R.string.notification_new_wallpaper_channel_name),
-                NotificationManager.IMPORTANCE_MIN);
+                defaultImportance);
         channel.setShowBadge(false);
         notificationManager.createNotificationChannel(channel);
+        return true;
     }
 }
