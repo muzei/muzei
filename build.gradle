@@ -43,7 +43,7 @@ ext {
     roomVersion = "1.0.0-rc1"
     pagingVersion = "1.0.0-alpha3"
     googlePlayServicesVersion = "11.4.2"
-    wearableVersion = "2.0.5"
+    wearableVersion = "2.1.0"
     okhttpVersion = "3.9.0"
     picassoVersion = "2.5.2"
 }

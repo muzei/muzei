@@ -78,12 +78,11 @@ android {
 dependencies {
     implementation "com.android.support:support-compat:$rootProject.ext.supportLibraryVersion"
     implementation "com.android.support:exifinterface:$rootProject.ext.supportLibraryVersion"
+    implementation "com.android.support:wear:$rootProject.ext.supportLibraryVersion"
     compileOnly "com.google.android.wearable:wearable:$rootProject.ext.wearableVersion"
     implementation "com.google.android.support:wearable:$rootProject.ext.wearableVersion"
-    // Only used because wearable dependency depends on an old version of the Support Library
+    // Only used because other dependencies depend on an old version of the Support Library
     implementation "com.android.support:support-v4:$rootProject.ext.supportLibraryVersion"
-    implementation "com.android.support:recyclerview-v7:$rootProject.ext.supportLibraryVersion"
-    implementation "com.android.support:percent:$rootProject.ext.supportLibraryVersion"
 
     implementation "com.google.android.gms:play-services-wearable:$rootProject.ext.googlePlayServicesVersion"
     implementation "com.google.firebase:firebase-core:$rootProject.ext.googlePlayServicesVersion"

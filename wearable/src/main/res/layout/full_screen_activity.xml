@@ -50,7 +50,7 @@
         android:gravity="bottom"
         android:id="@+id/metadata_container"
         android:alpha="0"
-        app:layout_box="all">
+        app:boxedEdges="all">
 
         <com.google.android.apps.muzei.util.ShadowDipsTextView
             android:id="@+id/title"
