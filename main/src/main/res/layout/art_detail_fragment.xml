@@ -93,7 +93,8 @@
         android:layout_height="wrap_content"
         android:gravity="bottom"
         android:layout_gravity="bottom"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:fitsSystemWindows="true">
 
         <FrameLayout android:layout_width="0dp"
             android:layout_height="wrap_content"

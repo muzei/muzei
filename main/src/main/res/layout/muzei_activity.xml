@@ -14,7 +14,7 @@
   limitations under the License.
   -->
 
-<com.google.android.apps.muzei.util.DrawInsetsFrameLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/container"
     android:layout_width="match_parent"

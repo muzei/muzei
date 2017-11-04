@@ -17,13 +17,11 @@
 package com.google.android.apps.muzei.settings;
 
 import android.animation.ObjectAnimator;
-import android.app.Notification;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -44,7 +42,6 @@ import android.widget.Toast;
 
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiRendererFragment;
-import com.google.android.apps.muzei.util.DrawInsetsFrameLayout;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.R;
@@ -93,21 +90,6 @@ public class SettingsActivity extends AppCompatActivity
 
         // Set up UI widgets
         setupAppBar();
-
-        ((DrawInsetsFrameLayout) findViewById(R.id.draw_insets_frame_layout)).addOnInsetsCallback(
-                new DrawInsetsFrameLayout.OnInsetsCallback() {
-                    @Override
-                    public void onInsetsChanged(Rect insets) {
-                        View container = findViewById(R.id.container);
-                        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)
-                                container.getLayoutParams();
-                        lp.leftMargin = insets.left;
-                        lp.topMargin = insets.top;
-                        lp.rightMargin = insets.right;
-                        lp.bottomMargin = insets.bottom;
-                        container.setLayoutParams(lp);
-                    }
-                });
 
         if (mBackgroundAnimator != null) {
             mBackgroundAnimator.cancel();

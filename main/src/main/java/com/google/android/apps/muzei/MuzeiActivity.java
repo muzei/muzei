@@ -25,7 +25,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
-import com.google.android.apps.muzei.util.DrawInsetsFrameLayout;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.BuildConfig;
@@ -44,7 +43,7 @@ public class MuzeiActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.muzei_activity);
         FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE);
-        final DrawInsetsFrameLayout mContainerView = findViewById(R.id.container);
+        final View mContainerView = findViewById(R.id.container);
 
         mContainerView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION

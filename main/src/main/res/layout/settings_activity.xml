@@ -14,7 +14,7 @@
   limitations under the License.
   -->
 
-<com.google.android.apps.muzei.util.DrawInsetsFrameLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/draw_insets_frame_layout"
@@ -30,7 +30,8 @@
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:fitsSystemWindows="true">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/app_bar"
@@ -56,5 +57,5 @@
             android:layout_height="0dp"
             android:layout_weight="1" />
     </LinearLayout>
-</com.google.android.apps.muzei.util.DrawInsetsFrameLayout>
+</FrameLayout>
 

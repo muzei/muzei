@@ -21,7 +21,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.SharedPreferences;
-import android.graphics.Rect;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -37,35 +36,25 @@ import android.view.animation.Interpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
 
-import com.google.android.apps.muzei.util.DrawInsetsFrameLayout;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.R;
 
-public class TutorialFragment extends Fragment
-        implements DrawInsetsFrameLayout.OnInsetsCallback {
+public class TutorialFragment extends Fragment {
     public static final String PREF_SEEN_TUTORIAL = "seen_tutorial";
 
-    private DrawInsetsFrameLayout mContainerView;
-    private View mTutorialContainerView;
     private AnimatorSet mAnimator = null;
-
-    public TutorialFragment() {
-    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
-        mTutorialContainerView = inflater.inflate(R.layout.tutorial_fragment, container, false);
-
-        mContainerView = (DrawInsetsFrameLayout) container;
-        mContainerView.addOnInsetsCallback(this);
-
-        return mTutorialContainerView;
+        return inflater.inflate(R.layout.tutorial_fragment, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable final Bundle savedInstanceState) {
+        // Ensure we have the latest insets
+        view.requestFitSystemWindows();
         view.findViewById(R.id.tutorial_icon_affordance).setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -144,17 +133,10 @@ public class TutorialFragment extends Fragment
     }
 
     @Override
-    public void onInsetsChanged(Rect insets) {
-        mTutorialContainerView.setPadding(
-                insets.left, insets.top, insets.right, insets.bottom);
-    }
-
-    @Override
     public void onDestroyView() {
         if (mAnimator != null) {
             mAnimator.end();
         }
-        mContainerView.removeOnInsetsCallback(this);
         super.onDestroyView();
     }
 }

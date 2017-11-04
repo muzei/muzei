@@ -19,7 +19,6 @@ package com.google.android.apps.muzei;
 import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -56,7 +55,6 @@ import com.google.android.apps.muzei.settings.SettingsActivity;
 import com.google.android.apps.muzei.sync.TaskQueueService;
 import com.google.android.apps.muzei.util.AnimatedMuzeiLoadingSpinnerView;
 import com.google.android.apps.muzei.util.CheatSheet;
-import com.google.android.apps.muzei.util.DrawInsetsFrameLayout;
 import com.google.android.apps.muzei.util.PanScaleProxyView;
 import com.google.android.apps.muzei.util.ScrimUtil;
 import com.google.android.apps.muzei.widget.AppWidgetUpdateTask;
@@ -69,8 +67,7 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.List;
 
-public class ArtDetailFragment extends Fragment
-        implements DrawInsetsFrameLayout.OnInsetsCallback {
+public class ArtDetailFragment extends Fragment {
     private static final String TAG = "ArtDetailFragment";
 
     private int mCurrentViewportId = 0;
@@ -160,7 +157,7 @@ public class ArtDetailFragment extends Fragment
     private boolean mDeferResetViewport;
 
     private Handler mHandler = new Handler();
-    private DrawInsetsFrameLayout mContainerView;
+    private View mContainerView;
     private PopupMenu mOverflowMenu;
     private SparseIntArray mOverflowSourceActionMap = new SparseIntArray();
     private static final int[] SOURCE_ACTION_IDS = {
@@ -198,18 +195,18 @@ public class ArtDetailFragment extends Fragment
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container,
             @Nullable final Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.art_detail_fragment, container, false);
+        mContainerView = inflater.inflate(R.layout.art_detail_fragment, container, false);
 
-        mChromeContainerView = view.findViewById(R.id.chrome_container);
-        mContainerView = (DrawInsetsFrameLayout) container;
-        mContainerView.addOnInsetsCallback(this);
+        mChromeContainerView = mContainerView.findViewById(R.id.chrome_container);
         showHideChrome(true);
 
-        return view;
+        return mContainerView;
     }
 
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable final Bundle savedInstanceState) {
+        // Ensure we have the latest insets
+        view.requestFitSystemWindows();
         mStatusBarScrimView = view.findViewById(R.id.statusbar_scrim);
 
         mChromeContainerView.setBackground(ScrimUtil.makeCubicGradientScrimDrawable(
@@ -394,18 +391,6 @@ public class ArtDetailFragment extends Fragment
         MuzeiDatabase database = MuzeiDatabase.getInstance(getContext());
         database.sourceDao().getCurrentSource().observe(this, mSourceObserver);
         database.artworkDao().getCurrentArtwork().observe(this, mArtworkObserver);
-    }
-
-    @Override
-    public void onInsetsChanged(Rect insets) {
-        mChromeContainerView.setPadding(
-                insets.left, insets.top, insets.right, insets.bottom);
-    }
-
-    @Override
-    public void onDestroyView() {
-        mContainerView.removeOnInsetsCallback(this);
-        super.onDestroyView();
     }
 
     @Override
