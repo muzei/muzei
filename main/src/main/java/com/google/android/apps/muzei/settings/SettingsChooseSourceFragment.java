@@ -101,7 +101,6 @@ public class SettingsChooseSourceFragment extends Fragment {
 
     private Handler mHandler = new Handler();
 
-    private ViewGroup mRootView;
     private ViewGroup mSourceContainerView;
     private ObservableHorizontalScrollView mSourceScrollerView;
     private Scrollbar mScrollbar;
@@ -206,10 +205,17 @@ public class SettingsChooseSourceFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              Bundle savedInstanceState) {
-        mRootView = (ViewGroup) inflater.inflate(
+        return inflater.inflate(
                 R.layout.settings_choose_source_fragment, container, false);
-        mScrollbar = mRootView.findViewById(R.id.source_scrollbar);
-        mSourceScrollerView = mRootView.findViewById(R.id.source_scroller);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
+        // Ensure we have the latest insets
+        view.requestFitSystemWindows();
+
+        mScrollbar = view.findViewById(R.id.source_scrollbar);
+        mSourceScrollerView = view.findViewById(R.id.source_scroller);
         mSourceScrollerView.setCallbacks(new ObservableHorizontalScrollView.Callbacks() {
             @Override
             public void onScrollChanged(int scrollX) {
@@ -224,12 +230,12 @@ public class SettingsChooseSourceFragment extends Fragment {
                 }
             }
         });
-        mSourceContainerView = mRootView.findViewById(R.id.source_container);
+        mSourceContainerView = view.findViewById(R.id.source_container);
 
         redrawSources();
 
-        mRootView.setVisibility(View.INVISIBLE);
-        mRootView.getViewTreeObserver().addOnGlobalLayoutListener(
+        view.setVisibility(View.INVISIBLE);
+        view.getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
                     int mPass = 0;
 
@@ -243,26 +249,25 @@ public class SettingsChooseSourceFragment extends Fragment {
                             // Second pass
                             mSourceScrollerView.setScrollX(mItemWidth * mSelectedSourceIndex);
                             showScrollbar();
-                            mRootView.setVisibility(View.VISIBLE);
+                            view.setVisibility(View.VISIBLE);
                             ++mPass;
                         } else {
                             // Last pass, remove the listener
-                            mRootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                            view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                         }
                     }
                 });
 
-        mRootView.setAlpha(0);
-        mRootView.animate().alpha(1f).setDuration(500);
-        return mRootView;
+        view.setAlpha(0);
+        view.animate().alpha(1f).setDuration(500);
     }
 
     private void updatePadding() {
-        int rootViewWidth = mRootView.getWidth();
+        int rootViewWidth = getView().getWidth();
         if (rootViewWidth == 0) {
             return;
         }
-        int topPadding = Math.max(0, (mRootView.getHeight() - mItemEstimatedHeight) / 2);
+        int topPadding = Math.max(0, (getView().getHeight() - mItemEstimatedHeight) / 2);
         int numItems = mSources.size();
         int sidePadding;
         int minSidePadding = getResources().getDimensionPixelSize(
