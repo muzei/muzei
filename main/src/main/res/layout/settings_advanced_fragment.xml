@@ -18,7 +18,8 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="32dp">
+    android:paddingStart="32dp"
+    android:paddingEnd="32dp">
 
     <include layout="@layout/settings_advanced_fragment_include_content"
         android:layout_width="match_parent"

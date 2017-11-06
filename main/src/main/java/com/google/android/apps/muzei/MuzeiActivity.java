@@ -68,7 +68,7 @@ public class MuzeiActivity extends AppCompatActivity
             final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
             if (sp.getBoolean(TutorialFragment.PREF_SEEN_TUTORIAL, false)) {
                 // The wallpaper is active and they've seen the tutorial
-                return new ArtDetailFragment();
+                return new MainFragment();
             } else {
                 // They need to see the tutorial after activating Muzei for the first time
                 return new TutorialFragment();
@@ -83,7 +83,7 @@ public class MuzeiActivity extends AppCompatActivity
     public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
         if (TutorialFragment.PREF_SEEN_TUTORIAL.equals(key)) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, new ArtDetailFragment())
+                    .replace(R.id.container, new MainFragment())
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                     .commitAllowingStateLoss();
         }

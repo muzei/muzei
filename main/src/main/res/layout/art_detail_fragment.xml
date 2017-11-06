@@ -82,12 +82,6 @@
 
     </FrameLayout>
 
-    <View android:id="@+id/statusbar_scrim"
-          android:layout_width="match_parent"
-          android:layout_height="160dp"
-          android:layout_gravity="top"
-          android:background="@android:color/transparent" />
-
     <LinearLayout android:id="@+id/chrome_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -99,7 +93,7 @@
         <FrameLayout android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:paddingTop="192dp"> <!-- extend gradient -->
+            android:paddingTop="64dp"> <!-- extend gradient -->
 
             <LinearLayout android:id="@+id/metadata"
                 android:clickable="true"

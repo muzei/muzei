@@ -60,6 +60,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.apps.muzei.SourceManager;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
@@ -84,6 +85,8 @@ import static com.google.android.apps.muzei.api.MuzeiArtSource.ACTION_MUZEI_ART_
  */
 public class SettingsChooseSourceFragment extends Fragment {
     private static final String TAG = "SettingsChooseSourceFrg";
+
+    private static final String PLAY_STORE_PACKAGE_NAME = "com.android.vending";
 
     private static final int SCROLLBAR_HIDE_DELAY_MILLIS = 1000;
 
@@ -138,9 +141,6 @@ public class SettingsChooseSourceFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (!(context instanceof Callbacks)) {
-            throw new ClassCastException("Activity must implement fragment callbacks.");
-        }
 
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "sources");
@@ -175,8 +175,31 @@ public class SettingsChooseSourceFragment extends Fragment {
             case R.id.action_notification_settings:
                 NotificationSettingsDialogFragment.showSettings(this);
                 return true;
+            case R.id.action_get_more_sources:
+                FirebaseAnalytics.getInstance(getContext()).logEvent("more_sources_open", null);
+                try {
+                    Intent playStoreIntent = new Intent(Intent.ACTION_VIEW,
+                            Uri.parse("http://play.google.com/store/search?q=Muzei&c=apps"))
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+                    preferPackageForIntent(playStoreIntent, PLAY_STORE_PACKAGE_NAME);
+                    startActivity(playStoreIntent);
+                } catch (ActivityNotFoundException activityNotFoundException1) {
+                    Toast.makeText(getContext(),
+                            R.string.play_store_not_found, Toast.LENGTH_LONG).show();
+                }
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void preferPackageForIntent(Intent intent, String packageName) {
+        PackageManager pm = getContext().getPackageManager();
+        for (ResolveInfo resolveInfo : pm.queryIntentActivities(intent, 0)) {
+            if (resolveInfo.activityInfo.packageName.equals(packageName)) {
+                intent.setPackage(packageName);
+                break;
+            }
         }
     }
 
@@ -495,7 +518,11 @@ public class SettingsChooseSourceFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     if (source.componentName.equals(mSelectedSource)) {
-                        ((Callbacks) getContext()).onRequestCloseActivity();
+                        if (getContext() instanceof Callbacks) {
+                            ((Callbacks) getContext()).onRequestCloseActivity();
+                        } else if (getParentFragment() instanceof Callbacks) {
+                            ((Callbacks) getParentFragment()).onRequestCloseActivity();
+                        }
                     } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
                             && source.targetSdkVersion >= Build.VERSION_CODES.O) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(getContext())

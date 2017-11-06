@@ -14,14 +14,17 @@
   limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/action_notification_settings"
-        android:title="@string/notification_settings"
-        app:showAsAction="never" />
+        android:id="@+id/main_art_details"
+        android:title="@string/app_name"
+        android:icon="@drawable/ic_stat_muzei"/>
     <item
-        android:id="@+id/action_get_more_sources"
-        android:title="@string/get_more_sources"
-        app:showAsAction="never" />
+        android:id="@+id/main_choose_source"
+        android:title="@string/section_choose_source"
+        android:icon="@drawable/ic_main_choose_source"/>
+    <item
+        android:id="@+id/main_effects"
+        android:title="@string/section_effects"
+        android:icon="@drawable/ic_main_effects"/>
 </menu>
