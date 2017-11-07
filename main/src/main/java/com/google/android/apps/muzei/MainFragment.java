@@ -22,6 +22,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.OnApplyWindowInsetsListener;
 import android.support.v4.view.ViewCompat;
@@ -44,7 +45,22 @@ import net.nurik.roman.muzei.R;
  * Fragment which controls the main view of the Muzei app and handles the bottom navigation
  * between various screens.
  */
-public class MainFragment extends Fragment implements SettingsChooseSourceFragment.Callbacks {
+public class MainFragment extends Fragment implements FragmentManager.OnBackStackChangedListener,
+        SettingsChooseSourceFragment.Callbacks {
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getChildFragmentManager().addOnBackStackChangedListener(this);
+    }
+
+    @Override
+    public void onBackStackChanged() {
+        if (getChildFragmentManager().getBackStackEntryCount() == 0) {
+            BottomNavigationView bottomNavigationView = getView().findViewById(R.id.bottom_nav);
+            bottomNavigationView.setSelectedItemId(R.id.main_art_details);
+        }
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
@@ -88,14 +104,20 @@ public class MainFragment extends Fragment implements SettingsChooseSourceFragme
                                         .commit();
                                 return true;
                             case R.id.main_choose_source:
+                                getChildFragmentManager().popBackStack("main",
+                                        FragmentManager.POP_BACK_STACK_INCLUSIVE);
                                 getChildFragmentManager().beginTransaction()
                                         .replace(R.id.container, new SettingsChooseSourceFragment())
+                                        .addToBackStack("main")
                                         .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                                         .commit();
                                 return true;
                             case R.id.main_effects:
+                                getChildFragmentManager().popBackStack("main",
+                                        FragmentManager.POP_BACK_STACK_INCLUSIVE);
                                 getChildFragmentManager().beginTransaction()
                                         .replace(R.id.container, new SettingsAdvancedFragment())
+                                        .addToBackStack("main")
                                         .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                                         .commit();
                                 return true;
@@ -195,5 +217,11 @@ public class MainFragment extends Fragment implements SettingsChooseSourceFragme
         if (activity != null) {
             activity.setSupportActionBar(null);
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        getChildFragmentManager().removeOnBackStackChangedListener(this);
     }
 }

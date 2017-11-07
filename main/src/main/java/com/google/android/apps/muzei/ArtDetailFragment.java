@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.content.Intent;
@@ -188,6 +189,8 @@ public class ArtDetailFragment extends Fragment {
     private boolean mLoadErrorShown = false;
     private boolean mNextFakeLoading = false;
     private int mConsecutiveLoadErrorCount = 0;
+    private LiveData<Source> mCurrentSourceLiveData;
+    private LiveData<Artwork> mCurrentArtworkLiveData;
 
     @Nullable
     @Override
@@ -327,11 +330,7 @@ public class ArtDetailFragment extends Fragment {
                 getContext().startService(TaskQueueService.getDownloadCurrentArtworkIntent(getContext()));
             }
         });
-    }
 
-    @Override
-    public void onActivityCreated(@Nullable final Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
         EventBus.getDefault().register(this);
 
         WallpaperSizeChangedEvent wsce = EventBus.getDefault().getStickyEvent(
@@ -363,8 +362,10 @@ public class ArtDetailFragment extends Fragment {
             onEventMainThread(spsce);
         }
         MuzeiDatabase database = MuzeiDatabase.getInstance(getContext());
-        database.sourceDao().getCurrentSource().observe(this, mSourceObserver);
-        database.artworkDao().getCurrentArtwork().observe(this, mArtworkObserver);
+        mCurrentSourceLiveData = database.sourceDao().getCurrentSource();
+        mCurrentSourceLiveData.observe(this, mSourceObserver);
+        mCurrentArtworkLiveData = database.artworkDao().getCurrentArtwork();
+        mCurrentArtworkLiveData.observe(this, mArtworkObserver);
     }
 
     @Override
@@ -381,10 +382,12 @@ public class ArtDetailFragment extends Fragment {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onDestroyView() {
+        super.onDestroyView();
         mHandler.removeCallbacksAndMessages(null);
         EventBus.getDefault().unregister(this);
+        mCurrentSourceLiveData.removeObserver(mSourceObserver);
+        mCurrentArtworkLiveData.removeObserver(mArtworkObserver);
     }
 
     private void showHideChrome(boolean show) {
