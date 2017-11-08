@@ -17,12 +17,6 @@
 package com.google.android.apps.muzei.settings;
 
 import android.animation.ObjectAnimator;
-import android.content.ActivityNotFoundException;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -30,19 +24,15 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiRendererFragment;
-import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.R;
 
@@ -71,8 +61,6 @@ public class SettingsActivity extends AppCompatActivity
             SettingsChooseSourceFragment.class,
             SettingsAdvancedFragment.class,
     };
-
-    private static final String PLAY_STORE_PACKAGE_NAME = "com.android.vending";
 
     private int mStartSection = START_SECTION_SOURCE;
 
@@ -186,51 +174,6 @@ public class SettingsActivity extends AppCompatActivity
         });
 
         sectionSpinner.setSelection(mStartSection);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.settings, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_get_more_sources:
-                FirebaseAnalytics.getInstance(SettingsActivity.this).logEvent("more_sources_open", null);
-                try {
-                    Intent playStoreIntent = new Intent(Intent.ACTION_VIEW,
-                            Uri.parse("http://play.google.com/store/search?q=Muzei&c=apps"))
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-                    preferPackageForIntent(SettingsActivity.this,
-                            playStoreIntent, PLAY_STORE_PACKAGE_NAME);
-                    startActivity(playStoreIntent);
-                } catch (ActivityNotFoundException activityNotFoundException1) {
-                    Toast.makeText(SettingsActivity.this,
-                            R.string.play_store_not_found, Toast.LENGTH_LONG).show();
-                }
-                return true;
-
-            case R.id.action_about:
-                FirebaseAnalytics.getInstance(SettingsActivity.this).logEvent("about_open", null);
-                startActivity(new Intent(SettingsActivity.this, AboutActivity.class));
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    public static void preferPackageForIntent(Context context, Intent intent, String packageName) {
-        PackageManager pm = context.getPackageManager();
-        for (ResolveInfo resolveInfo : pm.queryIntentActivities(intent, 0)) {
-            if (resolveInfo.activityInfo.packageName.equals(packageName)) {
-                intent.setPackage(packageName);
-                break;
-            }
-        }
     }
 
     @Override

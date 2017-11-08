@@ -50,8 +50,10 @@ public class MuzeiActivity extends AppCompatActivity
                 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
 
         if (savedInstanceState == null) {
+            Fragment currentFragment = getCurrentFragment();
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, getCurrentFragment())
+                    .add(R.id.container, currentFragment)
+                    .setPrimaryNavigationFragment(currentFragment)
                     .commit();
             mFadeIn = true;
         }
@@ -68,7 +70,7 @@ public class MuzeiActivity extends AppCompatActivity
             final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
             if (sp.getBoolean(TutorialFragment.PREF_SEEN_TUTORIAL, false)) {
                 // The wallpaper is active and they've seen the tutorial
-                return new ArtDetailFragment();
+                return new MainFragment();
             } else {
                 // They need to see the tutorial after activating Muzei for the first time
                 return new TutorialFragment();
@@ -82,8 +84,10 @@ public class MuzeiActivity extends AppCompatActivity
     @Override
     public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
         if (TutorialFragment.PREF_SEEN_TUTORIAL.equals(key)) {
+            MainFragment fragment = new MainFragment();
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, new ArtDetailFragment())
+                    .replace(R.id.container, fragment)
+                    .setPrimaryNavigationFragment(fragment)
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                     .commitAllowingStateLoss();
         }
@@ -102,8 +106,10 @@ public class MuzeiActivity extends AppCompatActivity
         super.onPostResume();
 
         if (mWallpaperActiveStateChanged) {
+            Fragment currentFragment = getCurrentFragment();
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, getCurrentFragment())
+                    .replace(R.id.container, currentFragment)
+                    .setPrimaryNavigationFragment(currentFragment)
                     .commit();
             mWallpaperActiveStateChanged = false;
         }

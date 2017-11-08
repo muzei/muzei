@@ -16,10 +16,10 @@
 
 package com.google.android.apps.muzei;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -51,7 +51,7 @@ import com.google.android.apps.muzei.notifications.NewWallpaperNotificationRecei
 import com.google.android.apps.muzei.room.Artwork;
 import com.google.android.apps.muzei.room.MuzeiDatabase;
 import com.google.android.apps.muzei.room.Source;
-import com.google.android.apps.muzei.settings.SettingsActivity;
+import com.google.android.apps.muzei.settings.AboutActivity;
 import com.google.android.apps.muzei.sync.TaskQueueService;
 import com.google.android.apps.muzei.util.AnimatedMuzeiLoadingSpinnerView;
 import com.google.android.apps.muzei.util.CheatSheet;
@@ -173,7 +173,6 @@ public class ArtDetailFragment extends Fragment {
             R.id.source_action_10,
     };
     private View mChromeContainerView;
-    private View mStatusBarScrimView;
     private View mMetadataView;
     private View mLoadingContainerView;
     private View mLoadErrorContainerView;
@@ -190,6 +189,8 @@ public class ArtDetailFragment extends Fragment {
     private boolean mLoadErrorShown = false;
     private boolean mNextFakeLoading = false;
     private int mConsecutiveLoadErrorCount = 0;
+    private LiveData<Source> mCurrentSourceLiveData;
+    private LiveData<Artwork> mCurrentArtworkLiveData;
 
     @Nullable
     @Override
@@ -207,18 +208,9 @@ public class ArtDetailFragment extends Fragment {
     public void onViewCreated(@NonNull final View view, @Nullable final Bundle savedInstanceState) {
         // Ensure we have the latest insets
         view.requestFitSystemWindows();
-        mStatusBarScrimView = view.findViewById(R.id.statusbar_scrim);
 
         mChromeContainerView.setBackground(ScrimUtil.makeCubicGradientScrimDrawable(
                 0xaa000000, 8, Gravity.BOTTOM));
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            mStatusBarScrimView.setVisibility(View.GONE);
-            mStatusBarScrimView = null;
-        } else {
-            mStatusBarScrimView.setBackground(ScrimUtil.makeCubicGradientScrimDrawable(
-                    0x44000000, 8, Gravity.TOP));
-        }
 
         mMetadataView = view.findViewById(R.id.metadata);
 
@@ -243,21 +235,6 @@ public class ArtDetailFragment extends Fragment {
                                         }
                                     }
                                 });
-
-                        if (mStatusBarScrimView != null) {
-                            mStatusBarScrimView.setVisibility(View.VISIBLE);
-                            mStatusBarScrimView.animate()
-                                    .alpha(visible ? 1f : 0f)
-                                    .setDuration(200)
-                                    .withEndAction(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            if (!visible) {
-                                                mStatusBarScrimView.setVisibility(View.GONE);
-                                            }
-                                        }
-                                    });
-                        }
                     }
                 });
 
@@ -288,9 +265,9 @@ public class ArtDetailFragment extends Fragment {
                 }
 
                 switch (menuItem.getItemId()) {
-                    case R.id.action_settings:
-                        FirebaseAnalytics.getInstance(context).logEvent("settings_open", null);
-                        startActivity(new Intent(context, SettingsActivity.class));
+                    case R.id.action_about:
+                        FirebaseAnalytics.getInstance(context).logEvent("about_open", null);
+                        startActivity(new Intent(context, AboutActivity.class));
                         return true;
                 }
                 return false;
@@ -331,7 +308,7 @@ public class ArtDetailFragment extends Fragment {
                 new PanScaleProxyView.OnOtherGestureListener() {
                     @Override
                     public void onSingleTapUp() {
-                        showHideChrome((mContainerView.getSystemUiVisibility()
+                        showHideChrome((getActivity().getWindow().getDecorView().getSystemUiVisibility()
                                 & View.SYSTEM_UI_FLAG_LOW_PROFILE) != 0);
                     }
 
@@ -353,11 +330,7 @@ public class ArtDetailFragment extends Fragment {
                 getContext().startService(TaskQueueService.getDownloadCurrentArtworkIntent(getContext()));
             }
         });
-    }
 
-    @Override
-    public void onActivityCreated(@Nullable final Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
         EventBus.getDefault().register(this);
 
         WallpaperSizeChangedEvent wsce = EventBus.getDefault().getStickyEvent(
@@ -389,8 +362,10 @@ public class ArtDetailFragment extends Fragment {
             onEventMainThread(spsce);
         }
         MuzeiDatabase database = MuzeiDatabase.getInstance(getContext());
-        database.sourceDao().getCurrentSource().observe(this, mSourceObserver);
-        database.artworkDao().getCurrentArtwork().observe(this, mArtworkObserver);
+        mCurrentSourceLiveData = database.sourceDao().getCurrentSource();
+        mCurrentSourceLiveData.observe(this, mSourceObserver);
+        mCurrentArtworkLiveData = database.artworkDao().getCurrentArtwork();
+        mCurrentArtworkLiveData.observe(this, mArtworkObserver);
     }
 
     @Override
@@ -407,10 +382,12 @@ public class ArtDetailFragment extends Fragment {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onDestroyView() {
+        super.onDestroyView();
         mHandler.removeCallbacksAndMessages(null);
         EventBus.getDefault().unregister(this);
+        mCurrentSourceLiveData.removeObserver(mSourceObserver);
+        mCurrentArtworkLiveData.removeObserver(mArtworkObserver);
     }
 
     private void showHideChrome(boolean show) {
@@ -423,7 +400,7 @@ public class ArtDetailFragment extends Fragment {
                     | View.SYSTEM_UI_FLAG_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_IMMERSIVE;
         }
-        mContainerView.setSystemUiVisibility(flags);
+        getActivity().getWindow().getDecorView().setSystemUiVisibility(flags);
     }
 
     @Subscribe

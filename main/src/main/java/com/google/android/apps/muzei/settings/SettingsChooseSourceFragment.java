@@ -60,6 +60,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.apps.muzei.SourceManager;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
@@ -85,6 +86,8 @@ import static com.google.android.apps.muzei.api.MuzeiArtSource.ACTION_MUZEI_ART_
 public class SettingsChooseSourceFragment extends Fragment {
     private static final String TAG = "SettingsChooseSourceFrg";
 
+    private static final String PLAY_STORE_PACKAGE_NAME = "com.android.vending";
+
     private static final int SCROLLBAR_HIDE_DELAY_MILLIS = 1000;
 
     private static final float ALPHA_DISABLED = 0.2f;
@@ -98,7 +101,6 @@ public class SettingsChooseSourceFragment extends Fragment {
 
     private Handler mHandler = new Handler();
 
-    private ViewGroup mRootView;
     private ViewGroup mSourceContainerView;
     private ObservableHorizontalScrollView mSourceScrollerView;
     private Scrollbar mScrollbar;
@@ -138,9 +140,6 @@ public class SettingsChooseSourceFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (!(context instanceof Callbacks)) {
-            throw new ClassCastException("Activity must implement fragment callbacks.");
-        }
 
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "sources");
@@ -175,18 +174,48 @@ public class SettingsChooseSourceFragment extends Fragment {
             case R.id.action_notification_settings:
                 NotificationSettingsDialogFragment.showSettings(this);
                 return true;
+            case R.id.action_get_more_sources:
+                FirebaseAnalytics.getInstance(getContext()).logEvent("more_sources_open", null);
+                try {
+                    Intent playStoreIntent = new Intent(Intent.ACTION_VIEW,
+                            Uri.parse("http://play.google.com/store/search?q=Muzei&c=apps"))
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+                    preferPackageForIntent(playStoreIntent, PLAY_STORE_PACKAGE_NAME);
+                    startActivity(playStoreIntent);
+                } catch (ActivityNotFoundException activityNotFoundException1) {
+                    Toast.makeText(getContext(),
+                            R.string.play_store_not_found, Toast.LENGTH_LONG).show();
+                }
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void preferPackageForIntent(Intent intent, String packageName) {
+        PackageManager pm = getContext().getPackageManager();
+        for (ResolveInfo resolveInfo : pm.queryIntentActivities(intent, 0)) {
+            if (resolveInfo.activityInfo.packageName.equals(packageName)) {
+                intent.setPackage(packageName);
+                break;
+            }
         }
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              Bundle savedInstanceState) {
-        mRootView = (ViewGroup) inflater.inflate(
+        return inflater.inflate(
                 R.layout.settings_choose_source_fragment, container, false);
-        mScrollbar = mRootView.findViewById(R.id.source_scrollbar);
-        mSourceScrollerView = mRootView.findViewById(R.id.source_scroller);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
+        // Ensure we have the latest insets
+        view.requestFitSystemWindows();
+
+        mScrollbar = view.findViewById(R.id.source_scrollbar);
+        mSourceScrollerView = view.findViewById(R.id.source_scroller);
         mSourceScrollerView.setCallbacks(new ObservableHorizontalScrollView.Callbacks() {
             @Override
             public void onScrollChanged(int scrollX) {
@@ -201,12 +230,12 @@ public class SettingsChooseSourceFragment extends Fragment {
                 }
             }
         });
-        mSourceContainerView = mRootView.findViewById(R.id.source_container);
+        mSourceContainerView = view.findViewById(R.id.source_container);
 
         redrawSources();
 
-        mRootView.setVisibility(View.INVISIBLE);
-        mRootView.getViewTreeObserver().addOnGlobalLayoutListener(
+        view.setVisibility(View.INVISIBLE);
+        view.getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
                     int mPass = 0;
 
@@ -220,26 +249,25 @@ public class SettingsChooseSourceFragment extends Fragment {
                             // Second pass
                             mSourceScrollerView.setScrollX(mItemWidth * mSelectedSourceIndex);
                             showScrollbar();
-                            mRootView.setVisibility(View.VISIBLE);
+                            view.setVisibility(View.VISIBLE);
                             ++mPass;
                         } else {
                             // Last pass, remove the listener
-                            mRootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                            view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                         }
                     }
                 });
 
-        mRootView.setAlpha(0);
-        mRootView.animate().alpha(1f).setDuration(500);
-        return mRootView;
+        view.setAlpha(0);
+        view.animate().alpha(1f).setDuration(500);
     }
 
     private void updatePadding() {
-        int rootViewWidth = mRootView.getWidth();
+        int rootViewWidth = getView().getWidth();
         if (rootViewWidth == 0) {
             return;
         }
-        int topPadding = Math.max(0, (mRootView.getHeight() - mItemEstimatedHeight) / 2);
+        int topPadding = Math.max(0, (getView().getHeight() - mItemEstimatedHeight) / 2);
         int numItems = mSources.size();
         int sidePadding;
         int minSidePadding = getResources().getDimensionPixelSize(
@@ -495,7 +523,11 @@ public class SettingsChooseSourceFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     if (source.componentName.equals(mSelectedSource)) {
-                        ((Callbacks) getContext()).onRequestCloseActivity();
+                        if (getContext() instanceof Callbacks) {
+                            ((Callbacks) getContext()).onRequestCloseActivity();
+                        } else if (getParentFragment() instanceof Callbacks) {
+                            ((Callbacks) getParentFragment()).onRequestCloseActivity();
+                        }
                     } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
                             && source.targetSdkVersion >= Build.VERSION_CODES.O) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(getContext())

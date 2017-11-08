@@ -53,10 +53,16 @@ public class SettingsAdvancedFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.settings_advanced_fragment, container, false);
+                             Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.settings_advanced_fragment, container, false);
+    }
 
-        mBlurSeekBar = rootView.findViewById(R.id.blur_amount);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        // Ensure we have the latest insets
+        view.requestFitSystemWindows();
+
+        mBlurSeekBar = view.findViewById(R.id.blur_amount);
         mBlurSeekBar.setProgress(Prefs.getSharedPreferences(getContext())
                 .getInt(Prefs.PREF_BLUR_AMOUNT, MuzeiBlurRenderer.DEFAULT_BLUR));
         mBlurSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -77,7 +83,7 @@ public class SettingsAdvancedFragment extends Fragment {
             }
         });
 
-        mDimSeekBar = rootView.findViewById(R.id.dim_amount);
+        mDimSeekBar = view.findViewById(R.id.dim_amount);
         mDimSeekBar.setProgress(Prefs.getSharedPreferences(getContext())
                 .getInt(Prefs.PREF_DIM_AMOUNT, MuzeiBlurRenderer.DEFAULT_MAX_DIM));
         mDimSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -98,7 +104,7 @@ public class SettingsAdvancedFragment extends Fragment {
             }
         });
 
-        mGreySeekBar = rootView.findViewById(R.id.grey_amount);
+        mGreySeekBar = view.findViewById(R.id.grey_amount);
         mGreySeekBar.setProgress(Prefs.getSharedPreferences(getContext())
                 .getInt(Prefs.PREF_GREY_AMOUNT, MuzeiBlurRenderer.DEFAULT_GREY));
         mGreySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -118,7 +124,7 @@ public class SettingsAdvancedFragment extends Fragment {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-        CheckBox mBlurOnLockScreenCheckBox = rootView.findViewById(
+        CheckBox mBlurOnLockScreenCheckBox = view.findViewById(
                 R.id.blur_on_lockscreen_checkbox);
         mBlurOnLockScreenCheckBox.setOnCheckedChangeListener(
                 new CompoundButton.OnCheckedChangeListener() {
@@ -132,7 +138,6 @@ public class SettingsAdvancedFragment extends Fragment {
         );
         mBlurOnLockScreenCheckBox.setChecked(!Prefs.getSharedPreferences(getContext())
                 .getBoolean(Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED, false));
-        return rootView;
     }
 
     @Override

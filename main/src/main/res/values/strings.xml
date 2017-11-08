@@ -46,6 +46,7 @@
 
     <string name="section_choose_source">Sources</string>
     <string name="section_advanced">Advanced</string>
+    <string name="section_effects">Effects</string>
 
     <string name="action_next_artwork">Next artwork</string>
     <string name="action_next_artwork_condensed">Next</string>
