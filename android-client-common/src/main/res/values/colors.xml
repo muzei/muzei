@@ -16,7 +16,7 @@
 
 <resources>
     <color name="theme_primary">#3c6caf</color>
-    <color name="theme_accent">#f2be19</color>
+    <color name="theme_accent">#fff</color>
 
     <color name="notification">@color/theme_primary</color>
 </resources>
