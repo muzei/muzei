@@ -198,7 +198,9 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         long currentArtworkId = artworkSource.artwork.id;
         long lastReadArtworkId = sp.getLong(PREF_LAST_READ_NOTIFICATION_ARTWORK_ID, -1);
-        String currentImageUri = artworkSource.artwork.imageUri.toString();
+        String currentImageUri = artworkSource.artwork.imageUri != null
+                ? artworkSource.artwork.imageUri.toString()
+                : null;
         String lastReadImageUri = sp.getString(PREF_LAST_READ_NOTIFICATION_ARTWORK_IMAGE_URI, null);
         String currentToken = artworkSource.artwork.token;
         String lastReadToken = sp.getString(PREF_LAST_READ_NOTIFICATION_ARTWORK_TOKEN, null);
