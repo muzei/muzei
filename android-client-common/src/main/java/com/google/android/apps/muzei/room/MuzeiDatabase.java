@@ -134,9 +134,9 @@ public abstract class MuzeiDatabase extends RoomDatabase {
                 // Just move over the component_name and selected flag then
                 database.execSQL("INSERT INTO sources2 " +
                         "(component_name, selected, network, supports_next_artwork, commands) "
-                        + "SELECT DISTINCT component_name, selected, "
+                        + "SELECT component_name, MAX(selected), "
                         + "0 AS network, 0 AS supports_next_artwork, '' as commands "
-                        + "FROM sources");
+                        + "FROM sources GROUP BY component_name");
             }
             database.execSQL("DROP TABLE sources");
             database.execSQL("ALTER TABLE sources2 RENAME TO sources");
