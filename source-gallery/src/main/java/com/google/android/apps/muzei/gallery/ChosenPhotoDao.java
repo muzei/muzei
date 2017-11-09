@@ -180,7 +180,7 @@ public abstract class ChosenPhotoDao {
                 out.write(buffer, 0, bytesRead);
             }
             out.flush();
-        } catch (SecurityException e) {
+        } catch (SecurityException|UnsupportedOperationException e) {
             throw new IOException("Unable to read Uri: " + uri, e);
         }
     }
