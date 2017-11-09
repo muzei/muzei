@@ -24,6 +24,7 @@ import android.arch.persistence.room.RoomDatabase;
 import android.arch.persistence.room.migration.Migration;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteConstraintException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -125,8 +126,18 @@ public abstract class MuzeiDatabase extends RoomDatabase {
                     + "network INTEGER NOT NULL,"
                     + "supports_next_artwork INTEGER NOT NULL,"
                     + "commands TEXT NOT NULL);");
-            database.execSQL("INSERT INTO sources2 "
-                    + "SELECT * FROM sources");
+            try {
+                database.execSQL("INSERT INTO sources2 "
+                        + "SELECT * FROM sources");
+            } catch (SQLiteConstraintException e) {
+                // Wtf, multiple sources with the same component_name? Mkay
+                // Just move over the component_name and selected flag then
+                database.execSQL("INSERT INTO sources2 " +
+                        "(component_name, selected, network, supports_next_artwork, commands) "
+                        + "SELECT DISTINCT component_name, selected, "
+                        + "0 AS network, 0 AS supports_next_artwork, '' as commands "
+                        + "FROM sources");
+            }
             database.execSQL("DROP TABLE sources");
             database.execSQL("ALTER TABLE sources2 RENAME TO sources");
             database.execSQL("CREATE UNIQUE INDEX index_sources_component_name "
