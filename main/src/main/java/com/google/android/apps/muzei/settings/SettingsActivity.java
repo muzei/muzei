@@ -33,6 +33,7 @@ import android.widget.TextView;
 
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiRendererFragment;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.R;
 
@@ -44,7 +45,7 @@ import org.greenrobot.eventbus.Subscribe;
  * shows when pressing the settings button in the widget.
  */
 public class SettingsActivity extends AppCompatActivity
-        implements SettingsChooseSourceFragment.Callbacks {
+        implements ChooseSourceFragment.Callbacks {
     public static final String EXTRA_START_SECTION =
             "com.google.android.apps.muzei.settings.extra.START_SECTION";
 
@@ -58,8 +59,13 @@ public class SettingsActivity extends AppCompatActivity
 
     @SuppressWarnings("unchecked")
     private static final Class<? extends Fragment>[] SECTION_FRAGMENTS = new Class[]{
-            SettingsChooseSourceFragment.class,
-            SettingsAdvancedFragment.class,
+            ChooseSourceFragment.class,
+            EffectsFragment.class,
+    };
+
+    private static final String[] SECTION_SCREEN_NAME = new String[]{
+            "ChooseSource",
+            "Effects",
     };
 
     private int mStartSection = START_SECTION_SOURCE;
@@ -158,6 +164,9 @@ public class SettingsActivity extends AppCompatActivity
 
                 try {
                     Fragment newFragment = fragmentClass.newInstance();
+                    FirebaseAnalytics.getInstance(SettingsActivity.this)
+                            .setCurrentScreen(SettingsActivity.this, SECTION_SCREEN_NAME[position],
+                                    fragmentClass.getSimpleName());
                     getSupportFragmentManager().beginTransaction()
                             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                             .setTransitionStyle(R.style.Muzei_SimpleFadeFragmentAnimation)

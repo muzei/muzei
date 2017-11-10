@@ -83,7 +83,7 @@ import static com.google.android.apps.muzei.api.MuzeiArtSource.ACTION_MUZEI_ART_
 /**
  * Fragment for allowing the user to choose the active source.
  */
-public class SettingsChooseSourceFragment extends Fragment {
+public class ChooseSourceFragment extends Fragment {
     private static final String TAG = "SettingsChooseSourceFrg";
 
     private static final String PLAY_STORE_PACKAGE_NAME = "com.android.vending";
@@ -119,7 +119,7 @@ public class SettingsChooseSourceFragment extends Fragment {
 
     private ComponentName mCurrentInitialSetupSource;
 
-    public SettingsChooseSourceFragment() {
+    public ChooseSourceFragment() {
     }
 
     @Override

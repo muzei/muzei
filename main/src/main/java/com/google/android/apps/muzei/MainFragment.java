@@ -35,9 +35,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.apps.muzei.settings.SettingsAdvancedFragment;
-import com.google.android.apps.muzei.settings.SettingsChooseSourceFragment;
+import com.google.android.apps.muzei.settings.EffectsFragment;
+import com.google.android.apps.muzei.settings.ChooseSourceFragment;
 import com.google.android.apps.muzei.util.ScrimUtil;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.R;
 
@@ -46,7 +47,7 @@ import net.nurik.roman.muzei.R;
  * between various screens.
  */
 public class MainFragment extends Fragment implements FragmentManager.OnBackStackChangedListener,
-        SettingsChooseSourceFragment.Callbacks {
+        ChooseSourceFragment.Callbacks {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,6 +86,9 @@ public class MainFragment extends Fragment implements FragmentManager.OnBackStac
         // Set up the container for the child fragments
         final View container = view.findViewById(R.id.container);
         if (savedInstanceState == null) {
+            FirebaseAnalytics.getInstance(getActivity())
+                    .setCurrentScreen(getActivity(), "ArtDetail",
+                            ArtDetailFragment.class.getSimpleName());
             getChildFragmentManager().beginTransaction()
                     .replace(R.id.container, new ArtDetailFragment())
                     .commit();
@@ -98,25 +102,34 @@ public class MainFragment extends Fragment implements FragmentManager.OnBackStac
                     public boolean onNavigationItemSelected(@NonNull final MenuItem item) {
                         switch (item.getItemId()) {
                             case R.id.main_art_details:
+                                FirebaseAnalytics.getInstance(getContext())
+                                        .setCurrentScreen(getActivity(), "ArtDetail",
+                                                ArtDetailFragment.class.getSimpleName());
                                 getChildFragmentManager().beginTransaction()
                                         .replace(R.id.container, new ArtDetailFragment())
                                         .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                                         .commit();
                                 return true;
                             case R.id.main_choose_source:
+                                FirebaseAnalytics.getInstance(getContext())
+                                        .setCurrentScreen(getActivity(), "ChooseSource",
+                                                ChooseSourceFragment.class.getSimpleName());
                                 getChildFragmentManager().popBackStack("main",
                                         FragmentManager.POP_BACK_STACK_INCLUSIVE);
                                 getChildFragmentManager().beginTransaction()
-                                        .replace(R.id.container, new SettingsChooseSourceFragment())
+                                        .replace(R.id.container, new ChooseSourceFragment())
                                         .addToBackStack("main")
                                         .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                                         .commit();
                                 return true;
                             case R.id.main_effects:
+                                FirebaseAnalytics.getInstance(getContext())
+                                        .setCurrentScreen(getActivity(), "Effects",
+                                                EffectsFragment.class.getSimpleName());
                                 getChildFragmentManager().popBackStack("main",
                                         FragmentManager.POP_BACK_STACK_INCLUSIVE);
                                 getChildFragmentManager().beginTransaction()
-                                        .replace(R.id.container, new SettingsAdvancedFragment())
+                                        .replace(R.id.container, new EffectsFragment())
                                         .addToBackStack("main")
                                         .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                                         .commit();

@@ -70,13 +70,19 @@ public class MuzeiActivity extends AppCompatActivity
             final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
             if (sp.getBoolean(TutorialFragment.PREF_SEEN_TUTORIAL, false)) {
                 // The wallpaper is active and they've seen the tutorial
+                FirebaseAnalytics.getInstance(this).setCurrentScreen(this, "Main",
+                        MainFragment.class.getSimpleName());
                 return new MainFragment();
             } else {
                 // They need to see the tutorial after activating Muzei for the first time
+                FirebaseAnalytics.getInstance(this).setCurrentScreen(this, "Tutorial",
+                        TutorialFragment.class.getSimpleName());
                 return new TutorialFragment();
             }
         } else {
             // Show the intro fragment to have them activate Muzei
+            FirebaseAnalytics.getInstance(this).setCurrentScreen(this, "Intro",
+                    IntroFragment.class.getSimpleName());
             return new IntroFragment();
         }
     }

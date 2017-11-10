@@ -38,7 +38,7 @@ import net.nurik.roman.muzei.R;
 /**
  * Fragment for allowing the user to configure advanced settings.
  */
-public class SettingsAdvancedFragment extends Fragment {
+public class EffectsFragment extends Fragment {
 
     private Handler mHandler = new Handler();
     private SeekBar mBlurSeekBar;
