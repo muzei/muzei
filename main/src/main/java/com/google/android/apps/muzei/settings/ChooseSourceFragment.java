@@ -50,6 +50,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.TooltipCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -66,7 +67,6 @@ import com.google.android.apps.muzei.SourceManager;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment;
 import com.google.android.apps.muzei.room.MuzeiDatabase;
-import com.google.android.apps.muzei.util.CheatSheet;
 import com.google.android.apps.muzei.util.ObservableHorizontalScrollView;
 import com.google.android.apps.muzei.util.Scrollbar;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -610,7 +610,7 @@ public class ChooseSourceFragment extends Fragment {
             updateSourceStatusUi(source);
 
             source.settingsButton = source.rootView.findViewById(R.id.source_settings_button);
-            CheatSheet.setup(source.settingsButton);
+            TooltipCompat.setTooltipText(source.settingsButton, source.settingsButton.getContentDescription());
             source.settingsButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
