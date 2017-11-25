@@ -26,6 +26,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.widget.TooltipCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseIntArray;
@@ -54,7 +55,6 @@ import com.google.android.apps.muzei.room.Source;
 import com.google.android.apps.muzei.settings.AboutActivity;
 import com.google.android.apps.muzei.sync.TaskQueueService;
 import com.google.android.apps.muzei.util.AnimatedMuzeiLoadingSpinnerView;
-import com.google.android.apps.muzei.util.CheatSheet;
 import com.google.android.apps.muzei.util.PanScaleProxyView;
 import com.google.android.apps.muzei.util.ScrimUtil;
 import com.google.android.apps.muzei.widget.AppWidgetUpdateTask;
@@ -288,7 +288,7 @@ public class ArtDetailFragment extends Fragment {
                 showNextFakeLoading();
             }
         });
-        CheatSheet.setup(mNextButton);
+        TooltipCompat.setTooltipText(mNextButton, mNextButton.getContentDescription());
 
         mPanScaleProxyView = view.findViewById(R.id.pan_scale_proxy);
         mPanScaleProxyView.setMaxZoom(5);
