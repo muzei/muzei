@@ -278,7 +278,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
 
         private void recomputeDateFormat() {
             m12hFormat = new SimpleDateFormat("h:mm", Locale.getDefault());
-            m24hFormat = new SimpleDateFormat("k:mm", Locale.getDefault());
+            m24hFormat = new SimpleDateFormat("H:mm", Locale.getDefault());
             String bestPattern = DateFormat.getBestDateTimePattern(Locale.getDefault(), "Md");
             mDateFormat = new SimpleDateFormat(bestPattern, Locale.getDefault());
         }
