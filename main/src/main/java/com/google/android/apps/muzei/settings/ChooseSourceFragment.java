@@ -182,7 +182,7 @@ public class ChooseSourceFragment extends Fragment {
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
                     preferPackageForIntent(playStoreIntent, PLAY_STORE_PACKAGE_NAME);
                     startActivity(playStoreIntent);
-                } catch (ActivityNotFoundException activityNotFoundException1) {
+                } catch (ActivityNotFoundException | SecurityException e) {
                     Toast.makeText(getContext(),
                             R.string.play_store_not_found, Toast.LENGTH_LONG).show();
                 }
