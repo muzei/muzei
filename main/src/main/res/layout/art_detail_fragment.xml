@@ -29,7 +29,7 @@
         android:layout_height="match_parent"
         android:id="@+id/image_loading_container"
         android:clickable="true"
-        android:background="#c000"
+        android:background="@drawable/art_detail_gradient_background"
         android:visibility="gone"
         android:alpha="0">
 
@@ -46,7 +46,7 @@
         android:id="@+id/image_error_container"
         android:clickable="true"
         android:orientation="vertical"
-        android:background="#c000"
+        android:background="@drawable/art_detail_gradient_background"
         android:visibility="gone"
         android:alpha="0">
 
