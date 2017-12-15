@@ -18,7 +18,7 @@ package com.google.android.apps.muzei.gallery;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.arch.paging.LivePagedListProvider;
+import android.arch.paging.DataSource;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
@@ -192,7 +192,7 @@ public abstract class ChosenPhotoDao {
     abstract ChosenPhoto getChosenPhotoBlocking(Long id);
 
     @Query("SELECT * FROM chosen_photos ORDER BY _id DESC")
-    abstract LivePagedListProvider<Integer, ChosenPhoto> getChosenPhotosPaged();
+    abstract DataSource.Factory<Integer, ChosenPhoto> getChosenPhotosPaged();
 
     @Query("SELECT * FROM chosen_photos ORDER BY _id DESC")
     abstract LiveData<List<ChosenPhoto>> getChosenPhotos();

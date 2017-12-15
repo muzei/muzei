@@ -45,7 +45,7 @@ ext {
     constraintLayoutVersion = "1.0.2"
     lifecycleVersion = "1.0.0"
     roomVersion = "1.0.0"
-    pagingVersion = "1.0.0-alpha3"
+    pagingVersion = "1.0.0-alpha4-1"
     googlePlayServicesVersion = "11.6.0"
     crashlyticsVersion = "2.7.1"
     wearableVersion = "2.1.0"
