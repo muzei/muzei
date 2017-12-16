@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -35,6 +36,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.media.ExifInterface;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.RemoteInput;
@@ -47,6 +49,7 @@ import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.api.UserCommand;
 import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
+import com.google.android.apps.muzei.render.BitmapRegionLoader;
 import com.google.android.apps.muzei.render.ImageUtil;
 import com.google.android.apps.muzei.room.Artwork;
 import com.google.android.apps.muzei.room.ArtworkSource;
@@ -57,7 +60,8 @@ import net.nurik.roman.muzei.R;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
@@ -222,26 +226,41 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
         Bitmap background;
         try {
             BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            BitmapFactory.decodeStream(contentResolver.openInputStream(
-                    MuzeiContract.Artwork.CONTENT_URI), null, options);
-            int width = options.outWidth;
-            int height = options.outHeight;
+            // Check if there's rotation
+            int rotation = 0;
+            try (InputStream in = contentResolver.openInputStream(
+                    MuzeiContract.Artwork.CONTENT_URI)) {
+                if (in == null) {
+                    return;
+                }
+                ExifInterface exifInterface = new ExifInterface(in);
+                int orientation = exifInterface.getAttributeInt(
+                        ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                switch (orientation) {
+                    case ExifInterface.ORIENTATION_ROTATE_90: rotation = 90; break;
+                    case ExifInterface.ORIENTATION_ROTATE_180: rotation = 180; break;
+                    case ExifInterface.ORIENTATION_ROTATE_270: rotation = 270; break;
+                }
+            } catch (IOException |NumberFormatException|StackOverflowError e) {
+                Log.w(TAG, "Couldn't open EXIF interface on artwork", e);
+            }
+            BitmapRegionLoader regionLoader = BitmapRegionLoader.newInstance(
+                    contentResolver.openInputStream(MuzeiContract.Artwork.CONTENT_URI), rotation);
+            int width = regionLoader.getWidth();
+            int height = regionLoader.getHeight();
             int shortestLength = Math.min(width, height);
             options.inJustDecodeBounds = false;
             int largeIconHeight = context.getResources()
                     .getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
             options.inSampleSize = ImageUtil.calculateSampleSize(shortestLength, largeIconHeight);
-            largeIcon = BitmapFactory.decodeStream(contentResolver.openInputStream(
-                    MuzeiContract.Artwork.CONTENT_URI), null, options);
+            largeIcon = regionLoader.decodeRegion(new Rect(0, 0, width, height), options);
 
             // Use the suggested 400x400 for Android Wear background images per
             // http://developer.android.com/training/wearables/notifications/creating.html#AddWearableFeatures
             options.inSampleSize = ImageUtil.calculateSampleSize(height, 400);
-            background = BitmapFactory.decodeStream(contentResolver.openInputStream(
-                    MuzeiContract.Artwork.CONTENT_URI), null, options);
-        } catch (FileNotFoundException e) {
-            Log.e(TAG, "Unable to read artwork to show notification", e);
+            background = regionLoader.decodeRegion(new Rect(0, 0, width, height), options);
+        } catch (IOException e) {
+            Log.e(TAG, "Unable to load artwork to show notification", e);
             return;
         }
 
