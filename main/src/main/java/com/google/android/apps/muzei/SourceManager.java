@@ -31,6 +31,7 @@ import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.apps.muzei.featuredart.FeaturedArtSource;
 import com.google.android.apps.muzei.room.MuzeiDatabase;
@@ -39,6 +40,7 @@ import com.google.android.apps.muzei.sync.TaskQueueService;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.BuildConfig;
+import net.nurik.roman.muzei.R;
 
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_HANDLE_COMMAND;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_SUBSCRIBE;
@@ -197,9 +199,10 @@ public class SourceManager implements LifecycleObserver {
                         context.startService(new Intent(ACTION_HANDLE_COMMAND)
                                 .setComponent(selectedSource)
                                 .putExtra(EXTRA_COMMAND_ID, id));
-                    } catch (IllegalStateException e) {
+                    } catch (IllegalStateException|SecurityException e) {
                         Log.i(TAG, "Sending action + " + id + " to " + selectedSource
                                 + " failed; switching to default.", e);
+                        Toast.makeText(context, R.string.source_unavailable, Toast.LENGTH_LONG).show();
                         selectSource(context, new ComponentName(context, FeaturedArtSource.class));
                     }
                 }
@@ -218,9 +221,10 @@ public class SourceManager implements LifecycleObserver {
                     .putExtra(EXTRA_SUBSCRIBER_COMPONENT,
                             new ComponentName(context, SourceSubscriberService.class))
                     .putExtra(EXTRA_TOKEN, selectedSource.flattenToShortString()));
-        } catch (PackageManager.NameNotFoundException|IllegalStateException e) {
+        } catch (PackageManager.NameNotFoundException|IllegalStateException|SecurityException e) {
             Log.i(TAG, "Selected source " + selectedSource
                     + " is no longer available; switching to default.", e);
+            Toast.makeText(context, R.string.source_unavailable, Toast.LENGTH_LONG).show();
             selectSource(context, new ComponentName(context, FeaturedArtSource.class));
         }
     }

@@ -38,6 +38,7 @@
     <string name="action_source_target_too_high_send_feedback">Send %s feedback</string>
     <string name="action_source_target_too_high_learn_more">Learn more</string>
     <string name="action_source_target_too_high_dismiss">Got it</string>
+    <string name="source_unavailable">Your selected source is unavailable. Switching to the default source.</string>
 
     <string name="contentdesc_overflow">More options</string>
     <string name="error_view_details">Couldn\'t view artwork details.</string>
