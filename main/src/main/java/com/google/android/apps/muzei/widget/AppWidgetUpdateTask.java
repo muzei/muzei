@@ -25,12 +25,14 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
+import android.support.media.ExifInterface;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -39,6 +41,7 @@ import android.view.View;
 import android.widget.RemoteViews;
 
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
+import com.google.android.apps.muzei.render.BitmapRegionLoader;
 import com.google.android.apps.muzei.render.ImageUtil;
 import com.google.android.apps.muzei.room.ArtworkSource;
 import com.google.android.apps.muzei.room.MuzeiDatabase;
@@ -47,7 +50,8 @@ import net.nurik.roman.muzei.R;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Async operation used to update the widget or provide a preview for pinning the widget.
@@ -151,18 +155,33 @@ public class AppWidgetUpdateTask extends AsyncTask<ArtworkSource,Void,Boolean> {
                 R.dimen.widget_small_height_breakpoint);
         Bitmap image;
         try {
+            // Check if there's rotation
+            int rotation = 0;
+            try (InputStream in = mContext.getContentResolver().openInputStream(imageUri)) {
+                if (in == null) {
+                    return null;
+                }
+                ExifInterface exifInterface = new ExifInterface(in);
+                int orientation = exifInterface.getAttributeInt(
+                        ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                switch (orientation) {
+                    case ExifInterface.ORIENTATION_ROTATE_90: rotation = 90; break;
+                    case ExifInterface.ORIENTATION_ROTATE_180: rotation = 180; break;
+                    case ExifInterface.ORIENTATION_ROTATE_270: rotation = 270; break;
+                }
+            } catch (IOException |NumberFormatException|StackOverflowError e) {
+                Log.w(TAG, "Couldn't open EXIF interface on artwork", e);
+            }
+            BitmapRegionLoader regionLoader = BitmapRegionLoader.newInstance(
+                    mContext.getContentResolver().openInputStream(imageUri), rotation);
+            int width = regionLoader.getWidth();
+            int height = regionLoader.getHeight();
             BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            BitmapFactory.decodeStream(contentResolver.openInputStream(imageUri), null, options);
-            int width = options.outWidth;
-            int height = options.outHeight;
-            options.inJustDecodeBounds = false;
             options.inSampleSize = Math.max(ImageUtil.calculateSampleSize(width, widgetWidth / 2),
                     ImageUtil.calculateSampleSize(height, widgetHeight / 2));
-            image = BitmapFactory.decodeStream(
-                    contentResolver.openInputStream(imageUri), null, options);
-        } catch (FileNotFoundException e) {
-            Log.e(TAG, "Could not find current artwork image", e);
+            image = regionLoader.decodeRegion(new Rect(0, 0, width, height), options);
+        } catch (IOException e) {
+            Log.e(TAG, "Could not load current artwork image", e);
             return null;
         }
         // Even after using sample size to scale an image down, it might be larger than the
