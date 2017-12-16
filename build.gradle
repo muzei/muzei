@@ -41,14 +41,14 @@ ext {
     compileSdkVersion = 27
     targetSdkVersion = 25
 
-    supportLibraryVersion = "27.0.0"
+    supportLibraryVersion = "27.0.2"
     constraintLayoutVersion = "1.0.2"
     lifecycleVersion = "1.0.0"
     roomVersion = "1.0.0"
     pagingVersion = "1.0.0-alpha4-1"
-    googlePlayServicesVersion = "11.6.0"
-    crashlyticsVersion = "2.7.1"
+    googlePlayServicesVersion = "11.6.2"
+    crashlyticsVersion = "2.8.0"
     wearableVersion = "2.1.0"
-    okhttpVersion = "3.9.0"
+    okhttpVersion = "3.9.1"
     picassoVersion = "2.5.2"
 }
