@@ -263,7 +263,7 @@ public class ChooseSourceFragment extends Fragment {
     }
 
     private void updatePadding() {
-        int rootViewWidth = getView().getWidth();
+        int rootViewWidth = getView() != null ? getView().getWidth() : 0;
         if (rootViewWidth == 0) {
             return;
         }
