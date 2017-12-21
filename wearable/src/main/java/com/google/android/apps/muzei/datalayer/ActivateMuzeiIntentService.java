@@ -40,9 +40,9 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.wearable.CapabilityApi;
+import com.google.android.gms.tasks.Tasks;
+import com.google.android.gms.wearable.CapabilityClient;
+import com.google.android.gms.wearable.MessageClient;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.wearable.intent.RemoteIntent;
@@ -54,7 +54,7 @@ import net.nurik.roman.muzei.R;
 import java.io.IOException;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutionException;
 
 public class ActivateMuzeiIntentService extends IntentService {
     private static final String TAG = "ActivateMuzeiService";
@@ -98,17 +98,13 @@ public class ActivateMuzeiIntentService extends IntentService {
         deleteIntent.setAction(ACTION_MARK_NOTIFICATION_READ);
         builder.setDeleteIntent(PendingIntent.getService(context, 0, deleteIntent, 0));
         // Check if the Muzei main app is installed
-        GoogleApiClient googleApiClient = new GoogleApiClient.Builder(context)
-                .addApi(Wearable.API)
-                .build();
-        ConnectionResult connectionResult =
-                googleApiClient.blockingConnect(30, TimeUnit.SECONDS);
+        CapabilityClient capabilityClient = Wearable.getCapabilityClient(context);
         Set<Node> nodes = new TreeSet<>();
-        if (connectionResult.isSuccess()) {
-            nodes =  Wearable.CapabilityApi.getCapability(googleApiClient, "activate_muzei",
-                CapabilityApi.FILTER_ALL).await()
-                .getCapability().getNodes();
-            googleApiClient.disconnect();
+        try {
+            nodes = Tasks.await(capabilityClient.getCapability(
+                    "activate_muzei", CapabilityClient.FILTER_ALL)).getNodes();
+        } catch (ExecutionException|InterruptedException e) {
+            Log.e(TAG, "Error getting all capability info", e);
         }
         if (nodes.isEmpty()) {
             if (hasInstallNotification) {
@@ -220,19 +216,14 @@ public class ActivateMuzeiIntentService extends IntentService {
             return;
         }
         // else -> Open on Phone action
-        GoogleApiClient googleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(Wearable.API)
-                .build();
-        ConnectionResult connectionResult =
-                googleApiClient.blockingConnect(30, TimeUnit.SECONDS);
-        if (!connectionResult.isSuccess()) {
-            Log.e(TAG, "Failed to connect to GoogleApiClient.");
-            Toast.makeText(this, R.string.activate_failed, Toast.LENGTH_SHORT).show();
-            return;
+        CapabilityClient capabilityClient = Wearable.getCapabilityClient(this);
+        Set<Node> nodes = new TreeSet<>();
+        try {
+            nodes = Tasks.await(capabilityClient.getCapability(
+                    "activate_muzei", CapabilityClient.FILTER_REACHABLE)).getNodes();
+        } catch (ExecutionException|InterruptedException e) {
+            Log.e(TAG, "Error getting reachable capability info", e);
         }
-        Set<Node> nodes =  Wearable.CapabilityApi.getCapability(googleApiClient, "activate_muzei",
-                CapabilityApi.FILTER_REACHABLE).await()
-                .getCapability().getNodes();
         if (nodes.isEmpty()) {
             Toast.makeText(this, R.string.activate_failed, Toast.LENGTH_SHORT).show();
         } else {
@@ -249,11 +240,15 @@ public class ActivateMuzeiIntentService extends IntentService {
             notificationManager.cancel(INSTALL_NOTIFICATION_ID);
             preferences.edit().putBoolean(ACTIVATE_MUZEI_NOTIF_SHOWN_PREF_KEY, true).apply();
             // Send the message to the phone to open Muzei
+            MessageClient messageClient = Wearable.getMessageClient(this);
             for (Node node : nodes) {
-                Wearable.MessageApi.sendMessage(googleApiClient, node.getId(),
-                        "notification/open", null).await();
+                try {
+                    Tasks.await(messageClient.sendMessage(node.getId(),
+                            "notification/open", null));
+                } catch (ExecutionException|InterruptedException e) {
+                    Log.w(TAG, "Unable to send Activate Muzei message to " + node.getId(), e);
+                }
             }
         }
-        googleApiClient.disconnect();
     }
 }

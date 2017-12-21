@@ -28,10 +28,9 @@ import com.google.android.apps.muzei.room.Artwork;
 import com.google.android.apps.muzei.room.MuzeiDatabase;
 import com.google.android.apps.muzei.room.Source;
 import com.google.android.apps.muzei.wearable.ArtworkTransfer;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.wearable.Asset;
-import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataClient;
 import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataItemBuffer;
 import com.google.android.gms.wearable.DataMap;
@@ -42,7 +41,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Iterator;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutionException;
 
 /**
  * IntentService responsible to for retrieving the artwork from the DataLayer and caching it locally
@@ -61,27 +60,20 @@ public class ArtworkCacheIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        GoogleApiClient googleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(Wearable.API)
-                .build();
-        ConnectionResult connectionResult =
-                googleApiClient.blockingConnect(30, TimeUnit.SECONDS);
-        if (!connectionResult.isSuccess()) {
-            Log.e(TAG, "Failed to connect to GoogleApiClient: " + connectionResult.getErrorCode());
-            return;
-        }
-        // Read all DataItems
-        DataItemBuffer dataItemBuffer = Wearable.DataApi.getDataItems(googleApiClient).await();
-        if (!dataItemBuffer.getStatus().isSuccess()) {
-            Log.e(TAG, "Error getting all data items: " + dataItemBuffer.getStatus().getStatusMessage());
-        }
-        Iterator<DataItem> dataItemIterator = dataItemBuffer.singleRefIterator();
         boolean foundArtwork = false;
-        while (dataItemIterator.hasNext()) {
-            DataItem dataItem = dataItemIterator.next();
-            foundArtwork = foundArtwork || processDataItem(googleApiClient, dataItem);
+        DataClient dataClient = Wearable.getDataClient(this);
+        // Read all DataItems
+        try {
+            DataItemBuffer dataItemBuffer = Tasks.await(dataClient.getDataItems());
+            Iterator<DataItem> dataItemIterator = dataItemBuffer.singleRefIterator();
+            while (dataItemIterator.hasNext()) {
+                DataItem dataItem = dataItemIterator.next();
+                foundArtwork = foundArtwork || processDataItem(dataClient, dataItem);
+            }
+            dataItemBuffer.release();
+        } catch (ExecutionException|InterruptedException e) {
+            Log.e(TAG, "Error getting all data items", e);
         }
-        dataItemBuffer.release();
         if (foundArtwork) {
             // Enable the Full Screen Activity and Artwork Complication Provider Service only if we've found artwork
             enableComponents(FullScreenActivity.class, ArtworkComplicationProviderService.class);
@@ -92,11 +84,10 @@ public class ArtworkCacheIntentService extends IntentService {
         } else {
             ActivateMuzeiIntentService.clearNotifications(this);
         }
-        googleApiClient.disconnect();
     }
 
 
-    private boolean processDataItem(GoogleApiClient googleApiClient, DataItem dataItem) {
+    private boolean processDataItem(DataClient dataClient, DataItem dataItem) {
         if (!dataItem.getUri().getPath().equals("/artwork")) {
             Log.w(TAG, "Ignoring data item " + dataItem.getUri().getPath());
             return false;
@@ -131,7 +122,7 @@ public class ArtworkCacheIntentService extends IntentService {
             Log.w(TAG, "Unable to write artwork information to MuzeiProvider");
             return false;
         }
-        DataApi.GetFdForAssetResult result = null;
+        DataClient.GetFdForAssetResponse result = null;
         InputStream in = null;
         try (OutputStream out = getContentResolver().openOutputStream(Artwork.getContentUri(id))) {
             if (out == null) {
@@ -139,7 +130,7 @@ public class ArtworkCacheIntentService extends IntentService {
                 return true;
             }
             // Convert asset into a file descriptor and block until it's ready
-            result = Wearable.DataApi.getFdForAsset(googleApiClient, asset).await();
+            result = Tasks.await(dataClient.getFdForAsset(asset));
             in = result.getInputStream();
             if (in == null) {
                 Log.w(TAG, "Unable to open asset input stream");
@@ -151,7 +142,7 @@ public class ArtworkCacheIntentService extends IntentService {
                 out.write(buffer, 0, bytesRead);
             }
             out.flush();
-        } catch (IOException e) {
+        } catch (ExecutionException|InterruptedException|IOException e) {
             Log.e(TAG, "Error writing artwork", e);
         } finally {
             try {
