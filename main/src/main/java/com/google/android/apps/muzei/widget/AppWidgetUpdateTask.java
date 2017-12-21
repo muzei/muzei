@@ -93,9 +93,9 @@ public class AppWidgetUpdateTask extends AsyncTask<ArtworkSource,Void,Boolean> {
                 ? title
                 : byline;
         Uri imageUri = artworkSource.artwork.getContentUri();
-        WallpaperActiveStateChangedEvent e = EventBus.getDefault().getStickyEvent(
+        WallpaperActiveStateChangedEvent wasce = EventBus.getDefault().getStickyEvent(
                 WallpaperActiveStateChangedEvent.class);
-        boolean supportsNextArtwork = e != null && e.isActive() && artworkSource.supportsNextArtwork;
+        boolean supportsNextArtwork = wasce != null && wasce.isActive() && artworkSource.supportsNextArtwork;
 
         // Update the widget(s) with the new artwork information
         PackageManager packageManager = mContext.getPackageManager();
@@ -134,12 +134,23 @@ public class AppWidgetUpdateTask extends AsyncTask<ArtworkSource,Void,Boolean> {
             int widgetHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                     extras.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT), displayMetrics);
             widgetHeight = Math.max(Math.min(widgetHeight, displayMetrics.heightPixels), minWidgetSize);
-            RemoteViews remoteViews = createRemoteViews(imageUri, contentDescription, launchPendingIntent,
-                    nextArtworkPendingIntent, supportsNextArtwork, widgetWidth, widgetHeight);
-            if (remoteViews == null) {
-                return false;
+            boolean success = false;
+            while (!success) {
+                RemoteViews remoteViews = createRemoteViews(imageUri, contentDescription, launchPendingIntent,
+                        nextArtworkPendingIntent, supportsNextArtwork, widgetWidth, widgetHeight);
+                if (remoteViews == null) {
+                    return false;
+                }
+                try {
+                    appWidgetManager.updateAppWidget(widgetId, remoteViews);
+                    success = true;
+                } catch (IllegalArgumentException e) {
+                    Log.w(TAG, "App widget size " + widgetWidth + " x " + widgetHeight
+                            + " exceeded maximum memory, reducing quality");
+                    widgetWidth /= 2;
+                    widgetHeight /= 2;
+                }
             }
-            appWidgetManager.updateAppWidget(widgetId, remoteViews);
         }
         return true;
     }
@@ -156,7 +167,7 @@ public class AppWidgetUpdateTask extends AsyncTask<ArtworkSource,Void,Boolean> {
         try {
             // Check if there's rotation
             int rotation = 0;
-            try (InputStream in = mContext.getContentResolver().openInputStream(imageUri)) {
+            try (InputStream in = contentResolver.openInputStream(imageUri)) {
                 if (in == null) {
                     return null;
                 }
@@ -172,7 +183,7 @@ public class AppWidgetUpdateTask extends AsyncTask<ArtworkSource,Void,Boolean> {
                 Log.w(TAG, "Couldn't open EXIF interface on artwork", e);
             }
             BitmapRegionLoader regionLoader = BitmapRegionLoader.newInstance(
-                    mContext.getContentResolver().openInputStream(imageUri), rotation);
+                    contentResolver.openInputStream(imageUri), rotation);
             int width = regionLoader.getWidth();
             int height = regionLoader.getHeight();
             BitmapFactory.Options options = new BitmapFactory.Options();
