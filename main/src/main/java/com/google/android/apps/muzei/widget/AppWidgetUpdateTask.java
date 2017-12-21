@@ -74,7 +74,6 @@ public class AppWidgetUpdateTask extends AsyncTask<ArtworkSource,Void,Boolean> {
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(widget);
         if (!mShowingPreview && appWidgetIds.length == 0) {
             // No app widgets, nothing to do
-            Log.i(TAG, "No AppWidgets found");
             return true;
         } else if (mShowingPreview && (Build.VERSION.SDK_INT < Build.VERSION_CODES.O ||
                 !appWidgetManager.isRequestPinAppWidgetSupported())) {
