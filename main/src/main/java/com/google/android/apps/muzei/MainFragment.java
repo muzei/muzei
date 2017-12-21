@@ -100,6 +100,10 @@ public class MainFragment extends Fragment implements FragmentManager.OnBackStac
                 new BottomNavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(@NonNull final MenuItem item) {
+                        if (getChildFragmentManager().isStateSaved()) {
+                            // Can't navigate after the state is saved
+                            return false;
+                        }
                         switch (item.getItemId()) {
                             case R.id.main_art_details:
                                 FirebaseAnalytics.getInstance(getContext())
