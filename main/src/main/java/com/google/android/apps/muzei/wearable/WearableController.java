@@ -37,8 +37,10 @@ import com.google.android.apps.muzei.room.Artwork;
 import com.google.android.apps.muzei.room.MuzeiDatabase;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.AvailabilityException;
+import com.google.android.gms.tasks.Tasks;
 import com.google.android.gms.wearable.Asset;
+import com.google.android.gms.wearable.DataClient;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.Wearable;
 
@@ -46,7 +48,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Controller for updating Android Wear devices with new wallpapers.
@@ -87,14 +91,23 @@ public class WearableController implements LifecycleObserver {
         if (ConnectionResult.SUCCESS != GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(mContext)) {
             return;
         }
-        GoogleApiClient googleApiClient = new GoogleApiClient.Builder(mContext)
-                .addApi(Wearable.API)
-                .build();
-        ConnectionResult connectionResult = googleApiClient.blockingConnect(5, TimeUnit.SECONDS);
-        if (!connectionResult.isSuccess()) {
-            if (connectionResult.getErrorCode() != ConnectionResult.API_UNAVAILABLE) {
-                Log.w(TAG, "onConnectionFailed: " + connectionResult);
+        DataClient dataClient = Wearable.getDataClient(mContext);
+        try {
+            Tasks.await(GoogleApiAvailability.getInstance()
+                    .checkApiAvailability(dataClient), 5, TimeUnit.SECONDS);
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof AvailabilityException) {
+                ConnectionResult connectionResult = ((AvailabilityException) e.getCause())
+                        .getConnectionResult(dataClient);
+                if (connectionResult.getErrorCode() != ConnectionResult.API_UNAVAILABLE) {
+                    Log.w(TAG, "onConnectionFailed: " + connectionResult, e.getCause());
+                }
+            } else {
+                Log.w(TAG, "Unable to check for Wear API availability", e);
             }
+            return;
+        } catch (InterruptedException|TimeoutException e) {
+            Log.w(TAG, "Unable to check for Wear API availability", e);
             return;
         }
         ContentResolver contentResolver = mContext.getContentResolver();
@@ -131,9 +144,12 @@ public class WearableController implements LifecycleObserver {
             Artwork artwork = MuzeiDatabase.getInstance(mContext).artworkDao().getCurrentArtworkBlocking();
             dataMapRequest.getDataMap().putDataMap("artwork", ArtworkTransfer.toDataMap(artwork));
             dataMapRequest.getDataMap().putAsset("image", asset);
-            Wearable.DataApi.putDataItem(googleApiClient, dataMapRequest.asPutDataRequest().setUrgent()).await();
+            try {
+                Tasks.await(dataClient.putDataItem(dataMapRequest.asPutDataRequest().setUrgent()));
+            } catch (ExecutionException|InterruptedException e) {
+                Log.w(TAG, "Error uploading artwork to Wear", e);
+            }
         }
-        googleApiClient.disconnect();
     }
 
     private int getRotation() {
