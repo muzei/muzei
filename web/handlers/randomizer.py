@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from datetime import datetime, date, timedelta
+import json
 import os
 import re
 import sys
@@ -25,48 +26,58 @@ from models import FeaturedArtwork
 
 SANITIZE_ARTWORK_KEY_RE = re.compile(r'\?.*', re.I | re.S)
 
+LOOKAHEAD_DAYS = 60
 
-def sanitized_artwork_key(artwork):
-  return SANITIZE_ARTWORK_KEY_RE.sub('', artwork.details_url)
+
+def artwork_key(details_url):
+  return SANITIZE_ARTWORK_KEY_RE.sub('', details_url)
 
 
 class PickRandomArtworkTaskHandler(BaseHandler):
   def get(self):
-    # Fetch latest 1000 artworks
+    ARTWORKS = json.loads(open(os.path.join(os.path.split(__file__)[0], 'lt-artworks.json')).read())
+
+    # Fetch latest 300 artworks (for blacklisting)
     latest_artworks = (FeaturedArtwork.all()
         .order('-publish_date')
-        .fetch(1000))
+        .fetch(300))
 
     # List dates for which artwork exists
     dates_with_existing_art = set(a.publish_date for a in latest_artworks)
 
     # List target dates that we want artwork for, but for which no artwork exists
-    target_dates = [date.today() + timedelta(days=n) for n in range(-1, 9)]
+    target_dates = [date.today() + timedelta(days=n) for n in range(-1, LOOKAHEAD_DAYS)]
     target_dates = [d for d in target_dates if d not in dates_with_existing_art]
 
+    # Create a blacklist of keys to avoid repeats
+    blacklist = set(artwork_key(a.details_url) for a in latest_artworks)
+
+    self.response.out.write('starting blacklist size: %d<br>' % len(blacklist))
+
     for target_date in target_dates:
-      self.response.out.write('looking for artwork for date ' + str(target_date) + '<br>')
-
-      # Create a blacklist of the most recent 200 artwork
-      # (don't want to repeat one of the last 200!)
-      blacklist_artwork_keys = set(sanitized_artwork_key(a) for a in latest_artworks[:200])
-      if len(blacklist_artwork_keys) < 5:
-        blacklist_artwork_keys = set() # should never happen, but just in case of a reset
-
-      # Pick from one of the oldest 500, excluding artwork in the blacklist
+      # Pick from available artworks, excluding artwork in the blacklist
       random_artwork = None
       while True:
-        random_artwork = random.choice(latest_artworks[500:])
-        key = sanitized_artwork_key(random_artwork)
-        if 'wikiart.org' in key or 'wikipaintings.org' in key or 'metmuseum.org' in key:
-          if key not in blacklist_artwork_keys:
-            break
+        random_artwork = random.choice(ARTWORKS)
+        key = artwork_key(random_artwork['detailsUri'])
+        if key not in blacklist:
+          # Once chosen, add to the blacklist to avoid repeats within the lookahead
+          blacklist.add(key)
+          break
 
-      target_details_url = str(random_artwork.details_url)
-      self.response.out.write('recycling ' + target_details_url + ' for date ' + str(target_date) + '<br>')
+      target_details_url = str(random_artwork['detailsUri'])
+      self.response.out.write('%(date)s: setting to <b>%(url)s</b><br>' % dict(url=target_details_url, date=target_date))
 
-      backroomarthelper.add_art_from_external_details_url(
-          target_date,
-          target_details_url)
+      # Store the new artwork
+      new_artwork = FeaturedArtwork(
+          title=random_artwork['title'],
+          byline=random_artwork['byline'],
+          attribution=random_artwork['attribution'],
+          image_url=random_artwork['imageUri'],
+          thumb_url=random_artwork['thumbUri'],
+          details_url=random_artwork['detailsUri'],
+          publish_date=target_date)
+      new_artwork.save()
 
+    # Finish up
     self.response.out.write('done<br>')

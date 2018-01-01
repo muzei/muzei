@@ -2,6 +2,8 @@ cron:
 - description: update archive daily
   url: /tasks/update_archive
   schedule: every day 02:05
+  timezone: UTC
 - description: pick random artwork for next few days if it's empty
   url: /tasks/pick_random_artwork
-  schedule: every day 02:05
+  schedule: every monday 09:00
+  timezone: America/New_York
