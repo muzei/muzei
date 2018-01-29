@@ -1,0 +1,88 @@
+<!--
+  Copyright 2014 Google Inc.
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+      http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+    <string name="app_description">Muzei Live Wallpaper</string>
+
+    <string name="settings_title">Configurações do Muzei</string>
+    <string name="settings_blur_amount_title">Desfoque</string>
+    <string name="settings_dim_amount_title">Esmaecimento</string>
+    <string name="settings_grey_amount_title">Cinza</string>
+    <string name="settings_blur_on_lockscreen">Aplicar desfoque na tela de bloqueio</string>
+
+    <string name="notification_new_wallpaper">Novo plano de fundo</string>
+    <string name="notification_new_wallpaper_channel_name">Novos planos de fundo</string>
+    <string name="notification_settings">Configurações de notificação</string>
+    <string name="notification_settings_done">Pronto</string>
+    <string name="notification_settings_moved_title">As configurações de notificação foram alteradas</string>
+    <string name="notification_settings_moved_text">Rever configurações de notificação</string>
+
+    <string name="action_activate">Ativar</string>
+    <string name="action_settings">Perosnalizar</string>
+    <string name="action_source_settings">Personalizar fonte</string>
+    <string name="action_source_target_too_high_title">Esta fonte está desabilitada</string>
+    <string name="action_source_target_too_high_message">A API do Muzei ainda não é compatível com apps como este que tem como alvo o Android 8.0 (API 26).</string>
+    <string name="action_source_target_too_high_send_feedback">Enviar %s comentário</string>
+    <string name="action_source_target_too_high_learn_more">Ver mais</string>
+    <string name="action_source_target_too_high_dismiss">Entendi</string>
+    <string name="source_unavailable">Sua fonte selecionada está indisponível. Mudando para a fonte padrão.</string>
+
+    <string name="contentdesc_overflow">Mais opções</string>
+    <string name="error_view_details">Impossível de ver detalhes da arte.</string>
+    <string name="error_easter_egg">Hmm, esta imagem parece não estar carregando. Grumpy McPuzzles pede desculpas por isso, e recomenda tentar uma fonte diferente de planos de fundo.</string>
+    <string name="error_wallpaper_chooser">Impossível rodar o escolhedor de plano de fundo. Você ainda pode ativar o Muzei ao escolher  \'Live Wallpapers\' no escolhedor de fundo da sua tela inicial.</string>
+
+    <string name="section_choose_source">Fontes</string>
+    <string name="section_advanced">Avançado</string>
+    <string name="section_effects">Efeitos</string>
+
+    <string name="action_next_artwork">Próxima arte</string>
+    <string name="action_next_artwork_condensed">Próxima</string>
+    <string name="action_user_command">Mais</string>
+    <string name="action_user_command_prompt">Escolher ação</string>
+    <string name="action_artwork_info">Informação da arte</string>
+    <string name="action_artwork_info_disabled">Não há informações para a arte atual.</string>
+
+    <string name="done">Pronto</string>
+    <string name="retry">Tentar de novo</string>
+
+    <string name="set_as_wallpaper_using_muzei">Plano de Fundo (usndo o Muzei)</string>
+    <string name="set_as_wallpaper_failed">Impossível de ler arte</string>
+
+    <string name="tutorial_main">Abra o Muzei para ver seu plano de fundo</string>
+    <string name="tutorial_subtitle">Toque duas vezes no palno de fundo borrado na sua tela para focar temporariamente</string>
+
+    <string name="get_more_sources">Obter mais fontes</string>
+    <string name="reset_advanced_settings_defaults">Restaurar sliders</string>
+    <string name="play_store_not_found">Impossível abrir a Play Store.</string>
+
+    <string name="about_title">Sobre o Muzei</string>
+    <string name="about_body"><![CDATA[
+        Feito em Nova Iorque por Roman Nurik, com grandes contribuições de Ian Lake
+        e a <a href="http://code.muzei.co">comunidade de código aberto</a>.
+        <i>Muzei</i> é uma tradução da palavra russa
+        <a href="http://translate.google.com/#en/ru/museum"><i>музей</i></a>, que significa
+        &#8220;museu.&#8221;<br><br>
+        Copyright 2013&ndash;2016 Google Inc. All Rights Reserved.
+        <a href="http://m.google.com/utos">Termos de Serviço</a>,
+        <a href="http://www.google.com/policies/privacy/">Política de Privacidade</a>&nbsp;<br><br>
+        Muito obrigado à esses projetos de código aberto:<br>
+        &bull; <b><a href="http://square.github.io/okhttp/">OkHttp</a> e <a href="http://square.github.io/picasso/">Picasso</a></b> por Square<br>
+        &bull; <b><a href="https://github.com/greenrobot/EventBus">EventBus</a></b> por greenrobot<br>
+        &bull; <b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a></b> por Robert Green, Mark F. Guerra, e outros
+    ]]></string>
+    <string name="about_version_template">v%1$s</string>
+    <string name="app_author">Roman Nurik</string>
+    <string name="app_context_description">Um museu vivo para sua tela inicial</string>
+    <string name="app_context_uri">http://www.muzei.co/</string>
+</resources>
