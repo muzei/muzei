@@ -691,16 +691,18 @@ public class GallerySettingsActivity extends AppCompatActivity
     private String getDisplayNameForTreeUri(Uri treeUri) {
         Uri documentUri = DocumentsContract.buildDocumentUriUsingTree(treeUri,
                 DocumentsContract.getTreeDocumentId(treeUri));
-        Cursor data = getContentResolver().query(documentUri,
-                new String[] { DocumentsContract.Document.COLUMN_DISPLAY_NAME }, null, null, null);
-        String displayName = null;
-        if (data != null && data.moveToNext()) {
-            displayName = data.getString(data.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
+        try (Cursor data = getContentResolver().query(documentUri,
+                new String[] { DocumentsContract.Document.COLUMN_DISPLAY_NAME },
+                null, null, null)) {
+            String displayName = null;
+            if (data != null && data.moveToNext()) {
+                displayName = data.getString(data.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
+            }
+            return displayName;
+        } catch (SecurityException e) {
+            // No longer can read this URI, which means no display name for this URI
+            return null;
         }
-        if (data != null) {
-            data.close();
-        }
-        return displayName;
     }
 
     private void onDataSetChanged() {
