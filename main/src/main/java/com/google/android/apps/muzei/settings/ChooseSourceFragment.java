@@ -530,6 +530,9 @@ public class ChooseSourceFragment extends Fragment {
                         }
                     } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
                             && source.targetSdkVersion >= Build.VERSION_CODES.O) {
+                        if (isStateSaved() || isRemoving()) {
+                            return;
+                        }
                         AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
                                 .setTitle(R.string.action_source_target_too_high_title)
                                 .setMessage(R.string.action_source_target_too_high_message)
