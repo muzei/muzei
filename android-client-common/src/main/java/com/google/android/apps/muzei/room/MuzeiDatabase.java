@@ -16,9 +16,9 @@
 
 package com.google.android.apps.muzei.room;
 
-import android.arch.lifecycle.Observer;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Database;
+import android.arch.persistence.room.InvalidationTracker;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.arch.persistence.room.migration.Migration;
@@ -26,9 +26,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteConstraintException;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
+
+import java.util.Set;
 
 /**
  * Room Database for Muzei
@@ -49,13 +50,10 @@ public abstract class MuzeiDatabase extends RoomDatabase {
                     .allowMainThreadQueries()
                     .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                     .build();
-            sInstance.sourceDao().getCurrentSource().observeForever(
-                    new Observer<Source>() {
+            sInstance.getInvalidationTracker().addObserver(
+                    new InvalidationTracker.Observer("sources") {
                         @Override
-                        public void onChanged(@Nullable final Source source) {
-                            if (source == null) {
-                                return;
-                            }
+                        public void onInvalidated(@NonNull final Set<String> tables) {
                             applicationContext.getContentResolver()
                                     .notifyChange(MuzeiContract.Sources.CONTENT_URI,null);
                             applicationContext.sendBroadcast(
