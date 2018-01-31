@@ -119,7 +119,7 @@ public class BitmapRegionLoader {
             return null;
         }
         Bitmap bitmap = mBitmapRegionDecoder.decodeRegion(mTempRect, options);
-        if (bitmap == null) {
+        if (bitmap == null || bitmap.getWidth() == 0 || bitmap.getHeight() == 0) {
             return null;
         }
 
