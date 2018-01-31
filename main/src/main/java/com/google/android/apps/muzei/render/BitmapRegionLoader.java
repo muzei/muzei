@@ -20,6 +20,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapRegionDecoder;
 import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.os.Build;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -68,9 +69,27 @@ public class BitmapRegionLoader {
             mOriginalWidth = mBitmapRegionDecoder.getWidth();
             mOriginalHeight = mBitmapRegionDecoder.getHeight();
             if (mOriginalWidth > 0 && mOriginalHeight > 0) {
-                mValid = true;
+                mValid = checkConfig();
             }
         }
+    }
+
+    /**
+     * Renderscript does not support RGBA_F16, so we check to make sure
+     * that we get a valid config back when we attempt to get a portion of
+     * the BitmapRegionDecoder
+     *
+     * @return Whether the BitmapRegionDecoder uses a valid Bitmap.Config
+     */
+    private boolean checkConfig() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return true;
+        }
+        mTempRect.set(0, 0, 1, 1);
+        Options options = new Options();
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        mBitmapRegionDecoder.decodeRegion(mTempRect, options);
+        return options.outConfig == Bitmap.Config.ARGB_8888;
     }
 
     /**
@@ -120,6 +139,11 @@ public class BitmapRegionLoader {
         }
         Bitmap bitmap = mBitmapRegionDecoder.decodeRegion(mTempRect, options);
         if (bitmap == null || bitmap.getWidth() == 0 || bitmap.getHeight() == 0) {
+            return null;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                && options.outConfig != Bitmap.Config.ARGB_8888) {
+            // Renderscript only supports ARGB_8888
             return null;
         }
 
