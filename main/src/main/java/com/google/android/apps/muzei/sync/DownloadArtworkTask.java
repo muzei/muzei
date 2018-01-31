@@ -119,6 +119,8 @@ public class DownloadArtworkTask extends AsyncTask<Void, Void, Boolean> {
                 in = context.getContentResolver().openInputStream(uri);
             } catch (SecurityException e) {
                 throw new FileNotFoundException("No access to " + uri + ": " + e.toString());
+            } catch (NullPointerException e) {
+                throw new FileNotFoundException("Error accessing to " + uri + ": " + e.toString());
             }
 
         } else if ("file".equals(scheme)) {
