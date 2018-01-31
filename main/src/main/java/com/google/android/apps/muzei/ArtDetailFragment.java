@@ -308,8 +308,10 @@ public class ArtDetailFragment extends Fragment {
                 new PanScaleProxyView.OnOtherGestureListener() {
                     @Override
                     public void onSingleTapUp() {
-                        showHideChrome((getActivity().getWindow().getDecorView().getSystemUiVisibility()
-                                & View.SYSTEM_UI_FLAG_LOW_PROFILE) != 0);
+                        if (getActivity() != null) {
+                            showHideChrome((getActivity().getWindow().getDecorView().getSystemUiVisibility()
+                                    & View.SYSTEM_UI_FLAG_LOW_PROFILE) != 0);
+                        }
                     }
 
                     @Override
