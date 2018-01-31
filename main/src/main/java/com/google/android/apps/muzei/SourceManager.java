@@ -116,9 +116,9 @@ public class SourceManager implements LifecycleObserver {
     @SuppressLint("StaticFieldLeak")
     public static void selectSource(final Context context, @NonNull final ComponentName source,
                                     @Nullable final Callback callback) {
-        new AsyncTask<Void, Void, Void>() {
+        new AsyncTask<Void, Void, Source>() {
             @Override
-            protected Void doInBackground(final Void... voids) {
+            protected Source doInBackground(final Void... voids) {
                 MuzeiDatabase database = MuzeiDatabase.getInstance(context);
                 Source selectedSource = database.sourceDao().getCurrentSourceBlocking();
                 if (selectedSource != null && source.equals(selectedSource.componentName)) {
@@ -153,15 +153,15 @@ public class SourceManager implements LifecycleObserver {
                 database.endTransaction();
                 sendSelectedSourceAnalytics(context, source);
 
+                return newSource;
+            }
+
+            @Override
+            protected void onPostExecute(final Source newSource) {
                 subscribe(context, newSource);
 
                 // Ensure the artwork from the newly selected source is downloaded
                 context.startService(TaskQueueService.getDownloadCurrentArtworkIntent(context));
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(final Void aVoid) {
                 if (callback != null) {
                     callback.onSourceSelected();
                 }
