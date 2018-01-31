@@ -230,14 +230,17 @@ public class SourceManager implements LifecycleObserver {
     }
 
     private static void unsubscribe(Context context, @NonNull Source source) {
+        ComponentName selectedSource = source.componentName;
         try {
+            // Ensure that we have a valid service before subscribing
+            context.getPackageManager().getServiceInfo(selectedSource, 0);
             context.startService(new Intent(ACTION_SUBSCRIBE)
-                    .setComponent(source.componentName)
+                    .setComponent(selectedSource)
                     .putExtra(EXTRA_SUBSCRIBER_COMPONENT,
                             new ComponentName(context, SourceSubscriberService.class))
                     .putExtra(EXTRA_TOKEN, (String) null));
-        } catch (IllegalStateException e) {
-            Log.i(TAG, "Unsubscribing to " + source.componentName
+        } catch (PackageManager.NameNotFoundException|IllegalStateException|SecurityException e) {
+            Log.i(TAG, "Unsubscribing to " + selectedSource
                     + " failed.", e);
         }
     }
