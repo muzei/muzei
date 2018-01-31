@@ -20,13 +20,16 @@ import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.Observer;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.WakefulBroadcastReceiver;
+import android.util.Log;
 
 import com.google.android.apps.muzei.room.MuzeiDatabase;
 import com.google.android.apps.muzei.room.Source;
@@ -37,6 +40,8 @@ import java.util.List;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_NETWORK_AVAILABLE;
 
 public class NetworkChangeReceiver extends WakefulBroadcastReceiver implements LifecycleOwner {
+    private static final String TAG = "NetworkChangeReceiver";
+
     private LifecycleRegistry mLifecycle;
 
     @NonNull
@@ -69,8 +74,15 @@ public class NetworkChangeReceiver extends WakefulBroadcastReceiver implements L
                         public void onChanged(@Nullable final List<Source> sources) {
                             if (sources != null) {
                                 for (Source source : sources) {
-                                    context.startService(new Intent(ACTION_NETWORK_AVAILABLE)
-                                            .setComponent(source.componentName));
+                                    ComponentName sourceName = source.componentName;
+                                    try {
+                                        context.getPackageManager().getServiceInfo(sourceName, 0);
+                                        context.startService(new Intent(ACTION_NETWORK_AVAILABLE)
+                                                .setComponent(sourceName));
+                                    } catch (PackageManager.NameNotFoundException|IllegalStateException|SecurityException e) {
+                                        Log.i(TAG, "Sending network available to " + sourceName
+                                                + " failed.", e);
+                                    }
                                 }
                             }
                             mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
