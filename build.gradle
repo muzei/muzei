@@ -43,9 +43,9 @@ ext {
 
     supportLibraryVersion = "27.0.2"
     constraintLayoutVersion = "1.0.2"
-    lifecycleVersion = "1.0.0"
-    roomVersion = "1.0.0"
-    pagingVersion = "1.0.0-alpha4-1"
+    lifecycleVersion = "1.1.0"
+    roomVersion = "1.1.0-alpha1"
+    pagingVersion = "1.0.0-alpha5"
     googlePlayServicesVersion = "11.8.0"
     crashlyticsVersion = "2.8.0"
     wearableVersion = "2.1.0"
