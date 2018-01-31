@@ -34,7 +34,7 @@
     <string name="action_settings">Customize</string>
     <string name="action_source_settings">Customize source</string>
     <string name="action_source_target_too_high_title">This source is disabled</string>
-    <string name="action_source_target_too_high_message">Muzei\'s API is not yet compatible with apps such as this one that target Android 8.0 (API 26).</string>
+    <string name="action_source_target_too_high_message">%s is incompatible with Muzei\'s API. To use this source, the developer must change their targetSdkVersion to 25 or lower.</string>
     <string name="action_source_target_too_high_send_feedback">Send %s feedback</string>
     <string name="action_source_target_too_high_learn_more">Learn more</string>
     <string name="action_source_target_too_high_dismiss">Got it</string>

@@ -535,7 +535,7 @@ public class ChooseSourceFragment extends Fragment {
                         }
                         AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
                                 .setTitle(R.string.action_source_target_too_high_title)
-                                .setMessage(R.string.action_source_target_too_high_message)
+                                .setMessage(getString(R.string.action_source_target_too_high_message, source.label))
                                 .setNegativeButton(R.string.action_source_target_too_high_learn_more,
                                         new DialogInterface.OnClickListener() {
                                             @Override
