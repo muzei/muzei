@@ -25,7 +25,9 @@ import android.arch.persistence.room.TypeConverters;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
+import android.provider.BaseColumns;
 import android.text.TextUtils;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
@@ -64,6 +66,12 @@ public abstract class ArtworkDao {
 
     @Query("SELECT * FROM artwork ORDER BY date_added DESC")
     public abstract List<Artwork> getArtworkBlocking();
+
+    @Query("SELECT COUNT(distinct imageUri) FROM artwork, sources " +
+            "WHERE artwork.sourceComponentName = sources.component_name " +
+            "AND sources._id = :sourceId " +
+            "ORDER BY date_added DESC")
+    public abstract int getArtworkCountForSourceIdBlocking(long sourceId);
 
     @Query("SELECT artwork.* FROM artwork, sources WHERE artwork.sourceComponentName = sources.component_name " +
             "AND sources._id = :sourceId " +
@@ -132,7 +140,7 @@ public abstract class ArtworkDao {
 
     @TypeConverters(ComponentNameTypeConverter.class)
     @Query("SELECT * FROM artwork WHERE sourceComponentName=:sourceComponentName")
-    abstract List<Artwork> getArtworkForSourceBlocking(ComponentName sourceComponentName);
+    abstract Cursor getArtworkForSourceBlocking(ComponentName sourceComponentName);
 
     @TypeConverters(ComponentNameTypeConverter.class)
     @Query("DELETE FROM artwork WHERE sourceComponentName = :sourceComponentName " +
@@ -176,38 +184,45 @@ public abstract class ArtworkDao {
      */
     private void deleteImages(Context context, ComponentName sourceComponentName,
             List<Long> ids) {
-        List<Artwork> artworkList = getArtworkForSourceBlocking(sourceComponentName);
-        // Now we actually go through the list of rows to be deleted
-        // and check if we can delete the artwork image file associated with each one
-        for (Artwork artwork : artworkList) {
-            if (ids.contains(artwork.id)) {
-                // We want to keep this row
-                continue;
+        try (Cursor artworkList = getArtworkForSourceBlocking(sourceComponentName)){
+            if (artworkList == null) {
+                return;
             }
-            boolean canDelete = false;
-            if (TextUtils.isEmpty(artwork.token) && artwork.imageUri == null) {
-                // An empty image URI and token means the artwork is unique to this specific row
-                // so we can always delete it when the associated row is deleted
-                canDelete = true;
-            } else if (artwork.imageUri == null) {
-                // Check to see if all of the artwork by the token is being deleted
-                List<Artwork> artworkByToken = findMatchingByToken(artwork.token, ids);
-                if (artworkByToken != null && artworkByToken.isEmpty()) {
-                    // There's no matching row that uses this token, so it is safe to delete
-                    canDelete = true;
+            // Now we actually go through the list of rows to be deleted
+            // and check if we can delete the artwork image file associated with each one
+            while (artworkList.moveToNext()) {
+                long id = artworkList.getLong(artworkList.getColumnIndex(BaseColumns._ID));
+                if (ids.contains(id)) {
+                    // We want to keep this row
+                    continue;
                 }
-            } else {
-                // Check to see if all of the artwork by the imageUri is being deleted
-                List<Artwork> artworkByImageUri = findMatchingByImageUri(artwork.imageUri, ids);
-                if (artworkByImageUri != null && artworkByImageUri.isEmpty()) {
-                    // There's no matching row that uses this imageUri, so it is safe to delete
+                String token = artworkList.getString(artworkList.getColumnIndex("token"));
+                String imageUri = artworkList.getString(artworkList.getColumnIndex("imageUri"));
+                boolean canDelete = false;
+                if (TextUtils.isEmpty(token) && TextUtils.isEmpty(imageUri)) {
+                    // An empty image URI and token means the artwork is unique to this specific row
+                    // so we can always delete it when the associated row is deleted
                     canDelete = true;
+                } else if (TextUtils.isEmpty(imageUri)) {
+                    // Check to see if all of the artwork by the token is being deleted
+                    List<Artwork> artworkByToken = findMatchingByToken(token, ids);
+                    if (artworkByToken != null && artworkByToken.isEmpty()) {
+                        // There's no matching row that uses this token, so it is safe to delete
+                        canDelete = true;
+                    }
+                } else {
+                    // Check to see if all of the artwork by the imageUri is being deleted
+                    List<Artwork> artworkByImageUri = findMatchingByImageUri(Uri.parse(imageUri), ids);
+                    if (artworkByImageUri != null && artworkByImageUri.isEmpty()) {
+                        // There's no matching row that uses this imageUri, so it is safe to delete
+                        canDelete = true;
+                    }
                 }
-            }
-            if (canDelete) {
-                File file = MuzeiProvider.getCacheFileForArtworkUri(context, artwork.id);
-                if (file != null && file.exists()) {
-                    file.delete();
+                if (canDelete) {
+                    File file = MuzeiProvider.getCacheFileForArtworkUri(context, id);
+                    if (file != null && file.exists()) {
+                        file.delete();
+                    }
                 }
             }
         }

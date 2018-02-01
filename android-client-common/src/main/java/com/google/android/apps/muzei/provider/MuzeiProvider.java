@@ -50,6 +50,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -489,8 +490,9 @@ public class MuzeiProvider extends ContentProvider {
             @Override
             public void run() {
                 final MuzeiDatabase database = MuzeiDatabase.getInstance(context);
+                final Artwork currentArtwork = database.artworkDao().getCurrentArtworkBlocking();
                 final List<Source> sources = database.sourceDao().getSourcesBlocking();
-                if (sources == null) {
+                if (currentArtwork == null || sources == null) {
                     return;
                 }
                 // Access to certain artwork can be persisted through MuzeiDocumentsProvider
@@ -499,6 +501,15 @@ public class MuzeiProvider extends ContentProvider {
                 // Loop through each source, cleaning up old artwork
                 for (Source source : sources) {
                     final ComponentName componentName = source.componentName;
+                    int artworkCount = database.artworkDao().getArtworkCountForSourceIdBlocking(source.id);
+                    if (artworkCount > MAX_CACHE_SIZE * 5) {
+                        // Woah, that's way, way more than the allowed size
+                        // Delete them all (except the current artwork)
+                        // to get us back into a sane state
+                        database.artworkDao().deleteNonMatching(context, componentName,
+                                Collections.singletonList(currentArtwork.id));
+                        continue;
+                    }
                     // Now use that ComponentName to look through the past artwork from that source
                     final List<Artwork> artworkList = database.artworkDao()
                             .getArtworkForSourceIdBlocking(source.id);
@@ -530,7 +541,6 @@ public class MuzeiProvider extends ContentProvider {
                         }
                         if (artworkToKeep.contains(unique)) {
                             // This ensures we aren't double counting the same artwork in our count
-                            artworkIdsToKeep.add(artwork.id);
                             continue;
                         }
                         if (count++ < MAX_CACHE_SIZE) {
