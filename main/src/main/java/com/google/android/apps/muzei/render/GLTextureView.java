@@ -1527,7 +1527,7 @@ public class GLTextureView extends TextureView implements TextureView.SurfaceTex
         private int mRenderMode;
         private boolean mRequestRender;
         private boolean mRenderComplete;
-        private ArrayList<Runnable> mEventQueue = new ArrayList<Runnable>();
+        private ArrayList<Runnable> mEventQueue = new ArrayList<>();
         private boolean mSizeChanged = true;
 
         // End of member variables protected by the sGLThreadManager monitor.
@@ -1701,7 +1701,7 @@ public class GLTextureView extends TextureView implements TextureView.SurfaceTex
     private static final GLThreadManager sGLThreadManager = new GLThreadManager();
 
     private final WeakReference<GLTextureView> mThisWeakRef =
-            new WeakReference<GLTextureView>(this);
+            new WeakReference<>(this);
     private GLThread mGLThread;
     private GLSurfaceView.Renderer mRenderer;
     private boolean mDetached;

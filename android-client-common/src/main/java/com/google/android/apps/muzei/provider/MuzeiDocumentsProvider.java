@@ -158,7 +158,7 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
         // On API 25 or lower devices, we don't get URI permissions to URIs
         // from our own package so we need to store them manually.
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        for (String persistedUri : preferences.getStringSet(KEY_PERSISTED_URIS, new TreeSet<String>())) {
+        for (String persistedUri : preferences.getStringSet(KEY_PERSISTED_URIS, new TreeSet<>())) {
             persistedUris.add(Uri.parse(persistedUri));
         }
         return persistedUris;
@@ -177,7 +177,7 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
             Uri artworkUri = getArtworkUriForDocumentUri(Uri.parse(arg));
             if (artworkUri != null) {
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-                Set<String> persistedUris = preferences.getStringSet(KEY_PERSISTED_URIS, new TreeSet<String>());
+                Set<String> persistedUris = preferences.getStringSet(KEY_PERSISTED_URIS, new TreeSet<>());
                 if (persistedUris.add(artworkUri.toString())) {
                     preferences.edit().putStringSet(KEY_PERSISTED_URIS, persistedUris).apply();
                 }
@@ -187,7 +187,7 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
             Uri artworkUri = getArtworkUriForDocumentUri(Uri.parse(arg));
             if (artworkUri != null) {
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-                Set<String> persistedUris = preferences.getStringSet(KEY_PERSISTED_URIS, new TreeSet<String>());
+                Set<String> persistedUris = preferences.getStringSet(KEY_PERSISTED_URIS, new TreeSet<>());
                 if (persistedUris.remove(artworkUri.toString())) {
                     preferences.edit().putStringSet(KEY_PERSISTED_URIS, persistedUris).apply();
                 }

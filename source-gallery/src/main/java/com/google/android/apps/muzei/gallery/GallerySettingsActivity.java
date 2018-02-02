@@ -810,7 +810,7 @@ public class GallerySettingsActivity extends AppCompatActivity
             ChosenPhoto chosenPhoto = getItem(position);
             vh.mFolderIcon.setVisibility(chosenPhoto != null && chosenPhoto.isTreeUri ? View.VISIBLE : View.GONE);
             int maxImages = vh.mThumbViews.size();
-            List<Uri> images = chosenPhoto == null ? new ArrayList<Uri>() : chosenPhoto.isTreeUri
+            List<Uri> images = chosenPhoto == null ? new ArrayList<>() : chosenPhoto.isTreeUri
                     ? getImagesFromTreeUri(chosenPhoto.uri, maxImages)
                     : Collections.singletonList(chosenPhoto.getContentUri());
             int numImages = images.size();

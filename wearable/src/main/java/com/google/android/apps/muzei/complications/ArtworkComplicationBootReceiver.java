@@ -37,7 +37,7 @@ public class ArtworkComplicationBootReceiver extends BroadcastReceiver {
         }
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         Set<String> complications = preferences.getStringSet(
-                ArtworkComplicationProviderService.KEY_COMPLICATION_IDS, new TreeSet<String>());
+                ArtworkComplicationProviderService.KEY_COMPLICATION_IDS, new TreeSet<>());
         if (!complications.isEmpty()) {
             ArtworkComplicationJobService.scheduleComplicationUpdateJob(context);
         }

@@ -82,7 +82,7 @@ public class ArtworkComplicationJobService extends JobService {
                 new ComponentName(this, ArtworkComplicationProviderService.class));
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         Set<String> complicationSet = preferences.getStringSet(
-                ArtworkComplicationProviderService.KEY_COMPLICATION_IDS, new TreeSet<String>());
+                ArtworkComplicationProviderService.KEY_COMPLICATION_IDS, new TreeSet<>());
         if (!complicationSet.isEmpty()) {
             int[] complicationIds = new int[complicationSet.size()];
             int index = 0;

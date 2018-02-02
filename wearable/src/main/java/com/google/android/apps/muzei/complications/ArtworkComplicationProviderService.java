@@ -74,7 +74,7 @@ public class ArtworkComplicationProviderService extends ComplicationProviderServ
 
     private void addComplication(int complicationId) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        Set<String> complications = preferences.getStringSet(KEY_COMPLICATION_IDS, new TreeSet<String>());
+        Set<String> complications = preferences.getStringSet(KEY_COMPLICATION_IDS, new TreeSet<>());
         complications.add(Integer.toString(complicationId));
         preferences.edit().putStringSet(KEY_COMPLICATION_IDS, complications).apply();
         if (BuildConfig.DEBUG) {
@@ -90,7 +90,7 @@ public class ArtworkComplicationProviderService extends ComplicationProviderServ
         }
         FirebaseAnalytics.getInstance(this).logEvent("complication_artwork_deactivated", null);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        Set<String> complications = preferences.getStringSet(KEY_COMPLICATION_IDS, new TreeSet<String>());
+        Set<String> complications = preferences.getStringSet(KEY_COMPLICATION_IDS, new TreeSet<>());
         complications.remove(Integer.toString(complicationId));
         preferences.edit().putStringSet(KEY_COMPLICATION_IDS, complications).apply();
         if (BuildConfig.DEBUG) {
@@ -107,7 +107,7 @@ public class ArtworkComplicationProviderService extends ComplicationProviderServ
         // This fixes corner cases like Muzei being uninstalled and reinstalled
         // (which wipes out our SharedPreferences but keeps any complications activated)
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        Set<String> complications = preferences.getStringSet(KEY_COMPLICATION_IDS, new TreeSet<String>());
+        Set<String> complications = preferences.getStringSet(KEY_COMPLICATION_IDS, new TreeSet<>());
         if (!complications.contains(Integer.toString(complicationId))) {
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Update missing id " + complicationId);
