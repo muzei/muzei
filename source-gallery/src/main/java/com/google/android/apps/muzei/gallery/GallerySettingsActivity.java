@@ -696,10 +696,10 @@ public class GallerySettingsActivity extends AppCompatActivity
             super(root);
             mRootView = root;
             mCheckedOverlayView = root.findViewById(R.id.checked_overlay);
-            mThumbViews.add((ImageView) root.findViewById(R.id.thumbnail1));
-            mThumbViews.add((ImageView) root.findViewById(R.id.thumbnail2));
-            mThumbViews.add((ImageView) root.findViewById(R.id.thumbnail3));
-            mThumbViews.add((ImageView) root.findViewById(R.id.thumbnail4));
+            mThumbViews.add(root.findViewById(R.id.thumbnail1));
+            mThumbViews.add(root.findViewById(R.id.thumbnail2));
+            mThumbViews.add(root.findViewById(R.id.thumbnail3));
+            mThumbViews.add(root.findViewById(R.id.thumbnail4));
             mFolderIcon = root.findViewById(R.id.folder_icon);
         }
     }
