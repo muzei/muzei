@@ -81,12 +81,7 @@ public class NextArtworkTileService extends TileService implements LifecycleOwne
         // Start listening for source changes, which will include when a source
         // starts or stops supporting the 'Next Artwork' command
         mSourceLiveData = MuzeiDatabase.getInstance(this).sourceDao().getCurrentSource();
-        mSourceLiveData.observe(this, new Observer<Source>() {
-            @Override
-            public void onChanged(@Nullable final Source source) {
-                updateTile(source);
-            }
-        });
+        mSourceLiveData.observe(this, this::updateTile);
 
         // Check if the wallpaper is currently active
         EventBus.getDefault().register(this);

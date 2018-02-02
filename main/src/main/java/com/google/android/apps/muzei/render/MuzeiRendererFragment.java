@@ -216,12 +216,7 @@ public class MuzeiRendererFragment extends Fragment implements
         @Override
         protected void onDetachedFromWindow() {
             mRenderController.destroy();
-            queueEventOnGlThread(new Runnable() {
-                @Override
-                public void run() {
-                    mRenderer.destroy();
-                }
-            });
+            queueEventOnGlThread(mRenderer::destroy);
             super.onDetachedFromWindow();
         }
     }
