@@ -126,16 +126,10 @@ public class EffectsFragment extends Fragment {
         });
         CheckBox mBlurOnLockScreenCheckBox = view.findViewById(
                 R.id.blur_on_lockscreen_checkbox);
-        mBlurOnLockScreenCheckBox.setOnCheckedChangeListener(
-                new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton button, boolean checked) {
-                        Prefs.getSharedPreferences(getContext()).edit()
-                                .putBoolean(Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED, !checked)
-                                .apply();
-                    }
-                }
-        );
+        mBlurOnLockScreenCheckBox.setOnCheckedChangeListener((button, checked) ->
+                Prefs.getSharedPreferences(getContext()).edit()
+                        .putBoolean(Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED, !checked)
+                        .apply());
         mBlurOnLockScreenCheckBox.setChecked(!Prefs.getSharedPreferences(getContext())
                 .getBoolean(Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED, false));
     }

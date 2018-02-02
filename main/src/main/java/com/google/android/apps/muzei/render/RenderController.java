@@ -101,14 +101,11 @@ public abstract class RenderController {
                     return;
                 }
 
-                mCallbacks.queueEventOnGlThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mVisible) {
-                            mRenderer.setAndConsumeBitmapRegionLoader(bitmapRegionLoader);
-                        } else {
-                            mQueuedBitmapRegionLoader = bitmapRegionLoader;
-                        }
+                mCallbacks.queueEventOnGlThread(() -> {
+                    if (mVisible) {
+                        mRenderer.setAndConsumeBitmapRegionLoader(bitmapRegionLoader);
+                    } else {
+                        mQueuedBitmapRegionLoader = bitmapRegionLoader;
                     }
                 });
             }
@@ -118,13 +115,10 @@ public abstract class RenderController {
     public void setVisible(boolean visible) {
         mVisible = visible;
         if (visible) {
-            mCallbacks.queueEventOnGlThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (mQueuedBitmapRegionLoader != null) {
-                        mRenderer.setAndConsumeBitmapRegionLoader(mQueuedBitmapRegionLoader);
-                        mQueuedBitmapRegionLoader = null;
-                    }
+            mCallbacks.queueEventOnGlThread(() -> {
+                if (mQueuedBitmapRegionLoader != null) {
+                    mRenderer.setAndConsumeBitmapRegionLoader(mQueuedBitmapRegionLoader);
+                    mQueuedBitmapRegionLoader = null;
                 }
             });
             mCallbacks.requestRender();

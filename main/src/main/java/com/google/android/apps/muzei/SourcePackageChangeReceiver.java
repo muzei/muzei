@@ -60,28 +60,24 @@ public class SourcePackageChangeReceiver extends WakefulBroadcastReceiver implem
 
         final String packageName = intent.getData().getSchemeSpecificPart();
         final PendingResult pendingResult = goAsync();
-        MuzeiDatabase.getInstance(context).sourceDao().getCurrentSource().observe(this,
-                new Observer<Source>() {
-                    @Override
-                    public void onChanged(@Nullable final Source source) {
-                        if (source != null && TextUtils.equals(packageName, source.componentName.getPackageName())) {
-                            try {
-                                context.getPackageManager().getServiceInfo(source.componentName, 0);
-                            } catch (PackageManager.NameNotFoundException e) {
-                                Log.i(TAG, "Selected source " + source.componentName
-                                        + " is no longer available; switching to default.");
-                                SourceManager.selectSource(context,
-                                        new ComponentName(context, FeaturedArtSource.class));
-                                return;
-                            }
+        MuzeiDatabase.getInstance(context).sourceDao().getCurrentSource().observe(this, source -> {
+            if (source != null && TextUtils.equals(packageName, source.componentName.getPackageName())) {
+                try {
+                    context.getPackageManager().getServiceInfo(source.componentName, 0);
+                } catch (PackageManager.NameNotFoundException e) {
+                    Log.i(TAG, "Selected source " + source.componentName
+                            + " is no longer available; switching to default.");
+                    SourceManager.selectSource(context,
+                            new ComponentName(context, FeaturedArtSource.class));
+                    return;
+                }
 
-                            // Some other change.
-                            Log.i(TAG, "Source package changed or replaced. Re-subscribing to " + source.componentName);
-                            SourceManager.subscribe(context, source);
-                        }
-                        mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
-                        pendingResult.finish();
-                    }
-                });
+                // Some other change.
+                Log.i(TAG, "Source package changed or replaced. Re-subscribing to " + source.componentName);
+                SourceManager.subscribe(context, source);
+            }
+            mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
+            pendingResult.finish();
+        });
     }
 }

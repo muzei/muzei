@@ -55,29 +55,26 @@ public class AnimatedMuzeiLogoFragment extends Fragment {
         mSubtitleView = view.findViewById(R.id.logo_subtitle);
 
         mLogoView = view.findViewById(R.id.animated_logo);
-        mLogoView.setOnStateChangeListener(new AnimatedMuzeiLogoView.OnStateChangeListener() {
-            @Override
-            public void onStateChange(int state) {
-                if (state == AnimatedMuzeiLogoView.STATE_FILL_STARTED) {
-                    mSubtitleView.setAlpha(0);
-                    mSubtitleView.setVisibility(View.VISIBLE);
-                    mSubtitleView.setTranslationY(-mSubtitleView.getHeight());
+        mLogoView.setOnStateChangeListener(state -> {
+            if (state == AnimatedMuzeiLogoView.STATE_FILL_STARTED) {
+                mSubtitleView.setAlpha(0);
+                mSubtitleView.setVisibility(View.VISIBLE);
+                mSubtitleView.setTranslationY(-mSubtitleView.getHeight());
 
-                    // Bug in older versions where set.setInterpolator didn't work
-                    AnimatorSet set = new AnimatorSet();
-                    Interpolator interpolator = new OvershootInterpolator();
-                    ObjectAnimator a1 = ObjectAnimator.ofFloat(mLogoView, View.TRANSLATION_Y, 0);
-                    ObjectAnimator a2 = ObjectAnimator.ofFloat(mSubtitleView,
-                            View.TRANSLATION_Y, 0);
-                    ObjectAnimator a3 = ObjectAnimator.ofFloat(mSubtitleView, View.ALPHA, 1);
-                    a1.setInterpolator(interpolator);
-                    a2.setInterpolator(interpolator);
-                    set.setDuration(500).playTogether(a1, a2, a3);
-                    set.start();
+                // Bug in older versions where set.setInterpolator didn't work
+                AnimatorSet set = new AnimatorSet();
+                Interpolator interpolator = new OvershootInterpolator();
+                ObjectAnimator a1 = ObjectAnimator.ofFloat(mLogoView, View.TRANSLATION_Y, 0);
+                ObjectAnimator a2 = ObjectAnimator.ofFloat(mSubtitleView,
+                        View.TRANSLATION_Y, 0);
+                ObjectAnimator a3 = ObjectAnimator.ofFloat(mSubtitleView, View.ALPHA, 1);
+                a1.setInterpolator(interpolator);
+                a2.setInterpolator(interpolator);
+                set.setDuration(500).playTogether(a1, a2, a3);
+                set.start();
 
-                    if (mOnFillStartedCallback != null) {
-                        mOnFillStartedCallback.run();
-                    }
+                if (mOnFillStartedCallback != null) {
+                    mOnFillStartedCallback.run();
                 }
             }
         });

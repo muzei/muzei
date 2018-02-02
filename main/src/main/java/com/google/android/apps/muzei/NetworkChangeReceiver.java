@@ -69,25 +69,22 @@ public class NetworkChangeReceiver extends WakefulBroadcastReceiver implements L
             // TODO: wakeful broadcast?
             final PendingResult pendingResult = goAsync();
             MuzeiDatabase.getInstance(context).sourceDao().getCurrentSourcesThatWantNetwork().observe(this,
-                    new Observer<List<Source>>() {
-                        @Override
-                        public void onChanged(@Nullable final List<Source> sources) {
-                            if (sources != null) {
-                                for (Source source : sources) {
-                                    ComponentName sourceName = source.componentName;
-                                    try {
-                                        context.getPackageManager().getServiceInfo(sourceName, 0);
-                                        context.startService(new Intent(ACTION_NETWORK_AVAILABLE)
-                                                .setComponent(sourceName));
-                                    } catch (PackageManager.NameNotFoundException|IllegalStateException|SecurityException e) {
-                                        Log.i(TAG, "Sending network available to " + sourceName
-                                                + " failed.", e);
-                                    }
+                    sources -> {
+                        if (sources != null) {
+                            for (Source source : sources) {
+                                ComponentName sourceName = source.componentName;
+                                try {
+                                    context.getPackageManager().getServiceInfo(sourceName, 0);
+                                    context.startService(new Intent(ACTION_NETWORK_AVAILABLE)
+                                            .setComponent(sourceName));
+                                } catch (PackageManager.NameNotFoundException|IllegalStateException|SecurityException e) {
+                                    Log.i(TAG, "Sending network available to " + sourceName
+                                            + " failed.", e);
                                 }
                             }
-                            mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
-                            pendingResult.finish();
                         }
+                        mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
+                        pendingResult.finish();
                     });
         }
     }

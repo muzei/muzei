@@ -146,13 +146,7 @@ public class ChooseSourceFragment extends Fragment {
         FirebaseAnalytics.getInstance(context).logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST, bundle);
 
         mCurrentSourceLiveData = MuzeiDatabase.getInstance(context).sourceDao().getCurrentSource();
-        mCurrentSourceLiveData.observe(this,
-                new Observer<com.google.android.apps.muzei.room.Source>() {
-                    @Override
-                    public void onChanged(@Nullable final com.google.android.apps.muzei.room.Source source) {
-                        updateSelectedItem(source, true);
-                    }
-                });
+        mCurrentSourceLiveData.observe(this, source -> updateSelectedItem(source, true));
 
         Intent intent = ((Activity) context).getIntent();
         if (intent != null && intent.getCategories() != null &&
@@ -392,12 +386,9 @@ public class ChooseSourceFragment extends Fragment {
                 .setDuration(allowAnimate ? 300 : 0)
                 .setStartDelay((show && allowAnimate) ? 200 : 0)
                 .withLayer()
-                .withEndAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (!show) {
-                            settingsButton.setVisibility(View.INVISIBLE);
-                        }
+                .withEndAction(() -> {
+                    if (!show) {
+                        settingsButton.setVisibility(View.INVISIBLE);
                     }
                 });
     }
@@ -480,29 +471,26 @@ public class ChooseSourceFragment extends Fragment {
         }
 
         final String appPackage = getContext().getPackageName();
-        Collections.sort(mSources, new Comparator<Source>() {
-            @Override
-            public int compare(Source s1, Source s2) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    boolean target1IsO = s1.targetSdkVersion >= Build.VERSION_CODES.O;
-                    boolean target2IsO = s2.targetSdkVersion >= Build.VERSION_CODES.O;
-                    if (target1IsO && !target2IsO) {
-                        return 1;
-                    } else if (!target1IsO && target2IsO) {
-                        return -1;
-                    }
+        Collections.sort(mSources, (s1, s2) -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                boolean target1IsO = s1.targetSdkVersion >= Build.VERSION_CODES.O;
+                boolean target2IsO = s2.targetSdkVersion >= Build.VERSION_CODES.O;
+                if (target1IsO && !target2IsO) {
+                    return 1;
+                } else if (!target1IsO && target2IsO) {
+                    return -1;
                 }
-                String pn1 = s1.componentName.getPackageName();
-                String pn2 = s2.componentName.getPackageName();
-                if (!pn1.equals(pn2)) {
-                    if (appPackage.equals(pn1)) {
-                        return -1;
-                    } else if (appPackage.equals(pn2)) {
-                        return 1;
-                    }
-                }
-                return s1.label.compareTo(s2.label);
             }
+            String pn1 = s1.componentName.getPackageName();
+            String pn2 = s2.componentName.getPackageName();
+            if (!pn1.equals(pn2)) {
+                if (appPackage.equals(pn1)) {
+                    return -1;
+                } else if (appPackage.equals(pn2)) {
+                    return 1;
+                }
+            }
+            return s1.label.compareTo(s2.label);
         });
 
         redrawSources();
@@ -519,82 +507,65 @@ public class ChooseSourceFragment extends Fragment {
                     R.layout.settings_choose_source_item, mSourceContainerView, false);
 
             source.selectSourceButton = source.rootView.findViewById(R.id.source_image);
-            source.selectSourceButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (source.componentName.equals(mSelectedSource)) {
-                        if (getContext() instanceof Callbacks) {
-                            ((Callbacks) getContext()).onRequestCloseActivity();
-                        } else if (getParentFragment() instanceof Callbacks) {
-                            ((Callbacks) getParentFragment()).onRequestCloseActivity();
-                        }
-                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-                            && source.targetSdkVersion >= Build.VERSION_CODES.O) {
-                        if (isStateSaved() || isRemoving()) {
-                            return;
-                        }
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
-                                .setTitle(R.string.action_source_target_too_high_title)
-                                .setMessage(getString(R.string.action_source_target_too_high_message, source.label))
-                                .setNegativeButton(R.string.action_source_target_too_high_learn_more,
-                                        new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                startActivity(new Intent(Intent.ACTION_VIEW,
-                                                        Uri.parse("https://medium.com/@ianhlake/the-muzei-plugin-api-and-androids-evolution-9b9979265cfb")));
-                                            }
-                                        })
-                                .setPositiveButton(R.string.action_source_target_too_high_dismiss, null);
-                        final Intent sendFeedbackIntent = new Intent(Intent.ACTION_VIEW,
-                                Uri.parse("https://play.google.com/store/apps/details?id="
-                                        + source.componentName.getPackageName()));
-                        if (sendFeedbackIntent.resolveActivity(getContext().getPackageManager()) != null) {
-                            builder.setNeutralButton(
-                                    getString(R.string.action_source_target_too_high_send_feedback, source.label),
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            startActivity(sendFeedbackIntent);
-                                        }
-                                    });
-                        }
-                        builder.show();
-                    } else if (source.setupActivity != null) {
-                        Bundle bundle = new Bundle();
-                        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, source.componentName.flattenToShortString());
-                        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, source.label);
-                        bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "sources");
-                        FirebaseAnalytics.getInstance(getContext()).logEvent(FirebaseAnalytics.Event.VIEW_ITEM, bundle);
-                        mCurrentInitialSetupSource = source.componentName;
-                        launchSourceSetup(source);
-                    } else {
-                        Bundle bundle = new Bundle();
-                        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, source.componentName.flattenToShortString());
-                        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sources");
-                        FirebaseAnalytics.getInstance(getContext()).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
-                        SourceManager.selectSource(getContext(), source.componentName);
+            source.selectSourceButton.setOnClickListener(view -> {
+                if (source.componentName.equals(mSelectedSource)) {
+                    if (getContext() instanceof Callbacks) {
+                        ((Callbacks) getContext()).onRequestCloseActivity();
+                    } else if (getParentFragment() instanceof Callbacks) {
+                        ((Callbacks) getParentFragment()).onRequestCloseActivity();
                     }
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                        && source.targetSdkVersion >= Build.VERSION_CODES.O) {
+                    if (isStateSaved() || isRemoving()) {
+                        return;
+                    }
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
+                            .setTitle(R.string.action_source_target_too_high_title)
+                            .setMessage(getString(R.string.action_source_target_too_high_message, source.label))
+                            .setNegativeButton(R.string.action_source_target_too_high_learn_more,
+                                    (dialog, which) -> startActivity(new Intent(Intent.ACTION_VIEW,
+                                            Uri.parse("https://medium.com/@ianhlake/the-muzei-plugin-api-and-androids-evolution-9b9979265cfb"))))
+                            .setPositiveButton(R.string.action_source_target_too_high_dismiss, null);
+                    final Intent sendFeedbackIntent = new Intent(Intent.ACTION_VIEW,
+                            Uri.parse("https://play.google.com/store/apps/details?id="
+                                    + source.componentName.getPackageName()));
+                    if (sendFeedbackIntent.resolveActivity(getContext().getPackageManager()) != null) {
+                        builder.setNeutralButton(
+                                getString(R.string.action_source_target_too_high_send_feedback, source.label),
+                                (dialog, which) -> startActivity(sendFeedbackIntent));
+                    }
+                    builder.show();
+                } else if (source.setupActivity != null) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString(FirebaseAnalytics.Param.ITEM_ID, source.componentName.flattenToShortString());
+                    bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, source.label);
+                    bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "sources");
+                    FirebaseAnalytics.getInstance(getContext()).logEvent(FirebaseAnalytics.Event.VIEW_ITEM, bundle);
+                    mCurrentInitialSetupSource = source.componentName;
+                    launchSourceSetup(source);
+                } else {
+                    Bundle bundle = new Bundle();
+                    bundle.putString(FirebaseAnalytics.Param.ITEM_ID, source.componentName.flattenToShortString());
+                    bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sources");
+                    FirebaseAnalytics.getInstance(getContext()).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+                    SourceManager.selectSource(getContext(), source.componentName);
                 }
             });
 
-            source.selectSourceButton.setOnLongClickListener(new View.OnLongClickListener() {
-
-                @Override
-                public boolean onLongClick(View v) {
-                    final String pkg = source.componentName.getPackageName();
-                    if (TextUtils.equals(pkg, getContext().getPackageName())) {
-                        // Don't open Muzei's app info
-                        return false;
-                    }
-                    // Otherwise open third party extensions
-                    try {
-                        startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                Uri.fromParts("package", pkg, null)));
-                    } catch (final ActivityNotFoundException e) {
-                        return false;
-                    }
-                    return true;
+            source.selectSourceButton.setOnLongClickListener(v -> {
+                final String pkg = source.componentName.getPackageName();
+                if (TextUtils.equals(pkg, getContext().getPackageName())) {
+                    // Don't open Muzei's app info
+                    return false;
                 }
+                // Otherwise open third party extensions
+                try {
+                    startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                            Uri.fromParts("package", pkg, null)));
+                } catch (final ActivityNotFoundException e) {
+                    return false;
+                }
+                return true;
             });
 
             float alpha = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
@@ -614,12 +585,7 @@ public class ChooseSourceFragment extends Fragment {
 
             source.settingsButton = source.rootView.findViewById(R.id.source_settings_button);
             TooltipCompat.setTooltipText(source.settingsButton, source.settingsButton.getContentDescription());
-            source.settingsButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    launchSourceSettings(source);
-                }
-            });
+            source.settingsButton.setOnClickListener(view -> launchSourceSettings(source));
 
             animateSettingsButton(source.settingsButton, false, false);
 

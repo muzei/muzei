@@ -100,9 +100,6 @@ public class MultiSelectionController {
         void onSelectionChanged(boolean restored, boolean fromUser);
     }
 
-    private static final Callbacks DUMMY_CALLBACKS = new Callbacks() {
-        @Override
-        public void onSelectionChanged(boolean restored, boolean fromUser) {
-        }
+    private static final Callbacks DUMMY_CALLBACKS = (restored, fromUser) -> {
     };
 }

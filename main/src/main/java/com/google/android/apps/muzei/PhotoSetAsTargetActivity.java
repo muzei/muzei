@@ -69,22 +69,17 @@ public class PhotoSetAsTargetActivity extends Activity {
                         new ComponentName(context, GalleryArtSource.class).flattenToShortString());
                 bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sources");
                 FirebaseAnalytics.getInstance(context).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
-                SourceManager.selectSource(context, new ComponentName(context, GalleryArtSource.class),
-                        new SourceManager.Callback() {
-                            @Override
-                            public void onSourceSelected() {
-                                Uri uri = ChosenPhoto.getContentUri(id);
-                                startService(new Intent(context, GalleryArtSource.class)
-                                        .setAction(GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM)
-                                        .putExtra(GalleryArtSource.EXTRA_FORCE_URI, uri));
+                SourceManager.selectSource(context, new ComponentName(context, GalleryArtSource.class), () -> {
+                    Uri uri = ChosenPhoto.getContentUri(id);
+                    startService(new Intent(context, GalleryArtSource.class)
+                            .setAction(GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM)
+                            .putExtra(GalleryArtSource.EXTRA_FORCE_URI, uri));
 
-                                startActivity(Intent.makeMainActivity(new ComponentName(
-                                        context, MuzeiActivity.class))
-                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                                finish();
-                            }
-                        });
-
+                    startActivity(Intent.makeMainActivity(new ComponentName(
+                            context, MuzeiActivity.class))
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                    finish();
+                });
             }
         });
     }

@@ -250,12 +250,9 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
                 mLifecycle.removeObserver(this);
             }
             mEngineLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
-            queueEvent(new Runnable() {
-                @Override
-                public void run() {
-                    if (mRenderer != null) {
-                        mRenderer.destroy();
-                    }
+            queueEvent(() -> {
+                if (mRenderer != null) {
+                    mRenderer.destroy();
                 }
             });
             mRenderController.destroy();
@@ -271,12 +268,7 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
 
                 mArtDetailMode = e.isArtDetailOpened();
                 cancelDelayedBlur();
-                queueEvent(new Runnable() {
-                    @Override
-                    public void run() {
-                        mRenderer.setIsBlurred(!e.isArtDetailOpened(), true);
-                    }
-                });
+                queueEvent(() -> mRenderer.setIsBlurred(!e.isArtDetailOpened(), true));
             }
 
             @Subscribe
@@ -288,12 +280,7 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
 
         public void lockScreenVisibleChanged(final boolean isLockScreenVisible) {
             cancelDelayedBlur();
-            queueEvent(new Runnable() {
-                @Override
-                public void run() {
-                    mRenderer.setIsBlurred(!isLockScreenVisible, false);
-                }
-            });
+            queueEvent(() -> mRenderer.setIsBlurred(!isLockScreenVisible, false));
         }
 
         @Override
@@ -316,13 +303,10 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
             // mValidDoubleTap previously set in the gesture listener
             if (WallpaperManager.COMMAND_TAP.equals(action) && mValidDoubleTap) {
                 // Temporarily toggle focused/blurred
-                queueEvent(new Runnable() {
-                    @Override
-                    public void run() {
-                        mRenderer.setIsBlurred(!mRenderer.isBlurred(), false);
-                        // Schedule a re-blur
-                        delayedBlur();
-                    }
+                queueEvent(() -> {
+                    mRenderer.setIsBlurred(!mRenderer.isBlurred(), false);
+                    // Schedule a re-blur
+                    delayedBlur();
                 });
                 // Reset the flag
                 mValidDoubleTap = false;
@@ -342,12 +326,7 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
 
             @Override
             public void run() {
-                queueEvent(new Runnable() {
-                    @Override
-                    public void run() {
-                        mValidDoubleTap = false;
-                    }
-                });
+                queueEvent(() -> mValidDoubleTap = false);
             }
         };
 
@@ -390,12 +369,7 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
         private Runnable mBlurRunnable = new Runnable() {
             @Override
             public void run() {
-                queueEvent(new Runnable() {
-                    @Override
-                    public void run() {
-                        mRenderer.setIsBlurred(true, false);
-                    }
-                });
+                queueEvent(() -> mRenderer.setIsBlurred(true, false));
             }
         };
 

@@ -254,12 +254,7 @@ public class SettingsActivity extends AppCompatActivity
             localRenderContainer.animate()
                     .alpha(0)
                     .setDuration(1000)
-                    .withEndAction(new Runnable() {
-                        @Override
-                        public void run() {
-                            localRenderContainer.setVisibility(View.GONE);
-                        }
-                    });
+                    .withEndAction(() -> localRenderContainer.setVisibility(View.GONE));
             uiContainer.setBackground(null);
         }
     }

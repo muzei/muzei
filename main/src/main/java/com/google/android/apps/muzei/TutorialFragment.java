@@ -55,16 +55,12 @@ public class TutorialFragment extends Fragment {
     public void onViewCreated(@NonNull final View view, @Nullable final Bundle savedInstanceState) {
         // Ensure we have the latest insets
         view.requestFitSystemWindows();
-        view.findViewById(R.id.tutorial_icon_affordance).setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        FirebaseAnalytics.getInstance(getContext())
-                                .logEvent(FirebaseAnalytics.Event.TUTORIAL_COMPLETE, null);
-                        final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getContext());
-                        sp.edit().putBoolean(PREF_SEEN_TUTORIAL, true).apply();
-                    }
-                });
+        view.findViewById(R.id.tutorial_icon_affordance).setOnClickListener(v -> {
+            FirebaseAnalytics.getInstance(getContext())
+                    .logEvent(FirebaseAnalytics.Event.TUTORIAL_COMPLETE, null);
+            final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getContext());
+            sp.edit().putBoolean(PREF_SEEN_TUTORIAL, true).apply();
+        });
 
         if (savedInstanceState == null) {
             float animateDistance = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100,

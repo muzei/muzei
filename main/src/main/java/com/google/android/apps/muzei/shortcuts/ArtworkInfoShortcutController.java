@@ -61,17 +61,7 @@ public class ArtworkInfoShortcutController implements DefaultLifecycleObserver {
         mArtworkInfoShortcutHandlerThread.start();
         mArtworkInfoShortcutHandler = new Handler(mArtworkInfoShortcutHandlerThread.getLooper());
         MuzeiDatabase.getInstance(mContext).artworkDao().getCurrentArtwork().observe(mLifecycleOwner,
-                new Observer<Artwork>() {
-                    @Override
-                    public void onChanged(@Nullable final Artwork artwork) {
-                        mArtworkInfoShortcutHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                updateShortcut(artwork);
-                            }
-                        });
-                    }
-                });
+                artwork -> mArtworkInfoShortcutHandler.post(() -> updateShortcut(artwork)));
     }
 
     @Override

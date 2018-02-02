@@ -58,24 +58,21 @@ public class IntroFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable final Bundle savedInstanceState) {
         mActivateButton = view.findViewById(R.id.activate_muzei_button);
-        mActivateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FirebaseAnalytics.getInstance(getContext()).logEvent("activate", null);
+        mActivateButton.setOnClickListener(v -> {
+            FirebaseAnalytics.getInstance(getContext()).logEvent("activate", null);
+            try {
+                startActivity(new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
+                        .putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
+                                new ComponentName(getContext(),
+                                        MuzeiWallpaperService.class))
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            } catch (ActivityNotFoundException e) {
                 try {
-                    startActivity(new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
-                            .putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
-                                    new ComponentName(getContext(),
-                                            MuzeiWallpaperService.class))
+                    startActivity(new Intent(WallpaperManager.ACTION_LIVE_WALLPAPER_CHOOSER)
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                } catch (ActivityNotFoundException e) {
-                    try {
-                        startActivity(new Intent(WallpaperManager.ACTION_LIVE_WALLPAPER_CHOOSER)
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                    } catch (ActivityNotFoundException e2) {
-                        Toast.makeText(getContext(), R.string.error_wallpaper_chooser,
-                                Toast.LENGTH_LONG).show();
-                    }
+                } catch (ActivityNotFoundException e2) {
+                    Toast.makeText(getContext(), R.string.error_wallpaper_chooser,
+                            Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -91,18 +88,10 @@ public class IntroFragment extends Fragment {
                     .commitNow();
 
             mActivateButton.setAlpha(0);
-            logoFragment.setOnFillStartedCallback(new Runnable() {
-                @Override
-                public void run() {
-                    mActivateButton.animate().alpha(1f).setDuration(500);
-                }
-            });
-            mActivateButton.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (logoFragment.isAdded()) {
-                        logoFragment.start();
-                    }
+            logoFragment.setOnFillStartedCallback(() -> mActivateButton.animate().alpha(1f).setDuration(500));
+            mActivateButton.postDelayed(() -> {
+                if (logoFragment.isAdded()) {
+                    logoFragment.start();
                 }
             }, 1000);
         }

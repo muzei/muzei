@@ -64,17 +64,9 @@ public class DemoRenderController extends RenderController {
             }
         });
         if (mAllowFocus) {
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mRenderer.setIsBlurred(false, false);
-                    mHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            mRenderer.setIsBlurred(true, false);
-                        }
-                    }, FOCUS_TIME_MILLIS);
-                }
+            mHandler.postDelayed(() -> {
+                mRenderer.setIsBlurred(false, false);
+                mHandler.postDelayed(() -> mRenderer.setIsBlurred(true, false), FOCUS_TIME_MILLIS);
             }, FOCUS_DELAY_TIME_MILLIS);
         }
     }

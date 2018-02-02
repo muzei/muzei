@@ -202,77 +202,55 @@ public class GallerySettingsActivity extends AppCompatActivity
             }
         });
 
-        ViewCompat.setOnApplyWindowInsetsListener(mPhotoGridView, new OnApplyWindowInsetsListener() {
-            @Override
-            public WindowInsetsCompat onApplyWindowInsets(final View v, final WindowInsetsCompat insets) {
-                int gridSpacing = getResources()
-                        .getDimensionPixelSize(R.dimen.gallery_chosen_photo_grid_spacing);
-                ViewCompat.onApplyWindowInsets(v, insets.replaceSystemWindowInsets(
-                        insets.getSystemWindowInsetLeft() + gridSpacing,
-                        gridSpacing,
-                        insets.getSystemWindowInsetRight() + gridSpacing,
-                        insets.getSystemWindowInsetBottom() + insets.getSystemWindowInsetTop() + gridSpacing +
-                                getResources().getDimensionPixelSize(R.dimen.gallery_fab_space)));
+        ViewCompat.setOnApplyWindowInsetsListener(mPhotoGridView, (v, insets) -> {
+            int gridSpacing = getResources()
+                    .getDimensionPixelSize(R.dimen.gallery_chosen_photo_grid_spacing);
+            ViewCompat.onApplyWindowInsets(v, insets.replaceSystemWindowInsets(
+                    insets.getSystemWindowInsetLeft() + gridSpacing,
+                    gridSpacing,
+                    insets.getSystemWindowInsetRight() + gridSpacing,
+                    insets.getSystemWindowInsetBottom() + insets.getSystemWindowInsetTop() + gridSpacing +
+                            getResources().getDimensionPixelSize(R.dimen.gallery_fab_space)));
 
-                return insets;
-            }
+            return insets;
         });
 
         Button enableRandomImages = findViewById(R.id.gallery_enable_random);
-        enableRandomImages.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
+        enableRandomImages.setOnClickListener(view ->
                 ActivityCompat.requestPermissions(GallerySettingsActivity.this, new String[] {
-                        Manifest.permission.READ_EXTERNAL_STORAGE }, REQUEST_STORAGE_PERMISSION);
-            }
-        });
+                        Manifest.permission.READ_EXTERNAL_STORAGE }, REQUEST_STORAGE_PERMISSION));
         Button permissionSettings = findViewById(R.id.gallery_edit_permission_settings);
-        permissionSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
-                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                        Uri.fromParts("package", getPackageName(), null));
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-            }
+        permissionSettings.setOnClickListener(view -> {
+            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.fromParts("package", getPackageName(), null));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
         });
         mAddButton = findViewById(R.id.add_fab);
-        mAddButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    // On Lollipop and higher, we show the add toolbar to allow users to add either
-                    // individual photos or a whole directory
-                    showAddToolbar();
-                } else {
-                    requestPhotos();
-                }
-            }
-        });
-        mAddToolbar = findViewById(R.id.add_toolbar);
-        findViewById(R.id.add_photos).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
+        mAddButton.setOnClickListener(view -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                // On Lollipop and higher, we show the add toolbar to allow users to add either
+                // individual photos or a whole directory
+                showAddToolbar();
+            } else {
                 requestPhotos();
             }
         });
-        findViewById(R.id.add_folder).setOnClickListener(new View.OnClickListener() {
-            @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-            @Override
-            public void onClick(final View v) {
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-                try {
-                    startActivityForResult(intent, REQUEST_CHOOSE_FOLDER);
-                    SharedPreferences preferences = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
-                    if (preferences.getBoolean(SHOW_INTERNAL_STORAGE_MESSAGE, true)) {
-                        Toast.makeText(GallerySettingsActivity.this, R.string.gallery_internal_storage_message,
-                                Toast.LENGTH_LONG).show();
-                    }
-                } catch (ActivityNotFoundException e) {
-                    Snackbar.make(mPhotoGridView, R.string.gallery_add_folder_error,
-                            Snackbar.LENGTH_LONG).show();
-                    hideAddToolbar(true);
+        mAddToolbar = findViewById(R.id.add_toolbar);
+        findViewById(R.id.add_photos).setOnClickListener(v -> requestPhotos());
+        findViewById(R.id.add_folder).setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+            try {
+                startActivityForResult(intent, REQUEST_CHOOSE_FOLDER);
+                SharedPreferences preferences = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+                if (preferences.getBoolean(SHOW_INTERNAL_STORAGE_MESSAGE, true)) {
+                    Toast.makeText(GallerySettingsActivity.this, R.string.gallery_internal_storage_message,
+                            Toast.LENGTH_LONG).show();
                 }
+            } catch (ActivityNotFoundException e) {
+                Snackbar.make(mPhotoGridView, R.string.gallery_add_folder_error,
+                        Snackbar.LENGTH_LONG).show();
+                hideAddToolbar(true);
             }
         });
         GallerySettingsViewModel viewModel = ViewModelProviders.of(this)
@@ -280,12 +258,7 @@ public class GallerySettingsActivity extends AppCompatActivity
         mChosenPhotosLiveData = viewModel.getChosenPhotos();
         mChosenPhotosLiveData.observe(this, this);
         mGetContentActivitiesLiveData = viewModel.getGetContentActivityInfoList();
-        mGetContentActivitiesLiveData.observe(this, new Observer<List<ActivityInfo>>() {
-            @Override
-            public void onChanged(@Nullable List<ActivityInfo> activityInfos) {
-                supportInvalidateOptionsMenu();
-            }
-        });
+        mGetContentActivitiesLiveData.observe(this, activityInfos -> supportInvalidateOptionsMenu());
     }
 
     private void requestPhotos() {
@@ -407,13 +380,9 @@ public class GallerySettingsActivity extends AppCompatActivity
             }
             return true;
         } else if (itemId == R.id.action_clear_photos) {
-            runOnHandlerThread(new Runnable() {
-                @Override
-                public void run() {
+            runOnHandlerThread(() ->
                     GalleryDatabase.getInstance(GallerySettingsActivity.this)
-                            .chosenPhotoDao().deleteAll(GallerySettingsActivity.this);
-                }
-            });
+                            .chosenPhotoDao().deleteAll(GallerySettingsActivity.this));
             return true;
         }
 
@@ -446,59 +415,43 @@ public class GallerySettingsActivity extends AppCompatActivity
         // Set up toolbar
         mSelectionToolbar = findViewById(R.id.selection_toolbar);
 
-        mSelectionToolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mMultiSelectionController.reset(true);
-            }
-        });
+        mSelectionToolbar.setNavigationOnClickListener(view -> mMultiSelectionController.reset(true));
 
         mSelectionToolbar.inflateMenu(R.menu.gallery_selection);
-        mSelectionToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                int itemId = item.getItemId();
-                if (itemId == R.id.action_force_now) {
-                    Set<Long> selection = mMultiSelectionController.getSelection();
-                    if (selection.size() > 0) {
-                        Uri selectedUri = ChosenPhoto.getContentUri(selection.iterator().next());
-                        startService(
-                                new Intent(GallerySettingsActivity.this, GalleryArtSource.class)
-                                        .setAction(ACTION_PUBLISH_NEXT_GALLERY_ITEM)
-                                        .putExtra(EXTRA_FORCE_URI, selectedUri));
-                        Toast.makeText(GallerySettingsActivity.this,
-                                R.string.gallery_temporary_force_image,
-                                Toast.LENGTH_SHORT).show();
-                    }
-                    mMultiSelectionController.reset(true);
-                    return true;
-                } else if (itemId == R.id.action_remove) {
-                    final ArrayList<Long> removePhotos = new ArrayList<>(
-                            mMultiSelectionController.getSelection());
-
-                    runOnHandlerThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            // Remove chosen URIs
-                            GalleryDatabase.getInstance(GallerySettingsActivity.this).chosenPhotoDao()
-                                    .delete(GallerySettingsActivity.this, removePhotos);
-                        }
-                    });
-
-                    mMultiSelectionController.reset(true);
-                    return true;
+        mSelectionToolbar.setOnMenuItemClickListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.action_force_now) {
+                Set<Long> selection = mMultiSelectionController.getSelection();
+                if (selection.size() > 0) {
+                    Uri selectedUri = ChosenPhoto.getContentUri(selection.iterator().next());
+                    startService(
+                            new Intent(GallerySettingsActivity.this, GalleryArtSource.class)
+                                    .setAction(ACTION_PUBLISH_NEXT_GALLERY_ITEM)
+                                    .putExtra(EXTRA_FORCE_URI, selectedUri));
+                    Toast.makeText(GallerySettingsActivity.this,
+                            R.string.gallery_temporary_force_image,
+                            Toast.LENGTH_SHORT).show();
                 }
-                return false;
+                mMultiSelectionController.reset(true);
+                return true;
+            } else if (itemId == R.id.action_remove) {
+                final ArrayList<Long> removePhotos = new ArrayList<>(
+                        mMultiSelectionController.getSelection());
+
+                runOnHandlerThread(() -> {
+                    // Remove chosen URIs
+                    GalleryDatabase.getInstance(GallerySettingsActivity.this).chosenPhotoDao()
+                            .delete(GallerySettingsActivity.this, removePhotos);
+                });
+
+                mMultiSelectionController.reset(true);
+                return true;
             }
+            return false;
         });
 
         // Set up controller
-        mMultiSelectionController.setCallbacks(new MultiSelectionController.Callbacks() {
-            @Override
-            public void onSelectionChanged(boolean restored, boolean fromUser) {
-                tryUpdateSelection(!restored);
-            }
-        });
+        mMultiSelectionController.setCallbacks((restored, fromUser) -> tryUpdateSelection(!restored));
     }
 
     @Override
@@ -522,22 +475,18 @@ public class GallerySettingsActivity extends AppCompatActivity
                 .scaleY(0f)
                 .translationY(getResources().getDimension(R.dimen.gallery_fab_margin))
                 .setDuration(duration)
-                .withEndAction(new Runnable() {
-                    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-                    @Override
-                    public void run() {
-                        mAddButton.setVisibility(View.INVISIBLE);
-                        // Then show the toolbar
-                        mAddToolbar.setVisibility(View.VISIBLE);
-                        ViewAnimationUtils.createCircularReveal(
-                                mAddToolbar,
-                                mAddToolbar.getWidth() / 2,
-                                mAddToolbar.getHeight() / 2,
-                                0,
-                                mAddToolbar.getWidth() / 2)
-                                .setDuration(duration)
-                                .start();
-                    }
+                .withEndAction(() -> {
+                    mAddButton.setVisibility(View.INVISIBLE);
+                    // Then show the toolbar
+                    mAddToolbar.setVisibility(View.VISIBLE);
+                    ViewAnimationUtils.createCircularReveal(
+                            mAddToolbar,
+                            mAddToolbar.getWidth() / 2,
+                            mAddToolbar.getHeight() / 2,
+                            0,
+                            mAddToolbar.getWidth() / 2)
+                            .setDuration(duration)
+                            .start();
                 });
     }
 
@@ -636,23 +585,13 @@ public class GallerySettingsActivity extends AppCompatActivity
                             .scaleX(0f)
                             .scaleY(0f)
                             .setDuration(duration)
-                            .withEndAction(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mAddButton.setVisibility(View.INVISIBLE);
-                                }
-                            });
+                            .withEndAction(() -> mAddButton.setVisibility(View.INVISIBLE));
                 }
             } else {
                 selectionToolbarContainer.animate()
                         .translationY(-selectionToolbarContainer.getHeight())
                         .setDuration(duration)
-                        .withEndAction(new Runnable() {
-                            @Override
-                            public void run() {
-                                selectionToolbarContainer.setVisibility(View.INVISIBLE);
-                            }
-                        });
+                        .withEndAction(() -> selectionToolbarContainer.setVisibility(View.INVISIBLE));
 
                 mAddButton.setVisibility(View.VISIBLE);
                 mAddButton.animate()
@@ -780,25 +719,18 @@ public class GallerySettingsActivity extends AppCompatActivity
             final PhotoViewHolder vh = new PhotoViewHolder(v);
 
             v.getLayoutParams().height = mItemSize;
-            v.setOnTouchListener(new View.OnTouchListener() {
-                @SuppressLint("ClickableViewAccessibility")
-                @Override
-                public boolean onTouch(View view, MotionEvent motionEvent) {
-                    if (motionEvent.getActionMasked() != MotionEvent.ACTION_CANCEL) {
-                        mLastTouchPosition = vh.getAdapterPosition();
-                        mLastTouchX = (int) motionEvent.getX();
-                        mLastTouchY = (int) motionEvent.getY();
-                    }
-                    return false;
+            v.setOnTouchListener((view, motionEvent) -> {
+                if (motionEvent.getActionMasked() != MotionEvent.ACTION_CANCEL) {
+                    mLastTouchPosition = vh.getAdapterPosition();
+                    mLastTouchX = (int) motionEvent.getX();
+                    mLastTouchY = (int) motionEvent.getY();
                 }
+                return false;
             });
-            v.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    mUpdatePosition = vh.getAdapterPosition();
-                    if (mUpdatePosition != RecyclerView.NO_POSITION) {
-                        mMultiSelectionController.toggle(getItemId(mUpdatePosition), true);
-                    }
+            v.setOnClickListener(view -> {
+                mUpdatePosition = vh.getAdapterPosition();
+                if (mUpdatePosition != RecyclerView.NO_POSITION) {
+                    mMultiSelectionController.toggle(getItemId(mUpdatePosition), true);
                 }
             });
 
@@ -836,43 +768,39 @@ public class GallerySettingsActivity extends AppCompatActivity
             vh.mRootView.setTag(R.id.gallery_viewtag_position, position);
             if (mLastTouchPosition == vh.getAdapterPosition()
                     && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                new Handler().post(new Runnable() {
-                    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-                    @Override
-                    public void run() {
-                        if (!vh.mCheckedOverlayView.isAttachedToWindow()) {
-                            // Can't animate detached Views
-                            vh.mCheckedOverlayView.setVisibility(
-                                    checked ? View.VISIBLE : View.GONE);
-                            return;
-                        }
-                        if (checked) {
-                            vh.mCheckedOverlayView.setVisibility(View.VISIBLE);
-                        }
-
-                        // find the smallest radius that'll cover the item
-                        float coverRadius = maxDistanceToCorner(
-                                mLastTouchX, mLastTouchY,
-                                0, 0, vh.mRootView.getWidth(), vh.mRootView.getHeight());
-
-                        Animator revealAnim = ViewAnimationUtils.createCircularReveal(
-                                vh.mCheckedOverlayView,
-                                mLastTouchX,
-                                mLastTouchY,
-                                checked ? 0 : coverRadius,
-                                checked ? coverRadius : 0)
-                                .setDuration(150);
-
-                        if (!checked) {
-                            revealAnim.addListener(new AnimatorListenerAdapter() {
-                                @Override
-                                public void onAnimationEnd(Animator animation) {
-                                    vh.mCheckedOverlayView.setVisibility(View.GONE);
-                                }
-                            });
-                        }
-                        revealAnim.start();
+                new Handler().post(() -> {
+                    if (!vh.mCheckedOverlayView.isAttachedToWindow()) {
+                        // Can't animate detached Views
+                        vh.mCheckedOverlayView.setVisibility(
+                                checked ? View.VISIBLE : View.GONE);
+                        return;
                     }
+                    if (checked) {
+                        vh.mCheckedOverlayView.setVisibility(View.VISIBLE);
+                    }
+
+                    // find the smallest radius that'll cover the item
+                    float coverRadius = maxDistanceToCorner(
+                            mLastTouchX, mLastTouchY,
+                            0, 0, vh.mRootView.getWidth(), vh.mRootView.getHeight());
+
+                    Animator revealAnim = ViewAnimationUtils.createCircularReveal(
+                            vh.mCheckedOverlayView,
+                            mLastTouchX,
+                            mLastTouchY,
+                            checked ? 0 : coverRadius,
+                            checked ? coverRadius : 0)
+                            .setDuration(150);
+
+                    if (!checked) {
+                        revealAnim.addListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                vh.mCheckedOverlayView.setVisibility(View.GONE);
+                            }
+                        });
+                    }
+                    revealAnim.start();
                 });
             } else {
                 vh.mCheckedOverlayView.setVisibility(
@@ -986,13 +914,9 @@ public class GallerySettingsActivity extends AppCompatActivity
             return;
         }
         // Update chosen URIs
-        runOnHandlerThread(new Runnable() {
-            @Override
-            public void run() {
+        runOnHandlerThread(() ->
                 GalleryDatabase.getInstance(GallerySettingsActivity.this).chosenPhotoDao()
-                        .insertAll(GallerySettingsActivity.this, uris);
-            }
-        });
+                        .insertAll(GallerySettingsActivity.this, uris));
     }
 
     static final DiffCallback<ChosenPhoto> CHOSEN_PHOTO_DIFF_CALLBACK = new DiffCallback<ChosenPhoto>() {

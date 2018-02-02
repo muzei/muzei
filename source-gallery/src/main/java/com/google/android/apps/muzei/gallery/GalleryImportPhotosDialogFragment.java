@@ -50,13 +50,10 @@ public class GalleryImportPhotosDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         return new AlertDialog.Builder(getContext())
                 .setTitle(R.string.gallery_import_dialog_title)
-                .setAdapter(mAdapter, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        List<ActivityInfo> getContentActivites = mGetContentActivitiesLiveData.getValue();
-                        if (getContentActivites != null) {
-                            mListener.requestGetContent(mGetContentActivitiesLiveData.getValue().get(which));
-                        }
+                .setAdapter(mAdapter, (dialog, which) -> {
+                    List<ActivityInfo> getContentActivites = mGetContentActivitiesLiveData.getValue();
+                    if (getContentActivites != null) {
+                        mListener.requestGetContent(mGetContentActivitiesLiveData.getValue().get(which));
                     }
                 }).create();
     }
@@ -72,15 +69,12 @@ public class GalleryImportPhotosDialogFragment extends DialogFragment {
         mGetContentActivitiesLiveData = ViewModelProviders.of(getActivity())
                 .get(GallerySettingsViewModel.class)
                 .getGetContentActivityInfoList();
-        mGetContentActivitiesLiveData.observe(this, new Observer<List<ActivityInfo>>() {
-            @Override
-            public void onChanged(@Nullable List<ActivityInfo> getContentActivites) {
-                if (getContentActivites == null || getContentActivites.isEmpty()) {
-                    dismiss();
-                    return;
-                }
-                updateAdapter(getContentActivites);
+        mGetContentActivitiesLiveData.observe(this, getContentActivites -> {
+            if (getContentActivites == null || getContentActivites.isEmpty()) {
+                dismiss();
+                return;
             }
+            updateAdapter(getContentActivites);
         });
     }
 

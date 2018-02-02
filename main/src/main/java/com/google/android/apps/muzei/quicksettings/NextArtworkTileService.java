@@ -142,25 +142,22 @@ public class NextArtworkTileService extends TileService implements LifecycleOwne
             SourceManager.sendAction(this, MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK);
         } else {
             // Inactive means we attempt to activate Muzei
-            unlockAndRun(new Runnable() {
-                @Override
-                public void run() {
-                    FirebaseAnalytics.getInstance(NextArtworkTileService.this).logEvent(
-                            "tile_next_artwork_activate", null);
+            unlockAndRun(() -> {
+                FirebaseAnalytics.getInstance(NextArtworkTileService.this).logEvent(
+                        "tile_next_artwork_activate", null);
+                try {
+                    startActivityAndCollapse(new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
+                            .putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
+                                    new ComponentName(NextArtworkTileService.this,
+                                            MuzeiWallpaperService.class))
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                } catch (ActivityNotFoundException e) {
                     try {
-                        startActivityAndCollapse(new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
-                                .putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
-                                        new ComponentName(NextArtworkTileService.this,
-                                                MuzeiWallpaperService.class))
+                        startActivityAndCollapse(new Intent(WallpaperManager.ACTION_LIVE_WALLPAPER_CHOOSER)
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                    } catch (ActivityNotFoundException e) {
-                        try {
-                            startActivityAndCollapse(new Intent(WallpaperManager.ACTION_LIVE_WALLPAPER_CHOOSER)
-                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                        } catch (ActivityNotFoundException e2) {
-                            Toast.makeText(NextArtworkTileService.this, R.string.error_wallpaper_chooser,
-                                    Toast.LENGTH_LONG).show();
-                        }
+                    } catch (ActivityNotFoundException e2) {
+                        Toast.makeText(NextArtworkTileService.this, R.string.error_wallpaper_chooser,
+                                Toast.LENGTH_LONG).show();
                     }
                 }
             });

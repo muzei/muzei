@@ -126,14 +126,10 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
             Artwork currentArtwork = getCurrentArtwork();
             if (currentArtwork == null) {
                 Log.w(TAG, "No current artwork, can't share.");
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
+                new Handler(Looper.getMainLooper()).post(() ->
                         Toast.makeText(FeaturedArtSource.this,
                                 R.string.featuredart_source_error_no_artwork_to_share,
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
+                                Toast.LENGTH_SHORT).show());
                 return;
             }
 
@@ -179,14 +175,10 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
                 nextUpdateTime = "None";
             }
 
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
+            new Handler(Looper.getMainLooper()).post(() ->
                     Toast.makeText(FeaturedArtSource.this,
                             "Next update time: " + nextUpdateTime,
-                            Toast.LENGTH_LONG).show();
-                }
-            });
+                            Toast.LENGTH_LONG).show());
         }
     }
 

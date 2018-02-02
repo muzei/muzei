@@ -127,22 +127,19 @@ public class ArtDetailFragment extends Fragment {
             final Intent viewIntent = currentArtwork.viewIntent;
             mMetadataView.setEnabled(viewIntent != null);
             if (viewIntent != null) {
-                mMetadataView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        viewIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        // Make sure any data URIs granted to Muzei are passed onto the
-                        // started Activity
-                        viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                        try {
-                            startActivity(viewIntent);
-                        } catch (RuntimeException e) {
-                            // Catch ActivityNotFoundException, SecurityException,
-                            // and FileUriExposedException
-                            Toast.makeText(getContext(), R.string.error_view_details,
-                                    Toast.LENGTH_SHORT).show();
-                            Log.e(TAG, "Error viewing artwork details.", e);
-                        }
+                mMetadataView.setOnClickListener(view -> {
+                    viewIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    // Make sure any data URIs granted to Muzei are passed onto the
+                    // started Activity
+                    viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    try {
+                        startActivity(viewIntent);
+                    } catch (RuntimeException e) {
+                        // Catch ActivityNotFoundException, SecurityException,
+                        // and FileUriExposedException
+                        Toast.makeText(getContext(), R.string.error_view_details,
+                                Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "Error viewing artwork details.", e);
                     }
                 });
             } else {
@@ -216,26 +213,19 @@ public class ArtDetailFragment extends Fragment {
 
         final float metadataSlideDistance = TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics());
-        mContainerView.setOnSystemUiVisibilityChangeListener(
-                new View.OnSystemUiVisibilityChangeListener() {
-                    @Override
-                    public void onSystemUiVisibilityChange(int vis) {
-                        final boolean visible = (vis & View.SYSTEM_UI_FLAG_LOW_PROFILE) == 0;
+        mContainerView.setOnSystemUiVisibilityChangeListener(vis -> {
+            final boolean visible = (vis & View.SYSTEM_UI_FLAG_LOW_PROFILE) == 0;
 
-                        mChromeContainerView.setVisibility(View.VISIBLE);
-                        mChromeContainerView.animate()
-                                .alpha(visible ? 1f : 0f)
-                                .translationY(visible ? 0 : metadataSlideDistance)
-                                .setDuration(200)
-                                .withEndAction(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (!visible) {
-                                            mChromeContainerView.setVisibility(View.GONE);
-                                        }
-                                    }
-                                });
-                    }
+            mChromeContainerView.setVisibility(View.VISIBLE);
+            mChromeContainerView.animate()
+                    .alpha(visible ? 1f : 0f)
+                    .translationY(visible ? 0 : metadataSlideDistance)
+                    .setDuration(200)
+                    .withEndAction(() -> {
+                        if (!visible) {
+                            mChromeContainerView.setVisibility(View.GONE);
+                        }
+                    });
                 });
 
         mTitleView = view.findViewById(R.id.title);
@@ -245,65 +235,50 @@ public class ArtDetailFragment extends Fragment {
         final View overflowButton = view.findViewById(R.id.overflow_button);
         mOverflowMenu = new PopupMenu(getContext(), overflowButton);
         overflowButton.setOnTouchListener(mOverflowMenu.getDragToOpenListener());
-        overflowButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mOverflowMenu.show();
-            }
-        });
-        mOverflowMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem menuItem) {
-                Context context = getContext();
-                if (context == null) {
-                    return false;
-                }
-                int id = mOverflowSourceActionMap.get(menuItem.getItemId());
-                if (id > 0) {
-                    SourceManager.sendAction(context, id);
-                    return true;
-                }
-
-                switch (menuItem.getItemId()) {
-                    case R.id.action_about:
-                        FirebaseAnalytics.getInstance(context).logEvent("about_open", null);
-                        startActivity(new Intent(context, AboutActivity.class));
-                        return true;
-                }
+        overflowButton.setOnClickListener(v -> mOverflowMenu.show());
+        mOverflowMenu.setOnMenuItemClickListener(menuItem -> {
+            Context context = getContext();
+            if (context == null) {
                 return false;
             }
+            int id = mOverflowSourceActionMap.get(menuItem.getItemId());
+            if (id > 0) {
+                SourceManager.sendAction(context, id);
+                return true;
+            }
+
+            switch (menuItem.getItemId()) {
+                case R.id.action_about:
+                    FirebaseAnalytics.getInstance(context).logEvent("about_open", null);
+                    startActivity(new Intent(context, AboutActivity.class));
+                    return true;
+            }
+            return false;
         });
 
         mNextButton = view.findViewById(R.id.next_button);
-        mNextButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Context context = getContext();
-                if (context == null) {
-                    return;
-                }
-                SourceManager.sendAction(context,
-                        MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK);
-                mNextFakeLoading = true;
-                showNextFakeLoading();
+        mNextButton.setOnClickListener(v -> {
+            Context context = getContext();
+            if (context == null) {
+                return;
             }
+            SourceManager.sendAction(context,
+                    MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK);
+            mNextFakeLoading = true;
+            showNextFakeLoading();
         });
         TooltipCompat.setTooltipText(mNextButton, mNextButton.getContentDescription());
 
         mPanScaleProxyView = view.findViewById(R.id.pan_scale_proxy);
         mPanScaleProxyView.setMaxZoom(5);
-        mPanScaleProxyView.setOnViewportChangedListener(
-                new PanScaleProxyView.OnViewportChangedListener() {
-                    @Override
-                    public void onViewportChanged() {
-                        if (mGuardViewportChangeListener) {
-                            return;
-                        }
+        mPanScaleProxyView.setOnViewportChangedListener(() -> {
+            if (mGuardViewportChangeListener) {
+                return;
+            }
 
-                        ArtDetailViewport.getInstance().setViewport(
-                                mCurrentViewportId, mPanScaleProxyView.getCurrentViewport(), true);
-                    }
-                });
+            ArtDetailViewport.getInstance().setViewport(
+                    mCurrentViewportId, mPanScaleProxyView.getCurrentViewport(), true);
+        });
         mPanScaleProxyView.setOnOtherGestureListener(
                 new PanScaleProxyView.OnOtherGestureListener() {
                     @Override
@@ -325,12 +300,9 @@ public class ArtDetailFragment extends Fragment {
         mLoadErrorContainerView = view.findViewById(R.id.image_error_container);
         mLoadErrorEasterEggView = view.findViewById(R.id.error_easter_egg);
 
-        view.findViewById(R.id.image_error_retry_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showNextFakeLoading();
-                getContext().startService(TaskQueueService.getDownloadCurrentArtworkIntent(getContext()));
-            }
+        view.findViewById(R.id.image_error_retry_button).setOnClickListener(v -> {
+            showNextFakeLoading();
+            getContext().startService(TaskQueueService.getDownloadCurrentArtworkIntent(getContext()));
         });
 
         EventBus.getDefault().register(this);
@@ -492,12 +464,9 @@ public class ArtDetailFragment extends Fragment {
         updateLoadingSpinnerAndErrorVisibility();
     }
 
-    private Runnable mUnsetNextFakeLoadingRunnable = new Runnable() {
-        @Override
-        public void run() {
-            mNextFakeLoading = false;
-            updateLoadingSpinnerAndErrorVisibility();
-        }
+    private Runnable mUnsetNextFakeLoadingRunnable = () -> {
+        mNextFakeLoading = false;
+        updateLoadingSpinnerAndErrorVisibility();
     };
 
     private void updateLoadingSpinnerAndErrorVisibility() {
@@ -513,12 +482,9 @@ public class ArtDetailFragment extends Fragment {
                 mLoadingContainerView.animate()
                         .alpha(0)
                         .setDuration(1000)
-                        .withEndAction(new Runnable() {
-                            @Override
-                            public void run() {
-                                mLoadingContainerView.setVisibility(View.GONE);
-                                mLoadingIndicatorView.stop();
-                            }
+                        .withEndAction(() -> {
+                            mLoadingContainerView.setVisibility(View.GONE);
+                            mLoadingIndicatorView.stop();
                         });
             }
         }
@@ -532,12 +498,7 @@ public class ArtDetailFragment extends Fragment {
                 mLoadErrorContainerView.animate()
                         .alpha(0)
                         .setDuration(1000)
-                        .withEndAction(new Runnable() {
-                            @Override
-                            public void run() {
-                                mLoadErrorContainerView.setVisibility(View.GONE);
-                            }
-                        });
+                        .withEndAction(() -> mLoadErrorContainerView.setVisibility(View.GONE));
             }
         }
     }

@@ -384,12 +384,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
                 mCalendar.setTimeZone(TimeZone.getDefault());
 
                 // Load the image in case it has changed while we weren't visible
-                mLoadImageHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mLoadImageContentObserver.onChange(true);
-                    }
-                });
+                mLoadImageHandler.post(() -> mLoadImageContentObserver.onChange(true));
 
                 mUpdateTimeHandler.sendEmptyMessage(MSG_UPDATE_TIME);
             } else {

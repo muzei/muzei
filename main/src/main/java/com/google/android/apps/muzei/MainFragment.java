@@ -96,128 +96,107 @@ public class MainFragment extends Fragment implements FragmentManager.OnBackStac
 
         // Set up the bottom nav
         final BottomNavigationView bottomNavigationView = view.findViewById(R.id.bottom_nav);
-        bottomNavigationView.setOnNavigationItemSelectedListener(
-                new BottomNavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(@NonNull final MenuItem item) {
-                        if (getChildFragmentManager().isStateSaved()) {
-                            // Can't navigate after the state is saved
-                            return false;
-                        }
-                        switch (item.getItemId()) {
-                            case R.id.main_art_details:
-                                FirebaseAnalytics.getInstance(getContext())
-                                        .setCurrentScreen(getActivity(), "ArtDetail",
-                                                ArtDetailFragment.class.getSimpleName());
-                                getChildFragmentManager().beginTransaction()
-                                        .replace(R.id.container, new ArtDetailFragment())
-                                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                                        .commit();
-                                return true;
-                            case R.id.main_choose_source:
-                                FirebaseAnalytics.getInstance(getContext())
-                                        .setCurrentScreen(getActivity(), "ChooseSource",
-                                                ChooseSourceFragment.class.getSimpleName());
-                                getChildFragmentManager().popBackStack("main",
-                                        FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                                getChildFragmentManager().beginTransaction()
-                                        .replace(R.id.container, new ChooseSourceFragment())
-                                        .addToBackStack("main")
-                                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                                        .commit();
-                                return true;
-                            case R.id.main_effects:
-                                FirebaseAnalytics.getInstance(getContext())
-                                        .setCurrentScreen(getActivity(), "Effects",
-                                                EffectsFragment.class.getSimpleName());
-                                getChildFragmentManager().popBackStack("main",
-                                        FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                                getChildFragmentManager().beginTransaction()
-                                        .replace(R.id.container, new EffectsFragment())
-                                        .addToBackStack("main")
-                                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                                        .commit();
-                                return true;
-                            default:
-                                return false;
-                        }
-                    }
-                });
-        bottomNavigationView.setOnNavigationItemReselectedListener(
-                new BottomNavigationView.OnNavigationItemReselectedListener() {
-                    @Override
-                    public void onNavigationItemReselected(@NonNull final MenuItem item) {
-                        if (item.getItemId() == R.id.main_art_details) {
-                            getActivity().getWindow().getDecorView()
-                                    .setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
-                                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-                                            | View.SYSTEM_UI_FLAG_IMMERSIVE
-                                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                                            | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-                        }
-                    }
-                });
-
-        // Send the correct window insets to each view
-        ViewCompat.setOnApplyWindowInsetsListener(view, new OnApplyWindowInsetsListener() {
-            @Override
-            public WindowInsetsCompat onApplyWindowInsets(final View v, final WindowInsetsCompat insets) {
-                // Ensure the action bar container gets the appropriate insets
-                ViewCompat.dispatchApplyWindowInsets(actionBarContainer,
-                        insets.replaceSystemWindowInsets(insets.getSystemWindowInsetLeft(),
-                                insets.getSystemWindowInsetTop(),
-                                insets.getSystemWindowInsetRight(),
-                                0));
-                ViewCompat.dispatchApplyWindowInsets(container,
-                        insets.replaceSystemWindowInsets(insets.getSystemWindowInsetLeft(),
-                                0,
-                                insets.getSystemWindowInsetRight(),
-                                0));
-                ViewCompat.dispatchApplyWindowInsets(bottomNavigationView,
-                        insets.replaceSystemWindowInsets(insets.getSystemWindowInsetLeft(),
-                                0,
-                                insets.getSystemWindowInsetRight(),
-                                insets.getSystemWindowInsetBottom()));
-                return insets;
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            if (getChildFragmentManager().isStateSaved()) {
+                // Can't navigate after the state is saved
+                return false;
+            }
+            switch (item.getItemId()) {
+                case R.id.main_art_details:
+                    FirebaseAnalytics.getInstance(getContext())
+                            .setCurrentScreen(getActivity(), "ArtDetail",
+                                    ArtDetailFragment.class.getSimpleName());
+                    getChildFragmentManager().beginTransaction()
+                            .replace(R.id.container, new ArtDetailFragment())
+                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                            .commit();
+                    return true;
+                case R.id.main_choose_source:
+                    FirebaseAnalytics.getInstance(getContext())
+                            .setCurrentScreen(getActivity(), "ChooseSource",
+                                    ChooseSourceFragment.class.getSimpleName());
+                    getChildFragmentManager().popBackStack("main",
+                            FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    getChildFragmentManager().beginTransaction()
+                            .replace(R.id.container, new ChooseSourceFragment())
+                            .addToBackStack("main")
+                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                            .commit();
+                    return true;
+                case R.id.main_effects:
+                    FirebaseAnalytics.getInstance(getContext())
+                            .setCurrentScreen(getActivity(), "Effects",
+                                    EffectsFragment.class.getSimpleName());
+                    getChildFragmentManager().popBackStack("main",
+                            FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    getChildFragmentManager().beginTransaction()
+                            .replace(R.id.container, new EffectsFragment())
+                            .addToBackStack("main")
+                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                            .commit();
+                    return true;
+                default:
+                    return false;
+            }
+        });
+        bottomNavigationView.setOnNavigationItemReselectedListener(item -> {
+            if (item.getItemId() == R.id.main_art_details) {
+                getActivity().getWindow().getDecorView()
+                        .setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
+                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                                | View.SYSTEM_UI_FLAG_IMMERSIVE
+                                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
             }
         });
 
+        // Send the correct window insets to each view
+        ViewCompat.setOnApplyWindowInsetsListener(view, (v, insets) -> {
+            // Ensure the action bar container gets the appropriate insets
+            ViewCompat.dispatchApplyWindowInsets(actionBarContainer,
+                    insets.replaceSystemWindowInsets(insets.getSystemWindowInsetLeft(),
+                            insets.getSystemWindowInsetTop(),
+                            insets.getSystemWindowInsetRight(),
+                            0));
+            ViewCompat.dispatchApplyWindowInsets(container,
+                    insets.replaceSystemWindowInsets(insets.getSystemWindowInsetLeft(),
+                            0,
+                            insets.getSystemWindowInsetRight(),
+                            0));
+            ViewCompat.dispatchApplyWindowInsets(bottomNavigationView,
+                    insets.replaceSystemWindowInsets(insets.getSystemWindowInsetLeft(),
+                            0,
+                            insets.getSystemWindowInsetRight(),
+                            insets.getSystemWindowInsetBottom()));
+            return insets;
+        });
+
         // Listen for visibility changes to know when to hide our views
-        view.setOnSystemUiVisibilityChangeListener(
-                new View.OnSystemUiVisibilityChangeListener() {
-                    @Override
-                    public void onSystemUiVisibilityChange(int vis) {
-                        final boolean visible = (vis & View.SYSTEM_UI_FLAG_LOW_PROFILE) == 0;
+        view.setOnSystemUiVisibilityChangeListener(vis -> {
+            final boolean visible = (vis & View.SYSTEM_UI_FLAG_LOW_PROFILE) == 0;
 
-                        actionBarContainer.setVisibility(View.VISIBLE);
-                        actionBarContainer.animate()
-                                .alpha(visible ? 1f : 0f)
-                                .setDuration(200)
-                                .withEndAction(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (!visible) {
-                                            actionBarContainer.setVisibility(View.GONE);
-                                        }
-                                    }
-                                });
+            actionBarContainer.setVisibility(View.VISIBLE);
+            actionBarContainer.animate()
+                    .alpha(visible ? 1f : 0f)
+                    .setDuration(200)
+                    .withEndAction(() -> {
+                        if (!visible) {
+                            actionBarContainer.setVisibility(View.GONE);
+                        }
+                    });
 
-                        bottomNavigationView.setVisibility(View.VISIBLE);
-                        bottomNavigationView.animate()
-                                .alpha(visible ? 1f : 0f)
-                                .setDuration(200)
-                                .withEndAction(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (!visible) {
-                                            bottomNavigationView.setVisibility(View.GONE);
-                                        }
-                                    }
-                                });
-                    }
-                });
+            bottomNavigationView.setVisibility(View.VISIBLE);
+            bottomNavigationView.animate()
+                    .alpha(visible ? 1f : 0f)
+                    .setDuration(200)
+                    .withEndAction(() -> {
+                        if (!visible) {
+                            bottomNavigationView.setVisibility(View.GONE);
+                        }
+                    });
+        });
 
     }
 

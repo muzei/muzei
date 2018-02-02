@@ -405,27 +405,23 @@ public class MuzeiProvider extends ContentProvider {
         }
         try {
             return ParcelFileDescriptor.open(file, ParcelFileDescriptor.parseMode(mode), openFileHandler,
-                    new ParcelFileDescriptor.OnCloseListener() {
-                        @Override
-                        public void onClose(final IOException e) {
-                            if (isWriteOperation) {
-                                if (e != null) {
-                                    Log.e(TAG, "Error closing " + file + " for " + uri, e);
-                                    if (file.exists()) {
-                                        if (!file.delete()) {
-                                            Log.w(TAG, "Unable to delete " + file);
-                                        }
+                    e -> {
+                        if (isWriteOperation) {
+                            if (e != null) {
+                                Log.e(TAG, "Error closing " + file + " for " + uri, e);
+                                if (file.exists()) {
+                                    if (!file.delete()) {
+                                        Log.w(TAG, "Unable to delete " + file);
                                     }
-                                } else {
-                                    // The file was successfully written, notify listeners of the new artwork
-                                    context.getContentResolver()
-                                            .notifyChange(MuzeiContract.Artwork.CONTENT_URI, null);
-                                    context.sendBroadcast(
-                                            new Intent(MuzeiContract.Artwork.ACTION_ARTWORK_CHANGED));
-                                    cleanupCachedFiles(context);
                                 }
+                            } else {
+                                // The file was successfully written, notify listeners of the new artwork
+                                context.getContentResolver()
+                                        .notifyChange(MuzeiContract.Artwork.CONTENT_URI, null);
+                                context.sendBroadcast(
+                                        new Intent(MuzeiContract.Artwork.ACTION_ARTWORK_CHANGED));
+                                cleanupCachedFiles(context);
                             }
-
                         }
                     });
         } catch (IOException e) {

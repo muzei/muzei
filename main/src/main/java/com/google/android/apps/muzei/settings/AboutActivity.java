@@ -47,13 +47,7 @@ public class AboutActivity extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
 
-        ((Toolbar) findViewById(R.id.app_bar)).setNavigationOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        onNavigateUp();
-                    }
-                });
+        ((Toolbar) findViewById(R.id.app_bar)).setNavigationOnClickListener(view -> onNavigateUp());
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -71,17 +65,14 @@ public class AboutActivity extends AppCompatActivity {
         aboutBodyView.setText(Html.fromHtml(getString(R.string.about_body)));
         aboutBodyView.setMovementMethod(new LinkMovementMethod());
 
-        findViewById(R.id.android_experiment_link).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CustomTabsIntent cti = new CustomTabsIntent.Builder()
-                        .setShowTitle(true)
-                        .setToolbarColor(ContextCompat.getColor(AboutActivity.this, R.color.theme_primary))
-                        .build();
-                try {
-                    cti.launchUrl(AboutActivity.this, Uri.parse("https://www.androidexperiments.com/experiment/muzei"));
-                } catch (ActivityNotFoundException ignored) {
-                }
+        findViewById(R.id.android_experiment_link).setOnClickListener(v -> {
+            CustomTabsIntent cti = new CustomTabsIntent.Builder()
+                    .setShowTitle(true)
+                    .setToolbarColor(ContextCompat.getColor(AboutActivity.this, R.color.theme_primary))
+                    .build();
+            try {
+                cti.launchUrl(AboutActivity.this, Uri.parse("https://www.androidexperiments.com/experiment/muzei"));
+            } catch (ActivityNotFoundException ignored) {
             }
         });
     }
@@ -96,14 +87,11 @@ public class AboutActivity extends AppCompatActivity {
                 .alpha(1)
                 .setStartDelay(250)
                 .setDuration(1000)
-                .withEndAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        AnimatedMuzeiLogoFragment logoFragment = (AnimatedMuzeiLogoFragment)
-                                getSupportFragmentManager().findFragmentById(R.id.animated_logo_fragment);
-                        if (logoFragment != null) {
-                            logoFragment.start();
-                        }
+                .withEndAction(() -> {
+                    AnimatedMuzeiLogoFragment logoFragment = (AnimatedMuzeiLogoFragment)
+                            getSupportFragmentManager().findFragmentById(R.id.animated_logo_fragment);
+                    if (logoFragment != null) {
+                        logoFragment.start();
                     }
                 });
     }

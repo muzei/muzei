@@ -38,24 +38,20 @@ public class GallerySetupActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        GalleryDatabase.getInstance(this).chosenPhotoDao().getChosenPhotos().observe(this,
-                new Observer<List<ChosenPhoto>>() {
-                    @Override
-                    public void onChanged(@Nullable List<ChosenPhoto> chosenUris) {
-                        int numChosenUris = chosenUris != null ? chosenUris.size() : 0;
-                        if (ContextCompat.checkSelfPermission(GallerySetupActivity.this,
-                                Manifest.permission.READ_EXTERNAL_STORAGE)
-                                == PackageManager.PERMISSION_GRANTED || numChosenUris > 0) {
-                            // If we have permission or have any previously selected images
-                            setResult(RESULT_OK);
-                            finish();
-                        } else {
-                            ActivityCompat.requestPermissions(GallerySetupActivity.this,
-                                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                                    REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
-                        }
-                    }
-                });
+        GalleryDatabase.getInstance(this).chosenPhotoDao().getChosenPhotos().observe(this, chosenUris -> {
+            int numChosenUris = chosenUris != null ? chosenUris.size() : 0;
+            if (ContextCompat.checkSelfPermission(GallerySetupActivity.this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED || numChosenUris > 0) {
+                // If we have permission or have any previously selected images
+                setResult(RESULT_OK);
+                finish();
+            } else {
+                ActivityCompat.requestPermissions(GallerySetupActivity.this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
+            }
+        });
     }
 
     @Override

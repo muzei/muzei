@@ -70,13 +70,10 @@ public class NotificationSettingsDialogFragment extends DialogFragment {
                         .getBoolean(NewWallpaperNotificationReceiver.PREF_ENABLED, true)};
         return new AlertDialog.Builder(getContext())
                 .setTitle(R.string.notification_settings)
-                .setMultiChoiceItems(items, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                        sharedPreferences.edit().putBoolean(
-                                NewWallpaperNotificationReceiver.PREF_ENABLED, isChecked).apply();
-                    }
-                })
+                .setMultiChoiceItems(items, checkedItems,
+                        (dialog, which, isChecked) ->
+                                sharedPreferences.edit().putBoolean(
+                                        NewWallpaperNotificationReceiver.PREF_ENABLED, isChecked).apply())
                 .setPositiveButton(R.string.notification_settings_done, null)
                 .create();
     }

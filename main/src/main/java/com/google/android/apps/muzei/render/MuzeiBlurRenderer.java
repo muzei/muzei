@@ -266,26 +266,23 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
         mCrossfadeAnimator
                 .from(0).to(1)
                 .withDuration(CROSSFADE_ANIMATION_DURATION)
-                .withEndListener(new Runnable() {
-                    @Override
-                    public void run() {
-                        // swap current and next picturesets
-                        final GLPictureSet oldGLPictureSet = mCurrentGLPictureSet;
-                        mCurrentGLPictureSet = mNextGLPictureSet;
-                        mNextGLPictureSet = new GLPictureSet(oldGLPictureSet.mId);
-                        mCallbacks.requestRender();
-                        oldGLPictureSet.destroyPictures();
-                        if (!mDemoMode) {
-                            EventBus.getDefault().postSticky(new SwitchingPhotosStateChangedEvent(
-                                    mCurrentGLPictureSet.mId, false));
-                        }
-                        System.gc();
-                        if (mQueuedNextBitmapRegionLoader != null) {
-                            BitmapRegionLoader queuedNextBitmapRegionLoader
-                                    = mQueuedNextBitmapRegionLoader;
-                            mQueuedNextBitmapRegionLoader = null;
-                            setAndConsumeBitmapRegionLoader(queuedNextBitmapRegionLoader);
-                        }
+                .withEndListener(() -> {
+                    // swap current and next picturesets
+                    final GLPictureSet oldGLPictureSet = mCurrentGLPictureSet;
+                    mCurrentGLPictureSet = mNextGLPictureSet;
+                    mNextGLPictureSet = new GLPictureSet(oldGLPictureSet.mId);
+                    mCallbacks.requestRender();
+                    oldGLPictureSet.destroyPictures();
+                    if (!mDemoMode) {
+                        EventBus.getDefault().postSticky(new SwitchingPhotosStateChangedEvent(
+                                mCurrentGLPictureSet.mId, false));
+                    }
+                    System.gc();
+                    if (mQueuedNextBitmapRegionLoader != null) {
+                        BitmapRegionLoader queuedNextBitmapRegionLoader
+                                = mQueuedNextBitmapRegionLoader;
+                        mQueuedNextBitmapRegionLoader = null;
+                        setAndConsumeBitmapRegionLoader(queuedNextBitmapRegionLoader);
                     }
                 })
                 .start();
@@ -564,12 +561,9 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
         mBlurAnimator
                 .to(isBlurred ? mBlurKeyframes : 0)
                 .withDuration(BLUR_ANIMATION_DURATION * (mDemoMode ? 5 : 1))
-                .withEndListener(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (isBlurred && artDetailMode) {
-                            System.gc();
-                        }
+                .withEndListener(() -> {
+                    if (isBlurred && artDetailMode) {
+                        System.gc();
                     }
                 })
                 .start();
