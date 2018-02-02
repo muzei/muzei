@@ -81,8 +81,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
@@ -101,7 +101,8 @@ dependencies {
     implementation "com.android.support:customtabs:$rootProject.ext.supportLibraryVersion"
     implementation "com.android.support:exifinterface:$rootProject.ext.supportLibraryVersion"
     implementation "android.arch.lifecycle:livedata:$rootProject.ext.lifecycleVersion"
-    implementation "android.arch.lifecycle:runtime:1.1.0"
+    implementation "android.arch.lifecycle:common-java8:$rootProject.ext.lifecycleVersion"
+    implementation "android.arch.lifecycle:runtime:$rootProject.ext.lifecycleVersion"
     annotationProcessor "android.arch.lifecycle:compiler:$rootProject.ext.lifecycleVersion"
 
     implementation project(':api')

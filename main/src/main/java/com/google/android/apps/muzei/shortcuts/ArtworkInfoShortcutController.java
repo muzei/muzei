@@ -16,11 +16,9 @@
 
 package com.google.android.apps.muzei.shortcuts;
 
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.DefaultLifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ShortcutInfo;
@@ -29,6 +27,7 @@ import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 
@@ -44,7 +43,7 @@ import java.util.List;
  * Controller responsible for updating the Artwork Info Shortcut whenever the current artwork changes
  */
 @RequiresApi(api = Build.VERSION_CODES.N_MR1)
-public class ArtworkInfoShortcutController implements LifecycleObserver {
+public class ArtworkInfoShortcutController implements DefaultLifecycleObserver {
     private static final String ARTWORK_INFO_SHORTCUT_ID = "artwork_info";
     private final Context mContext;
     private final LifecycleOwner mLifecycleOwner;
@@ -56,8 +55,8 @@ public class ArtworkInfoShortcutController implements LifecycleObserver {
         mLifecycleOwner = lifecycleOwner;
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    public void registerContentObserver() {
+    @Override
+    public void onCreate(@NonNull final LifecycleOwner owner) {
         mArtworkInfoShortcutHandlerThread = new HandlerThread("MuzeiWallpaperService-ArtworkInfoShortcut");
         mArtworkInfoShortcutHandlerThread.start();
         mArtworkInfoShortcutHandler = new Handler(mArtworkInfoShortcutHandlerThread.getLooper());
@@ -75,8 +74,8 @@ public class ArtworkInfoShortcutController implements LifecycleObserver {
                 });
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    public void unregisterContentObserver() {
+    @Override
+    public void onDestroy(@NonNull final LifecycleOwner owner) {
         mArtworkInfoShortcutHandlerThread.quitSafely();
     }
 

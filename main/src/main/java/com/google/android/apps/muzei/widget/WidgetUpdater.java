@@ -16,21 +16,21 @@
 
 package com.google.android.apps.muzei.widget;
 
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleObserver;
-import android.arch.lifecycle.OnLifecycleEvent;
+import android.arch.lifecycle.DefaultLifecycleObserver;
+import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
 
 /**
  * LifecycleObserver which updates the widget when the artwork changes
  */
-public class WidgetUpdater implements LifecycleObserver {
+public class WidgetUpdater implements DefaultLifecycleObserver {
     private final Context mContext;
     private ContentObserver mWidgetContentObserver;
 
@@ -38,8 +38,8 @@ public class WidgetUpdater implements LifecycleObserver {
         mContext = context;
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    public void registerContentObserver() {
+    @Override
+    public void onCreate(@NonNull final LifecycleOwner owner) {
         // Set up a ContentObserver to update widgets whenever the artwork changes
         mWidgetContentObserver = new ContentObserver(new Handler()) {
             @Override
@@ -56,8 +56,8 @@ public class WidgetUpdater implements LifecycleObserver {
         mWidgetContentObserver.onChange(true);
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    public void unregisterContentObserver() {
+    @Override
+    public void onDestroy(@NonNull final LifecycleOwner owner) {
         mContext.getContentResolver().unregisterContentObserver(mWidgetContentObserver);
         // Update the widget one last time to disable the 'Next' button until Muzei is reactivated
         new AppWidgetUpdateTask(mContext, false)

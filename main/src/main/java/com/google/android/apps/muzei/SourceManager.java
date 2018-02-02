@@ -17,11 +17,10 @@
 package com.google.android.apps.muzei;
 
 import android.annotation.SuppressLint;
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.DefaultLifecycleObserver;
+import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -51,7 +50,7 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA
 /**
  * Class responsible for managing interactions with sources such as subscribing, unsubscribing, and sending actions.
  */
-public class SourceManager implements LifecycleObserver {
+public class SourceManager implements DefaultLifecycleObserver {
     private static final String TAG = "SourceManager";
     private static final String USER_PROPERTY_SELECTED_SOURCE = "selected_source";
     private static final String USER_PROPERTY_SELECTED_SOURCE_PACKAGE = "selected_source_package";
@@ -64,8 +63,8 @@ public class SourceManager implements LifecycleObserver {
         mContext = context;
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    public void subscribeToSelectedSource() {
+    @Override
+    public void onCreate(@NonNull final LifecycleOwner owner) {
         // Register for package change events
         mSourcePackageChangeReceiver = new SourcePackageChangeReceiver();
         IntentFilter packageChangeFilter = new IntentFilter();
@@ -90,8 +89,8 @@ public class SourceManager implements LifecycleObserver {
         });
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    public void unsubscribeToSelectedSource() {
+    @Override
+    public void onDestroy(@NonNull final LifecycleOwner owner) {
         final LiveData<Source> sourceLiveData = MuzeiDatabase.getInstance(mContext).sourceDao().getCurrentSource();
         sourceLiveData.observeForever(new Observer<Source>() {
             @Override

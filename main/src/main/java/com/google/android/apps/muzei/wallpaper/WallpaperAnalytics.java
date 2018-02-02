@@ -16,10 +16,10 @@
 
 package com.google.android.apps.muzei.wallpaper;
 
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleObserver;
-import android.arch.lifecycle.OnLifecycleEvent;
+import android.arch.lifecycle.DefaultLifecycleObserver;
+import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -31,26 +31,26 @@ import org.greenrobot.eventbus.EventBus;
 /**
  * LifecycleObserver responsible for sending analytics callbacks based on the state of the wallpaper
  */
-public class WallpaperAnalytics implements LifecycleObserver {
+public class WallpaperAnalytics implements DefaultLifecycleObserver {
     private final Context mContext;
 
     public WallpaperAnalytics(Context context) {
         mContext = context;
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    public void registerDeviceType() {
+    @Override
+    public void onCreate(@NonNull final LifecycleOwner owner) {
         FirebaseAnalytics.getInstance(mContext).setUserProperty("device_type", BuildConfig.DEVICE_TYPE);
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-    public void triggerWallpaperCreated() {
+    @Override
+    public void onResume(@NonNull final LifecycleOwner owner) {
         FirebaseAnalytics.getInstance(mContext).logEvent("wallpaper_created", null);
         EventBus.getDefault().postSticky(new WallpaperActiveStateChangedEvent(true));
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-    public void triggerWallpaperDestroyed() {
+    @Override
+    public void onPause(@NonNull final LifecycleOwner owner) {
         FirebaseAnalytics.getInstance(mContext).logEvent("wallpaper_destroyed", null);
         EventBus.getDefault().postSticky(new WallpaperActiveStateChangedEvent(false));
     }

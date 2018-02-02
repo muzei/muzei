@@ -16,9 +16,8 @@
 
 package com.google.android.apps.muzei.wearable;
 
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleObserver;
-import android.arch.lifecycle.OnLifecycleEvent;
+import android.arch.lifecycle.DefaultLifecycleObserver;
+import android.arch.lifecycle.LifecycleOwner;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.ContentObserver;
@@ -28,6 +27,7 @@ import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.support.annotation.NonNull;
 import android.support.media.ExifInterface;
 import android.util.Log;
 
@@ -55,7 +55,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * Controller for updating Android Wear devices with new wallpapers.
  */
-public class WearableController implements LifecycleObserver {
+public class WearableController implements DefaultLifecycleObserver {
     private static final String TAG = "WearableController";
 
     private final Context mContext;
@@ -66,8 +66,8 @@ public class WearableController implements LifecycleObserver {
         mContext = context;
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    public void registerContentObserver() {
+    @Override
+    public void onCreate(@NonNull final LifecycleOwner owner) {
         // Set up a thread to update Android Wear whenever the artwork changes
         mWearableHandlerThread = new HandlerThread("MuzeiWallpaperService-Wearable");
         mWearableHandlerThread.start();
@@ -81,8 +81,8 @@ public class WearableController implements LifecycleObserver {
                 true, mWearableContentObserver);
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    public void unregisterContentObserver() {
+    @Override
+    public void onDestroy(@NonNull final LifecycleOwner owner) {
         mContext.getContentResolver().unregisterContentObserver(mWearableContentObserver);
         mWearableHandlerThread.quitSafely();
     }

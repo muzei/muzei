@@ -16,13 +16,13 @@
 
 package com.google.android.apps.muzei.wallpaper;
 
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleObserver;
-import android.arch.lifecycle.OnLifecycleEvent;
+import android.arch.lifecycle.DefaultLifecycleObserver;
+import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.support.annotation.NonNull;
 
 import com.google.android.apps.muzei.NetworkChangeReceiver;
 import com.google.android.apps.muzei.sync.TaskQueueService;
@@ -30,7 +30,7 @@ import com.google.android.apps.muzei.sync.TaskQueueService;
 /**
  * LifecycleObserver responsible for monitoring network connectivity and retrying artwork as necessary
  */
-public class NetworkChangeObserver implements LifecycleObserver {
+public class NetworkChangeObserver implements DefaultLifecycleObserver {
     private final Context mContext;
     private NetworkChangeReceiver mNetworkChangeReceiver;
 
@@ -38,8 +38,8 @@ public class NetworkChangeObserver implements LifecycleObserver {
         mContext = context;
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    public void registerReceiver() {
+    @Override
+    public void onCreate(@NonNull final LifecycleOwner owner) {
         mNetworkChangeReceiver = new NetworkChangeReceiver();
         IntentFilter networkChangeFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         mContext.registerReceiver(mNetworkChangeReceiver, networkChangeFilter);
@@ -54,8 +54,8 @@ public class NetworkChangeObserver implements LifecycleObserver {
         }
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    public void unregisterReceiver() {
+    @Override
+    public void onDestroy(@NonNull final LifecycleOwner owner) {
         mContext.unregisterReceiver(mNetworkChangeReceiver);
     }
 }

@@ -17,14 +17,14 @@
 package com.google.android.apps.muzei.wallpaper;
 
 import android.app.KeyguardManager;
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleObserver;
-import android.arch.lifecycle.OnLifecycleEvent;
+import android.arch.lifecycle.DefaultLifecycleObserver;
+import android.arch.lifecycle.LifecycleOwner;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
 import android.support.v4.os.UserManagerCompat;
 
 import com.google.android.apps.muzei.MuzeiWallpaperService;
@@ -33,7 +33,7 @@ import com.google.android.apps.muzei.settings.Prefs;
 /**
  * LifecycleObserver responsible for monitoring the state of the lock screen
  */
-public class LockscreenObserver implements LifecycleObserver {
+public class LockscreenObserver implements DefaultLifecycleObserver {
     private final Context mContext;
     private final MuzeiWallpaperService.MuzeiWallpaperEngine mEngine;
 
@@ -85,8 +85,8 @@ public class LockscreenObserver implements LifecycleObserver {
         mEngine = engine;
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    public void registerOnSharedPreferenceChangeListener() {
+    @Override
+    public void onCreate(@NonNull final LifecycleOwner owner) {
         SharedPreferences sp = Prefs.getSharedPreferences(mContext);
         sp.registerOnSharedPreferenceChangeListener(mLockScreenPreferenceChangeListener);
         // Trigger the initial registration if needed
@@ -94,8 +94,8 @@ public class LockscreenObserver implements LifecycleObserver {
                 Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED);
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    public void unregisterOnSharedPreferenceChangeListener() {
+    @Override
+    public void onDestroy(@NonNull final LifecycleOwner owner) {
         if (mIsLockScreenVisibleReceiverRegistered) {
             mContext.unregisterReceiver(mLockScreenVisibleReceiver);
         }

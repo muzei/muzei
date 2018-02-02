@@ -16,21 +16,21 @@
 
 package com.google.android.apps.muzei.notifications;
 
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleObserver;
-import android.arch.lifecycle.OnLifecycleEvent;
+import android.arch.lifecycle.DefaultLifecycleObserver;
+import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.support.annotation.NonNull;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
 
 /**
  * LifecycleObserver which updates the notification when the artwork changes
  */
-public class NotificationUpdater implements LifecycleObserver {
+public class NotificationUpdater implements DefaultLifecycleObserver {
     private final Context mContext;
     private HandlerThread mNotificationHandlerThread;
     private ContentObserver mNotificationContentObserver;
@@ -39,8 +39,8 @@ public class NotificationUpdater implements LifecycleObserver {
         mContext = context;
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    public void registerContentObserver() {
+    @Override
+    public void onCreate(@NonNull final LifecycleOwner owner) {
         // Set up a thread to update notifications whenever the artwork changes
         mNotificationHandlerThread = new HandlerThread("MuzeiWallpaperService-Notification");
         mNotificationHandlerThread.start();
@@ -54,8 +54,8 @@ public class NotificationUpdater implements LifecycleObserver {
                 true, mNotificationContentObserver);
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    public void unregisterContentObserver() {
+    @Override
+    public void onDestroy(@NonNull final LifecycleOwner owner) {
         mContext.getContentResolver().unregisterContentObserver(mNotificationContentObserver);
         mNotificationHandlerThread.quitSafely();
         NewWallpaperNotificationReceiver.cancelNotification(mContext);

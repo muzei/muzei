@@ -18,11 +18,10 @@ package com.google.android.apps.muzei;
 
 import android.app.WallpaperColors;
 import android.app.WallpaperManager;
+import android.arch.lifecycle.DefaultLifecycleObserver;
 import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LifecycleRegistry;
-import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -122,7 +121,7 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
 
     public class MuzeiWallpaperEngine extends GLEngine implements
             LifecycleOwner,
-            LifecycleObserver,
+            DefaultLifecycleObserver,
             RenderController.Callbacks,
             MuzeiBlurRenderer.Callbacks {
 
@@ -162,11 +161,11 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
             mEngineLifecycle.addObserver(new WallpaperAnalytics(MuzeiWallpaperService.this));
             mEngineLifecycle.addObserver(new LockscreenObserver(MuzeiWallpaperService.this, this));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-                mEngineLifecycle.addObserver(new LifecycleObserver() {
+                mEngineLifecycle.addObserver(new DefaultLifecycleObserver() {
                     private ContentObserver mContentObserver;
 
-                    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-                    public void registerArtworkObserver() {
+                    @Override
+                    public void onCreate(@NonNull final LifecycleOwner owner) {
                         mContentObserver = new ContentObserver(new Handler()) {
                             @Override
                             public void onChange(boolean selfChange, Uri uri) {
@@ -178,8 +177,8 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
                         mContentObserver.onChange(true, MuzeiContract.Artwork.CONTENT_URI);
                     }
 
-                    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-                    public void unregisterArtworkObserver() {
+                    @Override
+                    public void onDestroy(@NonNull final LifecycleOwner owner) {
                         getContentResolver().unregisterContentObserver(mContentObserver);
                     }
                 });
@@ -200,8 +199,8 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
             return mEngineLifecycle;
         }
 
-        @OnLifecycleEvent(Lifecycle.Event.ON_START)
-        public void onUserUnlocked() {
+        @Override
+        public void onStart(@NonNull final LifecycleOwner owner) {
             // The MuzeiWallpaperService only gets to ON_START when the user is unlocked
             // At that point, we can proceed with the engine's lifecycle
             mEngineLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME);
