@@ -16,7 +16,6 @@
 
 package com.google.android.apps.muzei.room;
 
-import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.TypeConverters;
@@ -36,7 +35,6 @@ public class ArtworkSource {
     @Embedded
     public Artwork artwork;
 
-    @ColumnInfo(name = "supports_next_artwork")
     public boolean supportsNextArtwork;
 
     @TypeConverters(UserCommandTypeConverter.class)

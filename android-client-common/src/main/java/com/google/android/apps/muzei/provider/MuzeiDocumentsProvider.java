@@ -16,16 +16,14 @@
 
 package com.google.android.apps.muzei.provider;
 
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.UriPermission;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.content.res.AssetFileDescriptor;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.graphics.Bitmap;
@@ -242,17 +240,17 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
                 return true;
             }
             if (parentDocumentId != null && parentDocumentId.startsWith(SOURCE_DOCUMENT_ID_PREFIX)) {
-                long sourceId = Long.parseLong(parentDocumentId.replace(SOURCE_DOCUMENT_ID_PREFIX, ""));
+                ComponentName sourceComponentName = ComponentName.unflattenFromString(
+                        parentDocumentId.replace(SOURCE_DOCUMENT_ID_PREFIX, ""));
                 long artworkId = Long.parseLong(documentId.replace(ARTWORK_DOCUMENT_ID_PREFIX, ""));
                 String[] projection = new String[] { MuzeiContract.Sources.TABLE_NAME + "." + BaseColumns._ID };
                 Context context = getContext();
                 if (context == null) {
                     return false;
                 }
-                long artworkSourceId = MuzeiDatabase.getInstance(context).sourceDao()
-                        .getSourceIdForArtworkId(artworkId);
+                Artwork artwork = MuzeiDatabase.getInstance(context).artworkDao().getArtworkById(artworkId);
                 // The source id of the parent must match the artwork's source id for it to be a child
-                return sourceId == artworkSourceId;
+                return artwork.sourceComponentName.equals(sourceComponentName);
             }
             return false;
         } else if (documentId != null && documentId.startsWith(SOURCE_DOCUMENT_ID_PREFIX)) {
@@ -287,8 +285,10 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
             } else if (BY_SOURCE_DOCUMENT_ID.equals(parentDocumentId)) {
                 includeAllSources(result, database.sourceDao().getSourcesBlocking());
             } else if (parentDocumentId != null && parentDocumentId.startsWith(SOURCE_DOCUMENT_ID_PREFIX)) {
-                long sourceId = Long.parseLong(parentDocumentId.replace(SOURCE_DOCUMENT_ID_PREFIX, ""));
-                includeAllArtwork(result, database.artworkDao().getArtworkForSourceIdBlocking(sourceId));
+                ComponentName sourceComponentName = ComponentName.unflattenFromString(
+                        parentDocumentId.replace(SOURCE_DOCUMENT_ID_PREFIX, ""));
+                includeAllArtwork(result, database.artworkDao()
+                        .getArtworkForSourceBlocking(sourceComponentName));
             }
         }
         return result;
@@ -364,10 +364,15 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
         if (context == null) {
             return;
         }
+        ArtworkDao artworkDao = MuzeiDatabase.getInstance(context).artworkDao();
         for (Source source : sources) {
+            if (artworkDao.getArtworkCountForSourceBlocking(source.componentName) == 0) {
+                // Skip sources with no artwork
+                continue;
+            }
             final MatrixCursor.RowBuilder row = result.newRow();
             row.add(DocumentsContract.Document.COLUMN_DOCUMENT_ID,
-                    SOURCE_DOCUMENT_ID_PREFIX + Long.toString(source.id));
+                    SOURCE_DOCUMENT_ID_PREFIX + source.componentName.flattenToShortString());
             row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, DocumentsContract.Document.MIME_TYPE_DIR);
             row.add(DocumentsContract.Document.COLUMN_FLAGS,
                     DocumentsContract.Document.FLAG_DIR_PREFERS_GRID |
@@ -375,26 +380,8 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
             row.add(DocumentsContract.Document.COLUMN_SIZE, null);
             Intent sourceIntent = new Intent();
             sourceIntent.setComponent(source.componentName);
-            PackageManager packageManager = context.getPackageManager();
-            List<ResolveInfo> resolveInfoList = packageManager.queryIntentServices(sourceIntent, 0);
-            if (resolveInfoList.isEmpty()) {
-                row.add(DocumentsContract.Document.COLUMN_DISPLAY_NAME, source.componentName.getShortClassName());
-                continue;
-            }
-            ResolveInfo resolveInfo = resolveInfoList.get(0);
-            String title = resolveInfo.loadLabel(packageManager).toString();
-            row.add(DocumentsContract.Document.COLUMN_DISPLAY_NAME, title);
-            String description = source.description;
-            if (TextUtils.isEmpty(description) && resolveInfo.serviceInfo.descriptionRes != 0) {
-                // Load the default description
-                try {
-                    Context packageContext = context.createPackageContext(
-                            source.componentName.getPackageName(), 0);
-                    Resources packageRes = packageContext.getResources();
-                    description = packageRes.getString(resolveInfo.serviceInfo.descriptionRes);
-                } catch (PackageManager.NameNotFoundException ignored) {
-                }
-            }
+            row.add(DocumentsContract.Document.COLUMN_DISPLAY_NAME, source.label);
+            String description = source.getDescription();
             if (!TextUtils.isEmpty(description)) {
                 row.add(DocumentsContract.Document.COLUMN_SUMMARY, description);
             }
@@ -425,9 +412,11 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
             includeAllArtwork(result, Collections.singletonList(
                     MuzeiDatabase.getInstance(context).artworkDao().getArtworkById(artworkId)));
         } else if (documentId != null && documentId.startsWith(SOURCE_DOCUMENT_ID_PREFIX)) {
-            long sourceId = Long.parseLong(documentId.replace(SOURCE_DOCUMENT_ID_PREFIX, ""));
+            ComponentName sourceComponentName = ComponentName.unflattenFromString(
+                    documentId.replace(SOURCE_DOCUMENT_ID_PREFIX, ""));
             includeAllSources(result, Collections.singletonList(
-                    MuzeiDatabase.getInstance(context).sourceDao().getSourceById(sourceId)));
+                    MuzeiDatabase.getInstance(context).sourceDao()
+                            .getSourceByComponentNameBlocking(sourceComponentName)));
         }
         return result;
     }

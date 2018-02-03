@@ -20,16 +20,13 @@ import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.Notification;
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Observer;
 import android.content.ActivityNotFoundException;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.content.res.Resources;
+import android.content.pm.ServiceInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -65,9 +62,11 @@ import android.widget.Toast;
 import com.google.android.apps.muzei.SourceManager;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment;
-import com.google.android.apps.muzei.room.MuzeiDatabase;
 import com.google.android.apps.muzei.util.ObservableHorizontalScrollView;
 import com.google.android.apps.muzei.util.Scrollbar;
+import com.google.android.apps.muzei.room.MuzeiDatabase;
+import com.google.android.apps.muzei.room.Source;
+import com.google.android.apps.muzei.room.SourceDao;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.R;
@@ -76,10 +75,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.google.android.apps.muzei.api.MuzeiArtSource.ACTION_MUZEI_ART_SOURCE;
-
 /**
- * Fragment for allowing the user to choose the active source.
+ * Activity for allowing the user to choose the active source.
  */
 public class ChooseSourceFragment extends Fragment {
     private static final String TAG = "SettingsChooseSourceFrg";
@@ -92,10 +89,11 @@ public class ChooseSourceFragment extends Fragment {
     private static final float ALPHA_UNSELECTED = 0.4f;
 
     private static final int REQUEST_EXTENSION_SETUP = 1;
+    private static final String CURRENT_INITIAL_SETUP_SOURCE = "currentInitialSetupSource";
 
     private ComponentName mSelectedSource;
-    private LiveData<com.google.android.apps.muzei.room.Source> mCurrentSourceLiveData;
-    private List<Source> mSources = new ArrayList<>();
+    private LiveData<Source> mCurrentSourceLiveData;
+    private List<SourceView> mSourceViews = new ArrayList<>();
 
     private Handler mHandler = new Handler();
 
@@ -117,13 +115,13 @@ public class ChooseSourceFragment extends Fragment {
 
     private ComponentName mCurrentInitialSetupSource;
 
-    public ChooseSourceFragment() {
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        if (savedInstanceState != null) {
+            mCurrentInitialSetupSource = savedInstanceState.getParcelable(CURRENT_INITIAL_SETUP_SOURCE);
+        }
         mAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
         mItemWidth = getResources().getDimensionPixelSize(
                 R.dimen.settings_choose_source_item_width);
@@ -143,7 +141,12 @@ public class ChooseSourceFragment extends Fragment {
         bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "sources");
         FirebaseAnalytics.getInstance(context).logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST, bundle);
 
-        mCurrentSourceLiveData = MuzeiDatabase.getInstance(context).sourceDao().getCurrentSource();
+        SourceDao sourceDao = MuzeiDatabase.getInstance(context).sourceDao();
+        sourceDao.getSources().observe(this, sources -> {
+            updateSources(sources);
+            updatePadding();
+        });
+        mCurrentSourceLiveData = sourceDao.getCurrentSource();
         mCurrentSourceLiveData.observe(this, source -> updateSelectedItem(source, true));
 
         Intent intent = ((Activity) context).getIntent();
@@ -196,7 +199,7 @@ public class ChooseSourceFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             Bundle savedInstanceState) {
+            @Nullable Bundle savedInstanceState) {
         return inflater.inflate(
                 R.layout.settings_choose_source_fragment, container, false);
     }
@@ -254,13 +257,19 @@ public class ChooseSourceFragment extends Fragment {
         view.animate().alpha(1f).setDuration(500);
     }
 
+    @Override
+    public void onSaveInstanceState(@NonNull final Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(CURRENT_INITIAL_SETUP_SOURCE, mCurrentInitialSetupSource);
+    }
+
     private void updatePadding() {
         int rootViewWidth = getView() != null ? getView().getWidth() : 0;
         if (rootViewWidth == 0) {
             return;
         }
         int topPadding = Math.max(0, (getView().getHeight() - mItemEstimatedHeight) / 2);
-        int numItems = mSources.size();
+        int numItems = mSourceViews.size();
         int sidePadding;
         int minSidePadding = getResources().getDimensionPixelSize(
                 R.dimen.settings_choose_source_min_side_padding);
@@ -275,46 +284,16 @@ public class ChooseSourceFragment extends Fragment {
         mSourceContainerView.setPadding(sidePadding, topPadding, sidePadding, 0);
     }
 
-    private BroadcastReceiver mPackagesChangedReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            updateSources();
-            updatePadding();
-        }
-    };
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        updateSources();
-
-        IntentFilter packageChangeIntentFilter = new IntentFilter();
-        packageChangeIntentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
-        packageChangeIntentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
-        packageChangeIntentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
-        packageChangeIntentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
-        packageChangeIntentFilter.addDataScheme("package");
-        getContext().registerReceiver(mPackagesChangedReceiver, packageChangeIntentFilter);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        getContext().unregisterReceiver(mPackagesChangedReceiver);
-    }
-
-    private void updateSelectedItem(com.google.android.apps.muzei.room.Source selectedSource, boolean allowAnimate) {
+    private void updateSelectedItem(Source selectedSource, boolean allowAnimate) {
         ComponentName previousSelectedSource = mSelectedSource;
-        if (selectedSource != null) {
-            mSelectedSource = selectedSource.componentName;
-        }
+        mSelectedSource = selectedSource != null ? selectedSource.componentName : null;
         if (previousSelectedSource != null && previousSelectedSource.equals(mSelectedSource)) {
             // Only update status
-            for (final Source source : mSources) {
-                if (!source.componentName.equals(mSelectedSource) || source.rootView == null) {
+            for (final SourceView sourceView : mSourceViews) {
+                if (!sourceView.source.componentName.equals(mSelectedSource) || sourceView.rootView == null) {
                     continue;
                 }
-                updateSourceStatusUi(source);
+                updateSourceStatusUi(sourceView);
             }
             return;
         }
@@ -322,38 +301,38 @@ public class ChooseSourceFragment extends Fragment {
         // This is a newly selected source.
         boolean selected;
         int index = -1;
-        for (final Source source : mSources) {
+        for (final SourceView sourceView : mSourceViews) {
             ++index;
-            if (source.componentName.equals(previousSelectedSource)) {
+            if (sourceView.source.componentName.equals(previousSelectedSource)) {
                 selected = false;
-            } else if (source.componentName.equals(mSelectedSource)) {
+            } else if (sourceView.source.componentName.equals(mSelectedSource)) {
                 mSelectedSourceIndex = index;
                 selected = true;
             } else {
                 continue;
             }
 
-            if (source.rootView == null) {
+            if (sourceView.rootView == null) {
                 continue;
             }
 
-            View sourceImageButton = source.rootView.findViewById(R.id.source_image);
-            Drawable drawable = selected ? mSelectedSourceImage : source.icon;
-            drawable.setColorFilter(source.color, PorterDuff.Mode.SRC_ATOP);
+            View sourceImageButton = sourceView.rootView.findViewById(R.id.source_image);
+            Drawable drawable = selected ? mSelectedSourceImage : sourceView.icon;
+            drawable.setColorFilter(sourceView.source.color, PorterDuff.Mode.SRC_ATOP);
             sourceImageButton.setBackground(drawable);
 
             float alpha = selected ? 1f : Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-                    && source.targetSdkVersion >= Build.VERSION_CODES.O ? ALPHA_DISABLED : ALPHA_UNSELECTED;
-            source.rootView.animate()
+                    && sourceView.source.targetSdkVersion >= Build.VERSION_CODES.O ? ALPHA_DISABLED : ALPHA_UNSELECTED;
+            sourceView.rootView.animate()
                     .alpha(alpha)
                     .setDuration(mAnimationDuration);
 
             if (selected) {
-                updateSourceStatusUi(source);
+                updateSourceStatusUi(sourceView);
             }
 
-            animateSettingsButton(source.settingsButton,
-                    selected && source.settingsActivity != null, allowAnimate);
+            animateSettingsButton(sourceView.settingsButton,
+                    selected && sourceView.source.settingsActivity != null, allowAnimate);
         }
 
         if (mSelectedSourceIndex >= 0 && allowAnimate) {
@@ -398,78 +377,27 @@ public class ChooseSourceFragment extends Fragment {
         mHandler.removeCallbacksAndMessages(null);
     }
 
-    public void updateSources() {
+    public void updateSources(final List<Source> sources) {
         mSelectedSource = null;
-        Intent queryIntent = new Intent(ACTION_MUZEI_ART_SOURCE);
         PackageManager pm = getContext().getPackageManager();
-        mSources.clear();
-        List<ResolveInfo> resolveInfos = pm.queryIntentServices(queryIntent,
-                PackageManager.GET_META_DATA);
+        mSourceViews.clear();
 
-        for (ResolveInfo ri : resolveInfos) {
-            Source source = new Source();
-            source.label = ri.loadLabel(pm).toString();
-            source.icon = new BitmapDrawable(getResources(), generateSourceImage(ri.loadIcon(pm)));
-            source.targetSdkVersion = ri.serviceInfo.applicationInfo.targetSdkVersion;
-            source.componentName = new ComponentName(ri.serviceInfo.packageName,
-                    ri.serviceInfo.name);
-            if (ri.serviceInfo.descriptionRes != 0) {
-                try {
-                    Context packageContext = getContext().createPackageContext(
-                            source.componentName.getPackageName(), 0);
-                    Resources packageRes = packageContext.getResources();
-                    source.description = packageRes.getString(ri.serviceInfo.descriptionRes);
-                } catch (PackageManager.NameNotFoundException|Resources.NotFoundException e) {
-                    Log.e(TAG, "Can't read package resources for source " + source.componentName);
-                }
+        for (Source source : sources) {
+            SourceView sourceView = new SourceView(source);
+            ServiceInfo info;
+            try {
+                info = pm.getServiceInfo(source.componentName, 0);
+            } catch (PackageManager.NameNotFoundException e) {
+                continue;
             }
-            Bundle metaData = ri.serviceInfo.metaData;
-            source.color = Color.WHITE;
-            if (metaData != null) {
-                String settingsActivity = metaData.getString("settingsActivity");
-                if (!TextUtils.isEmpty(settingsActivity)) {
-                    source.settingsActivity = ComponentName.unflattenFromString(
-                            ri.serviceInfo.packageName + "/" + settingsActivity);
-                }
-
-                String setupActivity = metaData.getString("setupActivity");
-                if (!TextUtils.isEmpty(setupActivity)) {
-                    source.setupActivity = ComponentName.unflattenFromString(
-                            ri.serviceInfo.packageName + "/" + setupActivity);
-                }
-
-                source.color = metaData.getInt("color", source.color);
-
-                try {
-                    float[] hsv = new float[3];
-                    Color.colorToHSV(source.color, hsv);
-                    boolean adjust = false;
-                    if (hsv[2] < 0.8f) {
-                        hsv[2] = 0.8f;
-                        adjust = true;
-                    }
-                    if (hsv[1] > 0.4f) {
-                        hsv[1] = 0.4f;
-                        adjust = true;
-                    }
-                    if (adjust) {
-                        source.color = Color.HSVToColor(hsv);
-                    }
-                    if (Color.alpha(source.color) != 255) {
-                        source.color = Color.argb(255,
-                                Color.red(source.color),
-                                Color.green(source.color),
-                                Color.blue(source.color));
-                    }
-                } catch (IllegalArgumentException ignored) {
-                }
-            }
-
-            mSources.add(source);
+            sourceView.icon = new BitmapDrawable(getResources(), generateSourceImage(info.loadIcon(pm)));
+            mSourceViews.add(sourceView);
         }
 
         final String appPackage = getContext().getPackageName();
-        Collections.sort(mSources, (s1, s2) -> {
+        Collections.sort(mSourceViews, (sourceView1, sourceView2) -> {
+            Source s1 = sourceView1.source;
+            Source s2 = sourceView2.source;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 boolean target1IsO = s1.targetSdkVersion >= Build.VERSION_CODES.O;
                 boolean target2IsO = s2.targetSdkVersion >= Build.VERSION_CODES.O;
@@ -500,12 +428,13 @@ public class ChooseSourceFragment extends Fragment {
         }
 
         mSourceContainerView.removeAllViews();
-        for (final Source source : mSources) {
-            source.rootView = LayoutInflater.from(getContext()).inflate(
+        for (SourceView sourceView : mSourceViews) {
+            sourceView.rootView = getLayoutInflater().inflate(
                     R.layout.settings_choose_source_item, mSourceContainerView, false);
 
-            source.selectSourceButton = source.rootView.findViewById(R.id.source_image);
-            source.selectSourceButton.setOnClickListener(view -> {
+            sourceView.selectSourceButton = sourceView.rootView.findViewById(R.id.source_image);
+            final Source source = sourceView.source;
+            sourceView.selectSourceButton.setOnClickListener(view -> {
                 if (source.componentName.equals(mSelectedSource)) {
                     if (getContext() instanceof Callbacks) {
                         ((Callbacks) getContext()).onRequestCloseActivity();
@@ -550,7 +479,7 @@ public class ChooseSourceFragment extends Fragment {
                 }
             });
 
-            source.selectSourceButton.setOnLongClickListener(v -> {
+            sourceView.selectSourceButton.setOnLongClickListener(v -> {
                 final String pkg = source.componentName.getPackageName();
                 if (TextUtils.equals(pkg, getContext().getPackageName())) {
                     // Don't open Muzei's app info
@@ -570,24 +499,24 @@ public class ChooseSourceFragment extends Fragment {
                     && source.targetSdkVersion >= Build.VERSION_CODES.O
                     ? ALPHA_DISABLED
                     : ALPHA_UNSELECTED;
-            source.rootView.setAlpha(alpha);
+            sourceView.rootView.setAlpha(alpha);
 
-            source.icon.setColorFilter(source.color, PorterDuff.Mode.SRC_ATOP);
-            source.selectSourceButton.setBackground(source.icon);
+            sourceView.icon.setColorFilter(source.color, PorterDuff.Mode.SRC_ATOP);
+            sourceView.selectSourceButton.setBackground(sourceView.icon);
 
-            TextView titleView = source.rootView.findViewById(R.id.source_title);
+            TextView titleView = sourceView.rootView.findViewById(R.id.source_title);
             titleView.setText(source.label);
             titleView.setTextColor(source.color);
 
-            updateSourceStatusUi(source);
+            updateSourceStatusUi(sourceView);
 
-            source.settingsButton = source.rootView.findViewById(R.id.source_settings_button);
-            TooltipCompat.setTooltipText(source.settingsButton, source.settingsButton.getContentDescription());
-            source.settingsButton.setOnClickListener(view -> launchSourceSettings(source));
+            sourceView.settingsButton = sourceView.rootView.findViewById(R.id.source_settings_button);
+            TooltipCompat.setTooltipText(sourceView.settingsButton, sourceView.settingsButton.getContentDescription());
+            sourceView.settingsButton.setOnClickListener(view -> launchSourceSettings(source));
 
-            animateSettingsButton(source.settingsButton, false, false);
+            animateSettingsButton(sourceView.settingsButton, false, false);
 
-            mSourceContainerView.addView(source.rootView);
+            mSourceContainerView.addView(sourceView.rootView);
         }
 
         updateSelectedItem(mCurrentSourceLiveData.getValue(), false);
@@ -633,23 +562,12 @@ public class ChooseSourceFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void updateSourceStatusUi(final Source source) {
-        if (source.rootView == null) {
+    private void updateSourceStatusUi(SourceView sourceView) {
+        if (sourceView.rootView == null) {
             return;
         }
-        final LiveData<com.google.android.apps.muzei.room.Source> sourceLiveData = MuzeiDatabase
-                .getInstance(getContext())
-                .sourceDao()
-                .getSourceByComponentName(source.componentName);
-        sourceLiveData.observeForever(new Observer<com.google.android.apps.muzei.room.Source>() {
-            @Override
-            public void onChanged(@Nullable final com.google.android.apps.muzei.room.Source storedSource) {
-                sourceLiveData.removeObserver(this);
-                String description = storedSource != null ? storedSource.description : null;
-                ((TextView) source.rootView.findViewById(R.id.source_status)).setText(
-                        !TextUtils.isEmpty(description) ? description : source.description);
-            }
-        });
+        ((TextView) sourceView.rootView.findViewById(R.id.source_status)).setText(
+                sourceView.source.getDescription());
     }
 
     private void prepareGenerateSourceImages() {
@@ -657,7 +575,8 @@ public class ChooseSourceFragment extends Fragment {
         mImageFillPaint.setAntiAlias(true);
         mAlphaPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OUT));
         mSelectedSourceImage = new BitmapDrawable(getResources(),
-                generateSourceImage(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_source_selected, null)));
+                generateSourceImage(ResourcesCompat.getDrawable(getResources(),
+                        R.drawable.ic_source_selected, null)));
     }
 
     private Bitmap generateSourceImage(Drawable image) {
@@ -693,18 +612,16 @@ public class ChooseSourceFragment extends Fragment {
         }
     };
 
-    class Source {
+    class SourceView {
+        Source source;
         View rootView;
         Drawable icon;
-        int color;
-        String label;
-        int targetSdkVersion;
-        ComponentName componentName;
-        String description;
-        ComponentName settingsActivity;
         View selectSourceButton;
         View settingsButton;
-        ComponentName setupActivity;
+
+        SourceView(Source source) {
+            this.source = source;
+        }
     }
 
     public interface Callbacks {

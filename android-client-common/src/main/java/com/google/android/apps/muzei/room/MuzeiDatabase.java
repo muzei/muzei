@@ -34,7 +34,7 @@ import java.util.Set;
 /**
  * Room Database for Muzei
  */
-@Database(entities = {Artwork.class, Source.class}, version = 5)
+@Database(entities = {Artwork.class, Source.class}, version = 6)
 public abstract class MuzeiDatabase extends RoomDatabase {
     private static MuzeiDatabase sInstance;
 
@@ -48,7 +48,7 @@ public abstract class MuzeiDatabase extends RoomDatabase {
             sInstance = Room.databaseBuilder(applicationContext,
                     MuzeiDatabase.class, "muzei.db")
                     .allowMainThreadQueries()
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                     .build();
             sInstance.getInvalidationTracker().addObserver(
                     new InvalidationTracker.Observer("sources") {
@@ -172,6 +172,34 @@ public abstract class MuzeiDatabase extends RoomDatabase {
         @Override
         public void migrate(@NonNull final SupportSQLiteDatabase database) {
             // NO-OP
+        }
+    };
+
+    private static final Migration MIGRATION_5_6 = new Migration(5, 6) {
+        @Override
+        public void migrate(@NonNull final SupportSQLiteDatabase database) {
+            // Handle Source
+            database.execSQL("CREATE TABLE sources2 ("
+                    + "component_name TEXT PRIMARY KEY NOT NULL,"
+                    + "label TEXT,"
+                    + "defaultDescription TEXT,"
+                    + "description TEXT,"
+                    + "color INTEGER NOT NULL,"
+                    + "targetSdkVersion INTEGER NOT NULL,"
+                    + "settingsActivity TEXT, "
+                    + "setupActivity TEXT,"
+                    + "selected INTEGER NOT NULL,"
+                    + "wantsNetworkAvailable INTEGER NOT NULL,"
+                    + "supportsNextArtwork INTEGER NOT NULL,"
+                    + "commands TEXT NOT NULL)");
+            database.execSQL("INSERT INTO sources2"
+                    + "(component_name, description, color, targetSdkVersion, selected, "
+                    + "wantsNetworkAvailable, supportsNextArtwork, commands) "
+                    + "SELECT component_name, description, 0, 0, selected, "
+                    + "network, supports_next_artwork, commands "
+                    + "FROM sources");
+            database.execSQL("DROP TABLE sources");
+            database.execSQL("ALTER TABLE sources2 RENAME TO sources");
         }
     };
 }

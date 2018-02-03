@@ -18,12 +18,11 @@ package com.google.android.apps.muzei.room;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.TypeConverters;
 import android.content.ComponentName;
-import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
 import com.google.android.apps.muzei.api.UserCommand;
 import com.google.android.apps.muzei.room.converter.ComponentNameTypeConverter;
@@ -35,25 +34,38 @@ import java.util.List;
 /**
  * Source information's representation in Room
  */
-@Entity(tableName = "sources", indices = @Index(value = "component_name", unique = true))
+@Entity(tableName = "sources")
 public class Source {
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = BaseColumns._ID)
-    public long id;
-
     @TypeConverters({ComponentNameTypeConverter.class})
     @ColumnInfo(name = "component_name")
+    @PrimaryKey
     @NonNull
     public final ComponentName componentName;
 
     public boolean selected;
 
+    public String label;
+
+    public String defaultDescription;
+
     public String description;
 
-    @ColumnInfo(name = "network")
+    public String getDescription() {
+        return !TextUtils.isEmpty(description) ? description : defaultDescription;
+    }
+
+    public int color;
+
+    public int targetSdkVersion;
+
+    @TypeConverters({ComponentNameTypeConverter.class})
+    public ComponentName settingsActivity;
+
+    @TypeConverters({ComponentNameTypeConverter.class})
+    public ComponentName setupActivity;
+
     public boolean wantsNetworkAvailable;
 
-    @ColumnInfo(name = "supports_next_artwork")
     public boolean supportsNextArtwork;
 
     @TypeConverters(UserCommandTypeConverter.class)

@@ -138,9 +138,9 @@ public class MuzeiProvider extends ContentProvider {
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION,
                 "description");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE,
-                "network");
+                "wantsNetworkAvailable");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,
-                "supports_next_artwork");
+                "supportsNextArtwork");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_COMMANDS,
                 "commands");
         return allColumnProjectionMap;
@@ -161,9 +161,9 @@ public class MuzeiProvider extends ContentProvider {
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION,
                 "description");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE,
-                "network");
+                "wantsNetworkAvailable");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,
-                "supports_next_artwork");
+                "supportsNextArtwork");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_COMMANDS,
                 "commands");
         return allColumnProjectionMap;
@@ -497,7 +497,7 @@ public class MuzeiProvider extends ContentProvider {
                 // Loop through each source, cleaning up old artwork
                 for (Source source : sources) {
                     final ComponentName componentName = source.componentName;
-                    int artworkCount = database.artworkDao().getArtworkCountForSourceIdBlocking(source.id);
+                    int artworkCount = database.artworkDao().getArtworkCountForSourceBlocking(source.componentName);
                     if (artworkCount > MAX_CACHE_SIZE * 5) {
                         // Woah, that's way, way more than the allowed size
                         // Delete them all (except the current artwork)
@@ -508,7 +508,7 @@ public class MuzeiProvider extends ContentProvider {
                     }
                     // Now use that ComponentName to look through the past artwork from that source
                     final List<Artwork> artworkList = database.artworkDao()
-                            .getArtworkForSourceIdBlocking(source.id);
+                            .getArtworkForSourceBlocking(source.componentName);
                     if (artworkList == null || artworkList.isEmpty()) {
                         continue;
                     }

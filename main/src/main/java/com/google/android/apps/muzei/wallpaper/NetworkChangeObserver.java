@@ -96,7 +96,7 @@ public class NetworkChangeObserver implements DefaultLifecycleObserver {
     }
 
     @Override
-    public void onCreate(@NonNull final LifecycleOwner owner) {
+    public void onStart(@NonNull final LifecycleOwner owner) {
         IntentFilter networkChangeFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         mContext.registerReceiver(mNetworkChangeReceiver, networkChangeFilter);
 
@@ -111,7 +111,7 @@ public class NetworkChangeObserver implements DefaultLifecycleObserver {
     }
 
     @Override
-    public void onDestroy(@NonNull final LifecycleOwner owner) {
+    public void onStop(@NonNull final LifecycleOwner owner) {
         mContext.unregisterReceiver(mNetworkChangeReceiver);
     }
 }

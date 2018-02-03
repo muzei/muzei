@@ -67,16 +67,15 @@ public abstract class ArtworkDao {
     @Query("SELECT * FROM artwork ORDER BY date_added DESC")
     public abstract List<Artwork> getArtworkBlocking();
 
-    @Query("SELECT COUNT(distinct imageUri) FROM artwork, sources " +
-            "WHERE artwork.sourceComponentName = sources.component_name " +
-            "AND sources._id = :sourceId " +
-            "ORDER BY date_added DESC")
-    public abstract int getArtworkCountForSourceIdBlocking(long sourceId);
+    @TypeConverters({ComponentNameTypeConverter.class})
+    @Query("SELECT COUNT(distinct imageUri) FROM artwork " +
+            "WHERE sourceComponentName = :sourceComponentName")
+    public abstract int getArtworkCountForSourceBlocking(ComponentName sourceComponentName);
 
-    @Query("SELECT artwork.* FROM artwork, sources WHERE artwork.sourceComponentName = sources.component_name " +
-            "AND sources._id = :sourceId " +
+    @TypeConverters({ComponentNameTypeConverter.class})
+    @Query("SELECT * FROM artwork WHERE sourceComponentName = :sourceComponentName " +
             "ORDER BY date_added DESC")
-    public abstract List<Artwork> getArtworkForSourceIdBlocking(long sourceId);
+    public abstract List<Artwork> getArtworkForSourceBlocking(ComponentName sourceComponentName);
 
     @Query("SELECT * FROM artwork ORDER BY date_added DESC")
     public abstract LiveData<Artwork> getCurrentArtwork();
@@ -97,7 +96,7 @@ public abstract class ArtworkDao {
     @Query("SELECT * FROM artwork WHERE imageUri=:imageUri ORDER BY date_added DESC")
     public abstract List<Artwork> getArtworkByImageUri(Uri imageUri);
 
-    @Query("SELECT artwork.*, sources.supports_next_artwork, sources.commands " +
+    @Query("SELECT artwork.*, sources.supportsNextArtwork, sources.commands " +
             "FROM artwork, sources " +
             "WHERE artwork.sourceComponentName = " +
             "sources.component_name " +
@@ -140,7 +139,7 @@ public abstract class ArtworkDao {
 
     @TypeConverters(ComponentNameTypeConverter.class)
     @Query("SELECT * FROM artwork WHERE sourceComponentName=:sourceComponentName")
-    abstract Cursor getArtworkForSourceBlocking(ComponentName sourceComponentName);
+    abstract Cursor getArtworkCursorForSourceBlocking(ComponentName sourceComponentName);
 
     @TypeConverters(ComponentNameTypeConverter.class)
     @Query("DELETE FROM artwork WHERE sourceComponentName = :sourceComponentName " +
@@ -184,7 +183,7 @@ public abstract class ArtworkDao {
      */
     private void deleteImages(Context context, ComponentName sourceComponentName,
             List<Long> ids) {
-        try (Cursor artworkList = getArtworkForSourceBlocking(sourceComponentName)){
+        try (Cursor artworkList = getArtworkCursorForSourceBlocking(sourceComponentName)){
             if (artworkList == null) {
                 return;
             }
