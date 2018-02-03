@@ -35,6 +35,7 @@ import android.content.pm.ServiceInfo;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -234,6 +235,11 @@ public class SourceManager implements DefaultLifecycleObserver, LifecycleOwner {
         Source source = existingSource != null ? existingSource : new Source(componentName);
         source.label = info.loadLabel(pm).toString();
         source.targetSdkVersion = info.applicationInfo.targetSdkVersion;
+        if (source.targetSdkVersion >= Build.VERSION_CODES.O) {
+            // The MuzeiArtSource API is incompatible with apps
+            // targeting Android O+
+            source.selected = false;
+        }
         if (info.descriptionRes != 0) {
             try {
                 Context packageContext = mContext.createPackageContext(
