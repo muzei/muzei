@@ -51,15 +51,11 @@ import java.util.List;
  * Dao for {@link ChosenPhoto}
  */
 @Dao
-public abstract class ChosenPhotoDao {
+abstract class ChosenPhotoDao {
     private static final String TAG = "ChosenPhotoDao";
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract long insertInternal(ChosenPhoto chosenPhoto);
-
-    public LiveData<Long> insert(@NonNull Context context, @NonNull final ChosenPhoto chosenPhoto) {
-        return insert(context, chosenPhoto, null);
-    }
 
     LiveData<Long> insert(@NonNull Context context, @NonNull final ChosenPhoto chosenPhoto,
             @Nullable final String callingApplication) {

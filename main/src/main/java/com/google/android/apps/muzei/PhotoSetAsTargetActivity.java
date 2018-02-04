@@ -28,9 +28,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.android.apps.muzei.gallery.ChosenPhoto;
-import com.google.android.apps.muzei.gallery.GalleryArtSource;
-import com.google.android.apps.muzei.gallery.GalleryDatabase;
+import com.google.android.apps.muzei.single.SingleArtSource;
 import com.google.android.apps.muzei.sources.SourceManager;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
@@ -48,34 +46,27 @@ public class PhotoSetAsTargetActivity extends Activity {
         }
 
         final Uri photoUri = getIntent().getData();
-        ChosenPhoto chosenPhoto = new ChosenPhoto(photoUri);
 
-        final LiveData<Long> insertLiveData = GalleryDatabase.getInstance(this).chosenPhotoDao()
-                .insert(this, chosenPhoto);
-        insertLiveData.observeForever(new Observer<Long>() {
+        final LiveData<Boolean> insertLiveData = SingleArtSource.setArtwork(this, photoUri);
+        insertLiveData.observeForever(new Observer<Boolean>() {
             @Override
-            public void onChanged(@Nullable final Long id) {
+            public void onChanged(@Nullable final Boolean success) {
                 insertLiveData.removeObserver(this);
                 final Context context = PhotoSetAsTargetActivity.this;
-                if (id == null || id == 0L) {
-                    Log.e(TAG, "Unable to insert chosen artwork for " + photoUri);
+                if (success == null || !success) {
+                    Log.e(TAG, "Unable to insert artwork for " + photoUri);
                     Toast.makeText(context, R.string.set_as_wallpaper_failed, Toast.LENGTH_SHORT).show();
                     finish();
                     return;
                 }
 
-                // If adding the artwork succeeded, select the gallery source and publish the new image
+                // If adding the artwork succeeded, select the single artwork source
                 Bundle bundle = new Bundle();
                 bundle.putString(FirebaseAnalytics.Param.ITEM_ID,
-                        new ComponentName(context, GalleryArtSource.class).flattenToShortString());
+                        new ComponentName(context, SingleArtSource.class).flattenToShortString());
                 bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sources");
                 FirebaseAnalytics.getInstance(context).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
-                SourceManager.selectSource(context, new ComponentName(context, GalleryArtSource.class), () -> {
-                    Uri uri = ChosenPhoto.getContentUri(id);
-                    startService(new Intent(context, GalleryArtSource.class)
-                            .setAction(GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM)
-                            .putExtra(GalleryArtSource.EXTRA_FORCE_URI, uri));
-
+                SourceManager.selectSource(context, new ComponentName(context, SingleArtSource.class), () -> {
                     startActivity(Intent.makeMainActivity(new ComponentName(
                             context, MuzeiActivity.class))
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));

@@ -37,15 +37,15 @@ import java.io.File;
  * Database for accessing Gallery data
  */
 @Database(entities = {ChosenPhoto.class, Metadata.class}, version = 6)
-public abstract class GalleryDatabase extends RoomDatabase {
+abstract class GalleryDatabase extends RoomDatabase {
     private static final String TAG = "GalleryDatabase";
     private static GalleryDatabase sInstance;
 
-    public abstract ChosenPhotoDao chosenPhotoDao();
+    abstract ChosenPhotoDao chosenPhotoDao();
 
     abstract MetadataDao metadataDao();
 
-    public synchronized static GalleryDatabase getInstance(Context context) {
+    synchronized static GalleryDatabase getInstance(Context context) {
         if (sInstance == null) {
             final Context applicationContext = context.getApplicationContext();
             sInstance = Room.databaseBuilder(applicationContext, GalleryDatabase.class,
