@@ -161,7 +161,12 @@ public class FeaturedArtSource extends RemoteMuzeiArtSource {
             intent.setData(ARCHIVE_URI);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             if (intent.resolveActivity(getPackageManager()) != null) {
-                startActivity(intent);
+                try {
+                    startActivity(intent);
+                } catch (SecurityException e) {
+                    // A non-exported Activity with an <intent-filter> for any
+                    // web URL? What could go wrong...well, this could happen
+                }
             }
 
         } else if (COMMAND_ID_DEBUG_INFO == id) {
