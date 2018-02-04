@@ -13,8 +13,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.util.Date;
-
 /**
  * Activity which responds to {@link android.content.Intent#ACTION_SEND} and
  * {@link android.content.Intent#ACTION_SEND_MULTIPLE} to add one or more
@@ -36,19 +34,14 @@ public class GalleryAddPhotosActivity extends Activity {
             finish();
             return;
         }
-        final String callingApplication = getCallingApplication(intentReader);
+        String callingApplication = getCallingApplication(intentReader);
         mStreamCount = intentReader.getStreamCount();
         for (int index = 0; index < mStreamCount; index++) {
             final Uri photoUri = intentReader.getStream(index);
             ChosenPhoto chosenPhoto = new ChosenPhoto(photoUri);
-            Metadata metadata = new Metadata(photoUri);
-            metadata.date = new Date();
-            if (!TextUtils.isEmpty(callingApplication)) {
-                metadata.location = getString(R.string.gallery_shared_from, callingApplication);
-            }
 
             final LiveData<Long> insertLiveData = GalleryDatabase.getInstance(this).chosenPhotoDao()
-                    .insert(this, chosenPhoto, metadata);
+                    .insert(this, chosenPhoto, callingApplication);
             insertLiveData.observeForever(new Observer<Long>() {
                 @Override
                 public void onChanged(@Nullable final Long id) {

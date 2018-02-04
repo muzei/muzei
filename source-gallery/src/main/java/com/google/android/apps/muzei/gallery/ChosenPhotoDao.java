@@ -44,6 +44,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -61,14 +62,17 @@ public abstract class ChosenPhotoDao {
     }
 
     LiveData<Long> insert(@NonNull Context context, @NonNull final ChosenPhoto chosenPhoto,
-            @Nullable final Metadata metadata) {
+            @Nullable final String callingApplication) {
         final MutableLiveData<Long> asyncInsert = new MutableLiveData<>();
         if (persistUriAccess(context, chosenPhoto)) {
             new Thread() {
                 @Override
                 public void run() {
                     long id = insertInternal(chosenPhoto);
-                    if (id != 0L && metadata != null) {
+                    if (id != 0L && callingApplication != null) {
+                        Metadata metadata = new Metadata(ChosenPhoto.getContentUri(id));
+                        metadata.date = new Date();
+                        metadata.location = context.getString(R.string.gallery_shared_from, callingApplication);
                         GalleryDatabase.getInstance(context).metadataDao().insert(metadata);
                     }
                     asyncInsert.postValue(id);
