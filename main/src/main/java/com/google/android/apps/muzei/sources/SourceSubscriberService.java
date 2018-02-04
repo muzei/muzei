@@ -108,16 +108,18 @@ public class SourceSubscriberService extends IntentService {
             }
             artwork.viewIntent = currentArtwork.getViewIntent();
 
-            try {
-                // Make sure we can construct a PendingIntent for the Intent
-                PendingIntent.getActivity(this, 0, artwork.viewIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT);
-            } catch (RuntimeException e) {
-                // This is actually meant to catch a FileUriExposedException, but you can't
-                // have catch statements for exceptions that don't exist at your minSdkVersion
-                Log.w(TAG, "Removing invalid View Intent that contains a file:// URI: " +
-                        artwork.viewIntent, e);
-                artwork.viewIntent = null;
+            if (artwork.viewIntent != null) {
+                try {
+                    // Make sure we can construct a PendingIntent for the Intent
+                    PendingIntent.getActivity(this, 0, artwork.viewIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT);
+                } catch (RuntimeException e) {
+                    // This is actually meant to catch a FileUriExposedException, but you can't
+                    // have catch statements for exceptions that don't exist at your minSdkVersion
+                    Log.w(TAG, "Removing invalid View Intent that contains a file:// URI: " +
+                            artwork.viewIntent, e);
+                    artwork.viewIntent = null;
+                }
             }
 
             database.artworkDao().insert(this, artwork);
