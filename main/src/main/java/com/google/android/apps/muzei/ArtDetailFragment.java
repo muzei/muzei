@@ -52,6 +52,7 @@ import com.google.android.apps.muzei.room.Artwork;
 import com.google.android.apps.muzei.room.MuzeiDatabase;
 import com.google.android.apps.muzei.room.Source;
 import com.google.android.apps.muzei.settings.AboutActivity;
+import com.google.android.apps.muzei.sources.SourceManager;
 import com.google.android.apps.muzei.sync.TaskQueueService;
 import com.google.android.apps.muzei.util.AnimatedMuzeiLoadingSpinnerView;
 import com.google.android.apps.muzei.util.PanScaleProxyView;

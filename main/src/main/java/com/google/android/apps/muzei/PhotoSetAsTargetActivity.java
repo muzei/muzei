@@ -31,6 +31,7 @@ import android.widget.Toast;
 import com.google.android.apps.muzei.gallery.ChosenPhoto;
 import com.google.android.apps.muzei.gallery.GalleryArtSource;
 import com.google.android.apps.muzei.gallery.GalleryDatabase;
+import com.google.android.apps.muzei.sources.SourceManager;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.R;

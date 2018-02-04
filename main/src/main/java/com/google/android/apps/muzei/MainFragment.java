@@ -33,7 +33,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.apps.muzei.settings.EffectsFragment;
-import com.google.android.apps.muzei.settings.ChooseSourceFragment;
+import com.google.android.apps.muzei.sources.ChooseSourceFragment;
 import com.google.android.apps.muzei.util.ScrimUtil;
 import com.google.firebase.analytics.FirebaseAnalytics;
 

@@ -44,7 +44,6 @@ import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.google.android.apps.muzei.SourceManager;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.api.UserCommand;
@@ -55,6 +54,7 @@ import com.google.android.apps.muzei.room.Artwork;
 import com.google.android.apps.muzei.room.ArtworkSource;
 import com.google.android.apps.muzei.room.MuzeiDatabase;
 import com.google.android.apps.muzei.room.Source;
+import com.google.android.apps.muzei.sources.SourceManager;
 
 import net.nurik.roman.muzei.R;
 

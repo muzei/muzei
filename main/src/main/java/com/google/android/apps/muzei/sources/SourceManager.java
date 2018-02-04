@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei;
+package com.google.android.apps.muzei.sources;
 
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.DefaultLifecycleObserver;
@@ -49,7 +49,6 @@ import com.google.android.apps.muzei.room.MuzeiDatabase;
 import com.google.android.apps.muzei.room.Source;
 import com.google.android.apps.muzei.room.SourceDao;
 import com.google.android.apps.muzei.sync.TaskQueueService;
-import com.google.android.apps.muzei.wallpaper.NetworkChangeObserver;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.BuildConfig;
@@ -303,7 +302,7 @@ public class SourceManager implements DefaultLifecycleObserver, LifecycleOwner {
         void onSourceSelected();
     }
 
-    public static void selectSource(Context context, @NonNull ComponentName source) {
+    static void selectSource(Context context, @NonNull ComponentName source) {
         selectSource(context, source, null);
     }
 

@@ -33,6 +33,7 @@ import android.widget.TextView;
 
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
 import com.google.android.apps.muzei.render.MuzeiRendererFragment;
+import com.google.android.apps.muzei.sources.ChooseSourceFragment;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.R;

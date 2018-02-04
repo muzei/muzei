@@ -21,8 +21,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.google.android.apps.muzei.SourceManager;
 import com.google.android.apps.muzei.api.internal.ProtocolConstants;
+import com.google.android.apps.muzei.sources.SourceManager;
 
 import static com.twofortyfouram.locale.api.Intent.ACTION_FIRE_SETTING;
 import static com.twofortyfouram.locale.api.Intent.EXTRA_BUNDLE;

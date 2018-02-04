@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 import com.google.android.apps.muzei.api.MuzeiArtSource;
+import com.google.android.apps.muzei.sources.SourceManager;
 
 /**
  * Simple activity that just triggers the 'Next Artwork' action and finishes

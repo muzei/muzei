@@ -23,8 +23,8 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
-import com.google.android.apps.muzei.SourceManager;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
+import com.google.android.apps.muzei.sources.SourceManager;
 
 /**
  * AppWidgetProvider for Muzei. The actual updating is done asynchronously in

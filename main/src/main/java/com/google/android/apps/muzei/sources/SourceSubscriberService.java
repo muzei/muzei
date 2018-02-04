@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei;
+package com.google.android.apps.muzei.sources;
 
 import android.app.IntentService;
 import android.app.PendingIntent;

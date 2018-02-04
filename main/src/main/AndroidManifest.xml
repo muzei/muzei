@@ -64,7 +64,7 @@
                 android:resource="@xml/wallpaper" />
         </service>
 
-        <service android:name="com.google.android.apps.muzei.SourceSubscriberService"
+        <service android:name="com.google.android.apps.muzei.sources.SourceSubscriberService"
             android:exported="true" />
 
         <service android:name="com.google.android.apps.muzei.sync.TaskQueueService" />

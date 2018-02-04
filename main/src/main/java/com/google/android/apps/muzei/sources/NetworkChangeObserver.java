@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.wallpaper;
+package com.google.android.apps.muzei.sources;
 
 import android.arch.lifecycle.DefaultLifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
@@ -91,7 +91,7 @@ public class NetworkChangeObserver implements DefaultLifecycleObserver {
         }
     };
 
-    public NetworkChangeObserver(Context context) {
+    NetworkChangeObserver(Context context) {
         mContext = context;
     }
 

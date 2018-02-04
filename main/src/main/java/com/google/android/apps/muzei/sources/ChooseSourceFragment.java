@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.settings;
+package com.google.android.apps.muzei.sources;
 
 import android.animation.ObjectAnimator;
 import android.app.Activity;
@@ -59,7 +59,6 @@ import android.view.ViewTreeObserver;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.apps.muzei.SourceManager;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment;
 import com.google.android.apps.muzei.util.ObservableHorizontalScrollView;

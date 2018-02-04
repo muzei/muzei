@@ -33,11 +33,11 @@ import android.support.annotation.RequiresApi;
 import android.widget.Toast;
 
 import com.google.android.apps.muzei.MuzeiWallpaperService;
-import com.google.android.apps.muzei.SourceManager;
 import com.google.android.apps.muzei.api.MuzeiArtSource;
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent;
 import com.google.android.apps.muzei.room.MuzeiDatabase;
 import com.google.android.apps.muzei.room.Source;
+import com.google.android.apps.muzei.sources.SourceManager;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.nurik.roman.muzei.R;

@@ -51,6 +51,7 @@ import com.google.android.apps.muzei.render.MuzeiBlurRenderer;
 import com.google.android.apps.muzei.render.RealRenderController;
 import com.google.android.apps.muzei.render.RenderController;
 import com.google.android.apps.muzei.shortcuts.ArtworkInfoShortcutController;
+import com.google.android.apps.muzei.sources.SourceManager;
 import com.google.android.apps.muzei.wallpaper.LockscreenObserver;
 import com.google.android.apps.muzei.wallpaper.WallpaperAnalytics;
 import com.google.android.apps.muzei.wearable.WearableController;
