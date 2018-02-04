@@ -32,7 +32,7 @@ import com.google.android.apps.muzei.gallery.converter.UriTypeConverter;
  * Entity representing a chosen photo in Room
  */
 @Entity(tableName = "chosen_photos", indices = @Index(value = "uri", unique = true))
-public class ChosenPhoto {
+class ChosenPhoto {
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
     public long id;
@@ -44,7 +44,7 @@ public class ChosenPhoto {
     @ColumnInfo(name = "is_tree_uri")
     boolean isTreeUri;
 
-    public ChosenPhoto(@NonNull Uri uri) {
+    ChosenPhoto(@NonNull Uri uri) {
         this.uri = uri;
     }
 
@@ -52,7 +52,7 @@ public class ChosenPhoto {
         return getContentUri(id);
     }
 
-    public static Uri getContentUri(long id) {
+    static Uri getContentUri(long id) {
         return ContentUris.appendId(new Uri.Builder()
                 .scheme(ContentResolver.SCHEME_CONTENT)
                 .authority(BuildConfig.GALLERY_AUTHORITY), id).build();

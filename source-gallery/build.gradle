@@ -25,9 +25,8 @@ dependencies {
     implementation "com.android.support:recyclerview-v7:$rootProject.ext.supportLibraryVersion"
     implementation "com.android.support.constraint:constraint-layout:$rootProject.ext.constraintLayoutVersion"
     implementation "com.android.support:exifinterface:$rootProject.ext.supportLibraryVersion"
-    api "android.arch.lifecycle:livedata:$rootProject.ext.lifecycleVersion"
-    annotationProcessor "android.arch.lifecycle:compiler:$rootProject.ext.lifecycleVersion"
-    api "android.arch.persistence.room:runtime:$rootProject.ext.roomVersion"
+    implementation "android.arch.lifecycle:extensions:$rootProject.ext.lifecycleVersion"
+    implementation "android.arch.persistence.room:runtime:$rootProject.ext.roomVersion"
     annotationProcessor "android.arch.persistence.room:compiler:$rootProject.ext.roomVersion"
     implementation "android.arch.paging:runtime:$rootProject.ext.pagingVersion"
 }
