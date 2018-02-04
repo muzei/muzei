@@ -32,6 +32,8 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
 import android.provider.DocumentsContract;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -54,13 +56,21 @@ public abstract class ChosenPhotoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract long insertInternal(ChosenPhoto chosenPhoto);
 
-    public LiveData<Long> insert(Context context, final ChosenPhoto chosenPhoto) {
+    public LiveData<Long> insert(@NonNull Context context, @NonNull final ChosenPhoto chosenPhoto) {
+        return insert(context, chosenPhoto, null);
+    }
+
+    LiveData<Long> insert(@NonNull Context context, @NonNull final ChosenPhoto chosenPhoto,
+            @Nullable final Metadata metadata) {
         final MutableLiveData<Long> asyncInsert = new MutableLiveData<>();
         if (persistUriAccess(context, chosenPhoto)) {
             new Thread() {
                 @Override
                 public void run() {
                     long id = insertInternal(chosenPhoto);
+                    if (id != 0L && metadata != null) {
+                        GalleryDatabase.getInstance(context).metadataDao().insert(metadata);
+                    }
                     asyncInsert.postValue(id);
                 }
             }.start();

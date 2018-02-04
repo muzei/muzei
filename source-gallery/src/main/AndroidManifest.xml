@@ -47,5 +47,17 @@
         <activity android:name="com.google.android.apps.muzei.gallery.GallerySettingsActivity"
                   android:label="@string/gallery_title"
                   android:theme="@style/Theme.Gallery" />
+
+        <activity android:name="com.google.android.apps.muzei.gallery.GalleryAddPhotosActivity"
+                  android:label="@string/gallery_title"
+                  android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

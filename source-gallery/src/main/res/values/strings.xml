@@ -50,6 +50,15 @@
     <string name="gallery_temporary_force_image">Wallpaper set to selected image.</string>
     <string name="gallery_from_gallery">From your gallery</string>
     <string name="gallery_touch_to_view">Touch to view</string>
+    <string name="gallery_shared_from">Shared from %s</string>
+    <plurals name="gallery_add_photos_success">
+        <item quantity="one">Successfully added the image\nto the \"My Photos\" source</item>
+        <item quantity="other">Successfully added %d images\nto the \"My Photos\" source</item>
+    </plurals>
+    <plurals name="gallery_add_photos_failure">
+        <item quantity="one">Unable to add the image\nto the \"My Photos\" source</item>
+        <item quantity="other">Unable to add %d images\nto the \"My Photos\" source</item>
+    </plurals>
 
     <string name="gallery_enable_random">Enable random camera photos</string>
     <string name="gallery_permission_rationale">Allow the storage permission to show random photos as
