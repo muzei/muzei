@@ -56,7 +56,6 @@ import net.nurik.roman.muzei.BuildConfig;
 import net.nurik.roman.muzei.R;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -154,9 +153,9 @@ public class SourceManager implements DefaultLifecycleObserver, LifecycleOwner {
 
         SubscriberLiveData() {
             addSource(MuzeiDatabase.getInstance(mContext).sourceDao().getCurrentSource(), source -> {
-                ComponentName current = currentSource != null ? currentSource.componentName : null;
-                ComponentName next = source != null ? source.componentName : null;
-                if (Objects.equals(current, next)) {
+                if (currentSource != null && source != null &&
+                        currentSource.componentName.equals(source.componentName)) {
+                    // Don't do anything if it is the same Source
                     return;
                 }
                 if (currentSource != null) {
@@ -167,7 +166,7 @@ public class SourceManager implements DefaultLifecycleObserver, LifecycleOwner {
                     subscribe(source);
                     setValue(source);
                 } else {
-                    // Can't have no source at all, so swap to the default
+                    // Can't have no source at all, so select the default
                     selectSource(mContext, new ComponentName(mContext, FeaturedArtSource.class));
                 }
             });
