@@ -55,7 +55,9 @@ public class MainFragment extends Fragment implements FragmentManager.OnBackStac
     public void onBackStackChanged() {
         if (getChildFragmentManager().getBackStackEntryCount() == 0) {
             BottomNavigationView bottomNavigationView = getView().findViewById(R.id.bottom_nav);
-            bottomNavigationView.setSelectedItemId(R.id.main_art_details);
+            if (bottomNavigationView.getSelectedItemId() != R.id.main_art_details) {
+                bottomNavigationView.setSelectedItemId(R.id.main_art_details);
+            }
         }
     }
 
@@ -103,10 +105,10 @@ public class MainFragment extends Fragment implements FragmentManager.OnBackStac
                     FirebaseAnalytics.getInstance(getContext())
                             .setCurrentScreen(getActivity(), "ArtDetail",
                                     ArtDetailFragment.class.getSimpleName());
-                    getChildFragmentManager().beginTransaction()
-                            .replace(R.id.container, new ArtDetailFragment())
-                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                            .commit();
+                    // The ArtDetailFragment is on the back stack, so just remove
+                    // any other Fragment that has replaced it
+                    getChildFragmentManager().popBackStack("main",
+                            FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     return true;
                 case R.id.main_choose_source:
                     FirebaseAnalytics.getInstance(getContext())
