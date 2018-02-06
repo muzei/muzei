@@ -246,6 +246,9 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
             }
             BitmapRegionLoader regionLoader = BitmapRegionLoader.newInstance(
                     contentResolver.openInputStream(MuzeiContract.Artwork.CONTENT_URI), rotation);
+            if (regionLoader == null) {
+                throw new IOException("BitmapRegionLoader returned null: bad image format?");
+            }
             int width = regionLoader.getWidth();
             int height = regionLoader.getHeight();
             int shortestLength = Math.min(width, height);
