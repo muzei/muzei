@@ -184,6 +184,9 @@ public class AppWidgetUpdateTask extends AsyncTask<ArtworkSource,Void,Boolean> {
             }
             BitmapRegionLoader regionLoader = BitmapRegionLoader.newInstance(
                     contentResolver.openInputStream(imageUri), rotation);
+            if (regionLoader == null) {
+                throw new IOException("BitmapRegionLoader returned null: bad image format?");
+            }
             int width = regionLoader.getWidth();
             int height = regionLoader.getHeight();
             BitmapFactory.Options options = new BitmapFactory.Options();
