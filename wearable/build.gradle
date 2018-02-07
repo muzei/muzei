@@ -89,6 +89,7 @@ dependencies {
     implementation "com.google.firebase:firebase-core:$rootProject.ext.googlePlayServicesVersion"
     implementation "com.google.firebase:firebase-perf:$rootProject.ext.googlePlayServicesVersion"
     implementation "com.crashlytics.sdk.android:crashlytics:$rootProject.ext.crashlyticsVersion"
+    implementation "com.firebase:firebase-jobdispatcher:$rootProject.ext.jobDispatcherVersion"
 
     implementation project(':api')
     implementation project(':android-client-common')

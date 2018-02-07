@@ -82,15 +82,11 @@
         </service>
         <service
             android:name="com.google.android.apps.muzei.complications.ArtworkComplicationJobService"
-            android:exported="true"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
-        <receiver
-            android:name="com.google.android.apps.muzei.complications.ArtworkComplicationBootReceiver"
-            android:enabled="false">
+            android:exported="false">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE" />
             </intent-filter>
-        </receiver>
+        </service>
 
         <service
             android:name="com.google.android.apps.muzei.MuzeiWatchFace"

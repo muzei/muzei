@@ -17,10 +17,6 @@
 package com.google.android.apps.muzei.complications;
 
 import android.annotation.TargetApi;
-import android.app.job.JobInfo;
-import android.app.job.JobParameters;
-import android.app.job.JobScheduler;
-import android.app.job.JobService;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -30,54 +26,56 @@ import android.preference.PreferenceManager;
 import android.support.wearable.complications.ProviderUpdateRequester;
 import android.util.Log;
 
+import com.firebase.jobdispatcher.FirebaseJobDispatcher;
+import com.firebase.jobdispatcher.GooglePlayDriver;
+import com.firebase.jobdispatcher.JobParameters;
+import com.firebase.jobdispatcher.Lifetime;
+import com.firebase.jobdispatcher.ObservedUri;
+import com.firebase.jobdispatcher.SimpleJobService;
+import com.firebase.jobdispatcher.Trigger;
 import com.google.android.apps.muzei.api.MuzeiContract;
 
 import net.nurik.roman.muzei.BuildConfig;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
+
+import static com.firebase.jobdispatcher.ObservedUri.Flags.FLAG_NOTIFY_FOR_DESCENDANTS;
 
 /**
  * JobService which listens for artwork change events and updates the Artwork Complication
  */
 @TargetApi(Build.VERSION_CODES.N)
-public class ArtworkComplicationJobService extends JobService {
+public class ArtworkComplicationJobService extends SimpleJobService {
     private static final String TAG = "ArtworkComplJobService";
     private static final int ARTWORK_COMPLICATION_JOB_ID = 65;
 
     static void scheduleComplicationUpdateJob(Context context) {
-        JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
-        ComponentName componentName = new ComponentName(context, ArtworkComplicationJobService.class);
-        int result = jobScheduler.schedule(new JobInfo.Builder(ARTWORK_COMPLICATION_JOB_ID, componentName)
-                .addTriggerContentUri(new JobInfo.TriggerContentUri(
-                        MuzeiContract.Artwork.CONTENT_URI,
-                        JobInfo.TriggerContentUri.FLAG_NOTIFY_FOR_DESCENDANTS))
+        FirebaseJobDispatcher jobDispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(context));
+        int result = jobDispatcher.schedule(jobDispatcher.newJobBuilder()
+                .setService(ArtworkComplicationJobService.class)
+                .setTag("update")
+                .setRecurring(true)
+                .setLifetime(Lifetime.FOREVER)
+                .setTrigger(Trigger.contentUriTrigger(Collections.singletonList(
+                        new ObservedUri(MuzeiContract.Artwork.CONTENT_URI, FLAG_NOTIFY_FOR_DESCENDANTS))))
                 .build());
         if (BuildConfig.DEBUG) {
-            Log.d(TAG, "Job scheduled with " + (result == JobScheduler.RESULT_SUCCESS ? "success" : "failure"));
+            Log.d(TAG, "Job scheduled with " + (result == FirebaseJobDispatcher.SCHEDULE_RESULT_SUCCESS ? "success" : "failure"));
         }
-        // Enable the BOOT_COMPLETED receiver to reschedule the job on reboot
-        ComponentName bootReceivedComponentName = new ComponentName(context,
-                ArtworkComplicationBootReceiver.class);
-        context.getPackageManager().setComponentEnabledSetting(bootReceivedComponentName,
-                PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
     }
 
     static void cancelComplicationUpdateJob(Context context) {
-        JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
-        jobScheduler.cancel(ARTWORK_COMPLICATION_JOB_ID);
+        FirebaseJobDispatcher jobDispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(context));
+        jobDispatcher.cancel("update");
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Job cancelled");
         }
-        // Disable the BOOT_COMPLETED receiver to reduce memory pressure on boot
-        ComponentName bootReceivedComponentName = new ComponentName(context,
-                ArtworkComplicationBootReceiver.class);
-        context.getPackageManager().setComponentEnabledSetting(bootReceivedComponentName,
-                PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
     }
 
     @Override
-    public boolean onStartJob(JobParameters params) {
+    public int onRunJob(final JobParameters job) {
         ProviderUpdateRequester providerUpdateRequester = new ProviderUpdateRequester(this,
                 new ComponentName(this, ArtworkComplicationProviderService.class));
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -94,13 +92,6 @@ public class ArtworkComplicationJobService extends JobService {
             }
             providerUpdateRequester.requestUpdate(complicationIds);
         }
-        // Schedule the job again to catch the next update to the artwork
-        scheduleComplicationUpdateJob(this);
-        return false;
-    }
-
-    @Override
-    public boolean onStopJob(JobParameters params) {
-        return false;
+        return RESULT_SUCCESS;
     }
 }

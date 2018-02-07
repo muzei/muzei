@@ -48,6 +48,7 @@ ext {
     pagingVersion = "1.0.0-alpha5"
     googlePlayServicesVersion = "11.8.0"
     crashlyticsVersion = "2.8.0"
+    jobDispatcherVersion = "0.8.5"
     wearableVersion = "2.1.0"
     okhttpVersion = "3.9.1"
     picassoVersion = "2.5.2"
