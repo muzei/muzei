@@ -382,6 +382,10 @@ public class ChooseSourceFragment extends Fragment {
         mSourceViews.clear();
 
         for (Source source : sources) {
+            // Skip Sources without a label
+            if (TextUtils.isEmpty(source.label)) {
+                continue;
+            }
             SourceView sourceView = new SourceView(source);
             ServiceInfo info;
             try {
