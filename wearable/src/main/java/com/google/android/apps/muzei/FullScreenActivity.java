@@ -19,16 +19,18 @@ package com.google.android.apps.muzei;
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.app.Activity;
-import android.app.LoaderManager;
-import android.content.AsyncTaskLoader;
-import android.content.Loader;
+import android.content.Context;
 import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.util.Pair;
 import android.support.wearable.view.DismissOverlayView;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -47,7 +49,8 @@ import net.nurik.roman.muzei.R;
 
 import java.io.FileNotFoundException;
 
-public class FullScreenActivity extends Activity implements LoaderManager.LoaderCallbacks<Bitmap> {
+public class FullScreenActivity extends FragmentActivity
+        implements LoaderManager.LoaderCallbacks<Pair<Artwork, Bitmap>> {
     private static final String TAG = "FullScreenActivity";
 
     private PanView mPanView;
@@ -61,7 +64,6 @@ public class FullScreenActivity extends Activity implements LoaderManager.Loader
     private Animator mBlurAnimator;
     private Handler mHandler = new Handler();
 
-    private Artwork mArtwork;
     private boolean mMetadataVisible = false;
 
     public void onCreate(Bundle savedState) {
@@ -69,7 +71,7 @@ public class FullScreenActivity extends Activity implements LoaderManager.Loader
         setContentView(R.layout.full_screen_activity);
         FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE);
         mPanView = findViewById(R.id.pan_view);
-        getLoaderManager().initLoader(0, null, this);
+        getSupportLoaderManager().initLoader(0, null, this);
 
         mScrimView = findViewById(R.id.scrim);
         mLoadingIndicatorView = findViewById(R.id.loading_indicator);
@@ -143,70 +145,77 @@ public class FullScreenActivity extends Activity implements LoaderManager.Loader
         return mDetector.onTouchEvent(ev) || super.dispatchTouchEvent(ev);
     }
 
-    @Override
-    public Loader<Bitmap> onCreateLoader(int id, Bundle args) {
-        return new AsyncTaskLoader<Bitmap>(this) {
-            private ContentObserver mContentObserver;
-            private Bitmap mImage;
+    private static class ArtworkLoader extends AsyncTaskLoader<Pair<Artwork,Bitmap>> {
+        private ContentObserver mContentObserver;
+        private Artwork mArtwork;
+        private Bitmap mImage;
 
-            @Override
-            protected void onStartLoading() {
-                if (mImage != null) {
-                    deliverResult(mImage);
-                }
-                if (mContentObserver == null) {
-                    mContentObserver = new ContentObserver(null) {
-                        @Override
-                        public void onChange(boolean selfChange) {
-                            onContentChanged();
-                        }
-                    };
-                    getContentResolver().registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
-                            true, mContentObserver);
-                }
-                forceLoad();
-            }
+        ArtworkLoader(@NonNull final Context context) {
+            super(context);
+        }
 
-            @Override
-            public Bitmap loadInBackground() {
-                try {
-                    mArtwork = MuzeiDatabase.getInstance(FullScreenActivity.this)
-                            .artworkDao().getCurrentArtworkBlocking();
-                    mImage = MuzeiContract.Artwork.getCurrentArtworkBitmap(FullScreenActivity.this);
-                    return mImage;
-                } catch (FileNotFoundException e) {
-                    Log.e(TAG, "Error getting artwork", e);
-                    return null;
-                }
+        @Override
+        protected void onStartLoading() {
+            if (mArtwork != null && mImage != null) {
+                deliverResult(new Pair<>(mArtwork, mImage));
             }
+            if (mContentObserver == null) {
+                mContentObserver = new ContentObserver(null) {
+                    @Override
+                    public void onChange(boolean selfChange) {
+                        onContentChanged();
+                    }
+                };
+                getContext().getContentResolver().registerContentObserver(
+                        MuzeiContract.Artwork.CONTENT_URI,true, mContentObserver);
+            }
+            forceLoad();
+        }
 
-            @Override
-            protected void onReset() {
-                super.onReset();
-                mImage = null;
-                if (mContentObserver != null) {
-                    getContentResolver().unregisterContentObserver(mContentObserver);
-                }
+        @Override
+        public Pair<Artwork,Bitmap> loadInBackground() {
+            try {
+                mArtwork = MuzeiDatabase.getInstance(getContext())
+                        .artworkDao().getCurrentArtworkBlocking();
+                mImage = MuzeiContract.Artwork.getCurrentArtworkBitmap(getContext());
+                return new Pair<>(mArtwork, mImage);
+            } catch (FileNotFoundException e) {
+                Log.e(TAG, "Error getting artwork", e);
+                return null;
             }
-        };
+        }
+
+        @Override
+        protected void onReset() {
+            super.onReset();
+            mImage = null;
+            if (mContentObserver != null) {
+                getContext().getContentResolver().unregisterContentObserver(mContentObserver);
+            }
+        }
     }
 
     @Override
-    public void onLoadFinished(Loader<Bitmap> loader, final Bitmap image) {
-        if (image == null) {
+    public Loader<Pair<Artwork, Bitmap>> onCreateLoader(int id, Bundle args) {
+        return new ArtworkLoader(this);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Pair<Artwork, Bitmap>> loader, final Pair<Artwork, Bitmap> pair) {
+        if (pair == null || pair.first == null || pair.second == null) {
             return;
         }
 
         mHandler.removeCallbacks(mShowLoadingIndicatorRunnable);
         mLoadingIndicatorView.setVisibility(View.GONE);
         mPanView.setVisibility(View.VISIBLE);
-        mPanView.setImage(image);
-        mTitleView.setText(mArtwork.title);
-        mBylineView.setText(mArtwork.byline);
+        mPanView.setImage(pair.second);
+        mTitleView.setText(pair.first.title);
+        mBylineView.setText(pair.first.byline);
     }
 
     @Override
-    public void onLoaderReset(Loader<Bitmap> loader) {
+    public void onLoaderReset(Loader<Pair<Artwork, Bitmap>> loader) {
         mPanView.setImage(null);
     }
 }
