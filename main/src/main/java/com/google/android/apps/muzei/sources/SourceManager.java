@@ -187,13 +187,6 @@ public class SourceManager implements DefaultLifecycleObserver, LifecycleOwner {
         mContext = context;
         mLifecycle = new LifecycleRegistry(this);
         mLifecycle.addObserver(new NetworkChangeObserver(mContext));
-        new SubscriberLiveData().observe(this, source -> {
-            if (source != null) {
-                sendSelectedSourceAnalytics(source.componentName);
-                // Ensure the artwork from the newly selected source is downloaded
-                context.startService(TaskQueueService.getDownloadCurrentArtworkIntent(context));
-            }
-        });
     }
 
     @NonNull
@@ -205,6 +198,13 @@ public class SourceManager implements DefaultLifecycleObserver, LifecycleOwner {
     @Override
     public void onCreate(@NonNull final LifecycleOwner owner) {
         mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START);
+        new SubscriberLiveData().observe(this, source -> {
+            if (source != null) {
+                sendSelectedSourceAnalytics(source.componentName);
+                // Ensure the artwork from the newly selected source is downloaded
+                mContext.startService(TaskQueueService.getDownloadCurrentArtworkIntent(mContext));
+            }
+        });
         // Register for package change events
         IntentFilter packageChangeFilter = new IntentFilter();
         packageChangeFilter.addDataScheme("package");
