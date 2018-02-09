@@ -55,6 +55,7 @@ import net.nurik.roman.muzei.BuildConfig;
 import net.nurik.roman.muzei.R;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -96,10 +97,14 @@ public class SourceManager implements DefaultLifecycleObserver, LifecycleOwner {
             HashSet<ComponentName> existingSources = new HashSet<>(mPackageName != null
                     ? database.sourceDao().getSourcesComponentNamesByPackageNameBlocking(mPackageName)
                     : database.sourceDao().getSourceComponentNamesBlocking());
-            for (ResolveInfo ri : pm.queryIntentServices(queryIntent, PackageManager.GET_META_DATA)) {
-                existingSources.remove(new ComponentName(ri.serviceInfo.packageName,
-                        ri.serviceInfo.name));
-                updateSourceFromServiceInfo(ri.serviceInfo);
+            List<ResolveInfo> resolveInfos = pm.queryIntentServices(queryIntent,
+                    PackageManager.GET_META_DATA);
+            if (resolveInfos != null) {
+                for (ResolveInfo ri : resolveInfos) {
+                    existingSources.remove(new ComponentName(ri.serviceInfo.packageName,
+                            ri.serviceInfo.name));
+                    updateSourceFromServiceInfo(ri.serviceInfo);
+                }
             }
             // Delete sources in the database that have since been removed
             database.sourceDao().deleteAll(existingSources.toArray(new ComponentName[0]));
