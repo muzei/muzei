@@ -15,6 +15,8 @@
  */
 
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'io.fabric'
 
@@ -77,6 +79,8 @@ android {
 }
 
 dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
+    implementation "androidx.core:core-ktx:$rootProject.ext.ktxVersion"
     implementation "com.android.support:support-compat:$supportLibraryVersion"
     implementation "com.android.support:exifinterface:$supportLibraryVersion"
     implementation "com.android.support:wear:$supportLibraryVersion"

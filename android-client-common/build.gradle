@@ -15,16 +15,20 @@
  */
 
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
+    implementation "androidx.core:core-ktx:$rootProject.ext.ktxVersion"
     implementation project(':api')
     implementation "com.android.support:support-compat:$supportLibraryVersion"
     api "android.arch.lifecycle:livedata:$lifecycleVersion"
-    annotationProcessor "android.arch.lifecycle:compiler:$lifecycleVersion"
+    kapt "android.arch.lifecycle:compiler:$lifecycleVersion"
     implementation "com.android.support:support-core-ui:$supportLibraryVersion"
     implementation "com.android.support:support-fragment:$supportLibraryVersion"
     api "android.arch.persistence.room:runtime:$roomVersion"
-    annotationProcessor "android.arch.persistence.room:compiler:$roomVersion"
+    kapt "android.arch.persistence.room:compiler:$roomVersion"
     api ("com.google.android.gms:play-services-wearable:$googlePlayServicesVersion") {
         exclude module: 'support-v4'
     }

@@ -15,6 +15,8 @@
  */
 
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'io.fabric'
 
@@ -87,6 +89,8 @@ android {
 }
 
 dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
+    implementation "androidx.core:core-ktx:$rootProject.ext.ktxVersion"
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
     implementation "com.squareup.picasso:picasso:$picassoVersion"
     implementation "com.google.android.gms:play-services-wearable:$googlePlayServicesVersion"
@@ -103,7 +107,7 @@ dependencies {
     implementation "android.arch.lifecycle:livedata:$lifecycleVersion"
     implementation "android.arch.lifecycle:common-java8:$lifecycleVersion"
     implementation "android.arch.lifecycle:runtime:$lifecycleVersion"
-    annotationProcessor "android.arch.lifecycle:compiler:$lifecycleVersion"
+    kapt "android.arch.lifecycle:compiler:$lifecycleVersion"
 
     implementation project(':api')
     implementation project(':android-client-common')

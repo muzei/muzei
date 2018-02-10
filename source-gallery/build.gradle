@@ -15,8 +15,12 @@
  */
 
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
+    implementation "androidx.core:core-ktx:$rootProject.ext.ktxVersion"
     implementation project(':api')
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
     implementation "com.squareup.picasso:picasso:$picassoVersion"
@@ -27,7 +31,7 @@ dependencies {
     implementation "com.android.support:exifinterface:$supportLibraryVersion"
     implementation "android.arch.lifecycle:extensions:$lifecycleVersion"
     implementation "android.arch.persistence.room:runtime:$roomVersion"
-    annotationProcessor "android.arch.persistence.room:compiler:$roomVersion"
+    kapt "android.arch.persistence.room:compiler:$roomVersion"
     implementation "android.arch.paging:runtime:$pagingVersion"
 }
 

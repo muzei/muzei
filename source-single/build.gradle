@@ -15,8 +15,12 @@
  */
 
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
+    implementation "androidx.core:core-ktx:$rootProject.ext.ktxVersion"
     api project(':api')
     api "android.arch.lifecycle:livedata:$lifecycleVersion"
 }
