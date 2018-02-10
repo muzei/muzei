@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import org.json.JSONException;
@@ -528,6 +529,7 @@ public class Artwork {
      *
      * @see #fromBundle
      */
+    @NonNull
     public Bundle toBundle() {
         Bundle bundle = new Bundle();
         bundle.putString(KEY_COMPONENT_NAME, (mComponentName != null) ? mComponentName.flattenToShortString() : null);
@@ -550,7 +552,8 @@ public class Artwork {
      *
      * @return the artwork from the given {@link Bundle}
      */
-    public static Artwork fromBundle(Bundle bundle) {
+    @NonNull
+    public static Artwork fromBundle(@NonNull Bundle bundle) {
         @SuppressWarnings("WrongConstant") // Assume the KEY_META_FONT is valid
         Builder builder = new Builder()
                 .title(bundle.getString(KEY_TITLE))
@@ -588,6 +591,7 @@ public class Artwork {
      *
      * @throws JSONException if there is an error creating the JSON representation.
      */
+    @NonNull
     public JSONObject toJson() throws JSONException {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put(KEY_COMPONENT_NAME, (mComponentName != null) ? mComponentName.flattenToShortString() : null);
@@ -610,7 +614,8 @@ public class Artwork {
      *
      * @return the artwork from the given {@link JSONObject}
      */
-    public static Artwork fromJson(JSONObject jsonObject) {
+    @NonNull
+    public static Artwork fromJson(@NonNull JSONObject jsonObject) {
         @SuppressWarnings("WrongConstant") // Assume the KEY_META_FONT is valid
         Builder builder = new Builder()
                 .title(jsonObject.optString(KEY_TITLE))
@@ -650,6 +655,7 @@ public class Artwork {
      * @return a {@link ContentValues} appropriate to insert into
      * {@link com.google.android.apps.muzei.api.MuzeiContract.Artwork#CONTENT_URI}.
      */
+    @NonNull
     public ContentValues toContentValues() {
         ContentValues values = new ContentValues();
         values.put(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME, (mComponentName != null)
@@ -678,7 +684,8 @@ public class Artwork {
      *
      * @return the artwork from the current position of the Cursor.
      */
-    public static Artwork fromCursor(Cursor cursor) {
+    @NonNull
+    public static Artwork fromCursor(@NonNull Cursor cursor) {
         Builder builder = new Builder();
         int componentNameColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME);
         if (componentNameColumnIndex != -1) {
