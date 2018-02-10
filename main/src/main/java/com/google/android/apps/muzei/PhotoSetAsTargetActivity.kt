@@ -36,7 +36,7 @@ class PhotoSetAsTargetActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        intent?.data?.run {
+        intent?.data?.apply {
             val context = this@PhotoSetAsTargetActivity
             val insertLiveData = SingleArtSource.setArtwork(context, this)
             insertLiveData.observeForever(object : Observer<Boolean> {
