@@ -14,40 +14,36 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.single;
+package com.google.android.apps.muzei.single
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
+import android.app.Activity
+import android.content.Intent
+import android.os.Bundle
+
+private const val REQUEST_SELECT_IMAGE = 1
 
 /**
  * Setup Activity which ensures that the user has a single image selected
  */
-public class SingleSetupActivity extends Activity {
-    private static final int REQUEST_SELECT_IMAGE = 1;
+class SingleSetupActivity : Activity() {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         if (SingleArtSource.getArtworkFile(this).exists()) {
             // We already have a single artwork available
-            setResult(RESULT_OK);
-            finish();
+            setResult(RESULT_OK)
+            finish()
         } else {
             startActivityForResult(
-                    new Intent(this, SingleSettingsActivity.class),
-                    REQUEST_SELECT_IMAGE);
+                    Intent(this, SingleSettingsActivity::class.java),
+                    REQUEST_SELECT_IMAGE)
         }
     }
 
-    @Override
-    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode != REQUEST_SELECT_IMAGE) {
-            return;
-        }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
         // Pass on the resultCode from the SingleSettingsActivity onto Muzei
-        setResult(resultCode);
-        finish();
+        setResult(if (requestCode == REQUEST_SELECT_IMAGE) resultCode else RESULT_CANCELED)
+        finish()
     }
 }
