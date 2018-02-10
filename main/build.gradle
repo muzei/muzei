@@ -87,23 +87,23 @@ android {
 }
 
 dependencies {
-    implementation "com.squareup.okhttp3:okhttp:$rootProject.ext.okhttpVersion"
-    implementation "com.squareup.picasso:picasso:$rootProject.ext.picassoVersion"
-    implementation "com.google.android.gms:play-services-wearable:$rootProject.ext.googlePlayServicesVersion"
-    implementation "com.google.firebase:firebase-core:$rootProject.ext.googlePlayServicesVersion"
-    implementation "com.google.firebase:firebase-perf:$rootProject.ext.googlePlayServicesVersion"
-    implementation "com.crashlytics.sdk.android:crashlytics:$rootProject.ext.crashlyticsVersion"
+    implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
+    implementation "com.squareup.picasso:picasso:$picassoVersion"
+    implementation "com.google.android.gms:play-services-wearable:$googlePlayServicesVersion"
+    implementation "com.google.firebase:firebase-core:$googlePlayServicesVersion"
+    implementation "com.google.firebase:firebase-perf:$googlePlayServicesVersion"
+    implementation "com.crashlytics.sdk.android:crashlytics:$crashlyticsVersion"
     implementation "com.twofortyfouram:android-plugin-api-for-locale:1.0.2"
     implementation "org.greenrobot:eventbus:3.0.0"
-    implementation "com.android.support:appcompat-v7:$rootProject.ext.supportLibraryVersion"
-    implementation "com.android.support:recyclerview-v7:$rootProject.ext.supportLibraryVersion"
-    implementation "com.android.support:design:$rootProject.ext.supportLibraryVersion"
-    implementation "com.android.support:customtabs:$rootProject.ext.supportLibraryVersion"
-    implementation "com.android.support:exifinterface:$rootProject.ext.supportLibraryVersion"
-    implementation "android.arch.lifecycle:livedata:$rootProject.ext.lifecycleVersion"
-    implementation "android.arch.lifecycle:common-java8:$rootProject.ext.lifecycleVersion"
-    implementation "android.arch.lifecycle:runtime:$rootProject.ext.lifecycleVersion"
-    annotationProcessor "android.arch.lifecycle:compiler:$rootProject.ext.lifecycleVersion"
+    implementation "com.android.support:appcompat-v7:$supportLibraryVersion"
+    implementation "com.android.support:recyclerview-v7:$supportLibraryVersion"
+    implementation "com.android.support:design:$supportLibraryVersion"
+    implementation "com.android.support:customtabs:$supportLibraryVersion"
+    implementation "com.android.support:exifinterface:$supportLibraryVersion"
+    implementation "android.arch.lifecycle:livedata:$lifecycleVersion"
+    implementation "android.arch.lifecycle:common-java8:$lifecycleVersion"
+    implementation "android.arch.lifecycle:runtime:$lifecycleVersion"
+    annotationProcessor "android.arch.lifecycle:compiler:$lifecycleVersion"
 
     implementation project(':api')
     implementation project(':android-client-common')

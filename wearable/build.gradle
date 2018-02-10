@@ -77,19 +77,19 @@ android {
 }
 
 dependencies {
-    implementation "com.android.support:support-compat:$rootProject.ext.supportLibraryVersion"
-    implementation "com.android.support:exifinterface:$rootProject.ext.supportLibraryVersion"
-    implementation "com.android.support:wear:$rootProject.ext.supportLibraryVersion"
-    compileOnly "com.google.android.wearable:wearable:$rootProject.ext.wearableVersion"
-    implementation "com.google.android.support:wearable:$rootProject.ext.wearableVersion"
+    implementation "com.android.support:support-compat:$supportLibraryVersion"
+    implementation "com.android.support:exifinterface:$supportLibraryVersion"
+    implementation "com.android.support:wear:$supportLibraryVersion"
+    compileOnly "com.google.android.wearable:wearable:$wearableVersion"
+    implementation "com.google.android.support:wearable:$wearableVersion"
     // Only used because other dependencies depend on an old version of the Support Library
-    implementation "com.android.support:support-v4:$rootProject.ext.supportLibraryVersion"
+    implementation "com.android.support:support-v4:$supportLibraryVersion"
 
-    implementation "com.google.android.gms:play-services-wearable:$rootProject.ext.googlePlayServicesVersion"
-    implementation "com.google.firebase:firebase-core:$rootProject.ext.googlePlayServicesVersion"
-    implementation "com.google.firebase:firebase-perf:$rootProject.ext.googlePlayServicesVersion"
-    implementation "com.crashlytics.sdk.android:crashlytics:$rootProject.ext.crashlyticsVersion"
-    implementation "com.firebase:firebase-jobdispatcher:$rootProject.ext.jobDispatcherVersion"
+    implementation "com.google.android.gms:play-services-wearable:$googlePlayServicesVersion"
+    implementation "com.google.firebase:firebase-core:$googlePlayServicesVersion"
+    implementation "com.google.firebase:firebase-perf:$googlePlayServicesVersion"
+    implementation "com.crashlytics.sdk.android:crashlytics:$crashlyticsVersion"
+    implementation "com.firebase:firebase-jobdispatcher:$jobDispatcherVersion"
 
     implementation project(':api')
     implementation project(':android-client-common')

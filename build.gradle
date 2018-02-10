@@ -14,7 +14,26 @@
  * limitations under the License.
  */
 
+
+
 buildscript {
+    ext {
+        compileSdkVersion = 27
+        targetSdkVersion = 25
+
+        supportLibraryVersion = "27.0.2"
+        constraintLayoutVersion = "1.0.2"
+        lifecycleVersion = "1.1.0"
+        roomVersion = "1.1.0-alpha1"
+        pagingVersion = "1.0.0-alpha5"
+        googlePlayServicesVersion = "11.8.0"
+        crashlyticsVersion = "2.8.0"
+        jobDispatcherVersion = "0.8.5"
+        wearableVersion = "2.1.0"
+        okhttpVersion = "3.9.1"
+        picassoVersion = "2.5.2"
+    }
+
     repositories {
         jcenter()
         google()
@@ -23,10 +42,10 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.1'
-        classpath 'com.google.gms:google-services:3.1.0'
-        classpath 'io.fabric.tools:gradle:1.24.4'
-        classpath 'com.google.firebase:firebase-plugins:1.1.5'
+        classpath "com.android.tools.build:gradle:3.0.1"
+        classpath "com.google.gms:google-services:3.1.0"
+        classpath "io.fabric.tools:gradle:1.24.4"
+        classpath "com.google.firebase:firebase-plugins:1.1.5"
     }
 }
 
@@ -35,21 +54,4 @@ allprojects {
         jcenter()
         google()
     }
-}
-
-ext {
-    compileSdkVersion = 27
-    targetSdkVersion = 25
-
-    supportLibraryVersion = "27.0.2"
-    constraintLayoutVersion = "1.0.2"
-    lifecycleVersion = "1.1.0"
-    roomVersion = "1.1.0-alpha1"
-    pagingVersion = "1.0.0-alpha5"
-    googlePlayServicesVersion = "11.8.0"
-    crashlyticsVersion = "2.8.0"
-    jobDispatcherVersion = "0.8.5"
-    wearableVersion = "2.1.0"
-    okhttpVersion = "3.9.1"
-    picassoVersion = "2.5.2"
 }

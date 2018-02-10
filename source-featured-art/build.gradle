@@ -18,8 +18,8 @@ apply plugin: 'com.android.library'
 
 dependencies {
     implementation project(':api')
-    implementation "com.squareup.okhttp3:okhttp:$rootProject.ext.okhttpVersion"
-    implementation "com.android.support:customtabs:$rootProject.ext.supportLibraryVersion"
+    implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
+    implementation "com.android.support:customtabs:$supportLibraryVersion"
 }
 
 android {

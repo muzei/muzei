@@ -18,14 +18,14 @@ apply plugin: 'com.android.library'
 
 dependencies {
     implementation project(':api')
-    implementation "com.android.support:support-compat:$rootProject.ext.supportLibraryVersion"
-    api "android.arch.lifecycle:livedata:$rootProject.ext.lifecycleVersion"
-    annotationProcessor "android.arch.lifecycle:compiler:$rootProject.ext.lifecycleVersion"
-    implementation "com.android.support:support-core-ui:$rootProject.ext.supportLibraryVersion"
-    implementation "com.android.support:support-fragment:$rootProject.ext.supportLibraryVersion"
-    api "android.arch.persistence.room:runtime:$rootProject.ext.roomVersion"
-    annotationProcessor "android.arch.persistence.room:compiler:$rootProject.ext.roomVersion"
-    api ("com.google.android.gms:play-services-wearable:$rootProject.ext.googlePlayServicesVersion") {
+    implementation "com.android.support:support-compat:$supportLibraryVersion"
+    api "android.arch.lifecycle:livedata:$lifecycleVersion"
+    annotationProcessor "android.arch.lifecycle:compiler:$lifecycleVersion"
+    implementation "com.android.support:support-core-ui:$supportLibraryVersion"
+    implementation "com.android.support:support-fragment:$supportLibraryVersion"
+    api "android.arch.persistence.room:runtime:$roomVersion"
+    annotationProcessor "android.arch.persistence.room:compiler:$roomVersion"
+    api ("com.google.android.gms:play-services-wearable:$googlePlayServicesVersion") {
         exclude module: 'support-v4'
     }
 }
