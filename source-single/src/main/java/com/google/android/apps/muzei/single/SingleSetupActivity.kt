@@ -20,12 +20,14 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 
-private const val REQUEST_SELECT_IMAGE = 1
-
 /**
  * Setup Activity which ensures that the user has a single image selected
  */
 class SingleSetupActivity : Activity() {
+
+    companion object {
+        private const val REQUEST_SELECT_IMAGE = 1
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

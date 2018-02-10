@@ -21,12 +21,14 @@ import android.arch.lifecycle.Observer
 import android.content.Intent
 import android.os.Bundle
 
-private const val REQUEST_PHOTO = 1
-
 /**
  * Settings Activity which allows users to select a new photo
  */
 class SingleSettingsActivity : Activity() {
+
+    companion object {
+        private const val REQUEST_PHOTO = 1
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

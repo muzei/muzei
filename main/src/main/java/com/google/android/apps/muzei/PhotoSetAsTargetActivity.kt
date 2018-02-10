@@ -29,9 +29,11 @@ import com.google.android.apps.muzei.sources.SourceManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
 
-private const val TAG = "PhotoSetAsTarget"
-
 class PhotoSetAsTargetActivity : Activity() {
+
+    companion object {
+        private const val TAG = "PhotoSetAsTarget"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
