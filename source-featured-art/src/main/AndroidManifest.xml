@@ -14,18 +14,27 @@
   limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.google.android.apps.muzei.featuredart" >
+<manifest
+    package="com.google.android.apps.muzei.featuredart"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <application>
-        <service android:name="com.google.android.apps.muzei.featuredart.FeaturedArtSource"
-                 android:label="@string/featuredart_source_title"
-                 android:description="@string/featuredart_source_description"
-                 android:icon="@drawable/featuredart_ic_source">
+        <service
+            android:name="com.google.android.apps.muzei.featuredart.FeaturedArtSource"
+            android:description="@string/featuredart_source_description"
+            android:icon="@drawable/featuredart_ic_source"
+            android:label="@string/featuredart_source_title"
+            tools:ignore="ExportedService">
             <intent-filter>
-                <action android:name="com.google.android.apps.muzei.api.MuzeiArtSource" />
+                <action android:name="com.google.android.apps.muzei.api.MuzeiArtSource"/>
             </intent-filter>
-            <meta-data android:name="color" android:value="@color/featuredart_color" />
+            <meta-data
+                android:name="color"
+                android:value="@color/featuredart_color"/>
         </service>
     </application>
 </manifest>
