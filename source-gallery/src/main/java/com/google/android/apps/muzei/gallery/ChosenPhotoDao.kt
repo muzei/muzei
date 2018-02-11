@@ -66,10 +66,8 @@ internal abstract class ChosenPhotoDao {
                 override fun run() {
                     val id = insertInternal(chosenPhoto)
                     if (id != 0L && callingApplication != null) {
-                        val metadata = Metadata(ChosenPhoto.getContentUri(id)).apply {
-                            date = Date()
-                            location = context.getString(R.string.gallery_shared_from, callingApplication)
-                        }
+                        val metadata = Metadata(ChosenPhoto.getContentUri(id), Date(),
+                                context.getString(R.string.gallery_shared_from, callingApplication))
                         GalleryDatabase.getInstance(context).metadataDao().insert(metadata)
                     }
                     asyncInsert.postValue(id)

@@ -344,7 +344,7 @@ class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
 
     private fun ensureMetadataExists(imageUri: Uri): Metadata {
         val metadataDao = GalleryDatabase.getInstance(this).metadataDao()
-        val existingMetadata = metadataDao.getMetadataForUri(imageUri)
+        val existingMetadata = metadataDao.metadataForUri(imageUri)
         if (existingMetadata != null) {
             return existingMetadata
         }
