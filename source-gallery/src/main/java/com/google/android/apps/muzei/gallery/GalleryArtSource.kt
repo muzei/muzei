@@ -96,7 +96,7 @@ class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
                     override fun onChanged(chosenPhotos: List<ChosenPhoto>?) {
                         val oldCount = numImages
                         // Update the metadata
-                        numImages = updateMeta(chosenPhotos)
+                        numImages = if(chosenPhotos != null) updateMeta(chosenPhotos) else 0
 
                         val currentArtworkToken = currentArtwork?.token?.toUri()
                         val foundCurrentArtwork = chosenPhotos?.find {
@@ -147,14 +147,14 @@ class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
 
         val chosenPhotos = GalleryDatabase.getInstance(this)
                 .chosenPhotoDao().chosenPhotosBlocking
-        val numChosenUris = chosenPhotos?.size ?: 0
+        val numChosenUris = chosenPhotos.size
 
         val lastImageUri = currentArtwork?.imageUri
 
         val (imageUri, token) = when {
             forceUri != null -> {
                 val chosenPhoto = GalleryDatabase.getInstance(this)
-                        .chosenPhotoDao().getChosenPhotoBlocking(ContentUris.parseId(forceUri))
+                        .chosenPhotoDao().chosenPhotoBlocking(ContentUris.parseId(forceUri))
                 if (chosenPhoto?.isTreeUri == true && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     val treeUri = chosenPhoto.uri
                     val photoUris = ArrayList<Uri>()
@@ -294,10 +294,10 @@ class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
         return numImagesAdded
     }
 
-    private fun updateMeta(chosenPhotos: List<ChosenPhoto>?): Int {
+    private fun updateMeta(chosenPhotos: List<ChosenPhoto>): Int {
         var numImages = 0
         val idsToDelete = ArrayList<Long>()
-        chosenPhotos?.forEach { chosenPhoto ->
+        for (chosenPhoto in chosenPhotos) {
             if (chosenPhoto.isTreeUri && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 val treeUri = chosenPhoto.uri
                 try {

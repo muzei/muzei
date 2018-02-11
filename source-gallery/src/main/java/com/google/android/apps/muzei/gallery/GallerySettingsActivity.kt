@@ -512,7 +512,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             // Double check to make sure we can force a URI for the selected URI
             val selectedId = mMultiSelectionController.selection.iterator().next()
             val liveData = GalleryDatabase.getInstance(this)
-                    .chosenPhotoDao().getChosenPhoto(selectedId)
+                    .chosenPhotoDao().chosenPhoto(selectedId)
             liveData.observeForever(object : Observer<ChosenPhoto> {
                 override fun onChanged(chosenPhoto: ChosenPhoto?) {
                     liveData.removeObserver(this)
@@ -577,7 +577,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                 // If they've selected a tree URI, show the DISPLAY_NAME instead of just '1'
                 val selectedId = mMultiSelectionController.selection.iterator().next()
                 val liveData = GalleryDatabase.getInstance(this)
-                        .chosenPhotoDao().getChosenPhoto(selectedId)
+                        .chosenPhotoDao().chosenPhoto(selectedId)
                 liveData.observeForever(object : Observer<ChosenPhoto> {
                     override fun onChanged(chosenPhoto: ChosenPhoto?) {
                         liveData.removeObserver(this)
