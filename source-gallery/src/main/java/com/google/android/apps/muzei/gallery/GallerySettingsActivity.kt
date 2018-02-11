@@ -33,7 +33,6 @@ import android.net.Uri
 import android.os.*
 import android.provider.DocumentsContract
 import android.provider.Settings
-import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
@@ -49,7 +48,6 @@ import android.view.*
 import android.widget.*
 import androidx.content.edit
 import androidx.database.getString
-import androidx.view.doOnLayout
 import com.google.android.apps.muzei.gallery.GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM
 import com.google.android.apps.muzei.gallery.GalleryArtSource.EXTRA_FORCE_URI
 import com.google.android.apps.muzei.util.MultiSelectionController
@@ -104,7 +102,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
     }
 
     private val mViewModel : GallerySettingsViewModel by lazy {
-        ViewModelProviders.of(this@GallerySettingsActivity).get(GallerySettingsViewModel::class.java)
+        ViewModelProviders.of(this).get(GallerySettingsViewModel::class.java)
     }
 
     private val mChosenPhotosLiveData: LiveData<PagedList<ChosenPhoto>> by lazy {
@@ -166,13 +164,9 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
 
         setupMultiSelect()
 
-        val gridLayoutManager = GridLayoutManager(
-                this@GallerySettingsActivity, 1)
+        val gridLayoutManager = GridLayoutManager(this, 1)
         mPhotoGridView.layoutManager = gridLayoutManager
 
-        mPhotoGridView.doOnLayout {
-
-        }
         val vto = mPhotoGridView.viewTreeObserver
         vto.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
@@ -221,7 +215,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         }
 
         val enableRandomImages = findViewById<Button>(R.id.gallery_enable_random)
-        enableRandomImages.setOnClickListener { view -> ActivityCompat.requestPermissions(this@GallerySettingsActivity, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_STORAGE_PERMISSION) }
+        enableRandomImages.setOnClickListener { view -> ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_STORAGE_PERMISSION) }
         val permissionSettings = findViewById<Button>(R.id.gallery_edit_permission_settings)
         permissionSettings.setOnClickListener { view ->
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
@@ -247,7 +241,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                 startActivityForResult(intent, REQUEST_CHOOSE_FOLDER)
                 val preferences = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
                 if (preferences.getBoolean(SHOW_INTERNAL_STORAGE_MESSAGE, true)) {
-                    Toast.makeText(this@GallerySettingsActivity, R.string.gallery_internal_storage_message,
+                    Toast.makeText(this, R.string.gallery_internal_storage_message,
                             Toast.LENGTH_LONG).show()
                 }
             } catch (e: ActivityNotFoundException) {
