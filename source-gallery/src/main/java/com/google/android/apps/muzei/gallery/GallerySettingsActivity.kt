@@ -363,8 +363,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                         }
                         else -> {
                             // Let the user pick which app they want to import photos from
-                            GalleryImportPhotosDialogFragment.createInstance()
-                                    .show(supportFragmentManager, GalleryImportPhotosDialogFragment.TAG)
+                            GalleryImportPhotosDialogFragment.show(supportFragmentManager)
                         }
                     }
                 }
