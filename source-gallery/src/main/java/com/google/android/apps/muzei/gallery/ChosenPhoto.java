@@ -48,10 +48,12 @@ public class ChosenPhoto {
         this.uri = uri;
     }
 
+    @NonNull
     Uri getContentUri() {
         return getContentUri(id);
     }
 
+    @NonNull
     static Uri getContentUri(long id) {
         return ContentUris.appendId(new Uri.Builder()
                 .scheme(ContentResolver.SCHEME_CONTENT)

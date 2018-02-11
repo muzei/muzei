@@ -48,8 +48,6 @@ import android.view.*
 import android.widget.*
 import androidx.content.edit
 import androidx.database.getString
-import com.google.android.apps.muzei.gallery.GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM
-import com.google.android.apps.muzei.gallery.GalleryArtSource.EXTRA_FORCE_URI
 import com.google.android.apps.muzei.util.MultiSelectionController
 import com.squareup.picasso.Picasso
 import java.util.*
@@ -402,8 +400,8 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                         val selectedUri = ChosenPhoto.getContentUri(selection.iterator().next())
                         startService(
                                 Intent(this, GalleryArtSource::class.java)
-                                        .setAction(ACTION_PUBLISH_NEXT_GALLERY_ITEM)
-                                        .putExtra(EXTRA_FORCE_URI, selectedUri))
+                                        .setAction(GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM)
+                                        .putExtra(GalleryArtSource.EXTRA_FORCE_URI, selectedUri))
                         Toast.makeText(this,
                                 R.string.gallery_temporary_force_image,
                                 Toast.LENGTH_SHORT).show()
