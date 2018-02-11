@@ -45,7 +45,7 @@ class PhotoSetAsTargetActivity : Activity() {
                 override fun onChanged(success: Boolean?) {
                     insertLiveData.removeObserver(this)
                     if (success == false) {
-                        Log.e(TAG, "Unable to insert artwork for $this@run")
+                        Log.e(TAG, "Unable to insert artwork for ${this@apply}")
                         Toast.makeText(context, R.string.set_as_wallpaper_failed, Toast.LENGTH_SHORT).show()
                         finish()
                         return

@@ -133,7 +133,7 @@ internal abstract class ChosenPhotoDao {
                         writeUriToFile(context, chosenPhoto.uri,
                                 GalleryProvider.getCacheFileForUri(context, chosenPhoto.uri))
                     } catch (e: IOException) {
-                        Log.e(TAG, "Error downloading gallery image $chosenPhoto.uri", e)
+                        Log.e(TAG, "Error downloading gallery image ${chosenPhoto.uri}", e)
                         return false
                     }
 
@@ -146,7 +146,7 @@ internal abstract class ChosenPhotoDao {
                     resolver.call(chosenPhoto.uri, "takePersistableUriPermission",
                             chosenPhoto.uri.toString(), null)
                 } catch (e: Exception) {
-                    Log.w(TAG, "Unable to manually persist uri permissions to $chosenPhoto.uri", e)
+                    Log.w(TAG, "Unable to manually persist uri permissions to ${chosenPhoto.uri}", e)
                 }
 
             }
@@ -252,7 +252,7 @@ internal abstract class ChosenPhotoDao {
                         contentResolver.call(uriToRelease, "releasePersistableUriPermission",
                                 uriToRelease.toString(), null)
                     } catch (e: Exception) {
-                        Log.w(TAG, "Unable to manually release uri permissions to $chosenPhoto.uri", e)
+                        Log.w(TAG, "Unable to manually release uri permissions to ${chosenPhoto.uri}", e)
                     }
 
                 }

@@ -121,13 +121,13 @@ class SingleArtSource : MuzeiArtSource("SingleArtSource") {
                 }
                 return null
             } catch (e: IOException) {
-                Log.e(TAG, "Unable to read Uri: " + uri, e)
+                Log.e(TAG, "Unable to read Uri: $uri", e)
                 return null
             } catch (e: SecurityException) {
-                Log.e(TAG, "Unable to read Uri: " + uri, e)
+                Log.e(TAG, "Unable to read Uri: $uri", e)
                 return null
             } catch (e: UnsupportedOperationException) {
-                Log.e(TAG, "Unable to read Uri: " + uri, e)
+                Log.e(TAG, "Unable to read Uri: $uri", e)
                 return null
             }
         }

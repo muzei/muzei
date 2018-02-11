@@ -285,11 +285,11 @@ class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
                 }
             }
         } catch (e: NullPointerException) {
-            Log.e(TAG, "Error reading " + childrenUri, e)
+            Log.e(TAG, "Error reading $childrenUri", e)
         } catch (e: IllegalArgumentException) {
-            Log.e(TAG, "Error reading " + childrenUri, e)
+            Log.e(TAG, "Error reading $childrenUri", e)
         } catch (e: SecurityException) {
-            Log.e(TAG, "Error reading " + childrenUri, e)
+            Log.e(TAG, "Error reading $childrenUri", e)
         }
         return numImagesAdded
     }
