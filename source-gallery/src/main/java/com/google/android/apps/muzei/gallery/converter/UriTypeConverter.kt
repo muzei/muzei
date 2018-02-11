@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.gallery.converter;
+package com.google.android.apps.muzei.gallery.converter
 
-import android.arch.persistence.room.TypeConverter;
-
-import java.util.Date;
+import android.arch.persistence.room.TypeConverter
+import android.net.Uri
+import androidx.net.toUri
 
 /**
- * Converts a {@link Date} into and from a persisted value
+ * Converts a [Uri] into and from a persisted value
  */
-public class DateTypeConverter {
+class UriTypeConverter {
     @TypeConverter
-    public static Date fromTimestamp(Long timestamp) {
-        return timestamp == null || timestamp == 0L ? null : new Date(timestamp);
+    fun fromString(uriString: String?): Uri? {
+        return uriString?.toUri()
     }
 
     @TypeConverter
-    public static Long dateToTimestamp(Date date) {
-        return date == null || date.getTime() == 0 ? null : date.getTime();
+    fun uriToString(uri: Uri?): String? {
+        return uri?.toString()
     }
 }
