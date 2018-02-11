@@ -55,7 +55,7 @@ import com.squareup.picasso.Picasso
 import java.util.*
 
 class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPhoto>>,
-        GalleryImportPhotosDialogFragment.OnRequestContentListener {
+        GalleryImportPhotosDialogFragment.OnRequestContentListener, MultiSelectionController.Callbacks {
 
     companion object {
         private const val SHARED_PREF_NAME = "GallerySettingsActivity"
@@ -429,7 +429,11 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         }
 
         // Set up controller
-        mMultiSelectionController.setCallbacks { restored, _ -> tryUpdateSelection(!restored) }
+        mMultiSelectionController.setCallbacks(this)
+    }
+
+    override fun onSelectionChanged(restored: Boolean, fromUser: Boolean) {
+        tryUpdateSelection(!restored)
     }
 
     override fun onBackPressed() {
