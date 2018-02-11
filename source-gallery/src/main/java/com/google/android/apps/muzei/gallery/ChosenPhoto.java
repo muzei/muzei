@@ -32,7 +32,7 @@ import com.google.android.apps.muzei.gallery.converter.UriTypeConverter;
  * Entity representing a chosen photo in Room
  */
 @Entity(tableName = "chosen_photos", indices = @Index(value = "uri", unique = true))
-class ChosenPhoto {
+public class ChosenPhoto {
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
     public long id;
