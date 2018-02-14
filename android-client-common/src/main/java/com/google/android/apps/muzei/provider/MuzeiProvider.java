@@ -153,7 +153,7 @@ public class MuzeiProvider extends ContentProvider {
      */
     private static HashMap<String, String> buildAllSourcesColumnProjectionMap() {
         final HashMap<String, String> allColumnProjectionMap = new HashMap<>();
-        allColumnProjectionMap.put(BaseColumns._ID, BaseColumns._ID);
+        allColumnProjectionMap.put(BaseColumns._ID, "0 AS _id");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME,
                 "component_name");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED,
@@ -161,9 +161,9 @@ public class MuzeiProvider extends ContentProvider {
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION,
                 "description");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE,
-                "wantsNetworkAvailable");
+                "wantsNetworkAvailable AS network");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,
-                "supportsNextArtwork");
+                "supportsNextArtwork as supports_next_artwork");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_COMMANDS,
                 "commands");
         return allColumnProjectionMap;
@@ -290,14 +290,7 @@ public class MuzeiProvider extends ContentProvider {
         }
         SupportSQLiteQueryBuilder qb = SupportSQLiteQueryBuilder.builder("sources");
         qb.columns(computeColumns(projection, allSourcesColumnProjectionMap));
-        String finalSelection = selection;
-        if (MuzeiProvider.uriMatcher.match(uri) == SOURCE_ID) {
-            // If the incoming URI is for a single source identified by its ID, appends "_ID = <sourceId>"
-            // to the where clause, so that it selects that single source
-            finalSelection = DatabaseUtils.concatenateWhere(selection,
-                    "_id = " + uri.getLastPathSegment());
-        }
-        qb.selection(finalSelection, selectionArgs);
+        qb.selection(selection, selectionArgs);
         String orderBy;
         if (TextUtils.isEmpty(sortOrder))
             orderBy = "selected DESC, component_name";
