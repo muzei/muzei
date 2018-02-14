@@ -130,7 +130,7 @@ public class MuzeiProvider extends ContentProvider {
         allColumnProjectionMap.put(MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED,
                 "date_added");
         allColumnProjectionMap.put(MuzeiContract.Sources.TABLE_NAME + "." + BaseColumns._ID,
-                "sources._id");
+                "0 AS \"sources._id\"");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME,
                 "component_name");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED,
@@ -138,9 +138,9 @@ public class MuzeiProvider extends ContentProvider {
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION,
                 "description");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE,
-                "wantsNetworkAvailable");
+                "wantsNetworkAvailable AS network");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,
-                "supportsNextArtwork");
+                "supportsNextArtwork AS supports_next_artwork");
         allColumnProjectionMap.put(MuzeiContract.Sources.COLUMN_NAME_COMMANDS,
                 "commands");
         return allColumnProjectionMap;
