@@ -27,7 +27,7 @@ buildscript {
         roomVersion = "1.1.0-alpha1"
         pagingVersion = "1.0.0-alpha5"
         googlePlayServicesVersion = "11.8.0"
-        crashlyticsVersion = "2.8.0"
+        crashlyticsVersion = "2.9.0"
         jobDispatcherVersion = "0.8.5"
         wearableVersion = "2.1.0"
         okhttpVersion = "3.9.1"
