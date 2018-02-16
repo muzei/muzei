@@ -68,7 +68,7 @@
             android:icon="@drawable/ic_complication"
             android:label="@string/complication_artwork_label"
             android:enabled="false"
-            tools:ignore="ExportedService">
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
             <intent-filter>
                 <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST" />
             </intent-filter>
