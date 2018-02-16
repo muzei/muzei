@@ -103,7 +103,7 @@ public class ArtworkCacheIntentService extends IntentService {
             Log.w(TAG, "No image asset in datamap.");
             return false;
         }
-        Artwork artwork = ArtworkTransfer.fromDataMap(artworkDataMap);
+        Artwork artwork = ArtworkTransfer.toArtwork(artworkDataMap);
         // Change it so that all Artwork from the phone is attributed to the DataLayerArtSource
         artwork.sourceComponentName = new ComponentName(this, DataLayerArtSource.class);
         // Check if the source info row exists at all.

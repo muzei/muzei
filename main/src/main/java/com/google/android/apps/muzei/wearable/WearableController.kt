@@ -145,7 +145,7 @@ class WearableController(private val context: Context) : DefaultLifecycleObserve
             val asset = Asset.createFromBytes(byteStream.toByteArray())
             val dataMapRequest = PutDataMapRequest.create("/artwork").apply {
                 val artwork = MuzeiDatabase.getInstance(context).artworkDao().currentArtworkBlocking
-                dataMap.putDataMap("artwork", ArtworkTransfer.toDataMap(artwork))
+                dataMap.putDataMap("artwork", artwork.toDataMap())
                 dataMap.putAsset("image", asset)
             }
             try {
