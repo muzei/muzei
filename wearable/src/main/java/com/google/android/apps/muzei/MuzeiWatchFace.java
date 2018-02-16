@@ -16,6 +16,9 @@
 
 package com.google.android.apps.muzei;
 
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LifecycleRegistry;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -34,6 +37,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceService;
@@ -66,7 +70,7 @@ import java.util.concurrent.TimeUnit;
  * anti-aliasing in ambient mode. On devices which require burn-in protection, the hours are drawn
  * with a thinner font.
  */
-public class MuzeiWatchFace extends CanvasWatchFaceService {
+public class MuzeiWatchFace extends CanvasWatchFaceService implements LifecycleOwner {
     private static final String TAG = "MuzeiWatchFace";
 
     /**
@@ -84,15 +88,30 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
      */
     private static final long MUTE_UPDATE_RATE_MS = TimeUnit.MINUTES.toMillis(1);
 
+    private LifecycleRegistry mLifecycle = new LifecycleRegistry(this);
+
+    @NonNull
+    @Override
+    public Lifecycle getLifecycle() {
+        return mLifecycle;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
+        mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
         FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE);
     }
 
     @Override
     public Engine onCreateEngine() {
         return new Engine();
+    }
+
+    @Override
+    public void onDestroy() {
+        mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
+        super.onDestroy();
     }
 
     private class Engine extends CanvasWatchFaceService.Engine {
@@ -212,6 +231,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
         @Override
         public void onCreate(SurfaceHolder holder) {
             super.onCreate(holder);
+            mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START);
             FirebaseAnalytics.getInstance(MuzeiWatchFace.this).logEvent("watchface_created", null);
 
             mMute = getInterruptionFilter() == WatchFaceService.INTERRUPTION_FILTER_NONE;
@@ -302,6 +322,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService {
         public void onDestroy() {
             FirebaseAnalytics.getInstance(MuzeiWatchFace.this).logEvent("watchface_destroyed", null);
             mUpdateTimeHandler.removeMessages(MSG_UPDATE_TIME);
+            mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
             super.onDestroy();
         }
 
