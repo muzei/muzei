@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.datalayer;
+package com.google.android.apps.muzei.datalayer
 
-import android.content.Intent;
+import android.content.Intent
 
-import com.google.android.gms.wearable.DataEventBuffer;
-import com.google.android.gms.wearable.WearableListenerService;
+import com.google.android.gms.wearable.DataEventBuffer
+import com.google.android.gms.wearable.WearableListenerService
 
 /**
  * WearableListenerService responsible to receiving Data Layer changes with updated artwork
  */
-public class ArtworkChangedListenerService extends WearableListenerService {
-    @Override
-    public void onDataChanged(final DataEventBuffer dataEvents) {
+class ArtworkChangedListenerService : WearableListenerService() {
+    override fun onDataChanged(dataEvents: DataEventBuffer) {
         // Only artwork changes trigger this WearableListenerService
-        startService(new Intent(this, ArtworkCacheIntentService.class));
+        startService(Intent(this, ArtworkCacheIntentService::class.java))
     }
 }
