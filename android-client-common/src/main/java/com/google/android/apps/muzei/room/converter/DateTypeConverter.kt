@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.room.converter;
+package com.google.android.apps.muzei.room.converter
 
-import android.arch.persistence.room.TypeConverter;
-import android.content.ComponentName;
+import android.arch.persistence.room.TypeConverter
+import java.util.*
 
 /**
- * Converts a {@link ComponentName} into and from a persisted value
+ * Converts a [Date] into and from a persisted value
  */
-public class ComponentNameTypeConverter {
+class DateTypeConverter {
     @TypeConverter
-    public static ComponentName fromFlattenedString(String flattenedString) {
-        return flattenedString == null ? null : ComponentName.unflattenFromString(flattenedString);
+    fun fromTimestamp(timestamp: Long?): Date? {
+        return if (timestamp == null || timestamp == 0L) null else Date(timestamp)
     }
 
     @TypeConverter
-    public static String componentNameToFlattenedString(ComponentName componentName) {
-        return componentName == null ? null : componentName.flattenToShortString();
+    fun dateToTimestamp(date: Date?): Long? {
+        return if (date == null || date.time == 0L) null else date.time
     }
 }

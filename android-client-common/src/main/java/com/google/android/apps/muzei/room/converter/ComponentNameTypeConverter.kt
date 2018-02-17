@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.room.converter;
+package com.google.android.apps.muzei.room.converter
 
-import android.arch.persistence.room.TypeConverter;
-import android.net.Uri;
+import android.arch.persistence.room.TypeConverter
+import android.content.ComponentName
 
 /**
- * Converts a {@link Uri} into and from a persisted value
+ * Converts a [ComponentName] into and from a persisted value
  */
-public class UriTypeConverter {
+class ComponentNameTypeConverter {
     @TypeConverter
-    public static Uri fromString(String uriString) {
-        return uriString == null ? null : Uri.parse(uriString);
+    fun fromFlattenedString(flattenedString: String?): ComponentName? {
+        return if (flattenedString == null) null else ComponentName.unflattenFromString(flattenedString)
     }
 
     @TypeConverter
-    public static String uriToString(Uri uri) {
-        return uri == null ? null : uri.toString();
+    fun componentNameToFlattenedString(componentName: ComponentName?): String? {
+        return componentName?.flattenToShortString()
     }
 }
