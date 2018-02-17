@@ -146,7 +146,7 @@ public class PanView extends View {
             mScaledImage = Bitmap.createScaledBitmap(mImage, mWidth, scaledHeight, true);
         }
         ImageBlurrer blurrer = new ImageBlurrer(getContext(), mScaledImage);
-        mBlurredImage = blurrer.blurBitmap(ImageBlurrer.MAX_SUPPORTED_BLUR_PIXELS, 0f);
+        mBlurredImage = blurrer.blurBitmap();
         blurrer.destroy();
         // Center the image
         mOffsetX = (mWidth - mScaledImage.getWidth()) / 2;

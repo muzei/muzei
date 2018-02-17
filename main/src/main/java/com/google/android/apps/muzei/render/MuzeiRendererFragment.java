@@ -108,7 +108,7 @@ public class MuzeiRendererFragment extends Fragment implements
             if (!mDemoFocus) {
                 // Blur
                 ImageBlurrer blurrer = new ImageBlurrer(getContext(), bitmap);
-                Bitmap blurred = blurrer.blurBitmap(ImageBlurrer.MAX_SUPPORTED_BLUR_PIXELS, 0);
+                Bitmap blurred = blurrer.blurBitmap();
                 blurrer.destroy();
 
                 // Dim

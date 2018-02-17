@@ -360,7 +360,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService implements LifecycleO
             }
             ImageBlurrer blurrer = new ImageBlurrer(MuzeiWatchFace.this, mBackgroundScaledBitmap);
             mBackgroundScaledBlurredBitmap = blurrer.blurBitmap(
-                    ImageBlurrer.MAX_SUPPORTED_BLUR_PIXELS / 2, 0f);
+                    ImageBlurrer.MAX_SUPPORTED_BLUR_PIXELS / 2);
             blurrer.destroy();
         }
 
