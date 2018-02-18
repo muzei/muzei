@@ -213,9 +213,9 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         }
 
         val enableRandomImages = findViewById<Button>(R.id.gallery_enable_random)
-        enableRandomImages.setOnClickListener { view -> ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_STORAGE_PERMISSION) }
+        enableRandomImages.setOnClickListener { ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_STORAGE_PERMISSION) }
         val permissionSettings = findViewById<Button>(R.id.gallery_edit_permission_settings)
-        permissionSettings.setOnClickListener { view ->
+        permissionSettings.setOnClickListener {
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                     Uri.fromParts("package", packageName, null))
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -249,7 +249,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             }
         }
         mChosenPhotosLiveData.observe(this, this)
-        mGetContentActivitiesLiveData.observe(this, Observer { supportInvalidateOptionsMenu() })
+        mGetContentActivitiesLiveData.observe(this, Observer { invalidateOptionsMenu() })
     }
 
     private fun requestPhotos() {
