@@ -262,6 +262,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
             // http://developer.android.com/training/wearables/notifications/creating.html#AddWearableFeatures
             options.inSampleSize = ImageUtil.calculateSampleSize(height, 400);
             background = regionLoader.decodeRegion(new Rect(0, 0, width, height), options);
+            regionLoader.destroy();
         } catch (IOException e) {
             Log.e(TAG, "Unable to load artwork to show notification", e);
             return;

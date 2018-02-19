@@ -407,6 +407,7 @@ public class MuzeiBlurRenderer implements GLSurfaceView.Renderer {
                         }
                     }
                 }
+                bitmapRegionLoader.destroy();
             }
 
             recomputeTransformMatrices();

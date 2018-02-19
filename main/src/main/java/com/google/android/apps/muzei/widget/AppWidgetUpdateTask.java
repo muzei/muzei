@@ -193,6 +193,7 @@ public class AppWidgetUpdateTask extends AsyncTask<ArtworkSource,Void,Boolean> {
             options.inSampleSize = Math.max(ImageUtil.calculateSampleSize(width, widgetWidth / 2),
                     ImageUtil.calculateSampleSize(height, widgetHeight / 2));
             image = regionLoader.decodeRegion(new Rect(0, 0, width, height), options);
+            regionLoader.destroy();
         } catch (IOException e) {
             Log.e(TAG, "Could not load current artwork image", e);
             return null;

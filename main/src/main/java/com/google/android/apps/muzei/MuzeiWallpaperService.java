@@ -63,6 +63,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class MuzeiWallpaperService extends GLWallpaperService implements LifecycleOwner {
     private static final String TAG = "MuzeiWallpaperService";
@@ -209,18 +211,18 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
             try {
                 BitmapFactory.Options options = new BitmapFactory.Options();
                 options.inJustDecodeBounds = true;
-                BitmapFactory.decodeStream(
-                        getContentResolver().openInputStream(MuzeiContract.Artwork.CONTENT_URI),
-                        null, options);
+                try (InputStream input = getContentResolver().openInputStream(MuzeiContract.Artwork.CONTENT_URI)) {
+                    BitmapFactory.decodeStream(input, null, options);
+                }
                 options.inSampleSize = Math.max(
                         ImageUtil.calculateSampleSize(options.outHeight, MAX_ARTWORK_SIZE / 2),
                         ImageUtil.calculateSampleSize(options.outWidth, MAX_ARTWORK_SIZE / 2));
                 options.inJustDecodeBounds = false;
-                mCurrentArtwork = BitmapFactory.decodeStream(
-                        getContentResolver().openInputStream(MuzeiContract.Artwork.CONTENT_URI),
-                        null, options);
+                try (InputStream input = getContentResolver().openInputStream(MuzeiContract.Artwork.CONTENT_URI)) {
+                    mCurrentArtwork = BitmapFactory.decodeStream(input, null, options);
+                }
                 notifyColorsChanged();
-            } catch (FileNotFoundException e) {
+            } catch (IOException e) {
                 Log.w(TAG, "Error reading current artwork", e);
             }
         }

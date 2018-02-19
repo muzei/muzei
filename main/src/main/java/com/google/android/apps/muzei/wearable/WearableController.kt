@@ -163,16 +163,20 @@ class WearableController(private val context: Context) : DefaultLifecycleObserve
             val contentResolver = context.contentResolver
             val options = BitmapFactory.Options()
             options.inJustDecodeBounds = true
-            BitmapFactory.decodeStream(contentResolver.openInputStream(
-                    MuzeiContract.Artwork.CONTENT_URI), null, options)
+            contentResolver.openInputStream(
+                    MuzeiContract.Artwork.CONTENT_URI)?.use {
+                BitmapFactory.decodeStream(it, null, options)
+            }
             options.inJustDecodeBounds = false
             if (options.outWidth > options.outHeight) {
                 options.inSampleSize = ImageUtil.calculateSampleSize(options.outHeight, 320)
             } else {
                 options.inSampleSize = ImageUtil.calculateSampleSize(options.outWidth, 320)
             }
-            BitmapFactory.decodeStream(contentResolver.openInputStream(
-                    MuzeiContract.Artwork.CONTENT_URI), null, options)
+            contentResolver.openInputStream(
+                    MuzeiContract.Artwork.CONTENT_URI)?.use {
+                BitmapFactory.decodeStream(it, null, options)
+            }
         } catch (e: FileNotFoundException) {
             Log.e(TAG, "Unable to read artwork to update Android Wear", e)
             null

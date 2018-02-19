@@ -54,6 +54,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -457,7 +458,11 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
         }
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
-        BitmapFactory.decodeStream(contentResolver.openInputStream(artworkUri), null, options);
+        try (InputStream input = contentResolver.openInputStream(artworkUri)) {
+            BitmapFactory.decodeStream(input, null, options);
+        } catch (IOException e) {
+            throw new FileNotFoundException("Unable to decode artwork");
+        }
         if (signal.isCanceled()) {
             // Canceled, so we'll stop here to save us the effort of actually decoding the image
             return null;
@@ -478,7 +483,12 @@ public class MuzeiDocumentsProvider extends DocumentsProvider {
             }
         }
         options.inJustDecodeBounds = false;
-        Bitmap bitmap = BitmapFactory.decodeStream(contentResolver.openInputStream(artworkUri), null, options);
+        Bitmap bitmap;
+        try (InputStream input = contentResolver.openInputStream(artworkUri)) {
+            bitmap = BitmapFactory.decodeStream(input, null, options);
+        } catch (IOException e) {
+            throw new FileNotFoundException("Unable to decode artwork");
+        }
         // Write out the thumbnail to a temporary file
         if (tempFile == null) {
             try {
