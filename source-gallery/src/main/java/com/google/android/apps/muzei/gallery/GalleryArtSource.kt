@@ -403,6 +403,8 @@ class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
             Log.w(TAG, "Couldn't read image metadata", e)
         } catch (e: StackOverflowError) {
             Log.w(TAG, "Couldn't read image metadata", e)
+        } catch (e: ArrayIndexOutOfBoundsException) {
+            Log.w(TAG, "Couldn't read image metadata", e)
         } catch (e: NullPointerException) {
             Log.w(TAG, "Couldn't read image metadata", e)
         } catch (e: SecurityException) {
