@@ -47,7 +47,7 @@ import android.util.SparseIntArray
 import android.view.*
 import android.widget.*
 import androidx.content.edit
-import androidx.database.getString
+import androidx.database.getStringOrNull
 import com.google.android.apps.muzei.util.MultiSelectionController
 import com.squareup.picasso.Picasso
 import java.util.*
@@ -602,7 +602,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                     arrayOf(DocumentsContract.Document.COLUMN_DISPLAY_NAME),
                     null, null, null)?.use { data ->
                 if (data.moveToNext()) {
-                    return data.getString(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
+                    return data.getStringOrNull(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
                 }
             }
         } catch (e: SecurityException) {

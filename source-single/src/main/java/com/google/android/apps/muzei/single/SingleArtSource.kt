@@ -23,7 +23,7 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.util.Log
-import androidx.database.getString
+import androidx.database.getStringOrNull
 import com.google.android.apps.muzei.api.Artwork
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import java.io.File
@@ -76,7 +76,7 @@ class SingleArtSource : MuzeiArtSource("SingleArtSource") {
                             arrayOf(DocumentsContract.Document.COLUMN_DISPLAY_NAME),
                             null, null, null)?.use { data ->
                         if (data.moveToNext()) {
-                            return data.getString(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
+                            return data.getStringOrNull(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
                         }
                     }
                 } catch (e: SecurityException) {
