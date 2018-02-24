@@ -51,7 +51,6 @@ import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent;
 import com.google.android.apps.muzei.render.BitmapRegionLoader;
 import com.google.android.apps.muzei.render.ImageUtil;
 import com.google.android.apps.muzei.room.Artwork;
-import com.google.android.apps.muzei.room.ArtworkSource;
 import com.google.android.apps.muzei.room.MuzeiDatabase;
 import com.google.android.apps.muzei.room.Source;
 import com.google.android.apps.muzei.sources.SourceManager;
@@ -192,21 +191,24 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
         }
 
         ContentResolver contentResolver = context.getContentResolver();
-        ArtworkSource artworkSource = MuzeiDatabase.getInstance(context)
+        Source source = MuzeiDatabase.getInstance(context)
+                .sourceDao()
+                .getCurrentSourceBlocking();
+        Artwork artwork = MuzeiDatabase.getInstance(context)
                 .artworkDao()
-                .getCurrentArtworkWithSourceBlocking();
-        if (artworkSource == null) {
+                .getCurrentArtworkBlocking();
+        if (source == null || artwork == null) {
             return;
         }
 
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-        long currentArtworkId = artworkSource.artwork.id;
+        long currentArtworkId = artwork.id;
         long lastReadArtworkId = sp.getLong(PREF_LAST_READ_NOTIFICATION_ARTWORK_ID, -1);
-        String currentImageUri = artworkSource.artwork.imageUri != null
-                ? artworkSource.artwork.imageUri.toString()
+        String currentImageUri = artwork.imageUri != null
+                ? artwork.imageUri.toString()
                 : null;
         String lastReadImageUri = sp.getString(PREF_LAST_READ_NOTIFICATION_ARTWORK_IMAGE_URI, null);
-        String currentToken = artworkSource.artwork.token;
+        String currentToken = artwork.token;
         String lastReadToken = sp.getString(PREF_LAST_READ_NOTIFICATION_ARTWORK_TOKEN, null);
         // We've already dismissed the notification if the IDs match
         boolean previouslyDismissedNotification = lastReadArtworkId == currentArtworkId;
@@ -272,7 +274,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
             createNotificationChannel(context);
         }
 
-        String artworkTitle = artworkSource.artwork.title;
+        String artworkTitle = artwork.title;
         String title = TextUtils.isEmpty(artworkTitle)
                 ? context.getString(R.string.app_name)
                 : artworkTitle;
@@ -294,14 +296,14 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
         NotificationCompat.BigPictureStyle style = new NotificationCompat.BigPictureStyle()
                 .bigLargeIcon(null)
                 .setBigContentTitle(title)
-                .setSummaryText(artworkSource.artwork.byline)
+                .setSummaryText(artwork.byline)
                 .bigPicture(background);
         nb.setStyle(style);
 
         NotificationCompat.WearableExtender extender = new NotificationCompat.WearableExtender();
 
         // Support Next Artwork
-        if (artworkSource.supportsNextArtwork) {
+        if (source.supportsNextArtwork) {
             PendingIntent nextPendingIntent = PendingIntent.getBroadcast(context, 0,
                     new Intent(context, NewWallpaperNotificationReceiver.class)
                             .setAction(ACTION_NEXT_ARTWORK),
@@ -319,7 +321,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
                     .extend(new NotificationCompat.Action.WearableExtender().setAvailableOffline(false))
                     .build());
         }
-        List<UserCommand> commands = artworkSource.commands;
+        List<UserCommand> commands = source.commands;
         // Show custom actions as a selectable list on Android Wear devices
         if (!commands.isEmpty()) {
             String[] actions = new String[commands.size()];
@@ -342,7 +344,7 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
                     .extend(new NotificationCompat.Action.WearableExtender().setAvailableOffline(false))
                     .build());
         }
-        Intent viewIntent = artworkSource.artwork.viewIntent;
+        Intent viewIntent = artwork.viewIntent;
         if (viewIntent != null) {
             viewIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             try {

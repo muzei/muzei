@@ -96,13 +96,6 @@ public abstract class ArtworkDao {
     @Query("SELECT * FROM artwork WHERE imageUri=:imageUri ORDER BY date_added DESC")
     public abstract List<Artwork> getArtworkByImageUri(Uri imageUri);
 
-    @Query("SELECT artwork.*, sources.supportsNextArtwork, sources.commands " +
-            "FROM artwork, sources " +
-            "WHERE artwork.sourceComponentName = " +
-            "sources.component_name " +
-            "ORDER BY date_added DESC")
-    public abstract ArtworkSource getCurrentArtworkWithSourceBlocking();
-
     @Delete
     abstract void deleteInternal(Artwork artwork);
 
