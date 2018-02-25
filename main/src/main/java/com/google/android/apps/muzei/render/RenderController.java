@@ -21,6 +21,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 import com.google.android.apps.muzei.settings.Prefs;
 
@@ -28,6 +29,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public abstract class RenderController {
+    private static final String TAG = "RenderController";
+
     protected Context mContext;
     protected MuzeiBlurRenderer mRenderer;
     protected Callbacks mCallbacks;
@@ -98,6 +101,7 @@ public abstract class RenderController {
             protected void onPostExecute(final BitmapRegionLoader bitmapRegionLoader) {
                 if (bitmapRegionLoader == null || bitmapRegionLoader.getWidth() == 0 ||
                         bitmapRegionLoader.getHeight() == 0) {
+                    Log.w(TAG, "Could not open the current artwork");
                     return;
                 }
 

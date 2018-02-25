@@ -29,6 +29,8 @@ import com.google.android.apps.muzei.event.ArtworkLoadingStateChangedEvent;
 import com.google.android.apps.muzei.room.Artwork;
 import com.google.android.apps.muzei.room.MuzeiDatabase;
 
+import net.nurik.roman.muzei.BuildConfig;
+
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
@@ -62,18 +64,28 @@ public class DownloadArtworkTask extends AsyncTask<Void, Void, Boolean> {
         Artwork artwork = MuzeiDatabase.getInstance(mApplicationContext).artworkDao().getCurrentArtworkBlocking();
         ContentResolver resolver = mApplicationContext.getContentResolver();
         if (artwork == null) {
+            Log.w(TAG, "Could not read current artwork");
             return false;
         }
         Uri artworkUri = ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI,
                 artwork.id);
         if (artwork.imageUri == null) {
             // There's nothing else we can do here so declare success
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Artwork " + artworkUri + " does not have an image URI, skipping");
+            }
             return true;
+        }
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Attempting to download " + artwork.imageUri + " to " + artworkUri);
         }
         try (OutputStream out = resolver.openOutputStream(artworkUri);
              InputStream in = out != null ? openUri(mApplicationContext, artwork.imageUri) : null) {
             if (out == null) {
                 // We've already downloaded the file
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "Artwork " + artworkUri + " has already been downloaded");
+                }
                 return true;
             }
             // Only publish progress (i.e., say we've started loading the artwork)
@@ -85,6 +97,9 @@ public class DownloadArtworkTask extends AsyncTask<Void, Void, Boolean> {
                 out.write(buffer, 0, bytesRead);
             }
             out.flush();
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Artwork " + artworkUri + " was successfully written");
+            }
         } catch (IOException|IllegalArgumentException e) {
             Log.e(TAG, "Error downloading artwork", e);
             return false;

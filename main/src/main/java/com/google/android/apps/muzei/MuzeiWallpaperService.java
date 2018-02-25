@@ -62,7 +62,6 @@ import net.rbgrn.android.glwallpaperservice.GLWallpaperService;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 

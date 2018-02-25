@@ -43,6 +43,8 @@ import com.google.android.apps.muzei.room.Artwork;
 import com.google.android.apps.muzei.room.MuzeiDatabase;
 import com.google.android.apps.muzei.room.Source;
 
+import net.nurik.roman.muzei.androidclientcommon.BuildConfig;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -370,7 +372,7 @@ public class MuzeiProvider extends ContentProvider {
             // new artwork
             List<Artwork> artworkList = MuzeiDatabase.getInstance(context).artworkDao().getArtworkBlocking();
             if (artworkList == null || artworkList.isEmpty()) {
-                if (!context.getPackageName().equals(getCallingPackage())) {
+                if (BuildConfig.DEBUG || !context.getPackageName().equals(getCallingPackage())) {
                     Log.w(TAG, "You must insert at least one row to read or write artwork");
                 }
                 return null;
@@ -391,14 +393,20 @@ public class MuzeiProvider extends ContentProvider {
             throw new FileNotFoundException("Could not create artwork file for " + uri + " for mode " + mode);
         }
         if (file.exists() && file.length() > 0 && isWriteOperation) {
-            if (!context.getPackageName().equals(getCallingPackage())) {
-                Log.w(TAG, "Writing to an existing artwork file is not allowed: insert a new row");
+            if (BuildConfig.DEBUG || !context.getPackageName().equals(getCallingPackage())) {
+                Log.w(TAG, "Writing to an existing artwork file (" + file + ") for " + uri +
+                        " is not allowed: insert a new row");
             }
             return null;
         }
         try {
             return ParcelFileDescriptor.open(file, ParcelFileDescriptor.parseMode(mode), openFileHandler,
                     e -> {
+                        if (BuildConfig.DEBUG) {
+                            Log.d(TAG, "Artwork for " + uri + " doing a " +
+                                    (isWriteOperation ? "write" : "read") +
+                                    " operation is now closed.", e);
+                        }
                         if (isWriteOperation) {
                             if (e != null) {
                                 Log.e(TAG, "Error closing " + file + " for " + uri, e);
@@ -409,6 +417,9 @@ public class MuzeiProvider extends ContentProvider {
                                 }
                             } else {
                                 // The file was successfully written, notify listeners of the new artwork
+                                if (BuildConfig.DEBUG) {
+                                    Log.d(TAG, "Artwork was successfully written to " + file + " for " + uri);
+                                }
                                 context.getContentResolver()
                                         .notifyChange(MuzeiContract.Artwork.CONTENT_URI, null);
                                 context.sendBroadcast(

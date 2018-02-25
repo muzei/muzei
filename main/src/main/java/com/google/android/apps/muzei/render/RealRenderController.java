@@ -61,6 +61,7 @@ public class RealRenderController extends RenderController {
             int rotation = 0;
             try (InputStream in = mContext.getContentResolver().openInputStream(MuzeiContract.Artwork.CONTENT_URI)) {
                 if (in == null) {
+                    Log.w(TAG, "Could not open the current artwork");
                     return null;
                 }
                 ExifInterface exifInterface = new ExifInterface(in);

@@ -14,6 +14,7 @@ import android.support.v4.content.ContextCompat
 import android.util.Log
 import androidx.content.systemService
 import com.google.android.apps.muzei.api.MuzeiContract
+import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -63,12 +64,16 @@ class DirectBootCacheJobService : JobService() {
                     contentResolver.openInputStream(MuzeiContract.Artwork.CONTENT_URI)?.use { input ->
                         FileOutputStream(artwork).use { out ->
                             input.copyTo(out)
+                            if (BuildConfig.DEBUG) {
+                                Log.d(TAG, "Successfully wrote artwork to Direct Boot cache")
+                            }
                             return true
                         }
                     }
                 } catch (e: IOException) {
                     Log.e(TAG, "Unable to write artwork to direct boot storage", e)
                 }
+                Log.w(TAG, "Could not open the current artwork")
                 return false
             }
 

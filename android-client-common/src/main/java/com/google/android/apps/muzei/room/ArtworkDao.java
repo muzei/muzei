@@ -29,11 +29,14 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
 import com.google.android.apps.muzei.provider.MuzeiProvider;
 import com.google.android.apps.muzei.room.converter.ComponentNameTypeConverter;
 import com.google.android.apps.muzei.room.converter.UriTypeConverter;
+
+import net.nurik.roman.muzei.androidclientcommon.BuildConfig;
 
 import java.io.File;
 import java.util.List;
@@ -43,15 +46,23 @@ import java.util.List;
  */
 @Dao
 public abstract class ArtworkDao {
+    private static final String TAG = "ArtworkDao";
+
     @Insert
     abstract long insertInternal(Artwork artwork);
 
     public long insert(Context context, Artwork artwork) {
         long id = insertInternal(artwork);
         File artworkFile = MuzeiProvider.getCacheFileForArtworkUri(context, id);
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Created artwork " + id + " with cache file " + artworkFile);
+        }
         if (artworkFile != null && artworkFile.exists()) {
             // The image already exists so we'll notify observers to say the new artwork is ready
             // Otherwise, this will be called when the file is written with MuzeiProvider.openFile()
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Artwork already existed for " + id + ", sending artwork changed broadcast");
+            }
             context.getContentResolver()
                     .notifyChange(MuzeiContract.Artwork.CONTENT_URI, null);
             context.sendBroadcast(
