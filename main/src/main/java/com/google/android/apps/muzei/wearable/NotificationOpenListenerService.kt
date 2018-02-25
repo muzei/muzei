@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.wearable;
+package com.google.android.apps.muzei.wearable
 
-import android.content.Intent;
-import android.content.pm.PackageManager;
+import com.google.android.gms.wearable.MessageEvent
+import com.google.android.gms.wearable.WearableListenerService
 
-import com.google.android.gms.wearable.MessageEvent;
-import com.google.android.gms.wearable.WearableListenerService;
-
-public class NotificationOpenListenerService extends WearableListenerService {
-    @Override
-    public void onMessageReceived(MessageEvent messageEvent) {
+class NotificationOpenListenerService : WearableListenerService() {
+    override fun onMessageReceived(messageEvent: MessageEvent?) {
         // Only notification/open actions trigger this WearableListenerService
-        PackageManager packageManager = getPackageManager();
-        Intent mainIntent = packageManager.getLaunchIntentForPackage(getPackageName());
-        startActivity(mainIntent);
+        val mainIntent = packageManager.getLaunchIntentForPackage(packageName)
+        startActivity(mainIntent)
     }
 }
