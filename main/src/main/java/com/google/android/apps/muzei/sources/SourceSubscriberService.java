@@ -124,11 +124,11 @@ public class SourceSubscriberService extends IntentService {
 
             database.artworkDao().insert(this, artwork);
 
-            // Download the artwork contained from the newly published SourceState
-            startService(TaskQueueService.getDownloadCurrentArtworkIntent(this));
-
             database.setTransactionSuccessful();
             database.endTransaction();
+
+            // Download the artwork contained from the newly published SourceState
+            startService(TaskQueueService.getDownloadCurrentArtworkIntent(this));
         }
     }
 }
