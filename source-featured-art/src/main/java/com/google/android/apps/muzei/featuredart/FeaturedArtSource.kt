@@ -53,13 +53,13 @@ class FeaturedArtSource : RemoteMuzeiArtSource(SOURCE_NAME) {
 
         private const val MAX_JITTER_MILLIS = 20 * 60 * 1000
 
-        private val sRandom = Random()
+        private val RANDOM = Random()
 
-        private val sDateFormatTZ = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US)
-        private val sDateFormatLocal = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
+        private val DATE_FORMAT_TZ = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US)
+        private val DATE_FORMAT_LOCAL = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
 
         init {
-            sDateFormatTZ.timeZone = TimeZone.getTimeZone("UTC")
+            DATE_FORMAT_TZ.timeZone = TimeZone.getTimeZone("UTC")
         }
     }
 
@@ -209,10 +209,10 @@ class FeaturedArtSource : RemoteMuzeiArtSource(SOURCE_NAME) {
         }?.run {
             // Parse the nextTime
             try {
-                sDateFormatTZ.parse(this)
+                DATE_FORMAT_TZ.parse(this)
             } catch (e: ParseException) {
                 try {
-                    sDateFormatLocal.apply {
+                    DATE_FORMAT_LOCAL.apply {
                         timeZone = TimeZone.getDefault()
                     }.parse(this)
                 } catch (e2: ParseException) {
@@ -222,7 +222,7 @@ class FeaturedArtSource : RemoteMuzeiArtSource(SOURCE_NAME) {
             }
         }?.apply {
             // jitter by up to N milliseconds
-            scheduleUpdate(time + sRandom.nextInt(MAX_JITTER_MILLIS))
+            scheduleUpdate(time + RANDOM.nextInt(MAX_JITTER_MILLIS))
         } ?: run {
             // No next time, default to checking in 12 hours
             scheduleUpdate(System.currentTimeMillis() + 12 * 60 * 60 * 1000)

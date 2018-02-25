@@ -35,7 +35,7 @@ import net.nurik.roman.muzei.R
 
 class AboutActivity : AppCompatActivity() {
 
-    private var mAnimator: ViewPropertyAnimator? = null
+    private var animator: ViewPropertyAnimator? = null
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,7 +83,7 @@ class AboutActivity : AppCompatActivity() {
         val demoContainerView = findViewById<View>(R.id.demo_view_container).apply {
             alpha = 0f
         }
-        mAnimator = demoContainerView.animate()
+        animator = demoContainerView.animate()
                 .alpha(1f)
                 .setStartDelay(250)
                 .setDuration(1000)
@@ -95,7 +95,7 @@ class AboutActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        mAnimator?.cancel()
+        animator?.cancel()
         super.onDestroy()
     }
 }

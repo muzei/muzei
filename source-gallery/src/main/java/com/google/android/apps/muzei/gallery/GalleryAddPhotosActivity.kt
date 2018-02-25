@@ -20,9 +20,9 @@ class GalleryAddPhotosActivity : Activity() {
         private const val TAG = "GalleryAddPhotos"
     }
 
-    private var mStreamCount: Int = 0
-    private var mSuccessCount: Int = 0
-    private var mFailureCount: Int = 0
+    private var streamCount: Int = 0
+    private var successCount: Int = 0
+    private var failureCount: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,8 +32,8 @@ class GalleryAddPhotosActivity : Activity() {
             return
         }
         val callingApplication = getCallingApplication(intentReader)
-        mStreamCount = intentReader.streamCount
-        for (index in 0 until mStreamCount) {
+        streamCount = intentReader.streamCount
+        for (index in 0 until streamCount) {
             val photoUri = intentReader.getStream(index)
             val chosenPhoto = ChosenPhoto(photoUri)
 
@@ -44,9 +44,9 @@ class GalleryAddPhotosActivity : Activity() {
                     insertLiveData.removeObserver(this)
                     if (id == 0L) {
                         Log.e(TAG, "Unable to insert chosen artwork for $photoUri")
-                        mFailureCount++
+                        failureCount++
                     } else {
-                        mSuccessCount++
+                        successCount++
                     }
                     updateCount()
                 }
@@ -68,13 +68,13 @@ class GalleryAddPhotosActivity : Activity() {
     }
 
     private fun updateCount() {
-        if (mSuccessCount + mFailureCount == mStreamCount) {
-            val message = if (mFailureCount == 0) {
+        if (successCount + failureCount == streamCount) {
+            val message = if (failureCount == 0) {
                 resources.getQuantityString(R.plurals.gallery_add_photos_success,
-                        mSuccessCount, mSuccessCount)
+                        successCount, successCount)
             } else {
                 resources.getQuantityString(R.plurals.gallery_add_photos_failure,
-                        mFailureCount, mFailureCount, mStreamCount)
+                        failureCount, failureCount, streamCount)
             }
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
             finish()

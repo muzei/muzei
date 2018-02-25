@@ -34,7 +34,7 @@ import net.nurik.roman.muzei.R
 
 class IntroFragment : Fragment() {
 
-    private lateinit var mActivateButton: View
+    private lateinit var activateButton: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,8 +50,8 @@ class IntroFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        mActivateButton = view.findViewById(R.id.activate_muzei_button)
-        mActivateButton.setOnClickListener {
+        activateButton = view.findViewById(R.id.activate_muzei_button)
+        activateButton.setOnClickListener {
             FirebaseAnalytics.getInstance(context!!).logEvent("activate", null)
             try {
                 startActivity(Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
@@ -80,11 +80,11 @@ class IntroFragment : Fragment() {
                     .add(R.id.animated_logo_fragment, logoFragment)
                     .commitNow()
 
-            mActivateButton.alpha = 0f
+            activateButton.alpha = 0f
             logoFragment.setOnFillStartedCallback(Runnable {
-                mActivateButton.animate().alpha(1f).setDuration(500)
+                activateButton.animate().alpha(1f).setDuration(500)
             })
-            mActivateButton.postDelayed({
+            activateButton.postDelayed({
                 if (logoFragment.isAdded) {
                     logoFragment.start()
                 }

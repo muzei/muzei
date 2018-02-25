@@ -63,11 +63,11 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         private const val REQUEST_STORAGE_PERMISSION = 3
         private const val STATE_SELECTION = "selection"
 
-        private val sRotateMenuIdsByMin = SparseIntArray()
-        private val sRotateMinsByMenuId = SparseIntArray()
+        private val ROTATE_MENU_IDS_BY_MIN = SparseIntArray()
+        private val ROTATE_MINS_BY_MENU_ID = SparseIntArray()
 
         init {
-            sRotateMenuIdsByMin.apply {
+            ROTATE_MENU_IDS_BY_MIN.apply {
                 put(0, R.id.action_rotate_interval_none)
                 put(60, R.id.action_rotate_interval_1h)
                 put(60 * 3, R.id.action_rotate_interval_3h)
@@ -75,8 +75,8 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                 put(60 * 24, R.id.action_rotate_interval_24h)
                 put(60 * 72, R.id.action_rotate_interval_72h)
             }
-            for (i in 0 until sRotateMenuIdsByMin.size()) {
-                sRotateMinsByMenuId.put(sRotateMenuIdsByMin.valueAt(i), sRotateMenuIdsByMin.keyAt(i))
+            for (i in 0 until ROTATE_MENU_IDS_BY_MIN.size()) {
+                ROTATE_MINS_BY_MENU_ID.put(ROTATE_MENU_IDS_BY_MIN.valueAt(i), ROTATE_MENU_IDS_BY_MIN.keyAt(i))
             }
         }
 
@@ -93,21 +93,21 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         }
     }
 
-    private val mServiceConnection = object : ServiceConnection {
+    private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {}
 
         override fun onServiceDisconnected(name: ComponentName) {}
     }
 
-    private val mViewModel : GallerySettingsViewModel by lazy {
+    private val viewModel: GallerySettingsViewModel by lazy {
         ViewModelProviders.of(this).get(GallerySettingsViewModel::class.java)
     }
 
-    private val mChosenPhotosLiveData: LiveData<PagedList<ChosenPhoto>> by lazy {
-        mViewModel.chosenPhotos
+    private val chosenPhotosLiveData: LiveData<PagedList<ChosenPhoto>> by lazy {
+        viewModel.chosenPhotos
     }
 
-    private val mSelectionToolbar : Toolbar by lazy {
+    private val selectionToolbar: Toolbar by lazy {
         findViewById<Toolbar>(R.id.selection_toolbar)
     }
 
@@ -116,40 +116,40 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             start()
         }
     }
-    private val mHandler by lazy {
+    private val handler by lazy {
         Handler(lazyHandlerThread.value.looper)
     }
-    private val mPhotoGridView : RecyclerView by lazy {
+    private val photoGridView: RecyclerView by lazy {
         findViewById<RecyclerView>(R.id.photo_grid).apply {
             itemAnimator = DefaultItemAnimator().apply {
                 supportsChangeAnimations = false
             }
         }
     }
-    private var mItemSize = 10
+    private var itemSize = 10
 
-    private val mMultiSelectionController = MultiSelectionController(STATE_SELECTION)
+    private val multiSelectionController = MultiSelectionController(STATE_SELECTION)
 
-    private val mPlaceholderDrawable: ColorDrawable by lazy {
+    private val placeholderDrawable: ColorDrawable by lazy {
         ColorDrawable(ContextCompat.getColor(this,
                 R.color.gallery_chosen_photo_placeholder))
     }
 
-    private val mGetContentActivitiesLiveData: LiveData<List<ActivityInfo>> by lazy {
-        mViewModel.getContentActivityInfoList
+    private val getContentActivitiesLiveData: LiveData<List<ActivityInfo>> by lazy {
+        viewModel.getContentActivityInfoList
     }
 
-    private var mUpdatePosition = -1
-    private lateinit var mAddButton: View
-    private val mAddToolbar : LinearLayout by lazy {
+    private var updatePosition = -1
+    private lateinit var addButton: View
+    private val addToolbar: LinearLayout by lazy {
         findViewById<LinearLayout>(R.id.add_toolbar)
     }
 
-    private var mLastTouchPosition: Int = 0
-    private var mLastTouchX: Int = 0
-    private var mLastTouchY: Int = 0
+    private var lastTouchPosition: Int = 0
+    private var lastTouchX: Int = 0
+    private var lastTouchY: Int = 0
 
-    private val mChosenPhotosAdapter = GalleryAdapter()
+    private val chosenPhotosAdapter = GalleryAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -158,18 +158,18 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
 
         bindService(Intent(this, GalleryArtSource::class.java)
                 .setAction(GalleryArtSource.ACTION_BIND_GALLERY),
-                mServiceConnection, Context.BIND_AUTO_CREATE)
+                serviceConnection, Context.BIND_AUTO_CREATE)
 
         setupMultiSelect()
 
         val gridLayoutManager = GridLayoutManager(this, 1)
-        mPhotoGridView.layoutManager = gridLayoutManager
+        photoGridView.layoutManager = gridLayoutManager
 
-        val vto = mPhotoGridView.viewTreeObserver
+        val vto = photoGridView.viewTreeObserver
         vto.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
-                val width = (mPhotoGridView.width
-                        - mPhotoGridView.paddingStart - mPhotoGridView.paddingEnd)
+                val width = (photoGridView.width
+                        - photoGridView.paddingStart - photoGridView.paddingEnd)
                 if (width <= 0) {
                     return
                 }
@@ -188,19 +188,19 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
 
                 val spacing = resources.getDimensionPixelSize(
                         R.dimen.gallery_chosen_photo_grid_spacing)
-                mItemSize = (width - spacing * (numColumns - 1)) / numColumns
+                itemSize = (width - spacing * (numColumns - 1)) / numColumns
 
                 // Complete setup
                 gridLayoutManager.spanCount = numColumns
-                mChosenPhotosAdapter.setHasStableIds(true)
-                mPhotoGridView.adapter = mChosenPhotosAdapter
+                chosenPhotosAdapter.setHasStableIds(true)
+                photoGridView.adapter = chosenPhotosAdapter
 
-                mPhotoGridView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                photoGridView.viewTreeObserver.removeOnGlobalLayoutListener(this)
                 tryUpdateSelection(false)
             }
         })
 
-        ViewCompat.setOnApplyWindowInsetsListener(mPhotoGridView) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(photoGridView) { v, insets ->
             val gridSpacing = resources
                     .getDimensionPixelSize(R.dimen.gallery_chosen_photo_grid_spacing)
             ViewCompat.onApplyWindowInsets(v, insets.replaceSystemWindowInsets(
@@ -221,7 +221,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
         }
-        mAddButton = findViewById<View>(R.id.add_fab).apply {
+        addButton = findViewById<View>(R.id.add_fab).apply {
             setOnClickListener {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     // On Lollipop and higher, we show the add toolbar to allow users to add either
@@ -243,13 +243,13 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                             Toast.LENGTH_LONG).show()
                 }
             } catch (e: ActivityNotFoundException) {
-                Snackbar.make(mPhotoGridView, R.string.gallery_add_folder_error,
+                Snackbar.make(photoGridView, R.string.gallery_add_folder_error,
                         Snackbar.LENGTH_LONG).show()
                 hideAddToolbar(true)
             }
         }
-        mChosenPhotosLiveData.observe(this, this)
-        mGetContentActivitiesLiveData.observe(this, Observer { invalidateOptionsMenu() })
+        chosenPhotosLiveData.observe(this, this)
+        getContentActivitiesLiveData.observe(this, Observer { invalidateOptionsMenu() })
     }
 
     private fun requestPhotos() {
@@ -266,7 +266,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         try {
             startActivityForResult(intent, REQUEST_CHOOSE_PHOTOS)
         } catch (e: ActivityNotFoundException) {
-            Snackbar.make(mPhotoGridView, R.string.gallery_add_photos_error,
+            Snackbar.make(photoGridView, R.string.gallery_add_photos_error,
                     Snackbar.LENGTH_LONG).show()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 hideAddToolbar(true)
@@ -295,7 +295,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         if (lazyHandlerThread.isInitialized()) {
             lazyHandlerThread.value.quitSafely()
         }
-        unbindService(mServiceConnection)
+        unbindService(serviceConnection)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -305,7 +305,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         val rotateIntervalMin = GalleryArtSource.getSharedPreferences(this)
                 .getInt(GalleryArtSource.PREF_ROTATE_INTERVAL_MIN,
                         GalleryArtSource.DEFAULT_ROTATE_INTERVAL_MIN)
-        val menuId = sRotateMenuIdsByMin.get(rotateIntervalMin)
+        val menuId = ROTATE_MENU_IDS_BY_MIN.get(rotateIntervalMin)
         if (menuId != 0) {
             menu.findItem(menuId)?.run {
                 isChecked = true
@@ -321,7 +321,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         // 0 = hide the MenuItem
         // 1 = show 'Import photos from APP_NAME' to go to the one app that exists
         // 2 = show 'Import photos...' to have the user pick which app to import photos from
-        val getContentActivites = mGetContentActivitiesLiveData.value
+        val getContentActivites = getContentActivitiesLiveData.value
                 ?: // We'll get another chance when the list is populated
                 return false
         // Hide the 'Import photos' action if there are no activities found
@@ -339,7 +339,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val itemId = item.itemId
-        val rotateMin = sRotateMinsByMenuId.get(itemId, -1)
+        val rotateMin = ROTATE_MINS_BY_MENU_ID.get(itemId, -1)
         if (rotateMin != -1) {
             GalleryArtSource.getSharedPreferences(this).edit()
                     .putInt(GalleryArtSource.PREF_ROTATE_INTERVAL_MIN, rotateMin)
@@ -350,7 +350,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
 
         when (itemId) {
             R.id.action_import_photos -> {
-                mGetContentActivitiesLiveData.value?.run {
+                getContentActivitiesLiveData.value?.run {
                     when (size) {
                         0 -> {
                             // Ignore
@@ -368,7 +368,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                 return true
             }
             R.id.action_clear_photos -> {
-                mHandler.post {
+                handler.post {
                     GalleryDatabase.getInstance(this)
                             .chosenPhotoDao().deleteAll(this)
                 }
@@ -389,13 +389,13 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
 
     private fun setupMultiSelect() {
         // Set up toolbar
-        mSelectionToolbar.setNavigationOnClickListener { mMultiSelectionController.reset(true) }
+        selectionToolbar.setNavigationOnClickListener { multiSelectionController.reset(true) }
 
-        mSelectionToolbar.inflateMenu(R.menu.gallery_selection)
-        mSelectionToolbar.setOnMenuItemClickListener { item ->
+        selectionToolbar.inflateMenu(R.menu.gallery_selection)
+        selectionToolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_force_now -> {
-                    val selection = mMultiSelectionController.selection
+                    val selection = multiSelectionController.selection
                     if (selection.size > 0) {
                         val selectedUri = ChosenPhoto.getContentUri(selection.iterator().next())
                         startService(
@@ -406,20 +406,20 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                                 R.string.gallery_temporary_force_image,
                                 Toast.LENGTH_SHORT).show()
                     }
-                    mMultiSelectionController.reset(true)
+                    multiSelectionController.reset(true)
                     return@setOnMenuItemClickListener true
                 }
                 R.id.action_remove -> {
                     val removePhotos = ArrayList(
-                            mMultiSelectionController.selection)
+                            multiSelectionController.selection)
 
-                    mHandler.post {
+                    handler.post {
                         // Remove chosen URIs
                         GalleryDatabase.getInstance(this).chosenPhotoDao()
                                 .delete(this, removePhotos)
                     }
 
-                    mMultiSelectionController.reset(true)
+                    multiSelectionController.reset(true)
                     return@setOnMenuItemClickListener true
                 }
                 else -> return@setOnMenuItemClickListener false
@@ -427,7 +427,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         }
 
         // Set up controller
-        mMultiSelectionController.setCallbacks(this)
+        multiSelectionController.setCallbacks(this)
     }
 
     override fun onSelectionChanged(restored: Boolean, fromUser: Boolean) {
@@ -436,8 +436,8 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
 
     override fun onBackPressed() {
         when {
-            mMultiSelectionController.selectedCount > 0 -> mMultiSelectionController.reset(true)
-            mAddToolbar.visibility == View.VISIBLE -> hideAddToolbar(true)
+            multiSelectionController.selectedCount > 0 -> multiSelectionController.reset(true)
+            addToolbar.visibility == View.VISIBLE -> hideAddToolbar(true)
             else -> super.onBackPressed()
         }
     }
@@ -447,21 +447,21 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         // Divide by two since we're doing two animations but we want the total time to the short animation time
         val duration = resources.getInteger(android.R.integer.config_shortAnimTime) / 2
         // Hide the add button
-        mAddButton.animate()
+        addButton.animate()
                 .scaleX(0f)
                 .scaleY(0f)
                 .translationY(resources.getDimension(R.dimen.gallery_fab_margin))
                 .setDuration(duration.toLong())
                 .withEndAction {
-                    mAddButton.visibility = View.INVISIBLE
+                    addButton.visibility = View.INVISIBLE
                     // Then show the toolbar
-                    mAddToolbar.visibility = View.VISIBLE
+                    addToolbar.visibility = View.VISIBLE
                     ViewAnimationUtils.createCircularReveal(
-                            mAddToolbar,
-                            mAddToolbar.width / 2,
-                            mAddToolbar.height / 2,
+                            addToolbar,
+                            addToolbar.width / 2,
+                            addToolbar.height / 2,
                             0f,
-                            (mAddToolbar.width / 2).toFloat())
+                            (addToolbar.width / 2).toFloat())
                             .setDuration(duration.toLong())
                             .start()
                 }
@@ -473,23 +473,23 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         val duration = resources.getInteger(android.R.integer.config_shortAnimTime) / 2
         // Hide the toolbar
         val hideAnimator = ViewAnimationUtils.createCircularReveal(
-                mAddToolbar,
-                mAddToolbar.width / 2,
-                mAddToolbar.height / 2,
-                (mAddToolbar.width / 2).toFloat(),
+                addToolbar,
+                addToolbar.width / 2,
+                addToolbar.height / 2,
+                (addToolbar.width / 2).toFloat(),
                 0f).setDuration((if (showAddButton) duration else duration * 2).toLong())
         hideAnimator.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator) {
-                mAddToolbar.visibility = View.INVISIBLE
+                addToolbar.visibility = View.INVISIBLE
                 if (showAddButton) {
-                    mAddButton.visibility = View.VISIBLE
-                    mAddButton.animate()
+                    addButton.visibility = View.VISIBLE
+                    addButton.animate()
                             .scaleX(1f)
                             .scaleY(1f)
                             .translationY(0f).duration = duration.toLong()
                 } else {
                     // Just reset the translationY
-                    mAddButton.translationY = 0f
+                    addButton.translationY = 0f
                 }
             }
         })
@@ -499,18 +499,18 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
     private fun tryUpdateSelection(allowAnimate: Boolean) {
         val selectionToolbarContainer = findViewById<View>(R.id.selection_toolbar_container)
 
-        if (mUpdatePosition >= 0) {
-            mChosenPhotosAdapter.notifyItemChanged(mUpdatePosition)
-            mUpdatePosition = -1
+        if (updatePosition >= 0) {
+            chosenPhotosAdapter.notifyItemChanged(updatePosition)
+            updatePosition = -1
         } else {
-            mChosenPhotosAdapter.notifyDataSetChanged()
+            chosenPhotosAdapter.notifyDataSetChanged()
         }
 
-        val selectedCount = mMultiSelectionController.selectedCount
+        val selectedCount = multiSelectionController.selectedCount
         val toolbarVisible = selectedCount > 0
         if (selectedCount == 1) {
             // Double check to make sure we can force a URI for the selected URI
-            val selectedId = mMultiSelectionController.selection.iterator().next()
+            val selectedId = multiSelectionController.selection.iterator().next()
             val liveData = GalleryDatabase.getInstance(this)
                     .chosenPhotoDao().chosenPhoto(selectedId)
             liveData.observeForever(object : Observer<ChosenPhoto> {
@@ -520,14 +520,14 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                         // Only show the force now icon if it isn't a tree URI or there is at least one image in the tree
                         !getImagesFromTreeUri(chosenPhoto.uri, 1).isEmpty()
                     } else true
-                    if (mSelectionToolbar.isAttachedToWindow) {
-                        mSelectionToolbar.menu.findItem(R.id.action_force_now).isVisible = showForceNow
+                    if (selectionToolbar.isAttachedToWindow) {
+                        selectionToolbar.menu.findItem(R.id.action_force_now).isVisible = showForceNow
                     }
                 }
             })
         }
         // Hide the force now button until the callback above sets it
-        mSelectionToolbar.menu.findItem(R.id.action_force_now).isVisible = false
+        selectionToolbar.menu.findItem(R.id.action_force_now).isVisible = false
 
         val previouslyVisible: Boolean = selectionToolbarContainer.getTag(
                 R.id.gallery_viewtag_previously_visible) as? Boolean ?: false
@@ -547,14 +547,14 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                         .setDuration(duration.toLong())
                         .withEndAction(null)
 
-                if (mAddToolbar.visibility == View.VISIBLE) {
+                if (addToolbar.visibility == View.VISIBLE) {
                     hideAddToolbar(false)
                 } else {
-                    mAddButton.animate()
+                    addButton.animate()
                             .scaleX(0f)
                             .scaleY(0f)
                             .setDuration(duration.toLong())
-                            .withEndAction { mAddButton.visibility = View.INVISIBLE }
+                            .withEndAction { addButton.visibility = View.INVISIBLE }
                 }
             } else {
                 selectionToolbarContainer.animate()
@@ -562,8 +562,8 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                         .setDuration(duration.toLong())
                         .withEndAction { selectionToolbarContainer.visibility = View.INVISIBLE }
 
-                mAddButton.visibility = View.VISIBLE
-                mAddButton.animate()
+                addButton.visibility = View.VISIBLE
+                addButton.animate()
                         .scaleY(1f)
                         .scaleX(1f)
                         .setDuration(duration.toLong())
@@ -575,21 +575,21 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             val title = Integer.toString(selectedCount)
             if (selectedCount == 1) {
                 // If they've selected a tree URI, show the DISPLAY_NAME instead of just '1'
-                val selectedId = mMultiSelectionController.selection.iterator().next()
+                val selectedId = multiSelectionController.selection.iterator().next()
                 val liveData = GalleryDatabase.getInstance(this)
                         .chosenPhotoDao().chosenPhoto(selectedId)
                 liveData.observeForever(object : Observer<ChosenPhoto> {
                     override fun onChanged(chosenPhoto: ChosenPhoto?) {
                         liveData.removeObserver(this)
-                        if (chosenPhoto?.isTreeUri == true && mSelectionToolbar.isAttachedToWindow) {
+                        if (chosenPhoto?.isTreeUri == true && selectionToolbar.isAttachedToWindow) {
                             getDisplayNameForTreeUri(chosenPhoto.uri)?.takeUnless { it.isEmpty() }?.run {
-                                mSelectionToolbar.title = this
+                                selectionToolbar.title = this
                             }
                         }
                     }
                 })
             }
-            mSelectionToolbar.title = title
+            selectionToolbar.title = title
         }
     }
 
@@ -614,7 +614,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
     private fun onDataSetChanged() {
         val emptyView = findViewById<View>(android.R.id.empty)
         val emptyDescription = findViewById<TextView>(R.id.empty_description)
-        val chosenPhotos = mChosenPhotosLiveData.value
+        val chosenPhotos = chosenPhotosLiveData.value
         if (chosenPhotos != null && !chosenPhotos.isEmpty()) {
             emptyView.visibility = View.GONE
             // We have at least one image, so consider the Gallery source properly setup
@@ -648,7 +648,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        mMultiSelectionController.restoreInstanceState(savedInstanceState)
+        multiSelectionController.restoreInstanceState(savedInstanceState)
     }
 
     internal class PhotoViewHolder(val mRootView: View) : RecyclerView.ViewHolder(mRootView) {
@@ -668,19 +668,19 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                     .inflate(R.layout.gallery_chosen_photo_item, parent, false)
             val vh = PhotoViewHolder(v)
 
-            v.layoutParams.height = mItemSize
+            v.layoutParams.height = itemSize
             v.setOnTouchListener { _, motionEvent ->
                 if (motionEvent.actionMasked != MotionEvent.ACTION_CANCEL) {
-                    mLastTouchPosition = vh.adapterPosition
-                    mLastTouchX = motionEvent.x.toInt()
-                    mLastTouchY = motionEvent.y.toInt()
+                    lastTouchPosition = vh.adapterPosition
+                    lastTouchX = motionEvent.x.toInt()
+                    lastTouchY = motionEvent.y.toInt()
                 }
                 false
             }
             v.setOnClickListener {
-                mUpdatePosition = vh.adapterPosition
-                if (mUpdatePosition != RecyclerView.NO_POSITION) {
-                    mMultiSelectionController.toggle(getItemId(mUpdatePosition), true)
+                updatePosition = vh.adapterPosition
+                if (updatePosition != RecyclerView.NO_POSITION) {
+                    multiSelectionController.toggle(getItemId(updatePosition), true)
                 }
             }
 
@@ -696,7 +696,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             else
                 listOf(chosenPhoto.contentUri)
             val numImages = images.size
-            val targetSize = if (numImages <= 1) mItemSize else mItemSize / 2
+            val targetSize = if (numImages <= 1) itemSize else itemSize / 2
             for (h in 0 until numImages) {
                 val thumbView = vh.mThumbViews[h]
                 thumbView.visibility = View.VISIBLE
@@ -704,7 +704,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                         .load(images[h])
                         .resize(targetSize, targetSize)
                         .centerCrop()
-                        .placeholder(mPlaceholderDrawable)
+                        .placeholder(placeholderDrawable)
                         .into(thumbView)
             }
             for (h in numImages until maxImages) {
@@ -712,11 +712,11 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                 // Show either just the one image or all the images even if
                 // they are just placeholders
                 thumbView.visibility = if (numImages <= 1) View.GONE else View.VISIBLE
-                thumbView.setImageDrawable(mPlaceholderDrawable)
+                thumbView.setImageDrawable(placeholderDrawable)
             }
-            val checked = mMultiSelectionController.isSelected(chosenPhoto.id)
+            val checked = multiSelectionController.isSelected(chosenPhoto.id)
             vh.mRootView.setTag(R.id.gallery_viewtag_position, position)
-            if (mLastTouchPosition == vh.adapterPosition && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (lastTouchPosition == vh.adapterPosition && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 Handler().post {
                     if (!vh.mCheckedOverlayView.isAttachedToWindow) {
                         // Can't animate detached Views
@@ -729,13 +729,13 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
 
                     // find the smallest radius that'll cover the item
                     val coverRadius = maxDistanceToCorner(
-                            mLastTouchX, mLastTouchY,
+                            lastTouchX, lastTouchY,
                             0, 0, vh.mRootView.width, vh.mRootView.height)
 
                     val revealAnim = ViewAnimationUtils.createCircularReveal(
                             vh.mCheckedOverlayView,
-                            mLastTouchX,
-                            mLastTouchY,
+                            lastTouchX,
+                            lastTouchY,
                             if (checked) 0f else coverRadius,
                             if (checked) coverRadius else 0f)
                             .setDuration(150)
@@ -813,10 +813,10 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (!mAddToolbar.isAttachedToWindow) {
+            if (!addToolbar.isAttachedToWindow) {
                 // Can't animate detached Views
-                mAddToolbar.visibility = View.INVISIBLE
-                mAddButton.visibility = View.VISIBLE
+                addToolbar.visibility = View.INVISIBLE
+                addButton.visibility = View.VISIBLE
             } else {
                 hideAddToolbar(true)
             }
@@ -853,19 +853,19 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             return
         }
         // Update chosen URIs
-        mHandler.post {
+        handler.post {
             GalleryDatabase.getInstance(this).chosenPhotoDao()
                     .insertAll(this, uris)
         }
     }
 
     override fun onChanged(chosenPhotos: PagedList<ChosenPhoto>?) {
-        mChosenPhotosAdapter.setList(chosenPhotos)
+        chosenPhotosAdapter.setList(chosenPhotos)
         onDataSetChanged()
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
-        mMultiSelectionController.saveInstanceState(outState)
+        multiSelectionController.saveInstanceState(outState)
     }
 }

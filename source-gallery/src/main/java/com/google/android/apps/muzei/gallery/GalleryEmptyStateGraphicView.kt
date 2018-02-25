@@ -57,36 +57,36 @@ class GalleryEmptyStateGraphicView
         private const val OFF_TIME_MILLIS = 50
     }
 
-    private val mOffPaint = Paint().apply { isAntiAlias = true }
-    private val mOnPaint = Paint().apply { isAntiAlias = true }
-    private var mWidth: Int = 0
-    private var mHeight: Int = 0
-    private var mOnTime: Long = 0
-    private var mOnX: Int = 0
-    private var mOnY: Int = 0
-    private val mRandom = Random()
-    private val mTempRectF = RectF()
-    private val mCellSpacing: Int
-    private val mCellRounding: Int
-    private val mCellSize: Int
+    private val offPaint = Paint().apply { isAntiAlias = true }
+    private val onPaint = Paint().apply { isAntiAlias = true }
+    private var currentWidth: Int = 0
+    private var currentHeight: Int = 0
+    private var onTime: Long = 0
+    private var onX: Int = 0
+    private var onY: Int = 0
+    private val random = Random()
+    private val tempRectF = RectF()
+    private val cellSpacing: Int
+    private val cellRounding: Int
+    private val cellSize: Int
 
     init {
-        mOffPaint.color = ContextCompat.getColor(context, R.color.gallery_empty_state_dark)
-        mOnPaint.color = ContextCompat.getColor(context, R.color.gallery_empty_state_light)
+        offPaint.color = ContextCompat.getColor(context, R.color.gallery_empty_state_dark)
+        onPaint.color = ContextCompat.getColor(context, R.color.gallery_empty_state_light)
 
         val displayMetrics = resources.displayMetrics
-        mCellSpacing = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+        cellSpacing = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                 CELL_SPACING_DIP.toFloat(), displayMetrics).toInt()
-        mCellSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+        cellSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                 CELL_SIZE_DIP.toFloat(), displayMetrics).toInt()
-        mCellRounding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+        cellRounding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                 CELL_ROUNDING_DIP.toFloat(), displayMetrics).toInt()
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        mWidth = w
-        mHeight = h
+        currentWidth = w
+        currentHeight = h
     }
 
     override fun onVisibilityChanged(changedView: View, visibility: Int) {
@@ -99,62 +99,62 @@ class GalleryEmptyStateGraphicView
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         setMeasuredDimension(
-                View.resolveSize(COLS * mCellSize + (COLS - 1) * mCellSpacing, widthMeasureSpec),
-                View.resolveSize(ROWS * mCellSize + (ROWS - 1) * mCellSpacing, heightMeasureSpec))
+                View.resolveSize(COLS * cellSize + (COLS - 1) * cellSpacing, widthMeasureSpec),
+                View.resolveSize(ROWS * cellSize + (ROWS - 1) * cellSpacing, heightMeasureSpec))
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        if (!isShown || mWidth == 0 || mHeight == 0) {
+        if (!isShown || currentWidth == 0 || currentHeight == 0) {
             return
         }
 
         // tick timer
         val nowElapsed = SystemClock.elapsedRealtime()
-        if (nowElapsed > mOnTime + ON_TIME_MILLIS.toLong() + (FADE_TIME_MILLIS * 2).toLong() + OFF_TIME_MILLIS.toLong()) {
-            mOnTime = nowElapsed
+        if (nowElapsed > onTime + ON_TIME_MILLIS.toLong() + (FADE_TIME_MILLIS * 2).toLong() + OFF_TIME_MILLIS.toLong()) {
+            onTime = nowElapsed
             while (true) {
-                val x = mRandom.nextInt(COLS)
-                val y = mRandom.nextInt(ROWS)
-                if ((x != mOnX || y != mOnY) && BITMAP[y * COLS + x] == 1) {
-                    mOnX = x
-                    mOnY = y
+                val x = random.nextInt(COLS)
+                val y = random.nextInt(ROWS)
+                if ((x != onX || y != onY) && BITMAP[y * COLS + x] == 1) {
+                    onX = x
+                    onY = y
                     break
                 }
             }
         }
 
-        val t = (nowElapsed - mOnTime).toInt()
+        val t = (nowElapsed - onTime).toInt()
         for (y in 0 until ROWS) {
             for (x in 0 until COLS) {
                 if (BITMAP[y * COLS + x] != 1) {
                     continue
                 }
 
-                mTempRectF.set(
-                        (x * (mCellSize + mCellSpacing)).toFloat(),
-                        (y * (mCellSize + mCellSpacing)).toFloat(),
-                        (x * (mCellSize + mCellSpacing) + mCellSize).toFloat(),
-                        (y * (mCellSize + mCellSpacing) + mCellSize).toFloat())
+                tempRectF.set(
+                        (x * (cellSize + cellSpacing)).toFloat(),
+                        (y * (cellSize + cellSpacing)).toFloat(),
+                        (x * (cellSize + cellSpacing) + cellSize).toFloat(),
+                        (y * (cellSize + cellSpacing) + cellSize).toFloat())
 
-                canvas.drawRoundRect(mTempRectF,
-                        mCellRounding.toFloat(),
-                        mCellRounding.toFloat(),
-                        mOffPaint)
+                canvas.drawRoundRect(tempRectF,
+                        cellRounding.toFloat(),
+                        cellRounding.toFloat(),
+                        offPaint)
 
-                if (nowElapsed <= mOnTime + ON_TIME_MILLIS.toLong() + (FADE_TIME_MILLIS * 2).toLong()
-                        && mOnX == x && mOnY == y) {
+                if (nowElapsed <= onTime + ON_TIME_MILLIS.toLong() + (FADE_TIME_MILLIS * 2).toLong()
+                        && onX == x && onY == y) {
                     // draw items
-                    mOnPaint.alpha = when {
+                    onPaint.alpha = when {
                         t < FADE_TIME_MILLIS -> t * 255 / FADE_TIME_MILLIS
                         t < FADE_TIME_MILLIS + ON_TIME_MILLIS -> 255
                         else -> 255 - (t - ON_TIME_MILLIS - FADE_TIME_MILLIS) * 255 / FADE_TIME_MILLIS
                     }
 
-                    canvas.drawRoundRect(mTempRectF,
-                            mCellRounding.toFloat(),
-                            mCellRounding.toFloat(),
-                            mOnPaint)
+                    canvas.drawRoundRect(tempRectF,
+                            cellRounding.toFloat(),
+                            cellRounding.toFloat(),
+                            onPaint)
                 }
             }
         }

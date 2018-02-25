@@ -24,37 +24,37 @@ class GalleryImportPhotosDialogFragment : DialogFragment() {
         }
     }
 
-    private val mGetContentActivitiesLiveData: LiveData<List<ActivityInfo>> by lazy {
+    private val getContentActivitiesLiveData: LiveData<List<ActivityInfo>> by lazy {
         ViewModelProviders.of(activity!!)
                 .get(GallerySettingsViewModel::class.java)
                 .getContentActivityInfoList
     }
-    private var mListener: OnRequestContentListener? = null
-    private lateinit var mAdapter: ArrayAdapter<CharSequence>
+    private var listener: OnRequestContentListener? = null
+    private lateinit var adapter: ArrayAdapter<CharSequence>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         context?.withStyledAttributes(attrs = R.styleable.AlertDialog, defStyleAttr = R.attr.alertDialogStyle) {
             @LayoutRes val listItemLayout = getResourceId(R.styleable.AlertDialog_listItemLayout, 0)
-            mAdapter = ArrayAdapter(context, listItemLayout)
+            adapter = ArrayAdapter(context, listItemLayout)
         }
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return AlertDialog.Builder(context!!)
                 .setTitle(R.string.gallery_import_dialog_title)
-                .setAdapter(mAdapter) { _, which ->
-                    mGetContentActivitiesLiveData.value?.run {
-                        mListener?.requestGetContent(get(which))
+                .setAdapter(adapter) { _, which ->
+                    getContentActivitiesLiveData.value?.run {
+                        listener?.requestGetContent(get(which))
                     }
                 }.create()
     }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        mListener = context as? OnRequestContentListener ?: throw IllegalArgumentException(
+        listener = context as? OnRequestContentListener ?: throw IllegalArgumentException(
                 "$context.javaClass.simpleName must implement OnRequestContentListener")
-        mGetContentActivitiesLiveData.observe(this, Observer { getContentActivities ->
+        getContentActivitiesLiveData.observe(this, Observer { getContentActivities ->
             run {
                 if (getContentActivities?.isEmpty() != false) {
                     dismiss()
@@ -67,12 +67,12 @@ class GalleryImportPhotosDialogFragment : DialogFragment() {
 
     override fun onDetach() {
         super.onDetach()
-        mListener = null
+        listener = null
     }
 
     private fun updateAdapter(getContentActivites: List<ActivityInfo>) {
         val packageManager = context?.packageManager
-        mAdapter.apply {
+        adapter.apply {
             clear()
             addAll(getContentActivites.map { it.loadLabel(packageManager) })
             notifyDataSetChanged()

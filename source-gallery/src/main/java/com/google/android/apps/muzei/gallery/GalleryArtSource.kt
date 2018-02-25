@@ -64,30 +64,30 @@ class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
                 "com.google.android.apps.muzei.gallery.action.PUBLISH_NEXT_GALLERY_ITEM"
         internal const val EXTRA_FORCE_URI = "com.google.android.apps.muzei.gallery.extra.FORCE_URI"
 
-        private val sRandom = Random()
+        private val RANDOM = Random()
 
         @SuppressLint("SimpleDateFormat")
-        private val sExifDateFormat = SimpleDateFormat("yyyy:MM:dd HH:mm:ss")
+        private val EXIF_DATE_FORMAT = SimpleDateFormat("yyyy:MM:dd HH:mm:ss")
 
-        private val sOmitCountryCodes = hashSetOf("US")
+        private val OMIT_COUNTRY_CODES = hashSetOf("US")
 
         internal fun getSharedPreferences(context: Context): SharedPreferences {
             return MuzeiArtSource.getSharedPreferences(context, SOURCE_NAME)
         }
     }
 
-    private val mLifecycle = LifecycleRegistry(this)
-    private val mGeocoder by lazy {
+    private val lifecycle = LifecycleRegistry(this)
+    private val geocoder by lazy {
         Geocoder(this)
     }
 
     override fun getLifecycle(): Lifecycle {
-        return mLifecycle
+        return lifecycle
     }
 
     override fun onCreate() {
         super.onCreate()
-        mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START)
 
         GalleryDatabase.getInstance(this).chosenPhotoDao().chosenPhotos.observe(this,
                 object : Observer<List<ChosenPhoto>> {
@@ -123,7 +123,7 @@ class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
     }
 
     override fun onDestroy() {
-        mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         super.onDestroy()
     }
 
@@ -159,7 +159,7 @@ class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
                     val treeUri = chosenPhoto.uri
                     val photoUris = ArrayList<Uri>()
                     addAllImagesFromTree(photoUris, treeUri, DocumentsContract.getTreeDocumentId(treeUri))
-                    Pair(photoUris[sRandom.nextInt(photoUris.size)], forceUri)
+                    Pair(photoUris[RANDOM.nextInt(photoUris.size)], forceUri)
                 } else {
                     Pair(forceUri, forceUri)
                 }
@@ -193,7 +193,7 @@ class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
                 }
                 var index : Int
                 while (true) {
-                    index = sRandom.nextInt(numImages)
+                    index = RANDOM.nextInt(numImages)
                     if (numImages <= 1 || allImages[index] != lastImageUri) {
                         break
                     }
@@ -219,7 +219,7 @@ class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
 
                     var newImageUri : Uri
                     while (true) {
-                        it.moveToPosition(sRandom.nextInt(count))
+                        it.moveToPosition(RANDOM.nextInt(count))
                         newImageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                                 it.getLong(0))
                         if (newImageUri != lastImageUri) {
@@ -356,13 +356,13 @@ class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
                 val exifInterface = ExifInterface(input)
                 val dateString = exifInterface.getAttribute(ExifInterface.TAG_DATETIME)
                 if (!TextUtils.isEmpty(dateString)) {
-                    metadata.date = sExifDateFormat.parse(dateString)
+                    metadata.date = EXIF_DATE_FORMAT.parse(dateString)
                 }
 
                 exifInterface.latLong?.apply {
                     // Reverse geocode
                     val addresses = try {
-                        mGeocoder.getFromLocation(this[0], this[1], 1)
+                        geocoder.getFromLocation(this[0], this[1], 1)
                     } catch (e: IllegalArgumentException) {
                         Log.w(TAG, "Invalid latitude/longitude, skipping location metadata", e)
                         null
@@ -382,7 +382,7 @@ class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
                             }
                             sb.append(adminArea)
                         }
-                        if (!countryCode.isNullOrEmpty() && !sOmitCountryCodes.contains(countryCode)) {
+                        if (!countryCode.isNullOrEmpty() && !OMIT_COUNTRY_CODES.contains(countryCode)) {
                             if (sb.isNotEmpty()) {
                                 sb.append(", ")
                             }

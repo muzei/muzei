@@ -38,11 +38,11 @@ internal abstract class GalleryDatabase : RoomDatabase() {
         private const val TAG = "GalleryDatabase"
 
         @Volatile
-        private var sInstance: GalleryDatabase? = null
+        private var instance: GalleryDatabase? = null
 
         fun getInstance(context: Context): GalleryDatabase =
-                sInstance ?: synchronized(this) {
-                    sInstance ?: buildDatabase(context).also { sInstance = it }
+                instance ?: synchronized(this) {
+                    instance ?: buildDatabase(context).also { instance = it }
                 }
 
         private fun buildDatabase(context: Context) =

@@ -40,12 +40,12 @@ class AnimatedMuzeiLoadingSpinnerView @JvmOverloads constructor(context: Context
         private val INTERPOLATOR = LinearInterpolator()
     }
 
-    private var mGlyphData: GlyphData? = null
-    private val mMarkerLength: Float = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+    private var glyphData: GlyphData? = null
+    private val markerLength: Float = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
             MARKER_LENGTH_DIP.toFloat(), resources.displayMetrics)
-    private var mWidth: Int = 0
-    private var mHeight: Int = 0
-    private var mStartTime: Long = -1
+    private var currentWidth: Int = 0
+    private var currentHeight: Int = 0
+    private var startTime: Long = -1
 
     init {
         // See https://github.com/romainguy/road-trip/blob/master/application/src/main/java/org/curiouscreature/android/roadtrip/IntroView.java
@@ -61,30 +61,30 @@ class AnimatedMuzeiLoadingSpinnerView @JvmOverloads constructor(context: Context
     }
 
     fun start() {
-        mStartTime = System.currentTimeMillis()
+        startTime = System.currentTimeMillis()
         postInvalidateOnAnimation()
     }
 
     fun stop() {
-        mStartTime = -1
+        startTime = -1
         postInvalidateOnAnimation()
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        mWidth = w
-        mHeight = h
+        currentWidth = w
+        currentHeight = h
         rebuildGlyphData()
     }
 
     private fun rebuildGlyphData() {
         val parser = object : SvgPathParser() {
             override fun transformX(x: Float): Float {
-                return x * mWidth / VIEWPORT.width()
+                return x * currentWidth / VIEWPORT.width()
             }
 
             override fun transformY(y: Float): Float {
-                return y * mHeight / VIEWPORT.height()
+                return y * currentHeight / VIEWPORT.height()
             }
         }
 
@@ -94,7 +94,7 @@ class AnimatedMuzeiLoadingSpinnerView @JvmOverloads constructor(context: Context
             Log.e(TAG, "Couldn't parse path", e)
             Path()
         }
-        mGlyphData = GlyphData(path, Paint().apply {
+        glyphData = GlyphData(path, Paint().apply {
             style = Paint.Style.STROKE
             isAntiAlias = true
             color = Color.WHITE
@@ -105,18 +105,18 @@ class AnimatedMuzeiLoadingSpinnerView @JvmOverloads constructor(context: Context
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        if (mStartTime < 0 || mGlyphData == null) {
+        if (startTime < 0 || glyphData == null) {
             return
         }
 
-        val t = (System.currentTimeMillis() - mStartTime) % (TRACE_TIME * 2)
+        val t = (System.currentTimeMillis() - startTime) % (TRACE_TIME * 2)
 
         val sc = canvas.save()
         canvas.translate(
-                -VIEWPORT.left * mWidth / VIEWPORT.width(),
-                -VIEWPORT.top * mHeight / VIEWPORT.height())
+                -VIEWPORT.left * currentWidth / VIEWPORT.width(),
+                -VIEWPORT.top * currentHeight / VIEWPORT.height())
 
-        mGlyphData?.let { glyphData ->
+        glyphData?.let { glyphData ->
             // Draw outlines (starts as traced)
             val phase = MathUtil.constrain(0f, 1f, t % TRACE_TIME * 1f / TRACE_TIME)
             val distance = INTERPOLATOR.getInterpolation(phase) * glyphData.length
@@ -136,7 +136,7 @@ class AnimatedMuzeiLoadingSpinnerView @JvmOverloads constructor(context: Context
                 color = TRACE_COLOR
                 @SuppressLint("DrawAllocation")
                 pathEffect = DashPathEffect(
-                        floatArrayOf(0f, distance, if (phase > 0) mMarkerLength else 0f, glyphData.length), 0f)
+                        floatArrayOf(0f, distance, if (phase > 0) markerLength else 0f, glyphData.length), 0f)
             }
             canvas.drawPath(glyphData.path, glyphData.paint)
             canvas.restoreToCount(sc)

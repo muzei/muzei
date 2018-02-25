@@ -44,7 +44,7 @@ class SingleArtSource : MuzeiArtSource("SingleArtSource") {
         private const val EXTRA_ARTWORK_TITLE = "title"
         private const val EXTRA_ARTWORK_URI = "uri"
 
-        private val sExecutor: ExecutorService by lazy {
+        private val EXECUTOR: ExecutorService by lazy {
             Executors.newSingleThreadExecutor()
         }
 
@@ -54,7 +54,7 @@ class SingleArtSource : MuzeiArtSource("SingleArtSource") {
 
         fun setArtwork(context: Context, artworkUri: Uri): LiveData<Boolean> {
             val mutableLiveData = MutableLiveData<Boolean>()
-            sExecutor.submit {
+            EXECUTOR.submit {
                 val tempFile = writeUriToFile(context, artworkUri, getArtworkFile(context)) ?.let { file ->
                     context.startService(Intent(context, SingleArtSource::class.java).apply {
                         action = ACTION_PUBLISH_NEW_ARTWORK
