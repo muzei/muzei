@@ -32,7 +32,7 @@ class LockscreenObserver(private val mContext: Context,
     : DefaultLifecycleObserver {
 
     private var lockScreenVisibleReceiverRegistered = false
-    private val mLockScreenPreferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { sp, key ->
+    private val lockScreenPreferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { sp, key ->
         if (Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED == key) {
             if (sp.getBoolean(Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED, false)) {
                 val intentFilter = IntentFilter()
@@ -69,9 +69,9 @@ class LockscreenObserver(private val mContext: Context,
 
     override fun onCreate(owner: LifecycleOwner) {
         val sp = Prefs.getSharedPreferences(mContext)
-        sp.registerOnSharedPreferenceChangeListener(mLockScreenPreferenceChangeListener)
+        sp.registerOnSharedPreferenceChangeListener(lockScreenPreferenceChangeListener)
         // Trigger the initial registration if needed
-        mLockScreenPreferenceChangeListener.onSharedPreferenceChanged(sp,
+        lockScreenPreferenceChangeListener.onSharedPreferenceChanged(sp,
                 Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED)
     }
 
@@ -80,6 +80,6 @@ class LockscreenObserver(private val mContext: Context,
             mContext.unregisterReceiver(mLockScreenVisibleReceiver)
         }
         Prefs.getSharedPreferences(mContext)
-                .unregisterOnSharedPreferenceChangeListener(mLockScreenPreferenceChangeListener)
+                .unregisterOnSharedPreferenceChangeListener(lockScreenPreferenceChangeListener)
     }
 }
