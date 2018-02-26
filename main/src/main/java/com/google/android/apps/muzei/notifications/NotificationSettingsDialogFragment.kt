@@ -53,7 +53,7 @@ class NotificationSettingsDialogFragment : DialogFragment() {
         }
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle): Dialog {
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val context = context ?: return super.onCreateDialog(savedInstanceState)
         val items = arrayOf(context.getText(R.string.notification_new_wallpaper_channel_name))
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
