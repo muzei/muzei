@@ -209,7 +209,7 @@ class SettingsActivity : AppCompatActivity(), ChooseSourceFragment.Callbacks {
             if (localRenderFragment == null) {
                 fm.beginTransaction()
                         .add(R.id.local_render_container,
-                                MuzeiRendererFragment.createInstance(false, false))
+                                MuzeiRendererFragment.createInstance(false))
                         .commit()
             }
             if (localRenderContainer.alpha == 1f) {

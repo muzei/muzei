@@ -49,7 +49,7 @@ class AboutActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
                     .add(R.id.demo_view_container,
-                            MuzeiRendererFragment.createInstance(true, false))
+                            MuzeiRendererFragment.createInstance(true))
                     .commit()
         }
 
