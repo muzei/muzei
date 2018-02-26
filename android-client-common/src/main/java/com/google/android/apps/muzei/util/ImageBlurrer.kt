@@ -25,6 +25,14 @@ import android.renderscript.RenderScript
 import android.renderscript.ScriptIntrinsicBlur
 import android.renderscript.ScriptIntrinsicColorMatrix
 
+fun Bitmap?.blur(context: Context, radius: Float = ImageBlurrer.MAX_SUPPORTED_BLUR_PIXELS.toFloat())
+        : Bitmap? {
+    val blurrer = ImageBlurrer(context, this)
+    val blurred = blurrer.blurBitmap(radius)
+    blurrer.destroy()
+    return blurred
+}
+
 class ImageBlurrer(context: Context, private val sourceBitmap: Bitmap?) {
 
     companion object {

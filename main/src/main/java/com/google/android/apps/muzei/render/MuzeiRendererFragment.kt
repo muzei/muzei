@@ -61,16 +61,12 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
     private val mSimpleDemoModeLoadedTarget = object : Target {
         override fun onBitmapLoaded(bitmap: Bitmap?, loadedFrom: Picasso.LoadedFrom) {
             simpleDemoModeImageView.setImageBitmap(if (!demoFocus) {
-                // Blur
-                val blurrer = ImageBlurrer(context!!, bitmap)
-                val blurred = blurrer.blurBitmap()
-                blurrer.destroy()
-
-                // Dim
-                val c = Canvas(blurred!!)
-                c.drawColor(Color.argb(255 - MuzeiBlurRenderer.DEFAULT_MAX_DIM,
-                        0, 0, 0))
-                blurred
+                bitmap.blur(context!!)?.apply {
+                    // Dim
+                    val c = Canvas(this)
+                    c.drawColor(Color.argb(255 - MuzeiBlurRenderer.DEFAULT_MAX_DIM,
+                            0, 0, 0))
+                }
             } else {
                 bitmap
             })
