@@ -59,7 +59,7 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
     private var demoFocus: Boolean = false
 
     private val mSimpleDemoModeLoadedTarget = object : Target {
-        override fun onBitmapLoaded(bitmap: Bitmap?, loadedFrom: Picasso.LoadedFrom) {
+        override fun onBitmapLoaded(bitmap: Bitmap?, loadedFrom: Picasso.LoadedFrom?) {
             simpleDemoModeImageView.setImageBitmap(if (!demoFocus) {
                 bitmap.blur(context!!)?.apply {
                     // Dim
@@ -72,9 +72,9 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
             })
         }
 
-        override fun onBitmapFailed(drawable: Drawable) {}
+        override fun onBitmapFailed(drawable: Drawable?) {}
 
-        override fun onPrepareLoad(drawable: Drawable) {}
+        override fun onPrepareLoad(drawable: Drawable?) {}
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
