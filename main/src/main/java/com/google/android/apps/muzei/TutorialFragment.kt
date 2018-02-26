@@ -129,7 +129,10 @@ class TutorialFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        runningAnimators.forEach { it.cancel() }
+        runningAnimators.forEach {
+            it.removeAllListeners()
+            it.cancel()
+        }
         super.onDestroyView()
     }
 }
