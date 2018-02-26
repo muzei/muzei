@@ -44,7 +44,7 @@ interface SourceDao {
     val sourceComponentNamesBlocking: List<ComponentName>
 
     @get:Query("SELECT * FROM sources WHERE selected=1 ORDER BY component_name")
-    val currentSource: LiveData<Source>
+    val currentSource: LiveData<Source?>
 
     @get:Query("SELECT * FROM sources WHERE selected=1 ORDER BY component_name")
     val currentSourceBlocking: Source?
