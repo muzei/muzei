@@ -54,7 +54,7 @@ class GalleryImportPhotosDialogFragment : DialogFragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         listener = context as? OnRequestContentListener ?: throw IllegalArgumentException(
-                "$context.javaClass.simpleName must implement OnRequestContentListener")
+                "${context.javaClass.simpleName} must implement OnRequestContentListener")
         getContentActivitiesLiveData.observe(this, Observer { getContentActivities ->
             run {
                 if (getContentActivities?.isEmpty() != false) {
