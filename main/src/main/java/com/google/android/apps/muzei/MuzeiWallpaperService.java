@@ -213,9 +213,7 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
                 try (InputStream input = getContentResolver().openInputStream(MuzeiContract.Artwork.CONTENT_URI)) {
                     BitmapFactory.decodeStream(input, null, options);
                 }
-                options.inSampleSize = Math.max(
-                        ImageUtil.calculateSampleSize(options.outHeight, MAX_ARTWORK_SIZE / 2),
-                        ImageUtil.calculateSampleSize(options.outWidth, MAX_ARTWORK_SIZE / 2));
+                options.inSampleSize = ImageUtil.sampleSize(options, MAX_ARTWORK_SIZE / 2);
                 options.inJustDecodeBounds = false;
                 try (InputStream input = getContentResolver().openInputStream(MuzeiContract.Artwork.CONTENT_URI)) {
                     mCurrentArtwork = BitmapFactory.decodeStream(input, null, options);

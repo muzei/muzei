@@ -190,8 +190,8 @@ public class AppWidgetUpdateTask extends AsyncTask<Void,Void,Boolean> {
             int width = regionLoader.getWidth();
             int height = regionLoader.getHeight();
             BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inSampleSize = Math.max(ImageUtil.calculateSampleSize(width, widgetWidth / 2),
-                    ImageUtil.calculateSampleSize(height, widgetHeight / 2));
+            options.inSampleSize = Math.max(ImageUtil.sampleSize(width, widgetWidth / 2),
+                    ImageUtil.sampleSize(height, widgetHeight / 2));
             image = regionLoader.decodeRegion(new Rect(0, 0, width, height), options);
             regionLoader.destroy();
         } catch (IOException e) {

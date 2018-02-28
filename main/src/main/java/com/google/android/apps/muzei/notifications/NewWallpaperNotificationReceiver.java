@@ -257,12 +257,12 @@ public class NewWallpaperNotificationReceiver extends BroadcastReceiver {
             options.inJustDecodeBounds = false;
             int largeIconHeight = context.getResources()
                     .getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
-            options.inSampleSize = ImageUtil.calculateSampleSize(shortestLength, largeIconHeight);
+            options.inSampleSize = ImageUtil.sampleSize(shortestLength, largeIconHeight);
             largeIcon = regionLoader.decodeRegion(new Rect(0, 0, width, height), options);
 
             // Use the suggested 400x400 for Android Wear background images per
             // http://developer.android.com/training/wearables/notifications/creating.html#AddWearableFeatures
-            options.inSampleSize = ImageUtil.calculateSampleSize(height, 400);
+            options.inSampleSize = ImageUtil.sampleSize(height, 400);
             background = regionLoader.decodeRegion(new Rect(0, 0, width, height), options);
             regionLoader.destroy();
         } catch (IOException e) {

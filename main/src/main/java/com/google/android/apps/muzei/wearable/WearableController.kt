@@ -29,7 +29,7 @@ import android.os.HandlerThread
 import android.support.media.ExifInterface
 import android.util.Log
 import com.google.android.apps.muzei.api.MuzeiContract
-import com.google.android.apps.muzei.render.ImageUtil
+import com.google.android.apps.muzei.render.sampleSize
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
@@ -169,9 +169,9 @@ class WearableController(private val context: Context) : DefaultLifecycleObserve
             }
             options.inJustDecodeBounds = false
             if (options.outWidth > options.outHeight) {
-                options.inSampleSize = ImageUtil.calculateSampleSize(options.outHeight, 320)
+                options.inSampleSize = options.outHeight.sampleSize(320)
             } else {
-                options.inSampleSize = ImageUtil.calculateSampleSize(options.outWidth, 320)
+                options.inSampleSize = options.outWidth.sampleSize(320)
             }
             contentResolver.openInputStream(
                     MuzeiContract.Artwork.CONTENT_URI)?.use {

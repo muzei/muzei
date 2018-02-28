@@ -299,9 +299,9 @@ class MuzeiBlurRenderer(private val context: Context,
 
                 // Calculate image darkness to determine dim amount
                 rect.set(0, 0, originalWidth, originalHeight)
-                options.inSampleSize = ImageUtil.calculateSampleSize(originalHeight, 64)
+                options.inSampleSize = originalHeight.sampleSize(64)
                 var tempBitmap = bitmapRegionLoader.decodeRegion(rect, options)
-                val darkness = ImageUtil.calculateDarkness(tempBitmap)
+                val darkness = tempBitmap.darkness()
                 dimAmount = if (demoMode)
                     DEMO_DIM
                 else
@@ -332,8 +332,7 @@ class MuzeiBlurRenderer(private val context: Context,
 
                     // To blur, first load the entire bitmap region, but at a very large
                     // sample size that's appropriate for the final blurred image
-                    options.inSampleSize = ImageUtil.calculateSampleSize(
-                            originalHeight, sampleSizeTargetHeight)
+                    options.inSampleSize = originalHeight.sampleSize(sampleSizeTargetHeight)
                     rect.set(0, 0, originalWidth, originalHeight)
                     tempBitmap = bitmapRegionLoader.decodeRegion(rect, options)
 
