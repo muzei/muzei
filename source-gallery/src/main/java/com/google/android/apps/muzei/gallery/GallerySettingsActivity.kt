@@ -38,7 +38,7 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.ViewCompat
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.recyclerview.extensions.DiffCallback
+import android.support.v7.util.DiffUtil
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -80,7 +80,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             }
         }
 
-        internal val CHOSEN_PHOTO_DIFF_CALLBACK: DiffCallback<ChosenPhoto> = object : DiffCallback<ChosenPhoto>() {
+        internal val CHOSEN_PHOTO_DIFF_CALLBACK: DiffUtil.ItemCallback<ChosenPhoto> = object : DiffUtil.ItemCallback<ChosenPhoto>() {
             override fun areItemsTheSame(oldItem: ChosenPhoto, newItem: ChosenPhoto): Boolean {
                 return oldItem.uri == newItem.uri
             }
@@ -860,7 +860,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
     }
 
     override fun onChanged(chosenPhotos: PagedList<ChosenPhoto>?) {
-        chosenPhotosAdapter.setList(chosenPhotos)
+        chosenPhotosAdapter.submitList(chosenPhotos)
         onDataSetChanged()
     }
 
