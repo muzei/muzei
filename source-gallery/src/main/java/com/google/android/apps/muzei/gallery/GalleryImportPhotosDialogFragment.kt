@@ -4,7 +4,6 @@ import android.app.Dialog
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.os.Bundle
@@ -26,7 +25,8 @@ class GalleryImportPhotosDialogFragment : DialogFragment() {
     }
 
     private val getContentActivitiesLiveData: LiveData<List<ActivityInfo>> by lazy {
-        ViewModelProviders.of(requireActivity())
+        ViewModelProvider(this,
+                ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application))
                 .get(GallerySettingsViewModel::class.java)
                 .getContentActivityInfoList
     }

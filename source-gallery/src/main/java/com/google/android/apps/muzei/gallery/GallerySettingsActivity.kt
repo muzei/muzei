@@ -22,7 +22,7 @@ import android.animation.AnimatorListenerAdapter
 import android.annotation.TargetApi
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
+import android.arch.lifecycle.ViewModelProvider
 import android.arch.paging.PagedList
 import android.arch.paging.PagedListAdapter
 import android.content.*
@@ -100,7 +100,9 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
     }
 
     private val viewModel: GallerySettingsViewModel by lazy {
-        ViewModelProviders.of(this).get(GallerySettingsViewModel::class.java)
+        ViewModelProvider(this,
+                ViewModelProvider.AndroidViewModelFactory.getInstance(application))
+                .get(GallerySettingsViewModel::class.java)
     }
 
     private val chosenPhotosLiveData: LiveData<PagedList<ChosenPhoto>> by lazy {
