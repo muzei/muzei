@@ -44,19 +44,19 @@ class EffectsFragment : Fragment() {
     private lateinit var greySeekBar: SeekBar
 
     private val mUpdateBlurRunnable = Runnable {
-        Prefs.getSharedPreferences(context).edit {
+        Prefs.getSharedPreferences(requireContext()).edit {
             putInt(Prefs.PREF_BLUR_AMOUNT, blurSeekBar.progress)
         }
     }
 
     private val mUpdateDimRunnable = Runnable {
-        Prefs.getSharedPreferences(context).edit {
+        Prefs.getSharedPreferences(requireContext()).edit {
             putInt(Prefs.PREF_DIM_AMOUNT, dimSeekBar.progress)
         }
     }
 
     private val mUpdateGreyRunnable = Runnable {
-        Prefs.getSharedPreferences(context).edit {
+        Prefs.getSharedPreferences(requireContext()).edit {
             putInt(Prefs.PREF_GREY_AMOUNT, greySeekBar.progress)
         }
     }
@@ -77,7 +77,7 @@ class EffectsFragment : Fragment() {
         view.requestFitSystemWindows()
 
         blurSeekBar = view.findViewById(R.id.blur_amount)
-        blurSeekBar.progress = Prefs.getSharedPreferences(context)
+        blurSeekBar.progress = Prefs.getSharedPreferences(requireContext())
                 .getInt(Prefs.PREF_BLUR_AMOUNT, MuzeiBlurRenderer.DEFAULT_BLUR)
         blurSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
@@ -93,7 +93,7 @@ class EffectsFragment : Fragment() {
         })
 
         dimSeekBar = view.findViewById(R.id.dim_amount)
-        dimSeekBar.progress = Prefs.getSharedPreferences(context)
+        dimSeekBar.progress = Prefs.getSharedPreferences(requireContext())
                 .getInt(Prefs.PREF_DIM_AMOUNT, MuzeiBlurRenderer.DEFAULT_MAX_DIM)
         dimSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
@@ -109,7 +109,7 @@ class EffectsFragment : Fragment() {
         })
 
         greySeekBar = view.findViewById(R.id.grey_amount)
-        greySeekBar.progress = Prefs.getSharedPreferences(context)
+        greySeekBar.progress = Prefs.getSharedPreferences(requireContext())
                 .getInt(Prefs.PREF_GREY_AMOUNT, MuzeiBlurRenderer.DEFAULT_GREY)
         greySeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
@@ -126,11 +126,11 @@ class EffectsFragment : Fragment() {
         val mBlurOnLockScreenCheckBox = view.findViewById<CheckBox>(
                 R.id.blur_on_lockscreen_checkbox)
         mBlurOnLockScreenCheckBox.setOnCheckedChangeListener { _, checked ->
-            Prefs.getSharedPreferences(context).edit()
+            Prefs.getSharedPreferences(requireContext()).edit()
                     .putBoolean(Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED, !checked)
                     .apply()
         }
-        mBlurOnLockScreenCheckBox.isChecked = !Prefs.getSharedPreferences(context)
+        mBlurOnLockScreenCheckBox.isChecked = !Prefs.getSharedPreferences(requireContext())
                 .getBoolean(Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED, false)
     }
 
@@ -142,7 +142,7 @@ class EffectsFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_reset_defaults -> {
-                Prefs.getSharedPreferences(context).edit {
+                Prefs.getSharedPreferences(requireContext()).edit {
                     putInt(Prefs.PREF_BLUR_AMOUNT, MuzeiBlurRenderer.DEFAULT_BLUR)
                     putInt(Prefs.PREF_DIM_AMOUNT, MuzeiBlurRenderer.DEFAULT_MAX_DIM)
                     putInt(Prefs.PREF_GREY_AMOUNT, MuzeiBlurRenderer.DEFAULT_GREY)
