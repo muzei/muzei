@@ -37,8 +37,9 @@ abstract class RenderController(protected var context: Context,
             field = value
             if (value) {
                 callbacks.queueEventOnGlThread(Runnable {
-                    if (queuedBitmapRegionLoader != null) {
-                        renderer.setAndConsumeBitmapRegionLoader(queuedBitmapRegionLoader)
+                    val loader = queuedBitmapRegionLoader
+                    if (loader != null) {
+                        renderer.setAndConsumeBitmapRegionLoader(loader)
                         queuedBitmapRegionLoader = null
                     }
                 })

@@ -144,8 +144,8 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
         @Override
         public void onCreate(SurfaceHolder surfaceHolder) {
             super.onCreate(surfaceHolder);
-            mRenderer = new MuzeiBlurRenderer(MuzeiWallpaperService.this, this);
-            mRenderer.setIsPreview(isPreview());
+            mRenderer = new MuzeiBlurRenderer(MuzeiWallpaperService.this, this,
+                    false, isPreview());
             mRenderController = new RealRenderController(MuzeiWallpaperService.this,
                     mRenderer, this);
             setEGLContextClientVersion(2);

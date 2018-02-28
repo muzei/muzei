@@ -141,7 +141,7 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
     }
 
     private inner class MuzeiView(context: Context) : GLTextureView(context) {
-        private val mRenderer = MuzeiBlurRenderer(getContext(), this@MuzeiRendererFragment)
+        private val mRenderer = MuzeiBlurRenderer(getContext(), this@MuzeiRendererFragment, demoMode)
         internal val mRenderController: RenderController
 
         init {
@@ -157,7 +157,6 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
                 RealRenderController(getContext(), mRenderer,
                         this@MuzeiRendererFragment)
             }
-            mRenderer.setDemoMode(demoMode)
             mRenderController.visible = true
         }
 
