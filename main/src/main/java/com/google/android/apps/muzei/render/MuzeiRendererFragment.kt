@@ -61,7 +61,7 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
     private val mSimpleDemoModeLoadedTarget = object : Target {
         override fun onBitmapLoaded(bitmap: Bitmap?, loadedFrom: Picasso.LoadedFrom?) {
             simpleDemoModeImageView.setImageBitmap(if (!demoFocus) {
-                bitmap.blur(context!!)?.apply {
+                bitmap.blur(requireContext())?.apply {
                     // Dim
                     val c = Canvas(this)
                     c.drawColor(Color.argb(255 - MuzeiBlurRenderer.DEFAULT_MAX_DIM,
@@ -85,7 +85,7 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val activityManager = context!!.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        val activityManager = requireContext().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
 
         if (demoMode && activityManager.isLowRamDevice) {
             val dm = resources.displayMetrics
@@ -107,7 +107,7 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
                     .into(mSimpleDemoModeLoadedTarget)
             return simpleDemoModeImageView
         } else {
-            muzeiView = MuzeiView(context!!)
+            muzeiView = MuzeiView(requireContext())
             return muzeiView
         }
     }

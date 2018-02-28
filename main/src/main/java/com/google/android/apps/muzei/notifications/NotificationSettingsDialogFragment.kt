@@ -37,11 +37,11 @@ class NotificationSettingsDialogFragment : DialogFragment() {
          */
         fun showSettings(fragment: Fragment) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val context = fragment.context
+                val context = fragment.requireContext()
                 // Ensure the notification channel exists
                 NewWallpaperNotificationReceiver.createNotificationChannel(context)
                 val intent = Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
-                intent.putExtra(Settings.EXTRA_APP_PACKAGE, context!!.packageName)
+                intent.putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
                 // Open the specific channel since we only have one notification channel
                 intent.putExtra(Settings.EXTRA_CHANNEL_ID,
                         NewWallpaperNotificationReceiver.NOTIFICATION_CHANNEL)

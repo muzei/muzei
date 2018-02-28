@@ -79,8 +79,8 @@ class MainFragment : Fragment(), FragmentManager.OnBackStackChangedListener, Cho
         // Set up the container for the child fragments
         val container = view.findViewById<View>(R.id.container)
         if (savedInstanceState == null) {
-            FirebaseAnalytics.getInstance(context!!)
-                    .setCurrentScreen(getActivity()!!, "ArtDetail",
+            FirebaseAnalytics.getInstance(requireContext())
+                    .setCurrentScreen(requireActivity(), "ArtDetail",
                             ArtDetailFragment::class.java.simpleName)
             childFragmentManager.beginTransaction()
                     .replace(R.id.container, ArtDetailFragment())
@@ -96,8 +96,8 @@ class MainFragment : Fragment(), FragmentManager.OnBackStackChangedListener, Cho
             }
             return@setOnNavigationItemSelectedListener when (item.itemId) {
                 R.id.main_art_details -> {
-                    FirebaseAnalytics.getInstance(context!!)
-                            .setCurrentScreen(getActivity()!!, "ArtDetail",
+                    FirebaseAnalytics.getInstance(requireContext())
+                            .setCurrentScreen(requireActivity(), "ArtDetail",
                                     ArtDetailFragment::class.java.simpleName)
                     // The ArtDetailFragment is on the back stack, so just remove
                     // any other Fragment that has replaced it
@@ -106,8 +106,8 @@ class MainFragment : Fragment(), FragmentManager.OnBackStackChangedListener, Cho
                     true
                 }
                 R.id.main_choose_source -> {
-                    FirebaseAnalytics.getInstance(context!!)
-                            .setCurrentScreen(getActivity()!!, "ChooseSource",
+                    FirebaseAnalytics.getInstance(requireContext())
+                            .setCurrentScreen(requireActivity(), "ChooseSource",
                                     ChooseSourceFragment::class.java.simpleName)
                     childFragmentManager.popBackStack("main",
                             FragmentManager.POP_BACK_STACK_INCLUSIVE)
@@ -119,8 +119,8 @@ class MainFragment : Fragment(), FragmentManager.OnBackStackChangedListener, Cho
                     true
                 }
                 R.id.main_effects -> {
-                    FirebaseAnalytics.getInstance(context!!)
-                            .setCurrentScreen(getActivity()!!, "Effects",
+                    FirebaseAnalytics.getInstance(requireContext())
+                            .setCurrentScreen(requireActivity(), "Effects",
                                     EffectsFragment::class.java.simpleName)
                     childFragmentManager.popBackStack("main",
                             FragmentManager.POP_BACK_STACK_INCLUSIVE)

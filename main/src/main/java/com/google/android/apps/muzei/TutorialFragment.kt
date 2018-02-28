@@ -53,7 +53,7 @@ class TutorialFragment : Fragment() {
         @Suppress("DEPRECATION")
         view.requestFitSystemWindows()
         view.findViewById<View>(R.id.tutorial_icon_affordance).setOnClickListener {
-            FirebaseAnalytics.getInstance(context!!)
+            FirebaseAnalytics.getInstance(requireContext())
                     .logEvent(FirebaseAnalytics.Event.TUTORIAL_COMPLETE, null)
             PreferenceManager.getDefaultSharedPreferences(context).edit {
                 putBoolean(PREF_SEEN_TUTORIAL, true)

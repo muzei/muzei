@@ -3,6 +3,7 @@ package com.google.android.apps.muzei.gallery
 import android.app.Dialog
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.pm.ActivityInfo
@@ -25,7 +26,7 @@ class GalleryImportPhotosDialogFragment : DialogFragment() {
     }
 
     private val getContentActivitiesLiveData: LiveData<List<ActivityInfo>> by lazy {
-        ViewModelProviders.of(activity!!)
+        ViewModelProviders.of(requireActivity())
                 .get(GallerySettingsViewModel::class.java)
                 .getContentActivityInfoList
     }
@@ -41,7 +42,7 @@ class GalleryImportPhotosDialogFragment : DialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return AlertDialog.Builder(context!!)
+        return AlertDialog.Builder(requireContext())
                 .setTitle(R.string.gallery_import_dialog_title)
                 .setAdapter(adapter) { _, which ->
                     getContentActivitiesLiveData.value?.run {

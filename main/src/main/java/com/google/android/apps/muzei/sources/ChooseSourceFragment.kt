@@ -168,7 +168,7 @@ class ChooseSourceFragment : Fragment() {
                 return true
             }
             R.id.action_get_more_sources -> {
-                FirebaseAnalytics.getInstance(context!!).logEvent("more_sources_open", null)
+                FirebaseAnalytics.getInstance(requireContext()).logEvent("more_sources_open", null)
                 try {
                     val playStoreIntent = Intent(Intent.ACTION_VIEW,
                             Uri.parse("http://play.google.com/store/search?q=Muzei&c=apps"))
@@ -189,7 +189,7 @@ class ChooseSourceFragment : Fragment() {
     }
 
     private fun preferPackageForIntent(intent: Intent, packageName: String) {
-        val pm = context!!.packageManager
+        val pm = requireContext().packageManager
         for (resolveInfo in pm.queryIntentActivities(intent, 0)) {
             if (resolveInfo.activityInfo.packageName == packageName) {
                 intent.`package` = packageName
@@ -378,7 +378,7 @@ class ChooseSourceFragment : Fragment() {
 
     private fun updateSources(sources: List<Source>) {
         selectedSource = null
-        val pm = context!!.packageManager
+        val pm = requireContext().packageManager
         sourceViews.clear()
 
         for (source in sources) {
@@ -398,7 +398,7 @@ class ChooseSourceFragment : Fragment() {
             sourceViews.add(sourceView)
         }
 
-        val appPackage = context!!.packageName
+        val appPackage = requireContext().packageName
         Collections.sort(sourceViews) { sourceView1, sourceView2 ->
             val s1 = sourceView1.source
             val s2 = sourceView2.source
@@ -441,7 +441,7 @@ class ChooseSourceFragment : Fragment() {
                     if (isStateSaved || isRemoving) {
                         return@setOnClickListener
                     }
-                    val builder = AlertDialog.Builder(context!!)
+                    val builder = AlertDialog.Builder(requireContext())
                             .setTitle(R.string.action_source_target_too_high_title)
                             .setMessage(getString(R.string.action_source_target_too_high_message, source.label))
                             .setNegativeButton(R.string.action_source_target_too_high_learn_more
@@ -452,7 +452,7 @@ class ChooseSourceFragment : Fragment() {
                             .setPositiveButton(R.string.action_source_target_too_high_dismiss, null)
                     val sendFeedbackIntent = Intent(Intent.ACTION_VIEW,
                             Uri.parse("https://play.google.com/store/apps/details?id=${source.componentName.packageName}"))
-                    if (sendFeedbackIntent.resolveActivity(context!!.packageManager) != null) {
+                    if (sendFeedbackIntent.resolveActivity(requireContext().packageManager) != null) {
                         builder.setNeutralButton(
                                 getString(R.string.action_source_target_too_high_send_feedback, source.label)
                         ) { _, _ -> startActivity(sendFeedbackIntent) }
@@ -463,21 +463,21 @@ class ChooseSourceFragment : Fragment() {
                     bundle.putString(FirebaseAnalytics.Param.ITEM_ID, source.componentName.flattenToShortString())
                     bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, source.label)
                     bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "sources")
-                    FirebaseAnalytics.getInstance(context!!).logEvent(FirebaseAnalytics.Event.VIEW_ITEM, bundle)
+                    FirebaseAnalytics.getInstance(requireContext()).logEvent(FirebaseAnalytics.Event.VIEW_ITEM, bundle)
                     currentInitialSetupSource = source.componentName
                     launchSourceSetup(source)
                 } else {
                     val bundle = Bundle()
                     bundle.putString(FirebaseAnalytics.Param.ITEM_ID, source.componentName.flattenToShortString())
                     bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sources")
-                    FirebaseAnalytics.getInstance(context!!).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
+                    FirebaseAnalytics.getInstance(requireContext()).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
                     SourceManager.selectSource(context, source.componentName)
                 }
             }
 
             sourceView.selectSourceButton.setOnLongClickListener {
                 val pkg = source.componentName.packageName
-                if (TextUtils.equals(pkg, context!!.packageName)) {
+                if (TextUtils.equals(pkg, requireContext().packageName)) {
                     // Don't open Muzei's app info
                     return@setOnLongClickListener false
                 }
@@ -554,7 +554,7 @@ class ChooseSourceFragment : Fragment() {
                 val bundle = Bundle()
                 bundle.putString(FirebaseAnalytics.Param.ITEM_ID, setupSource.flattenToShortString())
                 bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sources")
-                FirebaseAnalytics.getInstance(context!!).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
+                FirebaseAnalytics.getInstance(requireContext()).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
                 SourceManager.selectSource(context, setupSource)
             }
 

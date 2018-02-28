@@ -40,7 +40,7 @@ class IntroFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         if (savedInstanceState == null) {
-            FirebaseAnalytics.getInstance(context!!).logEvent(FirebaseAnalytics.Event.TUTORIAL_BEGIN, null)
+            FirebaseAnalytics.getInstance(requireContext()).logEvent(FirebaseAnalytics.Event.TUTORIAL_BEGIN, null)
         }
     }
 
@@ -52,7 +52,7 @@ class IntroFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         activateButton = view.findViewById(R.id.activate_muzei_button)
         activateButton.setOnClickListener {
-            FirebaseAnalytics.getInstance(context!!).logEvent("activate", null)
+            FirebaseAnalytics.getInstance(requireContext()).logEvent("activate", null)
             try {
                 startActivity(Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
                         .putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
