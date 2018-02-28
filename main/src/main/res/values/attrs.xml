@@ -20,10 +20,4 @@
         <attr name="backgroundColor" format="color" />
         <attr name="indicatorColor" format="color" />
     </declare-styleable>
-
-    <declare-styleable name="CheckableImageView">
-        <attr name="checkedOverlayDrawable" format="reference|color" />
-        <attr name="foregroundDrawable" format="reference|color" />
-    </declare-styleable>
-
 </resources>
