@@ -309,7 +309,7 @@ class MuzeiBlurRenderer(private val context: Context,
                 tempBitmap?.recycle()
 
                 // Create the GLPicture objects
-                pictures[0] = GLPicture(bitmapRegionLoader, currentHeight)
+                pictures[0] = bitmapRegionLoader.toGLPicture(currentHeight)
                 if (maxPrescaledBlurPixels == 0 && maxGrey == 0) {
                     for (f in 1..blurKeyframes) {
                         pictures[f] = pictures[0]
@@ -361,7 +361,7 @@ class MuzeiBlurRenderer(private val context: Context,
                                 0f
                             }
                             val blurredBitmap = blurrer.blurBitmap(blurRadius, desaturateAmount)
-                            pictures[f] = GLPicture(blurredBitmap)
+                            pictures[f] = blurredBitmap?.toGLPicture()
                             blurredBitmap?.recycle()
                         }
                         blurrer.destroy()
