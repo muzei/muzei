@@ -27,13 +27,16 @@ import com.google.android.apps.muzei.util.MathUtil
 import java.nio.FloatBuffer
 
 internal fun BitmapRegionLoader.toGLPicture(maxHeight: Int) : GLPicture? {
-    if (maxHeight == 0) {
+    if (maxHeight == 0 || width == 0 || height == 0) {
         return null
     }
     return GLPicture(this, maxHeight)
 }
 
-internal fun Bitmap.toGLPicture() : GLPicture {
+internal fun Bitmap.toGLPicture() : GLPicture? {
+    if (width == 0 || height == 0) {
+        return null
+    }
     return GLPicture(this)
 }
 
