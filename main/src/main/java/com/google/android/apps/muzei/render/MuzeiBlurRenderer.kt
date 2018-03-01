@@ -197,7 +197,7 @@ class MuzeiBlurRenderer(private val context: Context,
             nextGLPictureSet.drawFrame(crossfadeAnimator.currentValue())
         }
 
-        colorOverlay.setColor(Color.argb((dimAmount * blurAnimator.currentValue() / blurKeyframes).toInt(), 0, 0, 0))
+        colorOverlay.color = Color.argb((dimAmount * blurAnimator.currentValue() / blurKeyframes).toInt(), 0, 0, 0)
         colorOverlay.draw(modelMatrix) // don't need any perspective or anything for color overlay
 
         if (stillAnimating) {
