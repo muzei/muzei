@@ -86,13 +86,13 @@ class MuzeiBlurRenderer(private val context: Context,
         private set
     private var blurRelatedToArtDetailMode = false
     private val blurInterpolator = AccelerateDecelerateInterpolator()
-    private val blurAnimator: TickingFloatAnimator
-    private val crossfadeAnimator = TickingFloatAnimator.create().from(0f)
+    private val blurAnimator = TickingFloatAnimator(BLUR_ANIMATION_DURATION * if (demoMode) 5 else 1)
+    private val crossfadeAnimator = TickingFloatAnimator(CROSSFADE_ANIMATION_DURATION)
 
     init {
         val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         blurKeyframes = if (activityManager.isLowRamDevice) 1 else 2
-        blurAnimator = TickingFloatAnimator.create().from(blurKeyframes.toFloat())
+        blurAnimator.currentValue = blurKeyframes.toFloat()
 
         currentGLPictureSet = GLPictureSet(0)
         nextGLPictureSet = GLPictureSet(1) // for transitioning to next pictures
@@ -193,11 +193,11 @@ class MuzeiBlurRenderer(private val context: Context,
         currentGLPictureSet.drawFrame(1f)
         if (crossfadeAnimator.isRunning) {
             dimAmount = MathUtil.interpolate(dimAmount, nextGLPictureSet.dimAmount.toFloat(),
-                    crossfadeAnimator.currentValue())
-            nextGLPictureSet.drawFrame(crossfadeAnimator.currentValue())
+                    crossfadeAnimator.currentValue)
+            nextGLPictureSet.drawFrame(crossfadeAnimator.currentValue)
         }
 
-        colorOverlay.color = Color.argb((dimAmount * blurAnimator.currentValue() / blurKeyframes).toInt(), 0, 0, 0)
+        colorOverlay.color = Color.argb((dimAmount * blurAnimator.currentValue / blurKeyframes).toInt(), 0, 0, 0)
         colorOverlay.draw(modelMatrix) // don't need any perspective or anything for color overlay
 
         if (stillAnimating) {
@@ -247,28 +247,24 @@ class MuzeiBlurRenderer(private val context: Context,
 
         nextGLPictureSet.load(bitmapRegionLoader)
 
-        crossfadeAnimator
-                .from(0f).to(1f)
-                .withDuration(CROSSFADE_ANIMATION_DURATION)
-                .withEndListener {
-                    // swap current and next picturesets
-                    val oldGLPictureSet = currentGLPictureSet
-                    currentGLPictureSet = nextGLPictureSet
-                    nextGLPictureSet = GLPictureSet(oldGLPictureSet.id)
-                    callbacks.requestRender()
-                    oldGLPictureSet.destroyPictures()
-                    if (!demoMode) {
-                        EventBus.getDefault().postSticky(SwitchingPhotosStateChangedEvent(
-                                currentGLPictureSet.id, false))
-                    }
-                    System.gc()
-                    val loader = queuedNextBitmapRegionLoader
-                    if (loader != null) {
-                        setAndConsumeBitmapRegionLoader(loader)
-                        queuedNextBitmapRegionLoader = null
-                    }
-                }
-                .start()
+        crossfadeAnimator.start(0, 1) {
+            // swap current and next picturesets
+            val oldGLPictureSet = currentGLPictureSet
+            currentGLPictureSet = nextGLPictureSet
+            nextGLPictureSet = GLPictureSet(oldGLPictureSet.id)
+            callbacks.requestRender()
+            oldGLPictureSet.destroyPictures()
+            if (!demoMode) {
+                EventBus.getDefault().postSticky(SwitchingPhotosStateChangedEvent(
+                        currentGLPictureSet.id, false))
+            }
+            System.gc()
+            val loader = queuedNextBitmapRegionLoader
+            if (loader != null) {
+                setAndConsumeBitmapRegionLoader(loader)
+                queuedNextBitmapRegionLoader = null
+            }
+        }
         callbacks.requestRender()
     }
 
@@ -409,7 +405,7 @@ class MuzeiBlurRenderer(private val context: Context,
                 top = 1f / zoom
             }
 
-            val focusAmount = (blurKeyframes - blurAnimator.currentValue()) / blurKeyframes
+            val focusAmount = (blurKeyframes - blurAnimator.currentValue) / blurKeyframes
             if (blurRelatedToArtDetailMode && focusAmount > 0) {
                 val artDetailViewport = ArtDetailViewport.getInstance().getViewport(id)
                 if (artDetailViewport.width() == 0f || artDetailViewport.height() == 0f) {
@@ -459,7 +455,7 @@ class MuzeiBlurRenderer(private val context: Context,
             Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0)
             Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, mvpMatrix, 0)
 
-            val blurFrame = blurAnimator.currentValue()
+            val blurFrame = blurAnimator.currentValue
             val lo = Math.floor(blurFrame.toDouble()).toInt()
             val hi = Math.ceil(blurFrame.toDouble()).toInt()
 
@@ -529,16 +525,11 @@ class MuzeiBlurRenderer(private val context: Context,
 
         blurRelatedToArtDetailMode = artDetailMode
         this.isBlurred = isBlurred
-        blurAnimator.cancel()
-        blurAnimator
-                .to((if (isBlurred) blurKeyframes else 0).toFloat())
-                .withDuration(BLUR_ANIMATION_DURATION * if (demoMode) 5 else 1)
-                .withEndListener {
-                    if (isBlurred && artDetailMode) {
-                        System.gc()
-                    }
-                }
-                .start()
+        blurAnimator.start(endValue = if (isBlurred) blurKeyframes else 0) {
+            if (isBlurred && artDetailMode) {
+                System.gc()
+            }
+        }
         callbacks.requestRender()
     }
 
