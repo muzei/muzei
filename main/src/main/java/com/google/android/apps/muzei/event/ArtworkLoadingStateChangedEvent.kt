@@ -14,22 +14,10 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.event;
+package com.google.android.apps.muzei.event
 
-public class ArtworkSizeChangedEvent {
-    private int mWidth;
-    private int mHeight;
-
-    public ArtworkSizeChangedEvent(int width, int height) {
-        mWidth = width;
-        mHeight = height;
-    }
-
-    public int getWidth() {
-        return mWidth;
-    }
-
-    public int getHeight() {
-        return mHeight;
+class ArtworkLoadingStateChangedEvent(val isLoading: Boolean, private val hadError: Boolean) {
+    fun hadError(): Boolean {
+        return hadError
     }
 }

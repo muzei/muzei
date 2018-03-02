@@ -14,22 +14,6 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.event;
+package com.google.android.apps.muzei.event
 
-public class WallpaperSizeChangedEvent {
-    private int mWidth;
-    private int mHeight;
-
-    public WallpaperSizeChangedEvent(int width, int height) {
-        mWidth = width;
-        mHeight = height;
-    }
-
-    public int getWidth() {
-        return mWidth;
-    }
-
-    public int getHeight() {
-        return mHeight;
-    }
-}
+class ArtDetailOpenedClosedEvent(val isArtDetailOpened: Boolean)

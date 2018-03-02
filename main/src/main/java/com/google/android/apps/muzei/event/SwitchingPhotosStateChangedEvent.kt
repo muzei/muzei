@@ -14,16 +14,6 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.event;
+package com.google.android.apps.muzei.event
 
-public class ArtDetailOpenedClosedEvent {
-    boolean mOpened;
-
-    public ArtDetailOpenedClosedEvent(boolean opened) {
-        mOpened = opened;
-    }
-
-    public boolean isArtDetailOpened() {
-        return mOpened;
-    }
-}
+class SwitchingPhotosStateChangedEvent(val currentId: Int, val isSwitchingPhotos: Boolean)

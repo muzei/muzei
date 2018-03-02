@@ -14,22 +14,6 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.event;
+package com.google.android.apps.muzei.event
 
-public class SwitchingPhotosStateChangedEvent {
-    private boolean mSwitchingPhotos;
-    private int mId;
-
-    public SwitchingPhotosStateChangedEvent(int id, boolean switchingPhotos) {
-        mId = id;
-        mSwitchingPhotos = switchingPhotos;
-    }
-
-    public int getCurrentId() {
-        return mId;
-    }
-
-    public boolean isSwitchingPhotos() {
-        return mSwitchingPhotos;
-    }
-}
+class ArtworkSizeChangedEvent(val width: Int, val height: Int)

@@ -14,16 +14,6 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.event;
+package com.google.android.apps.muzei.event
 
-public class WallpaperActiveStateChangedEvent {
-    private boolean mActive;
-
-    public WallpaperActiveStateChangedEvent(boolean active) {
-        mActive = active;
-    }
-
-    public boolean isActive() {
-        return mActive;
-    }
-}
+class WallpaperActiveStateChangedEvent(val isActive: Boolean)
