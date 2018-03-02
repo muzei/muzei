@@ -17,6 +17,7 @@
 package com.google.android.apps.muzei.sources
 
 import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Notification
 import android.arch.lifecycle.LiveData
@@ -161,6 +162,7 @@ class ChooseSourceFragment : Fragment() {
         inflater.inflate(R.menu.settings_choose_source, menu)
     }
 
+    @SuppressLint("InlinedApi")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_notification_settings -> {
@@ -399,29 +401,29 @@ class ChooseSourceFragment : Fragment() {
         }
 
         val appPackage = requireContext().packageName
-        Collections.sort(sourceViews) { sourceView1, sourceView2 ->
+        sourceViews.sortWith(Comparator { sourceView1, sourceView2 ->
             val s1 = sourceView1.source
             val s2 = sourceView2.source
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val target1IsO = s1.targetSdkVersion >= Build.VERSION_CODES.O
                 val target2IsO = s2.targetSdkVersion >= Build.VERSION_CODES.O
                 if (target1IsO && !target2IsO) {
-                    return@sort 1
+                    return@Comparator 1
                 } else if (!target1IsO && target2IsO) {
-                    return@sort -1
+                    return@Comparator -1
                 }
             }
             val pn1 = s1.componentName.packageName
             val pn2 = s2.componentName.packageName
             if (pn1 != pn2) {
                 if (appPackage == pn1) {
-                    return@sort -1
+                    return@Comparator -1
                 } else if (appPackage == pn2) {
-                    return@sort 1
+                    return@Comparator 1
                 }
             }
             s1.label.compareTo(s2.label)
-        }
+        })
 
         sourceContainerView.removeAllViews()
         for (sourceView in sourceViews) {
@@ -577,6 +579,7 @@ class ChooseSourceFragment : Fragment() {
         tempRectF.set(0f, 0f, itemImageSize.toFloat(), itemImageSize.toFloat())
         canvas.drawOval(tempRectF, imageFillPaint)
         if (image != null) {
+            @Suppress("DEPRECATION")
             canvas.saveLayer(0f, 0f, itemImageSize.toFloat(), itemImageSize.toFloat(), alphaPaint,
                     Canvas.ALL_SAVE_FLAG)
             image.setBounds(0, 0, itemImageSize, itemImageSize)

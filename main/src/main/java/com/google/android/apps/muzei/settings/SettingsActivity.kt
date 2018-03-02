@@ -51,7 +51,7 @@ class SettingsActivity : AppCompatActivity(), ChooseSourceFragment.Callbacks {
 
         private val SECTION_LABELS = intArrayOf(R.string.section_choose_source, R.string.section_advanced)
 
-        private val SECTION_FRAGMENTS = arrayOf<Class<out Fragment>>(
+        private val SECTION_FRAGMENTS = arrayOf(
                 ChooseSourceFragment::class.java,
                 EffectsFragment::class.java)
 

@@ -379,7 +379,7 @@ public class MuzeiWallpaperService extends GLWallpaperService implements Lifecyc
         }
 
         @Override
-        public void queueEventOnGlThread(Runnable runnable) {
+        public void queueEventOnGlThread(@NonNull Runnable runnable) {
             queueEvent(runnable);
         }
     }
