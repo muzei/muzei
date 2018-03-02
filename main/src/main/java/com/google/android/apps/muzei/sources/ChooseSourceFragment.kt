@@ -211,7 +211,7 @@ class ChooseSourceFragment : Fragment() {
 
         scrollbar = view.findViewById(R.id.source_scrollbar)
         sourceScrollerView = view.findViewById(R.id.source_scroller)
-        sourceScrollerView.setCallbacks(object : ObservableHorizontalScrollView.Callbacks {
+        sourceScrollerView.callbacks = object : ObservableHorizontalScrollView.Callbacks {
             override fun onScrollChanged(scrollX: Int) {
                 showScrollbar()
             }
@@ -222,7 +222,7 @@ class ChooseSourceFragment : Fragment() {
                     currentScroller = null
                 }
             }
-        })
+        }
         sourceContainerView = view.findViewById(R.id.source_container)
 
         val sources = sourcesLiveData.value
