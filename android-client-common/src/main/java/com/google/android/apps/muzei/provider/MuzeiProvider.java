@@ -399,6 +399,8 @@ public class MuzeiProvider extends ContentProvider {
             }
             return null;
         }
+        Log.v(TAG, "Opening artwork for " + uri + " doing a " +
+                (isWriteOperation ? "write" : "read"));
         try {
             return ParcelFileDescriptor.open(file, ParcelFileDescriptor.parseMode(mode), openFileHandler,
                     e -> {

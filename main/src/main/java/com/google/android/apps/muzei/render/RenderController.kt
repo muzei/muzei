@@ -108,6 +108,7 @@ abstract class RenderController(protected var context: Context,
                 if (bitmapRegionLoader == null || bitmapRegionLoader.width == 0 ||
                         bitmapRegionLoader.height == 0) {
                     Log.w(TAG, "Could not open the current artwork")
+                    bitmapRegionLoader?.destroy()
                     return
                 }
 
@@ -115,6 +116,7 @@ abstract class RenderController(protected var context: Context,
                     if (visible) {
                         renderer.setAndConsumeBitmapRegionLoader(bitmapRegionLoader)
                     } else {
+                        queuedBitmapRegionLoader?.destroy()
                         queuedBitmapRegionLoader = bitmapRegionLoader
                     }
                 })
