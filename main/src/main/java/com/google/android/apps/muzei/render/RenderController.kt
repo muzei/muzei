@@ -36,13 +36,13 @@ abstract class RenderController(protected var context: Context,
         set(value) {
             field = value
             if (value) {
-                callbacks.queueEventOnGlThread(Runnable {
+                callbacks.queueEventOnGlThread {
                     val loader = queuedBitmapRegionLoader
                     if (loader != null) {
                         renderer.setAndConsumeBitmapRegionLoader(loader)
                         queuedBitmapRegionLoader = null
                     }
-                })
+                }
                 callbacks.requestRender()
             }
         }
@@ -112,20 +112,20 @@ abstract class RenderController(protected var context: Context,
                     return
                 }
 
-                callbacks.queueEventOnGlThread(Runnable {
+                callbacks.queueEventOnGlThread {
                     if (visible) {
                         renderer.setAndConsumeBitmapRegionLoader(bitmapRegionLoader)
                     } else {
                         queuedBitmapRegionLoader?.destroy()
                         queuedBitmapRegionLoader = bitmapRegionLoader
                     }
-                })
+                }
             }
         }.executeOnExecutor(executorService)
     }
 
     interface Callbacks {
-        fun queueEventOnGlThread(runnable: Runnable)
+        fun queueEventOnGlThread(event: () -> Unit)
         fun requestRender()
     }
 }

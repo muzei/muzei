@@ -132,8 +132,8 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
         muzeiView?.onResume()
     }
 
-    override fun queueEventOnGlThread(runnable: Runnable) {
-        muzeiView?.queueEvent(runnable)
+    override fun queueEventOnGlThread(event: () -> Unit) {
+        muzeiView?.queueEvent({ event() })
     }
 
     override fun requestRender() {
@@ -168,7 +168,7 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
 
         override fun onDetachedFromWindow() {
             mRenderController.destroy()
-            queueEventOnGlThread(Runnable { mRenderer.destroy() })
+            queueEventOnGlThread { mRenderer.destroy() }
             super.onDetachedFromWindow()
         }
     }
