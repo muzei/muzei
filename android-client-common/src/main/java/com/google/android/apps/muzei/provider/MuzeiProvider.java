@@ -403,7 +403,7 @@ public class MuzeiProvider extends ContentProvider {
             return ParcelFileDescriptor.open(file, ParcelFileDescriptor.parseMode(mode), openFileHandler,
                     e -> {
                         if (BuildConfig.DEBUG) {
-                            Log.d(TAG, "Artwork for " + uri + " doing a " +
+                            Log.v(TAG, "Artwork for " + uri + " doing a " +
                                     (isWriteOperation ? "write" : "read") +
                                     " operation is now closed.", e);
                         }
