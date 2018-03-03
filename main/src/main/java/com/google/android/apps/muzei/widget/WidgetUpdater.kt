@@ -29,12 +29,12 @@ import com.google.android.apps.muzei.api.MuzeiContract
 /**
  * LifecycleObserver which updates the widget when the artwork changes
  */
-class WidgetUpdater(private val mContext: Context) : DefaultLifecycleObserver {
+class WidgetUpdater(private val context: Context) : DefaultLifecycleObserver {
 
     private val widgetContentObserver: ContentObserver by lazy {
         object : ContentObserver(Handler()) {
             override fun onChange(selfChange: Boolean, uri: Uri) {
-                AppWidgetUpdateTask(mContext, false)
+                AppWidgetUpdateTask(context)
                         .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
             }
         }
@@ -42,18 +42,18 @@ class WidgetUpdater(private val mContext: Context) : DefaultLifecycleObserver {
 
     override fun onCreate(owner: LifecycleOwner) {
         // Set up a ContentObserver to update widgets whenever the artwork changes
-        mContext.contentResolver.registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
+        context.contentResolver.registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
                 true, widgetContentObserver)
-        mContext.contentResolver.registerContentObserver(MuzeiContract.Sources.CONTENT_URI,
+        context.contentResolver.registerContentObserver(MuzeiContract.Sources.CONTENT_URI,
                 true, widgetContentObserver)
         // Update the widget now that the wallpaper is active to enable the 'Next' button if supported
         widgetContentObserver.onChange(true)
     }
 
     override fun onDestroy(owner: LifecycleOwner) {
-        mContext.contentResolver.unregisterContentObserver(widgetContentObserver)
+        context.contentResolver.unregisterContentObserver(widgetContentObserver)
         // Update the widget one last time to disable the 'Next' button until Muzei is reactivated
-        AppWidgetUpdateTask(mContext, false)
+        AppWidgetUpdateTask(context)
                 .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
     }
 }
