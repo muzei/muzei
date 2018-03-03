@@ -114,6 +114,7 @@ dependencies {
     implementation project(':source-featured-art')
     implementation project(':source-gallery')
     implementation project(':source-single')
+    implementation project(':gl-wallpaper')
 }
 
 apply plugin: 'com.google.gms.google-services'
