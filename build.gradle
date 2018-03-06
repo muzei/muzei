@@ -24,13 +24,13 @@ buildscript {
         supportLibraryVersion = "27.1.0"
         constraintLayoutVersion = "1.0.2"
         lifecycleVersion = "1.1.0"
-        roomVersion = "1.1.0-alpha2"
+        roomVersion = "1.1.0-alpha3"
         pagingVersion = "1.0.0-alpha6"
         googlePlayServicesVersion = "11.8.0"
-        crashlyticsVersion = "2.9.0"
+        crashlyticsVersion = "2.9.1"
         jobDispatcherVersion = "0.8.5"
         wearableVersion = "2.1.0"
-        okhttpVersion = "3.9.1"
+        okhttpVersion = "3.10.0"
         picassoVersion = "2.5.2"
     }
 
@@ -43,8 +43,8 @@ buildscript {
     }
     dependencies {
         classpath "com.android.tools.build:gradle:3.0.1"
-        classpath "com.google.gms:google-services:3.1.0"
-        classpath "io.fabric.tools:gradle:1.24.4"
+        classpath "com.google.gms:google-services:3.1.1"
+        classpath "io.fabric.tools:gradle:1.25.1"
         classpath "com.google.firebase:firebase-plugins:1.1.5"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
