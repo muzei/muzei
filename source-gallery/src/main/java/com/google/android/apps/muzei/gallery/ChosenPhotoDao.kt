@@ -138,17 +138,6 @@ internal abstract class ChosenPhotoDao {
                     }
 
                 }
-            } else {
-                // On API 25 and lower, we don't get URI permissions to URIs
-                // from our own package so we manage those URI permissions manually
-                val resolver = context.contentResolver
-                try {
-                    resolver.call(chosenPhoto.uri, "takePersistableUriPermission",
-                            chosenPhoto.uri.toString(), null)
-                } catch (e: Exception) {
-                    Log.w(TAG, "Unable to manually persist uri permissions to ${chosenPhoto.uri}", e)
-                }
-
             }
         }
         return true
@@ -245,16 +234,6 @@ internal abstract class ChosenPhotoDao {
                             break
                         }
                     }
-                } else {
-                    // On API 25 and lower, we don't get URI permissions to URIs
-                    // from our own package so we manage those URI permissions manually
-                    try {
-                        contentResolver.call(uriToRelease, "releasePersistableUriPermission",
-                                uriToRelease.toString(), null)
-                    } catch (e: Exception) {
-                        Log.w(TAG, "Unable to manually release uri permissions to ${chosenPhoto.uri}", e)
-                    }
-
                 }
             }
         }

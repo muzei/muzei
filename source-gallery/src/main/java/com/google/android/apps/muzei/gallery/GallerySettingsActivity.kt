@@ -236,7 +236,9 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         }
         findViewById<View>(R.id.add_photos).setOnClickListener { requestPhotos() }
         findViewById<View>(R.id.add_folder).setOnClickListener {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
+                putExtra(DocumentsContract.EXTRA_EXCLUDE_SELF, true)
+            }
             try {
                 startActivityForResult(intent, REQUEST_CHOOSE_FOLDER)
                 val preferences = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
@@ -264,6 +266,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             type = "image/*"
             addCategory(Intent.CATEGORY_OPENABLE)
             putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+            putExtra(DocumentsContract.EXTRA_EXCLUDE_SELF, true)
         }
         try {
             startActivityForResult(intent, REQUEST_CHOOSE_PHOTOS)

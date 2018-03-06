@@ -494,12 +494,9 @@ public class MuzeiProvider extends ContentProvider {
                 final MuzeiDatabase database = MuzeiDatabase.getInstance(context);
                 final Artwork currentArtwork = database.artworkDao().getCurrentArtworkBlocking();
                 final List<Source> sources = database.sourceDao().getSourcesBlocking();
-                if (currentArtwork == null || sources == null) {
+                if (currentArtwork == null) {
                     return;
                 }
-                // Access to certain artwork can be persisted through MuzeiDocumentsProvider
-                // We never want to delete these artwork as that would break other apps
-                final Set<Uri> persistedUris = MuzeiDocumentsProvider.getPersistedArtworkUris(context);
                 // Loop through each source, cleaning up old artwork
                 for (Source source : sources) {
                     final ComponentName componentName = source.componentName;
@@ -520,17 +517,7 @@ public class MuzeiProvider extends ContentProvider {
                     }
                     List<Long> artworkIdsToKeep = new ArrayList<>();
                     List<String> artworkToKeep = new ArrayList<>();
-                    // First find all of the persisted artwork from this source and mark them as artwork to keep
-                    for (Artwork artwork : artworkList) {
-                        Uri uri = artwork.getContentUri();
-                        String unique = artwork.imageUri != null ? artwork.imageUri.toString() : artwork.token;
-                        if (persistedUris.contains(uri)) {
-                            // Always keep artwork that is persisted
-                            artworkIdsToKeep.add(artwork.id);
-                            artworkToKeep.add(unique);
-                        }
-                    }
-                    // Now go through the artwork from this source and find the most recent artwork
+                    // Go through the artwork from this source and find the most recent artwork
                     // and mark them as artwork to keep
                     int count = 0;
                     List<Long> mostRecentArtworkIds = new ArrayList<>();
