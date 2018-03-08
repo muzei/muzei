@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei;
+package com.google.android.apps.muzei
 
-import android.app.Activity;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
+import android.app.Activity
+import android.os.Bundle
 
-import com.google.android.apps.muzei.api.MuzeiArtSource;
-import com.google.android.apps.muzei.sources.SourceManager;
+import com.google.android.apps.muzei.api.MuzeiArtSource
+import com.google.android.apps.muzei.sources.SourceManager
 
 /**
  * Simple activity that just triggers the 'Next Artwork' action and finishes
  */
-public class NextArtworkActivity extends Activity {
-    @Override
-    protected void onCreate(@Nullable final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        SourceManager.sendAction(this, MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK);
-        finish();
+class NextArtworkActivity : Activity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        SourceManager.sendAction(this, MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK)
+        finish()
     }
 }
