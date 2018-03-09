@@ -473,7 +473,7 @@ class ChooseSourceFragment : Fragment() {
                     bundle.putString(FirebaseAnalytics.Param.ITEM_ID, source.componentName.flattenToShortString())
                     bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sources")
                     FirebaseAnalytics.getInstance(requireContext()).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
-                    SourceManager.selectSource(context, source.componentName)
+                    SourceManager.selectSource(requireContext(), source.componentName)
                 }
             }
 
@@ -557,7 +557,7 @@ class ChooseSourceFragment : Fragment() {
                 bundle.putString(FirebaseAnalytics.Param.ITEM_ID, setupSource.flattenToShortString())
                 bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sources")
                 FirebaseAnalytics.getInstance(requireContext()).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
-                SourceManager.selectSource(context, setupSource)
+                SourceManager.selectSource(requireContext(), setupSource)
             }
 
             currentInitialSetupSource = null

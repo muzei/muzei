@@ -56,7 +56,7 @@ class PhotoSetAsTargetActivity : Activity() {
                             ComponentName(context, SingleArtSource::class.java).flattenToShortString(),
                             FirebaseAnalytics.Param.CONTENT_TYPE to "sources")
                     FirebaseAnalytics.getInstance(context).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
-                    SourceManager.selectSource(context, ComponentName(context, SingleArtSource::class.java)) {
+                    SourceManager.selectSource(context, SingleArtSource::class) {
                         startActivity(Intent.makeMainActivity(ComponentName(
                                 context, MuzeiActivity::class.java))
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
