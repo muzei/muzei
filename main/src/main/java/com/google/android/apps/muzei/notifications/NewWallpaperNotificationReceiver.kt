@@ -240,7 +240,8 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                         R.drawable.ic_notif_next_artwork,
                         context.getString(R.string.action_next_artwork_condensed),
                         nextPendingIntent)
-                        .extend(NotificationCompat.Action.WearableExtender().setAvailableOffline(false))
+                        .extend(NotificationCompat.Action.WearableExtender().setAvailableOffline(false)
+                                .setHintDisplayActionInline(true))
                         .build()
                 nb.addAction(nextAction)
                 extender.addAction(nextAction)
