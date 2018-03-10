@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-@file:JvmName("ImageUtil")
 package com.google.android.apps.muzei.render
 
 import android.graphics.Bitmap
