@@ -97,7 +97,7 @@
             android:parentActivityName="com.google.android.apps.muzei.settings.SettingsActivity" />
 
         <service android:name="com.google.android.apps.muzei.quicksettings.NextArtworkTileService"
-            android:icon="@drawable/ic_notif_full_next_artwork"
+            android:icon="@drawable/ic_notif_next_artwork"
             android:label="@string/action_next_artwork"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>

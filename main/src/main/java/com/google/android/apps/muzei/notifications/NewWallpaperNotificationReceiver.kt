@@ -155,7 +155,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
             }
 
             val largeIcon: Bitmap?
-            val background: Bitmap?
+            val bigPicture: Bitmap?
             try {
                 val options = BitmapFactory.Options()
                 // Check if there's rotation
@@ -192,10 +192,8 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                 options.inSampleSize = shortestLength.sampleSize(largeIconHeight)
                 largeIcon = regionLoader.decodeRegion(Rect(0, 0, width, height), options)
 
-                // Use the suggested 400x400 for Android Wear background images per
-                // http://developer.android.com/training/wearables/notifications/creating.html#AddWearableFeatures
-                options.inSampleSize = height.sampleSize(400)
-                background = regionLoader.decodeRegion(Rect(0, 0, width, height), options)
+               options.inSampleSize = height.sampleSize(400)
+                bigPicture = regionLoader.decodeRegion(Rect(0, 0, width, height), options)
                 regionLoader.destroy()
             } catch (e: IOException) {
                 Log.e(TAG, "Unable to load artwork to show notification", e)
@@ -227,7 +225,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                     .bigLargeIcon(null)
                     .setBigContentTitle(title)
                     .setSummaryText(artwork.byline)
-                    .bigPicture(background)
+                    .bigPicture(bigPicture)
             nb.setStyle(style)
 
             val extender = NotificationCompat.WearableExtender()
@@ -238,18 +236,14 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                         Intent(context, NewWallpaperNotificationReceiver::class.java)
                                 .setAction(ACTION_NEXT_ARTWORK),
                         PendingIntent.FLAG_UPDATE_CURRENT)
-                nb.addAction(
+                val nextAction = NotificationCompat.Action.Builder(
                         R.drawable.ic_notif_next_artwork,
                         context.getString(R.string.action_next_artwork_condensed),
                         nextPendingIntent)
-                // Android Wear uses larger action icons so we build a
-                // separate action
-                extender.addAction(NotificationCompat.Action.Builder(
-                        R.drawable.ic_notif_full_next_artwork,
-                        context.getString(R.string.action_next_artwork_condensed),
-                        nextPendingIntent)
                         .extend(NotificationCompat.Action.WearableExtender().setAvailableOffline(false))
-                        .build())
+                        .build()
+                nb.addAction(nextAction)
+                extender.addAction(nextAction)
             }
             val commands = source.commands
             // Show custom actions as a selectable list on Android Wear devices
@@ -265,7 +259,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                         .setChoices(actions)
                         .build()
                 extender.addAction(NotificationCompat.Action.Builder(
-                        R.drawable.ic_notif_full_user_command,
+                        R.drawable.ic_notif_user_command,
                         context.getString(R.string.action_user_command),
                         userCommandPendingIntent).addRemoteInput(remoteInput)
                         .extend(NotificationCompat.Action.WearableExtender().setAvailableOffline(false))
@@ -275,22 +269,17 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
             if (viewIntent != null) {
                 viewIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 try {
-                    val nextPendingIntent = PendingIntent.getActivity(context, 0,
+                    val viewPendingIntent = PendingIntent.getActivity(context, 0,
                             viewIntent,
                             PendingIntent.FLAG_UPDATE_CURRENT)
-                    nb.addAction(
+                    val viewAction = NotificationCompat.Action.Builder(
                             R.drawable.ic_notif_info,
                             context.getString(R.string.action_artwork_info),
-                            nextPendingIntent)
-                    // Android Wear uses larger action icons so we build a
-                    // separate action
-                    extender.addAction(NotificationCompat.Action.Builder(
-                            R.drawable.ic_notif_full_info,
-                            context.getString(R.string.action_artwork_info),
-                            nextPendingIntent)
-                            .extend(NotificationCompat.Action.WearableExtender()
-                                    .setAvailableOffline(false))
-                            .build())
+                            viewPendingIntent)
+                            .extend(NotificationCompat.Action.WearableExtender().setAvailableOffline(false))
+                            .build()
+                    nb.addAction(viewAction)
+                    extender.addAction(viewAction)
                 } catch (ignored: RuntimeException) {
                     // This is actually meant to catch a FileUriExposedException, but you can't
                     // have catch statements for exceptions that don't exist at your minSdkVersion

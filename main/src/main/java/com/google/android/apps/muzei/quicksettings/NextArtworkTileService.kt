@@ -99,12 +99,12 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
                 source?.supportsNextArtwork == true -> {
                     state = Tile.STATE_ACTIVE
                     label = getString(R.string.action_next_artwork)
-                    icon = Icon.createWithResource(context, R.drawable.ic_notif_full_next_artwork)
+                    icon = Icon.createWithResource(context, R.drawable.ic_notif_next_artwork)
                 }
                 else -> {
                     state = Tile.STATE_UNAVAILABLE
                     label = getString(R.string.action_next_artwork)
-                    icon = Icon.createWithResource(context, R.drawable.ic_notif_full_next_artwork)
+                    icon = Icon.createWithResource(context, R.drawable.ic_notif_next_artwork)
                 }
             }
         }?.updateTile()
