@@ -96,6 +96,7 @@ dependencies {
     implementation "com.firebase:firebase-jobdispatcher:$jobDispatcherVersion"
 
     implementation project(':api')
+    implementation project(':extensions')
     implementation project(':android-client-common')
 }
 

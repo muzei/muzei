@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Google Inc.
+ * Copyright 2018 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,13 @@
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
-    implementation "androidx.core:core-ktx:$rootProject.ext.ktxVersion"
-    api project(':api')
-    implementation project(':extensions')
-    api "android.arch.lifecycle:livedata:$lifecycleVersion"
+    api "android.arch.lifecycle:livedata-core:$lifecycleVersion"
 }
 
 android {
-    resourcePrefix 'single_'
-
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     defaultConfig {
@@ -39,10 +33,5 @@ android {
     buildTypes {
         publicBeta
         publicDebug
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
     }
 }

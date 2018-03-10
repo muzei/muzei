@@ -18,7 +18,6 @@ package com.google.android.apps.muzei.complications
 
 import android.annotation.TargetApi
 import android.app.PendingIntent
-import android.arch.lifecycle.Observer
 import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.Build
@@ -32,8 +31,8 @@ import android.util.Log
 import androidx.content.edit
 import com.google.android.apps.muzei.FullScreenActivity
 import com.google.android.apps.muzei.api.MuzeiContract
-import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.util.observeOnce
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.BuildConfig
 import java.util.*
@@ -107,54 +106,50 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
             addComplication(complicationId)
         }
         val applicationContext = applicationContext
-        val artworkLiveData = MuzeiDatabase.getInstance(this).artworkDao().currentArtwork
-        artworkLiveData.observeForever(object : Observer<Artwork> {
-            override fun onChanged(artwork: Artwork?) {
-                artworkLiveData.removeObserver(this)
-                if (artwork == null) {
-                    if (BuildConfig.DEBUG) {
-                        Log.d(TAG, "Update no artwork for $complicationId")
-                    }
-                    complicationManager.updateComplicationData(complicationId,
-                            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build())
-                    return
+        MuzeiDatabase.getInstance(this).artworkDao().currentArtwork.observeOnce { artwork ->
+            if (artwork == null) {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "Update no artwork for $complicationId")
                 }
-                val builder = ComplicationData.Builder(type).apply {
-                    val intent = Intent(applicationContext, FullScreenActivity::class.java)
-                    val tapAction = PendingIntent.getActivity(applicationContext, 0, intent, 0)
-                    when (type) {
-                        ComplicationData.TYPE_LONG_TEXT -> {
-                            val title = artwork.title
-                            val byline = artwork.byline
-                            if (title.isNullOrBlank() && byline.isNullOrBlank()) {
-                                // Both are empty so we don't have any data to show
-                                complicationManager.updateComplicationData(complicationId,
-                                        ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build())
-                                return
-                            } else if (title.isNullOrBlank()) {
-                                // We only have the byline, so use that as the long text
-                                setLongText(ComplicationText.plainText(byline))
-                            } else {
-                                if (!byline.isNullOrBlank()) {
-                                    setLongTitle(ComplicationText.plainText(byline))
-                                }
-                                setLongText(ComplicationText.plainText(title))
-                            }
-                            setTapAction(tapAction)
-                        }
-                        ComplicationData.TYPE_SMALL_IMAGE -> {
-                            setImageStyle(ComplicationData.IMAGE_STYLE_PHOTO)
-                                    .setSmallImage(Icon.createWithContentUri(MuzeiContract.Artwork.CONTENT_URI))
-                            setTapAction(tapAction)
-                        }
-                        ComplicationData.TYPE_LARGE_IMAGE -> setLargeImage(Icon.createWithContentUri(MuzeiContract.Artwork.CONTENT_URI))
-                    }
-                    if (BuildConfig.DEBUG) {
-                        Log.d(TAG, "Updated $complicationId")
-                    }
-                }
-                complicationManager.updateComplicationData(complicationId, builder.build())
+                complicationManager.updateComplicationData(complicationId,
+                        ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build())
+                return@observeOnce
             }
-        })
+            val builder = ComplicationData.Builder(type).apply {
+                val intent = Intent(applicationContext, FullScreenActivity::class.java)
+                val tapAction = PendingIntent.getActivity(applicationContext, 0, intent, 0)
+                when (type) {
+                    ComplicationData.TYPE_LONG_TEXT -> {
+                        val title = artwork.title
+                        val byline = artwork.byline
+                        if (title.isNullOrBlank() && byline.isNullOrBlank()) {
+                            // Both are empty so we don't have any data to show
+                            complicationManager.updateComplicationData(complicationId,
+                                    ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build())
+                            return@observeOnce
+                        } else if (title.isNullOrBlank()) {
+                            // We only have the byline, so use that as the long text
+                            setLongText(ComplicationText.plainText(byline))
+                        } else {
+                            if (!byline.isNullOrBlank()) {
+                                setLongTitle(ComplicationText.plainText(byline))
+                            }
+                            setLongText(ComplicationText.plainText(title))
+                        }
+                        setTapAction(tapAction)
+                    }
+                    ComplicationData.TYPE_SMALL_IMAGE -> {
+                        setImageStyle(ComplicationData.IMAGE_STYLE_PHOTO)
+                                .setSmallImage(Icon.createWithContentUri(MuzeiContract.Artwork.CONTENT_URI))
+                        setTapAction(tapAction)
+                    }
+                    ComplicationData.TYPE_LARGE_IMAGE -> setLargeImage(Icon.createWithContentUri(MuzeiContract.Artwork.CONTENT_URI))
+                }
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "Updated $complicationId")
+                }
+            }
+            complicationManager.updateComplicationData(complicationId, builder.build())
+        }
     }
 }

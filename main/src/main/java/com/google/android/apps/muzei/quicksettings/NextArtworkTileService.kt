@@ -21,7 +21,6 @@ import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.LifecycleRegistry
 import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.Observer
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Intent
@@ -31,17 +30,15 @@ import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.support.annotation.RequiresApi
 import android.widget.Toast
-
 import com.google.android.apps.muzei.MuzeiWallpaperService
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Source
 import com.google.android.apps.muzei.sources.SourceManager
+import com.google.android.apps.muzei.util.observe
 import com.google.firebase.analytics.FirebaseAnalytics
-
 import net.nurik.roman.muzei.R
-
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
@@ -63,7 +60,7 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
         // Start listening for source changes, which will include when a source
         // starts or stops supporting the 'Next Artwork' command
         sourceLiveData = MuzeiDatabase.getInstance(this).sourceDao().currentSource
-        sourceLiveData.observe(this, Observer(this::updateTile))
+        sourceLiveData.observe(this, this::updateTile)
     }
 
     override fun getLifecycle(): Lifecycle {

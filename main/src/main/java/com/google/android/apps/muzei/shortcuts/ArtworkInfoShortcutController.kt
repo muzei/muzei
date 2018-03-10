@@ -18,7 +18,6 @@ package com.google.android.apps.muzei.shortcuts
 
 import android.arch.lifecycle.DefaultLifecycleObserver
 import android.arch.lifecycle.LifecycleOwner
-import android.arch.lifecycle.Observer
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ShortcutInfo
@@ -28,10 +27,9 @@ import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.support.annotation.RequiresApi
-
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
-
+import com.google.android.apps.muzei.util.observe
 import net.nurik.roman.muzei.R
 
 /**
@@ -54,9 +52,9 @@ class ArtworkInfoShortcutController(private val context: Context,
         artworkInfoShortcutHandlerThread.start()
         artworkInfoShortcutHandler = Handler(artworkInfoShortcutHandlerThread.looper)
         MuzeiDatabase.getInstance(context).artworkDao()
-                .currentArtwork.observe(lifecycleOwner, Observer {
+                .currentArtwork.observe(lifecycleOwner) {
             artwork -> artworkInfoShortcutHandler.post { updateShortcut(artwork) }
-        })
+        }
     }
 
     override fun onDestroy(owner: LifecycleOwner) {

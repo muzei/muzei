@@ -44,13 +44,14 @@ import android.util.Log
 import android.view.*
 import android.widget.TextView
 import android.widget.Toast
-import android.arch.lifecycle.Observer
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Source
 import com.google.android.apps.muzei.util.ObservableHorizontalScrollView
 import com.google.android.apps.muzei.util.Scrollbar
+import com.google.android.apps.muzei.util.observe
+import com.google.android.apps.muzei.util.observeNonNull
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
 import java.util.*
@@ -138,18 +139,14 @@ class ChooseSourceFragment : Fragment() {
         bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "sources")
         FirebaseAnalytics.getInstance(context).logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST, bundle)
 
-        sourcesLiveData.observe(this, Observer { sources ->
-            run {
-                if (sources != null) {
-                    updateSources(sources)
-                    updatePadding()
-                }
-            }
-        })
+        sourcesLiveData.observeNonNull(this) { sources ->
+            updateSources(sources)
+            updatePadding()
+        }
 
-        currentSourceLiveData.observe(this, Observer { source ->
+        currentSourceLiveData.observe(this) { source ->
             updateSelectedItem(source, true)
-        })
+        }
 
         if (activity?.intent?.categories?.contains(Notification.INTENT_CATEGORY_NOTIFICATION_PREFERENCES) == true) {
             FirebaseAnalytics.getInstance(context).logEvent("notification_preferences_open", null)

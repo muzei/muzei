@@ -1,13 +1,13 @@
 package com.google.android.apps.muzei.gallery
 
 import android.app.Activity
-import android.arch.lifecycle.Observer
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.ShareCompat
 import android.util.Log
 import android.widget.Toast
+import com.google.android.apps.muzei.util.observeOnce
 
 /**
  * Activity which responds to [android.content.Intent.ACTION_SEND] and
@@ -37,20 +37,16 @@ class GalleryAddPhotosActivity : Activity() {
             val photoUri = intentReader.getStream(index)
             val chosenPhoto = ChosenPhoto(photoUri)
 
-            val insertLiveData = GalleryDatabase.getInstance(this).chosenPhotoDao()
-                    .insert(this, chosenPhoto, callingApplication)
-            insertLiveData.observeForever(object : Observer<Long> {
-                override fun onChanged(id: Long?) {
-                    insertLiveData.removeObserver(this)
-                    if (id == 0L) {
-                        Log.e(TAG, "Unable to insert chosen artwork for $photoUri")
-                        failureCount++
-                    } else {
-                        successCount++
-                    }
-                    updateCount()
+            GalleryDatabase.getInstance(this).chosenPhotoDao()
+                    .insert(this, chosenPhoto, callingApplication).observeOnce { id ->
+                if (id == 0L) {
+                    Log.e(TAG, "Unable to insert chosen artwork for $photoUri")
+                    failureCount++
+                } else {
+                    successCount++
                 }
-            })
+                updateCount()
+            }
         }
     }
 

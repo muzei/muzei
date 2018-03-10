@@ -17,9 +17,9 @@
 package com.google.android.apps.muzei.single
 
 import android.app.Activity
-import android.arch.lifecycle.Observer
 import android.content.Intent
 import android.os.Bundle
+import com.google.android.apps.muzei.util.observeOnce
 
 /**
  * Settings Activity which allows users to select a new photo
@@ -42,15 +42,11 @@ class SingleSettingsActivity : Activity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         data?.data?.takeIf { requestCode == REQUEST_PHOTO && resultCode == RESULT_OK }?.apply {
-            val insertArtworkLiveData = SingleArtSource.setArtwork(
-                    this@SingleSettingsActivity, this)
-            insertArtworkLiveData.observeForever(object : Observer<Boolean> {
-                override fun onChanged(success: Boolean?) {
-                    insertArtworkLiveData.removeObserver(this)
-                    setResult(if (success == true) Activity.RESULT_OK else Activity.RESULT_CANCELED)
-                    finish()
-                }
-            })
+            SingleArtSource.setArtwork(
+                    this@SingleSettingsActivity, this).observeOnce { success ->
+                setResult(if (success == true) Activity.RESULT_OK else Activity.RESULT_CANCELED)
+                finish()
+            }
         } ?: run {
             setResult(RESULT_CANCELED)
             finish()

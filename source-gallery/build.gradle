@@ -22,6 +22,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     implementation "androidx.core:core-ktx:$rootProject.ext.ktxVersion"
     implementation project(':api')
+    implementation project(':extensions')
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
     implementation "com.squareup.picasso:picasso:$picassoVersion"
     implementation "com.android.support:appcompat-v7:$supportLibraryVersion"

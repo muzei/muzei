@@ -2,7 +2,6 @@ package com.google.android.apps.muzei.gallery
 
 import android.app.Dialog
 import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
 import android.content.Context
 import android.content.pm.ActivityInfo
@@ -13,6 +12,7 @@ import android.support.v4.app.FragmentManager
 import android.support.v7.app.AlertDialog
 import android.widget.ArrayAdapter
 import androidx.content.withStyledAttributes
+import com.google.android.apps.muzei.util.observe
 
 class GalleryImportPhotosDialogFragment : DialogFragment() {
 
@@ -55,15 +55,13 @@ class GalleryImportPhotosDialogFragment : DialogFragment() {
         super.onAttach(context)
         listener = context as? OnRequestContentListener ?: throw IllegalArgumentException(
                 "${context.javaClass.simpleName} must implement OnRequestContentListener")
-        getContentActivitiesLiveData.observe(this, Observer { getContentActivities ->
-            run {
-                if (getContentActivities?.isEmpty() != false) {
-                    dismiss()
-                } else {
-                    updateAdapter(getContentActivities)
-                }
+        getContentActivitiesLiveData.observe(this) { getContentActivities ->
+            if (getContentActivities?.isEmpty() != false) {
+                dismiss()
+            } else {
+                updateAdapter(getContentActivities)
             }
-        })
+        }
     }
 
     override fun onDetach() {

@@ -17,7 +17,6 @@
 package com.google.android.apps.muzei
 
 import android.app.Activity
-import android.arch.lifecycle.Observer
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
@@ -26,6 +25,7 @@ import android.widget.Toast
 import androidx.os.bundleOf
 import com.google.android.apps.muzei.single.SingleArtSource
 import com.google.android.apps.muzei.sources.SourceManager
+import com.google.android.apps.muzei.util.observeOnce
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
 
@@ -40,30 +40,26 @@ class PhotoSetAsTargetActivity : Activity() {
 
         intent?.data?.apply {
             val context = this@PhotoSetAsTargetActivity
-            val insertLiveData = SingleArtSource.setArtwork(context, this)
-            insertLiveData.observeForever(object : Observer<Boolean> {
-                override fun onChanged(success: Boolean?) {
-                    insertLiveData.removeObserver(this)
-                    if (success == false) {
-                        Log.e(TAG, "Unable to insert artwork for ${this@apply}")
-                        Toast.makeText(context, R.string.set_as_wallpaper_failed, Toast.LENGTH_SHORT).show()
-                        finish()
-                        return
-                    }
-
-                    // If adding the artwork succeeded, select the single artwork source
-                    val bundle = bundleOf(FirebaseAnalytics.Param.ITEM_ID to
-                            ComponentName(context, SingleArtSource::class.java).flattenToShortString(),
-                            FirebaseAnalytics.Param.CONTENT_TYPE to "sources")
-                    FirebaseAnalytics.getInstance(context).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
-                    SourceManager.selectSource(context, SingleArtSource::class) {
-                        startActivity(Intent.makeMainActivity(ComponentName(
-                                context, MuzeiActivity::class.java))
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-                        finish()
-                    }
+            SingleArtSource.setArtwork(context, this).observeOnce { success ->
+                if (success == false) {
+                    Log.e(TAG, "Unable to insert artwork for ${this@apply}")
+                    Toast.makeText(context, R.string.set_as_wallpaper_failed, Toast.LENGTH_SHORT).show()
+                    finish()
+                    return@observeOnce
                 }
-            })
+
+                // If adding the artwork succeeded, select the single artwork source
+                val bundle = bundleOf(FirebaseAnalytics.Param.ITEM_ID to
+                        ComponentName(context, SingleArtSource::class.java).flattenToShortString(),
+                        FirebaseAnalytics.Param.CONTENT_TYPE to "sources")
+                FirebaseAnalytics.getInstance(context).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
+                SourceManager.selectSource(context, SingleArtSource::class) {
+                    startActivity(Intent.makeMainActivity(ComponentName(
+                            context, MuzeiActivity::class.java))
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                    finish()
+                }
+            }
         } ?: finish()
     }
 }

@@ -20,7 +20,6 @@ package com.google.android.apps.muzei.sources
 
 import android.arch.lifecycle.DefaultLifecycleObserver
 import android.arch.lifecycle.LifecycleOwner
-import android.arch.lifecycle.Observer
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -31,8 +30,8 @@ import android.support.v4.content.WakefulBroadcastReceiver
 import android.util.Log
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_NETWORK_AVAILABLE
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.room.Source
 import com.google.android.apps.muzei.sync.TaskQueueService
+import com.google.android.apps.muzei.util.observeOnce
 
 /**
  * LifecycleObserver responsible for monitoring network connectivity and retrying artwork as necessary
@@ -60,31 +59,26 @@ class NetworkChangeObserver internal constructor(private val context: Context) :
             }
 
             val pendingResult = goAsync()
-            val sourcesLiveData = MuzeiDatabase.getInstance(context).sourceDao()
-                    .currentSourcesThatWantNetwork
-            sourcesLiveData.observeForever(object : Observer<List<Source>> {
-                override fun onChanged(sources: List<Source>?) {
-                    sourcesLiveData.removeObserver(this)
-                    if (sources != null) {
-                        for (source in sources) {
-                            val sourceName = source.componentName
-                            try {
-                                context.packageManager.getServiceInfo(sourceName, 0)
-                                context.startService(Intent(ACTION_NETWORK_AVAILABLE)
-                                        .setComponent(sourceName))
-                            } catch (e: PackageManager.NameNotFoundException) {
-                                Log.i(TAG, "Sending network available to $sourceName failed.", e)
-                            } catch (e: IllegalStateException) {
-                                Log.i(TAG, "Sending network available to $sourceName failed.", e)
-                            } catch (e: SecurityException) {
-                                Log.i(TAG, "Sending network available to $sourceName failed.", e)
-                            }
-
+            MuzeiDatabase.getInstance(context).sourceDao()
+                    .currentSourcesThatWantNetwork.observeOnce { sources ->
+                if (sources != null) {
+                    for (source in sources) {
+                        val sourceName = source.componentName
+                        try {
+                            context.packageManager.getServiceInfo(sourceName, 0)
+                            context.startService(Intent(ACTION_NETWORK_AVAILABLE)
+                                    .setComponent(sourceName))
+                        } catch (e: PackageManager.NameNotFoundException) {
+                            Log.i(TAG, "Sending network available to $sourceName failed.", e)
+                        } catch (e: IllegalStateException) {
+                            Log.i(TAG, "Sending network available to $sourceName failed.", e)
+                        } catch (e: SecurityException) {
+                            Log.i(TAG, "Sending network available to $sourceName failed.", e)
                         }
                     }
-                    pendingResult.finish()
                 }
-            })
+                pendingResult.finish()
+            }
         }
     }
 

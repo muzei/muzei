@@ -110,6 +110,7 @@ dependencies {
     kapt "android.arch.lifecycle:compiler:$lifecycleVersion"
 
     implementation project(':api')
+    implementation project(':extensions')
     implementation project(':android-client-common')
     implementation project(':source-featured-art')
     implementation project(':source-gallery')

@@ -18,7 +18,6 @@ package com.google.android.apps.muzei.sources
 
 import android.annotation.SuppressLint
 import android.arch.lifecycle.*
-import android.arch.lifecycle.Observer
 import android.content.*
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
@@ -35,6 +34,8 @@ import com.google.android.apps.muzei.featuredart.FeaturedArtSource
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Source
 import com.google.android.apps.muzei.sync.TaskQueueService
+import com.google.android.apps.muzei.util.observeNonNull
+import com.google.android.apps.muzei.util.observeOnce
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
@@ -103,35 +104,30 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
 
         @JvmStatic
         fun sendAction(context: Context, id: Int) {
-            val sourceLiveData = MuzeiDatabase.getInstance(context).sourceDao().currentSource
-            sourceLiveData.observeForever(object : Observer<Source?> {
-                override fun onChanged(source: Source?) {
-                    sourceLiveData.removeObserver(this)
-                    if (source != null) {
-                        val selectedSource = source.componentName
-                        try {
-                            // Ensure that we have a valid service before sending the action
-                            context.packageManager.getServiceInfo(selectedSource, 0)
-                            context.startService(Intent(ACTION_HANDLE_COMMAND)
-                                    .setComponent(selectedSource)
-                                    .putExtra(EXTRA_COMMAND_ID, id))
-                        } catch (e: PackageManager.NameNotFoundException) {
-                            Log.i(TAG, "Sending action + $id to $selectedSource failed; switching to default.", e)
-                            Toast.makeText(context, R.string.source_unavailable, Toast.LENGTH_LONG).show()
-                            selectSource(context, FeaturedArtSource::class)
-                        } catch (e: IllegalStateException) {
-                            Log.i(TAG, "Sending action + $id to $selectedSource failed; switching to default.", e)
-                            Toast.makeText(context, R.string.source_unavailable, Toast.LENGTH_LONG).show()
-                            selectSource(context, FeaturedArtSource::class)
-                        } catch (e: SecurityException) {
-                            Log.i(TAG, "Sending action + $id to $selectedSource failed; switching to default.", e)
-                            Toast.makeText(context, R.string.source_unavailable, Toast.LENGTH_LONG).show()
-                            selectSource(context, FeaturedArtSource::class)
-                        }
-
+            MuzeiDatabase.getInstance(context).sourceDao().currentSource.observeOnce { source ->
+                if (source != null) {
+                    val selectedSource = source.componentName
+                    try {
+                        // Ensure that we have a valid service before sending the action
+                        context.packageManager.getServiceInfo(selectedSource, 0)
+                        context.startService(Intent(ACTION_HANDLE_COMMAND)
+                                .setComponent(selectedSource)
+                                .putExtra(EXTRA_COMMAND_ID, id))
+                    } catch (e: PackageManager.NameNotFoundException) {
+                        Log.i(TAG, "Sending action + $id to $selectedSource failed; switching to default.", e)
+                        Toast.makeText(context, R.string.source_unavailable, Toast.LENGTH_LONG).show()
+                        selectSource(context, FeaturedArtSource::class)
+                    } catch (e: IllegalStateException) {
+                        Log.i(TAG, "Sending action + $id to $selectedSource failed; switching to default.", e)
+                        Toast.makeText(context, R.string.source_unavailable, Toast.LENGTH_LONG).show()
+                        selectSource(context, FeaturedArtSource::class)
+                    } catch (e: SecurityException) {
+                        Log.i(TAG, "Sending action + $id to $selectedSource failed; switching to default.", e)
+                        Toast.makeText(context, R.string.source_unavailable, Toast.LENGTH_LONG).show()
+                        selectSource(context, FeaturedArtSource::class)
                     }
                 }
-            })
+            }
         }
     }
 
@@ -146,31 +142,25 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
             // Update the sources from the changed package
             executor.execute(UpdateSourcesRunnable(packageName))
             val pendingResult = goAsync()
-            val sourceLiveData = MuzeiDatabase.getInstance(context).sourceDao()
-                    .currentSource
-            sourceLiveData.observeForever(
-                    object : Observer<Source?> {
-                        override fun onChanged(source: Source?) {
-                            sourceLiveData.removeObserver(this)
-                            if (source != null && packageName == source.componentName.packageName) {
-                                try {
-                                    this@SourceManager.context.packageManager.getServiceInfo(source.componentName, 0)
-                                } catch (e: PackageManager.NameNotFoundException) {
-                                    Log.i(TAG, "Selected source " + source.componentName
-                                            + " is no longer available")
-                                    selectSource(context, FeaturedArtSource::class)
-                                    return
-                                }
+            MuzeiDatabase.getInstance(context).sourceDao().currentSource.observeOnce { source ->
+                if (source != null && packageName == source.componentName.packageName) {
+                    try {
+                        this@SourceManager.context.packageManager.getServiceInfo(source.componentName, 0)
+                    } catch (e: PackageManager.NameNotFoundException) {
+                        Log.i(TAG, "Selected source " + source.componentName
+                                + " is no longer available")
+                        selectSource(context, FeaturedArtSource::class)
+                        return@observeOnce
+                    }
 
-                                // Some other change.
-                                if (lifecycleRegistry.currentState.isAtLeast(Lifecycle.State.STARTED)) {
-                                    Log.i(TAG, "Source package changed or replaced. Re-subscribing to ${source.componentName}")
-                                    subscribe(source)
-                                }
-                            }
-                            pendingResult.finish()
-                        }
-                    })
+                    // Some other change.
+                    if (lifecycleRegistry.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                        Log.i(TAG, "Source package changed or replaced. Re-subscribing to ${source.componentName}")
+                        subscribe(source)
+                    }
+                }
+                pendingResult.finish()
+            }
         }
     }
     private val lifecycleRegistry: LifecycleRegistry = LifecycleRegistry(this)
@@ -249,13 +239,11 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
 
     override fun onCreate(owner: LifecycleOwner) {
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
-        SubscriberLiveData().observe(this, Observer { source ->
-            if (source != null) {
-                sendSelectedSourceAnalytics(source.componentName)
-                // Ensure the artwork from the newly selected source is downloaded
-                context.startService(TaskQueueService.getDownloadCurrentArtworkIntent(context))
-            }
-        })
+        SubscriberLiveData().observeNonNull(this) { source ->
+            sendSelectedSourceAnalytics(source.componentName)
+            // Ensure the artwork from the newly selected source is downloaded
+            context.startService(TaskQueueService.getDownloadCurrentArtworkIntent(context))
+        }
         // Register for package change events
         val packageChangeFilter = IntentFilter().apply {
             addDataScheme("package")
