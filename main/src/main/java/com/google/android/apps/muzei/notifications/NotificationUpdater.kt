@@ -29,7 +29,7 @@ import com.google.android.apps.muzei.api.MuzeiContract
 /**
  * LifecycleObserver which updates the notification when the artwork changes
  */
-class NotificationUpdater(private val mContext: Context) : DefaultLifecycleObserver {
+class NotificationUpdater(private val context: Context) : DefaultLifecycleObserver {
     private val notificationHandlerThread: HandlerThread by lazy {
         HandlerThread("MuzeiWallpaperService-Notification").apply {
             start()
@@ -38,20 +38,20 @@ class NotificationUpdater(private val mContext: Context) : DefaultLifecycleObser
     private val notificationContentObserver: ContentObserver by lazy {
         object : ContentObserver(Handler(notificationHandlerThread.looper)) {
             override fun onChange(selfChange: Boolean, uri: Uri) {
-                NewWallpaperNotificationReceiver.maybeShowNewArtworkNotification(mContext)
+                NewWallpaperNotificationReceiver.maybeShowNewArtworkNotification(context)
             }
         }
     }
 
     override fun onCreate(owner: LifecycleOwner) {
         // Set up a thread to update notifications whenever the artwork changes
-        mContext.contentResolver.registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
+        context.contentResolver.registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
                 true, notificationContentObserver)
     }
 
     override fun onDestroy(owner: LifecycleOwner) {
-        mContext.contentResolver.unregisterContentObserver(notificationContentObserver)
+        context.contentResolver.unregisterContentObserver(notificationContentObserver)
         notificationHandlerThread.quitSafely()
-        NewWallpaperNotificationReceiver.cancelNotification(mContext)
+        NewWallpaperNotificationReceiver.cancelNotification(context)
     }
 }
