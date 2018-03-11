@@ -17,6 +17,7 @@
 package com.google.android.apps.muzei.render
 
 import android.app.ActivityManager
+import android.arch.lifecycle.MutableLiveData
 import android.content.Context
 import android.graphics.*
 import android.opengl.GLES20
@@ -26,13 +27,20 @@ import android.support.annotation.Keep
 import android.util.Log
 import android.view.animation.AccelerateDecelerateInterpolator
 import com.google.android.apps.muzei.ArtDetailViewport
-import com.google.android.apps.muzei.event.ArtworkSizeChangedEvent
 import com.google.android.apps.muzei.event.SwitchingPhotosStateChangedEvent
 import com.google.android.apps.muzei.settings.Prefs
 import com.google.android.apps.muzei.util.*
 import org.greenrobot.eventbus.EventBus
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
+
+data class ArtworkSize(val width: Int, val height: Int) {
+    internal constructor(bitmapRegionLoader: BitmapRegionLoader)
+            : this(bitmapRegionLoader.width, bitmapRegionLoader
+            .height)
+}
+
+object ArtworkSizeLiveData : MutableLiveData<ArtworkSize>()
 
 class MuzeiBlurRenderer(private val context: Context,
                          private val callbacks: Callbacks,
@@ -236,8 +244,7 @@ class MuzeiBlurRenderer(private val context: Context,
         if (!demoMode && !preview) {
             EventBus.getDefault().postSticky(SwitchingPhotosStateChangedEvent(
                     nextGLPictureSet.id, true))
-            EventBus.getDefault().postSticky(ArtworkSizeChangedEvent(
-                    bitmapRegionLoader.width, bitmapRegionLoader.height))
+            ArtworkSizeLiveData.postValue(ArtworkSize(bitmapRegionLoader))
             ArtDetailViewport.setDefaultViewport(nextGLPictureSet.id,
                     bitmapRegionLoader.width * 1f / bitmapRegionLoader.height,
                     aspectRatio)

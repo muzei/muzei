@@ -40,10 +40,10 @@ import androidx.view.isVisible
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.event.ArtworkLoadingStateChangedEvent
-import com.google.android.apps.muzei.event.ArtworkSizeChangedEvent
 import com.google.android.apps.muzei.event.SwitchingPhotosStateChangedEvent
 import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent
 import com.google.android.apps.muzei.notifications.NewWallpaperNotificationReceiver
+import com.google.android.apps.muzei.render.ArtworkSizeLiveData
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Source
@@ -53,6 +53,7 @@ import com.google.android.apps.muzei.sync.TaskQueueService
 import com.google.android.apps.muzei.util.AnimatedMuzeiLoadingSpinnerView
 import com.google.android.apps.muzei.util.PanScaleProxyView
 import com.google.android.apps.muzei.util.makeCubicGradientScrimDrawable
+import com.google.android.apps.muzei.util.observeNonNull
 import com.google.android.apps.muzei.widget.AppWidgetUpdateTask
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
@@ -318,10 +319,9 @@ class ArtDetailFragment : Fragment() {
             onEventMainThread(wsce)
         }
 
-        val asce = EventBus.getDefault().getStickyEvent(
-                ArtworkSizeChangedEvent::class.java)
-        if (asce != null) {
-            onEventMainThread(asce)
+        ArtworkSizeLiveData.observeNonNull(this) { size ->
+            artworkAspectRatio = size.width * 1f / size.height
+            resetProxyViewport()
         }
 
         val alsce = EventBus.getDefault().getStickyEvent(
@@ -383,12 +383,6 @@ class ArtDetailFragment : Fragment() {
         } else {
             panScaleProxyView.width * 1f / panScaleProxyView.height
         }
-        resetProxyViewport()
-    }
-
-    @Subscribe
-    fun onEventMainThread(ase: ArtworkSizeChangedEvent) {
-        artworkAspectRatio = ase.width * 1f / ase.height
         resetProxyViewport()
     }
 
