@@ -18,14 +18,12 @@ package com.google.android.apps.muzei.wallpaper
 
 import android.arch.lifecycle.DefaultLifecycleObserver
 import android.arch.lifecycle.LifecycleOwner
+import android.arch.lifecycle.MutableLiveData
 import android.content.Context
-
-import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent
 import com.google.firebase.analytics.FirebaseAnalytics
-
 import net.nurik.roman.muzei.BuildConfig
 
-import org.greenrobot.eventbus.EventBus
+object WallpaperActiveState : MutableLiveData<Boolean>()
 
 /**
  * LifecycleObserver responsible for sending analytics callbacks based on the state of the wallpaper
@@ -38,11 +36,11 @@ class WallpaperAnalytics(private val mContext: Context) : DefaultLifecycleObserv
 
     override fun onResume(owner: LifecycleOwner) {
         FirebaseAnalytics.getInstance(mContext).logEvent("wallpaper_created", null)
-        EventBus.getDefault().postSticky(WallpaperActiveStateChangedEvent(true))
+        WallpaperActiveState.value = true
     }
 
     override fun onPause(owner: LifecycleOwner) {
         FirebaseAnalytics.getInstance(mContext).logEvent("wallpaper_destroyed", null)
-        EventBus.getDefault().postSticky(WallpaperActiveStateChangedEvent(false))
+        WallpaperActiveState.value = false
     }
 }

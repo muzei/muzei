@@ -32,15 +32,14 @@ import android.support.annotation.RequiresApi
 import android.widget.Toast
 import com.google.android.apps.muzei.MuzeiWallpaperService
 import com.google.android.apps.muzei.api.MuzeiArtSource
-import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Source
 import com.google.android.apps.muzei.sources.SourceManager
 import com.google.android.apps.muzei.util.observe
+import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
 import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
 
 /**
  * Quick Settings Tile which allows users quick access to the 'Next Artwork' command, if supported.
@@ -52,11 +51,13 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
     private val lifecycleRegistry: LifecycleRegistry = LifecycleRegistry(this)
 
     private lateinit var sourceLiveData: LiveData<Source?>
-    private var wallpaperActive = false
 
     override fun onCreate() {
         super.onCreate()
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        WallpaperActiveState.observe(this) {
+            updateTile(sourceLiveData.value)
+        }
         // Start listening for source changes, which will include when a source
         // starts or stops supporting the 'Next Artwork' command
         sourceLiveData = MuzeiDatabase.getInstance(this).sourceDao().currentSource
@@ -72,25 +73,14 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
     }
 
     override fun onStartListening() {
-        // Check if the wallpaper is currently active
-        EventBus.getDefault().register(this)
-        val e = EventBus.getDefault().getStickyEvent(
-                WallpaperActiveStateChangedEvent::class.java)
-        wallpaperActive = e?.isActive == true
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
-    }
-
-    @Subscribe
-    fun onEventMainThread(e: WallpaperActiveStateChangedEvent?) {
-        wallpaperActive = e?.isActive == true
-        updateTile(sourceLiveData.value)
     }
 
     private fun updateTile(source: Source?) {
         val context = this
-        qsTile?.takeIf { !wallpaperActive || source != null }?.apply {
+        qsTile?.takeIf { WallpaperActiveState.value != true || source != null }?.apply {
             when {
-                !wallpaperActive -> {
+                WallpaperActiveState.value != true -> {
                     // If the wallpaper isn't active, the quick tile will activate it
                     state = Tile.STATE_INACTIVE
                     label = getString(R.string.action_activate)

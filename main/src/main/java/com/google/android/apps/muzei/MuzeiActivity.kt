@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei
 
+import android.arch.lifecycle.Observer
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.preference.PreferenceManager
@@ -23,42 +24,38 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
 import android.view.View
-
-import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent
+import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import com.google.firebase.analytics.FirebaseAnalytics
-
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
 
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-
-class MuzeiActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
+class MuzeiActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener, Observer<Boolean> {
     private var fadeIn = false
     private var wallpaperActiveStateChanged = false
 
     private val currentFragment: Fragment
         get() {
-            val e = EventBus.getDefault()
-                    .getStickyEvent(WallpaperActiveStateChangedEvent::class.java)
-            if (e?.isActive == true) {
-                val sp = PreferenceManager.getDefaultSharedPreferences(this)
-                if (sp.getBoolean(TutorialFragment.PREF_SEEN_TUTORIAL, false)) {
+            val sp = PreferenceManager.getDefaultSharedPreferences(this)
+            val seenTutorial = sp.getBoolean(TutorialFragment.PREF_SEEN_TUTORIAL, false)
+            when {
+                WallpaperActiveState.value == true && seenTutorial -> {
                     // The wallpaper is active and they've seen the tutorial
                     FirebaseAnalytics.getInstance(this).setCurrentScreen(this, "Main",
                             MainFragment::class.java.simpleName)
                     return MainFragment()
-                } else {
+                }
+                WallpaperActiveState.value == true && !seenTutorial -> {
                     // They need to see the tutorial after activating Muzei for the first time
                     FirebaseAnalytics.getInstance(this).setCurrentScreen(this, "Tutorial",
                             TutorialFragment::class.java.simpleName)
                     return TutorialFragment()
                 }
-            } else {
-                // Show the intro fragment to have them activate Muzei
-                FirebaseAnalytics.getInstance(this).setCurrentScreen(this, "Intro",
-                        IntroFragment::class.java.simpleName)
-                return IntroFragment()
+                else -> {
+                    // Show the intro fragment to have them activate Muzei
+                    FirebaseAnalytics.getInstance(this).setCurrentScreen(this, "Intro",
+                            IntroFragment::class.java.simpleName)
+                    return IntroFragment()
+                }
             }
         }
 
@@ -81,7 +78,9 @@ class MuzeiActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceC
             fadeIn = true
         }
 
-        EventBus.getDefault().register(this)
+        // Use observeForever to continue to listen even after we're stopped
+        // as is the case when the wallpaper chooser is displayed over us
+        WallpaperActiveState.observeForever(this)
         val sp = PreferenceManager.getDefaultSharedPreferences(this)
         sp.registerOnSharedPreferenceChangeListener(this)
     }
@@ -100,7 +99,7 @@ class MuzeiActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceC
     override fun onDestroy() {
         val sp = PreferenceManager.getDefaultSharedPreferences(this)
         sp.unregisterOnSharedPreferenceChangeListener(this)
-        EventBus.getDefault().unregister(this)
+        WallpaperActiveState.removeObserver(this)
         super.onDestroy()
     }
 
@@ -131,9 +130,7 @@ class MuzeiActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceC
         }
     }
 
-    @Suppress("unused", "UNUSED_PARAMETER")
-    @Subscribe
-    fun onEventMainThread(e: WallpaperActiveStateChangedEvent) {
+    override fun onChanged(t: Boolean?) {
         wallpaperActiveStateChanged = true
     }
 }

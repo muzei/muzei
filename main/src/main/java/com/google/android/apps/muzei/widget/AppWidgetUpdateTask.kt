@@ -35,12 +35,11 @@ import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
-import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent
 import com.google.android.apps.muzei.render.BitmapRegionLoader
 import com.google.android.apps.muzei.render.sampleSize
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import net.nurik.roman.muzei.R
-import org.greenrobot.eventbus.EventBus
 import java.io.IOException
 
 /**
@@ -73,9 +72,7 @@ open class AppWidgetUpdateTask(@field:SuppressLint("StaticFieldLeak") private va
         }
         val contentDescription = artwork.title ?: artwork.byline
         val imageUri = artwork.contentUri
-        val wasce = EventBus.getDefault().getStickyEvent(
-                WallpaperActiveStateChangedEvent::class.java)
-        val supportsNextArtwork = wasce?.isActive == true && source.supportsNextArtwork
+        val supportsNextArtwork = WallpaperActiveState.value == true && source.supportsNextArtwork
 
         // Update the widget(s) with the new artwork information
         val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)

@@ -29,13 +29,12 @@ import android.widget.AdapterView
 import android.widget.BaseAdapter
 import android.widget.Spinner
 import android.widget.TextView
-import com.google.android.apps.muzei.event.WallpaperActiveStateChangedEvent
 import com.google.android.apps.muzei.render.MuzeiRendererFragment
 import com.google.android.apps.muzei.sources.ChooseSourceFragment
+import com.google.android.apps.muzei.util.observeNonNull
+import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
 
 /**
  * The primary widget configuration activity. Serves as an interstitial when adding the widget, and
@@ -61,7 +60,6 @@ class SettingsActivity : AppCompatActivity(), ChooseSourceFragment.Callbacks {
     private val startSection = START_SECTION_SOURCE
 
     private var backgroundAnimator: ObjectAnimator? = null
-    private var paused: Boolean = false
     private var renderLocally: Boolean = false
 
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,16 +78,10 @@ class SettingsActivity : AppCompatActivity(), ChooseSourceFragment.Callbacks {
             duration = 1000
             start()
         }
-    }
 
-    override fun onStart() {
-        super.onStart()
-        EventBus.getDefault().register(this)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        EventBus.getDefault().unregister(this)
+        WallpaperActiveState.observeNonNull(this) { isActive->
+            updateRenderLocally(!isActive)
+        }
     }
 
     override fun onDestroy() {
@@ -161,36 +153,6 @@ class SettingsActivity : AppCompatActivity(), ChooseSourceFragment.Callbacks {
         }
 
         sectionSpinner.setSelection(startSection)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        paused = true
-    }
-
-    override fun onPostResume() {
-        super.onPostResume()
-        paused = false
-        updateRenderLocallyToLatestActiveState()
-    }
-
-    @Subscribe
-    fun onEventMainThread(e: WallpaperActiveStateChangedEvent) {
-        if (paused) {
-            return
-        }
-
-        updateRenderLocally(!e.isActive)
-    }
-
-    private fun updateRenderLocallyToLatestActiveState() {
-        val e = EventBus.getDefault().getStickyEvent(
-                WallpaperActiveStateChangedEvent::class.java)
-        if (e != null) {
-            onEventMainThread(e)
-        } else {
-            onEventMainThread(WallpaperActiveStateChangedEvent(false))
-        }
     }
 
     private fun updateRenderLocally(renderLocally: Boolean) {
