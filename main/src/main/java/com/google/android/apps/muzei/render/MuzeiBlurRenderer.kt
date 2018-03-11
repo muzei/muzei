@@ -164,8 +164,8 @@ class MuzeiBlurRenderer(private val context: Context,
         hintViewportSize(width, height)
         if (!demoMode && !preview) {
             // Reset art detail viewports
-            ArtDetailViewport.getInstance().setViewport(0, 0f, 0f, 0f, 0f, false)
-            ArtDetailViewport.getInstance().setViewport(1, 0f, 0f, 0f, 0f, false)
+            ArtDetailViewport.setViewport(0, 0f, 0f, 0f, 0f)
+            ArtDetailViewport.setViewport(1, 0f, 0f, 0f, 0f)
         }
         currentGLPictureSet.recomputeTransformMatrices()
         nextGLPictureSet.recomputeTransformMatrices()
@@ -240,7 +240,7 @@ class MuzeiBlurRenderer(private val context: Context,
                     nextGLPictureSet.id, true))
             EventBus.getDefault().postSticky(ArtworkSizeChangedEvent(
                     bitmapRegionLoader.width, bitmapRegionLoader.height))
-            ArtDetailViewport.getInstance().setDefaultViewport(nextGLPictureSet.id,
+            ArtDetailViewport.setDefaultViewport(nextGLPictureSet.id,
                     bitmapRegionLoader.width * 1f / bitmapRegionLoader.height,
                     aspectRatio)
         }
@@ -407,16 +407,15 @@ class MuzeiBlurRenderer(private val context: Context,
 
             val focusAmount = (blurKeyframes - blurAnimator.currentValue) / blurKeyframes
             if (blurRelatedToArtDetailMode && focusAmount > 0) {
-                val artDetailViewport = ArtDetailViewport.getInstance().getViewport(id)
+                val artDetailViewport = ArtDetailViewport.getViewport(id)
                 if (artDetailViewport.width() == 0f || artDetailViewport.height() == 0f) {
                     if (!demoMode && !preview) {
                         // reset art detail viewport
-                        ArtDetailViewport.getInstance().setViewport(id,
+                        ArtDetailViewport.setViewport(id,
                                 MathUtil.uninterpolate(-1f, 1f, currentViewport.left),
                                 MathUtil.uninterpolate(1f, -1f, currentViewport.top),
                                 MathUtil.uninterpolate(-1f, 1f, currentViewport.right),
-                                MathUtil.uninterpolate(1f, -1f, currentViewport.bottom),
-                                false)
+                                MathUtil.uninterpolate(1f, -1f, currentViewport.bottom))
                     }
                 } else {
                     // interpolate
@@ -519,8 +518,8 @@ class MuzeiBlurRenderer(private val context: Context,
     fun setIsBlurred(isBlurred: Boolean, artDetailMode: Boolean) {
         if (artDetailMode && !isBlurred && !demoMode && !preview) {
             // Reset art detail viewport
-            ArtDetailViewport.getInstance().setViewport(0, 0f, 0f, 0f, 0f, false)
-            ArtDetailViewport.getInstance().setViewport(1, 0f, 0f, 0f, 0f, false)
+            ArtDetailViewport.setViewport(0, 0f, 0f, 0f, 0f)
+            ArtDetailViewport.setViewport(1, 0f, 0f, 0f, 0f)
         }
 
         blurRelatedToArtDetailMode = artDetailMode

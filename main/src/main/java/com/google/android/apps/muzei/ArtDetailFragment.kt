@@ -281,7 +281,7 @@ class ArtDetailFragment : Fragment() {
                 return@setOnViewportChangedListener
             }
 
-            ArtDetailViewport.getInstance().setViewport(
+            ArtDetailViewport.setViewport(
                     currentViewportId, panScaleProxyView.currentViewport, true)
         }
         panScaleProxyView.setOnOtherGestureListener(
