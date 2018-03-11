@@ -42,7 +42,6 @@ import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.ViewConfiguration
 import com.google.android.apps.muzei.api.MuzeiContract
-import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent
 import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent
 import com.google.android.apps.muzei.notifications.NotificationUpdater
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer
@@ -51,6 +50,7 @@ import com.google.android.apps.muzei.render.RenderController
 import com.google.android.apps.muzei.render.sampleSize
 import com.google.android.apps.muzei.shortcuts.ArtworkInfoShortcutController
 import com.google.android.apps.muzei.sources.SourceManager
+import com.google.android.apps.muzei.util.observeNonNull
 import com.google.android.apps.muzei.wallpaper.LockscreenObserver
 import com.google.android.apps.muzei.wallpaper.WallpaperAnalytics
 import com.google.android.apps.muzei.wearable.WearableController
@@ -120,7 +120,6 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         private lateinit var renderController: RenderController
         private var currentArtwork: Bitmap? = null
 
-        private var artDetailMode = false
         private var validDoubleTap: Boolean = false
 
         private val engineLifecycle = LifecycleRegistry(this)
@@ -134,7 +133,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             }
 
             override fun onDoubleTap(e: MotionEvent): Boolean {
-                if (artDetailMode) {
+                if (ArtDetailOpenLiveData.value == true) {
                     // The main activity is visible, so discard any double touches since focus
                     // should be forced on
                     return true
@@ -196,6 +195,10 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             }
             setTouchEventsEnabled(true)
             setOffsetNotificationsEnabled(true)
+            ArtDetailOpenLiveData.observeNonNull(this) { isArtDetailOpened ->
+                cancelDelayedBlur()
+                queueEvent { renderer.setIsBlurred(!isArtDetailOpened, true) }
+            }
             EventBus.getDefault().register(eventBusSubscriber)
         }
 
@@ -257,17 +260,6 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
 
         internal inner class EventBusSubscriber {
             @Subscribe
-            fun onEventMainThread(e: ArtDetailOpenedClosedEvent) {
-                if (e.isArtDetailOpened == artDetailMode) {
-                    return
-                }
-
-                artDetailMode = e.isArtDetailOpened
-                cancelDelayedBlur()
-                queueEvent { renderer.setIsBlurred(!e.isArtDetailOpened, true) }
-            }
-
-            @Subscribe
             fun onEventMainThread(e: ArtDetailViewport) {
                 requestRender()
             }
@@ -317,7 +309,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         }
 
         private fun delayedBlur() {
-            if (artDetailMode || renderer.isBlurred) {
+            if (ArtDetailOpenLiveData.value == true || renderer.isBlurred) {
                 return
             }
 

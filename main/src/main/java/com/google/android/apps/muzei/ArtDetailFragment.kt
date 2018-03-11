@@ -17,6 +17,7 @@
 package com.google.android.apps.muzei
 
 import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
 import android.content.Intent
 import android.os.Bundle
@@ -38,7 +39,10 @@ import androidx.view.isGone
 import androidx.view.isVisible
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.MuzeiContract
-import com.google.android.apps.muzei.event.*
+import com.google.android.apps.muzei.event.ArtworkLoadingStateChangedEvent
+import com.google.android.apps.muzei.event.ArtworkSizeChangedEvent
+import com.google.android.apps.muzei.event.SwitchingPhotosStateChangedEvent
+import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent
 import com.google.android.apps.muzei.notifications.NewWallpaperNotificationReceiver
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
@@ -54,6 +58,8 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
+
+object ArtDetailOpenLiveData : MutableLiveData<Boolean>()
 
 class ArtDetailFragment : Fragment() {
 
@@ -340,7 +346,7 @@ class ArtDetailFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        EventBus.getDefault().postSticky(ArtDetailOpenedClosedEvent(true))
+        ArtDetailOpenLiveData.value = true
     }
 
     override fun onResume() {
@@ -424,7 +430,7 @@ class ArtDetailFragment : Fragment() {
     override fun onStop() {
         super.onStop()
         overflowMenu.dismiss()
-        EventBus.getDefault().postSticky(ArtDetailOpenedClosedEvent(false))
+        ArtDetailOpenLiveData.value = false
     }
 
     @Subscribe

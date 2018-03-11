@@ -36,16 +36,15 @@ import android.support.v4.app.RemoteInput
 import android.support.v4.content.ContextCompat
 import android.util.Log
 import androidx.content.edit
+import com.google.android.apps.muzei.ArtDetailOpenLiveData
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.MuzeiContract
-import com.google.android.apps.muzei.event.ArtDetailOpenedClosedEvent
 import com.google.android.apps.muzei.render.BitmapRegionLoader
 import com.google.android.apps.muzei.render.sampleSize
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.sources.SourceManager
 import com.google.android.apps.muzei.util.observeOnce
 import net.nurik.roman.muzei.R
-import org.greenrobot.eventbus.EventBus
 import java.io.IOException
 
 class NewWallpaperNotificationReceiver : BroadcastReceiver() {
@@ -109,9 +108,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
         }
 
         fun maybeShowNewArtworkNotification(context: Context) {
-            val adoce = EventBus.getDefault().getStickyEvent(
-                    ArtDetailOpenedClosedEvent::class.java)
-            if (adoce?.isArtDetailOpened == true) {
+            if (ArtDetailOpenLiveData.value == true) {
                 return
             }
 
