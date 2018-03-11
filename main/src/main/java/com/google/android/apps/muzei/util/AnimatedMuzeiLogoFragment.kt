@@ -45,7 +45,7 @@ class AnimatedMuzeiLogoFragment : Fragment() {
         subtitleView = view.findViewById(R.id.logo_subtitle)
 
         logoView = view.findViewById(R.id.animated_logo)
-        logoView.setOnStateChangeListener { state ->
+        logoView.onStateChange = { state ->
             if (state == AnimatedMuzeiLogoView.STATE_FILL_STARTED) {
                 subtitleView.apply {
                     alpha = 0f
