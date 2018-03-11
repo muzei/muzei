@@ -41,7 +41,6 @@ import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.event.ArtworkLoadingStateChangedEvent
 import com.google.android.apps.muzei.event.SwitchingPhotosStateChangedEvent
-import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent
 import com.google.android.apps.muzei.notifications.NewWallpaperNotificationReceiver
 import com.google.android.apps.muzei.render.ArtworkSizeLiveData
 import com.google.android.apps.muzei.room.Artwork
@@ -313,10 +312,13 @@ class ArtDetailFragment : Fragment() {
 
         EventBus.getDefault().register(this)
 
-        val wsce = EventBus.getDefault().getStickyEvent(
-                WallpaperSizeChangedEvent::class.java)
-        if (wsce != null) {
-            onEventMainThread(wsce)
+        WallpaperSizeLiveData.observeNonNull(this) { size ->
+            wallpaperAspectRatio = if (size.height > 0) {
+                size.width * 1f / size.height
+            } else {
+                panScaleProxyView.width * 1f / panScaleProxyView.height
+            }
+            resetProxyViewport()
         }
 
         ArtworkSizeLiveData.observeNonNull(this) { size ->
@@ -374,16 +376,6 @@ class ArtDetailFragment : Fragment() {
                     or View.SYSTEM_UI_FLAG_IMMERSIVE)
         }
         requireActivity().window.decorView.systemUiVisibility = flags
-    }
-
-    @Subscribe
-    fun onEventMainThread(wsce: WallpaperSizeChangedEvent) {
-        wallpaperAspectRatio = if (wsce.height > 0) {
-            wsce.width * 1f / wsce.height
-        } else {
-            panScaleProxyView.width * 1f / panScaleProxyView.height
-        }
-        resetProxyViewport()
     }
 
     private fun resetProxyViewport() {

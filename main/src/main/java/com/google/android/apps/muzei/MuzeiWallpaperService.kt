@@ -19,10 +19,7 @@ package com.google.android.apps.muzei
 import android.annotation.SuppressLint
 import android.app.WallpaperColors
 import android.app.WallpaperManager
-import android.arch.lifecycle.DefaultLifecycleObserver
-import android.arch.lifecycle.Lifecycle
-import android.arch.lifecycle.LifecycleOwner
-import android.arch.lifecycle.LifecycleRegistry
+import android.arch.lifecycle.*
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -42,7 +39,6 @@ import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.ViewConfiguration
 import com.google.android.apps.muzei.api.MuzeiContract
-import com.google.android.apps.muzei.event.WallpaperSizeChangedEvent
 import com.google.android.apps.muzei.notifications.NotificationUpdater
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer
 import com.google.android.apps.muzei.render.RealRenderController
@@ -59,6 +55,10 @@ import net.rbgrn.android.glwallpaperservice.GLWallpaperService
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import java.io.IOException
+
+data class WallpaperSize(val width: Int, val height: Int)
+
+object WallpaperSizeLiveData : MutableLiveData<WallpaperSize>()
 
 class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
 
@@ -240,7 +240,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         override fun onSurfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
             super.onSurfaceChanged(holder, format, width, height)
             if (!isPreview) {
-                EventBus.getDefault().postSticky(WallpaperSizeChangedEvent(width, height))
+                WallpaperSizeLiveData.value = WallpaperSize(width, height)
             }
             renderController.reloadCurrentArtwork(true)
         }
