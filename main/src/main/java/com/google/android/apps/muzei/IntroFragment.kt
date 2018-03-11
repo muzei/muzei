@@ -81,9 +81,9 @@ class IntroFragment : Fragment() {
                     .commitNow()
 
             activateButton.alpha = 0f
-            logoFragment.setOnFillStartedCallback(Runnable {
+            logoFragment.onFillStarted = {
                 activateButton.animate().alpha(1f).setDuration(500)
-            })
+            }
             activateButton.postDelayed({
                 if (logoFragment.isAdded) {
                     logoFragment.start()

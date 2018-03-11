@@ -34,7 +34,7 @@ class AnimatedMuzeiLogoFragment : Fragment() {
         TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16f,
                 resources.displayMetrics)
     }
-    private var onFillStartedCallback: Runnable? = null
+    var onFillStarted: () -> Unit = {}
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -66,7 +66,7 @@ class AnimatedMuzeiLogoFragment : Fragment() {
                     start()
                 }
 
-                onFillStartedCallback?.run()
+                onFillStarted.invoke()
             }
         }
         if (savedInstanceState == null) {
@@ -76,10 +76,6 @@ class AnimatedMuzeiLogoFragment : Fragment() {
 
     fun start() {
         logoView.start()
-    }
-
-    fun setOnFillStartedCallback(fillStartedCallback: Runnable) {
-        onFillStartedCallback = fillStartedCallback
     }
 
     fun reset() {
