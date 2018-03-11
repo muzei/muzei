@@ -112,7 +112,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
             val adoce = EventBus.getDefault().getStickyEvent(
                     ArtDetailOpenedClosedEvent::class.java)
             if (adoce?.isArtDetailOpened == true) {
-                //return
+                return
             }
 
             if (!isNewWallpaperNotificationEnabled(context)) {
@@ -150,7 +150,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                     !currentToken.isNullOrEmpty() &&
                     lastReadToken == currentToken
             if (previouslyDismissedNotification) {
-                //return
+                return
             }
 
             val largeIcon: Bitmap?
