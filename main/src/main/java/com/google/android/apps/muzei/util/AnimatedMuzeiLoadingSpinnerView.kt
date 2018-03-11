@@ -78,15 +78,9 @@ class AnimatedMuzeiLoadingSpinnerView @JvmOverloads constructor(context: Context
     }
 
     private fun rebuildGlyphData() {
-        val parser = object : SvgPathParser() {
-            override fun transformX(x: Float): Float {
-                return x * currentWidth / VIEWPORT.width()
-            }
-
-            override fun transformY(y: Float): Float {
-                return y * currentHeight / VIEWPORT.height()
-            }
-        }
+        val parser = SvgPathParser(
+                transformX = { x -> x * currentWidth / VIEWPORT.width() },
+                transformY = { y -> y * currentHeight / VIEWPORT.height() })
 
         val path = try {
             parser.parsePath(LogoPaths.GLYPHS[0])

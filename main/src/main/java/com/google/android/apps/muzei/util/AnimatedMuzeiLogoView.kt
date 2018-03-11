@@ -112,15 +112,9 @@ class AnimatedMuzeiLogoView @JvmOverloads constructor(context: Context, attrs: A
     }
 
     private fun rebuildGlyphData() {
-        val parser = object : SvgPathParser() {
-            override fun transformX(x: Float): Float {
-                return x * currentWidth / VIEWPORT.x
-            }
-
-            override fun transformY(y: Float): Float {
-                return y * currentHeight / VIEWPORT.y
-            }
-        }
+        val parser = SvgPathParser(
+                transformX = { x -> x * currentWidth / VIEWPORT.x },
+                transformY = { y -> y * currentHeight / VIEWPORT.y })
 
         glyphData = LogoPaths.GLYPHS.map { glyph ->
             val path = try {
