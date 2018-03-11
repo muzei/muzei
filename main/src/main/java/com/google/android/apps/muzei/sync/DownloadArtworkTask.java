@@ -25,13 +25,10 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.android.apps.muzei.api.MuzeiContract;
-import com.google.android.apps.muzei.event.ArtworkLoadingStateChangedEvent;
 import com.google.android.apps.muzei.room.Artwork;
 import com.google.android.apps.muzei.room.MuzeiDatabase;
 
 import net.nurik.roman.muzei.BuildConfig;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -56,7 +53,7 @@ public class DownloadArtworkTask extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected void onProgressUpdate(final Void... values) {
-        EventBus.getDefault().postSticky(new ArtworkLoadingStateChangedEvent(true, false));
+        ArtworkLoadingLiveData.INSTANCE.setValue(ArtworkLoadingInProgress.INSTANCE);
     }
 
     @Override
@@ -110,9 +107,9 @@ public class DownloadArtworkTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected void onPostExecute(Boolean success) {
         if (success) {
-            EventBus.getDefault().postSticky(new ArtworkLoadingStateChangedEvent(false, false));
+            ArtworkLoadingLiveData.INSTANCE.setValue(ArtworkLoadingSuccess.INSTANCE);
         } else {
-            EventBus.getDefault().postSticky(new ArtworkLoadingStateChangedEvent(false, true));
+            ArtworkLoadingLiveData.INSTANCE.setValue(ArtworkLoadingFailure.INSTANCE);
         }
     }
 

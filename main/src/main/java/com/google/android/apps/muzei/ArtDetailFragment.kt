@@ -39,7 +39,6 @@ import androidx.view.isGone
 import androidx.view.isVisible
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.MuzeiContract
-import com.google.android.apps.muzei.event.ArtworkLoadingStateChangedEvent
 import com.google.android.apps.muzei.notifications.NewWallpaperNotificationReceiver
 import com.google.android.apps.muzei.render.ArtworkSizeLiveData
 import com.google.android.apps.muzei.render.SwitchingPhotosDone
@@ -50,6 +49,9 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Source
 import com.google.android.apps.muzei.settings.AboutActivity
 import com.google.android.apps.muzei.sources.SourceManager
+import com.google.android.apps.muzei.sync.ArtworkLoadingFailure
+import com.google.android.apps.muzei.sync.ArtworkLoadingInProgress
+import com.google.android.apps.muzei.sync.ArtworkLoadingLiveData
 import com.google.android.apps.muzei.sync.TaskQueueService
 import com.google.android.apps.muzei.util.AnimatedMuzeiLoadingSpinnerView
 import com.google.android.apps.muzei.util.PanScaleProxyView
@@ -103,7 +105,7 @@ class ArtDetailFragment : Fragment() {
                 overflowMenu.menu.add(0, SOURCE_ACTION_IDS[i], 0, action.title)
             }
         }
-        nextButton.isVisible = supportsNextArtwork && !artworkLoading
+        nextButton.isVisible = supportsNextArtwork && ArtworkLoadingLiveData.value !== ArtworkLoadingInProgress
     }
 
     private val artworkObserver = Observer<Artwork?> { currentArtwork ->
@@ -172,8 +174,6 @@ class ArtDetailFragment : Fragment() {
     private lateinit var bylineView: TextView
     private lateinit var attributionView: TextView
     private lateinit var panScaleProxyView: PanScaleProxyView
-    private var artworkLoading = false
-    private var artworkLoadingError = false
     private var loadingSpinnerShown = false
     private var loadErrorShown = false
     private var nextFakeLoading = false
@@ -328,10 +328,18 @@ class ArtDetailFragment : Fragment() {
             resetProxyViewport()
         }
 
-        val alsce = EventBus.getDefault().getStickyEvent(
-                ArtworkLoadingStateChangedEvent::class.java)
-        if (alsce != null) {
-            onEventMainThread(alsce)
+        ArtworkLoadingLiveData.observeNonNull(this) { state ->
+            if (state !== ArtworkLoadingInProgress) {
+                nextFakeLoading = false
+                if (state !== ArtworkLoadingFailure) {
+                    consecutiveLoadErrorCount = 0
+                }
+            }
+
+            // Artwork no longer loading, update the visibility of the next button
+            nextButton.isVisible = supportsNextArtwork && state !== ArtworkLoadingInProgress
+
+            updateLoadingSpinnerAndErrorVisibility()
         }
 
         val fve = EventBus.getDefault().getStickyEvent(ArtDetailViewport::class.java)
@@ -413,23 +421,6 @@ class ArtDetailFragment : Fragment() {
         ArtDetailOpenLiveData.value = false
     }
 
-    @Subscribe
-    fun onEventMainThread(e: ArtworkLoadingStateChangedEvent) {
-        artworkLoading = e.isLoading
-        artworkLoadingError = e.hadError()
-        if (!artworkLoading) {
-            nextFakeLoading = false
-            if (!artworkLoadingError) {
-                consecutiveLoadErrorCount = 0
-            }
-        }
-
-        // Artwork no longer loading, update the visibility of the next button
-        nextButton.isVisible = supportsNextArtwork && !artworkLoading
-
-        updateLoadingSpinnerAndErrorVisibility()
-    }
-
     private fun showNextFakeLoading() {
         nextFakeLoading = true
         // Show a loading spinner for up to 10 seconds. When new artwork is loaded,
@@ -440,8 +431,8 @@ class ArtDetailFragment : Fragment() {
     }
 
     private fun updateLoadingSpinnerAndErrorVisibility() {
-        val showLoadingSpinner = artworkLoading || nextFakeLoading
-        val showError = !showLoadingSpinner && artworkLoadingError
+        val showLoadingSpinner = ArtworkLoadingLiveData.value === ArtworkLoadingInProgress || nextFakeLoading
+        val showError = !showLoadingSpinner && ArtworkLoadingLiveData.value === ArtworkLoadingFailure
 
         if (showLoadingSpinner != loadingSpinnerShown) {
             loadingSpinnerShown = showLoadingSpinner

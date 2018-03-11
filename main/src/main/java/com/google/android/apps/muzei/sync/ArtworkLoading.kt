@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Google Inc.
+ * Copyright 2018 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.event
+package com.google.android.apps.muzei.sync
 
-class ArtworkLoadingStateChangedEvent(val isLoading: Boolean, private val hadError: Boolean) {
-    fun hadError(): Boolean {
-        return hadError
-    }
-}
+import android.arch.lifecycle.MutableLiveData
+
+sealed class ArtworkLoading
+object ArtworkLoadingInProgress : ArtworkLoading()
+object ArtworkLoadingSuccess : ArtworkLoading()
+object ArtworkLoadingFailure : ArtworkLoading()
+
+object ArtworkLoadingLiveData : MutableLiveData<ArtworkLoading>()
