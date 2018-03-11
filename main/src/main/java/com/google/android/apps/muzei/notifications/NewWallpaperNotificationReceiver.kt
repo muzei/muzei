@@ -69,7 +69,6 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
 
         private const val EXTRA_USER_COMMAND = "com.google.android.apps.muzei.extra.USER_COMMAND"
 
-        @JvmStatic
         fun markNotificationRead(context: Context) {
             MuzeiDatabase.getInstance(context).artworkDao()
                     .currentArtwork.observeOnce { lastArtwork ->

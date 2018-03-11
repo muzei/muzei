@@ -102,7 +102,6 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
             }.execute()
         }
 
-        @JvmStatic
         fun sendAction(context: Context, id: Int) {
             MuzeiDatabase.getInstance(context).sourceDao().currentSource.observeOnce { source ->
                 if (source != null) {
