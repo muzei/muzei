@@ -121,7 +121,7 @@ class Scrollbar @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     }
 
     fun setScrollPosition(position: Int) {
-        scrollPosition = MathUtil.constrain(0f, scrollRange.toFloat(), position.toFloat())
+        scrollPosition = position.toFloat().constrain(0f, scrollRange.toFloat())
         postInvalidateOnAnimation()
     }
 
@@ -129,7 +129,7 @@ class Scrollbar @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         this.scrollRange = scrollRange
         this.viewportWidth = viewportWidth
         indicatorWidth = if (scrollRange > 0) {
-            MathUtil.constrain(indicatorWidth, 1f, viewportWidth * 1f / scrollRange)
+            (viewportWidth * 1f / scrollRange).constrain(indicatorWidth, 1f)
         } else {
             0.1f
         }

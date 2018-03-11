@@ -31,8 +31,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 
 import com.google.android.apps.muzei.util.ImageBlurrer
-import com.google.android.apps.muzei.util.MathUtil
 import com.google.android.apps.muzei.util.blur
+import com.google.android.apps.muzei.util.roundMult4
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
 
@@ -92,9 +92,9 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
             var targetWidth = dm.widthPixels
             var targetHeight = dm.heightPixels
             if (!demoFocus) {
-                targetHeight = MathUtil.roundMult4(ImageBlurrer.MAX_SUPPORTED_BLUR_PIXELS * 10000 / MuzeiBlurRenderer.DEFAULT_BLUR)
-                targetWidth = MathUtil.roundMult4(
-                        (dm.widthPixels * 1f / dm.heightPixels * targetHeight).toInt())
+                targetHeight = (ImageBlurrer.MAX_SUPPORTED_BLUR_PIXELS * 10000 / MuzeiBlurRenderer.DEFAULT_BLUR)
+                        .roundMult4()
+                targetWidth = (dm.widthPixels * 1f / dm.heightPixels * targetHeight).toInt().roundMult4()
             }
 
             simpleDemoModeImageView = ImageView(context).apply {

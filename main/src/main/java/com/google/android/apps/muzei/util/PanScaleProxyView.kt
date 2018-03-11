@@ -304,8 +304,7 @@ class PanScaleProxyView @JvmOverloads constructor(context: Context, attrs: Attri
                     top = bottom - minViewportWidthOrHeight
                 }
                 val halfWidth = height() / relativeAspectRatio / 2f
-                val centerX = MathUtil.constrain(halfWidth, 1 - halfWidth,
-                        (right + left) / 2)
+                val centerX = ((right + left) / 2).constrain(halfWidth, 1 - halfWidth)
                 left = centerX - halfWidth
                 right = centerX + halfWidth
             } else {
@@ -322,8 +321,7 @@ class PanScaleProxyView @JvmOverloads constructor(context: Context, attrs: Attri
                     left = right - minViewportWidthOrHeight
                 }
                 val halfHeight = width() * relativeAspectRatio / 2
-                val centerY = MathUtil.constrain(halfHeight, 1 - halfHeight,
-                        (bottom + top) / 2)
+                val centerY = ((bottom + top) / 2).constrain(halfHeight, 1 - halfHeight)
                 top = centerY - halfHeight
                 bottom = centerY + halfHeight
             }

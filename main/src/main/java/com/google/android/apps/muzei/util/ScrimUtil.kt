@@ -60,7 +60,7 @@ fun makeCubicGradientScrimDrawable(gravity: Int,
 
     for (i in 0 until numStops) {
         val x = i * 1f / (numStops - 1)
-        val opacity = MathUtil.constrain(0f, 1f, Math.pow(x.toDouble(), 3.0).toFloat())
+        val opacity = Math.pow(x.toDouble(), 3.0).toFloat().constrain(0f, 1f)
         stopColors[i] = Color.argb((alpha * opacity).toInt(), red, green, blue)
     }
 

@@ -65,13 +65,13 @@ class ImageBlurrer(context: Context, private val sourceBitmap: Bitmap?) {
 
         if (radius > 0f && desaturateAmount > 0f) {
             doBlur(radius, allocationSrc, allocationDest)
-            doDesaturate(MathUtil.constrain(0f, 1f, desaturateAmount), allocationDest, allocationSrc)
+            doDesaturate(desaturateAmount.constrain(0f, 1f), allocationDest, allocationSrc)
             allocationSrc.copyTo(dest)
         } else if (radius > 0f) {
             doBlur(radius, allocationSrc, allocationDest)
             allocationDest.copyTo(dest)
         } else {
-            doDesaturate(MathUtil.constrain(0f, 1f, desaturateAmount), allocationSrc, allocationDest)
+            doDesaturate(desaturateAmount.constrain(0f, 1f), allocationSrc, allocationDest)
             allocationDest.copyTo(dest)
         }
         allocationDest.destroy()
@@ -86,17 +86,17 @@ class ImageBlurrer(context: Context, private val sourceBitmap: Bitmap?) {
 
     private fun doDesaturate(normalizedAmount: Float, input: Allocation, output: Allocation) {
         val m = Matrix3f(floatArrayOf(
-                MathUtil.interpolate(1f, 0.299f, normalizedAmount),
-                MathUtil.interpolate(0f, 0.299f, normalizedAmount),
-                MathUtil.interpolate(0f, 0.299f, normalizedAmount),
+                interpolate(1f, 0.299f, normalizedAmount),
+                interpolate(0f, 0.299f, normalizedAmount),
+                interpolate(0f, 0.299f, normalizedAmount),
 
-                MathUtil.interpolate(0f, 0.587f, normalizedAmount),
-                MathUtil.interpolate(1f, 0.587f, normalizedAmount),
-                MathUtil.interpolate(0f, 0.587f, normalizedAmount),
+                interpolate(0f, 0.587f, normalizedAmount),
+                interpolate(1f, 0.587f, normalizedAmount),
+                interpolate(0f, 0.587f, normalizedAmount),
 
-                MathUtil.interpolate(0f, 0.114f, normalizedAmount),
-                MathUtil.interpolate(0f, 0.114f, normalizedAmount),
-                MathUtil.interpolate(1f, 0.114f, normalizedAmount)))
+                interpolate(0f, 0.114f, normalizedAmount),
+                interpolate(0f, 0.114f, normalizedAmount),
+                interpolate(1f, 0.114f, normalizedAmount)))
         scriptIntrinsicGrey.setColorMatrix(m)
         scriptIntrinsicGrey.forEach(input, output)
     }

@@ -121,7 +121,7 @@ internal class Zoomer(context: Context) {
         }
 
         val t = tRTC * 1f / animationDurationMillis
-        currZoom = MathUtil.interpolate(
+        currZoom = interpolate(
                 startZoom, endZoom, interpolator.getInterpolation(t))
         return true
     }

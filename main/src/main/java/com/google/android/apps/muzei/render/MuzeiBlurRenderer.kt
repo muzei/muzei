@@ -29,9 +29,7 @@ import com.google.android.apps.muzei.ArtDetailViewport
 import com.google.android.apps.muzei.event.ArtworkSizeChangedEvent
 import com.google.android.apps.muzei.event.SwitchingPhotosStateChangedEvent
 import com.google.android.apps.muzei.settings.Prefs
-import com.google.android.apps.muzei.util.ImageBlurrer
-import com.google.android.apps.muzei.util.MathUtil
-import com.google.android.apps.muzei.util.TickingFloatAnimator
+import com.google.android.apps.muzei.util.*
 import org.greenrobot.eventbus.EventBus
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -192,7 +190,7 @@ class MuzeiBlurRenderer(private val context: Context,
         var dimAmount = currentGLPictureSet.dimAmount.toFloat()
         currentGLPictureSet.drawFrame(1f)
         if (crossfadeAnimator.isRunning) {
-            dimAmount = MathUtil.interpolate(dimAmount, nextGLPictureSet.dimAmount.toFloat(),
+            dimAmount = interpolate(dimAmount, nextGLPictureSet.dimAmount.toFloat(),
                     crossfadeAnimator.currentValue)
             nextGLPictureSet.drawFrame(crossfadeAnimator.currentValue)
         }
@@ -207,7 +205,7 @@ class MuzeiBlurRenderer(private val context: Context,
 
     @Keep
     fun setNormalOffsetX(x: Float) {
-        normalOffsetX = MathUtil.constrain(0f, 1f, x)
+        normalOffsetX = x.constrain(0f, 1f)
         onViewportChanged()
     }
 
@@ -321,10 +319,8 @@ class MuzeiBlurRenderer(private val context: Context,
 
                     // Note that image width should be a multiple of 4 to avoid
                     // issues with RenderScript allocations.
-                    scaledHeight = Math.max(2, MathUtil.floorEven(
-                            sampleSizeTargetHeight))
-                    scaledWidth = Math.max(4, MathUtil.roundMult4(
-                            (scaledHeight * bitmapAspectRatio).toInt()))
+                    scaledHeight = Math.max(2, sampleSizeTargetHeight.floorEven())
+                    scaledWidth = Math.max(4, (scaledHeight * bitmapAspectRatio).toInt().roundMult4())
 
                     // To blur, first load the entire bitmap region, but at a very large
                     // sample size that's appropriate for the final blurred image
@@ -395,8 +391,8 @@ class MuzeiBlurRenderer(private val context: Context,
             val maxPanScreenWidths = Math.min(1.8f, scaledBitmapToScreenAspectRatio)
 
             currentViewport.apply {
-                left = MathUtil.interpolate(-1f, 1f,
-                        MathUtil.interpolate(
+                left = interpolate(-1f, 1f,
+                        interpolate(
                                 (1 - maxPanScreenWidths / scaledBitmapToScreenAspectRatio) / 2,
                                 (1 + (maxPanScreenWidths - 2) / scaledBitmapToScreenAspectRatio) / 2,
                                 normalOffsetX))
@@ -412,29 +408,29 @@ class MuzeiBlurRenderer(private val context: Context,
                     if (!demoMode && !preview) {
                         // reset art detail viewport
                         ArtDetailViewport.setViewport(id,
-                                MathUtil.uninterpolate(-1f, 1f, currentViewport.left),
-                                MathUtil.uninterpolate(1f, -1f, currentViewport.top),
-                                MathUtil.uninterpolate(-1f, 1f, currentViewport.right),
-                                MathUtil.uninterpolate(1f, -1f, currentViewport.bottom))
+                                uninterpolate(-1f, 1f, currentViewport.left),
+                                uninterpolate(1f, -1f, currentViewport.top),
+                                uninterpolate(-1f, 1f, currentViewport.right),
+                                uninterpolate(1f, -1f, currentViewport.bottom))
                     }
                 } else {
                     // interpolate
                     currentViewport.apply {
-                        left = MathUtil.interpolate(
+                        left = interpolate(
                                 left,
-                                MathUtil.interpolate(-1f, 1f, artDetailViewport.left),
+                                interpolate(-1f, 1f, artDetailViewport.left),
                                 focusAmount)
-                        top = MathUtil.interpolate(
+                        top = interpolate(
                                 top,
-                                MathUtil.interpolate(1f, -1f, artDetailViewport.top),
+                                interpolate(1f, -1f, artDetailViewport.top),
                                 focusAmount)
-                        right = MathUtil.interpolate(
+                        right = interpolate(
                                 right,
-                                MathUtil.interpolate(-1f, 1f, artDetailViewport.right),
+                                interpolate(-1f, 1f, artDetailViewport.right),
                                 focusAmount)
-                        bottom = MathUtil.interpolate(
+                        bottom = interpolate(
                                 bottom,
-                                MathUtil.interpolate(1f, -1f, artDetailViewport.bottom),
+                                interpolate(1f, -1f, artDetailViewport.bottom),
                                 focusAmount)
                     }
                 }

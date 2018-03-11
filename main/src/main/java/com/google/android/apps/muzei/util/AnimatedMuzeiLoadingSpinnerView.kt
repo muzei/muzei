@@ -112,7 +112,7 @@ class AnimatedMuzeiLoadingSpinnerView @JvmOverloads constructor(context: Context
 
         glyphData?.let { glyphData ->
             // Draw outlines (starts as traced)
-            val phase = MathUtil.constrain(0f, 1f, t % TRACE_TIME * 1f / TRACE_TIME)
+            val phase = (t % TRACE_TIME * 1f / TRACE_TIME).constrain(0f, 1f)
             val distance = INTERPOLATOR.getInterpolation(phase) * glyphData.length
 
             glyphData.paint.apply {

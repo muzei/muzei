@@ -146,10 +146,9 @@ class AnimatedMuzeiLogoView @JvmOverloads constructor(context: Context, attrs: A
             // Draw outlines (starts as traced)
             val size = glyphData.size
             glyphData.forEachIndexed { index, glyph ->
-                val phase = MathUtil.constrain(0f, 1f,
-                        (t - (TRACE_TIME - TRACE_TIME_PER_GLYPH).toFloat() *
-                                index.toFloat() * 1f / size)
-                                * 1f / TRACE_TIME_PER_GLYPH)
+                val phase = ((t - (TRACE_TIME - TRACE_TIME_PER_GLYPH).toFloat() *
+                        index.toFloat() * 1f / size)
+                        * 1f / TRACE_TIME_PER_GLYPH).constrain(0f, 1f)
                 val distance = INTERPOLATOR.getInterpolation(phase) * glyph.length
                 glyph.paint.color = TRACE_RESIDUE_COLOR
                 glyph.paint.pathEffect = DashPathEffect(
@@ -168,7 +167,7 @@ class AnimatedMuzeiLogoView @JvmOverloads constructor(context: Context, attrs: A
                 }
 
                 // If after fill start, draw fill
-                val phase = MathUtil.constrain(0f, 1f, (t - FILL_START) * 1f / FILL_TIME)
+                val phase = ((t - FILL_START) * 1f / FILL_TIME).constrain(0f, 1f)
                 fillPaint.setARGB((phase * 255).toInt(), 255, 255, 255)
                 for (glyph in glyphData) {
                     canvas.drawPath(glyph.path, fillPaint)

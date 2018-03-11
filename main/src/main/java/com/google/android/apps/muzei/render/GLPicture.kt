@@ -21,8 +21,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Rect
 import android.opengl.GLES20
-
-import com.google.android.apps.muzei.util.MathUtil
+import com.google.android.apps.muzei.util.divideRoundUp
 
 import java.nio.FloatBuffer
 
@@ -133,8 +132,8 @@ internal class GLPicture {
         val leftoverHeight = originalHeight % unsampledTileSize
 
         // Load m x n textures
-        numColumns = MathUtil.intDivideRoundUp(width, TILE_SIZE)
-        numRows = MathUtil.intDivideRoundUp(height, TILE_SIZE)
+        numColumns = width.divideRoundUp(TILE_SIZE)
+        numRows = height.divideRoundUp(TILE_SIZE)
 
         textureHandles = IntArray(numColumns * numRows)
 
@@ -173,8 +172,8 @@ internal class GLPicture {
         val leftoverHeight = height % TILE_SIZE
 
         // Load m x n textures
-        numColumns = MathUtil.intDivideRoundUp(width, TILE_SIZE)
-        numRows = MathUtil.intDivideRoundUp(height, TILE_SIZE)
+        numColumns = width.divideRoundUp(TILE_SIZE)
+        numRows = height.divideRoundUp(TILE_SIZE)
 
         textureHandles = IntArray(numColumns * numRows)
         if (numColumns == 1 && numRows == 1) {
