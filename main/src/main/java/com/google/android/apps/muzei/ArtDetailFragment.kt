@@ -40,9 +40,11 @@ import androidx.view.isVisible
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.event.ArtworkLoadingStateChangedEvent
-import com.google.android.apps.muzei.event.SwitchingPhotosStateChangedEvent
 import com.google.android.apps.muzei.notifications.NewWallpaperNotificationReceiver
 import com.google.android.apps.muzei.render.ArtworkSizeLiveData
+import com.google.android.apps.muzei.render.SwitchingPhotosDone
+import com.google.android.apps.muzei.render.SwitchingPhotosInProgress
+import com.google.android.apps.muzei.render.SwitchingPhotosLiveData
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Source
@@ -337,11 +339,15 @@ class ArtDetailFragment : Fragment() {
             onEventMainThread(fve)
         }
 
-        val spsce = EventBus.getDefault().getStickyEvent(
-                SwitchingPhotosStateChangedEvent::class.java)
-        if (spsce != null) {
-            onEventMainThread(spsce)
+        SwitchingPhotosLiveData.observeNonNull(this) { switchingPhotos ->
+            currentViewportId = switchingPhotos.viewportId
+            panScaleProxyView.panScaleEnabled = switchingPhotos is SwitchingPhotosDone
+            // Process deferred artwork size change when done switching
+            if (switchingPhotos is SwitchingPhotosDone && deferResetViewport) {
+                resetProxyViewport()
+            }
         }
+
         currentSourceLiveData.observe(this, sourceObserver)
         currentArtworkLiveData.observe(this, artworkObserver)
     }
@@ -384,9 +390,7 @@ class ArtDetailFragment : Fragment() {
         }
 
         deferResetViewport = false
-        val spe = EventBus.getDefault()
-                .getStickyEvent(SwitchingPhotosStateChangedEvent::class.java)
-        if (spe != null && spe.isSwitchingPhotos) {
+        if (SwitchingPhotosLiveData.value is SwitchingPhotosInProgress) {
             deferResetViewport = true
             return
         }
@@ -400,16 +404,6 @@ class ArtDetailFragment : Fragment() {
             guardViewportChangeListener = true
             panScaleProxyView.setViewport(e.getViewport(currentViewportId))
             guardViewportChangeListener = false
-        }
-    }
-
-    @Subscribe
-    fun onEventMainThread(spe: SwitchingPhotosStateChangedEvent) {
-        currentViewportId = spe.currentId
-        panScaleProxyView.panScaleEnabled = !spe.isSwitchingPhotos
-        // Process deferred artwork size change when done switching
-        if (!spe.isSwitchingPhotos && deferResetViewport) {
-            resetProxyViewport()
         }
     }
 

@@ -27,12 +27,16 @@ import android.support.annotation.Keep
 import android.util.Log
 import android.view.animation.AccelerateDecelerateInterpolator
 import com.google.android.apps.muzei.ArtDetailViewport
-import com.google.android.apps.muzei.event.SwitchingPhotosStateChangedEvent
 import com.google.android.apps.muzei.settings.Prefs
 import com.google.android.apps.muzei.util.*
-import org.greenrobot.eventbus.EventBus
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
+
+sealed class SwitchingPhotos(val viewportId: Int)
+data class SwitchingPhotosInProgress(private val currentId: Int) : SwitchingPhotos(currentId)
+data class SwitchingPhotosDone(private val currentId: Int) : SwitchingPhotos(currentId)
+
+object SwitchingPhotosLiveData : MutableLiveData<SwitchingPhotos>()
 
 data class ArtworkSize(val width: Int, val height: Int) {
     internal constructor(bitmapRegionLoader: BitmapRegionLoader)
@@ -242,8 +246,7 @@ class MuzeiBlurRenderer(private val context: Context,
         }
 
         if (!demoMode && !preview) {
-            EventBus.getDefault().postSticky(SwitchingPhotosStateChangedEvent(
-                    nextGLPictureSet.id, true))
+            SwitchingPhotosLiveData.postValue(SwitchingPhotosInProgress(nextGLPictureSet.id))
             ArtworkSizeLiveData.postValue(ArtworkSize(bitmapRegionLoader))
             ArtDetailViewport.setDefaultViewport(nextGLPictureSet.id,
                     bitmapRegionLoader.width * 1f / bitmapRegionLoader.height,
@@ -260,8 +263,7 @@ class MuzeiBlurRenderer(private val context: Context,
             callbacks.requestRender()
             oldGLPictureSet.destroyPictures()
             if (!demoMode) {
-                EventBus.getDefault().postSticky(SwitchingPhotosStateChangedEvent(
-                        currentGLPictureSet.id, false))
+                SwitchingPhotosLiveData.postValue(SwitchingPhotosDone(currentGLPictureSet.id))
             }
             System.gc()
             val loader = queuedNextBitmapRegionLoader
