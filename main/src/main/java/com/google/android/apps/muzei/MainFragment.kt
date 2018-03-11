@@ -29,12 +29,10 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
 import com.google.android.apps.muzei.settings.EffectsFragment
 import com.google.android.apps.muzei.sources.ChooseSourceFragment
-import com.google.android.apps.muzei.util.ScrimUtil
+import com.google.android.apps.muzei.util.makeCubicGradientScrimDrawable
 import com.google.firebase.analytics.FirebaseAnalytics
-
 import net.nurik.roman.muzei.R
 
 /**
@@ -66,8 +64,7 @@ class MainFragment : Fragment(), FragmentManager.OnBackStackChangedListener, Cho
         // Set up the action bar
         val actionBarContainer = view.findViewById<View>(R.id.action_bar_container)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            actionBarContainer.background = ScrimUtil.makeCubicGradientScrimDrawable(
-                    0x44000000, 8, Gravity.TOP)
+            actionBarContainer.background = makeCubicGradientScrimDrawable(Gravity.TOP, 0x44)
         }
         val toolbar = view.findViewById<Toolbar>(R.id.toolbar)
         val activity = activity as AppCompatActivity?

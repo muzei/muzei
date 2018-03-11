@@ -48,7 +48,7 @@ import com.google.android.apps.muzei.sources.SourceManager
 import com.google.android.apps.muzei.sync.TaskQueueService
 import com.google.android.apps.muzei.util.AnimatedMuzeiLoadingSpinnerView
 import com.google.android.apps.muzei.util.PanScaleProxyView
-import com.google.android.apps.muzei.util.ScrimUtil
+import com.google.android.apps.muzei.util.makeCubicGradientScrimDrawable
 import com.google.android.apps.muzei.widget.AppWidgetUpdateTask
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
@@ -216,8 +216,7 @@ class ArtDetailFragment : Fragment() {
         @Suppress("DEPRECATION")
         view.requestFitSystemWindows()
 
-        chromeContainerView.background = ScrimUtil.makeCubicGradientScrimDrawable(
-                -0x56000000, 8, Gravity.BOTTOM)
+        chromeContainerView.background = makeCubicGradientScrimDrawable(Gravity.BOTTOM, 0xAA)
 
         metadataView = view.findViewById(R.id.metadata)
 
