@@ -274,29 +274,25 @@ class ArtDetailFragment : Fragment() {
         TooltipCompat.setTooltipText(nextButton, nextButton.contentDescription)
 
         panScaleProxyView = view.findViewById(R.id.pan_scale_proxy)
-        panScaleProxyView.setMaxZoom(5)
-        panScaleProxyView.setOnViewportChangedListener {
-            if (guardViewportChangeListener) {
-                return@setOnViewportChangedListener
+        panScaleProxyView.apply {
+            setMaxZoom(5)
+            onViewportChanged = {
+                if (!guardViewportChangeListener) {
+                    ArtDetailViewport.setViewport(
+                            currentViewportId, panScaleProxyView.currentViewport, true)
+                }
             }
-
-            ArtDetailViewport.setViewport(
-                    currentViewportId, panScaleProxyView.currentViewport, true)
+            onSingleTapUp = {
+                val window = activity?.window
+                if (window != null) {
+                    showHideChrome(window.decorView.systemUiVisibility and
+                            View.SYSTEM_UI_FLAG_LOW_PROFILE != 0)
+                }
+            }
+            onLongPress = {
+                AppWidgetUpdateTask(requireContext(), true).execute()
+            }
         }
-        panScaleProxyView.setOnOtherGestureListener(
-                object : PanScaleProxyView.OnOtherGestureListener {
-                    override fun onSingleTapUp() {
-                        val window = activity?.window
-                        if (window != null) {
-                            showHideChrome(window.decorView.systemUiVisibility and
-                                    View.SYSTEM_UI_FLAG_LOW_PROFILE != 0)
-                        }
-                    }
-
-                    override fun onLongPress() {
-                        AppWidgetUpdateTask(requireContext(), true).execute()
-                    }
-                })
 
         loadingContainerView = view.findViewById(R.id.image_loading_container)
         loadingIndicatorView = view.findViewById(R.id.image_loading_indicator)
@@ -403,7 +399,7 @@ class ArtDetailFragment : Fragment() {
             return
         }
 
-        panScaleProxyView.setRelativeAspectRatio(artworkAspectRatio / wallpaperAspectRatio)
+        panScaleProxyView.relativeAspectRatio = artworkAspectRatio / wallpaperAspectRatio
     }
 
     @Subscribe
@@ -418,7 +414,7 @@ class ArtDetailFragment : Fragment() {
     @Subscribe
     fun onEventMainThread(spe: SwitchingPhotosStateChangedEvent) {
         currentViewportId = spe.currentId
-        panScaleProxyView.enablePanScale(!spe.isSwitchingPhotos)
+        panScaleProxyView.panScaleEnabled = !spe.isSwitchingPhotos
         // Process deferred artwork size change when done switching
         if (!spe.isSwitchingPhotos && deferResetViewport) {
             resetProxyViewport()
