@@ -71,13 +71,13 @@
 
     <string name="about_title">About Muzei</string>
     <string name="about_body"><![CDATA[
-        Made in New York by Roman Nurik, with major contributions from Ian Lake
-        and the <a href="http://code.muzei.co">open source community</a>.
+        Made by Roman Nurik and Ian Lake, with major contributions from
+        the <a href="http://code.muzei.co">open source community</a>.
         <i>Muzei</i> is a transliteration of the Russian word
         <a href="http://translate.google.com/#en/ru/museum"><i>музей</i></a>, which means
         &#8220;museum.&#8221;<br><br>
 
-        Copyright 2013&ndash;2016 Google Inc. All Rights Reserved.
+        Copyright 2013&ndash;2018 Google Inc. All Rights Reserved.
         <a href="http://m.google.com/utos">Terms of Service</a>,
         <a href="http://www.google.com/policies/privacy/">Privacy Policy</a>&nbsp;<br><br>
 
@@ -86,7 +86,7 @@
         &bull; <b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a></b> by Robert Green, Mark F. Guerra, and others
     ]]></string>
     <string name="about_version_template">v%1$s</string>
-    <string name="app_author">Roman Nurik</string>
+    <string name="app_author">Roman Nurik and Ian Lake</string>
     <string name="app_context_description">A living museum for your home screen</string>
     <string name="app_context_uri">http://www.muzei.co/</string>
 </resources>
