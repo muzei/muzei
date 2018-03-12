@@ -83,7 +83,6 @@
 
         Many thanks to these open source projects:<br>
         &bull; <b><a href="http://square.github.io/okhttp/">OkHttp</a> and <a href="http://square.github.io/picasso/">Picasso</a></b> by Square<br>
-        &bull; <b><a href="https://github.com/greenrobot/EventBus">EventBus</a></b> by greenrobot<br>
         &bull; <b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a></b> by Robert Green, Mark F. Guerra, and others
     ]]></string>
     <string name="about_version_template">v%1$s</string>
