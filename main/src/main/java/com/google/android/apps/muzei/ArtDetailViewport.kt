@@ -16,16 +16,28 @@
 
 package com.google.android.apps.muzei
 
+import android.arch.lifecycle.MutableLiveData
 import android.graphics.RectF
 
-import org.greenrobot.eventbus.EventBus
-
-// Singleton that also behaves as an event
+// Singleton that can be observed
 object ArtDetailViewport {
     private val viewport0 = RectF()
     private val viewport1 = RectF()
-    var isFromUser: Boolean = false
-        private set
+    private val observers = mutableListOf<(isFromUser: Boolean) -> Unit>()
+    private val changeLiveData = MutableLiveData<Boolean>().apply {
+        // Make sure we trigger observers on the main thread
+        observeForever { isFromUser ->
+            observers.forEach { it.invoke(isFromUser == true) }
+        }
+    }
+
+    fun addObserver(observer: (isFromUser: Boolean) -> Unit) {
+        observers.add(observer)
+    }
+
+    fun removeObserver(observer: (isFromUser: Boolean) -> Unit) {
+        observers.remove(observer)
+    }
 
     fun getViewport(id: Int): RectF {
         return if (id == 0) viewport0 else viewport1
@@ -37,15 +49,13 @@ object ArtDetailViewport {
     }
 
     fun setViewport(id: Int, left: Float, top: Float, right: Float, bottom: Float,
-                    fromUser: Boolean = false) {
-        isFromUser = fromUser
+                    isFromUser: Boolean = false) {
         getViewport(id).set(left, top, right, bottom)
-        EventBus.getDefault().post(this)
+        changeLiveData.postValue(isFromUser)
     }
 
     fun setDefaultViewport(id: Int, bitmapAspectRatio: Float,
                            screenAspectRatio: Float): ArtDetailViewport {
-        isFromUser = false
         if (bitmapAspectRatio > screenAspectRatio) {
             getViewport(id).set(
                     0.5f - screenAspectRatio / bitmapAspectRatio / 2f,
@@ -59,7 +69,7 @@ object ArtDetailViewport {
                     1f,
                     0.5f + bitmapAspectRatio / screenAspectRatio / 2f)
         }
-        EventBus.getDefault().post(this)
+        changeLiveData.postValue(false)
         return this
     }
 }

@@ -60,12 +60,10 @@ import com.google.android.apps.muzei.util.observeNonNull
 import com.google.android.apps.muzei.widget.AppWidgetUpdateTask
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
 
 object ArtDetailOpenLiveData : MutableLiveData<Boolean>()
 
-class ArtDetailFragment : Fragment() {
+class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
 
     companion object {
         private const val TAG = "ArtDetailFragment"
@@ -312,8 +310,6 @@ class ArtDetailFragment : Fragment() {
             requireContext().startService(TaskQueueService.getDownloadCurrentArtworkIntent(context))
         }
 
-        EventBus.getDefault().register(this)
-
         WallpaperSizeLiveData.observeNonNull(this) { size ->
             wallpaperAspectRatio = if (size.height > 0) {
                 size.width * 1f / size.height
@@ -342,10 +338,7 @@ class ArtDetailFragment : Fragment() {
             updateLoadingSpinnerAndErrorVisibility()
         }
 
-        val fve = EventBus.getDefault().getStickyEvent(ArtDetailViewport::class.java)
-        if (fve != null) {
-            onEventMainThread(fve)
-        }
+        ArtDetailViewport.addObserver(this)
 
         SwitchingPhotosLiveData.observeNonNull(this) { switchingPhotos ->
             currentViewportId = switchingPhotos.viewportId
@@ -374,7 +367,7 @@ class ArtDetailFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         handler.removeCallbacksAndMessages(null)
-        EventBus.getDefault().unregister(this)
+        ArtDetailViewport.removeObserver(this)
         currentSourceLiveData.removeObserver(sourceObserver)
         currentArtworkLiveData.removeObserver(artworkObserver)
     }
@@ -406,11 +399,10 @@ class ArtDetailFragment : Fragment() {
         panScaleProxyView.relativeAspectRatio = artworkAspectRatio / wallpaperAspectRatio
     }
 
-    @Subscribe
-    fun onEventMainThread(e: ArtDetailViewport) {
-        if (!e.isFromUser) {
+    override fun invoke(isFromUser: Boolean) {
+        if (!isFromUser) {
             guardViewportChangeListener = true
-            panScaleProxyView.setViewport(e.getViewport(currentViewportId))
+            panScaleProxyView.setViewport(ArtDetailViewport.getViewport(currentViewportId))
             guardViewportChangeListener = false
         }
     }

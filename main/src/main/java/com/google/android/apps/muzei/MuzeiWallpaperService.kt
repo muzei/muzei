@@ -52,8 +52,6 @@ import com.google.android.apps.muzei.wallpaper.WallpaperAnalytics
 import com.google.android.apps.muzei.wearable.WearableController
 import com.google.android.apps.muzei.widget.WidgetUpdater
 import net.rbgrn.android.glwallpaperservice.GLWallpaperService
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
 import java.io.IOException
 
 data class WallpaperSize(val width: Int, val height: Int)
@@ -112,7 +110,8 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         super.onDestroy()
     }
 
-    inner class MuzeiWallpaperEngine : GLWallpaperService.GLEngine(), LifecycleOwner, DefaultLifecycleObserver, RenderController.Callbacks, MuzeiBlurRenderer.Callbacks {
+    inner class MuzeiWallpaperEngine : GLWallpaperService.GLEngine(), LifecycleOwner, DefaultLifecycleObserver, RenderController.Callbacks, MuzeiBlurRenderer.Callbacks,
+            (Boolean) -> Unit {
 
         private val mainThreadHandler = Handler()
 
@@ -123,7 +122,6 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         private var validDoubleTap: Boolean = false
 
         private val engineLifecycle = LifecycleRegistry(this)
-        private val eventBusSubscriber = EventBusSubscriber()
 
         private val doubleTapTimeout = Runnable { queueEvent { validDoubleTap = false } }
 
@@ -199,7 +197,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                 cancelDelayedBlur()
                 queueEvent { renderer.setIsBlurred(!isArtDetailOpened, true) }
             }
-            EventBus.getDefault().register(eventBusSubscriber)
+            ArtDetailViewport.addObserver(this)
         }
 
         override fun getLifecycle(): Lifecycle {
@@ -246,7 +244,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         }
 
         override fun onDestroy() {
-            EventBus.getDefault().unregister(eventBusSubscriber)
+            ArtDetailViewport.removeObserver(this)
             if (!isPreview) {
                 lifecycle.removeObserver(this)
             }
@@ -258,11 +256,8 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             super<GLEngine>.onDestroy()
         }
 
-        internal inner class EventBusSubscriber {
-            @Subscribe
-            fun onEventMainThread(e: ArtDetailViewport) {
-                requestRender()
-            }
+        override fun invoke(isFromUser: Boolean) {
+            requestRender()
         }
 
         fun lockScreenVisibleChanged(isLockScreenVisible: Boolean) {
