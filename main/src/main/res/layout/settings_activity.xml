@@ -38,7 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
             app:contentInsetStart="@dimen/keyline_2_minus_16dp"
-            app:theme="@style/ThemeOverlay.Muzei.Toolbar"
+            android:theme="@style/ThemeOverlay.Muzei.Toolbar"
             app:popupTheme="@style/ThemeOverlay.Muzei.Toolbar"
             app:navigationIcon="@drawable/ic_ab_done"
             app:navigationContentDescription="@string/done">
