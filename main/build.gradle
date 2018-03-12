@@ -98,7 +98,6 @@ dependencies {
     implementation "com.google.firebase:firebase-perf:$googlePlayServicesVersion"
     implementation "com.crashlytics.sdk.android:crashlytics:$crashlyticsVersion"
     implementation "com.twofortyfouram:android-plugin-api-for-locale:1.0.2"
-    implementation "org.greenrobot:eventbus:3.0.0"
     implementation "com.android.support:appcompat-v7:$supportLibraryVersion"
     implementation "com.android.support:recyclerview-v7:$supportLibraryVersion"
     implementation "com.android.support:design:$supportLibraryVersion"

@@ -39,7 +39,6 @@ import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
-import org.greenrobot.eventbus.EventBus
 
 /**
  * Quick Settings Tile which allows users quick access to the 'Next Artwork' command, if supported.
@@ -134,7 +133,6 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
     }
 
     override fun onStopListening() {
-        EventBus.getDefault().unregister(this)
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
     }
 
