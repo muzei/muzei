@@ -75,16 +75,17 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
     override fun queryRoots(projection: Array<String>?): Cursor {
         val result = MatrixCursor(projection ?: DEFAULT_ROOT_PROJECTION)
         val context = context ?: return result
-        val row = result.newRow()
-        row.add(DocumentsContract.Root.COLUMN_ROOT_ID, "Muzei")
-        row.add(DocumentsContract.Root.COLUMN_ICON, R.mipmap.ic_launcher)
-        row.add(DocumentsContract.Root.COLUMN_TITLE, context.getString(R.string.app_name))
-        row.add(DocumentsContract.Root.COLUMN_FLAGS,
-                DocumentsContract.Root.FLAG_LOCAL_ONLY or
-                        DocumentsContract.Root.FLAG_SUPPORTS_SEARCH or
-                        DocumentsContract.Root.FLAG_SUPPORTS_IS_CHILD)
-        row.add(DocumentsContract.Root.COLUMN_MIME_TYPES, "image/png")
-        row.add(DocumentsContract.Root.COLUMN_DOCUMENT_ID, ROOT_DOCUMENT_ID)
+        result.newRow().apply {
+            add(DocumentsContract.Root.COLUMN_ROOT_ID, "Muzei")
+            add(DocumentsContract.Root.COLUMN_ICON, R.mipmap.ic_launcher)
+            add(DocumentsContract.Root.COLUMN_TITLE, context.getString(R.string.app_name))
+            add(DocumentsContract.Root.COLUMN_FLAGS,
+                    DocumentsContract.Root.FLAG_LOCAL_ONLY or
+                            DocumentsContract.Root.FLAG_SUPPORTS_SEARCH or
+                            DocumentsContract.Root.FLAG_SUPPORTS_IS_CHILD)
+            add(DocumentsContract.Root.COLUMN_MIME_TYPES, "image/png")
+            add(DocumentsContract.Root.COLUMN_DOCUMENT_ID, ROOT_DOCUMENT_ID)
+        }
         return result
     }
 
@@ -124,16 +125,17 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
 
     private fun includeAllArtwork(result: MatrixCursor, artworkList: List<Artwork>) {
         for (artwork in artworkList) {
-            val row = result.newRow()
-            row.add(DocumentsContract.Document.COLUMN_DOCUMENT_ID,
-                    artwork.id.toString())
-            row.add(DocumentsContract.Document.COLUMN_DISPLAY_NAME, artwork.title)
-            row.add(DocumentsContract.Document.COLUMN_SUMMARY, artwork.byline)
-            row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, "image/png")
-            // Don't allow deleting the currently displayed artwork
-            row.add(DocumentsContract.Document.COLUMN_FLAGS, DocumentsContract.Document.FLAG_SUPPORTS_THUMBNAIL)
-            row.add(DocumentsContract.Document.COLUMN_SIZE, null)
-            row.add(DocumentsContract.Document.COLUMN_LAST_MODIFIED, artwork.dateAdded.time)
+            result.newRow().apply {
+                add(DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                        artwork.id.toString())
+                add(DocumentsContract.Document.COLUMN_DISPLAY_NAME, artwork.title)
+                add(DocumentsContract.Document.COLUMN_SUMMARY, artwork.byline)
+                add(DocumentsContract.Document.COLUMN_MIME_TYPE, "image/png")
+                // Don't allow deleting the currently displayed artwork
+                add(DocumentsContract.Document.COLUMN_FLAGS, DocumentsContract.Document.FLAG_SUPPORTS_THUMBNAIL)
+                add(DocumentsContract.Document.COLUMN_SIZE, null)
+                add(DocumentsContract.Document.COLUMN_LAST_MODIFIED, artwork.dateAdded.time)
+            }
         }
     }
 
@@ -142,13 +144,14 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
         val result = MatrixCursor(projection ?: DEFAULT_DOCUMENT_PROJECTION)
         val context = context ?: return result
         if (ROOT_DOCUMENT_ID == documentId) {
-            val row = result.newRow()
-            row.add(DocumentsContract.Document.COLUMN_DOCUMENT_ID, ROOT_DOCUMENT_ID)
-            row.add(DocumentsContract.Document.COLUMN_DISPLAY_NAME,
-                    getContext()!!.getString(R.string.app_name))
-            row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, DocumentsContract.Document.MIME_TYPE_DIR)
-            row.add(DocumentsContract.Document.COLUMN_FLAGS, DocumentsContract.Document.FLAG_DIR_PREFERS_GRID or DocumentsContract.Document.FLAG_DIR_PREFERS_LAST_MODIFIED)
-            row.add(DocumentsContract.Document.COLUMN_SIZE, null)
+            result.newRow().apply {
+                add(DocumentsContract.Document.COLUMN_DOCUMENT_ID, ROOT_DOCUMENT_ID)
+                add(DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+                        context.getString(R.string.app_name))
+                add(DocumentsContract.Document.COLUMN_MIME_TYPE, DocumentsContract.Document.MIME_TYPE_DIR)
+                add(DocumentsContract.Document.COLUMN_FLAGS, DocumentsContract.Document.FLAG_DIR_PREFERS_GRID or DocumentsContract.Document.FLAG_DIR_PREFERS_LAST_MODIFIED)
+                add(DocumentsContract.Document.COLUMN_SIZE, null)
+            }
         } else {
             val artworkId = documentId.toLong()
             val artwork = MuzeiDatabase.getInstance(context).artworkDao().getArtworkById(artworkId)
