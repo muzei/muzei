@@ -210,8 +210,8 @@ public class FullScreenActivity extends FragmentActivity
         mLoadingIndicatorView.setVisibility(View.GONE);
         mPanView.setVisibility(View.VISIBLE);
         mPanView.setImage(pair.second);
-        mTitleView.setText(pair.first.title);
-        mBylineView.setText(pair.first.byline);
+        mTitleView.setText(pair.first.getTitle());
+        mBylineView.setText(pair.first.getByline());
     }
 
     @Override

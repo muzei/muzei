@@ -105,15 +105,16 @@ public class ArtworkCacheIntentService extends IntentService {
         }
         Artwork artwork = ArtworkTransfer.toArtwork(artworkDataMap);
         // Change it so that all Artwork from the phone is attributed to the DataLayerArtSource
-        artwork.sourceComponentName = new ComponentName(this, DataLayerArtSource.class);
+        final ComponentName sourceComponentName = new ComponentName(this, DataLayerArtSource.class);
+        artwork.setSourceComponentName(sourceComponentName);
         // Check if the source info row exists at all.
         MuzeiDatabase database = MuzeiDatabase.getInstance(this);
-        Source existingSource = database.sourceDao().getSourceByComponentNameBlocking(artwork.sourceComponentName);
+        Source existingSource = database.sourceDao().getSourceByComponentNameBlocking(sourceComponentName);
         if (existingSource != null) {
             existingSource.selected = true;
             database.sourceDao().update(existingSource);
         } else {
-            Source newSource = new Source(artwork.sourceComponentName);
+            Source newSource = new Source(sourceComponentName);
             newSource.selected = true;
             database.sourceDao().insert(newSource);
         }

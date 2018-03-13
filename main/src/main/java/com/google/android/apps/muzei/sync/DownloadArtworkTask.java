@@ -65,8 +65,8 @@ public class DownloadArtworkTask extends AsyncTask<Void, Void, Boolean> {
             return false;
         }
         Uri artworkUri = ContentUris.withAppendedId(MuzeiContract.Artwork.CONTENT_URI,
-                artwork.id);
-        if (artwork.imageUri == null) {
+                artwork.getId());
+        if (artwork.getImageUri() == null) {
             // There's nothing else we can do here so declare success
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Artwork " + artworkUri + " does not have an image URI, skipping");
@@ -74,10 +74,10 @@ public class DownloadArtworkTask extends AsyncTask<Void, Void, Boolean> {
             return true;
         }
         if (BuildConfig.DEBUG) {
-            Log.d(TAG, "Attempting to download " + artwork.imageUri + " to " + artworkUri);
+            Log.d(TAG, "Attempting to download " + artwork.getImageUri() + " to " + artworkUri);
         }
         try (OutputStream out = resolver.openOutputStream(artworkUri);
-             InputStream in = out != null ? openUri(mApplicationContext, artwork.imageUri) : null) {
+             InputStream in = out != null ? openUri(mApplicationContext, artwork.getImageUri()) : null) {
             if (out == null) {
                 // We've already downloaded the file
                 if (BuildConfig.DEBUG) {

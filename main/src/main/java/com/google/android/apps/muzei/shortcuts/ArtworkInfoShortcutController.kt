@@ -74,7 +74,8 @@ class ArtworkInfoShortcutController(private val context: Context,
             }
         }
 
-        if (artwork.viewIntent != null) {
+        val viewIntent = artwork.viewIntent
+        if (viewIntent != null) {
             if (artworkInfoShortcutInfo != null && !artworkInfoShortcutInfo.isEnabled) {
                 // Re-enable a disabled Artwork Info Shortcut
                 shortcutManager.enableShortcuts(
@@ -85,7 +86,7 @@ class ArtworkInfoShortcutController(private val context: Context,
                     .setIcon(Icon.createWithResource(context,
                             R.drawable.ic_shortcut_artwork_info))
                     .setShortLabel(context.getString(R.string.action_artwork_info))
-                    .setIntent(artwork.viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION))
+                    .setIntent(viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION))
                     .build()
             shortcutManager.addDynamicShortcuts(
                     listOf(shortcutInfo))

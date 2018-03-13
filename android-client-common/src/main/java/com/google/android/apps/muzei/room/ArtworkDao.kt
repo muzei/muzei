@@ -87,7 +87,7 @@ abstract class ArtworkDao {
     abstract fun getArtworkForSourceBlocking(sourceComponentName: ComponentName): List<Artwork>
 
     @Query("SELECT * FROM artwork WHERE _id=:id")
-    abstract fun getArtworkById(id: Long): Artwork
+    abstract fun getArtworkById(id: Long): Artwork?
 
     @Query("SELECT * FROM artwork WHERE title LIKE :query OR byline LIKE :query OR attribution LIKE :query")
     abstract fun searchArtworkBlocking(query: String): List<Artwork>
@@ -111,15 +111,13 @@ abstract class ArtworkDao {
             canDelete = true
         } else if (artwork.imageUri == null) {
             // Check to see if the token is unique
-            val artworkByToken = getArtworkByToken(artwork.token)
-            if (artworkByToken?.size == 1) {
+            if (artwork.token?.run { getArtworkByToken(this)?.size == 1 } == true) {
                 // There's only one row that uses this token, so we can delete the artwork
                 canDelete = true
             }
         } else {
             // Check to see if the imageUri is unique
-            val artworkByImageUri = getArtworkByImageUri(artwork.imageUri)
-            if (artworkByImageUri?.size == 1) {
+            if (artwork.imageUri?.run { getArtworkByImageUri(this)?.size == 1 } == true) {
                 // There's only one row that uses this imageUri, so we can delete the artwork
                 canDelete = true
             }

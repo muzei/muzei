@@ -95,15 +95,15 @@ class MuzeiProvider : ContentProvider() {
             }
             // Otherwise, create a unique filename based on the imageUri and token
             val filename = StringBuilder()
-            if (artwork.imageUri != null) {
-                filename.append(artwork.imageUri.scheme).append("_")
-                        .append(artwork.imageUri.host).append("_")
-                artwork.imageUri.encodedPath?.take(60)?.replace('/', '_')?.run {
+            artwork.imageUri?.run {
+                filename.append(scheme).append("_")
+                        .append(host).append("_")
+                encodedPath?.take(60)?.replace('/', '_')?.run {
                     filename.append(this).append("_")
                 }
             }
             // Use the imageUri if available, otherwise use the token
-            val unique = artwork.imageUri?.toString() ?: artwork.token
+            val unique = artwork.imageUri?.toString() ?: artwork.token ?: ""
             try {
                 val md = MessageDigest.getInstance("MD5")
                 md.update(unique.toByteArray(charset("UTF-8")))
@@ -151,7 +151,7 @@ class MuzeiProvider : ContentProvider() {
                         // Now use that ComponentName to look through the past artwork from that source
                         val artworkList = database.artworkDao()
                                 .getArtworkForSourceBlocking(source.componentName)
-                        if (artworkList == null || artworkList.isEmpty()) {
+                        if (artworkList.isEmpty()) {
                             continue
                         }
                         val artworkIdsToKeep = ArrayList<Long>()
@@ -162,7 +162,7 @@ class MuzeiProvider : ContentProvider() {
                         val mostRecentArtworkIds = ArrayList<Long>()
                         val mostRecentArtwork = ArrayList<String>()
                         for (artwork in artworkList) {
-                            val unique = artwork.imageUri?.toString() ?: artwork.token
+                            val unique = artwork.imageUri?.toString() ?: artwork.token ?: ""
                             if (mostRecentArtworkIds.size < MAX_CACHE_SIZE && !mostRecentArtwork.contains(unique)) {
                                 mostRecentArtwork.add(unique)
                                 mostRecentArtworkIds.add(artwork.id)
@@ -369,7 +369,7 @@ class MuzeiProvider : ContentProvider() {
                 // an external app attempts to load the latest artwork while an art source is inserting a
                 // new artwork
                 val artworkList = MuzeiDatabase.getInstance(context).artworkDao().artworkBlocking
-                if (artworkList == null || artworkList.isEmpty()) {
+                if (artworkList.isEmpty()) {
                     if (BuildConfig.DEBUG || context.packageName != callingPackage) {
                         Log.w(TAG, "You must insert at least one row to read or write artwork")
                     }

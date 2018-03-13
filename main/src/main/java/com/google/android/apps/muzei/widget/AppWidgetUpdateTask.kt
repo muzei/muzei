@@ -70,7 +70,7 @@ open class AppWidgetUpdateTask(@field:SuppressLint("StaticFieldLeak") private va
             Log.w(TAG, "No current artwork found")
             return false
         }
-        val contentDescription = artwork.title ?: artwork.byline
+        val contentDescription = artwork.title ?: artwork.byline ?: ""
         val imageUri = artwork.contentUri
         val supportsNextArtwork = WallpaperActiveState.value == true && source.supportsNextArtwork
 
