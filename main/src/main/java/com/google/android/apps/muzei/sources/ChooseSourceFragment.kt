@@ -77,11 +77,11 @@ class ChooseSourceFragment : Fragment() {
 
     private var selectedSource: ComponentName? = null
     private val currentSourceLiveData: LiveData<Source?> by lazy {
-        MuzeiDatabase.getInstance(context).sourceDao().currentSource
+        MuzeiDatabase.getInstance(requireContext()).sourceDao().currentSource
     }
     private val sourceViews = ArrayList<SourceView>()
     private val sourcesLiveData : LiveData<List<Source>> by lazy {
-        MuzeiDatabase.getInstance(context).sourceDao().sources
+        MuzeiDatabase.getInstance(requireContext()).sourceDao().sources
     }
 
     private val handler = Handler()

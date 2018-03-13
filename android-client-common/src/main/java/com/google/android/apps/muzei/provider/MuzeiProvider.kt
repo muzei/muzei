@@ -129,7 +129,7 @@ class MuzeiProvider : ContentProvider() {
          * @see [MAX_CACHE_SIZE]
          */
         @JvmStatic
-        fun cleanupCachedFiles(context: Context?) {
+        fun cleanupCachedFiles(context: Context) {
             object : Thread() {
                 override fun run() {
                     val database = MuzeiDatabase.getInstance(context)
