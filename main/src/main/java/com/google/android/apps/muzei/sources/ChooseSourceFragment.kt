@@ -382,7 +382,7 @@ class ChooseSourceFragment : Fragment() {
 
         for (source in sources) {
             // Skip Sources without a label
-            if (TextUtils.isEmpty(source.label)) {
+            if (source.label.isNullOrEmpty()) {
                 continue
             }
             val sourceView = SourceView(source)
@@ -419,7 +419,10 @@ class ChooseSourceFragment : Fragment() {
                     return@Comparator 1
                 }
             }
-            s1.label.compareTo(s2.label)
+            // These labels should be non-null with the isNullOrEmpty() check above
+            val label1 = s1.label ?: throw IllegalStateException("Found null label for ${s1.componentName}")
+            val label2 = s2.label ?: throw IllegalStateException("Found null label for ${s2.componentName}")
+            label1.compareTo(label2)
         })
 
         sourceContainerView.removeAllViews()
@@ -566,7 +569,7 @@ class ChooseSourceFragment : Fragment() {
 
     private fun updateSourceStatusUi(sourceView: SourceView) {
         (sourceView.rootView.findViewById<View>(R.id.source_status) as TextView).text =
-                sourceView.source.getDescription()
+                sourceView.source.displayDescription
     }
 
     private fun generateSourceImage(image: Drawable?): Bitmap {

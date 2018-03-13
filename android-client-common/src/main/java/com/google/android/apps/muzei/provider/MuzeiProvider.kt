@@ -317,7 +317,7 @@ class MuzeiProvider : ContentProvider() {
                 add(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, source.componentName)
                 add(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, true)
                 add(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION,
-                        source.getDescription())
+                        source.displayDescription)
                 add(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE, false)
                 add(MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,
                         source.supportsNextArtwork)

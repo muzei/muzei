@@ -111,11 +111,11 @@ public class ArtworkCacheIntentService extends IntentService {
         MuzeiDatabase database = MuzeiDatabase.getInstance(this);
         Source existingSource = database.sourceDao().getSourceByComponentNameBlocking(sourceComponentName);
         if (existingSource != null) {
-            existingSource.selected = true;
+            existingSource.setSelected(true);
             database.sourceDao().update(existingSource);
         } else {
             Source newSource = new Source(sourceComponentName);
-            newSource.selected = true;
+            newSource.setSelected(true);
             database.sourceDao().insert(newSource);
         }
         long id = database.artworkDao().insert(this, artwork);
