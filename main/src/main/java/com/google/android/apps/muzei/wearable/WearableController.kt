@@ -139,12 +139,12 @@ class WearableController(private val context: Context) : DefaultLifecycleObserve
             }
         }
 
-        if (image != null) {
+        val artwork = MuzeiDatabase.getInstance(context).artworkDao().currentArtworkBlocking
+        if (image != null && artwork != null) {
             val byteStream = ByteArrayOutputStream()
             image.compress(Bitmap.CompressFormat.PNG, 100, byteStream)
             val asset = Asset.createFromBytes(byteStream.toByteArray())
             val dataMapRequest = PutDataMapRequest.create("/artwork").apply {
-                val artwork = MuzeiDatabase.getInstance(context).artworkDao().currentArtworkBlocking
                 dataMap.putDataMap("artwork", artwork.toDataMap())
                 dataMap.putAsset("image", asset)
             }
