@@ -83,7 +83,6 @@ class MuzeiProvider : ContentProvider() {
                     MuzeiProvider.SOURCE_ID)
         }
 
-        @JvmStatic
         fun getCacheFileForArtworkUri(context: Context, artworkId: Long): File? {
             val directory = File(context.filesDir, "artwork")
             if (!directory.exists() && !directory.mkdirs()) {
@@ -128,7 +127,6 @@ class MuzeiProvider : ContentProvider() {
          * Limit the number of cached files per art source to [.MAX_CACHE_SIZE].
          * @see [MAX_CACHE_SIZE]
          */
-        @JvmStatic
         fun cleanupCachedFiles(context: Context) {
             object : Thread() {
                 override fun run() {

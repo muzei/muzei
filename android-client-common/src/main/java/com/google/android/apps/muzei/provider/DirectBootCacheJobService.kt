@@ -32,7 +32,6 @@ class DirectBootCacheJobService : JobService() {
         private val DIRECT_BOOT_CACHE_DELAY_MILLIS = TimeUnit.SECONDS.toMillis(15)
         private const val DIRECT_BOOT_CACHE_FILENAME = "current"
 
-        @JvmStatic
         fun scheduleDirectBootCacheJob(context: Context) {
             val jobScheduler = context.systemService<JobScheduler>()
             val componentName = ComponentName(context, DirectBootCacheJobService::class.java)
@@ -46,7 +45,6 @@ class DirectBootCacheJobService : JobService() {
                     .build())
         }
 
-        @JvmStatic
         fun getCachedArtwork(context: Context): File? =
                 ContextCompat.createDeviceProtectedStorageContext(context)?.run {
                     File(cacheDir, DIRECT_BOOT_CACHE_FILENAME)
