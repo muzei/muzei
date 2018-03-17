@@ -105,7 +105,7 @@ internal class GLPicture {
             // Compute max texture size
             val maxTextureSize = IntArray(1)
             GLES20.glGetIntegerv(GLES20.GL_MAX_TEXTURE_SIZE, maxTextureSize, 0)
-            TILE_SIZE = Math.max(512, maxTextureSize[0])
+            TILE_SIZE = Math.min(512, maxTextureSize[0])
         }
     }
 
