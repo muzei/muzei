@@ -240,7 +240,7 @@ class MuzeiBlurRenderer(private val context: Context,
         }
 
         if (crossfadeAnimator.isRunning) {
-            queuedNextBitmapRegionLoader?.destroy()
+            queuedNextBitmapRegionLoader?.close()
             queuedNextBitmapRegionLoader = bitmapRegionLoader
             return
         }
@@ -375,8 +375,8 @@ class MuzeiBlurRenderer(private val context: Context,
                         }
                     }
                 }
-                bitmapRegionLoader.destroy()
             }
+            bitmapRegionLoader.close()
 
             recomputeTransformMatrices()
             callbacks.requestRender()

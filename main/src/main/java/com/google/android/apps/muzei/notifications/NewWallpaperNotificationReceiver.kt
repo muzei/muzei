@@ -22,19 +22,16 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Rect
 import android.os.Build
 import android.preference.PreferenceManager
 import android.provider.Settings
 import android.support.annotation.RequiresApi
-import android.support.media.ExifInterface
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.app.RemoteInput
 import android.support.v4.content.ContextCompat
-import android.util.Log
 import androidx.content.edit
 import com.google.android.apps.muzei.ArtDetailOpenLiveData
 import com.google.android.apps.muzei.api.MuzeiArtSource
@@ -45,7 +42,6 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.sources.SourceManager
 import com.google.android.apps.muzei.util.observeOnce
 import net.nurik.roman.muzei.R
-import java.io.IOException
 
 class NewWallpaperNotificationReceiver : BroadcastReceiver() {
 
@@ -150,51 +146,24 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                 return
             }
 
-            val largeIcon: Bitmap?
-            val bigPicture: Bitmap?
-            try {
-                val options = BitmapFactory.Options()
-                // Check if there's rotation
-                var rotation = 0
-                try {
-                    contentResolver.openInputStream(
-                            MuzeiContract.Artwork.CONTENT_URI)?.use { input ->
-                        val exifInterface = ExifInterface(input)
-                        val orientation = exifInterface.getAttributeInt(
-                                ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
-                        when (orientation) {
-                            ExifInterface.ORIENTATION_ROTATE_90 -> rotation = 90
-                            ExifInterface.ORIENTATION_ROTATE_180 -> rotation = 180
-                            ExifInterface.ORIENTATION_ROTATE_270 -> rotation = 270
-                        }
-                    }
-                } catch (e: IOException) {
-                    Log.w(TAG, "Couldn't open EXIF interface on artwork", e)
-                } catch (e: NumberFormatException) {
-                    Log.w(TAG, "Couldn't open EXIF interface on artwork", e)
-                } catch (e: StackOverflowError) {
-                    Log.w(TAG, "Couldn't open EXIF interface on artwork", e)
-                }
-
-                val regionLoader = BitmapRegionLoader.newInstance(
-                        contentResolver.openInputStream(MuzeiContract.Artwork.CONTENT_URI), rotation)
-                        ?: throw IOException("BitmapRegionLoader returned null: bad image format?")
+            val (largeIcon, bigPicture) = BitmapRegionLoader.newInstance(contentResolver,
+                    MuzeiContract.Artwork.CONTENT_URI)?.use { regionLoader ->
                 val width = regionLoader.width
                 val height = regionLoader.height
                 val shortestLength = Math.min(width, height)
+                val options = BitmapFactory.Options()
                 options.inJustDecodeBounds = false
                 val largeIconHeight = context.resources
                         .getDimensionPixelSize(android.R.dimen.notification_large_icon_height)
                 options.inSampleSize = shortestLength.sampleSize(largeIconHeight)
-                largeIcon = regionLoader.decodeRegion(Rect(0, 0, width, height), options)
+                val largeIcon = regionLoader.decodeRegion(Rect(0, 0, width, height), options)
+                        ?: return
 
-               options.inSampleSize = height.sampleSize(400)
-                bigPicture = regionLoader.decodeRegion(Rect(0, 0, width, height), options)
-                regionLoader.destroy()
-            } catch (e: IOException) {
-                Log.e(TAG, "Unable to load artwork to show notification", e)
-                return
-            }
+                options.inSampleSize = height.sampleSize(400)
+                val bigPicture = regionLoader.decodeRegion(Rect(0, 0, width, height), options)
+                        ?: return
+                Pair(largeIcon, bigPicture)
+            } ?: return
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 createNotificationChannel(context)

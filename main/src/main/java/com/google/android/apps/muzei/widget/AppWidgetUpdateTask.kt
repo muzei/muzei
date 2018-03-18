@@ -30,7 +30,6 @@ import android.os.AsyncTask
 import android.os.Build
 import android.os.Bundle
 import android.support.annotation.LayoutRes
-import android.support.media.ExifInterface
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
@@ -40,7 +39,6 @@ import com.google.android.apps.muzei.render.sampleSize
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import net.nurik.roman.muzei.R
-import java.io.IOException
 
 /**
  * Async operation used to update the widget or provide a preview for pinning the widget.
@@ -133,50 +131,21 @@ open class AppWidgetUpdateTask(@field:SuppressLint("StaticFieldLeak") private va
                                   nextArtworkPendingIntent: PendingIntent,
                                   supportsNextArtwork: Boolean,
                                   widgetWidth: Int, widgetHeight: Int): RemoteViews? {
-        val contentResolver = context.contentResolver
         val smallWidgetHeight = context.resources.getDimensionPixelSize(
                 R.dimen.widget_small_height_breakpoint)
-        val image: Bitmap?
-        try {
-            // Check if there's rotation
-            var rotation = 0
-            try {
-                contentResolver.openInputStream(imageUri)?.use { input ->
-                    val exifInterface = ExifInterface(input)
-                    val orientation = exifInterface.getAttributeInt(
-                            ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
-                    when (orientation) {
-                        ExifInterface.ORIENTATION_ROTATE_90 -> rotation = 90
-                        ExifInterface.ORIENTATION_ROTATE_180 -> rotation = 180
-                        ExifInterface.ORIENTATION_ROTATE_270 -> rotation = 270
-                    }
-                }
-            } catch (e: IOException) {
-                Log.w(TAG, "Couldn't open EXIF interface on artwork", e)
-            } catch (e: NumberFormatException) {
-                Log.w(TAG, "Couldn't open EXIF interface on artwork", e)
-            } catch (e: StackOverflowError) {
-                Log.w(TAG, "Couldn't open EXIF interface on artwork", e)
-            }
-
-            val regionLoader = BitmapRegionLoader.newInstance(
-                    contentResolver.openInputStream(imageUri), rotation)
-                    ?: throw IOException("BitmapRegionLoader returned null: bad image format?")
+        val image = BitmapRegionLoader.newInstance(context.contentResolver,
+                imageUri)?.use { regionLoader ->
             val width = regionLoader.width
             val height = regionLoader.height
             val options = BitmapFactory.Options()
             options.inSampleSize = Math.max(width.sampleSize(widgetWidth / 2),
                     height.sampleSize(widgetHeight / 2))
-            image = regionLoader.decodeRegion(Rect(0, 0, width, height), options)
-            regionLoader.destroy()
-        } catch (e: IOException) {
-            Log.e(TAG, "Could not load current artwork image", e)
-            return null
-        }
+            regionLoader.decodeRegion(Rect(0, 0, width, height), options)
+        } ?: return null
 
         // Even after using sample size to scale an image down, it might be larger than the
         // maximum bitmap memory usage for widgets
-        val scaledImage = image?.scale(widgetWidth, widgetHeight)
+        val scaledImage = image.scale(widgetWidth, widgetHeight)
         @LayoutRes val widgetLayout = if (widgetHeight < smallWidgetHeight)
             R.layout.widget_small
         else

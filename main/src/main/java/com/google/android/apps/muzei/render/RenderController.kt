@@ -80,7 +80,7 @@ abstract class RenderController(protected var context: Context,
     }
 
     open fun destroy() {
-        queuedBitmapRegionLoader?.destroy()
+        queuedBitmapRegionLoader?.close()
         Prefs.getSharedPreferences(context)
                 .unregisterOnSharedPreferenceChangeListener(sharedPreferenceChangeListener)
         executorService.shutdownNow()
@@ -108,7 +108,7 @@ abstract class RenderController(protected var context: Context,
                 if (bitmapRegionLoader == null || bitmapRegionLoader.width == 0 ||
                         bitmapRegionLoader.height == 0) {
                     Log.w(TAG, "Could not open the current artwork")
-                    bitmapRegionLoader?.destroy()
+                    bitmapRegionLoader?.close()
                     return
                 }
 
@@ -116,7 +116,7 @@ abstract class RenderController(protected var context: Context,
                     if (visible) {
                         renderer.setAndConsumeBitmapRegionLoader(bitmapRegionLoader)
                     } else {
-                        queuedBitmapRegionLoader?.destroy()
+                        queuedBitmapRegionLoader?.close()
                         queuedBitmapRegionLoader = bitmapRegionLoader
                     }
                 }

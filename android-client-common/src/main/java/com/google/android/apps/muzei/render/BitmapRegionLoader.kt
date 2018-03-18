@@ -16,12 +16,15 @@
 
 package com.google.android.apps.muzei.render
 
+import android.content.ContentResolver
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory.Options
 import android.graphics.BitmapRegionDecoder
 import android.graphics.Matrix
 import android.graphics.Rect
+import android.net.Uri
 import android.os.Build
+import android.support.media.ExifInterface
 import android.util.Log
 import java.io.IOException
 import java.io.InputStream
@@ -30,12 +33,31 @@ import java.io.InputStream
  * Wrapper for [BitmapRegionDecoder] with some extra functionality.
  */
 class BitmapRegionLoader @Throws(IOException::class)
-private constructor(private val inputStream: InputStream, private val rotation: Int = 0) {
+private constructor(private val inputStream: InputStream, private val rotation: Int = 0)
+    : AutoCloseable {
 
     companion object {
         private const val TAG = "BitmapRegionLoader"
 
-        @Throws(IOException::class)
+        fun newInstance(contentResolver: ContentResolver, uri: Uri) : BitmapRegionLoader? {
+            var rotation = 0
+            try {
+                contentResolver.openInputStream(uri)?.use { input ->
+                    val exifInterface = ExifInterface(input)
+                    val orientation = exifInterface.getAttributeInt(
+                            ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+                    when (orientation) {
+                        ExifInterface.ORIENTATION_ROTATE_90 -> rotation = 90
+                        ExifInterface.ORIENTATION_ROTATE_180 -> rotation = 180
+                        ExifInterface.ORIENTATION_ROTATE_270 -> rotation = 270
+                    }
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Couldn't open EXIF interface for $uri", e)
+            }
+            return newInstance(contentResolver.openInputStream(uri), rotation)
+        }
+
         fun newInstance(input: InputStream?, rotation: Int = 0): BitmapRegionLoader? {
             if (input == null) {
                 return null
@@ -43,8 +65,9 @@ private constructor(private val inputStream: InputStream, private val rotation: 
 
             return try {
                 BitmapRegionLoader(input, rotation)
-            } catch (e: IllegalArgumentException) {
+            } catch (e: Exception) {
                 Log.e(TAG, "Error creating BitmapRegionLoader", e)
+                input.close()
                 null
             }
         }
@@ -170,13 +193,11 @@ private constructor(private val inputStream: InputStream, private val rotation: 
         return bitmap
     }
 
-    @Synchronized
-    fun destroy() {
+    override fun close() {
         bitmapRegionDecoder.recycle()
         try {
             inputStream.close()
         } catch (ignored: IOException) {
         }
-
     }
 }

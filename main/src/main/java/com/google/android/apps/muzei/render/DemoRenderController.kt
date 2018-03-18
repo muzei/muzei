@@ -76,12 +76,6 @@ class DemoRenderController(context: Context, renderer: MuzeiBlurRenderer,
         handler.removeCallbacksAndMessages(null)
     }
 
-    override fun openDownloadedCurrentArtwork(forceReload: Boolean): BitmapRegionLoader? {
-        try {
-            return BitmapRegionLoader.newInstance(context.assets.open("starrynight.jpg"))
-        } catch (e: IOException) {
-            Log.e(TAG, "Error opening demo image.", e)
-            return null
-        }
-    }
+    override fun openDownloadedCurrentArtwork(forceReload: Boolean): BitmapRegionLoader? =
+            BitmapRegionLoader.newInstance(context.assets.open("starrynight.jpg"))
 }

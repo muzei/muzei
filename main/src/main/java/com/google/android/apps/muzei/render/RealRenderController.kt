@@ -20,18 +20,11 @@ import android.content.Context
 import android.database.ContentObserver
 import android.net.Uri
 import android.os.Handler
-import android.support.media.ExifInterface
-import android.util.Log
 import com.google.android.apps.muzei.api.MuzeiContract
-import java.io.IOException
 
 class RealRenderController(context: Context, renderer: MuzeiBlurRenderer,
                            callbacks: RenderController.Callbacks)
     : RenderController(context, renderer, callbacks) {
-
-    companion object {
-        private const val TAG = "RealRenderController"
-    }
 
     private val contentObserver: ContentObserver = object : ContentObserver(Handler()) {
         override fun onChange(selfChange: Boolean, uri: Uri) {
@@ -50,36 +43,7 @@ class RealRenderController(context: Context, renderer: MuzeiBlurRenderer,
         context.contentResolver.unregisterContentObserver(contentObserver)
     }
 
-    override fun openDownloadedCurrentArtwork(forceReload: Boolean): BitmapRegionLoader? {
-        // Load the stream
-        try {
-            // Check if there's rotation
-            var rotation = 0
-            try {
-                context.contentResolver.openInputStream(MuzeiContract.Artwork.CONTENT_URI)?.use { input ->
-                    val exifInterface = ExifInterface(input)
-                    val orientation = exifInterface.getAttributeInt(
-                            ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
-                    when (orientation) {
-                        ExifInterface.ORIENTATION_ROTATE_90 -> rotation = 90
-                        ExifInterface.ORIENTATION_ROTATE_180 -> rotation = 180
-                        ExifInterface.ORIENTATION_ROTATE_270 -> rotation = 270
-                    }
-                }
-            } catch (e: IOException) {
-                Log.w(TAG, "Couldn't open EXIF interface on artwork", e)
-            } catch (e: NumberFormatException) {
-                Log.w(TAG, "Couldn't open EXIF interface on artwork", e)
-            } catch (e: StackOverflowError) {
-                Log.w(TAG, "Couldn't open EXIF interface on artwork", e)
-            }
-
-            return BitmapRegionLoader.newInstance(
-                    context.contentResolver.openInputStream(MuzeiContract.Artwork.CONTENT_URI), rotation)
-        } catch (e: IOException) {
-            Log.e(TAG, "Error loading image", e)
-            return null
-        }
-
-    }
+    override fun openDownloadedCurrentArtwork(forceReload: Boolean): BitmapRegionLoader? =
+            BitmapRegionLoader.newInstance(context.contentResolver,
+                    MuzeiContract.Artwork.CONTENT_URI)
 }
