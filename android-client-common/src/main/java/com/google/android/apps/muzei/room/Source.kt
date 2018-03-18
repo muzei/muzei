@@ -44,7 +44,7 @@ class Source(@field:TypeConverters(ComponentNameTypeConverter::class)
     var description: String? = null
 
     val displayDescription: String?
-        get() = description ?: defaultDescription
+        get() = if (description.isNullOrEmpty()) defaultDescription else description
 
     var color: Int = 0
 
