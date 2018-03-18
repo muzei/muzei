@@ -31,9 +31,13 @@ interface FiveHundredPxService {
 
     class Photo {
         int id;
-        String image_url;
+        List<Image> images;
         String name;
         User user;
+    }
+
+    class Image {
+        String https_url;
     }
 
     class User {

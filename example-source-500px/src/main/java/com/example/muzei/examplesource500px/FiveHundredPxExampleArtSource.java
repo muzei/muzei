@@ -25,6 +25,8 @@ import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.RemoteMuzeiArtSource;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Random;
 
 import okhttp3.HttpUrl;
@@ -87,10 +89,20 @@ public class FiveHundredPxExampleArtSource extends RemoteMuzeiArtSource {
         }
 
         if (response == null || response.photos == null) {
+            Log.w(TAG, "Response " + (response == null ? "was null" : "had null photos"));
             throw new RetryException();
         }
 
-        if (response.photos.size() == 0) {
+        List<Photo> photos = response.photos;
+        ListIterator<Photo> iterator = photos.listIterator();
+        while (iterator.hasNext()) {
+            List<FiveHundredPxService.Image> images = iterator.next().images;
+            if (images.isEmpty() || TextUtils.isEmpty(images.get(0).https_url)) {
+                iterator.remove();
+            }
+        }
+
+        if (photos.size() == 0) {
             Log.w(TAG, "No photos returned from API.");
             scheduleUpdate(System.currentTimeMillis() + ROTATE_TIME_MILLIS);
             return;
@@ -100,17 +112,21 @@ public class FiveHundredPxExampleArtSource extends RemoteMuzeiArtSource {
         Photo photo;
         String token;
         while (true) {
-            photo = response.photos.get(random.nextInt(response.photos.size()));
+            photo = photos.get(random.nextInt(photos.size()));
             token = Integer.toString(photo.id);
-            if (response.photos.size() <= 1 || !TextUtils.equals(token, currentToken)) {
+            if (photos.size() <= 1 || !TextUtils.equals(token, currentToken)) {
                 break;
             }
         }
 
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Loaded " + photo.id + " with uri: " +
+                    photo.images.get(0).https_url);
+        }
         publishArtwork(new Artwork.Builder()
                 .title(photo.name)
                 .byline(photo.user.fullname)
-                .imageUri(Uri.parse(photo.image_url))
+                .imageUri(Uri.parse(photo.images.get(0).https_url))
                 .token(token)
                 .viewIntent(new Intent(Intent.ACTION_VIEW,
                         Uri.parse("http://500px.com/photo/" + photo.id)))
