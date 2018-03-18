@@ -55,7 +55,13 @@ private constructor(private val inputStream: InputStream, private val rotation: 
             } catch (e: Exception) {
                 Log.w(TAG, "Couldn't open EXIF interface for $uri", e)
             }
-            return newInstance(contentResolver.openInputStream(uri), rotation)
+            val input = try {
+                contentResolver.openInputStream(uri)
+            } catch (e: IOException) {
+                Log.w(TAG, "Couldn't openInputStream for $uri", e)
+                null
+            }
+            return newInstance(input, rotation)
         }
 
         fun newInstance(input: InputStream?, rotation: Int = 0): BitmapRegionLoader? {
