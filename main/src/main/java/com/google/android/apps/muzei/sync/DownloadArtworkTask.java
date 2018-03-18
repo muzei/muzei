@@ -160,7 +160,7 @@ public class DownloadArtworkTask extends AsyncTask<Void, Void, Boolean> {
             Response response = client.newCall(request).execute();
             int responseCode = response.code();
             if (!(responseCode >= 200 && responseCode < 300)) {
-                throw new IOException("HTTP error response " + responseCode);
+                throw new IOException("HTTP error response " + responseCode + " reading " + uri);
             }
             in = response.body().byteStream();
         }
