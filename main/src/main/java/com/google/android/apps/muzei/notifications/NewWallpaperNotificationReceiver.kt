@@ -46,8 +46,6 @@ import net.nurik.roman.muzei.R
 class NewWallpaperNotificationReceiver : BroadcastReceiver() {
 
     companion object {
-        private const val TAG = "NewWallpaperNotif"
-
         const val PREF_ENABLED = "new_wallpaper_notification_enabled"
         private const val PREF_LAST_READ_NOTIFICATION_ARTWORK_ID = "last_read_notification_artwork_id"
         private const val PREF_LAST_READ_NOTIFICATION_ARTWORK_IMAGE_URI = "last_read_notification_artwork_image_uri"

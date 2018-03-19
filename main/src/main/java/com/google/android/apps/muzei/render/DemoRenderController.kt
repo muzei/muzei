@@ -20,9 +20,7 @@ import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.os.Handler
-import android.util.Log
 import androidx.animation.doOnEnd
-import java.io.IOException
 
 class DemoRenderController(context: Context, renderer: MuzeiBlurRenderer,
                            callbacks: RenderController.Callbacks,
@@ -30,8 +28,6 @@ class DemoRenderController(context: Context, renderer: MuzeiBlurRenderer,
     : RenderController(context, renderer, callbacks) {
 
     companion object {
-        private const val TAG = "DemoRenderController"
-
         private const val ANIMATION_CYCLE_TIME_MILLIS = 35000L
         private const val FOCUS_DELAY_TIME_MILLIS = 2000L
         private const val FOCUS_TIME_MILLIS = 6000L
