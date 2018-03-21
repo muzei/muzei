@@ -19,6 +19,7 @@
 
     <permission android:name="com.google.android.apps.muzei.WRITE_PROVIDER"
         android:protectionLevel="signature" />
+    <uses-permission android:name="com.google.android.apps.muzei.WRITE_PROVIDER" />
 
     <application>
         <provider
