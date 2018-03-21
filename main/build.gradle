@@ -106,6 +106,7 @@ dependencies {
     implementation "android.arch.lifecycle:livedata:$lifecycleVersion"
     implementation "android.arch.lifecycle:common-java8:$lifecycleVersion"
     implementation "android.arch.lifecycle:runtime:$lifecycleVersion"
+    implementation "android.arch.lifecycle:viewmodel:$lifecycleVersion"
     kapt "android.arch.lifecycle:compiler:$lifecycleVersion"
 
     implementation project(':api')
