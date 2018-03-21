@@ -88,6 +88,7 @@ dependencies {
     implementation "com.google.android.support:wearable:$wearableVersion"
     // Only used because other dependencies depend on an old version of the Support Library
     implementation "com.android.support:support-v4:$supportLibraryVersion"
+    implementation "com.android.support:percent:$supportLibraryVersion"
 
     implementation "com.google.android.gms:play-services-wearable:$googlePlayServicesVersion"
     implementation "com.google.firebase:firebase-core:$googlePlayServicesVersion"

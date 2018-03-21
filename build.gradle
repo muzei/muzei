@@ -29,7 +29,7 @@ buildscript {
         googlePlayServicesVersion = "11.8.0"
         crashlyticsVersion = "2.9.1"
         jobDispatcherVersion = "0.8.5"
-        wearableVersion = "2.1.0"
+        wearableVersion = "2.2.0"
         okhttpVersion = "3.10.0"
         picassoVersion = "2.5.2"
     }

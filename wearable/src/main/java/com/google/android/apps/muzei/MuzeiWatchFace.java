@@ -78,15 +78,10 @@ public class MuzeiWatchFace extends CanvasWatchFaceService implements LifecycleO
      */
     private static final String BLURRED_PREF_KEY = "BLURRED";
 
-
     /**
-     * Update rate in milliseconds for normal (not ambient and not mute) mode.
+     * Update rate in milliseconds.
      */
-    private static final long NORMAL_UPDATE_RATE_MS = TimeUnit.MINUTES.toMillis(1);
-    /**
-     * Update rate in milliseconds for mute mode. We update every minute, like in ambient mode.
-     */
-    private static final long MUTE_UPDATE_RATE_MS = TimeUnit.MINUTES.toMillis(1);
+    private static final long UPDATE_RATE_MS = TimeUnit.MINUTES.toMillis(1);
 
     private LifecycleRegistry mLifecycle = new LifecycleRegistry(this);
 
@@ -172,10 +167,6 @@ public class MuzeiWatchFace extends CanvasWatchFaceService implements LifecycleO
         boolean mRegisteredTimeZoneReceiver = false;
         boolean mRegisteredLocaleChangedReceiver = false;
         Paint mBackgroundPaint;
-        /**
-         * How often {@link #mUpdateTimeHandler} ticks in milliseconds.
-         */
-        long mInteractiveUpdateRateMs = NORMAL_UPDATE_RATE_MS;
         Typeface mHeavyTypeface;
         Typeface mLightTypeface;
         Paint mClockAmbientShadowPaint;
@@ -202,7 +193,7 @@ public class MuzeiWatchFace extends CanvasWatchFaceService implements LifecycleO
                         invalidate();
                         if (isVisible()) {
                             long timeMs = System.currentTimeMillis();
-                            long delayMs = mInteractiveUpdateRateMs - (timeMs % mInteractiveUpdateRateMs);
+                            long delayMs = UPDATE_RATE_MS - (timeMs % UPDATE_RATE_MS);
                             mUpdateTimeHandler.sendEmptyMessageDelayed(MSG_UPDATE_TIME, delayMs);
                         }
                         break;
@@ -215,7 +206,6 @@ public class MuzeiWatchFace extends CanvasWatchFaceService implements LifecycleO
         float mClockMargin;
         float mDateMinAvailableMargin;
         boolean mAmbient;
-        boolean mMute;
         Calendar mCalendar;
         Rect mCardBounds = new Rect();
         int mWidth = 0;
@@ -234,7 +224,6 @@ public class MuzeiWatchFace extends CanvasWatchFaceService implements LifecycleO
             mLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START);
             FirebaseAnalytics.getInstance(MuzeiWatchFace.this).logEvent("watchface_created", null);
 
-            mMute = getInterruptionFilter() == WatchFaceService.INTERRUPTION_FILTER_NONE;
             SharedPreferences preferences =
                     PreferenceManager.getDefaultSharedPreferences(MuzeiWatchFace.this);
             mBlurred = preferences.getBoolean(BLURRED_PREF_KEY, false);
@@ -314,7 +303,6 @@ public class MuzeiWatchFace extends CanvasWatchFaceService implements LifecycleO
                     .setViewProtectionMode(mBlurred ? 0 : WatchFaceStyle.PROTECT_HOTWORD_INDICATOR |
                             WatchFaceStyle.PROTECT_STATUS_BAR)
                     .setAcceptsTapEvents(true)
-                    .setShowUnreadCountIndicator(!mMute)
                     .build());
         }
 
@@ -517,35 +505,6 @@ public class MuzeiWatchFace extends CanvasWatchFaceService implements LifecycleO
                     mDateAmbientShadowPaint.setAntiAlias(antiAlias);
                 }
                 invalidate();
-            }
-        }
-
-        @Override
-        public void onInterruptionFilterChanged(int interruptionFilter) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onInterruptionFilterChanged: " + interruptionFilter);
-            }
-            super.onInterruptionFilterChanged(interruptionFilter);
-
-            boolean inMuteMode = interruptionFilter == WatchFaceService.INTERRUPTION_FILTER_NONE;
-            // We only need to update once a minute in mute mode.
-            setInteractiveUpdateRateMs(inMuteMode ? MUTE_UPDATE_RATE_MS : NORMAL_UPDATE_RATE_MS);
-
-            if (mMute != inMuteMode) {
-                mMute = inMuteMode;
-                updateWatchFaceStyle();
-                invalidate();
-            }
-        }
-
-        public void setInteractiveUpdateRateMs(long updateRateMs) {
-            if (updateRateMs == mInteractiveUpdateRateMs) {
-                return;
-            }
-            mInteractiveUpdateRateMs = updateRateMs;
-            if (isVisible()) {
-                mUpdateTimeHandler.removeMessages(MSG_UPDATE_TIME);
-                mUpdateTimeHandler.sendEmptyMessage(MSG_UPDATE_TIME);
             }
         }
 
