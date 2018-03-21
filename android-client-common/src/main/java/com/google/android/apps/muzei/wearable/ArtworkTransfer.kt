@@ -34,15 +34,13 @@ private const val KEY_TOKEN = "token"
  * @return a serialized version of the artwork.
  * @see toArtwork
  */
-fun Artwork.toDataMap(): DataMap {
-    val bundle = Bundle()
-    bundle.putString(KEY_IMAGE_URI, if (imageUri != null) imageUri.toString() else null)
-    bundle.putString(KEY_TITLE, title)
-    bundle.putString(KEY_BYLINE, byline)
-    bundle.putString(KEY_ATTRIBUTION, attribution)
-    bundle.putString(KEY_TOKEN, token)
-    return DataMap.fromBundle(bundle)
-}
+fun Artwork.toDataMap(): DataMap = DataMap.fromBundle(Bundle().apply {
+    putString(KEY_IMAGE_URI, if (imageUri != null) imageUri.toString() else null)
+    putString(KEY_TITLE, title)
+    putString(KEY_BYLINE, byline)
+    putString(KEY_ATTRIBUTION, attribution)
+    putString(KEY_TOKEN, token)
+})
 
 /**
  * Deserializes an artwork object from a [DataMap].
@@ -52,7 +50,7 @@ fun Artwork.toDataMap(): DataMap {
  */
 fun DataMap.toArtwork(): Artwork {
     val bundle = toBundle()
-    val artwork = Artwork().apply {
+    return Artwork().apply {
         val uriString = bundle.getString(KEY_IMAGE_URI)
         if (!uriString.isNullOrBlank()) {
             imageUri = uriString.toUri()
@@ -62,5 +60,4 @@ fun DataMap.toArtwork(): Artwork {
         attribution = bundle.getString(KEY_ATTRIBUTION)
         token = bundle.getString(KEY_TOKEN)
     }
-    return artwork
 }
