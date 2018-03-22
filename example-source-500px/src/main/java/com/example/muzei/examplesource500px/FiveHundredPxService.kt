@@ -16,10 +16,45 @@
 
 package com.example.muzei.examplesource500px
 
+import okhttp3.OkHttpClient
 import retrofit2.Call
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import java.io.IOException
 
 internal interface FiveHundredPxService {
+
+    companion object {
+        @Throws(IOException::class)
+        internal fun popularPhotos() : List<FiveHundredPxService.Photo> {
+            val okHttpClient = OkHttpClient.Builder()
+                    .addInterceptor { chain ->
+                        var request = chain.request()
+                        val url = request.url().newBuilder()
+                                .addQueryParameter("consumer_key", CONSUMER_KEY).build()
+                        request = request.newBuilder().url(url).build()
+                        chain.proceed(request)
+                    }
+                    .build()
+
+            val retrofit = Retrofit.Builder()
+                    .baseUrl("https://api.500px.com/")
+                    .client(okHttpClient)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build()
+
+            val service = retrofit.create<FiveHundredPxService>(FiveHundredPxService::class.java)
+            val response: FiveHundredPxService.PhotosResponse = service.popularPhotos.execute().body()
+                    ?: throw IOException("Response was null")
+
+            return response.photos.filterNot { photo ->
+                val images = photo.images
+                images.isEmpty() || images[0].https_url.isNullOrEmpty()
+            }
+        }
+    }
+
     @get:GET("v1/photos?feature=popular&sort=rating&image_size=5&rpp=40")
     val popularPhotos: Call<PhotosResponse>
 

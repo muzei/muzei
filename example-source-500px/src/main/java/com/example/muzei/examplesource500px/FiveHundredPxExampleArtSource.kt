@@ -20,12 +20,8 @@ import android.content.Intent
 import android.util.Log
 import androidx.net.toUri
 import com.example.muzei.examplesource500px.FiveHundredPxService.Photo
-import com.example.muzei.examplesource500px.FiveHundredPxService.PhotosResponse
 import com.google.android.apps.muzei.api.Artwork
 import com.google.android.apps.muzei.api.RemoteMuzeiArtSource
-import okhttp3.OkHttpClient
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 import java.util.*
 
@@ -46,38 +42,11 @@ class FiveHundredPxExampleArtSource : RemoteMuzeiArtSource(SOURCE_NAME) {
     override fun onTryUpdate(@UpdateReason reason: Int) {
         val currentToken = currentArtwork?.token
 
-        val okHttpClient = OkHttpClient.Builder()
-                .addInterceptor { chain ->
-                    var request = chain.request()
-                    val url = request.url().newBuilder()
-                            .addQueryParameter("consumer_key", CONSUMER_KEY).build()
-                    request = request.newBuilder().url(url).build()
-                    chain.proceed(request)
-                }
-                .build()
-
-        val retrofit = Retrofit.Builder()
-                .baseUrl("https://api.500px.com/")
-                .client(okHttpClient)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-
-        val service = retrofit.create<FiveHundredPxService>(FiveHundredPxService::class.java)
-        val response: PhotosResponse? = try {
-            service.popularPhotos.execute().body()
+        val photos = try {
+            FiveHundredPxService.popularPhotos()
         } catch (e: IOException) {
             Log.w(TAG, "Error reading 500px response", e)
             throw RemoteMuzeiArtSource.RetryException()
-        }
-
-        if (response?.photos == null) {
-            Log.w(TAG, "Response ${if (response == null) "was null" else "had null photos"}")
-            throw RemoteMuzeiArtSource.RetryException()
-        }
-
-        val photos = response.photos.filterNot { photo ->
-            val images = photo.images
-            images.isEmpty() || images[0].https_url.isNullOrEmpty()
         }
 
         if (photos.isEmpty()) {
