@@ -14,33 +14,6 @@
  * limitations under the License.
  */
 
-package com.example.muzei.examplesource500px;
+package com.example.muzei.examplesource500px
 
-import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.http.GET;
-
-interface FiveHundredPxService {
-    @GET("v1/photos?feature=popular&sort=rating&image_size=5&rpp=40")
-    Call<PhotosResponse> getPopularPhotos();
-
-    class PhotosResponse {
-        List<Photo> photos;
-    }
-
-    class Photo {
-        int id;
-        List<Image> images;
-        String name;
-        User user;
-    }
-
-    class Image {
-        String https_url;
-    }
-
-    class User {
-        String fullname;
-    }
-}
+const val CONSUMER_KEY = "HocY5wY9GQaa9sdNO9HvagCGuGt34snyMTHckIQJ"
