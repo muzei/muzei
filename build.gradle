@@ -19,7 +19,7 @@ buildscript {
         compileSdkVersion = 27
         targetSdkVersion = 25
 
-        kotlinVersion = "1.2.30"
+        kotlinVersion = "1.2.31"
         ktxVersion = "0.2"
         supportLibraryVersion = "27.1.0"
         constraintLayoutVersion = "1.0.2"
