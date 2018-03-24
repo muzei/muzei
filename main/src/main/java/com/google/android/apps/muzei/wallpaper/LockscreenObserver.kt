@@ -27,27 +27,28 @@ import com.google.android.apps.muzei.settings.Prefs
 /**
  * LifecycleObserver responsible for monitoring the state of the lock screen
  */
-class LockscreenObserver(private val mContext: Context,
-                         private val mEngine: MuzeiWallpaperService.MuzeiWallpaperEngine)
+class LockscreenObserver(private val context: Context,
+                         private val engine: MuzeiWallpaperService.MuzeiWallpaperEngine)
     : DefaultLifecycleObserver {
 
     private var lockScreenVisibleReceiverRegistered = false
     private val lockScreenPreferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { sp, key ->
         if (Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED == key) {
             if (sp.getBoolean(Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED, false)) {
-                val intentFilter = IntentFilter()
-                intentFilter.addAction(Intent.ACTION_USER_PRESENT)
-                intentFilter.addAction(Intent.ACTION_SCREEN_OFF)
-                intentFilter.addAction(Intent.ACTION_SCREEN_ON)
-                mContext.registerReceiver(mLockScreenVisibleReceiver, intentFilter)
+                val intentFilter = IntentFilter().apply {
+                    addAction(Intent.ACTION_USER_PRESENT)
+                    addAction(Intent.ACTION_SCREEN_OFF)
+                    addAction(Intent.ACTION_SCREEN_ON)
+                }
+                context.registerReceiver(mLockScreenVisibleReceiver, intentFilter)
                 lockScreenVisibleReceiverRegistered = true
                 // If the user is not yet unlocked (i.e., using Direct Boot), we should
                 // immediately send the lock screen visible callback
-                if (!UserManagerCompat.isUserUnlocked(mContext)) {
-                    mEngine.lockScreenVisibleChanged(true)
+                if (!UserManagerCompat.isUserUnlocked(context)) {
+                    engine.lockScreenVisibleChanged(true)
                 }
             } else if (lockScreenVisibleReceiverRegistered) {
-                mContext.unregisterReceiver(mLockScreenVisibleReceiver)
+                context.unregisterReceiver(mLockScreenVisibleReceiver)
                 lockScreenVisibleReceiverRegistered = false
             }
         }
@@ -55,12 +56,12 @@ class LockscreenObserver(private val mContext: Context,
     private val mLockScreenVisibleReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
             when (intent?.action) {
-                Intent.ACTION_USER_PRESENT -> mEngine.lockScreenVisibleChanged(false)
-                Intent.ACTION_SCREEN_OFF -> mEngine.lockScreenVisibleChanged(true)
+                Intent.ACTION_USER_PRESENT -> engine.lockScreenVisibleChanged(false)
+                Intent.ACTION_SCREEN_OFF -> engine.lockScreenVisibleChanged(true)
                 Intent.ACTION_SCREEN_ON -> {
                     val kgm = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
                     if (!kgm.inKeyguardRestrictedInputMode()) {
-                        mEngine.lockScreenVisibleChanged(false)
+                        engine.lockScreenVisibleChanged(false)
                     }
                 }
             }
@@ -68,7 +69,7 @@ class LockscreenObserver(private val mContext: Context,
     }
 
     override fun onCreate(owner: LifecycleOwner) {
-        val sp = Prefs.getSharedPreferences(mContext)
+        val sp = Prefs.getSharedPreferences(context)
         sp.registerOnSharedPreferenceChangeListener(lockScreenPreferenceChangeListener)
         // Trigger the initial registration if needed
         lockScreenPreferenceChangeListener.onSharedPreferenceChanged(sp,
@@ -77,9 +78,9 @@ class LockscreenObserver(private val mContext: Context,
 
     override fun onDestroy(owner: LifecycleOwner) {
         if (lockScreenVisibleReceiverRegistered) {
-            mContext.unregisterReceiver(mLockScreenVisibleReceiver)
+            context.unregisterReceiver(mLockScreenVisibleReceiver)
         }
-        Prefs.getSharedPreferences(mContext)
+        Prefs.getSharedPreferences(context)
                 .unregisterOnSharedPreferenceChangeListener(lockScreenPreferenceChangeListener)
     }
 }
