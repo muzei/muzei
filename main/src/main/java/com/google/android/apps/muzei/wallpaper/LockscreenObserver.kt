@@ -60,7 +60,7 @@ class LockscreenObserver(private val context: Context,
                 Intent.ACTION_SCREEN_OFF -> engine.lockScreenVisibleChanged(true)
                 Intent.ACTION_SCREEN_ON -> {
                     val kgm = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-                    if (!kgm.inKeyguardRestrictedInputMode()) {
+                    if (!kgm.isKeyguardLocked) {
                         engine.lockScreenVisibleChanged(false)
                     }
                 }
