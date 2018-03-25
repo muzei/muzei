@@ -140,7 +140,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
         /**
          * Handler to update the time periodically in interactive mode.
          */
-        internal val mUpdateTimeHandler: Handler = @SuppressLint("HandlerLeak")
+        internal val updateTimeHandler: Handler = @SuppressLint("HandlerLeak")
         object : Handler() {
             override fun handleMessage(message: Message) {
                 when (message.what) {
@@ -297,7 +297,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
 
         override fun onDestroy() {
             FirebaseAnalytics.getInstance(this@MuzeiWatchFace).logEvent("watchface_destroyed", null)
-            mUpdateTimeHandler.removeMessages(MSG_UPDATE_TIME)
+            updateTimeHandler.removeMessages(MSG_UPDATE_TIME)
             lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
             super.onDestroy()
         }
@@ -377,9 +377,9 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                 // Load the image in case it has changed while we weren't visible
                 loadImageHandler.post { loadImageContentObserver.onChange(true) }
 
-                mUpdateTimeHandler.sendEmptyMessage(MSG_UPDATE_TIME)
+                updateTimeHandler.sendEmptyMessage(MSG_UPDATE_TIME)
             } else {
-                mUpdateTimeHandler.removeMessages(MSG_UPDATE_TIME)
+                updateTimeHandler.removeMessages(MSG_UPDATE_TIME)
 
                 unregisterReceiver()
 

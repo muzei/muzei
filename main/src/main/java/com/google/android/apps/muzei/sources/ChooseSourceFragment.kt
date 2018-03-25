@@ -232,21 +232,21 @@ class ChooseSourceFragment : Fragment() {
         view.visibility = View.INVISIBLE
         view.viewTreeObserver.addOnGlobalLayoutListener(
                 object : ViewTreeObserver.OnGlobalLayoutListener {
-                    internal var mPass = 0
+                    internal var pass = 0
 
                     override fun onGlobalLayout() {
                         when {
-                            mPass == 0 -> {
+                            pass == 0 -> {
                                 // First pass
                                 updatePadding()
-                                ++mPass
+                                ++pass
                             }
-                            (mPass == 1) and (selectedSourceIndex >= 0) -> {
+                            (pass == 1) and (selectedSourceIndex >= 0) -> {
                                 // Second pass
                                 sourceScrollerView.scrollX = itemWidth * selectedSourceIndex
                                 showScrollbar()
                                 view.visibility = View.VISIBLE
-                                ++mPass
+                                ++pass
                             }
                             else -> // Last pass, remove the listener
                                 view.viewTreeObserver.removeOnGlobalLayoutListener(this)

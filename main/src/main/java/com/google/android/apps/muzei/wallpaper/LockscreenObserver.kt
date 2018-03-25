@@ -40,7 +40,7 @@ class LockscreenObserver(private val context: Context,
                     addAction(Intent.ACTION_SCREEN_OFF)
                     addAction(Intent.ACTION_SCREEN_ON)
                 }
-                context.registerReceiver(mLockScreenVisibleReceiver, intentFilter)
+                context.registerReceiver(lockScreenVisibleReceiver, intentFilter)
                 lockScreenVisibleReceiverRegistered = true
                 // If the user is not yet unlocked (i.e., using Direct Boot), we should
                 // immediately send the lock screen visible callback
@@ -48,12 +48,12 @@ class LockscreenObserver(private val context: Context,
                     engine.lockScreenVisibleChanged(true)
                 }
             } else if (lockScreenVisibleReceiverRegistered) {
-                context.unregisterReceiver(mLockScreenVisibleReceiver)
+                context.unregisterReceiver(lockScreenVisibleReceiver)
                 lockScreenVisibleReceiverRegistered = false
             }
         }
     }
-    private val mLockScreenVisibleReceiver = object : BroadcastReceiver() {
+    private val lockScreenVisibleReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
             when (intent?.action) {
                 Intent.ACTION_USER_PRESENT -> engine.lockScreenVisibleChanged(false)
@@ -78,7 +78,7 @@ class LockscreenObserver(private val context: Context,
 
     override fun onDestroy(owner: LifecycleOwner) {
         if (lockScreenVisibleReceiverRegistered) {
-            context.unregisterReceiver(mLockScreenVisibleReceiver)
+            context.unregisterReceiver(lockScreenVisibleReceiver)
         }
         Prefs.getSharedPreferences(context)
                 .unregisterOnSharedPreferenceChangeListener(lockScreenPreferenceChangeListener)

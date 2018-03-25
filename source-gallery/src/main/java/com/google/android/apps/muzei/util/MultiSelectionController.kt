@@ -22,63 +22,49 @@ import java.util.*
 /**
  * Utilities for storing multiple selection information in collection views.
  */
-class MultiSelectionController(private val mStateKey: String) {
+class MultiSelectionController(private val stateKey: String) {
 
-    private val mSelection = HashSet<Long>()
-    private var mCallbacks: Callbacks? = null
-
-    val selection: Set<Long>
-        get() = HashSet(mSelection)
+    val selection = HashSet<Long>()
+    var callbacks: Callbacks? = null
 
     val selectedCount: Int
-        get() = mSelection.size
+        get() = selection.size
 
     fun restoreInstanceState(savedInstanceState: Bundle?) {
         savedInstanceState?.run {
-            mSelection.clear()
-            val selection = getLongArray(mStateKey)
-            if (selection?.isNotEmpty() == true) {
-                for (item in selection) {
-                    mSelection.add(item)
+            selection.clear()
+            val savedSelection = getLongArray(stateKey)
+            if (savedSelection?.isNotEmpty() == true) {
+                for (item in savedSelection) {
+                    selection.add(item)
                 }
             }
         }
 
-        mCallbacks?.onSelectionChanged(true, false)
+        callbacks?.onSelectionChanged(true, false)
     }
 
-    fun saveInstanceState(outBundle: Bundle?) {
-        val selection = LongArray(mSelection.size)
-        var i = 0
-        for (item in mSelection) {
-            selection[i] = item
-            ++i
-        }
-
-        outBundle?.putLongArray(mStateKey, selection)
-    }
-
-    fun setCallbacks(callbacks: Callbacks) {
-        mCallbacks = callbacks
+    fun saveInstanceState(outBundle: Bundle) {
+        outBundle.putLongArray(stateKey, selection.toLongArray())
     }
 
     fun toggle(item: Long, fromUser: Boolean) {
-        if (mSelection.contains(item)) {
-            mSelection.remove(item)
+        if (selection.contains(item)) {
+            selection.remove(item)
         } else {
-            mSelection.add(item)
+            selection.add(item)
         }
 
-        mCallbacks?.onSelectionChanged(false, fromUser)
+        callbacks?.onSelectionChanged(false, fromUser)
     }
 
     fun reset(fromUser: Boolean) {
-        mSelection.clear()
-        mCallbacks?.onSelectionChanged(false, fromUser)
+        selection.clear()
+        callbacks?.onSelectionChanged(false, fromUser)
     }
 
     fun isSelected(item: Long): Boolean {
-        return mSelection.contains(item)
+        return selection.contains(item)
     }
 
     interface Callbacks {

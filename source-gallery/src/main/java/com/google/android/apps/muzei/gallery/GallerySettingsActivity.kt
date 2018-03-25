@@ -434,7 +434,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         }
 
         // Set up controller
-        multiSelectionController.setCallbacks(this)
+        multiSelectionController.callbacks = this
     }
 
     override fun onSelectionChanged(restored: Boolean, fromUser: Boolean) {
@@ -650,14 +650,14 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         multiSelectionController.restoreInstanceState(savedInstanceState)
     }
 
-    internal class PhotoViewHolder(val mRootView: View) : RecyclerView.ViewHolder(mRootView) {
-        val mCheckedOverlayView : FrameLayout = mRootView.findViewById(R.id.checked_overlay)
-        val mThumbViews = listOf<ImageView>(
-            mRootView.findViewById(R.id.thumbnail1),
-            mRootView.findViewById(R.id.thumbnail2),
-            mRootView.findViewById(R.id.thumbnail3),
-            mRootView.findViewById(R.id.thumbnail4))
-        val mFolderIcon : ImageView = mRootView.findViewById(R.id.folder_icon)
+    internal class PhotoViewHolder(val rootView: View) : RecyclerView.ViewHolder(rootView) {
+        val checkedOverlayView : FrameLayout = rootView.findViewById(R.id.checked_overlay)
+        val thumbViews = listOf<ImageView>(
+            rootView.findViewById(R.id.thumbnail1),
+            rootView.findViewById(R.id.thumbnail2),
+            rootView.findViewById(R.id.thumbnail3),
+            rootView.findViewById(R.id.thumbnail4))
+        val folderIcon : ImageView = rootView.findViewById(R.id.folder_icon)
     }
 
     private inner class GalleryAdapter internal constructor() : PagedListAdapter<ChosenPhoto, PhotoViewHolder>(CHOSEN_PHOTO_DIFF_CALLBACK) {
@@ -688,8 +688,8 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
 
         override fun onBindViewHolder(vh: PhotoViewHolder, position: Int) {
             val chosenPhoto = getItem(position) ?: return
-            vh.mFolderIcon.visibility = if (chosenPhoto.isTreeUri) View.VISIBLE else View.GONE
-            val maxImages = vh.mThumbViews.size
+            vh.folderIcon.visibility = if (chosenPhoto.isTreeUri) View.VISIBLE else View.GONE
+            val maxImages = vh.thumbViews.size
             val images = if (chosenPhoto.isTreeUri)
                 getImagesFromTreeUri(chosenPhoto.uri, maxImages)
             else
@@ -697,7 +697,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             val numImages = images.size
             val targetSize = if (numImages <= 1) itemSize else itemSize / 2
             for (h in 0 until numImages) {
-                val thumbView = vh.mThumbViews[h]
+                val thumbView = vh.thumbViews[h]
                 thumbView.visibility = View.VISIBLE
                 Picasso.with(this@GallerySettingsActivity)
                         .load(images[h])
@@ -707,32 +707,32 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                         .into(thumbView)
             }
             for (h in numImages until maxImages) {
-                val thumbView = vh.mThumbViews[h]
+                val thumbView = vh.thumbViews[h]
                 // Show either just the one image or all the images even if
                 // they are just placeholders
                 thumbView.visibility = if (numImages <= 1) View.GONE else View.VISIBLE
                 thumbView.setImageDrawable(placeholderDrawable)
             }
             val checked = multiSelectionController.isSelected(chosenPhoto.id)
-            vh.mRootView.setTag(R.id.gallery_viewtag_position, position)
+            vh.rootView.setTag(R.id.gallery_viewtag_position, position)
             if (lastTouchPosition == vh.adapterPosition && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 Handler().post {
-                    if (!vh.mCheckedOverlayView.isAttachedToWindow) {
+                    if (!vh.checkedOverlayView.isAttachedToWindow) {
                         // Can't animate detached Views
-                        vh.mCheckedOverlayView.visibility = if (checked) View.VISIBLE else View.GONE
+                        vh.checkedOverlayView.visibility = if (checked) View.VISIBLE else View.GONE
                         return@post
                     }
                     if (checked) {
-                        vh.mCheckedOverlayView.visibility = View.VISIBLE
+                        vh.checkedOverlayView.visibility = View.VISIBLE
                     }
 
                     // find the smallest radius that'll cover the item
                     val coverRadius = maxDistanceToCorner(
                             lastTouchX, lastTouchY,
-                            0, 0, vh.mRootView.width, vh.mRootView.height)
+                            0, 0, vh.rootView.width, vh.rootView.height)
 
                     val revealAnim = ViewAnimationUtils.createCircularReveal(
-                            vh.mCheckedOverlayView,
+                            vh.checkedOverlayView,
                             lastTouchX,
                             lastTouchY,
                             if (checked) 0f else coverRadius,
@@ -742,14 +742,14 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                     if (!checked) {
                         revealAnim.addListener(object : AnimatorListenerAdapter() {
                             override fun onAnimationEnd(animation: Animator) {
-                                vh.mCheckedOverlayView.visibility = View.GONE
+                                vh.checkedOverlayView.visibility = View.GONE
                             }
                         })
                     }
                     revealAnim.start()
                 }
             } else {
-                vh.mCheckedOverlayView.visibility = if (checked) View.VISIBLE else View.GONE
+                vh.checkedOverlayView.visibility = if (checked) View.VISIBLE else View.GONE
             }
         }
 
@@ -863,7 +863,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         onDataSetChanged()
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
+    override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         multiSelectionController.saveInstanceState(outState)
     }

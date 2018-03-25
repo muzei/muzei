@@ -63,9 +63,9 @@ class MuzeiActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceC
         super.onCreate(savedInstanceState)
         setContentView(R.layout.muzei_activity)
         FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
-        val mContainerView = findViewById<View>(R.id.container)
+        val containerView = findViewById<View>(R.id.container)
 
-        mContainerView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        containerView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
 

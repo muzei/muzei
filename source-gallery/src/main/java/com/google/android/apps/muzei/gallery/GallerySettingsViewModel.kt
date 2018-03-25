@@ -41,7 +41,7 @@ class GallerySettingsViewModel(application: Application) : AndroidViewModel(appl
 
     init {
         getContentActivityInfoList = object : MutableLiveData<List<ActivityInfo>>() {
-            private val mPackagesChangedReceiver = object : BroadcastReceiver() {
+            private val packagesChangedReceiver = object : BroadcastReceiver() {
                 override fun onReceive(context: Context, intent: Intent) {
                     refreshList()
                 }
@@ -55,14 +55,14 @@ class GallerySettingsViewModel(application: Application) : AndroidViewModel(appl
                     addAction(Intent.ACTION_PACKAGE_REMOVED)
                     addDataScheme("package")
                 }
-                getApplication<Application>().registerReceiver(mPackagesChangedReceiver,
+                getApplication<Application>().registerReceiver(packagesChangedReceiver,
                         packageChangeIntentFilter)
                 // Refresh the list to get any changes since we were last active
                 refreshList()
             }
 
             override fun onInactive() {
-                getApplication<Application>().unregisterReceiver(mPackagesChangedReceiver)
+                getApplication<Application>().unregisterReceiver(packagesChangedReceiver)
             }
 
             private fun refreshList() {

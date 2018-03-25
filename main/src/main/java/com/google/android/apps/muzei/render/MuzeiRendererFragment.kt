@@ -58,7 +58,7 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
     private var demoMode: Boolean = false
     private var demoFocus: Boolean = false
 
-    private val mSimpleDemoModeLoadedTarget = object : Target {
+    private val simpleDemoModeLoadedTarget = object : Target {
         override fun onBitmapLoaded(bitmap: Bitmap?, loadedFrom: Picasso.LoadedFrom?) {
             simpleDemoModeImageView.setImageBitmap(if (!demoFocus) {
                 bitmap.blur(requireContext())?.apply {
@@ -104,7 +104,7 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
                     .load("file:///android_asset/starrynight.jpg")
                     .resize(targetWidth, targetHeight)
                     .centerCrop()
-                    .into(mSimpleDemoModeLoadedTarget)
+                    .into(simpleDemoModeLoadedTarget)
             return simpleDemoModeImageView
         } else {
             muzeiView = MuzeiView(requireContext())
@@ -114,7 +114,7 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
-        muzeiView?.mRenderController?.visible = !hidden
+        muzeiView?.renderController?.visible = !hidden
     }
 
     override fun onDestroyView() {
@@ -141,34 +141,34 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
     }
 
     private inner class MuzeiView(context: Context) : GLTextureView(context) {
-        private val mRenderer = MuzeiBlurRenderer(getContext(), this@MuzeiRendererFragment, demoMode)
-        internal val mRenderController: RenderController
+        private val renderer = MuzeiBlurRenderer(getContext(), this@MuzeiRendererFragment, demoMode)
+        internal val renderController: RenderController
 
         init {
             setEGLContextClientVersion(2)
             setEGLConfigChooser(8, 8, 8, 8, 0, 0)
-            setRenderer(mRenderer)
+            setRenderer(renderer)
             renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
             preserveEGLContextOnPause = true
-            mRenderController = if (demoMode) {
-                DemoRenderController(getContext(), mRenderer,
+            renderController = if (demoMode) {
+                DemoRenderController(getContext(), renderer,
                         this@MuzeiRendererFragment, demoFocus)
             } else {
-                RealRenderController(getContext(), mRenderer,
+                RealRenderController(getContext(), renderer,
                         this@MuzeiRendererFragment)
             }
-            mRenderController.visible = true
+            renderController.visible = true
         }
 
         override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
             super.onSizeChanged(w, h, oldw, oldh)
-            mRenderer.hintViewportSize(w, h)
-            mRenderController.reloadCurrentArtwork(true)
+            renderer.hintViewportSize(w, h)
+            renderController.reloadCurrentArtwork(true)
         }
 
         override fun onDetachedFromWindow() {
-            mRenderController.destroy()
-            queueEventOnGlThread { mRenderer.destroy() }
+            renderController.destroy()
+            queueEventOnGlThread { renderer.destroy() }
             super.onDetachedFromWindow()
         }
     }

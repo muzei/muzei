@@ -28,19 +28,19 @@ object WallpaperActiveState : MutableLiveData<Boolean>()
 /**
  * LifecycleObserver responsible for sending analytics callbacks based on the state of the wallpaper
  */
-class WallpaperAnalytics(private val mContext: Context) : DefaultLifecycleObserver {
+class WallpaperAnalytics(private val context: Context) : DefaultLifecycleObserver {
 
     override fun onCreate(owner: LifecycleOwner) {
-        FirebaseAnalytics.getInstance(mContext).setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
+        FirebaseAnalytics.getInstance(context).setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
     }
 
     override fun onResume(owner: LifecycleOwner) {
-        FirebaseAnalytics.getInstance(mContext).logEvent("wallpaper_created", null)
+        FirebaseAnalytics.getInstance(context).logEvent("wallpaper_created", null)
         WallpaperActiveState.value = true
     }
 
     override fun onPause(owner: LifecycleOwner) {
-        FirebaseAnalytics.getInstance(mContext).logEvent("wallpaper_destroyed", null)
+        FirebaseAnalytics.getInstance(context).logEvent("wallpaper_destroyed", null)
         WallpaperActiveState.value = false
     }
 }

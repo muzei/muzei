@@ -43,19 +43,19 @@ class EffectsFragment : Fragment() {
     private lateinit var dimSeekBar: SeekBar
     private lateinit var greySeekBar: SeekBar
 
-    private val mUpdateBlurRunnable = Runnable {
+    private val updateBlurRunnable = Runnable {
         Prefs.getSharedPreferences(requireContext()).edit {
             putInt(Prefs.PREF_BLUR_AMOUNT, blurSeekBar.progress)
         }
     }
 
-    private val mUpdateDimRunnable = Runnable {
+    private val updateDimRunnable = Runnable {
         Prefs.getSharedPreferences(requireContext()).edit {
             putInt(Prefs.PREF_DIM_AMOUNT, dimSeekBar.progress)
         }
     }
 
-    private val mUpdateGreyRunnable = Runnable {
+    private val updateGreyRunnable = Runnable {
         Prefs.getSharedPreferences(requireContext()).edit {
             putInt(Prefs.PREF_GREY_AMOUNT, greySeekBar.progress)
         }
@@ -82,8 +82,8 @@ class EffectsFragment : Fragment() {
         blurSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
                 if (fromUser) {
-                    handler.removeCallbacks(mUpdateBlurRunnable)
-                    handler.postDelayed(mUpdateBlurRunnable, 750)
+                    handler.removeCallbacks(updateBlurRunnable)
+                    handler.postDelayed(updateBlurRunnable, 750)
                 }
             }
 
@@ -98,8 +98,8 @@ class EffectsFragment : Fragment() {
         dimSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
                 if (fromUser) {
-                    handler.removeCallbacks(mUpdateDimRunnable)
-                    handler.postDelayed(mUpdateDimRunnable, 750)
+                    handler.removeCallbacks(updateDimRunnable)
+                    handler.postDelayed(updateDimRunnable, 750)
                 }
             }
 
@@ -114,8 +114,8 @@ class EffectsFragment : Fragment() {
         greySeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
                 if (fromUser) {
-                    handler.removeCallbacks(mUpdateGreyRunnable)
-                    handler.postDelayed(mUpdateGreyRunnable, 750)
+                    handler.removeCallbacks(updateGreyRunnable)
+                    handler.postDelayed(updateGreyRunnable, 750)
                 }
             }
 
@@ -123,14 +123,14 @@ class EffectsFragment : Fragment() {
 
             override fun onStopTrackingTouch(seekBar: SeekBar) {}
         })
-        val mBlurOnLockScreenCheckBox = view.findViewById<CheckBox>(
+        val blurOnLockScreenCheckBox = view.findViewById<CheckBox>(
                 R.id.blur_on_lockscreen_checkbox)
-        mBlurOnLockScreenCheckBox.setOnCheckedChangeListener { _, checked ->
+        blurOnLockScreenCheckBox.setOnCheckedChangeListener { _, checked ->
             Prefs.getSharedPreferences(requireContext()).edit()
                     .putBoolean(Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED, !checked)
                     .apply()
         }
-        mBlurOnLockScreenCheckBox.isChecked = !Prefs.getSharedPreferences(requireContext())
+        blurOnLockScreenCheckBox.isChecked = !Prefs.getSharedPreferences(requireContext())
                 .getBoolean(Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED, false)
     }
 
