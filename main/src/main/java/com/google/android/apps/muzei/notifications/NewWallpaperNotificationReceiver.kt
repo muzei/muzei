@@ -349,8 +349,8 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                         SourceManager.sendAction(context, action.id)
                         break
                     }
-                    pendingResult.finish()
                 }
+                pendingResult.finish()
             }
         }
     }
