@@ -388,9 +388,8 @@ class MuzeiBlurRenderer(private val context: Context,
                 return
             }
 
-            // Ensure the bitmap is wider than the screen relatively by applying zoom
-            // if necessary. Vary width but keep height the same.
-            val zoom = Math.max(1f, 1.15f * screenToBitmapAspectRatio)
+            // Ensure the bitmap is as wide as the screen by applying zoom if necessary
+            val zoom = Math.max(1f, screenToBitmapAspectRatio)
 
             // Total scale factors in both zoom and scale due to aspect ratio.
             val scaledBitmapToScreenAspectRatio = zoom / screenToBitmapAspectRatio
