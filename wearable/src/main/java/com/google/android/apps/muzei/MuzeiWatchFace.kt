@@ -39,7 +39,6 @@ import android.text.format.DateFormat
 import android.util.Log
 import android.view.Gravity
 import android.view.SurfaceHolder
-import android.view.WindowInsets
 import androidx.content.edit
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.datalayer.ArtworkCacheIntentService
@@ -177,7 +176,6 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
          * disable anti-aliasing in ambient mode.
          */
         internal var lowBitAmbient: Boolean = false
-        internal var isRound: Boolean = false
         internal var blurred: Boolean = false
 
         private inner class LoadImageContentObserver internal constructor(handler: Handler) : ContentObserver(handler) {
@@ -227,8 +225,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                         -0x34000000)
                 isAntiAlias = true
                 typeface = heavyTypeface
-                // Square watch face as defaults, will be changed in onApplyWindowInsets() if needed
-                textAlign = Paint.Align.RIGHT
+                textAlign = Paint.Align.CENTER
                 textSize = resources.getDimension(R.dimen.clock_text_size)
             }
             recomputeClockTextHeight()
@@ -245,11 +242,11 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                         -0x34000000)
                 isAntiAlias = true
                 typeface = lightTypeface
-                // Square watch face as defaults, will be changed in onApplyWindowInsets() if needed
-                textAlign = Paint.Align.RIGHT
+                textAlign = Paint.Align.CENTER
                 textSize = resources.getDimension(R.dimen.date_text_size)
             }
-            recomputeDateTextHeight()
+            val fm = datePaint.fontMetrics
+            dateTextHeight = -fm.top
 
             dateAmbientShadowPaint = Paint(datePaint).apply {
                 color = Color.TRANSPARENT
@@ -262,11 +259,6 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
         private fun recomputeClockTextHeight() {
             val fm = clockPaint.fontMetrics
             clockTextHeight = -fm.top
-        }
-
-        private fun recomputeDateTextHeight() {
-            val fm = datePaint.fontMetrics
-            dateTextHeight = -fm.top
         }
 
         private fun recomputeDateFormat() {
@@ -332,31 +324,6 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
             }
             backgroundScaledBlurredBitmap = backgroundScaledBitmap.blur(this@MuzeiWatchFace,
                     (ImageBlurrer.MAX_SUPPORTED_BLUR_PIXELS / 2).toFloat())
-        }
-
-        override fun onApplyWindowInsets(insets: WindowInsets) {
-            super.onApplyWindowInsets(insets)
-            isRound = insets.isRound
-            val textAlign = if (isRound) Paint.Align.CENTER else Paint.Align.RIGHT
-            clockPaint.textAlign = textAlign
-            clockAmbientShadowPaint.textAlign = textAlign
-            dateAmbientShadowPaint.textAlign = textAlign
-            datePaint.textAlign = textAlign
-            val textSize = resources.getDimension(if (isRound)
-                R.dimen.clock_text_size_round
-            else
-                R.dimen.clock_text_size)
-            clockPaint.textSize = textSize
-            clockAmbientShadowPaint.textSize = textSize
-            recomputeClockTextHeight()
-            val dateTextSize = resources.getDimension(if (isRound)
-                R.dimen.date_text_size_round
-            else
-                R.dimen.date_text_size)
-            datePaint.textSize = dateTextSize
-            dateAmbientShadowPaint.textSize = dateTextSize
-            recomputeDateTextHeight()
-            updateWatchFaceStyle()
         }
 
         override fun onVisibilityChanged(visible: Boolean) {
@@ -511,15 +478,9 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                 timeFormat24h.format(calendar.time)
             else
                 timeFormat12h.format(calendar.time)
-            val xOffset = if (isRound)
-                width / 2f
-            else
-                width - clockMargin
-            val yOffset = if (isRound)
-                Math.min((height + clockTextHeight) / 2,
+            val xOffset = width / 2f
+            val yOffset = Math.min((height + clockTextHeight) / 2,
                         (if (cardBounds.top == 0) height else cardBounds.top) - clockMargin)
-            else
-                clockTextHeight + clockMargin
             if (!blurred) {
                 canvas.drawText(formattedTime,
                         xOffset,
@@ -544,10 +505,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
             if (clockHeight + dateHeight + dateMinAvailableMargin < spaceAvailable) {
                 // Draw the date
                 val formattedDate = dateFormat.format(calendar.time)
-                val yDateOffset = if (isRound)
-                    yOffset - clockTextHeight - clockMargin // date above centered time
-                else
-                    yOffset + dateTextHeight + clockMargin // date below top|right time
+                val yDateOffset = yOffset - clockTextHeight - clockMargin // date above centered time
                 if (!blurred) {
                     canvas.drawText(formattedDate,
                             xOffset,
