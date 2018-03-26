@@ -21,7 +21,6 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.Build
-import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.ComplicationManager
@@ -29,6 +28,7 @@ import android.support.wearable.complications.ComplicationProviderService
 import android.support.wearable.complications.ComplicationText
 import android.util.Log
 import androidx.content.edit
+import androidx.os.bundleOf
 import com.google.android.apps.muzei.FullScreenActivity
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.room.MuzeiDatabase
@@ -59,10 +59,8 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
             Log.d(TAG, "Activated $complicationId")
         }
         addComplication(complicationId)
-        val bundle = Bundle().apply {
-            putString(FirebaseAnalytics.Param.CONTENT_TYPE, type.toString())
-        }
-        FirebaseAnalytics.getInstance(this).logEvent("complication_artwork_activated", bundle)
+        FirebaseAnalytics.getInstance(this).logEvent("complication_artwork_activated", bundleOf(
+                FirebaseAnalytics.Param.CONTENT_TYPE to type.toString()))
     }
 
     private fun addComplication(complicationId: Int) {

@@ -19,6 +19,7 @@ package com.google.android.apps.muzei.tasker
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import androidx.os.bundleOf
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.internal.ProtocolConstants
 import com.twofortyfouram.locale.api.Intent.EXTRA_BUNDLE
@@ -32,9 +33,8 @@ class TaskerSettingActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val intent = Intent().apply {
-            putExtra(EXTRA_BUNDLE, Bundle().apply {
-                putInt(ProtocolConstants.EXTRA_COMMAND_ID, MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK)
-            })
+            putExtra(EXTRA_BUNDLE, bundleOf(
+                    ProtocolConstants.EXTRA_COMMAND_ID to MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK))
             putExtra(EXTRA_STRING_BLURB, getString(R.string.action_next_artwork))
         }
         setResult(Activity.RESULT_OK, intent)

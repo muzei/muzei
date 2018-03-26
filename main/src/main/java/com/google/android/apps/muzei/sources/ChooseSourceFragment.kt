@@ -44,6 +44,7 @@ import android.util.Log
 import android.view.*
 import android.widget.TextView
 import android.widget.Toast
+import androidx.os.bundleOf
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
 import com.google.android.apps.muzei.room.MuzeiDatabase
@@ -135,9 +136,8 @@ class ChooseSourceFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        val bundle = Bundle()
-        bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "sources")
-        FirebaseAnalytics.getInstance(context).logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST, bundle)
+        FirebaseAnalytics.getInstance(context).logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST,
+                bundleOf(FirebaseAnalytics.Param.ITEM_CATEGORY to "sources"))
 
         sourcesLiveData.observeNonNull(this) { sources ->
             updateSources(sources)
@@ -461,18 +461,16 @@ class ChooseSourceFragment : Fragment() {
                     }
                     builder.show()
                 } else if (source.setupActivity != null) {
-                    val bundle = Bundle()
-                    bundle.putString(FirebaseAnalytics.Param.ITEM_ID, source.componentName.flattenToShortString())
-                    bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, source.label)
-                    bundle.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "sources")
-                    FirebaseAnalytics.getInstance(requireContext()).logEvent(FirebaseAnalytics.Event.VIEW_ITEM, bundle)
+                    FirebaseAnalytics.getInstance(requireContext()).logEvent(FirebaseAnalytics.Event.VIEW_ITEM, bundleOf(
+                            FirebaseAnalytics.Param.ITEM_ID to source.componentName.flattenToShortString(),
+                            FirebaseAnalytics.Param.ITEM_NAME to source.label,
+                            FirebaseAnalytics.Param.ITEM_CATEGORY to "sources"))
                     currentInitialSetupSource = source.componentName
                     launchSourceSetup(source)
                 } else {
-                    val bundle = Bundle()
-                    bundle.putString(FirebaseAnalytics.Param.ITEM_ID, source.componentName.flattenToShortString())
-                    bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sources")
-                    FirebaseAnalytics.getInstance(requireContext()).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
+                    FirebaseAnalytics.getInstance(requireContext()).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
+                            FirebaseAnalytics.Param.ITEM_ID to source.componentName.flattenToShortString(),
+                            FirebaseAnalytics.Param.CONTENT_TYPE to "sources"))
                     SourceManager.selectSource(requireContext(), source.componentName)
                 }
             }
@@ -553,10 +551,9 @@ class ChooseSourceFragment : Fragment() {
         if (requestCode == REQUEST_EXTENSION_SETUP) {
             val setupSource = currentInitialSetupSource
             if (resultCode == Activity.RESULT_OK && setupSource != null) {
-                val bundle = Bundle()
-                bundle.putString(FirebaseAnalytics.Param.ITEM_ID, setupSource.flattenToShortString())
-                bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "sources")
-                FirebaseAnalytics.getInstance(requireContext()).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
+                FirebaseAnalytics.getInstance(requireContext()).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
+                        FirebaseAnalytics.Param.ITEM_ID to setupSource.flattenToShortString(),
+                        FirebaseAnalytics.Param.CONTENT_TYPE to "sources"))
                 SourceManager.selectSource(requireContext(), setupSource)
             }
 

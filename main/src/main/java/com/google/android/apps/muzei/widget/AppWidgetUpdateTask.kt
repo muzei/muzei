@@ -28,12 +28,12 @@ import android.graphics.Rect
 import android.net.Uri
 import android.os.AsyncTask
 import android.os.Build
-import android.os.Bundle
 import android.support.annotation.LayoutRes
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
+import androidx.os.bundleOf
 import com.google.android.apps.muzei.render.BitmapRegionLoader
 import com.google.android.apps.muzei.render.sampleSize
 import com.google.android.apps.muzei.room.MuzeiDatabase
@@ -87,8 +87,7 @@ open class AppWidgetUpdateTask(@field:SuppressLint("StaticFieldLeak") private va
                         launchPendingIntent, nextArtworkPendingIntent, supportsNextArtwork,
                         context.resources.getDimensionPixelSize(R.dimen.widget_min_width),
                         context.resources.getDimensionPixelSize(R.dimen.widget_min_height))
-                val extras = Bundle()
-                extras.putParcelable(AppWidgetManager.EXTRA_APPWIDGET_PREVIEW, remoteViews)
+                val extras = bundleOf(AppWidgetManager.EXTRA_APPWIDGET_PREVIEW to remoteViews)
                 try {
                     return appWidgetManager.requestPinAppWidget(widget, extras, null)
                 } catch (ignored: IllegalStateException) {

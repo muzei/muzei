@@ -29,6 +29,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.os.bundleOf
 
 import com.google.android.apps.muzei.util.ImageBlurrer
 import com.google.android.apps.muzei.util.blur
@@ -45,10 +46,9 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
 
         fun createInstance(demoMode: Boolean, demoFocus: Boolean = false): MuzeiRendererFragment {
             return MuzeiRendererFragment().apply {
-                arguments = Bundle().apply {
-                    putBoolean(ARG_DEMO_MODE, demoMode)
-                    putBoolean(ARG_DEMO_FOCUS, demoFocus)
-                }
+                arguments = bundleOf(
+                        ARG_DEMO_MODE to demoMode,
+                        ARG_DEMO_FOCUS to demoFocus)
             }
         }
     }

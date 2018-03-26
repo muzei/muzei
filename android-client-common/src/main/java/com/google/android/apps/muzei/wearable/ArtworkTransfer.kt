@@ -17,8 +17,8 @@
 @file:JvmName("ArtworkTransfer")
 package com.google.android.apps.muzei.wearable
 
-import android.os.Bundle
 import androidx.net.toUri
+import androidx.os.bundleOf
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.gms.wearable.DataMap
 
@@ -34,13 +34,12 @@ private const val KEY_TOKEN = "token"
  * @return a serialized version of the artwork.
  * @see toArtwork
  */
-fun Artwork.toDataMap(): DataMap = DataMap.fromBundle(Bundle().apply {
-    putString(KEY_IMAGE_URI, if (imageUri != null) imageUri.toString() else null)
-    putString(KEY_TITLE, title)
-    putString(KEY_BYLINE, byline)
-    putString(KEY_ATTRIBUTION, attribution)
-    putString(KEY_TOKEN, token)
-})
+fun Artwork.toDataMap(): DataMap = DataMap.fromBundle(bundleOf(
+        KEY_IMAGE_URI to imageUri?.toString(),
+        KEY_TITLE to title,
+        KEY_BYLINE to byline,
+        KEY_ATTRIBUTION to attribution,
+        KEY_TOKEN to token))
 
 /**
  * Deserializes an artwork object from a [DataMap].
