@@ -260,7 +260,7 @@ class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
                 .build())
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun addAllImagesFromTree(allImages: MutableList<Uri>?, treeUri: Uri, parentDocumentId: String): Int {
         val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri,
                 parentDocumentId)

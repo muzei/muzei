@@ -16,11 +16,11 @@
 
 package com.google.android.apps.muzei.complications
 
-import android.annotation.TargetApi
 import android.content.ComponentName
 import android.content.Context
 import android.os.Build
 import android.preference.PreferenceManager
+import android.support.annotation.RequiresApi
 import android.support.wearable.complications.ProviderUpdateRequester
 import android.util.Log
 import com.firebase.jobdispatcher.*
@@ -32,7 +32,7 @@ import java.util.*
 /**
  * JobService which listens for artwork change events and updates the Artwork Complication
  */
-@TargetApi(Build.VERSION_CODES.N)
+@RequiresApi(Build.VERSION_CODES.N)
 class ArtworkComplicationJobService : SimpleJobService() {
 
     companion object {

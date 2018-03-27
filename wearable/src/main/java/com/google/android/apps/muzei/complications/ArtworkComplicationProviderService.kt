@@ -16,12 +16,12 @@
 
 package com.google.android.apps.muzei.complications
 
-import android.annotation.TargetApi
 import android.app.PendingIntent
 import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.preference.PreferenceManager
+import android.support.annotation.RequiresApi
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.ComplicationManager
 import android.support.wearable.complications.ComplicationProviderService
@@ -40,7 +40,7 @@ import java.util.*
 /**
  * Provide Muzei backgrounds to other watch faces
  */
-@TargetApi(Build.VERSION_CODES.N)
+@RequiresApi(Build.VERSION_CODES.N)
 class ArtworkComplicationProviderService : ComplicationProviderService() {
 
     companion object {

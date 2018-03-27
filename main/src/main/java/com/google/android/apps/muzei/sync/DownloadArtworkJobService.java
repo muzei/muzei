@@ -24,7 +24,7 @@ import android.support.annotation.RequiresApi;
 /**
  * JobService that handles reloading artwork after any initial failure
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 public class DownloadArtworkJobService extends JobService {
     private DownloadArtworkTask mDownloadArtworkTask = null;
 

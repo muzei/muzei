@@ -45,7 +45,7 @@ import net.nurik.roman.muzei.R
  * In cases where Muzei is not activated, the tile also allows users to activate Muzei directly
  * from the tile
  */
-@RequiresApi(api = Build.VERSION_CODES.N)
+@RequiresApi(Build.VERSION_CODES.N)
 class NextArtworkTileService : TileService(), LifecycleOwner {
     private val lifecycleRegistry: LifecycleRegistry = LifecycleRegistry(this)
 

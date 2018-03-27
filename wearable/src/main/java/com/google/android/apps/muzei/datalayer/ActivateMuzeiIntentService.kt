@@ -169,7 +169,7 @@ class ActivateMuzeiIntentService : IntentService(TAG) {
             notificationManager.notify(ACTIVATE_NOTIFICATION_ID, builder.build())
         }
 
-        @RequiresApi(api = Build.VERSION_CODES.O)
+        @RequiresApi(Build.VERSION_CODES.O)
         private fun createNotificationChannel(context: Context) {
             val notificationManager = context.getSystemService(NotificationManager::class.java)
             val channel = NotificationChannel(NOTIFICATION_CHANNEL,

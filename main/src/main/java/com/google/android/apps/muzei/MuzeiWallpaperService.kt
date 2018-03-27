@@ -172,6 +172,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
 
                     override fun onCreate(owner: LifecycleOwner) {
                         contentObserver = object : ContentObserver(Handler()) {
+                            @RequiresApi(Build.VERSION_CODES.O_MR1)
                             override fun onChange(selfChange: Boolean, uri: Uri) {
                                 updateCurrentArtwork()
                             }
@@ -210,6 +211,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             engineLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
         }
 
+        @RequiresApi(Build.VERSION_CODES.O_MR1)
         private fun updateCurrentArtwork() {
             try {
                 val options = BitmapFactory.Options()
@@ -229,7 +231,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
 
         }
 
-        @RequiresApi(api = 27)
+        @RequiresApi(Build.VERSION_CODES.O_MR1)
         override fun onComputeColors(): WallpaperColors? =
                 currentArtwork?.run {
                     WallpaperColors.fromBitmap(this)

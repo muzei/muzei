@@ -35,7 +35,7 @@ import net.nurik.roman.muzei.R
 /**
  * Controller responsible for updating the Artwork Info Shortcut whenever the current artwork changes
  */
-@RequiresApi(api = Build.VERSION_CODES.N_MR1)
+@RequiresApi(Build.VERSION_CODES.N_MR1)
 class ArtworkInfoShortcutController(private val context: Context,
                                     private val lifecycleOwner: LifecycleOwner)
     : DefaultLifecycleObserver {

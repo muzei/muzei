@@ -19,7 +19,6 @@ package com.google.android.apps.muzei.gallery
 import android.Manifest
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
-import android.annotation.TargetApi
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
@@ -33,6 +32,7 @@ import android.net.Uri
 import android.os.*
 import android.provider.DocumentsContract
 import android.provider.Settings
+import android.support.annotation.RequiresApi
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
@@ -449,7 +449,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun showAddToolbar() {
         // Divide by two since we're doing two animations but we want the total time to the short animation time
         val duration = resources.getInteger(android.R.integer.config_shortAnimTime) / 2
@@ -474,7 +474,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                 }
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun hideAddToolbar(showAddButton: Boolean) {
         // Divide by two since we're doing two animations but we want the total time to the short animation time
         val duration = resources.getInteger(android.R.integer.config_shortAnimTime) / 2
@@ -592,7 +592,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun getDisplayNameForTreeUri(treeUri: Uri): String? {
         val documentUri = DocumentsContract.buildDocumentUriUsingTree(treeUri,
                 DocumentsContract.getTreeDocumentId(treeUri))
@@ -768,7 +768,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun getImagesFromTreeUri(treeUri: Uri, maxImages: Int): List<Uri> {
         val images = ArrayList<Uri>()
         val directories = LinkedList<String>()

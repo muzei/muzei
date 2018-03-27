@@ -1,7 +1,6 @@
 package com.google.android.apps.muzei.provider
 
 import android.annotation.SuppressLint
-import android.annotation.TargetApi
 import android.app.job.JobInfo
 import android.app.job.JobParameters
 import android.app.job.JobScheduler
@@ -10,6 +9,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.os.AsyncTask
 import android.os.Build
+import android.support.annotation.RequiresApi
 import android.support.v4.content.ContextCompat
 import android.util.Log
 import androidx.content.systemService
@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Update the latest artwork in the Direct Boot cache directory whenever the artwork changes
  */
-@TargetApi(Build.VERSION_CODES.N)
+@RequiresApi(Build.VERSION_CODES.N)
 class DirectBootCacheJobService : JobService() {
 
     companion object {

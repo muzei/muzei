@@ -278,7 +278,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
          * @return False only in the case where the user had wallpapers disabled in-app, but has not
          * yet seen the 'Review your notification settings' notification
          */
-        @RequiresApi(api = Build.VERSION_CODES.O)
+        @RequiresApi(Build.VERSION_CODES.O)
         internal fun createNotificationChannel(context: Context): Boolean {
             val notificationManager = context.getSystemService(NotificationManager::class.java) ?: return false
             val sp = PreferenceManager.getDefaultSharedPreferences(context)
