@@ -24,7 +24,11 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
+import android.os.Bundle
 import android.support.v4.content.ContextCompat
+import android.support.wearable.complications.ComplicationData
+import android.support.wearable.complications.SystemProviders
+import android.support.wearable.complications.rendering.ComplicationDrawable
 import android.support.wearable.watchface.CanvasWatchFaceService
 import android.support.wearable.watchface.WatchFaceStyle
 import android.util.Size
@@ -46,6 +50,7 @@ class MuzeiExampleWatchface : CanvasWatchFaceService() {
             color = ContextCompat.getColor(this@MuzeiExampleWatchface, android.R.color.black)
         }
         private val loader: ArtworkImageLoader = ArtworkImageLoader.getInstance(this@MuzeiExampleWatchface)
+        private lateinit var complicationDrawable: ComplicationDrawable
         private var image: Bitmap? = null
 
         override fun getLifecycle(): Lifecycle {
@@ -55,12 +60,20 @@ class MuzeiExampleWatchface : CanvasWatchFaceService() {
         override fun onCreate(holder: SurfaceHolder) {
             super.onCreate(holder)
             setWatchFaceStyle(WatchFaceStyle.Builder(this@MuzeiExampleWatchface)
-                    .setStatusBarGravity(Gravity.TOP or Gravity.END)
+                    .setStatusBarGravity(Gravity.TOP or Gravity.CENTER_HORIZONTAL)
                     .setViewProtectionMode(WatchFaceStyle.PROTECT_STATUS_BAR or WatchFaceStyle.PROTECT_HOTWORD_INDICATOR)
-                    .setPeekOpacityMode(WatchFaceStyle.PEEK_OPACITY_MODE_TRANSLUCENT)
-                    .setCardPeekMode(WatchFaceStyle.PEEK_MODE_SHORT)
-                    .setShowSystemUiTime(true)
                     .build())
+            setDefaultSystemComplicationProvider(0, SystemProviders.TIME_AND_DATE,
+                    ComplicationData.TYPE_SHORT_TEXT)
+            setActiveComplications(0)
+            complicationDrawable = ComplicationDrawable(this@MuzeiExampleWatchface).apply {
+                setBorderStyleActive(ComplicationDrawable.BORDER_STYLE_NONE)
+                setBorderStyleAmbient(ComplicationDrawable.BORDER_STYLE_NONE)
+                setTitleSizeActive(resources.getDimensionPixelSize(R.dimen.title_size))
+                setTextSizeActive(resources.getDimensionPixelSize(R.dimen.text_size))
+                setTitleSizeAmbient(resources.getDimensionPixelSize(R.dimen.title_size))
+                setTextSizeAmbient(resources.getDimensionPixelSize(R.dimen.text_size))
+            }
             loader.observe(this, this)
             lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
         }
@@ -73,6 +86,11 @@ class MuzeiExampleWatchface : CanvasWatchFaceService() {
         override fun onSurfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
             super.onSurfaceChanged(holder, format, width, height)
             loader.requestedSize = Size(width, height)
+            complicationDrawable.setBounds(0, 0, width, height)
+        }
+
+        override fun onComplicationDataUpdate(watchFaceComplicationId: Int, data: ComplicationData?) {
+            complicationDrawable.setComplicationData(data)
         }
 
         override fun onDraw(canvas: Canvas, bounds: Rect) {
@@ -82,9 +100,19 @@ class MuzeiExampleWatchface : CanvasWatchFaceService() {
             } ?: run {
                 canvas.drawRect(bounds, backgroundPaint)
             }
+            complicationDrawable.draw(canvas)
         }
 
         override fun onAmbientModeChanged(inAmbientMode: Boolean) {
+            complicationDrawable.setInAmbientMode(inAmbientMode)
+            invalidate()
+        }
+
+        override fun onPropertiesChanged(properties: Bundle) {
+            complicationDrawable.setLowBitAmbient(
+                    properties.getBoolean(PROPERTY_LOW_BIT_AMBIENT, false))
+            complicationDrawable.setBurnInProtection(
+                    properties.getBoolean(PROPERTY_BURN_IN_PROTECTION, false))
             invalidate()
         }
 
