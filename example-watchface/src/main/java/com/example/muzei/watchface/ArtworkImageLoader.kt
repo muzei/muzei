@@ -39,7 +39,6 @@ class ArtworkImageLoader(private val context: Context) : MutableLiveData<Bitmap>
         @SuppressLint("StaticFieldLeak")
         private var instance: ArtworkImageLoader? = null
 
-        @JvmStatic
         fun getInstance(context: Context): ArtworkImageLoader {
             val applicationContext = context.applicationContext
             return instance ?: synchronized(this) {
