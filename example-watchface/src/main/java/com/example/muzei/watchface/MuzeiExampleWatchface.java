@@ -16,14 +16,20 @@
 
 package com.example.muzei.watchface;
 
-import android.content.Loader;
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LifecycleRegistry;
+import android.arch.lifecycle.Observer;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
+import android.util.Size;
 import android.view.Gravity;
 import android.view.SurfaceHolder;
 
@@ -38,10 +44,17 @@ public class MuzeiExampleWatchface extends CanvasWatchFaceService {
     }
 
     private class Engine extends CanvasWatchFaceService.Engine
-            implements Loader.OnLoadCompleteListener<Bitmap> {
+            implements LifecycleOwner, Observer<Bitmap> {
+        private LifecycleRegistry lifecycleRegistry = new LifecycleRegistry(this);
         private Paint mBackgroundPaint;
-        private WatchfaceArtworkImageLoader mLoader;
+        private ArtworkImageLoader mLoader;
         private Bitmap mImage;
+
+        @NonNull
+        @Override
+        public Lifecycle getLifecycle() {
+            return lifecycleRegistry;
+        }
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -56,15 +69,21 @@ public class MuzeiExampleWatchface extends CanvasWatchFaceService {
                     .build());
             mBackgroundPaint = new Paint();
             mBackgroundPaint.setColor(ContextCompat.getColor(MuzeiExampleWatchface.this, android.R.color.black));
-            mLoader = new WatchfaceArtworkImageLoader(MuzeiExampleWatchface.this);
-            mLoader.registerListener(0, this);
-            mLoader.startLoading();
+            mLoader = ArtworkImageLoader.getInstance(MuzeiExampleWatchface.this);
+            mLoader.observe(this, this);
+            lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
         }
 
         @Override
-        public void onLoadComplete(Loader<Bitmap> loader, Bitmap image) {
-            mImage = image;
+        public void onChanged(@Nullable final Bitmap bitmap) {
+            mImage = bitmap;
             invalidate();
+        }
+
+        @Override
+        public void onSurfaceChanged(final SurfaceHolder holder, final int format, final int width, final int height) {
+            super.onSurfaceChanged(holder, format, width, height);
+            mLoader.setRequestedSize(new Size(width, height));
         }
 
         @Override
@@ -87,11 +106,7 @@ public class MuzeiExampleWatchface extends CanvasWatchFaceService {
         @Override
         public void onDestroy() {
             super.onDestroy();
-            if (mLoader != null) {
-                mLoader.unregisterListener(this);
-                mLoader.reset();
-                mLoader = null;
-            }
+            lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
         }
     }
 }

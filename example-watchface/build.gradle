@@ -15,8 +15,12 @@
  */
 
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
+    implementation "android.arch.lifecycle:runtime:$lifecycleVersion"
+    implementation "android.arch.lifecycle:livedata:$lifecycleVersion"
     implementation "com.google.android.support:wearable:1.4.0"
     //implementation "com.google.android.apps.muzei:muzei-api:+"
     implementation project(':api')
