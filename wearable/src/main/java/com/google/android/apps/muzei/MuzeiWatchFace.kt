@@ -144,9 +144,6 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
             override fun handleMessage(message: Message) {
                 when (message.what) {
                     MSG_UPDATE_TIME -> {
-                        if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                            Log.v(TAG, "updating time")
-                        }
                         invalidate()
                         if (isVisible) {
                             val timeMs = System.currentTimeMillis()
@@ -389,21 +386,18 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
 
             lowBitAmbient = properties.getBoolean(WatchFaceService.PROPERTY_LOW_BIT_AMBIENT, false)
 
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onPropertiesChanged: burn-in protection = " + burnInProtection
-                        + ", low-bit ambient = " + lowBitAmbient)
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "onPropertiesChanged: burn-in protection = $burnInProtection, " +
+                        "low-bit ambient = $lowBitAmbient")
             }
         }
 
         @Suppress("OverridingDeprecatedMember", "DEPRECATION")
         override fun onPeekCardPositionUpdate(bounds: Rect) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onPeekCardPositionUpdate: $bounds")
-            }
             super.onPeekCardPositionUpdate(bounds)
             if (bounds != cardBounds) {
                 cardBounds.set(bounds)
-                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                if (BuildConfig.DEBUG) {
                     Log.d(TAG, "onPeekCardPositionUpdate: $cardBounds")
                 }
                 invalidate()
@@ -412,9 +406,6 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
 
         override fun onTimeTick() {
             super.onTimeTick()
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onTimeTick: ambient = $ambient")
-            }
             invalidate()
         }
 
@@ -432,7 +423,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
         }
 
         override fun onAmbientModeChanged(inAmbientMode: Boolean) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
+            if (BuildConfig.DEBUG) {
                 Log.d(TAG, "onAmbientModeChanged: $inAmbientMode")
             }
             super.onAmbientModeChanged(inAmbientMode)
