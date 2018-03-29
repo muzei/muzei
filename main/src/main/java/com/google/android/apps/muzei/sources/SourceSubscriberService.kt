@@ -21,12 +21,14 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.util.Log
 import com.google.android.apps.muzei.api.MuzeiArtSource
-import com.google.android.apps.muzei.api.internal.ProtocolConstants.*
+import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_PUBLISH_STATE
+import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_STATE
+import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_TOKEN
 import com.google.android.apps.muzei.api.internal.SourceState
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.sync.TaskQueueService
-import java.util.*
+import java.util.ArrayList
 
 class SourceSubscriberService : IntentService("SourceSubscriberService") {
 

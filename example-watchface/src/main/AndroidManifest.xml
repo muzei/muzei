@@ -14,13 +14,14 @@
   limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.example.muzei.watchface">
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.muzei.watchface">
 
     <uses-feature android:name="android.hardware.type.watch"/>
 
-    <uses-permission android:name="com.google.android.permission.PROVIDE_BACKGROUND" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="com.google.android.permission.PROVIDE_BACKGROUND"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <application
         android:label="@string/app_name">
@@ -29,17 +30,18 @@
             android:name=".MuzeiExampleWatchface"
             android:allowEmbedded="true"
             android:taskAffinity=""
-            android:permission="android.permission.BIND_WALLPAPER" >
+            android:permission="android.permission.BIND_WALLPAPER">
             <meta-data
                 android:name="android.service.wallpaper"
-                android:resource="@xml/watch_face" />
+                android:resource="@xml/watch_face"/>
             <meta-data
                 android:name="com.google.android.wearable.watchface.preview"
-                android:resource="@drawable/preview" />
+                android:resource="@drawable/preview"/>
+
             <intent-filter>
-                <action android:name="android.service.wallpaper.WallpaperService" />
+                <action android:name="android.service.wallpaper.WallpaperService"/>
                 <category
-                    android:name="com.google.android.wearable.watchface.category.WATCH_FACE" />
+                    android:name="com.google.android.wearable.watchface.category.WATCH_FACE"/>
             </intent-filter>
         </service>
     </application>

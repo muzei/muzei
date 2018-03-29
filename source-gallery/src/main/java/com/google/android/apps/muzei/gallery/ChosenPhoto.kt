@@ -16,7 +16,11 @@
 
 package com.google.android.apps.muzei.gallery
 
-import android.arch.persistence.room.*
+import android.arch.persistence.room.ColumnInfo
+import android.arch.persistence.room.Entity
+import android.arch.persistence.room.Index
+import android.arch.persistence.room.PrimaryKey
+import android.arch.persistence.room.TypeConverters
 import android.content.ContentResolver
 import android.content.ContentUris
 import android.net.Uri
@@ -26,10 +30,12 @@ import com.google.android.apps.muzei.gallery.converter.UriTypeConverter
  * Entity representing a chosen photo in Room
  */
 @Entity(tableName = "chosen_photos", indices = [(Index(value = ["uri"], unique = true))])
-data class ChosenPhoto(@field:TypeConverters(UriTypeConverter::class)
-                       val uri: Uri,
-                       @ColumnInfo(name = "is_tree_uri")
-                       var isTreeUri: Boolean = false) {
+data class ChosenPhoto(
+        @field:TypeConverters(UriTypeConverter::class)
+        val uri: Uri,
+        @ColumnInfo(name = "is_tree_uri")
+        var isTreeUri: Boolean = false
+) {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")

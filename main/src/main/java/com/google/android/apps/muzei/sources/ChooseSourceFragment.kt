@@ -27,7 +27,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -41,7 +47,13 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.widget.TooltipCompat
 import android.text.TextUtils
 import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.TextView
 import android.widget.Toast
 import androidx.os.bundleOf
@@ -55,7 +67,8 @@ import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.util.observeNonNull
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
-import java.util.*
+import java.util.ArrayList
+import java.util.Comparator
 
 /**
  * Activity for allowing the user to choose the active source.
@@ -81,7 +94,7 @@ class ChooseSourceFragment : Fragment() {
         MuzeiDatabase.getInstance(requireContext()).sourceDao().currentSource
     }
     private val sourceViews = ArrayList<SourceView>()
-    private val sourcesLiveData : LiveData<List<Source>> by lazy {
+    private val sourcesLiveData: LiveData<List<Source>> by lazy {
         MuzeiDatabase.getInstance(requireContext()).sourceDao().sources
     }
 
@@ -90,7 +103,7 @@ class ChooseSourceFragment : Fragment() {
     private lateinit var sourceContainerView: ViewGroup
     private lateinit var sourceScrollerView: ObservableHorizontalScrollView
     private lateinit var scrollbar: Scrollbar
-    private var animateScroll : Boolean = true
+    private var animateScroll: Boolean = true
     private var currentScroller: ObjectAnimator? = null
 
     private val animationDuration: Long by lazy {
@@ -197,8 +210,11 @@ class ChooseSourceFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(
                 R.layout.settings_choose_source_fragment, container, false)
     }
@@ -345,8 +361,11 @@ class ChooseSourceFragment : Fragment() {
         }
     }
 
-    private fun animateSettingsButton(settingsButton: View, show: Boolean,
-                                      allowAnimate: Boolean) {
+    private fun animateSettingsButton(
+            settingsButton: View,
+            show: Boolean,
+            allowAnimate: Boolean
+    ) {
         if (show && settingsButton.visibility == View.VISIBLE || !show && settingsButton.visibility == View.INVISIBLE) {
             return
         }
@@ -420,8 +439,10 @@ class ChooseSourceFragment : Fragment() {
                 }
             }
             // These labels should be non-null with the isNullOrEmpty() check above
-            val label1 = s1.label ?: throw IllegalStateException("Found null label for ${s1.componentName}")
-            val label2 = s2.label ?: throw IllegalStateException("Found null label for ${s2.componentName}")
+            val label1 = s1.label
+                    ?: throw IllegalStateException("Found null label for ${s1.componentName}")
+            val label2 = s2.label
+                    ?: throw IllegalStateException("Found null label for ${s2.componentName}")
             label1.compareTo(label2)
         })
 
@@ -446,8 +467,7 @@ class ChooseSourceFragment : Fragment() {
                     val builder = AlertDialog.Builder(requireContext())
                             .setTitle(R.string.action_source_target_too_high_title)
                             .setMessage(getString(R.string.action_source_target_too_high_message, source.label))
-                            .setNegativeButton(R.string.action_source_target_too_high_learn_more
-                            ) { _, _ ->
+                            .setNegativeButton(R.string.action_source_target_too_high_learn_more) { _, _ ->
                                 startActivity(Intent(Intent.ACTION_VIEW,
                                         Uri.parse("https://medium.com/@ianhlake/the-muzei-plugin-api-and-androids-evolution-9b9979265cfb")))
                             }
@@ -530,7 +550,6 @@ class ChooseSourceFragment : Fragment() {
         } catch (e: SecurityException) {
             Log.e(TAG, "Can't launch source settings.", e)
         }
-
     }
 
     private fun launchSourceSetup(source: Source) {
@@ -544,7 +563,6 @@ class ChooseSourceFragment : Fragment() {
         } catch (e: SecurityException) {
             Log.e(TAG, "Can't launch source setup.", e)
         }
-
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

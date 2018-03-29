@@ -22,10 +22,11 @@ import android.content.Context
 import android.os.Handler
 import androidx.animation.doOnEnd
 
-class DemoRenderController(context: Context, renderer: MuzeiBlurRenderer,
-                           callbacks: RenderController.Callbacks,
-                           private val allowFocus: Boolean)
-    : RenderController(context, renderer, callbacks) {
+class DemoRenderController(
+        context: Context, renderer: MuzeiBlurRenderer,
+        callbacks: RenderController.Callbacks,
+        private val allowFocus: Boolean
+) : RenderController(context, renderer, callbacks) {
 
     companion object {
         private const val ANIMATION_CYCLE_TIME_MILLIS = 35000L
@@ -49,14 +50,13 @@ class DemoRenderController(context: Context, renderer: MuzeiBlurRenderer,
                 .ofFloat(renderer, "normalOffsetX",
                         if (reverseDirection) 1f else 0f, if (reverseDirection) 0f else 1f).apply {
 
-            duration = ANIMATION_CYCLE_TIME_MILLIS
-            doOnEnd {
-                reverseDirection = !reverseDirection
-                runAnimation()
-
-            }
-            start()
-        }
+                    duration = ANIMATION_CYCLE_TIME_MILLIS
+                    doOnEnd {
+                        reverseDirection = !reverseDirection
+                        runAnimation()
+                    }
+                    start()
+                }
         if (allowFocus) {
             handler.postDelayed({
                 renderer.setIsBlurred(false, false)

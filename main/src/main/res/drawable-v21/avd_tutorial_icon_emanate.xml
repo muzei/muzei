@@ -14,18 +14,19 @@
   limitations under the License.
   -->
 
-<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+<animated-vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:drawable="@drawable/tutorial_icon_emanate">
     <target
         android:name="wave1"
-        android:animation="@animator/tutorial_icon_emanate_wave1" />
+        android:animation="@animator/tutorial_icon_emanate_wave1"/>
     <target
         android:name="wave1_path"
-        android:animation="@animator/tutorial_icon_emanate_wave1_path" />
+        android:animation="@animator/tutorial_icon_emanate_wave1_path"/>
     <target
         android:name="wave2"
-        android:animation="@animator/tutorial_icon_emanate_wave2" />
+        android:animation="@animator/tutorial_icon_emanate_wave2"/>
     <target
         android:name="wave2_path"
-        android:animation="@animator/tutorial_icon_emanate_wave2_path" />
+        android:animation="@animator/tutorial_icon_emanate_wave2_path"/>
 </animated-vector>

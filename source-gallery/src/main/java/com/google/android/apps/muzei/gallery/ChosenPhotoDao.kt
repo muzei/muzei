@@ -34,7 +34,7 @@ import android.util.Log
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.util.*
+import java.util.Date
 
 /**
  * Dao for [ChosenPhoto]
@@ -58,8 +58,11 @@ internal abstract class ChosenPhotoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     internal abstract fun insertInternal(chosenPhoto: ChosenPhoto): Long
 
-    fun insert(context: Context, chosenPhoto: ChosenPhoto,
-               callingApplication: String?): LiveData<Long> {
+    fun insert(
+            context: Context,
+            chosenPhoto: ChosenPhoto,
+            callingApplication: String?
+    ): LiveData<Long> {
         val asyncInsert = MutableLiveData<Long>()
         if (persistUriAccess(context, chosenPhoto)) {
             object : Thread() {
@@ -98,7 +101,6 @@ internal abstract class ChosenPhotoDao {
                 // You can't persist URI permissions from your own app, so this fails.
                 // We'll still have access to it directly
             }
-
         } else {
             val haveUriPermission = context.checkUriPermission(chosenPhoto.uri,
                     Binder.getCallingPid(), Binder.getCallingUid(),
@@ -125,7 +127,6 @@ internal abstract class ChosenPhotoDao {
                         // If we don't have FLAG_GRANT_PERSISTABLE_URI_PERMISSION (such as when using ACTION_GET_CONTENT),
                         // this will fail. We'll need to make a local copy (handled below)
                     }
-
                 }
                 if (!persistedPermission) {
                     // We only need to make a local copy if we weren't able to persist the permission
@@ -136,7 +137,6 @@ internal abstract class ChosenPhotoDao {
                         Log.e(TAG, "Error downloading gallery image ${chosenPhoto.uri}", e)
                         return false
                     }
-
                 }
             }
         }

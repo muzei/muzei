@@ -14,7 +14,8 @@
   limitations under the License.
   -->
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginBottom="16dp"
@@ -38,7 +39,7 @@
             android:id="@+id/animated_logo_fragment"
             android:name="com.google.android.apps.muzei.util.AnimatedMuzeiLogoFragment"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"/>
 
         <TextView
             android:id="@+id/app_version"
@@ -47,7 +48,7 @@
             android:layout_marginTop="8dp"
             android:fontFamily="sans-serif-condensed"
             android:textColor="#afff"
-            android:textSize="@dimen/settings_text_size_normal" />
+            android:textSize="@dimen/settings_text_size_normal"/>
 
         <TextView
             android:id="@+id/about_body"
@@ -58,7 +59,7 @@
             android:lineSpacingMultiplier="1.2"
             android:textColor="#afff"
             android:textColorLink="#fff"
-            android:textSize="@dimen/settings_text_size_normal" />
+            android:textSize="@dimen/settings_text_size_normal"/>
 
         <ImageButton
             android:id="@+id/android_experiment_link"
@@ -70,7 +71,7 @@
             android:background="?selectableItemBackground"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/about_android_experiment" />
+            android:src="@drawable/about_android_experiment"/>
     </LinearLayout>
 </ScrollView>
 

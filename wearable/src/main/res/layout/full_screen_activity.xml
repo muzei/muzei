@@ -14,7 +14,8 @@
   limitations under the License.
   -->
 
-<android.support.wear.widget.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.wear.widget.BoxInsetLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -28,20 +29,20 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_gravity="center"
-        android:visibility="gone" />
+        android:visibility="gone"/>
 
     <com.google.android.apps.muzei.util.PanView
         android:id="@+id/pan_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="invisible" />
+        android:visibility="invisible"/>
 
     <View
         android:id="@+id/scrim"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#4000"
-        android:alpha="0" />
+        android:alpha="0"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -68,7 +69,7 @@
             app:shadowColor="#8000"
             app:shadowDx="0dp"
             app:shadowDy="1dp"
-            app:shadowRadius="3dp" />
+            app:shadowRadius="3dp"/>
 
         <com.google.android.apps.muzei.util.ShadowDipsTextView
             android:id="@+id/byline"
@@ -84,11 +85,11 @@
             app:shadowColor="#8000"
             app:shadowDx="0dp"
             app:shadowDy="1dp"
-            app:shadowRadius="3dp" />
+            app:shadowRadius="3dp"/>
     </LinearLayout>
 
     <android.support.wearable.view.DismissOverlayView
         android:id="@+id/dismiss_overlay"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"/>
 </android.support.wear.widget.BoxInsetLayout>

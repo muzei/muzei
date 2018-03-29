@@ -14,7 +14,8 @@
   limitations under the License.
   -->
 
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
+<vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="64dp"
     android:height="64dp"
     android:viewportHeight="64"
@@ -29,7 +30,7 @@
             android:name="wave1_path"
             android:strokeColor="#fff"
             android:strokeWidth="1"
-            android:pathData="M64 32A32 32 0 0 1 32 64 32 32 0 0 1 0 32 32 32 0 0 1 32 0 32 32 0 0 1 64 32Z" />
+            android:pathData="M64 32A32 32 0 0 1 32 64 32 32 0 0 1 0 32 32 32 0 0 1 32 0 32 32 0 0 1 64 32Z"/>
     </group>
     <group
         android:name="wave2"
@@ -41,6 +42,6 @@
             android:name="wave2_path"
             android:strokeColor="#fff"
             android:strokeWidth="1"
-            android:pathData="M64 32A32 32 0 0 1 32 64 32 32 0 0 1 0 32 32 32 0 0 1 32 0 32 32 0 0 1 64 32Z" />
+            android:pathData="M64 32A32 32 0 0 1 32 64 32 32 0 0 1 0 32 32 32 0 0 1 32 0 32 32 0 0 1 64 32Z"/>
     </group>
 </vector>

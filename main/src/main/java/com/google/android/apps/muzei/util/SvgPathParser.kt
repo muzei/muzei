@@ -21,8 +21,10 @@ import android.graphics.PointF
 
 import java.text.ParseException
 
-internal class SvgPathParser(private val transformX: (x: Float) -> Float = { it },
-                             private val transformY: (y: Float) -> Float = { it }) {
+internal class SvgPathParser(
+        private val transformX: (x: Float) -> Float = { it },
+        private val transformY: (y: Float) -> Float = { it }
+) {
 
     companion object {
         private const val TOKEN_ABSOLUTE_COMMAND = 1
@@ -176,7 +178,7 @@ internal class SvgPathParser(private val transformX: (x: Float) -> Float = { it 
                     currentToken = TOKEN_VALUE
                     return currentToken
                 }
-                // skip unrecognized character
+            // skip unrecognized character
                 else -> ++currentIndex
             }
         }

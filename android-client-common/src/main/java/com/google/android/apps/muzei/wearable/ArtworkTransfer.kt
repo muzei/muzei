@@ -15,6 +15,7 @@
  */
 
 @file:JvmName("ArtworkTransfer")
+
 package com.google.android.apps.muzei.wearable
 
 import androidx.net.toUri

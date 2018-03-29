@@ -55,14 +55,17 @@
         <!--<item name="android:actionModeBackground">@drawable/cab_background</item>-->
         <!--<item name="android:actionModeStyle">@style/Widget.Muzei.ActionMode</item>-->
         <!--<item name="android:actionOverflowButtonStyle">@style/Widget.Muzei.ActionButton.Overflow</item>-->
-        <item name="android:selectableItemBackground">@drawable/white_selectable_item_background</item>
+        <item name="android:selectableItemBackground">@drawable/white_selectable_item_background
+        </item>
         <item name="android:seekBarStyle">@style/Widget.Muzei.SeekBar</item>
         <item name="android:spinnerStyle">@style/Widget.Muzei.Spinner</item>
         <item name="android:dropDownListViewStyle">@style/Widget.Muzei.ListView.DropDown</item>
         <item name="android:popupMenuStyle">@style/Widget.Muzei.PopupMenu</item>
         <item name="actionOverflowMenuStyle">@style/Widget.Muzei.PopupMenu.Overflow</item>
         <item name="android:textAppearanceMedium">@style/TextAppearance.Muzei.Medium</item>
-        <item name="android:textAppearanceLargePopupMenu">@style/TextAppearance.Muzei.LargePopupMenu</item>
+        <item name="android:textAppearanceLargePopupMenu">
+            @style/TextAppearance.Muzei.LargePopupMenu
+        </item>
 
         <item name="colorPrimary">@color/theme_primary</item>
         <item name="colorAccent">@color/theme_accent</item>

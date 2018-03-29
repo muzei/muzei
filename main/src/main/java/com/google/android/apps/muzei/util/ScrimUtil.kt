@@ -35,9 +35,14 @@ private val cubicGradientScrimCache = LruCache<Int, Drawable>(10)
  * details.
  */
 @SuppressLint("RtlHardcoded")
-fun makeCubicGradientScrimDrawable(gravity: Int,
-                                   alpha: Int = 0xFF, red: Int = 0x0, green: Int = 0x0, blue: Int = 0x0,
-                                   requestedStops: Int = 8) : Drawable {
+fun makeCubicGradientScrimDrawable(
+        gravity: Int,
+        alpha: Int = 0xFF,
+        red: Int = 0x0,
+        green: Int = 0x0,
+        blue: Int = 0x0,
+        requestedStops: Int = 8
+): Drawable {
     var numStops = requestedStops
 
     // Generate a cache key by hashing together the inputs, based on the method described in the Effective Java book

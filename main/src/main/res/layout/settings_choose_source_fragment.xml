@@ -14,7 +14,8 @@
   limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -32,7 +33,7 @@
             android:id="@+id/source_container"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:orientation="horizontal" />
+            android:orientation="horizontal"/>
 
     </com.google.android.apps.muzei.util.ObservableHorizontalScrollView>
 
@@ -43,6 +44,6 @@
         app:backgroundColor="#3fff"
         app:indicatorColor="#fff"
         android:layout_gravity="center_horizontal|bottom"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="16dp"/>
 
 </FrameLayout>

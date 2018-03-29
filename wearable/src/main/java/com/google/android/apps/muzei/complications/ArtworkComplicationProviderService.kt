@@ -35,7 +35,7 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.observeOnce
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.BuildConfig
-import java.util.*
+import java.util.TreeSet
 
 /**
  * Provide Muzei backgrounds to other watch faces

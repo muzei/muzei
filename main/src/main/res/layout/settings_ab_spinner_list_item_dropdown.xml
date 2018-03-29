@@ -14,7 +14,8 @@
   limitations under the License.
   -->
 
-<CheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
+<CheckedTextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@android:id/text1"
     style="?android:spinnerDropDownItemStyle"
     android:layout_width="match_parent"
@@ -24,4 +25,4 @@
     android:paddingStart="16dp"
     android:paddingEnd="16dp"
     android:maxLines="1"
-    android:textAppearance="@style/TextAppearance.ActionBar.Title" />
+    android:textAppearance="@style/TextAppearance.ActionBar.Title"/>

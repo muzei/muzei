@@ -19,7 +19,11 @@ package com.google.android.apps.muzei.render
 import android.app.ActivityManager
 import android.arch.lifecycle.MutableLiveData
 import android.content.Context
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.graphics.Rect
+import android.graphics.RectF
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
@@ -28,7 +32,13 @@ import android.util.Log
 import android.view.animation.AccelerateDecelerateInterpolator
 import com.google.android.apps.muzei.ArtDetailViewport
 import com.google.android.apps.muzei.settings.Prefs
-import com.google.android.apps.muzei.util.*
+import com.google.android.apps.muzei.util.ImageBlurrer
+import com.google.android.apps.muzei.util.TickingFloatAnimator
+import com.google.android.apps.muzei.util.constrain
+import com.google.android.apps.muzei.util.floorEven
+import com.google.android.apps.muzei.util.interpolate
+import com.google.android.apps.muzei.util.roundMult4
+import com.google.android.apps.muzei.util.uninterpolate
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -40,17 +50,17 @@ object SwitchingPhotosLiveData : MutableLiveData<SwitchingPhotos>()
 
 data class ArtworkSize(val width: Int, val height: Int) {
     internal constructor(bitmapRegionLoader: BitmapRegionLoader)
-            : this(bitmapRegionLoader.width, bitmapRegionLoader
-            .height)
+            : this(bitmapRegionLoader.width, bitmapRegionLoader.height)
 }
 
 object ArtworkSizeLiveData : MutableLiveData<ArtworkSize>()
 
-class MuzeiBlurRenderer(private val context: Context,
-                         private val callbacks: Callbacks,
-                         private val demoMode: Boolean = false,
-                         private val preview: Boolean = false)
-    : GLSurfaceView.Renderer {
+class MuzeiBlurRenderer(
+        private val context: Context,
+        private val callbacks: Callbacks,
+        private val demoMode: Boolean = false,
+        private val preview: Boolean = false
+) : GLSurfaceView.Renderer {
 
     companion object {
         private const val TAG = "MuzeiBlurRenderer"

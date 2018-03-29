@@ -15,6 +15,7 @@
   -->
 
 <resources>
+
     <style name="Theme.Gallery" parent="Theme.Gallery.Base">
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:windowTranslucentNavigation">true</item>

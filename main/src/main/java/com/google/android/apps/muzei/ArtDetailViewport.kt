@@ -48,14 +48,23 @@ object ArtDetailViewport {
                 fromUser)
     }
 
-    fun setViewport(id: Int, left: Float, top: Float, right: Float, bottom: Float,
-                    isFromUser: Boolean = false) {
+    fun setViewport(
+            id: Int,
+            left: Float,
+            top: Float,
+            right: Float,
+            bottom: Float,
+            isFromUser: Boolean = false
+    ) {
         getViewport(id).set(left, top, right, bottom)
         changeLiveData.postValue(isFromUser)
     }
 
-    fun setDefaultViewport(id: Int, bitmapAspectRatio: Float,
-                           screenAspectRatio: Float): ArtDetailViewport {
+    fun setDefaultViewport(
+            id: Int,
+            bitmapAspectRatio: Float,
+            screenAspectRatio: Float
+    ): ArtDetailViewport {
         if (bitmapAspectRatio > screenAspectRatio) {
             getViewport(id).set(
                     0.5f - screenAspectRatio / bitmapAspectRatio / 2f,

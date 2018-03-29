@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.android.apps.muzei.sync;
 
 import android.os.Build;
@@ -93,18 +92,14 @@ public class OkHttpClientFactory {
                         + Arrays.toString(trustManagers));
             }
             X509TrustManager trustManager = (X509TrustManager) trustManagers[0];
-
             client.sslSocketFactory(new TLSSocketFactory(), trustManager);
-
             ConnectionSpec cs = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
                     .tlsVersions(TlsVersion.TLS_1_2, TlsVersion.TLS_1_1)
                     .build();
-
             List<ConnectionSpec> specs = new ArrayList<>();
             specs.add(cs);
             specs.add(ConnectionSpec.COMPATIBLE_TLS);
             specs.add(ConnectionSpec.CLEARTEXT);
-
             client.connectionSpecs(specs);
         } catch (Exception exc) {
             Log.e(TAG, "Error while setting TLS", exc);

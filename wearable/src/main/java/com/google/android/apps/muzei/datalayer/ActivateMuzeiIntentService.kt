@@ -46,7 +46,7 @@ import com.google.android.wearable.playstore.PlayStoreAvailability
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
 import java.io.IOException
-import java.util.*
+import java.util.TreeSet
 import java.util.concurrent.ExecutionException
 
 class ActivateMuzeiIntentService : IntentService(TAG) {
@@ -253,7 +253,6 @@ class ActivateMuzeiIntentService : IntentService(TAG) {
                         } catch (e: InterruptedException) {
                             Log.w(TAG, "Unable to send Activate Muzei message to ${node.id}", e)
                         }
-
                     }
                 }
             }

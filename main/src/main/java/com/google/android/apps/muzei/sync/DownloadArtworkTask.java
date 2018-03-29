@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.android.apps.muzei.sync;
 
 import android.content.ContentResolver;
@@ -97,7 +96,7 @@ public class DownloadArtworkTask extends AsyncTask<Void, Void, Boolean> {
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Artwork " + artworkUri + " was successfully written");
             }
-        } catch (IOException|IllegalArgumentException e) {
+        } catch (IOException | IllegalArgumentException e) {
             Log.e(TAG, "Error downloading artwork", e);
             return false;
         }
@@ -115,16 +114,13 @@ public class DownloadArtworkTask extends AsyncTask<Void, Void, Boolean> {
 
     private InputStream openUri(Context context, Uri uri)
             throws IOException {
-
         if (uri == null) {
             throw new IllegalArgumentException("Uri cannot be empty");
         }
-
         String scheme = uri.getScheme();
         if (scheme == null) {
             throw new IOException("Uri had no scheme");
         }
-
         InputStream in = null;
         if ("content".equals(scheme) || "android.resource".equals(scheme)) {
             try {
@@ -134,7 +130,6 @@ public class DownloadArtworkTask extends AsyncTask<Void, Void, Boolean> {
             } catch (NullPointerException e) {
                 throw new FileNotFoundException("Error accessing to " + uri + ": " + e.toString());
             }
-
         } else if ("file".equals(scheme)) {
             List<String> segments = uri.getPathSegments();
             if (segments != null && segments.size() > 1
@@ -151,12 +146,10 @@ public class DownloadArtworkTask extends AsyncTask<Void, Void, Boolean> {
             } else {
                 in = new FileInputStream(new File(uri.getPath()));
             }
-
         } else if ("http".equals(scheme) || "https".equals(scheme)) {
             OkHttpClient client = OkHttpClientFactory.getNewOkHttpsSafeClient();
             Request request;
             request = new Request.Builder().url(new URL(uri.toString())).build();
-
             Response response = client.newCall(request).execute();
             int responseCode = response.code();
             if (!(responseCode >= 200 && responseCode < 300)) {
@@ -164,11 +157,9 @@ public class DownloadArtworkTask extends AsyncTask<Void, Void, Boolean> {
             }
             in = response.body().byteStream();
         }
-
         if (in == null) {
             throw new FileNotFoundException("Null input stream for URI: " + uri);
         }
-
         return in;
     }
 }

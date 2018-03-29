@@ -17,7 +17,7 @@
 package com.google.android.apps.muzei.util
 
 import android.os.Bundle
-import java.util.*
+import java.util.HashSet
 
 /**
  * Utilities for storing multiple selection information in collection views.

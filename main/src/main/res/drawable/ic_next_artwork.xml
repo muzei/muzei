@@ -14,14 +14,16 @@
   limitations under the License.
   -->
 
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-        android:width="48dp"
-        android:height="48dp"
-        android:viewportWidth="48.0"
-        android:viewportHeight="48.0">
+<vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48.0"
+    android:viewportHeight="48.0">
     <group android:name="background">
-        <clip-path android:name="circle"
-                   android:pathData="M24,24 h-22 a 22,22 0 1,0 44,0 a 22,22, 0 1,0 -44,0" />
+        <clip-path
+            android:name="circle"
+            android:pathData="M24,24 h-22 a 22,22 0 1,0 44,0 a 22,22, 0 1,0 -44,0"/>
         <path
             android:fillColor="#FF000000"
             android:pathData="M24,24m-22,0a22,22 0,1 1,44 0a22,22 0,1 1,-44 0"/>

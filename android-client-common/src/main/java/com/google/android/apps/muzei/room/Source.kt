@@ -24,16 +24,17 @@ import android.content.ComponentName
 import com.google.android.apps.muzei.api.UserCommand
 import com.google.android.apps.muzei.room.converter.ComponentNameTypeConverter
 import com.google.android.apps.muzei.room.converter.UserCommandTypeConverter
-import java.util.*
+import java.util.ArrayList
 
 /**
  * Source information's representation in Room
  */
 @Entity(tableName = "sources")
-class Source(@field:TypeConverters(ComponentNameTypeConverter::class)
-             @field:ColumnInfo(name = "component_name")
-             @field:PrimaryKey
-             val componentName: ComponentName) {
+class Source(
+        @field:TypeConverters(ComponentNameTypeConverter::class)
+        @field:ColumnInfo(name = "component_name")
+        @field:PrimaryKey
+        val componentName: ComponentName) {
 
     var selected: Boolean = false
 

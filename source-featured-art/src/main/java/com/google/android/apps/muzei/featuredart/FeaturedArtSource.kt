@@ -36,7 +36,11 @@ import org.json.JSONTokener
 import java.io.IOException
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.ArrayList
+import java.util.Date
+import java.util.Locale
+import java.util.Random
+import java.util.TimeZone
 
 class FeaturedArtSource : RemoteMuzeiArtSource(SOURCE_NAME) {
 
@@ -45,7 +49,7 @@ class FeaturedArtSource : RemoteMuzeiArtSource(SOURCE_NAME) {
         private const val SOURCE_NAME = "FeaturedArt"
 
         private const val QUERY_URL = "http://muzeiapi.appspot.com/featured?cachebust=1"
-        private val ARCHIVE_URI : Uri = Uri.parse("http://muzei.co/archive")
+        private val ARCHIVE_URI: Uri = Uri.parse("http://muzei.co/archive")
 
         private const val COMMAND_ID_SHARE = 1
         private const val COMMAND_ID_VIEW_ARCHIVE = 2
@@ -126,7 +130,7 @@ class FeaturedArtSource : RemoteMuzeiArtSource(SOURCE_NAME) {
                                 + "' by $artist. #MuzeiFeaturedArt\n\n$detailUrl")
                     }, "Share artwork")?.apply {
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    }?.takeIf { it.resolveActivity(packageManager) != null }?. run {
+                    }?.takeIf { it.resolveActivity(packageManager) != null }?.run {
                         startActivity(this)
                     }
                 } ?: run {

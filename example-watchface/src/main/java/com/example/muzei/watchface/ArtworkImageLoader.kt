@@ -47,7 +47,7 @@ class ArtworkImageLoader(private val context: Context) : MutableLiveData<Bitmap>
         }
     }
 
-    private val executor : ExecutorService by lazy {
+    private val executor: ExecutorService by lazy {
         Executors.newSingleThreadExecutor()
     }
     private val contentObserver: ContentObserver = object : ContentObserver(null) {
@@ -56,8 +56,8 @@ class ArtworkImageLoader(private val context: Context) : MutableLiveData<Bitmap>
         }
     }
 
-    private var future : Future<*>? = null
-    var requestedSize : Size? = null
+    private var future: Future<*>? = null
+    var requestedSize: Size? = null
         set(value) {
             field = value
             if (hasActiveObservers()) {

@@ -14,9 +14,11 @@
   limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/action_reset_defaults"
+    <item
+        android:id="@+id/action_reset_defaults"
         android:title="@string/reset_advanced_settings_defaults"
-        app:showAsAction="never" />
+        app:showAsAction="never"/>
 </menu>

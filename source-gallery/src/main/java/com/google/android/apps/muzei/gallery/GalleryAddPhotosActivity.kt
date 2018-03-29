@@ -39,14 +39,14 @@ class GalleryAddPhotosActivity : Activity() {
 
             GalleryDatabase.getInstance(this).chosenPhotoDao()
                     .insert(this, chosenPhoto, callingApplication).observeOnce { id ->
-                if (id == 0L) {
-                    Log.e(TAG, "Unable to insert chosen artwork for $photoUri")
-                    failureCount++
-                } else {
-                    successCount++
-                }
-                updateCount()
-            }
+                        if (id == 0L) {
+                            Log.e(TAG, "Unable to insert chosen artwork for $photoUri")
+                            failureCount++
+                        } else {
+                            successCount++
+                        }
+                        updateCount()
+                    }
         }
     }
 

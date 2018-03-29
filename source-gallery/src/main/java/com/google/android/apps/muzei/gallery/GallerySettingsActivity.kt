@@ -24,12 +24,20 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.paging.PagedList
 import android.arch.paging.PagedListAdapter
-import android.content.*
+import android.content.ActivityNotFoundException
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
-import android.os.*
+import android.os.Build
+import android.os.Bundle
+import android.os.Handler
+import android.os.HandlerThread
+import android.os.IBinder
 import android.provider.DocumentsContract
 import android.provider.Settings
 import android.support.annotation.RequiresApi
@@ -44,15 +52,30 @@ import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.Toolbar
 import android.util.SparseIntArray
-import android.view.*
-import android.widget.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewAnimationUtils
+import android.view.ViewGroup
+import android.view.ViewTreeObserver
+import android.widget.Button
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
+import android.widget.ViewAnimator
 import androidx.content.edit
 import androidx.database.getStringOrNull
 import com.google.android.apps.muzei.util.MultiSelectionController
 import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.util.observeOnce
 import com.squareup.picasso.Picasso
-import java.util.*
+import java.util.ArrayList
+import java.util.HashSet
+import java.util.LinkedList
 
 class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPhoto>>,
         GalleryImportPhotosDialogFragment.OnRequestContentListener, MultiSelectionController.Callbacks {
@@ -279,11 +302,13 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                 hideAddToolbar(true)
             }
         }
-
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int,
-                                            permissions: Array<String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+            requestCode: Int,
+            permissions: Array<String>,
+            grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode != REQUEST_STORAGE_PERMISSION) {
             return
@@ -520,14 +545,14 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             val selectedId = multiSelectionController.selection.iterator().next()
             GalleryDatabase.getInstance(this).chosenPhotoDao()
                     .chosenPhoto(selectedId).observeOnce { chosenPhoto ->
-                val showForceNow = if (chosenPhoto?.isTreeUri == true) {
-                    // Only show the force now icon if it isn't a tree URI or there is at least one image in the tree
-                    !getImagesFromTreeUri(chosenPhoto.uri, 1).isEmpty()
-                } else true
-                if (selectionToolbar.isAttachedToWindow) {
-                    selectionToolbar.menu.findItem(R.id.action_force_now).isVisible = showForceNow
-                }
-            }
+                        val showForceNow = if (chosenPhoto?.isTreeUri == true) {
+                            // Only show the force now icon if it isn't a tree URI or there is at least one image in the tree
+                            !getImagesFromTreeUri(chosenPhoto.uri, 1).isEmpty()
+                        } else true
+                        if (selectionToolbar.isAttachedToWindow) {
+                            selectionToolbar.menu.findItem(R.id.action_force_now).isVisible = showForceNow
+                        }
+                    }
         }
         // Hide the force now button until the callback above sets it
         selectionToolbar.menu.findItem(R.id.action_force_now).isVisible = false
@@ -581,12 +606,12 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                 val selectedId = multiSelectionController.selection.iterator().next()
                 GalleryDatabase.getInstance(this)
                         .chosenPhotoDao().chosenPhoto(selectedId).observeOnce { chosenPhoto ->
-                    if (chosenPhoto?.isTreeUri == true && selectionToolbar.isAttachedToWindow) {
-                        getDisplayNameForTreeUri(chosenPhoto.uri)?.takeUnless { it.isEmpty() }?.run {
-                            selectionToolbar.title = this
+                            if (chosenPhoto?.isTreeUri == true && selectionToolbar.isAttachedToWindow) {
+                                getDisplayNameForTreeUri(chosenPhoto.uri)?.takeUnless { it.isEmpty() }?.run {
+                                    selectionToolbar.title = this
+                                }
+                            }
                         }
-                    }
-                }
             }
             selectionToolbar.title = title
         }
@@ -651,13 +676,13 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
     }
 
     internal class PhotoViewHolder(val rootView: View) : RecyclerView.ViewHolder(rootView) {
-        val checkedOverlayView : FrameLayout = rootView.findViewById(R.id.checked_overlay)
+        val checkedOverlayView: FrameLayout = rootView.findViewById(R.id.checked_overlay)
         val thumbViews = listOf<ImageView>(
-            rootView.findViewById(R.id.thumbnail1),
-            rootView.findViewById(R.id.thumbnail2),
-            rootView.findViewById(R.id.thumbnail3),
-            rootView.findViewById(R.id.thumbnail4))
-        val folderIcon : ImageView = rootView.findViewById(R.id.folder_icon)
+                rootView.findViewById(R.id.thumbnail1),
+                rootView.findViewById(R.id.thumbnail2),
+                rootView.findViewById(R.id.thumbnail3),
+                rootView.findViewById(R.id.thumbnail4))
+        val folderIcon: ImageView = rootView.findViewById(R.id.folder_icon)
     }
 
     private inner class GalleryAdapter internal constructor() : PagedListAdapter<ChosenPhoto, PhotoViewHolder>(CHOSEN_PHOTO_DIFF_CALLBACK) {

@@ -17,7 +17,12 @@
 package com.google.android.apps.muzei.provider
 
 import android.arch.persistence.db.SupportSQLiteQueryBuilder
-import android.content.*
+import android.content.ContentProvider
+import android.content.ContentUris
+import android.content.ContentValues
+import android.content.Context
+import android.content.Intent
+import android.content.UriMatcher
 import android.database.Cursor
 import android.database.DatabaseUtils
 import android.database.MatrixCursor
@@ -38,7 +43,7 @@ import java.io.IOException
 import java.io.UnsupportedEncodingException
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
-import java.util.*
+import java.util.ArrayList
 
 /**
  * Provides access to a the most recent artwork
@@ -88,7 +93,8 @@ class MuzeiProvider : ContentProvider() {
             if (!directory.exists() && !directory.mkdirs()) {
                 return null
             }
-            val artwork = MuzeiDatabase.getInstance(context).artworkDao().getArtworkById(artworkId) ?: return null
+            val artwork = MuzeiDatabase.getInstance(context).artworkDao().getArtworkById(artworkId)
+                    ?: return null
             if (artwork.imageUri == null && artwork.token.isNullOrEmpty()) {
                 return File(directory, artwork.id.toString())
             }
@@ -189,7 +195,6 @@ class MuzeiProvider : ContentProvider() {
                                     "deleting everything but the latest artwork to get back to a good state", e)
                             database.artworkDao().deleteNonMatching(context, componentName, mostRecentArtworkIds)
                         }
-
                     }
                 }
             }.start()
@@ -216,7 +221,7 @@ class MuzeiProvider : ContentProvider() {
             MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME to
                     "sourceComponentName AS component_name",
             MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED to "1 AS selected",
-            MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION to  "\"\" AS description",
+            MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION to "\"\" AS description",
             MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE to "0 AS network",
             MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND to
                     "1 AS supports_next_artwork",
@@ -266,8 +271,13 @@ class MuzeiProvider : ContentProvider() {
         return true
     }
 
-    override fun query(uri: Uri, projection: Array<String>?, selection: String?,
-                       selectionArgs: Array<String>?, sortOrder: String?): Cursor? {
+    override fun query(
+            uri: Uri,
+            projection: Array<String>?,
+            selection: String?,
+            selectionArgs: Array<String>?,
+            sortOrder: String?
+    ): Cursor? {
         if (!UserManagerCompat.isUserUnlocked(context)) {
             Log.w(TAG, "Queries are not supported until the user is unlocked")
             return null
@@ -283,8 +293,13 @@ class MuzeiProvider : ContentProvider() {
         }
     }
 
-    private fun queryArtwork(uri: Uri, projection: Array<String>?, selection: String?,
-                             selectionArgs: Array<String>?, sortOrder: String?): Cursor? {
+    private fun queryArtwork(
+            uri: Uri,
+            projection: Array<String>?,
+            selection: String?,
+            selectionArgs: Array<String>?,
+            sortOrder: String?
+    ): Cursor? {
         val context = context ?: return null
         val qb = SupportSQLiteQueryBuilder.builder("artwork")
         qb.columns(computeColumns(projection, allArtworkColumnProjectionMap))

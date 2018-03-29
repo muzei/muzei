@@ -35,7 +35,7 @@ fun <T> LiveData<T>.observeNonNull(owner: LifecycleOwner, callback: (T) -> Unit)
 }
 
 fun <T> LiveData<T>.observeOnce(callback: (T?) -> Unit) {
-    val observer : Observer<T> = object : Observer<T> {
+    val observer: Observer<T> = object : Observer<T> {
         override fun onChanged(value: T?) {
             removeObserver(this)
             callback(value)

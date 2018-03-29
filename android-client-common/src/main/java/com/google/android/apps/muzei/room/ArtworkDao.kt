@@ -17,7 +17,11 @@
 package com.google.android.apps.muzei.room
 
 import android.arch.lifecycle.LiveData
-import android.arch.persistence.room.*
+import android.arch.persistence.room.Dao
+import android.arch.persistence.room.Delete
+import android.arch.persistence.room.Insert
+import android.arch.persistence.room.Query
+import android.arch.persistence.room.TypeConverters
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -139,8 +143,11 @@ abstract class ArtworkDao {
     @Query("DELETE FROM artwork WHERE sourceComponentName = :sourceComponentName " + "AND _id NOT IN (:ids)")
     internal abstract fun deleteNonMatchingInternal(sourceComponentName: ComponentName, ids: List<Long>)
 
-    fun deleteNonMatching(context: Context, sourceComponentName: ComponentName,
-                          ids: List<Long>) {
+    fun deleteNonMatching(
+            context: Context,
+            sourceComponentName: ComponentName,
+            ids: List<Long>
+    ) {
         deleteImages(context, sourceComponentName, ids)
         deleteNonMatchingInternal(sourceComponentName, ids)
     }
@@ -157,8 +164,11 @@ abstract class ArtworkDao {
      * artwork image files associated with each row being deleted. Instead we have to query
      * and manually delete each artwork file
      */
-    private fun deleteImages(context: Context, sourceComponentName: ComponentName,
-                             ids: List<Long>) {
+    private fun deleteImages(
+            context: Context,
+            sourceComponentName: ComponentName,
+            ids: List<Long>
+    ) {
         getArtworkCursorForSourceBlocking(sourceComponentName)?.use { artworkList ->
             // Now we actually go through the list of rows to be deleted
             // and check if we can delete the artwork image file associated with each one

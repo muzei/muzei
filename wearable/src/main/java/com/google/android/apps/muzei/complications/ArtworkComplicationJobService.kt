@@ -23,11 +23,17 @@ import android.preference.PreferenceManager
 import android.support.annotation.RequiresApi
 import android.support.wearable.complications.ProviderUpdateRequester
 import android.util.Log
-import com.firebase.jobdispatcher.*
+import com.firebase.jobdispatcher.FirebaseJobDispatcher
+import com.firebase.jobdispatcher.GooglePlayDriver
+import com.firebase.jobdispatcher.JobParameters
+import com.firebase.jobdispatcher.Lifetime
+import com.firebase.jobdispatcher.ObservedUri
 import com.firebase.jobdispatcher.ObservedUri.Flags.FLAG_NOTIFY_FOR_DESCENDANTS
+import com.firebase.jobdispatcher.SimpleJobService
+import com.firebase.jobdispatcher.Trigger
 import com.google.android.apps.muzei.api.MuzeiContract
 import net.nurik.roman.muzei.BuildConfig
-import java.util.*
+import java.util.TreeSet
 
 /**
  * JobService which listens for artwork change events and updates the Artwork Complication

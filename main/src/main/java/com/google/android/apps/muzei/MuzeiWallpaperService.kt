@@ -19,7 +19,11 @@ package com.google.android.apps.muzei
 import android.annotation.SuppressLint
 import android.app.WallpaperColors
 import android.app.WallpaperManager
-import android.arch.lifecycle.*
+import android.arch.lifecycle.DefaultLifecycleObserver
+import android.arch.lifecycle.Lifecycle
+import android.arch.lifecycle.LifecycleOwner
+import android.arch.lifecycle.LifecycleRegistry
+import android.arch.lifecycle.MutableLiveData
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -110,7 +114,12 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         super.onDestroy()
     }
 
-    inner class MuzeiWallpaperEngine : GLWallpaperService.GLEngine(), LifecycleOwner, DefaultLifecycleObserver, RenderController.Callbacks, MuzeiBlurRenderer.Callbacks,
+    inner class MuzeiWallpaperEngine
+        : GLWallpaperService.GLEngine(),
+            LifecycleOwner,
+            DefaultLifecycleObserver,
+            RenderController.Callbacks,
+            MuzeiBlurRenderer.Callbacks,
             (Boolean) -> Unit {
 
         private val mainThreadHandler = Handler()
@@ -228,7 +237,6 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             } catch (e: IOException) {
                 Log.w(TAG, "Error reading current artwork", e)
             }
-
         }
 
         @RequiresApi(Build.VERSION_CODES.O_MR1)
@@ -271,15 +279,27 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             renderController.visible = visible
         }
 
-        override fun onOffsetsChanged(xOffset: Float, yOffset: Float, xOffsetStep: Float,
-                                      yOffsetStep: Float, xPixelOffset: Int, yPixelOffset: Int) {
+        override fun onOffsetsChanged(
+                xOffset: Float,
+                yOffset: Float,
+                xOffsetStep: Float,
+                yOffsetStep: Float,
+                xPixelOffset: Int,
+                yPixelOffset: Int
+        ) {
             super.onOffsetsChanged(xOffset, yOffset, xOffsetStep, yOffsetStep, xPixelOffset,
                     yPixelOffset)
             renderer.setNormalOffsetX(xOffset)
         }
 
-        override fun onCommand(action: String?, x: Int, y: Int, z: Int, extras: Bundle?,
-                               resultRequested: Boolean): Bundle? {
+        override fun onCommand(
+                action: String?,
+                x: Int,
+                y: Int,
+                z: Int,
+                extras: Bundle?,
+                resultRequested: Boolean
+        ): Bundle? {
             // validDoubleTap previously set in the gesture listener
             if (WallpaperManager.COMMAND_TAP == action && validDoubleTap) {
                 // Temporarily toggle focused/blurred
@@ -320,7 +340,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             }
         }
 
-        override fun queueEventOnGlThread(event : () -> Unit) {
+        override fun queueEventOnGlThread(event: () -> Unit) {
             queueEvent({ event() })
         }
     }

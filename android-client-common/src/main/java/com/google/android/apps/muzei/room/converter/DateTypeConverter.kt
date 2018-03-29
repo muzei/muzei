@@ -17,7 +17,7 @@
 package com.google.android.apps.muzei.room.converter
 
 import android.arch.persistence.room.TypeConverter
-import java.util.*
+import java.util.Date
 
 /**
  * Converts a [Date] into and from a persisted value

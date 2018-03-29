@@ -44,8 +44,11 @@ class IntroFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.intro_fragment, container, false)
     }
 
@@ -67,7 +70,6 @@ class IntroFragment : Fragment() {
                     Toast.makeText(context, R.string.error_wallpaper_chooser,
                             Toast.LENGTH_LONG).show()
                 }
-
             }
         }
     }

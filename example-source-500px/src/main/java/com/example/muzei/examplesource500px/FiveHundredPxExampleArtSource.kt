@@ -23,7 +23,7 @@ import com.example.muzei.examplesource500px.FiveHundredPxService.Photo
 import com.google.android.apps.muzei.api.Artwork
 import com.google.android.apps.muzei.api.RemoteMuzeiArtSource
 import java.io.IOException
-import java.util.*
+import java.util.Random
 
 class FiveHundredPxExampleArtSource : RemoteMuzeiArtSource(SOURCE_NAME) {
 

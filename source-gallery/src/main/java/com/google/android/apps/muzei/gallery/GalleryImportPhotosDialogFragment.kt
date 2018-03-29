@@ -19,7 +19,7 @@ class GalleryImportPhotosDialogFragment : DialogFragment() {
     companion object {
         private const val TAG = "GalleryImportPhotosDialogFragment"
 
-        fun show(fragmentManager : FragmentManager) {
+        fun show(fragmentManager: FragmentManager) {
             GalleryImportPhotosDialogFragment().show(fragmentManager, TAG)
         }
     }

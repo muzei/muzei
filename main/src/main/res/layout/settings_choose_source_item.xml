@@ -14,7 +14,8 @@
   limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="@dimen/settings_choose_source_item_width"
     android:layout_height="match_parent"
@@ -27,9 +28,10 @@
         android:foreground="@drawable/settings_source_item_image_overlay"
         android:layout_width="@dimen/settings_choose_source_item_image_size"
         android:layout_height="@dimen/settings_choose_source_item_image_size"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="16dp"/>
 
-    <TextView android:id="@+id/source_title"
+    <TextView
+        android:id="@+id/source_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingStart="8dp"
@@ -41,9 +43,10 @@
         android:textStyle="bold"
         android:textAllCaps="true"
         android:gravity="center_horizontal"
-        android:maxLines="3" />
+        android:maxLines="3"/>
 
-    <TextView android:id="@+id/source_status"
+    <TextView
+        android:id="@+id/source_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingStart="8dp"
@@ -53,9 +56,10 @@
         android:textStyle="italic"
         android:gravity="center_horizontal"
         android:textColor="#fff"
-        android:maxLines="4" />
+        android:maxLines="4"/>
 
-    <ImageButton android:id="@+id/source_settings_button"
+    <ImageButton
+        android:id="@+id/source_settings_button"
         android:background="?selectableItemBackgroundBorderless"
         android:src="@drawable/ic_source_settings"
         android:scaleType="center"
@@ -63,6 +67,6 @@
         android:layout_height="56dp"
         android:layout_marginTop="16dp"
         android:contentDescription="@string/action_source_settings"
-        android:visibility="invisible" />
+        android:visibility="invisible"/>
 
 </LinearLayout>

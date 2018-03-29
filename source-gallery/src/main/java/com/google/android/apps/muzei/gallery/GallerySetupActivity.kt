@@ -36,7 +36,7 @@ class GallerySetupActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         GalleryDatabase.getInstance(this).chosenPhotoDao()
-                .chosenPhotos.observe(this) {chosenUris ->
+                .chosenPhotos.observe(this) { chosenUris ->
             val numChosenUris = chosenUris?.size ?: 0
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED || numChosenUris > 0) {
@@ -51,8 +51,11 @@ class GallerySetupActivity : FragmentActivity() {
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int,
-                                            permissions: Array<String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+            requestCode: Int,
+            permissions: Array<String>,
+            grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode != REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE) {
             return

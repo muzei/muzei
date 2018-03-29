@@ -47,8 +47,12 @@ class MuzeiAppWidgetProvider : AppWidgetProvider() {
         updateWidgets(context)
     }
 
-    override fun onAppWidgetOptionsChanged(context: Context, appWidgetManager: AppWidgetManager,
-                                           appWidgetId: Int, newOptions: Bundle) {
+    override fun onAppWidgetOptionsChanged(
+            context: Context,
+            appWidgetManager: AppWidgetManager,
+            appWidgetId: Int,
+            newOptions: Bundle
+    ) {
         updateWidgets(context)
     }
 
@@ -57,9 +61,10 @@ class MuzeiAppWidgetProvider : AppWidgetProvider() {
         PendingResultUpdateTask(context, result).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
     }
 
-    private class PendingResultUpdateTask internal constructor(context: Context,
-                                                               private val result: PendingResult)
-        : AppWidgetUpdateTask(context.applicationContext) {
+    private class PendingResultUpdateTask internal constructor(
+            context: Context,
+            private val result: PendingResult
+    ) : AppWidgetUpdateTask(context.applicationContext) {
 
         override fun onPostExecute(success: Boolean?) {
             result.finish()

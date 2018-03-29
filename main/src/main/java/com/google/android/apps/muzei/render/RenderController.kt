@@ -24,9 +24,11 @@ import android.util.Log
 import com.google.android.apps.muzei.settings.Prefs
 import java.util.concurrent.Executors
 
-abstract class RenderController(protected var context: Context,
-                                protected var renderer: MuzeiBlurRenderer,
-                                protected var callbacks: Callbacks) {
+abstract class RenderController(
+        protected var context: Context,
+        protected var renderer: MuzeiBlurRenderer,
+        protected var callbacks: Callbacks
+) {
 
     companion object {
         private const val TAG = "RenderController"

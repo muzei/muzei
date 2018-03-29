@@ -93,14 +93,19 @@ class GalleryProvider : ContentProvider() {
         return true
     }
 
-    override fun query(uri: Uri, projection: Array<String>?, selection: String?,
-                       selectionArgs: Array<String>?, sortOrder: String?): Cursor? {
+    override fun query(
+            uri: Uri,
+            projection: Array<String>?,
+            selection: String?,
+            selectionArgs: Array<String>?,
+            sortOrder: String?
+    ): Cursor? {
         throw UnsupportedOperationException("Queries are not supported")
     }
 
     @Throws(FileNotFoundException::class)
     override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
-        val context : Context = context ?: return null
+        val context: Context = context ?: return null
         if (mode != "r") {
             throw IllegalArgumentException("Only reading chosen photos is allowed")
         }
@@ -130,7 +135,6 @@ class GalleryProvider : ContentProvider() {
                 GalleryDatabase.getInstance(context).chosenPhotoDao().delete(context, listOf(chosenPhoto.id))
                 throw FileNotFoundException("No permission to load $uri")
             }
-
         }
         return ParcelFileDescriptor.open(file, ParcelFileDescriptor.parseMode(mode))
     }

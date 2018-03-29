@@ -16,4 +16,4 @@
 
 <bitmap
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:src="@drawable/tutorial_icon_on_overlay_base" />
+    android:src="@drawable/tutorial_icon_on_overlay_base"/>

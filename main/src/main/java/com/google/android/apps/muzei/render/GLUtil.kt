@@ -44,8 +44,11 @@ object GLUtil {
         return shaderHandle
     }
 
-    fun createAndLinkProgram(vertexShaderHandle: Int, fragShaderHandle: Int,
-                             attributes: Array<String>?): Int {
+    fun createAndLinkProgram(
+            vertexShaderHandle: Int,
+            fragShaderHandle: Int,
+            attributes: Array<String>?
+    ): Int {
         val programHandle = GLES20.glCreateProgram()
         GLUtil.checkGlError("glCreateProgram")
         GLES20.glAttachShader(programHandle, vertexShaderHandle)
@@ -115,7 +118,7 @@ object GLUtil {
             }
 
     fun newFloatBuffer(size: Int): FloatBuffer =
-        ByteBuffer.allocateDirect(size * BYTES_PER_FLOAT)
-                .order(ByteOrder.nativeOrder())
-                .asFloatBuffer().apply { position(0) }
+            ByteBuffer.allocateDirect(size * BYTES_PER_FLOAT)
+                    .order(ByteOrder.nativeOrder())
+                    .asFloatBuffer().apply { position(0) }
 }

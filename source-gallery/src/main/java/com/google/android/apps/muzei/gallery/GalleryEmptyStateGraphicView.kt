@@ -25,24 +25,24 @@ import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
-import java.util.*
+import java.util.Random
 
 /**
  * Draws a cool random highlighted cells animation.
  */
 class GalleryEmptyStateGraphicView
-    @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0)
-    : View(context, attrs, defStyleAttr) {
+@JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : View(context, attrs, defStyleAttr) {
 
     companion object {
         private val BITMAP = intArrayOf(
-            0, 0, 1, 1, 1, 1, 0, 0,
-            1, 1, 1, 1, 1, 1, 1, 1,
-            1, 1, 1, 0, 0, 1, 1, 1,
-            1, 1, 0, 1, 1, 0, 1, 1,
-            1, 1, 0, 1, 1, 0, 1, 1,
-            1, 1, 1, 0, 0, 1, 1, 1,
-            1, 1, 1, 1, 1, 1, 1, 1
+                0, 0, 1, 1, 1, 1, 0, 0,
+                1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 0, 0, 1, 1, 1,
+                1, 1, 0, 1, 1, 0, 1, 1,
+                1, 1, 0, 1, 1, 0, 1, 1,
+                1, 1, 1, 0, 0, 1, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 1
         )
 
         private const val COLS = 8

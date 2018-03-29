@@ -14,8 +14,10 @@
   limitations under the License.
   -->
 
-<ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="#4fff">
+<ripple
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#4fff">
     <item android:id="@android:id/mask">
-        <color android:color="#fff" />
+        <color android:color="#fff"/>
     </item>
 </ripple>

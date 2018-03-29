@@ -14,9 +14,10 @@
   limitations under the License.
   -->
 
-<objectAnimator xmlns:android="http://schemas.android.com/apk/res/android"
+<objectAnimator
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:propertyName="alpha"
     android:valueType="floatType"
     android:valueFrom="0"
     android:valueTo="1"
-    android:duration="@android:integer/config_shortAnimTime" />
+    android:duration="@android:integer/config_shortAnimTime"/>

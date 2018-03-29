@@ -36,8 +36,11 @@ class AnimatedMuzeiLogoFragment : Fragment() {
     }
     var onFillStarted: () -> Unit = {}
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.animated_logo_fragment, container, false)
     }
 

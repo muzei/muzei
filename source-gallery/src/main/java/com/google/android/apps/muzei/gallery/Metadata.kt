@@ -32,12 +32,14 @@ import java.util.Date
  * Entity representing a row of cached metadata in Room
  */
 @Entity(tableName = "metadata_cache", indices = [(Index(value = ["uri"], unique = true))])
-internal data class Metadata(@field:TypeConverters(UriTypeConverter::class)
-                             val uri: Uri,
-                             @field:TypeConverters(DateTypeConverter::class)
-                             @ColumnInfo(name = "datetime")
-                             var date: Date? = null,
-                             var location: String? = null) {
+internal data class Metadata(
+        @field:TypeConverters(UriTypeConverter::class)
+        val uri: Uri,
+        @field:TypeConverters(DateTypeConverter::class)
+        @ColumnInfo(name = "datetime")
+        var date: Date? = null,
+        var location: String? = null
+) {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")

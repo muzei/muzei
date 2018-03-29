@@ -43,9 +43,11 @@ import net.nurik.roman.muzei.R
 /**
  * Async operation used to update the widget or provide a preview for pinning the widget.
  */
-open class AppWidgetUpdateTask(@field:SuppressLint("StaticFieldLeak") private val context: Context,
-                               private val showingPreview: Boolean = false)
-    : AsyncTask<Void, Void, Boolean>() {
+open class AppWidgetUpdateTask(
+        @field:SuppressLint("StaticFieldLeak")
+        private val context: Context,
+        private val showingPreview: Boolean = false
+) : AsyncTask<Void, Void, Boolean>() {
 
     companion object {
         private const val TAG = "AppWidgetUpdateTask"
@@ -93,7 +95,6 @@ open class AppWidgetUpdateTask(@field:SuppressLint("StaticFieldLeak") private va
                 } catch (ignored: IllegalStateException) {
                     // The user exited out of the app before we could pop up the pin widget dialog
                 }
-
             }
             return false
         }
@@ -111,7 +112,8 @@ open class AppWidgetUpdateTask(@field:SuppressLint("StaticFieldLeak") private va
             var success = false
             while (!success) {
                 val remoteViews = createRemoteViews(imageUri, contentDescription, launchPendingIntent,
-                        nextArtworkPendingIntent, supportsNextArtwork, widgetWidth, widgetHeight) ?: return false
+                        nextArtworkPendingIntent, supportsNextArtwork, widgetWidth, widgetHeight)
+                        ?: return false
                 try {
                     appWidgetManager.updateAppWidget(widgetId, remoteViews)
                     success = true
@@ -125,11 +127,15 @@ open class AppWidgetUpdateTask(@field:SuppressLint("StaticFieldLeak") private va
         return true
     }
 
-    private fun createRemoteViews(imageUri: Uri, contentDescription: String,
-                                  launchPendingIntent: PendingIntent,
-                                  nextArtworkPendingIntent: PendingIntent,
-                                  supportsNextArtwork: Boolean,
-                                  widgetWidth: Int, widgetHeight: Int): RemoteViews? {
+    private fun createRemoteViews(
+            imageUri: Uri,
+            contentDescription: String,
+            launchPendingIntent: PendingIntent,
+            nextArtworkPendingIntent: PendingIntent,
+            supportsNextArtwork: Boolean,
+            widgetWidth: Int,
+            widgetHeight: Int
+    ): RemoteViews? {
         val smallWidgetHeight = context.resources.getDimensionPixelSize(
                 R.dimen.widget_small_height_breakpoint)
         val image = BitmapRegionLoader.newInstance(context.contentResolver,
@@ -162,7 +168,7 @@ open class AppWidgetUpdateTask(@field:SuppressLint("StaticFieldLeak") private va
         return remoteViews
     }
 
-    private fun Bitmap.scale(widgetWidth: Int, widgetHeight: Int) : Bitmap? {
+    private fun Bitmap.scale(widgetWidth: Int, widgetHeight: Int): Bitmap? {
         if (width == 0 || height == 0 ||
                 widgetWidth == 0 || widgetHeight == 0) {
             return null

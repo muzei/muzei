@@ -207,8 +207,11 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
                 .withEndAction(null)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+    ): View? {
         containerView = inflater.inflate(R.layout.art_detail_fragment, container, false)
 
         chromeContainerView = containerView.findViewById(R.id.chrome_container)

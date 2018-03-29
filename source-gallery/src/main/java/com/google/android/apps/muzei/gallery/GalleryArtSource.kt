@@ -47,7 +47,8 @@ import com.google.android.apps.muzei.api.MuzeiArtSource
 import java.io.IOException
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.ArrayList
+import java.util.Random
 
 class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
 
@@ -96,11 +97,11 @@ class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
                     override fun onChanged(chosenPhotos: List<ChosenPhoto>?) {
                         val oldCount = numImages
                         // Update the metadata
-                        numImages = if(chosenPhotos != null) updateMeta(chosenPhotos) else 0
+                        numImages = if (chosenPhotos != null) updateMeta(chosenPhotos) else 0
 
                         val currentArtworkToken = currentArtwork?.token?.toUri()
-                        val foundCurrentArtwork = chosenPhotos?.find {
-                            chosenPhoto -> chosenPhoto.contentUri == currentArtworkToken
+                        val foundCurrentArtwork = chosenPhotos?.find { chosenPhoto ->
+                            chosenPhoto.contentUri == currentArtworkToken
                         } != null
                         if (!foundCurrentArtwork) {
                             // We're showing a removed URI
@@ -191,7 +192,7 @@ class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
                     Log.e(TAG, "No photos in the selected directories.")
                     return
                 }
-                var index : Int
+                var index: Int
                 while (true) {
                     index = RANDOM.nextInt(numImages)
                     if (numImages <= 1 || allImages[index] != lastImageUri) {
@@ -217,7 +218,7 @@ class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
                         return
                     }
 
-                    var newImageUri : Uri
+                    var newImageUri: Uri
                     while (true) {
                         it.moveToPosition(RANDOM.nextInt(count))
                         newImageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -306,7 +307,6 @@ class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
                     Log.w(TAG, "Unable to load images from $treeUri, deleting row", e)
                     idsToDelete.add(chosenPhoto.id)
                 }
-
             } else {
                 numImages++
             }

@@ -25,7 +25,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.database.ContentObserver
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Rect
+import android.graphics.Typeface
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
@@ -50,7 +56,9 @@ import net.nurik.roman.muzei.R
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Locale
+import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 
 /**
@@ -126,11 +134,11 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
             ResourcesCompat.getFont(this@MuzeiWatchFace, R.font.nunito_clock_regular)
         }
         val densityMultiplier = resources.displayMetrics.density
-        internal lateinit var clockPaint : Paint
+        internal lateinit var clockPaint: Paint
         internal lateinit var clockAmbientShadowPaint: Paint
         internal var clockTextHeight: Float = 0f
-        internal lateinit var datePaint : Paint
-        internal lateinit var dateAmbientShadowPaint : Paint
+        internal lateinit var datePaint: Paint
+        internal lateinit var dateAmbientShadowPaint: Paint
         internal var dateTextHeight: Float = 0f
         internal lateinit var timeFormat12h: SimpleDateFormat
         internal lateinit var timeFormat24h: SimpleDateFormat
@@ -197,7 +205,6 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                     } catch (e: IOException) {
                         Log.e(TAG, "Error opening starry night asset", e)
                     }
-
                 }
                 if (bitmap != null && !bitmap.sameAs(backgroundBitmap)) {
                     backgroundBitmap = bitmap
@@ -471,7 +478,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                 timeFormat12h.format(calendar.time)
             val xOffset = width / 2f
             val yOffset = Math.min((height + clockTextHeight) / 2,
-                        (if (cardBounds.top == 0) height else cardBounds.top) - clockMargin)
+                    (if (cardBounds.top == 0) height else cardBounds.top) - clockMargin)
             if (!blurred) {
                 canvas.drawText(formattedTime,
                         xOffset,

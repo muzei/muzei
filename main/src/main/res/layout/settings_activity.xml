@@ -24,7 +24,7 @@
     <FrameLayout
         android:id="@+id/local_render_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"/>
 
     <LinearLayout
         android:id="@+id/container"
@@ -47,7 +47,7 @@
                 android:id="@+id/section_spinner"
                 android:background="?selectableItemBackground"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"/>
 
         </android.support.v7.widget.Toolbar>
 
@@ -55,7 +55,7 @@
             android:id="@+id/content_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_weight="1"/>
     </LinearLayout>
 </FrameLayout>
 

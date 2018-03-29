@@ -17,8 +17,16 @@
 package com.google.android.apps.muzei.sources
 
 import android.annotation.SuppressLint
-import android.arch.lifecycle.*
-import android.content.*
+import android.arch.lifecycle.DefaultLifecycleObserver
+import android.arch.lifecycle.Lifecycle
+import android.arch.lifecycle.LifecycleOwner
+import android.arch.lifecycle.LifecycleRegistry
+import android.arch.lifecycle.MediatorLiveData
+import android.content.BroadcastReceiver
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.content.res.Resources
@@ -29,7 +37,11 @@ import android.text.TextUtils
 import android.util.Log
 import android.widget.Toast
 import com.google.android.apps.muzei.api.MuzeiArtSource
-import com.google.android.apps.muzei.api.internal.ProtocolConstants.*
+import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_HANDLE_COMMAND
+import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_SUBSCRIBE
+import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_COMMAND_ID
+import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_SUBSCRIBER_COMPONENT
+import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_TOKEN
 import com.google.android.apps.muzei.featuredart.FeaturedArtSource
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Source
@@ -39,7 +51,7 @@ import com.google.android.apps.muzei.util.observeOnce
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
-import java.util.*
+import java.util.HashSet
 import java.util.concurrent.Executors
 import kotlin.reflect.KClass
 
@@ -54,14 +66,20 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
         private const val USER_PROPERTY_SELECTED_SOURCE_PACKAGE = "selected_source_package"
         private const val MAX_VALUE_LENGTH = 36
 
-        internal fun selectSource(context: Context, source: KClass<out MuzeiArtSource>,
-                                  callback: (Source) -> Unit = {}) {
+        internal fun selectSource(
+                context: Context,
+                source: KClass<out MuzeiArtSource>,
+                callback: (Source) -> Unit = {}
+        ) {
             selectSource(context, ComponentName(context, source.java), callback)
         }
 
         @SuppressLint("StaticFieldLeak")
-        fun selectSource(context: Context, source: ComponentName,
-                         callback: (Source) -> Unit = {}) {
+        fun selectSource(
+                context: Context,
+                source: ComponentName,
+                callback: (Source) -> Unit = {}
+        ) {
             object : AsyncTask<Void, Void, Source>() {
                 override fun doInBackground(vararg voids: Void): Source {
                     val database = MuzeiDatabase.getInstance(context)
@@ -146,8 +164,7 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                     try {
                         this@SourceManager.context.packageManager.getServiceInfo(source.componentName, 0)
                     } catch (e: PackageManager.NameNotFoundException) {
-                        Log.i(TAG, "Selected source " + source.componentName
-                                + " is no longer available")
+                        Log.i(TAG, "Selected source ${source.componentName} is no longer available")
                         selectSource(context, FeaturedArtSource::class)
                         return@observeOnce
                     }
@@ -288,19 +305,18 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
             } catch (e: Resources.NotFoundException) {
                 Log.e(TAG, "Can't read package resources for source ${source.componentName}")
             }
-
         }
         source.color = Color.WHITE
         if (metaData != null) {
             val settingsActivity = metaData.getString("settingsActivity")
             if (!TextUtils.isEmpty(settingsActivity)) {
                 source.settingsActivity = ComponentName.unflattenFromString(
-                        info.packageName + "/" + settingsActivity)
+                        "${info.packageName}/$settingsActivity")
             }
             val setupActivity = metaData.getString("setupActivity")
             if (!TextUtils.isEmpty(setupActivity)) {
                 source.setupActivity = ComponentName.unflattenFromString(
-                        info.packageName + "/" + setupActivity)
+                        "${info.packageName}/$setupActivity")
             }
             source.color = metaData.getInt("color", source.color)
             try {
@@ -326,7 +342,6 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                 }
             } catch (ignored: IllegalArgumentException) {
             }
-
         }
         if (existingSource == null) {
             sourceDao.insert(source)
@@ -380,7 +395,6 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
             Toast.makeText(context, R.string.source_unavailable, Toast.LENGTH_LONG).show()
             selectSource(context, FeaturedArtSource::class)
         }
-
     }
 
     private fun unsubscribe(source: Source) {
@@ -400,6 +414,5 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
         } catch (e: SecurityException) {
             Log.i(TAG, "Unsubscribing to $selectedSource failed.", e)
         }
-
     }
 }

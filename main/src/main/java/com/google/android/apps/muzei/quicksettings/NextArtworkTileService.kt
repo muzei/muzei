@@ -108,7 +108,8 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
                             "tile_next_artwork_click", null)
                     SourceManager.sendAction(context, MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK)
                 }
-                else -> unlockAndRun { // Inactive means we attempt to activate Muzei
+                else -> unlockAndRun {
+                    // Inactive means we attempt to activate Muzei
                     FirebaseAnalytics.getInstance(context).logEvent(
                             "tile_next_artwork_activate", null)
                     try {
@@ -125,7 +126,6 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
                             Toast.makeText(context, R.string.error_wallpaper_chooser,
                                     Toast.LENGTH_LONG).show()
                         }
-
                     }
                 }
             }

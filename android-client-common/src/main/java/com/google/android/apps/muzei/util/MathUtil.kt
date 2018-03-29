@@ -16,7 +16,7 @@
 
 package com.google.android.apps.muzei.util
 
-fun Float.constrain(min: Float, max: Float) : Float = Math.max(min, Math.min(max, this))
+fun Float.constrain(min: Float, max: Float): Float = Math.max(min, Math.min(max, this))
 
 fun interpolate(x1: Float, x2: Float, f: Float): Float = x1 + (x2 - x1) * f
 

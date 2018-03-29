@@ -22,9 +22,11 @@ import android.net.Uri
 import android.os.Handler
 import com.google.android.apps.muzei.api.MuzeiContract
 
-class RealRenderController(context: Context, renderer: MuzeiBlurRenderer,
-                           callbacks: RenderController.Callbacks)
-    : RenderController(context, renderer, callbacks) {
+class RealRenderController(
+        context: Context,
+        renderer: MuzeiBlurRenderer,
+        callbacks: RenderController.Callbacks
+) : RenderController(context, renderer, callbacks) {
 
     private val contentObserver: ContentObserver = object : ContentObserver(Handler()) {
         override fun onChange(selfChange: Boolean, uri: Uri) {

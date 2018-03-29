@@ -15,7 +15,7 @@
   -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android" android:constantSize="true">
-    <item android:drawable="@drawable/tutorial_icon_on_overlay_base" android:state_pressed="true" />
-    <item android:drawable="@drawable/tutorial_icon_on_overlay_base" android:state_focused="true" />
-    <item android:drawable="@android:color/transparent" />
+    <item android:drawable="@drawable/tutorial_icon_on_overlay_base" android:state_pressed="true"/>
+    <item android:drawable="@drawable/tutorial_icon_on_overlay_base" android:state_focused="true"/>
+    <item android:drawable="@android:color/transparent"/>
 </selector>

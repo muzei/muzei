@@ -36,9 +36,10 @@ import net.nurik.roman.muzei.R
  * Controller responsible for updating the Artwork Info Shortcut whenever the current artwork changes
  */
 @RequiresApi(Build.VERSION_CODES.N_MR1)
-class ArtworkInfoShortcutController(private val context: Context,
-                                    private val lifecycleOwner: LifecycleOwner)
-    : DefaultLifecycleObserver {
+class ArtworkInfoShortcutController(
+        private val context: Context,
+        private val lifecycleOwner: LifecycleOwner
+) : DefaultLifecycleObserver {
 
     companion object {
         private const val ARTWORK_INFO_SHORTCUT_ID = "artwork_info"
@@ -52,8 +53,8 @@ class ArtworkInfoShortcutController(private val context: Context,
         artworkInfoShortcutHandlerThread.start()
         artworkInfoShortcutHandler = Handler(artworkInfoShortcutHandlerThread.looper)
         MuzeiDatabase.getInstance(context).artworkDao()
-                .currentArtwork.observe(lifecycleOwner) {
-            artwork -> artworkInfoShortcutHandler.post { updateShortcut(artwork) }
+                .currentArtwork.observe(lifecycleOwner) { artwork ->
+            artworkInfoShortcutHandler.post { updateShortcut(artwork) }
         }
     }
 

@@ -17,7 +17,7 @@
 <resources>
 
     <declare-styleable name="Scrollbar">
-        <attr name="backgroundColor" format="color" />
-        <attr name="indicatorColor" format="color" />
+        <attr name="backgroundColor" format="color"/>
+        <attr name="indicatorColor" format="color"/>
     </declare-styleable>
 </resources>

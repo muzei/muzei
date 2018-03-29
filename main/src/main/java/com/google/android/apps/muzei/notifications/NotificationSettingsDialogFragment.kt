@@ -61,8 +61,7 @@ class NotificationSettingsDialogFragment : DialogFragment() {
                 .getBoolean(NewWallpaperNotificationReceiver.PREF_ENABLED, true))
         return AlertDialog.Builder(context)
                 .setTitle(R.string.notification_settings)
-                .setMultiChoiceItems(items, checkedItems
-                ) { _, _, isChecked ->
+                .setMultiChoiceItems(items, checkedItems) { _, _, isChecked ->
                     sharedPreferences.edit {
                         putBoolean(NewWallpaperNotificationReceiver.PREF_ENABLED, isChecked)
                     }

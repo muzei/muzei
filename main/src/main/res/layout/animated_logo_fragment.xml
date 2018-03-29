@@ -14,7 +14,8 @@
   limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="wrap_content"
     android:layout_width="wrap_content"
     android:padding="4dp"
@@ -27,13 +28,14 @@
         android:layout_width="225dp"
         android:layout_height="75dp"
         android:layout_marginBottom="16dp"
-        android:contentDescription="@string/app_name" />
+        android:contentDescription="@string/app_name"/>
 
-    <ImageView android:id="@+id/logo_subtitle"
+    <ImageView
+        android:id="@+id/logo_subtitle"
         android:src="@drawable/logo_subtitle"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:contentDescription="@string/app_name" />
+        android:contentDescription="@string/app_name"/>
 
 </LinearLayout>
 

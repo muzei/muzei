@@ -55,7 +55,7 @@ class SingleArtSource : MuzeiArtSource("SingleArtSource") {
         fun setArtwork(context: Context, artworkUri: Uri): LiveData<Boolean> {
             val mutableLiveData = MutableLiveData<Boolean>()
             EXECUTOR.submit {
-                val tempFile = writeUriToFile(context, artworkUri, getArtworkFile(context)) ?.let { file ->
+                val tempFile = writeUriToFile(context, artworkUri, getArtworkFile(context))?.let { file ->
                     context.startService(Intent(context, SingleArtSource::class.java).apply {
                         action = ACTION_PUBLISH_NEW_ARTWORK
                         putExtra(EXTRA_ARTWORK_TITLE, getDisplayName(context, artworkUri)
@@ -69,7 +69,7 @@ class SingleArtSource : MuzeiArtSource("SingleArtSource") {
             return mutableLiveData
         }
 
-        private fun getDisplayName(context: Context, artworkUri: Uri) : String? {
+        private fun getDisplayName(context: Context, artworkUri: Uri): String? {
             if (DocumentsContract.isDocumentUri(context, artworkUri)) {
                 try {
                     context.contentResolver.query(artworkUri,

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.android.apps.muzei.sync;
 
 import android.app.AlarmManager;
@@ -37,14 +36,10 @@ import java.util.List;
 
 public class TaskQueueService extends Service {
     private static final String TAG = "TaskQueueService";
-
     static final String ACTION_DOWNLOAD_CURRENT_ARTWORK
             = "com.google.android.apps.muzei.action.DOWNLOAD_CURRENT_ARTWORK";
-
     private static final int LOAD_ARTWORK_JOB_ID = 1;
-
     private static final String PREF_ARTWORK_DOWNLOAD_ATTEMPT = "artwork_download_attempt";
-
     private static final long DOWNLOAD_ARTWORK_WAKELOCK_TIMEOUT_MILLIS = 30 * 1000;
 
     @Nullable
@@ -59,7 +54,6 @@ public class TaskQueueService extends Service {
             stopSelf();
             return START_NOT_STICKY;
         }
-
         String action = intent.getAction();
         if (ACTION_DOWNLOAD_CURRENT_ARTWORK.equals(action)) {
             // Handle internal download artwork request
@@ -91,7 +85,6 @@ public class TaskQueueService extends Service {
                     stopSelf(startId);
                 }
             }.execute();
-
         }
         return START_REDELIVER_INTENT;
     }

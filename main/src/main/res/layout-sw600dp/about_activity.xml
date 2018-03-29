@@ -14,7 +14,8 @@
   limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -22,7 +23,7 @@
     <FrameLayout
         android:id="@+id/demo_view_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -36,7 +37,7 @@
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
             app:contentInsetStart="@dimen/keyline_2"
-            app:navigationIcon="@drawable/ic_ab_up" />
+            app:navigationIcon="@drawable/ic_ab_up"/>
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -47,7 +48,7 @@
                 layout="@layout/about_include_content"
                 android:layout_width="400dp"
                 android:layout_height="550dp"
-                android:layout_gravity="center" />
+                android:layout_gravity="center"/>
         </FrameLayout>
 
     </LinearLayout>

@@ -21,7 +21,7 @@ import android.util.Log
 import com.google.android.apps.muzei.api.UserCommand
 import org.json.JSONArray
 import org.json.JSONException
-import java.util.*
+import java.util.ArrayList
 
 /**
  * Converts a list of [UserCommand]s into and from a persisted value

@@ -168,7 +168,8 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
             }
 
             val artworkTitle = artwork.title
-            val title = artworkTitle?.takeUnless { it.isEmpty() } ?: context.getString(R.string.app_name)
+            val title = artworkTitle?.takeUnless { it.isEmpty() }
+                    ?: context.getString(R.string.app_name)
             val nb = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL)
                     .setSmallIcon(R.drawable.ic_stat_muzei)
                     .setColor(ContextCompat.getColor(context, R.color.notification))
@@ -248,7 +249,6 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                     // This is actually meant to catch a FileUriExposedException, but you can't
                     // have catch statements for exceptions that don't exist at your minSdkVersion
                 }
-
             }
             nb.extend(extender)
 
@@ -280,7 +280,8 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
          */
         @RequiresApi(Build.VERSION_CODES.O)
         internal fun createNotificationChannel(context: Context): Boolean {
-            val notificationManager = context.getSystemService(NotificationManager::class.java) ?: return false
+            val notificationManager = context.getSystemService(NotificationManager::class.java)
+                    ?: return false
             val sp = PreferenceManager.getDefaultSharedPreferences(context)
             // On O+ devices, we want to push users to change the system notification setting
             // but we'll use their current value to set the default importance

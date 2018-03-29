@@ -21,4 +21,4 @@
     android:contextDescription="@string/app_context_description"
     android:contextUri="@string/app_context_uri"
     android:settingsActivity="com.google.android.apps.muzei.settings.SettingsActivity"
-    android:description="@string/app_description" />
+    android:description="@string/app_description"/>

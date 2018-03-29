@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.android.apps.muzei.datalayer;
 
 import android.app.IntentService;
@@ -46,8 +45,8 @@ import java.util.concurrent.ExecutionException;
 /**
  * IntentService responsible to for retrieving the artwork from the DataLayer and caching it locally
  * to make it available via the Artwork API.
- *
- * <p>Optionally pass {@link #SHOW_ACTIVATE_NOTIFICATION_EXTRA} with your Intent to show a
+ * <p>
+ * Optionally pass {@link #SHOW_ACTIVATE_NOTIFICATION_EXTRA} with your Intent to show a
  * notification to activate Muzei if the artwork is not found
  */
 public class ArtworkCacheIntentService extends IntentService {
@@ -71,7 +70,7 @@ public class ArtworkCacheIntentService extends IntentService {
                 foundArtwork = foundArtwork || processDataItem(dataClient, dataItem);
             }
             dataItemBuffer.release();
-        } catch (ExecutionException|InterruptedException e) {
+        } catch (ExecutionException | InterruptedException e) {
             Log.e(TAG, "Error getting all data items", e);
         }
         if (foundArtwork) {
@@ -85,7 +84,6 @@ public class ArtworkCacheIntentService extends IntentService {
             ActivateMuzeiIntentService.clearNotifications(this);
         }
     }
-
 
     private boolean processDataItem(DataClient dataClient, DataItem dataItem) {
         if (!dataItem.getUri().getPath().equals("/artwork")) {
@@ -143,7 +141,7 @@ public class ArtworkCacheIntentService extends IntentService {
                 out.write(buffer, 0, bytesRead);
             }
             out.flush();
-        } catch (ExecutionException|InterruptedException|IOException e) {
+        } catch (ExecutionException | InterruptedException | IOException e) {
             Log.e(TAG, "Error writing artwork", e);
         } finally {
             try {

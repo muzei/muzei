@@ -27,7 +27,7 @@ internal interface FiveHundredPxService {
 
     companion object {
         @Throws(IOException::class)
-        internal fun popularPhotos() : List<FiveHundredPxService.Photo> {
+        internal fun popularPhotos(): List<FiveHundredPxService.Photo> {
             val okHttpClient = OkHttpClient.Builder()
                     .addInterceptor { chain ->
                         var request = chain.request()
@@ -60,13 +60,14 @@ internal interface FiveHundredPxService {
 
     data class PhotosResponse(val photos: List<Photo>)
 
-    data class Photo(val id: Int,
-                     val images: List<Image>,
-                     val name: String?,
-                     val user: User)
+    data class Photo(
+            val id: Int,
+            val images: List<Image>,
+            val name: String?,
+            val user: User)
 
     data class Image(@Suppress("PropertyName")
-                     val https_url: String? = null)
+    val https_url: String? = null)
 
     data class User(val fullname: String?)
 }

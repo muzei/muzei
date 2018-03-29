@@ -19,7 +19,11 @@ package com.google.android.apps.muzei.wallpaper
 import android.app.KeyguardManager
 import android.arch.lifecycle.DefaultLifecycleObserver
 import android.arch.lifecycle.LifecycleOwner
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.SharedPreferences
 import android.support.v4.os.UserManagerCompat
 import com.google.android.apps.muzei.MuzeiWallpaperService
 import com.google.android.apps.muzei.settings.Prefs
@@ -27,9 +31,10 @@ import com.google.android.apps.muzei.settings.Prefs
 /**
  * LifecycleObserver responsible for monitoring the state of the lock screen
  */
-class LockscreenObserver(private val context: Context,
-                         private val engine: MuzeiWallpaperService.MuzeiWallpaperEngine)
-    : DefaultLifecycleObserver {
+class LockscreenObserver(
+        private val context: Context,
+        private val engine: MuzeiWallpaperService.MuzeiWallpaperEngine
+) : DefaultLifecycleObserver {
 
     private var lockScreenVisibleReceiverRegistered = false
     private val lockScreenPreferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { sp, key ->

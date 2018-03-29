@@ -79,7 +79,7 @@ class SettingsActivity : AppCompatActivity(), ChooseSourceFragment.Callbacks {
             start()
         }
 
-        WallpaperActiveState.observeNonNull(this) { isActive->
+        WallpaperActiveState.observeNonNull(this) { isActive ->
             updateRenderLocally(!isActive)
         }
     }
@@ -117,8 +117,9 @@ class SettingsActivity : AppCompatActivity(), ChooseSourceFragment.Callbacks {
             }
 
             override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
-                val view = convertView ?: inflater.inflate(R.layout.settings_ab_spinner_list_item_dropdown,
-                        parent, false)
+                val view = convertView
+                        ?: inflater.inflate(R.layout.settings_ab_spinner_list_item_dropdown,
+                                parent, false)
                 view.findViewById<TextView>(android.R.id.text1).text = getString(SECTION_LABELS[position])
                 return view
             }
@@ -134,7 +135,7 @@ class SettingsActivity : AppCompatActivity(), ChooseSourceFragment.Callbacks {
                 }
 
                 try {
-                    val newFragment : Fragment = fragmentClass.newInstance()
+                    val newFragment: Fragment = fragmentClass.newInstance()
                     FirebaseAnalytics.getInstance(this@SettingsActivity)
                             .setCurrentScreen(this@SettingsActivity, SECTION_SCREEN_NAME[position],
                                     fragmentClass.simpleName)
@@ -146,7 +147,6 @@ class SettingsActivity : AppCompatActivity(), ChooseSourceFragment.Callbacks {
                 } catch (e: Exception) {
                     throw RuntimeException(e)
                 }
-
             }
 
             override fun onNothingSelected(spinner: AdapterView<*>) {}

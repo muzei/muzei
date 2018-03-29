@@ -170,15 +170,21 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
     }
 
     @Throws(FileNotFoundException::class)
-    override fun openDocumentThumbnail(documentId: String, sizeHint: Point,
-                                       signal: CancellationSignal?): AssetFileDescriptor? {
+    override fun openDocumentThumbnail(
+            documentId: String,
+            sizeHint: Point,
+            signal: CancellationSignal?
+    ): AssetFileDescriptor? {
         val artworkId = documentId.toLong()
         return openArtworkThumbnail(Artwork.getContentUri(artworkId), sizeHint, signal)
     }
 
     @Throws(FileNotFoundException::class)
-    private fun openArtworkThumbnail(artworkUri: Uri, sizeHint: Point,
-                                     signal: CancellationSignal?): AssetFileDescriptor? {
+    private fun openArtworkThumbnail(
+            artworkUri: Uri,
+            sizeHint: Point,
+            signal: CancellationSignal?
+    ): AssetFileDescriptor? {
         val contentResolver = context?.contentResolver ?: return null
         val artworkId = ContentUris.parseId(artworkUri)
         val tempFile = getCacheFileForArtworkUri(artworkId)
@@ -218,7 +224,7 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
         options.inJustDecodeBounds = false
         val bitmap = try {
             contentResolver.openInputStream(artworkUri)?.use { input ->
-                BitmapFactory.decodeStream(input,null, options)
+                BitmapFactory.decodeStream(input, null, options)
             } ?: throw FileNotFoundException("Unable to open artwork for $artworkUri")
         } catch (e: IOException) {
             throw FileNotFoundException("Unable to decode artwork")

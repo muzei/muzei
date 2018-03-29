@@ -14,18 +14,19 @@
   limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.nurik.roman.muzei">
 
     <application>
         <meta-data
             android:name="firebase_analytics_collection_deactivated"
-            android:value="true" />
+            android:value="true"/>
         <meta-data
             android:name="firebase_performance_collection_deactivated"
-            android:value="true" />
+            android:value="true"/>
         <meta-data
             android:name="firebase_crashlytics_collection_enabled"
-            android:value="false" />
+            android:value="false"/>
     </application>
 </manifest>

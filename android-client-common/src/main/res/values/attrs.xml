@@ -17,10 +17,10 @@
 <resources>
 
     <declare-styleable name="ShadowDipsTextView">
-        <attr name="shadowDx" format="dimension" />
-        <attr name="shadowDy" format="dimension" />
-        <attr name="shadowRadius" format="dimension" />
-        <attr name="shadowColor" format="color" />
+        <attr name="shadowDx" format="dimension"/>
+        <attr name="shadowDy" format="dimension"/>
+        <attr name="shadowRadius" format="dimension"/>
+        <attr name="shadowColor" format="color"/>
     </declare-styleable>
 
 </resources>

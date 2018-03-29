@@ -21,7 +21,7 @@
             android:duration="100"
             android:propertyName="alpha"
             android:valueTo="1"
-            android:valueType="floatType" />
+            android:valueType="floatType"/>
     </item>
     <item
         android:state_focused="true">
@@ -29,13 +29,13 @@
             android:duration="100"
             android:propertyName="alpha"
             android:valueTo="1"
-            android:valueType="floatType" />
+            android:valueType="floatType"/>
     </item>
     <item>
         <objectAnimator
             android:duration="100"
             android:propertyName="alpha"
             android:valueTo="0"
-            android:valueType="floatType" />
+            android:valueType="floatType"/>
     </item>
 </selector>

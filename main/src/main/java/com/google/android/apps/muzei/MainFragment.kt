@@ -188,7 +188,6 @@ class MainFragment : Fragment(), FragmentManager.OnBackStackChangedListener, Cho
                         }
                     }
         }
-
     }
 
     override fun onRequestCloseActivity() {
