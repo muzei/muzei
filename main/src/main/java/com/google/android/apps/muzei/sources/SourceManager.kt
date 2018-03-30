@@ -172,7 +172,7 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                     // Some other change.
                     if (lifecycleRegistry.currentState.isAtLeast(Lifecycle.State.STARTED)) {
                         Log.i(TAG, "Source package changed or replaced. Re-subscribing to ${source.componentName}")
-                        subscribe(source)
+                        source.subscribe()
                     }
                 }
                 pendingResult.finish()
@@ -222,12 +222,10 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                     // Don't do anything if it is the same Source
                     return@addSource
                 }
-                if (currentSource != null) {
-                    unsubscribe(currentSource!!)
-                }
+                currentSource?.unsubscribe()
                 currentSource = source
                 if (source != null) {
-                    subscribe(source)
+                    source.subscribe()
                     value = source
                 } else {
                     // Can't have no source at all, so select the default
@@ -238,10 +236,7 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
 
         override fun onInactive() {
             super.onInactive()
-            val source = currentSource
-            if (source != null) {
-                unsubscribe(source)
-            }
+            currentSource?.unsubscribe()
         }
     }
 
@@ -372,8 +367,8 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                 className)
     }
 
-    private fun subscribe(source: Source) {
-        val selectedSource = source.componentName
+    private fun Source.subscribe() {
+        val selectedSource = componentName
         try {
             // Ensure that we have a valid service before subscribing
             context.packageManager.getServiceInfo(selectedSource, 0)
@@ -397,8 +392,8 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
         }
     }
 
-    private fun unsubscribe(source: Source) {
-        val selectedSource = source.componentName
+    private fun Source.unsubscribe() {
+        val selectedSource = componentName
         try {
             // Ensure that we have a valid service before subscribing
             context.packageManager.getServiceInfo(selectedSource, 0)
