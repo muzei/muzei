@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.wearable.complications.rendering.ComplicationDrawable
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:titleTypeface="@font/nunito_clock_regular"
+    app:titleSize="@dimen/date_text_size"
+    app:textTypeface="@font/nunito_clock_regular"
+    app:textSize="@dimen/date_text_size"
+    app:borderStyle="none"
+    app:backgroundColor="#66000000">
+    <ambient
+        app:backgroundColor="#00000000" />
+</android.support.wearable.complications.rendering.ComplicationDrawable>

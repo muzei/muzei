@@ -17,6 +17,7 @@
 <resources>
     <dimen name="clock_text_size">34sp</dimen>
     <dimen name="clock_margin">16dp</dimen>
+    <dimen name="date_max_height">48dp</dimen>
     <dimen name="date_text_size">18sp</dimen>
     <dimen name="date_min_available_margin">32dp</dimen>
 
