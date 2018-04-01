@@ -22,6 +22,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.preference.Preference
 import android.preference.PreferenceActivity
+import android.preference.PreferenceManager
 import android.support.v4.content.ContextCompat
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.ComplicationHelperActivity
@@ -39,6 +40,7 @@ class ConfigActivity : PreferenceActivity() {
 
     companion object {
         private const val CHOOSE_COMPLICATION_REQUEST_CODE = 1
+        internal const val TAP_PREFERENCE_KEY = "config_tap"
     }
 
     private val executor : Executor by lazy {
@@ -72,6 +74,14 @@ class ConfigActivity : PreferenceActivity() {
                 true
             }
         }
+        findPreference(TAP_PREFERENCE_KEY)?.let { preference ->
+            updateTapPreference(preference)
+            preference.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _,
+                    newValue ->
+                updateTapPreference(preference, newValue as String?)
+                true
+            }
+        }
     }
 
     private fun updateComplicationPreference(
@@ -82,6 +92,18 @@ class ConfigActivity : PreferenceActivity() {
                 ?: ContextCompat.getDrawable(this@ConfigActivity,
                 R.drawable.ic_config_empty_complication)
         preference.summary = info?.providerName
+    }
+
+    private fun updateTapPreference(
+            preference: Preference,
+            newValue: String? = null
+    ) {
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val tapAction = newValue ?: sharedPreferences.getString(TAP_PREFERENCE_KEY,
+                getString(R.string.config_tap_default))
+        val values = resources.getStringArray(R.array.config_tap_values)
+        val entries = resources.getStringArray(R.array.config_tap_entries)
+        preference.summary = entries[values.indexOf(tapAction)]
     }
 
     private fun selectBottomComplication() {

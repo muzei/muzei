@@ -21,4 +21,11 @@
         android:icon="@drawable/ic_config_empty_complication"
         android:key="config_bottom_complication"
         android:title="@string/config_bottom_complication_title"/>
+    <ListPreference
+        android:defaultValue="@string/config_tap_default"
+        android:entries="@array/config_tap_entries"
+        android:entryValues="@array/config_tap_values"
+        android:icon="@drawable/ic_config_tap"
+        android:key="config_tap"
+        android:title="@string/config_tap_title"/>
 </PreferenceScreen>

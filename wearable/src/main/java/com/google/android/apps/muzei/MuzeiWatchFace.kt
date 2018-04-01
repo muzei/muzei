@@ -206,6 +206,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
          * disable anti-aliasing in ambient mode.
          */
         internal var lowBitAmbient: Boolean = false
+        internal lateinit var tapAction: String
         internal var blurred: Boolean = false
 
         private inner class LoadImageContentObserver internal constructor(handler: Handler) : ContentObserver(handler) {
@@ -301,8 +302,18 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                 }
             }
 
+            updateBlurredStatus()
+        }
+
+        private fun updateBlurredStatus() {
             val preferences = PreferenceManager.getDefaultSharedPreferences(this@MuzeiWatchFace)
-            blurred = preferences.getBoolean(BLURRED_PREF_KEY, false)
+            tapAction = preferences.getString(ConfigActivity.TAP_PREFERENCE_KEY,
+                    getString(R.string.config_tap_default))
+            blurred = when(tapAction) {
+                "always" -> true
+                "never" -> false
+                else -> preferences.getBoolean(BLURRED_PREF_KEY, false)
+            }
             updateWatchFaceStyle()
         }
 
@@ -397,6 +408,9 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
 
                 // Load the image in case it has changed while we weren't visible
                 loadImageHandler.post { loadImageContentObserver.onChange(true) }
+
+                // Update the blurred status in case the preference has changed
+                updateBlurredStatus()
 
                 updateTimeHandler.sendEmptyMessage(MSG_UPDATE_TIME)
             } else {
@@ -493,7 +507,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                         bottomComplication?.onTap(x, y) == true -> {
                             invalidate()
                         }
-                        else -> {
+                        tapAction == "toggle" -> {
                             blurred = !blurred
                             val preferences = PreferenceManager.getDefaultSharedPreferences(this@MuzeiWatchFace)
                             preferences.edit { putBoolean(BLURRED_PREF_KEY, blurred) }
