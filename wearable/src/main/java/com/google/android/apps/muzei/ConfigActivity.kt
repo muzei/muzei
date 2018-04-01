@@ -20,23 +20,71 @@ import android.app.Activity
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
+import android.preference.Preference
+import android.preference.PreferenceActivity
+import android.support.v4.content.ContextCompat
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.ComplicationHelperActivity
+import android.support.wearable.complications.ComplicationProviderInfo
+import android.support.wearable.complications.ProviderChooserIntent
+import android.support.wearable.complications.ProviderInfoRetriever
 import net.nurik.roman.muzei.R
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
 
 /**
  * Configuration Activity for [MuzeiWatchFace]
  */
-class ConfigActivity : Activity() {
+class ConfigActivity : PreferenceActivity() {
 
     companion object {
         private const val CHOOSE_COMPLICATION_REQUEST_CODE = 1
     }
 
+    private val executor : Executor by lazy {
+        Executors.newSingleThreadExecutor()
+    }
+    private val providerInfoRetriever : ProviderInfoRetriever by lazy {
+        ProviderInfoRetriever(this, executor)
+    }
+    private lateinit var bottomPreference: Preference
+
+    @Suppress("DEPRECATION")
     public override fun onCreate(savedState: Bundle?) {
         super.onCreate(savedState)
-        setContentView(R.layout.config_activity)
-        // Immediately start the ComplicationHelperActivity for the bottom complication
+        addPreferencesFromResource(R.xml.config_preferences)
+        providerInfoRetriever.init()
+        bottomPreference = findPreference("config_bottom_complication")
+        providerInfoRetriever.retrieveProviderInfo(
+                object : ProviderInfoRetriever.OnProviderInfoReceivedCallback() {
+                    override fun onProviderInfoReceived(
+                            watchFaceComplicationId: Int,
+                            info: ComplicationProviderInfo?
+                    ) {
+                        updateComplicationPreference(bottomPreference, info)
+                    }
+                },
+                ComponentName(this, MuzeiWatchFace::class.java),
+                MuzeiWatchFace.BOTTOM_COMPLICATION_ID)
+        bottomPreference.apply {
+            onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                selectBottomComplication()
+                true
+            }
+        }
+    }
+
+    private fun updateComplicationPreference(
+            preference: Preference,
+            info: ComplicationProviderInfo?
+    ) {
+        preference.icon = info?.providerIcon?.loadDrawable(this@ConfigActivity)
+                ?: ContextCompat.getDrawable(this@ConfigActivity,
+                R.drawable.ic_config_empty_complication)
+        preference.summary = info?.providerName
+    }
+
+    private fun selectBottomComplication() {
         val intent = ComplicationHelperActivity.createProviderChooserHelperIntent(this,
                 ComponentName(this, MuzeiWatchFace::class.java),
                 MuzeiWatchFace.BOTTOM_COMPLICATION_ID,
@@ -47,7 +95,26 @@ class ConfigActivity : Activity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        finish()
+        when (requestCode) {
+            CHOOSE_COMPLICATION_REQUEST_CODE -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    updateComplicationPreference(
+                            bottomPreference,
+                            data?.getParcelableExtra(ProviderChooserIntent.EXTRA_PROVIDER_INFO)
+                                    as ComplicationProviderInfo?)
+
+                }
+            }
+            else -> super.onActivityResult(requestCode, resultCode, data)
+        }
+    }
+
+    override fun isValidFragment(fragmentName: String?): Boolean {
+        return false
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        providerInfoRetriever.release()
     }
 }

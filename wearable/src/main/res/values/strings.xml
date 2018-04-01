@@ -29,4 +29,5 @@
     <string name="activate_enable_muzei">Activate Muzei sync on %s</string>
     <string name="activate_action">Activate on %s</string>
     <string name="activate_failed">Unable to find your phone to activate Muzei</string>
+    <string name="config_bottom_complication_title">Bottom Complication</string>
 </resources>
