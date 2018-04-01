@@ -310,6 +310,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
             dateComplication?.run {
                 setBackgroundColorActive(if (blurred) Color.TRANSPARENT else 0x66000000)
             }
+            invalidate()
         }
 
         override fun onDestroy() {
@@ -417,6 +418,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                 setBurnInProtection(burnInProtection)
                 setLowBitAmbient(lowBitAmbient)
             }
+            invalidate()
 
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "onPropertiesChanged: burn-in protection = $burnInProtection, " +
@@ -447,13 +449,14 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                     dateComplication?.setComplicationData(data)
                 }
             }
+            invalidate()
         }
 
         override fun onTapCommand(@TapType tapType: Int, x: Int, y: Int, eventTime: Long) {
             when (tapType) {
                 WatchFaceService.TAP_TYPE_TAP -> {
                     when {
-                        dateComplication?.onTap(x, y) == true -> {}
+                        dateComplication?.onTap(x, y) == true -> { invalidate() }
                         else -> {
                             blurred = !blurred
                             val preferences = PreferenceManager.getDefaultSharedPreferences(this@MuzeiWatchFace)
