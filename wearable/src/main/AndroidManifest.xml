@@ -26,6 +26,7 @@
 
     <!-- Required to act as a custom watch face. -->
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA"/>
 
     <!-- Used to restart jobs listening for MuzeiProvider changes on boot -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
@@ -108,12 +109,28 @@
             <meta-data
                 android:name="com.google.android.wearable.watchface.preview_circular"
                 android:resource="@drawable/preview_circular"/>
+            <meta-data
+                android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
+                android:value="com.google.android.apps.muzei.CONFIG_WATCH_FACE"/>
 
             <intent-filter>
                 <action android:name="android.service.wallpaper.WallpaperService"/>
                 <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE"/>
             </intent-filter>
         </service>
+
+        <activity
+            android:name="com.google.android.apps.muzei.ConfigActivity"
+            android:enabled="@bool/supports_complications"
+            android:theme="@style/ConfigTheme">
+            <intent-filter>
+                <action android:name="com.google.android.apps.muzei.CONFIG_WATCH_FACE"/>
+
+                <category android:name="com.google.android.wearable.watchface.category.WEARABLE_CONFIGURATION"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:name="android.support.wearable.complications.ComplicationHelperActivity"/>
 
         <service android:name="com.google.android.apps.muzei.datalayer.ActivateMuzeiIntentService"/>
 

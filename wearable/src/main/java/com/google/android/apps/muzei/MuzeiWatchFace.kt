@@ -21,6 +21,7 @@ import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.LifecycleRegistry
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -51,6 +52,7 @@ import android.view.Gravity
 import android.view.SurfaceHolder
 import androidx.content.edit
 import com.google.android.apps.muzei.api.MuzeiContract
+import com.google.android.apps.muzei.complications.ArtworkComplicationProviderService
 import com.google.android.apps.muzei.datalayer.ArtworkCacheIntentService
 import com.google.android.apps.muzei.util.ImageBlurrer
 import com.google.android.apps.muzei.util.blur
@@ -76,6 +78,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
     companion object {
         private const val TAG = "MuzeiWatchFace"
         private const val TOP_COMPLICATION_ID = 0
+        internal const val BOTTOM_COMPLICATION_ID = 1
 
         /**
          * Preference key for saving whether the watch face is blurred
@@ -149,6 +152,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
         internal lateinit var timeFormat24h: SimpleDateFormat
         internal lateinit var dateFormat: SimpleDateFormat
         internal var dateComplication: ComplicationDrawable? = null
+        internal var bottomComplication: ComplicationDrawable? = null
 
         /**
          * Handler to update the time periodically in interactive mode.
@@ -177,8 +181,8 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
         internal val dateMinAvailableMargin: Float by lazy {
             resources.getDimension(R.dimen.date_min_available_margin)
         }
-        internal val dateMaxHeight: Float by lazy {
-            resources.getDimension(R.dimen.date_max_height)
+        internal val complicationMaxHeight: Float by lazy {
+            resources.getDimension(R.dimen.complication_max_height)
         }
         internal var ambient: Boolean = false
         internal val calendar: Calendar = Calendar.getInstance()
@@ -266,8 +270,16 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 setDefaultSystemComplicationProvider(TOP_COMPLICATION_ID, SystemProviders.DATE,
                         ComplicationData.TYPE_SHORT_TEXT)
-                setActiveComplications(TOP_COMPLICATION_ID)
-                dateComplication = (this@MuzeiWatchFace.getDrawable(R.drawable.date_complication)
+                setDefaultComplicationProvider(BOTTOM_COMPLICATION_ID,
+                        ComponentName(this@MuzeiWatchFace,
+                                ArtworkComplicationProviderService::class.java),
+                        ComplicationData.TYPE_LONG_TEXT)
+                setActiveComplications(TOP_COMPLICATION_ID, BOTTOM_COMPLICATION_ID)
+                dateComplication = (getDrawable(R.drawable.complication)
+                        as ComplicationDrawable).apply {
+                    setContext(this@MuzeiWatchFace)
+                }
+                bottomComplication = (getDrawable(R.drawable.complication)
                         as ComplicationDrawable).apply {
                     setContext(this@MuzeiWatchFace)
                 }
@@ -307,8 +319,8 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                         WatchFaceStyle.PROTECT_HOTWORD_INDICATOR or WatchFaceStyle.PROTECT_STATUS_BAR)
                     .setAcceptsTapEvents(true)
                     .build())
-            dateComplication?.run {
-                setBackgroundColorActive(if (blurred) Color.TRANSPARENT else 0x66000000)
+            listOfNotNull(dateComplication, bottomComplication).forEach {
+                it.setBackgroundColorActive(if (blurred) Color.TRANSPARENT else 0x66000000)
             }
             invalidate()
         }
@@ -414,9 +426,9 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
             recomputeClockTextHeight()
 
             lowBitAmbient = properties.getBoolean(WatchFaceService.PROPERTY_LOW_BIT_AMBIENT, false)
-            dateComplication?.run {
-                setBurnInProtection(burnInProtection)
-                setLowBitAmbient(lowBitAmbient)
+            listOfNotNull(dateComplication, bottomComplication).forEach {
+                it.setBurnInProtection(burnInProtection)
+                it.setLowBitAmbient(lowBitAmbient)
             }
             invalidate()
 
@@ -448,6 +460,9 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                 TOP_COMPLICATION_ID -> {
                     dateComplication?.setComplicationData(data)
                 }
+                BOTTOM_COMPLICATION_ID -> {
+                    bottomComplication?.setComplicationData(data)
+                }
             }
             invalidate()
         }
@@ -456,7 +471,12 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
             when (tapType) {
                 WatchFaceService.TAP_TYPE_TAP -> {
                     when {
-                        dateComplication?.onTap(x, y) == true -> { invalidate() }
+                        dateComplication?.onTap(x, y) == true -> {
+                            invalidate()
+                        }
+                        bottomComplication?.onTap(x, y) == true -> {
+                            invalidate()
+                        }
                         else -> {
                             blurred = !blurred
                             val preferences = PreferenceManager.getDefaultSharedPreferences(this@MuzeiWatchFace)
@@ -485,7 +505,9 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                     datePaint.isAntiAlias = antiAlias
                     dateAmbientShadowPaint.isAntiAlias = antiAlias
                 }
-                dateComplication?.setInAmbientMode(ambient)
+                listOfNotNull(dateComplication, bottomComplication).forEach {
+                    it.setInAmbientMode(ambient)
+                }
                 invalidate()
             }
         }
@@ -538,8 +560,8 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                         var top = clockMargin.toInt()
                         var bottom = ((height - clockTextHeight - clockMargin) / 2).toInt()
                         val maxHeight = bottom - top
-                        if (maxHeight > dateMaxHeight.toInt()) {
-                            val difference = maxHeight - dateMaxHeight.toInt()
+                        if (maxHeight > complicationMaxHeight.toInt()) {
+                            val difference = maxHeight - complicationMaxHeight.toInt()
                             top += difference / 2
                             bottom -= difference / 2
                         }
@@ -575,6 +597,28 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                             xOffset,
                             yDateOffset,
                             datePaint)
+                }
+            }
+
+            // Draw the bottom complication
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                bottomComplication?.run {
+                    val (top, bottom) = run {
+                        var top = ((height + clockTextHeight + clockMargin) / 2).toInt()
+                        var bottom = height - clockMargin.toInt()
+                        val maxHeight = bottom - top
+                        if (maxHeight > complicationMaxHeight.toInt()) {
+                            val difference = maxHeight - complicationMaxHeight.toInt()
+                            top += difference / 2
+                            bottom -= difference / 2
+                        }
+                        Pair(top, bottom)
+                    }
+                    val complicationHeight = bottom - top
+                    val complicationWidth = (2.75f * complicationHeight).toInt()
+                    setBounds((canvas.width - complicationWidth) / 2, top,
+                            (canvas.width + complicationWidth) / 2, bottom)
+                    draw(canvas, calendar.timeInMillis)
                 }
             }
         }
