@@ -33,6 +33,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.Typeface
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -153,6 +154,17 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
         internal lateinit var dateFormat: SimpleDateFormat
         internal var dateComplication: ComplicationDrawable? = null
         internal var bottomComplication: ComplicationDrawable? = null
+        private val drawableCallback = object : Drawable.Callback {
+            override fun invalidateDrawable(who: Drawable?) {
+                invalidate()
+            }
+
+            override fun scheduleDrawable(who: Drawable?, what: Runnable?, `when`: Long) {
+            }
+
+            override fun unscheduleDrawable(who: Drawable?, what: Runnable?) {
+            }
+        }
 
         /**
          * Handler to update the time periodically in interactive mode.
@@ -282,6 +294,10 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                 bottomComplication = (getDrawable(R.drawable.complication)
                         as ComplicationDrawable).apply {
                     setContext(this@MuzeiWatchFace)
+                }
+
+                listOfNotNull(dateComplication, bottomComplication).forEach {
+                    it.callback = drawableCallback
                 }
             }
 
