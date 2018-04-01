@@ -228,10 +228,6 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
             lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
             FirebaseAnalytics.getInstance(this@MuzeiWatchFace).logEvent("watchface_created", null)
 
-            val preferences = PreferenceManager.getDefaultSharedPreferences(this@MuzeiWatchFace)
-            blurred = preferences.getBoolean(BLURRED_PREF_KEY, false)
-            updateWatchFaceStyle()
-
             clockPaint = Paint().apply {
                 color = Color.WHITE
                 setShadowLayer(1f * densityMultiplier, 0f, 0.5f * densityMultiplier,
@@ -276,6 +272,10 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                     setContext(this@MuzeiWatchFace)
                 }
             }
+
+            val preferences = PreferenceManager.getDefaultSharedPreferences(this@MuzeiWatchFace)
+            blurred = preferences.getBoolean(BLURRED_PREF_KEY, false)
+            updateWatchFaceStyle()
         }
 
         private fun recomputeClockTextHeight() {
