@@ -15,5 +15,15 @@
   -->
 
 <resources>
-    <bool name="supports_complications">false</bool>
+    <string name="config_tap_default">toggle</string>
+    <string-array name="config_tap_entries">
+        <item>Toggle blur</item>
+        <item>None (always blurred)</item>
+        <item>None (never blurred)</item>
+    </string-array>
+    <string-array name="config_tap_values">
+        <item>toggle</item>
+        <item>always</item>
+        <item>never</item>
+    </string-array>
 </resources>

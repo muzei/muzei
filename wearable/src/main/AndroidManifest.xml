@@ -121,7 +121,6 @@
 
         <activity
             android:name="com.google.android.apps.muzei.ConfigActivity"
-            android:enabled="@bool/supports_complications"
             android:theme="@style/ConfigTheme">
             <intent-filter>
                 <action android:name="com.google.android.apps.muzei.CONFIG_WATCH_FACE"/>

@@ -78,7 +78,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
 
     companion object {
         private const val TAG = "MuzeiWatchFace"
-        private const val TOP_COMPLICATION_ID = 0
+        internal const val TOP_COMPLICATION_ID = 0
         internal const val BOTTOM_COMPLICATION_ID = 1
 
         /**
@@ -152,7 +152,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
         internal lateinit var timeFormat12h: SimpleDateFormat
         internal lateinit var timeFormat24h: SimpleDateFormat
         internal lateinit var dateFormat: SimpleDateFormat
-        internal var dateComplication: ComplicationDrawable? = null
+        internal var topComplication: ComplicationDrawable? = null
         internal var bottomComplication: ComplicationDrawable? = null
         private val drawableCallback = object : Drawable.Callback {
             override fun invalidateDrawable(who: Drawable?) {
@@ -206,6 +206,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
          * disable anti-aliasing in ambient mode.
          */
         internal var lowBitAmbient: Boolean = false
+        internal lateinit var tapAction: String
         internal var blurred: Boolean = false
 
         private inner class LoadImageContentObserver internal constructor(handler: Handler) : ContentObserver(handler) {
@@ -280,14 +281,20 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
             }
             recomputeDateFormat()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                setDefaultSystemComplicationProvider(TOP_COMPLICATION_ID, SystemProviders.DATE,
-                        ComplicationData.TYPE_SHORT_TEXT)
+                val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(
+                        this@MuzeiWatchFace)
+                val showDate = sharedPreferences.getBoolean(
+                        ConfigActivity.SHOW_DATE_PREFERENCE_KEY, true)
+                if (showDate) {
+                    setDefaultSystemComplicationProvider(TOP_COMPLICATION_ID, SystemProviders.DATE,
+                            ComplicationData.TYPE_SHORT_TEXT)
+                }
                 setDefaultComplicationProvider(BOTTOM_COMPLICATION_ID,
                         ComponentName(this@MuzeiWatchFace,
                                 ArtworkComplicationProviderService::class.java),
                         ComplicationData.TYPE_LONG_TEXT)
                 setActiveComplications(TOP_COMPLICATION_ID, BOTTOM_COMPLICATION_ID)
-                dateComplication = (getDrawable(R.drawable.complication)
+                topComplication = (getDrawable(R.drawable.complication)
                         as ComplicationDrawable).apply {
                     setContext(this@MuzeiWatchFace)
                 }
@@ -296,13 +303,23 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                     setContext(this@MuzeiWatchFace)
                 }
 
-                listOfNotNull(dateComplication, bottomComplication).forEach {
+                listOfNotNull(topComplication, bottomComplication).forEach {
                     it.callback = drawableCallback
                 }
             }
 
+            updateBlurredStatus()
+        }
+
+        private fun updateBlurredStatus() {
             val preferences = PreferenceManager.getDefaultSharedPreferences(this@MuzeiWatchFace)
-            blurred = preferences.getBoolean(BLURRED_PREF_KEY, false)
+            tapAction = preferences.getString(ConfigActivity.TAP_PREFERENCE_KEY,
+                    getString(R.string.config_tap_default))
+            blurred = when(tapAction) {
+                "always" -> true
+                "never" -> false
+                else -> preferences.getBoolean(BLURRED_PREF_KEY, false)
+            }
             updateWatchFaceStyle()
         }
 
@@ -335,7 +352,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                         WatchFaceStyle.PROTECT_HOTWORD_INDICATOR or WatchFaceStyle.PROTECT_STATUS_BAR)
                     .setAcceptsTapEvents(true)
                     .build())
-            listOfNotNull(dateComplication, bottomComplication).forEach {
+            listOfNotNull(topComplication, bottomComplication).forEach {
                 it.setBackgroundColorActive(if (blurred) Color.TRANSPARENT else 0x66000000)
             }
             invalidate()
@@ -398,6 +415,9 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                 // Load the image in case it has changed while we weren't visible
                 loadImageHandler.post { loadImageContentObserver.onChange(true) }
 
+                // Update the blurred status in case the preference has changed
+                updateBlurredStatus()
+
                 updateTimeHandler.sendEmptyMessage(MSG_UPDATE_TIME)
             } else {
                 updateTimeHandler.removeMessages(MSG_UPDATE_TIME)
@@ -442,7 +462,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
             recomputeClockTextHeight()
 
             lowBitAmbient = properties.getBoolean(WatchFaceService.PROPERTY_LOW_BIT_AMBIENT, false)
-            listOfNotNull(dateComplication, bottomComplication).forEach {
+            listOfNotNull(topComplication, bottomComplication).forEach {
                 it.setBurnInProtection(burnInProtection)
                 it.setLowBitAmbient(lowBitAmbient)
             }
@@ -474,7 +494,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
         override fun onComplicationDataUpdate(watchFaceComplicationId: Int, data: ComplicationData?) {
             when (watchFaceComplicationId) {
                 TOP_COMPLICATION_ID -> {
-                    dateComplication?.setComplicationData(data)
+                    topComplication?.setComplicationData(data)
                 }
                 BOTTOM_COMPLICATION_ID -> {
                     bottomComplication?.setComplicationData(data)
@@ -487,13 +507,13 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
             when (tapType) {
                 WatchFaceService.TAP_TYPE_TAP -> {
                     when {
-                        dateComplication?.onTap(x, y) == true -> {
+                        topComplication?.onTap(x, y) == true -> {
                             invalidate()
                         }
                         bottomComplication?.onTap(x, y) == true -> {
                             invalidate()
                         }
-                        else -> {
+                        tapAction == "toggle" -> {
                             blurred = !blurred
                             val preferences = PreferenceManager.getDefaultSharedPreferences(this@MuzeiWatchFace)
                             preferences.edit { putBoolean(BLURRED_PREF_KEY, blurred) }
@@ -521,7 +541,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                     datePaint.isAntiAlias = antiAlias
                     dateAmbientShadowPaint.isAntiAlias = antiAlias
                 }
-                listOfNotNull(dateComplication, bottomComplication).forEach {
+                listOfNotNull(topComplication, bottomComplication).forEach {
                     it.setInAmbientMode(ambient)
                 }
                 invalidate()
@@ -571,7 +591,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                     clockPaint)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                dateComplication?.run {
+                topComplication?.run {
                     val (top, bottom) = run {
                         var top = clockMargin.toInt()
                         var bottom = ((height - clockTextHeight - clockMargin) / 2).toInt()
@@ -583,12 +603,16 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                         }
                         Pair(top, bottom)
                     }
-                    val dateHeight = bottom - top
-                    setBounds((canvas.width - dateHeight) / 2, top,
-                            (canvas.width + dateHeight) / 2, bottom)
+                    val complicationHeight = bottom - top
+                    setBounds((canvas.width - complicationHeight) / 2, top,
+                            (canvas.width + complicationHeight) / 2, bottom)
                     draw(canvas, calendar.timeInMillis)
                 }
             } else {
+                val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(
+                        this@MuzeiWatchFace)
+                val showDate = sharedPreferences.getBoolean(
+                        ConfigActivity.SHOW_DATE_PREFERENCE_KEY, true)
                 // If no card is visible, we have the entire screen.
                 // Otherwise, only the space above the card is available
                 val spaceAvailable = (if (cardBounds.top == 0) height else cardBounds.top).toFloat()
@@ -599,7 +623,8 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                 // Only show the date if the height of the clock + date + margin fits in the
                 // available space Otherwise it may be obstructed by an app icon (square)
                 // or unread notification / charging indicator (round)
-                if (clockHeight + dateHeight + dateMinAvailableMargin < spaceAvailable) {
+                if (showDate &&
+                        clockHeight + dateHeight + dateMinAvailableMargin < spaceAvailable) {
                     // Draw the date
                     val formattedDate = dateFormat.format(calendar.time)
                     val yDateOffset = yOffset - clockTextHeight - clockMargin // date above centered time

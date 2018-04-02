@@ -29,8 +29,5 @@
     <style name="ConfigTheme" parent="android:Theme.DeviceDefault">
         <item name="android:windowBackground">@android:color/black</item>
         <item name="android:colorControlActivated">#3c6caf</item>
-        <item name="android:progressBarStyleLarge">
-            @android:style/Widget.Material.ProgressBar.Large
-        </item>
     </style>
 </resources>
