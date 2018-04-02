@@ -78,7 +78,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
 
     companion object {
         private const val TAG = "MuzeiWatchFace"
-        private const val TOP_COMPLICATION_ID = 0
+        internal const val TOP_COMPLICATION_ID = 0
         internal const val BOTTOM_COMPLICATION_ID = 1
 
         /**
@@ -152,7 +152,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
         internal lateinit var timeFormat12h: SimpleDateFormat
         internal lateinit var timeFormat24h: SimpleDateFormat
         internal lateinit var dateFormat: SimpleDateFormat
-        internal var dateComplication: ComplicationDrawable? = null
+        internal var topComplication: ComplicationDrawable? = null
         internal var bottomComplication: ComplicationDrawable? = null
         private val drawableCallback = object : Drawable.Callback {
             override fun invalidateDrawable(who: Drawable?) {
@@ -288,7 +288,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                                 ArtworkComplicationProviderService::class.java),
                         ComplicationData.TYPE_LONG_TEXT)
                 setActiveComplications(TOP_COMPLICATION_ID, BOTTOM_COMPLICATION_ID)
-                dateComplication = (getDrawable(R.drawable.complication)
+                topComplication = (getDrawable(R.drawable.complication)
                         as ComplicationDrawable).apply {
                     setContext(this@MuzeiWatchFace)
                 }
@@ -297,7 +297,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                     setContext(this@MuzeiWatchFace)
                 }
 
-                listOfNotNull(dateComplication, bottomComplication).forEach {
+                listOfNotNull(topComplication, bottomComplication).forEach {
                     it.callback = drawableCallback
                 }
             }
@@ -346,7 +346,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                         WatchFaceStyle.PROTECT_HOTWORD_INDICATOR or WatchFaceStyle.PROTECT_STATUS_BAR)
                     .setAcceptsTapEvents(true)
                     .build())
-            listOfNotNull(dateComplication, bottomComplication).forEach {
+            listOfNotNull(topComplication, bottomComplication).forEach {
                 it.setBackgroundColorActive(if (blurred) Color.TRANSPARENT else 0x66000000)
             }
             invalidate()
@@ -456,7 +456,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
             recomputeClockTextHeight()
 
             lowBitAmbient = properties.getBoolean(WatchFaceService.PROPERTY_LOW_BIT_AMBIENT, false)
-            listOfNotNull(dateComplication, bottomComplication).forEach {
+            listOfNotNull(topComplication, bottomComplication).forEach {
                 it.setBurnInProtection(burnInProtection)
                 it.setLowBitAmbient(lowBitAmbient)
             }
@@ -488,7 +488,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
         override fun onComplicationDataUpdate(watchFaceComplicationId: Int, data: ComplicationData?) {
             when (watchFaceComplicationId) {
                 TOP_COMPLICATION_ID -> {
-                    dateComplication?.setComplicationData(data)
+                    topComplication?.setComplicationData(data)
                 }
                 BOTTOM_COMPLICATION_ID -> {
                     bottomComplication?.setComplicationData(data)
@@ -501,7 +501,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
             when (tapType) {
                 WatchFaceService.TAP_TYPE_TAP -> {
                     when {
-                        dateComplication?.onTap(x, y) == true -> {
+                        topComplication?.onTap(x, y) == true -> {
                             invalidate()
                         }
                         bottomComplication?.onTap(x, y) == true -> {
@@ -535,7 +535,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                     datePaint.isAntiAlias = antiAlias
                     dateAmbientShadowPaint.isAntiAlias = antiAlias
                 }
-                listOfNotNull(dateComplication, bottomComplication).forEach {
+                listOfNotNull(topComplication, bottomComplication).forEach {
                     it.setInAmbientMode(ambient)
                 }
                 invalidate()
@@ -585,7 +585,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                     clockPaint)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                dateComplication?.run {
+                topComplication?.run {
                     val (top, bottom) = run {
                         var top = clockMargin.toInt()
                         var bottom = ((height - clockTextHeight - clockMargin) / 2).toInt()
@@ -597,9 +597,9 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                         }
                         Pair(top, bottom)
                     }
-                    val dateHeight = bottom - top
-                    setBounds((canvas.width - dateHeight) / 2, top,
-                            (canvas.width + dateHeight) / 2, bottom)
+                    val complicationHeight = bottom - top
+                    setBounds((canvas.width - complicationHeight) / 2, top,
+                            (canvas.width + complicationHeight) / 2, bottom)
                     draw(canvas, calendar.timeInMillis)
                 }
             } else {

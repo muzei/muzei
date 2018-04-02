@@ -39,7 +39,8 @@ import java.util.concurrent.Executors
 class ConfigActivity : PreferenceActivity() {
 
     companion object {
-        private const val CHOOSE_COMPLICATION_REQUEST_CODE = 1
+        private const val CHOOSE_TOP_COMPLICATION_REQUEST_CODE = 1
+        private const val CHOOSE_BOTTOM_COMPLICATION_REQUEST_CODE = 2
         internal const val TAP_PREFERENCE_KEY = "config_tap"
     }
 
@@ -49,6 +50,7 @@ class ConfigActivity : PreferenceActivity() {
     private val providerInfoRetriever : ProviderInfoRetriever by lazy {
         ProviderInfoRetriever(this, executor)
     }
+    private lateinit var topPreference: Preference
     private lateinit var bottomPreference: Preference
 
     @Suppress("DEPRECATION")
@@ -56,6 +58,7 @@ class ConfigActivity : PreferenceActivity() {
         super.onCreate(savedState)
         addPreferencesFromResource(R.xml.config_preferences)
         providerInfoRetriever.init()
+        topPreference = findPreference("config_top_complication")
         bottomPreference = findPreference("config_bottom_complication")
         providerInfoRetriever.retrieveProviderInfo(
                 object : ProviderInfoRetriever.OnProviderInfoReceivedCallback() {
@@ -63,11 +66,22 @@ class ConfigActivity : PreferenceActivity() {
                             watchFaceComplicationId: Int,
                             info: ComplicationProviderInfo?
                     ) {
-                        updateComplicationPreference(bottomPreference, info)
+                        when (watchFaceComplicationId) {
+                            MuzeiWatchFace.TOP_COMPLICATION_ID ->
+                                updateComplicationPreference(topPreference, info)
+                            MuzeiWatchFace.BOTTOM_COMPLICATION_ID ->
+                                updateComplicationPreference(bottomPreference, info)
+                        }
                     }
                 },
                 ComponentName(this, MuzeiWatchFace::class.java),
-                MuzeiWatchFace.BOTTOM_COMPLICATION_ID)
+                MuzeiWatchFace.TOP_COMPLICATION_ID, MuzeiWatchFace.BOTTOM_COMPLICATION_ID)
+        topPreference.apply {
+            onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                selectTopComplication()
+                true
+            }
+        }
         bottomPreference.apply {
             onPreferenceClickListener = Preference.OnPreferenceClickListener {
                 selectBottomComplication()
@@ -106,6 +120,17 @@ class ConfigActivity : PreferenceActivity() {
         preference.summary = entries[values.indexOf(tapAction)]
     }
 
+    private fun selectTopComplication() {
+        val intent = ComplicationHelperActivity.createProviderChooserHelperIntent(this,
+                ComponentName(this, MuzeiWatchFace::class.java),
+                MuzeiWatchFace.TOP_COMPLICATION_ID,
+                ComplicationData.TYPE_RANGED_VALUE,
+                ComplicationData.TYPE_SHORT_TEXT,
+                ComplicationData.TYPE_SMALL_IMAGE,
+                ComplicationData.TYPE_ICON)
+        startActivityForResult(intent, CHOOSE_TOP_COMPLICATION_REQUEST_CODE)
+    }
+
     private fun selectBottomComplication() {
         val intent = ComplicationHelperActivity.createProviderChooserHelperIntent(this,
                 ComponentName(this, MuzeiWatchFace::class.java),
@@ -113,12 +138,21 @@ class ConfigActivity : PreferenceActivity() {
                 ComplicationData.TYPE_LONG_TEXT,
                 ComplicationData.TYPE_RANGED_VALUE,
                 ComplicationData.TYPE_SHORT_TEXT)
-        startActivityForResult(intent, CHOOSE_COMPLICATION_REQUEST_CODE)
+        startActivityForResult(intent, CHOOSE_BOTTOM_COMPLICATION_REQUEST_CODE)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
-            CHOOSE_COMPLICATION_REQUEST_CODE -> {
+            CHOOSE_TOP_COMPLICATION_REQUEST_CODE -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    updateComplicationPreference(
+                            topPreference,
+                            data?.getParcelableExtra(ProviderChooserIntent.EXTRA_PROVIDER_INFO)
+                                    as ComplicationProviderInfo?)
+
+                }
+            }
+            CHOOSE_BOTTOM_COMPLICATION_REQUEST_CODE -> {
                 if (resultCode == Activity.RESULT_OK) {
                     updateComplicationPreference(
                             bottomPreference,
