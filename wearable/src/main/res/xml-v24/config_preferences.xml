@@ -17,6 +17,14 @@
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <Preference
+        android:icon="@drawable/ic_config_empty_complication"
+        android:key="config_top_complication"
+        android:title="@string/config_top_complication_title"/>
+    <Preference
+        android:icon="@drawable/ic_config_empty_complication"
+        android:key="config_bottom_complication"
+        android:title="@string/config_bottom_complication_title"/>
     <ListPreference
         android:defaultValue="@string/config_tap_default"
         android:entries="@array/config_tap_entries"

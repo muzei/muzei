@@ -19,6 +19,7 @@ package com.google.android.apps.muzei
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.preference.Preference
 import android.preference.PreferenceActivity
@@ -57,35 +58,37 @@ class ConfigActivity : PreferenceActivity() {
     public override fun onCreate(savedState: Bundle?) {
         super.onCreate(savedState)
         addPreferencesFromResource(R.xml.config_preferences)
-        providerInfoRetriever.init()
-        topPreference = findPreference("config_top_complication")
-        bottomPreference = findPreference("config_bottom_complication")
-        providerInfoRetriever.retrieveProviderInfo(
-                object : ProviderInfoRetriever.OnProviderInfoReceivedCallback() {
-                    override fun onProviderInfoReceived(
-                            watchFaceComplicationId: Int,
-                            info: ComplicationProviderInfo?
-                    ) {
-                        when (watchFaceComplicationId) {
-                            MuzeiWatchFace.TOP_COMPLICATION_ID ->
-                                updateComplicationPreference(topPreference, info)
-                            MuzeiWatchFace.BOTTOM_COMPLICATION_ID ->
-                                updateComplicationPreference(bottomPreference, info)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            providerInfoRetriever.init()
+            topPreference = findPreference("config_top_complication")
+            bottomPreference = findPreference("config_bottom_complication")
+            providerInfoRetriever.retrieveProviderInfo(
+                    object : ProviderInfoRetriever.OnProviderInfoReceivedCallback() {
+                        override fun onProviderInfoReceived(
+                                watchFaceComplicationId: Int,
+                                info: ComplicationProviderInfo?
+                        ) {
+                            when (watchFaceComplicationId) {
+                                MuzeiWatchFace.TOP_COMPLICATION_ID ->
+                                    updateComplicationPreference(topPreference, info)
+                                MuzeiWatchFace.BOTTOM_COMPLICATION_ID ->
+                                    updateComplicationPreference(bottomPreference, info)
+                            }
                         }
-                    }
-                },
-                ComponentName(this, MuzeiWatchFace::class.java),
-                MuzeiWatchFace.TOP_COMPLICATION_ID, MuzeiWatchFace.BOTTOM_COMPLICATION_ID)
-        topPreference.apply {
-            onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                selectTopComplication()
-                true
+                    },
+                    ComponentName(this, MuzeiWatchFace::class.java),
+                    MuzeiWatchFace.TOP_COMPLICATION_ID, MuzeiWatchFace.BOTTOM_COMPLICATION_ID)
+            topPreference.apply {
+                onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                    selectTopComplication()
+                    true
+                }
             }
-        }
-        bottomPreference.apply {
-            onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                selectBottomComplication()
-                true
+            bottomPreference.apply {
+                onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                    selectBottomComplication()
+                    true
+                }
             }
         }
         findPreference(TAP_PREFERENCE_KEY)?.let { preference ->
@@ -171,6 +174,8 @@ class ConfigActivity : PreferenceActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        providerInfoRetriever.release()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            providerInfoRetriever.release()
+        }
     }
 }
