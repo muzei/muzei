@@ -281,8 +281,14 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
             }
             recomputeDateFormat()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                setDefaultSystemComplicationProvider(TOP_COMPLICATION_ID, SystemProviders.DATE,
-                        ComplicationData.TYPE_SHORT_TEXT)
+                val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(
+                        this@MuzeiWatchFace)
+                val showDate = sharedPreferences.getBoolean(
+                        ConfigActivity.SHOW_DATE_PREFERENCE_KEY, true)
+                if (showDate) {
+                    setDefaultSystemComplicationProvider(TOP_COMPLICATION_ID, SystemProviders.DATE,
+                            ComplicationData.TYPE_SHORT_TEXT)
+                }
                 setDefaultComplicationProvider(BOTTOM_COMPLICATION_ID,
                         ComponentName(this@MuzeiWatchFace,
                                 ArtworkComplicationProviderService::class.java),
@@ -603,6 +609,10 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                     draw(canvas, calendar.timeInMillis)
                 }
             } else {
+                val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(
+                        this@MuzeiWatchFace)
+                val showDate = sharedPreferences.getBoolean(
+                        ConfigActivity.SHOW_DATE_PREFERENCE_KEY, true)
                 // If no card is visible, we have the entire screen.
                 // Otherwise, only the space above the card is available
                 val spaceAvailable = (if (cardBounds.top == 0) height else cardBounds.top).toFloat()
@@ -613,7 +623,8 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                 // Only show the date if the height of the clock + date + margin fits in the
                 // available space Otherwise it may be obstructed by an app icon (square)
                 // or unread notification / charging indicator (round)
-                if (clockHeight + dateHeight + dateMinAvailableMargin < spaceAvailable) {
+                if (showDate &&
+                        clockHeight + dateHeight + dateMinAvailableMargin < spaceAvailable) {
                     // Draw the date
                     val formattedDate = dateFormat.format(calendar.time)
                     val yDateOffset = yOffset - clockTextHeight - clockMargin // date above centered time

@@ -42,6 +42,7 @@ class ConfigActivity : PreferenceActivity() {
     companion object {
         private const val CHOOSE_TOP_COMPLICATION_REQUEST_CODE = 1
         private const val CHOOSE_BOTTOM_COMPLICATION_REQUEST_CODE = 2
+        internal const val SHOW_DATE_PREFERENCE_KEY = "config_show_date"
         internal const val TAP_PREFERENCE_KEY = "config_tap"
     }
 
