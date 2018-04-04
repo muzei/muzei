@@ -30,8 +30,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.OvershootInterpolator
 import android.widget.ImageView
-import androidx.animation.doOnEnd
-import androidx.content.edit
+import androidx.core.animation.doOnEnd
+import androidx.core.content.edit
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
 

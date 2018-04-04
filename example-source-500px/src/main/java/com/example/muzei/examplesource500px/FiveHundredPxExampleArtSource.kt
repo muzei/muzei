@@ -18,7 +18,7 @@ package com.example.muzei.examplesource500px
 
 import android.content.Intent
 import android.util.Log
-import androidx.net.toUri
+import androidx.core.net.toUri
 import com.example.muzei.examplesource500px.FiveHundredPxService.Photo
 import com.google.android.apps.muzei.api.Artwork
 import com.google.android.apps.muzei.api.RemoteMuzeiArtSource

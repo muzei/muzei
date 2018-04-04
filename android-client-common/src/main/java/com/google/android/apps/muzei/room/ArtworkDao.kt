@@ -29,7 +29,7 @@ import android.database.Cursor
 import android.net.Uri
 import android.provider.BaseColumns
 import android.util.Log
-import androidx.database.getLong
+import androidx.core.database.getLong
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.provider.MuzeiProvider
 import com.google.android.apps.muzei.room.converter.ComponentNameTypeConverter

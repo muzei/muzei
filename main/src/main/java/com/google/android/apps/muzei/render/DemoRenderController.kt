@@ -20,7 +20,7 @@ import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.os.Handler
-import androidx.animation.doOnEnd
+import androidx.core.animation.doOnEnd
 
 class DemoRenderController(
         context: Context, renderer: MuzeiBlurRenderer,

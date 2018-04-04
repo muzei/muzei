@@ -27,7 +27,7 @@ import android.text.method.LinkMovementMethod
 import android.view.View
 import android.view.ViewPropertyAnimator
 import android.widget.TextView
-import androidx.net.toUri
+import androidx.core.net.toUri
 import com.google.android.apps.muzei.render.MuzeiRendererFragment
 import com.google.android.apps.muzei.util.AnimatedMuzeiLogoFragment
 import net.nurik.roman.muzei.BuildConfig

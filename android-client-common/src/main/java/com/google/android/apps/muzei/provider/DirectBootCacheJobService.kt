@@ -12,7 +12,7 @@ import android.os.Build
 import android.support.annotation.RequiresApi
 import android.support.v4.content.ContextCompat
 import android.util.Log
-import androidx.content.systemService
+import androidx.core.content.systemService
 import com.google.android.apps.muzei.api.MuzeiContract
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.File

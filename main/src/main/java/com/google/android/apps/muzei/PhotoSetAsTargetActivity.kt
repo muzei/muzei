@@ -22,7 +22,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.os.bundleOf
+import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.single.SingleArtSource
 import com.google.android.apps.muzei.sources.SourceManager
 import com.google.android.apps.muzei.util.observeOnce

@@ -35,7 +35,7 @@ import android.support.v4.content.ContextCompat
 import android.support.wearable.activity.ConfirmationActivity
 import android.util.Log
 import android.widget.Toast
-import androidx.content.edit
+import androidx.core.content.edit
 import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.CapabilityClient
 import com.google.android.gms.wearable.CapabilityInfo

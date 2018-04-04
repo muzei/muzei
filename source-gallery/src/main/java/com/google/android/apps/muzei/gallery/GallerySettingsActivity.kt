@@ -67,8 +67,8 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.ViewAnimator
-import androidx.content.edit
-import androidx.database.getStringOrNull
+import androidx.core.content.edit
+import androidx.core.database.getStringOrNull
 import com.google.android.apps.muzei.util.MultiSelectionController
 import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.util.observeOnce

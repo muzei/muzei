@@ -25,7 +25,7 @@ import android.provider.Settings
 import android.support.v4.app.DialogFragment
 import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
-import androidx.content.edit
+import androidx.core.content.edit
 import net.nurik.roman.muzei.R
 
 class NotificationSettingsDialogFragment : DialogFragment() {

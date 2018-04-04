@@ -27,7 +27,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.SeekBar
-import androidx.content.edit
+import androidx.core.content.edit
 
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer
 

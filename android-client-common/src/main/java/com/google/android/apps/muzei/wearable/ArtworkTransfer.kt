@@ -18,8 +18,8 @@
 
 package com.google.android.apps.muzei.wearable
 
-import androidx.net.toUri
-import androidx.os.bundleOf
+import androidx.core.net.toUri
+import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.gms.wearable.DataMap
 

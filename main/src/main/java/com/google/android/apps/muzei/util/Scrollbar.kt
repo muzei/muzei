@@ -23,7 +23,7 @@ import android.graphics.Path
 import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.View
-import androidx.content.res.use
+import androidx.core.content.res.use
 import net.nurik.roman.muzei.R
 
 class Scrollbar @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0)

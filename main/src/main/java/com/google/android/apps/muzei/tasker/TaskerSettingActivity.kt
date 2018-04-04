@@ -19,7 +19,7 @@ package com.google.android.apps.muzei.tasker
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import androidx.os.bundleOf
+import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.internal.ProtocolConstants
 import com.twofortyfouram.locale.api.Intent.EXTRA_BUNDLE

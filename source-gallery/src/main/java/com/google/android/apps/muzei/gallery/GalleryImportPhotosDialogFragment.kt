@@ -11,7 +11,7 @@ import android.support.v4.app.DialogFragment
 import android.support.v4.app.FragmentManager
 import android.support.v7.app.AlertDialog
 import android.widget.ArrayAdapter
-import androidx.content.withStyledAttributes
+import androidx.core.content.withStyledAttributes
 import com.google.android.apps.muzei.util.observe
 
 class GalleryImportPhotosDialogFragment : DialogFragment() {

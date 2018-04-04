@@ -27,8 +27,8 @@ import android.support.wearable.complications.ComplicationManager
 import android.support.wearable.complications.ComplicationProviderService
 import android.support.wearable.complications.ComplicationText
 import android.util.Log
-import androidx.content.edit
-import androidx.os.bundleOf
+import androidx.core.content.edit
+import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.FullScreenActivity
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.room.MuzeiDatabase

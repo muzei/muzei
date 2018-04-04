@@ -51,7 +51,7 @@ import android.text.format.DateFormat
 import android.util.Log
 import android.view.Gravity
 import android.view.SurfaceHolder
-import androidx.content.edit
+import androidx.core.content.edit
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.complications.ArtworkComplicationProviderService
 import com.google.android.apps.muzei.datalayer.ArtworkCacheIntentService

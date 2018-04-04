@@ -56,7 +56,7 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.TextView
 import android.widget.Toast
-import androidx.os.bundleOf
+import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
 import com.google.android.apps.muzei.room.MuzeiDatabase
