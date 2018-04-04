@@ -57,6 +57,7 @@ import android.view.ViewTreeObserver
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.os.bundleOf
+import androidx.core.widget.toast
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
 import com.google.android.apps.muzei.room.MuzeiDatabase
@@ -188,10 +189,9 @@ class ChooseSourceFragment : Fragment() {
                     preferPackageForIntent(playStoreIntent, PLAY_STORE_PACKAGE_NAME)
                     startActivity(playStoreIntent)
                 } catch (e: ActivityNotFoundException) {
-                    Toast.makeText(context,
-                            R.string.play_store_not_found, Toast.LENGTH_LONG).show()
+                    requireContext().toast(R.string.play_store_not_found, Toast.LENGTH_LONG)
                 } catch (e: SecurityException) {
-                    Toast.makeText(context, R.string.play_store_not_found, Toast.LENGTH_LONG).show()
+                    requireContext().toast(R.string.play_store_not_found, Toast.LENGTH_LONG)
                 }
 
                 return true

@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.ShareCompat
 import android.util.Log
-import android.widget.Toast
+import androidx.core.widget.toast
 import com.google.android.apps.muzei.util.observeOnce
 
 /**
@@ -65,14 +65,13 @@ class GalleryAddPhotosActivity : Activity() {
 
     private fun updateCount() {
         if (successCount + failureCount == streamCount) {
-            val message = if (failureCount == 0) {
+            toast(if (failureCount == 0) {
                 resources.getQuantityString(R.plurals.gallery_add_photos_success,
                         successCount, successCount)
             } else {
                 resources.getQuantityString(R.plurals.gallery_add_photos_failure,
                         failureCount, failureCount, streamCount)
-            }
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+            })
             finish()
         }
     }

@@ -30,6 +30,7 @@ import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.support.annotation.RequiresApi
 import android.widget.Toast
+import androidx.core.widget.toast
 import com.google.android.apps.muzei.MuzeiWallpaperService
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.room.MuzeiDatabase
@@ -123,8 +124,7 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
                             startActivityAndCollapse(Intent(WallpaperManager.ACTION_LIVE_WALLPAPER_CHOOSER)
                                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                         } catch (e: ActivityNotFoundException) {
-                            Toast.makeText(context, R.string.error_wallpaper_chooser,
-                                    Toast.LENGTH_LONG).show()
+                            context.toast(R.string.error_wallpaper_chooser, Toast.LENGTH_LONG)
                         }
                     }
                 }

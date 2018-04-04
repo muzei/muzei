@@ -69,6 +69,7 @@ import android.widget.Toast
 import android.widget.ViewAnimator
 import androidx.core.content.edit
 import androidx.core.database.getStringOrNull
+import androidx.core.widget.toast
 import com.google.android.apps.muzei.util.MultiSelectionController
 import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.util.observeOnce
@@ -268,8 +269,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                 startActivityForResult(intent, REQUEST_CHOOSE_FOLDER)
                 val preferences = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
                 if (preferences.getBoolean(SHOW_INTERNAL_STORAGE_MESSAGE, true)) {
-                    Toast.makeText(this, R.string.gallery_internal_storage_message,
-                            Toast.LENGTH_LONG).show()
+                    toast(R.string.gallery_internal_storage_message, Toast.LENGTH_LONG)
                 }
             } catch (e: ActivityNotFoundException) {
                 Snackbar.make(photoGridView, R.string.gallery_add_folder_error,
@@ -434,9 +434,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                                 Intent(this, GalleryArtSource::class.java)
                                         .setAction(GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM)
                                         .putExtra(GalleryArtSource.EXTRA_FORCE_URI, selectedUri))
-                        Toast.makeText(this,
-                                R.string.gallery_temporary_force_image,
-                                Toast.LENGTH_SHORT).show()
+                        toast(R.string.gallery_temporary_force_image)
                     }
                     multiSelectionController.reset(true)
                     return@setOnMenuItemClickListener true

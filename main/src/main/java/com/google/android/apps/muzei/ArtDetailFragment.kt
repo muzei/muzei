@@ -34,9 +34,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import androidx.core.widget.toast
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.notifications.NewWallpaperNotificationReceiver
@@ -144,8 +144,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
                 } catch (e: RuntimeException) {
                     // Catch ActivityNotFoundException, SecurityException,
                     // and FileUriExposedException
-                    Toast.makeText(context, R.string.error_view_details,
-                            Toast.LENGTH_SHORT).show()
+                    requireContext().toast(R.string.error_view_details)
                     Log.e(TAG, "Error viewing artwork details.", e)
                 }
             }

@@ -36,6 +36,7 @@ import android.os.Build
 import android.text.TextUtils
 import android.util.Log
 import android.widget.Toast
+import androidx.core.widget.toast
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_HANDLE_COMMAND
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_SUBSCRIBE
@@ -132,15 +133,15 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                                 .putExtra(EXTRA_COMMAND_ID, id))
                     } catch (e: PackageManager.NameNotFoundException) {
                         Log.i(TAG, "Sending action + $id to $selectedSource failed; switching to default.", e)
-                        Toast.makeText(context, R.string.source_unavailable, Toast.LENGTH_LONG).show()
+                        context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
                         selectSource(context, FeaturedArtSource::class)
                     } catch (e: IllegalStateException) {
                         Log.i(TAG, "Sending action + $id to $selectedSource failed; switching to default.", e)
-                        Toast.makeText(context, R.string.source_unavailable, Toast.LENGTH_LONG).show()
+                        context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
                         selectSource(context, FeaturedArtSource::class)
                     } catch (e: SecurityException) {
                         Log.i(TAG, "Sending action + $id to $selectedSource failed; switching to default.", e)
-                        Toast.makeText(context, R.string.source_unavailable, Toast.LENGTH_LONG).show()
+                        context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
                         selectSource(context, FeaturedArtSource::class)
                     }
                 }
@@ -379,15 +380,15 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                     .putExtra(EXTRA_TOKEN, selectedSource.flattenToShortString()))
         } catch (e: PackageManager.NameNotFoundException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
-            Toast.makeText(context, R.string.source_unavailable, Toast.LENGTH_LONG).show()
+            context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
             selectSource(context, FeaturedArtSource::class)
         } catch (e: IllegalStateException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
-            Toast.makeText(context, R.string.source_unavailable, Toast.LENGTH_LONG).show()
+            context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
             selectSource(context, FeaturedArtSource::class)
         } catch (e: SecurityException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
-            Toast.makeText(context, R.string.source_unavailable, Toast.LENGTH_LONG).show()
+            context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
             selectSource(context, FeaturedArtSource::class)
         }
     }

@@ -21,8 +21,8 @@ import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.core.os.bundleOf
+import androidx.core.widget.toast
 import com.google.android.apps.muzei.single.SingleArtSource
 import com.google.android.apps.muzei.sources.SourceManager
 import com.google.android.apps.muzei.util.observeOnce
@@ -43,7 +43,7 @@ class PhotoSetAsTargetActivity : Activity() {
             SingleArtSource.setArtwork(context, this).observeOnce { success ->
                 if (success == false) {
                     Log.e(TAG, "Unable to insert artwork for ${this@apply}")
-                    Toast.makeText(context, R.string.set_as_wallpaper_failed, Toast.LENGTH_SHORT).show()
+                    context.toast(R.string.set_as_wallpaper_failed)
                     finish()
                     return@observeOnce
                 }

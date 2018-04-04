@@ -34,8 +34,8 @@ import android.support.v4.app.NotificationCompat
 import android.support.v4.content.ContextCompat
 import android.support.wearable.activity.ConfirmationActivity
 import android.util.Log
-import android.widget.Toast
 import androidx.core.content.edit
+import androidx.core.widget.toast
 import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.CapabilityClient
 import com.google.android.gms.wearable.CapabilityInfo
@@ -207,8 +207,7 @@ class ActivateMuzeiIntentService : IntentService(TAG) {
                                 putBoolean(ACTIVATE_MUZEI_NOTIF_SHOWN_PREF_KEY, true)
                             }
                         } else {
-                            Toast.makeText(this@ActivateMuzeiIntentService,
-                                    R.string.activate_install_failed, Toast.LENGTH_SHORT).show()
+                            toast(R.string.activate_install_failed)
                         }
                     }
                 })
@@ -228,7 +227,7 @@ class ActivateMuzeiIntentService : IntentService(TAG) {
                 }
 
                 if (nodes.isEmpty()) {
-                    Toast.makeText(this, R.string.activate_failed, Toast.LENGTH_SHORT).show()
+                    toast(R.string.activate_failed)
                 } else {
                     FirebaseAnalytics.getInstance(this).logEvent("activate_notif_message_sent", null)
                     // Show the open on phone animation

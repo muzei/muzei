@@ -24,6 +24,7 @@ import android.support.customtabs.CustomTabsIntent
 import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.widget.Toast
+import androidx.core.widget.toast
 import com.google.android.apps.muzei.api.Artwork
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.api.RemoteMuzeiArtSource
@@ -136,9 +137,7 @@ class FeaturedArtSource : RemoteMuzeiArtSource(SOURCE_NAME) {
                 } ?: run {
                     Log.w(TAG, "No current artwork, can't share.")
                     Handler(Looper.getMainLooper()).post {
-                        Toast.makeText(this,
-                                R.string.featuredart_source_error_no_artwork_to_share,
-                                Toast.LENGTH_SHORT).show()
+                        toast(R.string.featuredart_source_error_no_artwork_to_share)
                     }
                 }
             }
@@ -169,9 +168,7 @@ class FeaturedArtSource : RemoteMuzeiArtSource(SOURCE_NAME) {
                 }
 
                 Handler(Looper.getMainLooper()).post {
-                    Toast.makeText(this@FeaturedArtSource,
-                            "Next update time: $nextUpdateTime",
-                            Toast.LENGTH_LONG).show()
+                    toast("Next update time: $nextUpdateTime", Toast.LENGTH_LONG)
                 }
             }
         }

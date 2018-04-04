@@ -26,6 +26,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.widget.toast
 
 import com.google.android.apps.muzei.util.AnimatedMuzeiLogoFragment
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -67,8 +68,7 @@ class IntroFragment : Fragment() {
                     startActivity(Intent(WallpaperManager.ACTION_LIVE_WALLPAPER_CHOOSER)
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                 } catch (e2: ActivityNotFoundException) {
-                    Toast.makeText(context, R.string.error_wallpaper_chooser,
-                            Toast.LENGTH_LONG).show()
+                    requireContext().toast(R.string.error_wallpaper_chooser, Toast.LENGTH_LONG)
                 }
             }
         }
