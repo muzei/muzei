@@ -20,9 +20,7 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
-import android.os.AsyncTask
 import android.os.Bundle
-
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.sources.SourceManager
 
@@ -58,7 +56,7 @@ class MuzeiAppWidgetProvider : AppWidgetProvider() {
 
     private fun updateWidgets(context: Context) {
         val result = goAsync()
-        PendingResultUpdateTask(context, result).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+        PendingResultUpdateTask(context, result).executeUpdate()
     }
 
     private class PendingResultUpdateTask internal constructor(
@@ -67,6 +65,10 @@ class MuzeiAppWidgetProvider : AppWidgetProvider() {
     ) : AppWidgetUpdateTask(context.applicationContext) {
 
         override fun onPostExecute(success: Boolean?) {
+            result.finish()
+        }
+
+        override fun onCancelled(success: Boolean?) {
             result.finish()
         }
     }
