@@ -22,7 +22,7 @@ buildscript {
         kotlinVersion = "1.2.31"
         ktxVersion = "0.3"
         supportLibraryVersion = "27.1.1"
-        constraintLayoutVersion = "1.0.2"
+        constraintLayoutVersion = "1.1.0"
         lifecycleVersion = "1.1.1"
         roomVersion = "1.1.0-beta2"
         pagingVersion = "1.0.0-beta1"
