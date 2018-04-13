@@ -18,6 +18,8 @@ package com.google.android.apps.muzei
 
 import android.app.WallpaperManager
 import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModel
+import android.arch.lifecycle.ViewModelProvider
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.preference.PreferenceManager
@@ -30,9 +32,13 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
 
-class MuzeiActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener, Observer<Boolean> {
+class MuzeiActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
     private var fadeIn = false
-    private var wallpaperActiveStateChanged = false
+    private val viewModel : MuzeiActivityViewModel by lazy {
+        val viewModelProvider = ViewModelProvider(this,
+                ViewModelProvider.AndroidViewModelFactory.getInstance(application))
+        viewModelProvider[MuzeiActivityViewModel::class.java]
+    }
 
     private val currentFragment: Fragment
         get() {
@@ -88,9 +94,7 @@ class MuzeiActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceC
             fadeIn = true
         }
 
-        // Use observeForever to continue to listen even after we're stopped
-        // as is the case when the wallpaper chooser is displayed over us
-        WallpaperActiveState.observeForever(this)
+        viewModel
         val sp = PreferenceManager.getDefaultSharedPreferences(this)
         sp.registerOnSharedPreferenceChangeListener(this)
     }
@@ -109,20 +113,19 @@ class MuzeiActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceC
     override fun onDestroy() {
         val sp = PreferenceManager.getDefaultSharedPreferences(this)
         sp.unregisterOnSharedPreferenceChangeListener(this)
-        WallpaperActiveState.removeObserver(this)
         super.onDestroy()
     }
 
     override fun onPostResume() {
         super.onPostResume()
 
-        if (wallpaperActiveStateChanged) {
+        if (viewModel.wallpaperActiveStateChanged) {
             val currentFragment = currentFragment
             supportFragmentManager.beginTransaction()
                     .replace(R.id.container, currentFragment)
                     .setPrimaryNavigationFragment(currentFragment)
                     .commit()
-            wallpaperActiveStateChanged = false
+            viewModel.wallpaperActiveStateChanged = false
         }
 
         if (fadeIn) {
@@ -139,8 +142,25 @@ class MuzeiActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceC
             fadeIn = false
         }
     }
+}
 
-    override fun onChanged(t: Boolean?) {
-        wallpaperActiveStateChanged = true
+class MuzeiActivityViewModel : ViewModel(), Observer<Boolean> {
+    internal var wallpaperActiveStateChanged = false
+    private var currentState = WallpaperActiveState.value
+
+    init {
+        // Use observeForever to continue to listen even after we're stopped
+        // as is the case when the wallpaper chooser is displayed over us
+        WallpaperActiveState.observeForever(this)
+    }
+
+    override fun onChanged(newState: Boolean?) {
+        if (currentState != newState) {
+            wallpaperActiveStateChanged = true
+        }
+    }
+
+    override fun onCleared() {
+        WallpaperActiveState.removeObserver(this)
     }
 }
