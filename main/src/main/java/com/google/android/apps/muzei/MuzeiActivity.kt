@@ -16,9 +16,12 @@
 
 package com.google.android.apps.muzei
 
+import android.app.Application
 import android.app.WallpaperManager
+import android.arch.lifecycle.AndroidViewModel
+import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -27,12 +30,13 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
 
-class MuzeiActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
+class MuzeiActivity : AppCompatActivity() {
     private var fadeIn = false
     private val viewModel : MuzeiActivityViewModel by lazy {
         val viewModelProvider = ViewModelProvider(this,
@@ -94,13 +98,7 @@ class MuzeiActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceC
             fadeIn = true
         }
 
-        viewModel
-        val sp = PreferenceManager.getDefaultSharedPreferences(this)
-        sp.registerOnSharedPreferenceChangeListener(this)
-    }
-
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        if (TutorialFragment.PREF_SEEN_TUTORIAL == key) {
+        viewModel.seenTutorialLiveData.observe(this) {
             val fragment = MainFragment()
             supportFragmentManager.beginTransaction()
                     .replace(R.id.container, fragment)
@@ -108,12 +106,6 @@ class MuzeiActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceC
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                     .commitAllowingStateLoss()
         }
-    }
-
-    override fun onDestroy() {
-        val sp = PreferenceManager.getDefaultSharedPreferences(this)
-        sp.unregisterOnSharedPreferenceChangeListener(this)
-        super.onDestroy()
     }
 
     override fun onPostResume() {
@@ -144,7 +136,29 @@ class MuzeiActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceC
     }
 }
 
-class MuzeiActivityViewModel : ViewModel(), Observer<Boolean> {
+class MuzeiActivityViewModel(
+        application: Application
+): AndroidViewModel(application), Observer<Boolean> {
+
+    internal val seenTutorialLiveData : LiveData<Boolean> = object : MutableLiveData<Boolean>(),
+            SharedPreferences.OnSharedPreferenceChangeListener {
+        val sp = PreferenceManager.getDefaultSharedPreferences(application)
+
+        override fun onActive() {
+            sp.registerOnSharedPreferenceChangeListener(this)
+        }
+
+        override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
+            if (TutorialFragment.PREF_SEEN_TUTORIAL == key) {
+                value = sp.getBoolean(TutorialFragment.PREF_SEEN_TUTORIAL, false)
+            }
+        }
+
+        override fun onInactive() {
+            sp.unregisterOnSharedPreferenceChangeListener(this)
+        }
+    }
+
     internal var wallpaperActiveStateChanged = false
     private var currentState = WallpaperActiveState.value
 
