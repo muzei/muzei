@@ -47,9 +47,6 @@ abstract class ArtworkDao {
     }
 
     @get:Query("SELECT * FROM artwork ORDER BY date_added DESC")
-    abstract val artwork: LiveData<List<Artwork>>
-
-    @get:Query("SELECT * FROM artwork ORDER BY date_added DESC")
     abstract val artworkBlocking: List<Artwork>
 
     @get:Query("SELECT * FROM artwork ORDER BY date_added DESC")
