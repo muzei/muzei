@@ -46,7 +46,7 @@ abstract class ArtworkDao {
         private const val TAG = "ArtworkDao"
     }
 
-    @get:Query("SELECT * FROM artwork ORDER BY date_added DESC")
+    @get:Query("SELECT * FROM artwork ORDER BY date_added DESC LIMIT 100")
     abstract val artworkBlocking: List<Artwork>
 
     @get:Query("SELECT * FROM artwork ORDER BY date_added DESC")
