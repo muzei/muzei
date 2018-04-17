@@ -174,10 +174,12 @@ private constructor(private val inputStream: InputStream, private val rotation: 
         if (options.inBitmap != null &&
                 (tempRect.width() != unsampledInBitmapWidth || tempRect.height() != unsampledInBitmapHeight)) {
             // Need to extract the sub-bitmap
+            val subBitmapWidth = Math.max(1, tempRect.width() / sampleSize)
+            val subBitmapHeight = Math.max(1, tempRect.height() / sampleSize)
             val subBitmap = Bitmap.createBitmap(
                     bitmap, 0, 0,
-                    tempRect.width() / sampleSize,
-                    tempRect.height() / sampleSize)
+                    subBitmapWidth,
+                    subBitmapHeight)
             if (bitmap != options.inBitmap && bitmap != subBitmap) {
                 bitmap.recycle()
             }
