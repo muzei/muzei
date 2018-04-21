@@ -171,6 +171,7 @@ class MuzeiActivityViewModel(
     override fun onChanged(newState: Boolean?) {
         if (currentState != newState) {
             wallpaperActiveStateChanged = true
+            currentState = newState
         }
     }
 
