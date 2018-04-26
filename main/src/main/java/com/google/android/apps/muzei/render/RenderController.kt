@@ -83,6 +83,7 @@ abstract class RenderController(
 
     open fun destroy() {
         queuedBitmapRegionLoader?.close()
+        queuedBitmapRegionLoader = null
         Prefs.getSharedPreferences(context)
                 .unregisterOnSharedPreferenceChangeListener(sharedPreferenceChangeListener)
         executorService.shutdownNow()
