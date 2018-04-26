@@ -153,7 +153,11 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
                 add(DocumentsContract.Document.COLUMN_SIZE, null)
             }
         } else {
-            val artworkId = documentId.toLong()
+            val artworkId = try { documentId.toLong() } catch (e : NumberFormatException) {
+                // Documents without a valid artworkId are no longer supported
+                // so just return an empty result
+                return result
+            }
             val artwork = MuzeiDatabase.getInstance(context).artworkDao().getArtworkById(artworkId)
             if (artwork != null) {
                 includeAllArtwork(result, listOf(artwork))
