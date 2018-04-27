@@ -107,6 +107,7 @@ public class ArtworkCacheIntentService extends IntentService {
         artwork.setSourceComponentName(sourceComponentName);
         // Check if the source info row exists at all.
         MuzeiDatabase database = MuzeiDatabase.getInstance(this);
+        database.beginTransaction();
         Source existingSource = database.sourceDao().getSourceByComponentNameBlocking(sourceComponentName);
         if (existingSource != null) {
             existingSource.setSelected(true);
@@ -116,11 +117,14 @@ public class ArtworkCacheIntentService extends IntentService {
             newSource.setSelected(true);
             database.sourceDao().insert(newSource);
         }
-        long id = database.artworkDao().insert(this, artwork);
+        long id = database.artworkDao().insert(artwork);
+        database.setTransactionSuccessful();
+        database.endTransaction();
         if (id == 0) {
             Log.w(TAG, "Unable to write artwork information to MuzeiProvider");
             return false;
         }
+        database.artworkDao().insertCompleted(this, id);
         DataClient.GetFdForAssetResponse result = null;
         InputStream in = null;
         try (OutputStream out = getContentResolver().openOutputStream(Artwork.getContentUri(id))) {

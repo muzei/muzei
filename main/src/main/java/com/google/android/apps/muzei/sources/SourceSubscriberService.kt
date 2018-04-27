@@ -99,10 +99,11 @@ class SourceSubscriberService : IntentService("SourceSubscriberService") {
                 }
             }
 
-            database.artworkDao().insert(this, artwork)
+            val artworkId = database.artworkDao().insert(artwork)
 
             database.setTransactionSuccessful()
             database.endTransaction()
+            database.artworkDao().insertCompleted(this, artworkId)
 
             // Download the artwork contained from the newly published SourceState
             startService(TaskQueueService.getDownloadCurrentArtworkIntent(this))

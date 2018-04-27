@@ -56,10 +56,9 @@ abstract class ArtworkDao {
     abstract val currentArtworkBlocking: Artwork?
 
     @Insert
-    internal abstract fun insertInternal(artwork: Artwork): Long
+    abstract fun insert(artwork: Artwork): Long
 
-    fun insert(context: Context, artwork: Artwork): Long {
-        val id = insertInternal(artwork)
+    fun insertCompleted(context: Context, id: Long) {
         val artworkFile = MuzeiProvider.getCacheFileForArtworkUri(context, id)
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Created artwork $id with cache file $artworkFile")
@@ -76,7 +75,6 @@ abstract class ArtworkDao {
                     Intent(MuzeiContract.Artwork.ACTION_ARTWORK_CHANGED))
             MuzeiProvider.cleanupCachedFiles(context)
         }
-        return id
     }
 
     @TypeConverters(ComponentNameTypeConverter::class)
