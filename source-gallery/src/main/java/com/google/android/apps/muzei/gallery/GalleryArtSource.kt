@@ -98,6 +98,10 @@ class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
                         val oldCount = numImages
                         // Update the metadata
                         numImages = if (chosenPhotos != null) updateMeta(chosenPhotos) else 0
+                        if (numImages == 0) {
+                            // We're showing random photos so no special logic is needed
+                            return
+                        }
 
                         val currentArtworkToken = currentArtwork?.token?.toUri()
                         val foundCurrentArtwork = chosenPhotos?.find { chosenPhoto ->
