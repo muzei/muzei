@@ -30,7 +30,7 @@ dependencies {
     implementation "com.android.support:support-fragment:$supportLibraryVersion"
     api "android.arch.persistence.room:runtime:$roomVersion"
     kapt "android.arch.persistence.room:compiler:$roomVersion"
-    api("com.google.android.gms:play-services-wearable:$googlePlayServicesVersion") {
+    api("com.google.android.gms:play-services-wearable:$playServicesWearableVersion") {
         exclude module: 'support-v4'
     }
 }
