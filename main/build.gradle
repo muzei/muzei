@@ -97,7 +97,9 @@ dependencies {
     implementation "com.google.firebase:firebase-core:$firebaseCoreVersion"
     implementation "com.google.firebase:firebase-perf:$firebasePerfVersion"
     implementation "com.crashlytics.sdk.android:crashlytics:$crashlyticsVersion"
-    implementation "com.twofortyfouram:android-plugin-api-for-locale:1.0.2"
+    implementation ("com.twofortyfouram:android-plugin-api-for-locale:1.0.2") {
+        exclude module: 'support-annotations'
+    }
     implementation "com.android.support:appcompat-v7:$supportLibraryVersion"
     implementation "com.android.support:recyclerview-v7:$supportLibraryVersion"
     implementation "com.android.support:design:$supportLibraryVersion"
