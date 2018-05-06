@@ -351,8 +351,8 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                         break
                     }
                 }
-                pendingResult.finish()
             }
+            pendingResult.finish()
         }
     }
 }
