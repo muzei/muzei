@@ -19,17 +19,17 @@ buildscript {
         compileSdkVersion = 27
         targetSdkVersion = 25
 
-        kotlinVersion = "1.2.31"
+        kotlinVersion = "1.2.41"
         ktxVersion = "0.3"
         supportLibraryVersion = "27.1.1"
         constraintLayoutVersion = "1.1.0"
         lifecycleVersion = "1.1.1"
-        roomVersion = "1.1.0-beta3"
+        roomVersion = "1.1.0-rc1"
         pagingVersion = "1.0.0-rc1"
         playServicesWearableVersion = "15.0.1"
         firebaseCoreVersion = "15.0.2"
         firebasePerfVersion = "15.1.0"
-        crashlyticsVersion = "2.9.1"
+        crashlyticsVersion = "2.9.2"
         jobDispatcherVersion = "0.8.5"
         wearableVersion = "2.3.0"
         okhttpVersion = "3.10.0"
