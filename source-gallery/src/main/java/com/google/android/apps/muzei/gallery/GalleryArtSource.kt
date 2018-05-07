@@ -88,7 +88,7 @@ class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
 
     override fun onCreate() {
         super.onCreate()
-        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
 
         GalleryDatabase.getInstance(this).chosenPhotoDao().chosenPhotos.observe(this,
                 object : Observer<List<ChosenPhoto>> {
@@ -123,6 +123,7 @@ class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
 
     override fun onBind(intent: Intent?): IBinder? {
         return if (ACTION_BIND_GALLERY == intent?.action) {
+            lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START)
             Binder()
         } else super.onBind(intent)
     }
@@ -140,9 +141,7 @@ class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
     }
 
     override fun onUpdate(@UpdateReason reason: Int) {
-        if (reason == UPDATE_REASON_INITIAL) {
-            updateMeta(GalleryDatabase.getInstance(this).chosenPhotoDao().chosenPhotosBlocking)
-        }
+        updateMeta(GalleryDatabase.getInstance(this).chosenPhotoDao().chosenPhotosBlocking)
         publishNextArtwork(null)
     }
 
