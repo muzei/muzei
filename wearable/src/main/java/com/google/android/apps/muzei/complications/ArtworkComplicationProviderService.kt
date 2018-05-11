@@ -71,7 +71,7 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "addComplication: $complications")
         }
-        ArtworkComplicationJobService.scheduleComplicationUpdateJob(this)
+        ArtworkComplicationWorker.scheduleComplicationUpdate()
     }
 
     override fun onComplicationDeactivated(complicationId: Int) {
@@ -87,7 +87,7 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
             Log.d(TAG, "Current complications: $complications")
         }
         if (complications.isEmpty()) {
-            ArtworkComplicationJobService.cancelComplicationUpdateJob(this)
+            ArtworkComplicationWorker.cancelComplicationUpdate()
         }
     }
 
