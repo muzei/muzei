@@ -114,6 +114,8 @@ dependencies {
     implementation "android.arch.lifecycle:runtime:$lifecycleVersion"
     implementation "android.arch.lifecycle:viewmodel:$lifecycleVersion"
     kapt "android.arch.lifecycle:compiler:$lifecycleVersion"
+    implementation "android.arch.navigation:navigation-fragment-ktx:$navigationVersion"
+    implementation "android.arch.navigation:navigation-ui-ktx:$navigationVersion"
 
     implementation project(':api')
     implementation project(':extensions')
