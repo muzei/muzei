@@ -28,7 +28,7 @@ buildscript {
         pagingVersion = "1.0.0"
         playServicesWearableVersion = "15.0.1"
         firebaseCoreVersion = "15.0.2"
-        firebasePerfVersion = "15.1.0"
+        firebasePerfVersion = "15.2.0"
         crashlyticsVersion = "2.9.2"
         jobDispatcherVersion = "0.8.5"
         wearableVersion = "2.3.0"
