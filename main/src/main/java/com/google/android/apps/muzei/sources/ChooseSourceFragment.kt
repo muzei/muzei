@@ -67,6 +67,7 @@ import com.google.android.apps.muzei.util.Scrollbar
 import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.util.observeNonNull
 import com.google.firebase.analytics.FirebaseAnalytics
+import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.R
 import java.util.ArrayList
 import java.util.Comparator
@@ -491,7 +492,9 @@ class ChooseSourceFragment : Fragment() {
                     FirebaseAnalytics.getInstance(requireContext()).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
                             FirebaseAnalytics.Param.ITEM_ID to source.componentName.flattenToShortString(),
                             FirebaseAnalytics.Param.CONTENT_TYPE to "sources"))
-                    SourceManager.selectSource(requireContext(), source.componentName)
+                    launch {
+                        SourceManager.selectSource(requireContext(), source.componentName)
+                    }
                 }
             }
 
@@ -572,7 +575,9 @@ class ChooseSourceFragment : Fragment() {
                 FirebaseAnalytics.getInstance(requireContext()).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
                         FirebaseAnalytics.Param.ITEM_ID to setupSource.flattenToShortString(),
                         FirebaseAnalytics.Param.CONTENT_TYPE to "sources"))
-                SourceManager.selectSource(requireContext(), setupSource)
+                launch {
+                    SourceManager.selectSource(requireContext(), setupSource)
+                }
             }
 
             currentInitialSetupSource = null

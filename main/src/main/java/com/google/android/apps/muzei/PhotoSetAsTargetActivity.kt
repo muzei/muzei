@@ -27,6 +27,7 @@ import com.google.android.apps.muzei.single.SingleArtSource
 import com.google.android.apps.muzei.sources.SourceManager
 import com.google.android.apps.muzei.util.observeOnce
 import com.google.firebase.analytics.FirebaseAnalytics
+import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.R
 
 class PhotoSetAsTargetActivity : Activity() {
@@ -53,7 +54,8 @@ class PhotoSetAsTargetActivity : Activity() {
                         ComponentName(context, SingleArtSource::class.java).flattenToShortString(),
                         FirebaseAnalytics.Param.CONTENT_TYPE to "sources")
                 FirebaseAnalytics.getInstance(context).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
-                SourceManager.selectSource(context, SingleArtSource::class) {
+                launch {
+                    SourceManager.selectSource(context, SingleArtSource::class)
                     startActivity(Intent.makeMainActivity(ComponentName(
                             context, MuzeiActivity::class.java))
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))

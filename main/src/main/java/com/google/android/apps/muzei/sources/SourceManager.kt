@@ -16,7 +16,6 @@
 
 package com.google.android.apps.muzei.sources
 
-import android.annotation.SuppressLint
 import android.arch.lifecycle.DefaultLifecycleObserver
 import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.LifecycleOwner
@@ -31,7 +30,6 @@ import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.content.res.Resources
 import android.graphics.Color
-import android.os.AsyncTask
 import android.os.Build
 import android.text.TextUtils
 import android.util.Log
@@ -48,8 +46,9 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Source
 import com.google.android.apps.muzei.sync.TaskQueueService
 import com.google.android.apps.muzei.util.observeNonNull
-import com.google.android.apps.muzei.util.observeOnce
 import com.google.firebase.analytics.FirebaseAnalytics
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
 import java.util.HashSet
@@ -67,83 +66,71 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
         private const val USER_PROPERTY_SELECTED_SOURCE_PACKAGE = "selected_source_package"
         private const val MAX_VALUE_LENGTH = 36
 
-        internal fun selectSource(
+        internal suspend fun selectSource(
                 context: Context,
-                source: KClass<out MuzeiArtSource>,
-                callback: (Source) -> Unit = {}
-        ) {
-            selectSource(context, ComponentName(context, source.java), callback)
+                source: KClass<out MuzeiArtSource>
+        ) = selectSource(context, ComponentName(context, source.java))
+
+        @Suppress("RedundantSuspendModifier")
+        suspend fun selectSource(
+                context: Context,
+                source: ComponentName
+        ): Source {
+            val database = MuzeiDatabase.getInstance(context)
+            val selectedSource = database.sourceDao().currentSourceBlocking
+            if (source == selectedSource?.componentName) {
+                return selectedSource
+            }
+
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Source $source selected.")
+            }
+
+            database.beginTransaction()
+            if (selectedSource != null) {
+                // Unselect the old source
+                selectedSource.selected = false
+                database.sourceDao().update(selectedSource)
+            }
+
+            // Select the new source
+            val newSource = database.sourceDao().getSourceByComponentNameBlocking(source)?.apply {
+                selected = true
+                database.sourceDao().update(this)
+            } ?: Source(source).apply {
+                selected = true
+                database.sourceDao().insert(this)
+            }
+
+            database.setTransactionSuccessful()
+            database.endTransaction()
+
+            return newSource
         }
 
-        @SuppressLint("StaticFieldLeak")
-        fun selectSource(
-                context: Context,
-                source: ComponentName,
-                callback: (Source) -> Unit = {}
-        ) {
-            object : AsyncTask<Void, Void, Source>() {
-                override fun doInBackground(vararg voids: Void): Source {
-                    val database = MuzeiDatabase.getInstance(context)
-                    val selectedSource = database.sourceDao().currentSourceBlocking
-                    if (source == selectedSource?.componentName) {
-                        return selectedSource
-                    }
-
-                    if (BuildConfig.DEBUG) {
-                        Log.d(TAG, "Source $source selected.")
-                    }
-
-                    database.beginTransaction()
-                    if (selectedSource != null) {
-                        // Unselect the old source
-                        selectedSource.selected = false
-                        database.sourceDao().update(selectedSource)
-                    }
-
-                    // Select the new source
-                    val newSource = database.sourceDao().getSourceByComponentNameBlocking(source)?.apply {
-                        selected = true
-                        database.sourceDao().update(this)
-                    } ?: Source(source).apply {
-                        selected = true
-                        database.sourceDao().insert(this)
-                    }
-
-                    database.setTransactionSuccessful()
-                    database.endTransaction()
-
-                    return newSource
-                }
-
-                override fun onPostExecute(newSource: Source) {
-                    callback(newSource)
-                }
-            }.execute()
-        }
-
-        fun sendAction(context: Context, id: Int) {
-            MuzeiDatabase.getInstance(context).sourceDao().currentSource.observeOnce { source ->
-                if (source != null) {
-                    val selectedSource = source.componentName
-                    try {
-                        // Ensure that we have a valid service before sending the action
-                        context.packageManager.getServiceInfo(selectedSource, 0)
-                        context.startService(Intent(ACTION_HANDLE_COMMAND)
-                                .setComponent(selectedSource)
-                                .putExtra(EXTRA_COMMAND_ID, id))
-                    } catch (e: PackageManager.NameNotFoundException) {
-                        Log.i(TAG, "Sending action + $id to $selectedSource failed; switching to default.", e)
-                        context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
-                        selectSource(context, FeaturedArtSource::class)
-                    } catch (e: IllegalStateException) {
-                        Log.i(TAG, "Sending action + $id to $selectedSource failed; switching to default.", e)
-                        context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
-                        selectSource(context, FeaturedArtSource::class)
-                    } catch (e: SecurityException) {
-                        Log.i(TAG, "Sending action + $id to $selectedSource failed; switching to default.", e)
-                        context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
-                        selectSource(context, FeaturedArtSource::class)
-                    }
+        fun sendAction(context: Context, id: Int) = launch {
+            val source = MuzeiDatabase.getInstance(context)
+                    .sourceDao().currentSourceBlocking
+            if (source != null) {
+                val selectedSource = source.componentName
+                try {
+                    // Ensure that we have a valid service before sending the action
+                    context.packageManager.getServiceInfo(selectedSource, 0)
+                    context.startService(Intent(ACTION_HANDLE_COMMAND)
+                            .setComponent(selectedSource)
+                            .putExtra(EXTRA_COMMAND_ID, id))
+                } catch (e: PackageManager.NameNotFoundException) {
+                    Log.i(TAG, "Sending action + $id to $selectedSource failed; switching to default.", e)
+                    context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
+                    selectSource(context, FeaturedArtSource::class)
+                } catch (e: IllegalStateException) {
+                    Log.i(TAG, "Sending action + $id to $selectedSource failed; switching to default.", e)
+                    context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
+                    selectSource(context, FeaturedArtSource::class)
+                } catch (e: SecurityException) {
+                    Log.i(TAG, "Sending action + $id to $selectedSource failed; switching to default.", e)
+                    context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
+                    selectSource(context, FeaturedArtSource::class)
                 }
             }
         }
@@ -160,14 +147,16 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
             // Update the sources from the changed package
             executor.execute(UpdateSourcesRunnable(packageName))
             val pendingResult = goAsync()
-            MuzeiDatabase.getInstance(context).sourceDao().currentSource.observeOnce { source ->
+            launch {
+                val source = MuzeiDatabase.getInstance(context)
+                        .sourceDao().currentSourceBlocking
                 if (source != null && packageName == source.componentName.packageName) {
                     try {
                         this@SourceManager.context.packageManager.getServiceInfo(source.componentName, 0)
                     } catch (e: PackageManager.NameNotFoundException) {
                         Log.i(TAG, "Selected source ${source.componentName} is no longer available")
                         selectSource(context, FeaturedArtSource::class)
-                        return@observeOnce
+                        return@launch
                     }
 
                     // Some other change.
@@ -223,14 +212,17 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                     // Don't do anything if it is the same Source
                     return@addSource
                 }
-                currentSource?.unsubscribe()
-                currentSource = source
-                if (source != null) {
-                    source.subscribe()
-                    value = source
-                } else {
-                    // Can't have no source at all, so select the default
-                    selectSource(context, FeaturedArtSource::class)
+                launch(UI) {
+                    currentSource?.unsubscribe()
+                    currentSource = source
+                    if (source != null) {
+                        source.subscribe()
+                        value = source
+                    } else {
+                        // Can't have no source at all, so select the default
+                        selectSource(this@SourceManager.context,
+                                FeaturedArtSource::class)
+                    }
                 }
             }
         }
@@ -368,7 +360,7 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                 className)
     }
 
-    private fun Source.subscribe() {
+    private suspend fun Source.subscribe() {
         val selectedSource = componentName
         try {
             if (BuildConfig.DEBUG) {
