@@ -161,7 +161,7 @@ class MainFragment : Fragment(), FragmentManager.OnBackStackChangedListener, Cho
                             0,
                             insets.systemWindowInsetRight,
                             insets.systemWindowInsetBottom))
-            insets
+            insets.consumeSystemWindowInsets()
         }
 
         // Listen for visibility changes to know when to hide our views
