@@ -18,10 +18,11 @@ package com.google.android.apps.muzei.render
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.os.AsyncTask
 import android.os.Handler
 import android.util.Log
 import com.google.android.apps.muzei.settings.Prefs
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
 import java.util.concurrent.Executors
 
 abstract class RenderController(
@@ -94,37 +95,33 @@ abstract class RenderController(
         throttledForceReloadHandler.sendEmptyMessageDelayed(0, 250)
     }
 
-    protected abstract fun openDownloadedCurrentArtwork(forceReload: Boolean): BitmapRegionLoader?
+    protected abstract suspend fun openDownloadedCurrentArtwork(
+            forceReload: Boolean
+    ): BitmapRegionLoader?
 
     fun reloadCurrentArtwork(forceReload: Boolean) {
         if (executorService.isShutdown || executorService.isTerminated) {
             // Don't reload artwork for shutdown or destroyed RenderControllers
             return
         }
-        object : AsyncTask<Void, Void, BitmapRegionLoader?>() {
-            override fun doInBackground(vararg voids: Void): BitmapRegionLoader? {
-                // openDownloadedCurrentArtwork should be called on a background thread
-                return openDownloadedCurrentArtwork(forceReload)
+        launch(UI) {
+            val bitmapRegionLoader = openDownloadedCurrentArtwork(forceReload)
+            if (bitmapRegionLoader == null || bitmapRegionLoader.width == 0 ||
+                    bitmapRegionLoader.height == 0) {
+                Log.w(TAG, "Could not open the current artwork")
+                bitmapRegionLoader?.close()
+                return@launch
             }
 
-            override fun onPostExecute(bitmapRegionLoader: BitmapRegionLoader?) {
-                if (bitmapRegionLoader == null || bitmapRegionLoader.width == 0 ||
-                        bitmapRegionLoader.height == 0) {
-                    Log.w(TAG, "Could not open the current artwork")
-                    bitmapRegionLoader?.close()
-                    return
-                }
-
-                callbacks.queueEventOnGlThread {
-                    if (visible) {
-                        renderer.setAndConsumeBitmapRegionLoader(bitmapRegionLoader)
-                    } else {
-                        queuedBitmapRegionLoader?.close()
-                        queuedBitmapRegionLoader = bitmapRegionLoader
-                    }
+            callbacks.queueEventOnGlThread {
+                if (visible) {
+                    renderer.setAndConsumeBitmapRegionLoader(bitmapRegionLoader)
+                } else {
+                    queuedBitmapRegionLoader?.close()
+                    queuedBitmapRegionLoader = bitmapRegionLoader
                 }
             }
-        }.executeOnExecutor(executorService)
+        }
     }
 
     interface Callbacks {

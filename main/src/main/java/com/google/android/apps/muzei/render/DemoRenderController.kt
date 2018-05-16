@@ -72,6 +72,6 @@ class DemoRenderController(
         handler.removeCallbacksAndMessages(null)
     }
 
-    override fun openDownloadedCurrentArtwork(forceReload: Boolean): BitmapRegionLoader? =
+    override suspend fun openDownloadedCurrentArtwork(forceReload: Boolean) =
             BitmapRegionLoader.newInstance(context.assets.open("starrynight.jpg"))
 }

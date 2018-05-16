@@ -45,7 +45,7 @@ class RealRenderController(
         context.contentResolver.unregisterContentObserver(contentObserver)
     }
 
-    override fun openDownloadedCurrentArtwork(forceReload: Boolean): BitmapRegionLoader? =
+    override suspend fun openDownloadedCurrentArtwork(forceReload: Boolean) =
             BitmapRegionLoader.newInstance(context.contentResolver,
                     MuzeiContract.Artwork.CONTENT_URI)
 }
