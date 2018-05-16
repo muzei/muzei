@@ -22,24 +22,18 @@ import android.content.Context
 import android.database.ContentObserver
 import android.net.Uri
 import android.os.Handler
-import android.os.HandlerThread
-
 import com.google.android.apps.muzei.api.MuzeiContract
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.experimental.launch
 
 /**
  * LifecycleObserver which updates the notification when the artwork changes
  */
 class NotificationUpdater(private val context: Context) : DefaultLifecycleObserver {
-    private val notificationHandlerThread: HandlerThread by lazy {
-        HandlerThread("MuzeiWallpaperService-Notification").apply {
-            start()
-        }
-    }
+
     private val notificationContentObserver: ContentObserver by lazy {
-        object : ContentObserver(Handler(notificationHandlerThread.looper)) {
+        object : ContentObserver(Handler()) {
             override fun onChange(selfChange: Boolean, uri: Uri) {
-                runBlocking {
+                launch {
                     NewWallpaperNotificationReceiver.maybeShowNewArtworkNotification(
                             this@NotificationUpdater.context)
                 }
@@ -55,7 +49,6 @@ class NotificationUpdater(private val context: Context) : DefaultLifecycleObserv
 
     override fun onDestroy(owner: LifecycleOwner) {
         context.contentResolver.unregisterContentObserver(notificationContentObserver)
-        notificationHandlerThread.quitSafely()
         NewWallpaperNotificationReceiver.cancelNotification(context)
     }
 }
