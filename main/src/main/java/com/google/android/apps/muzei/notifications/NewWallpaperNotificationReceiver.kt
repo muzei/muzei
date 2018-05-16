@@ -271,6 +271,13 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
 
             val nm = NotificationManagerCompat.from(context)
             nm.notify(NOTIFICATION_ID, nb.build())
+
+            // Reset the last read notification
+            sp.edit {
+                remove(PREF_LAST_READ_NOTIFICATION_ARTWORK_ID)
+                remove(PREF_LAST_READ_NOTIFICATION_ARTWORK_IMAGE_URI)
+                remove(PREF_LAST_READ_NOTIFICATION_ARTWORK_TOKEN)
+            }
         }
 
         /**
