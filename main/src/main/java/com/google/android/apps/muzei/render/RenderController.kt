@@ -23,7 +23,6 @@ import android.util.Log
 import com.google.android.apps.muzei.settings.Prefs
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
-import java.util.concurrent.Executors
 
 abstract class RenderController(
         protected var context: Context,
@@ -49,9 +48,7 @@ abstract class RenderController(
                 callbacks.requestRender()
             }
         }
-    private val executorService by lazy {
-        Executors.newSingleThreadExecutor()
-    }
+    private var destroyed = false
     private var queuedBitmapRegionLoader: BitmapRegionLoader? = null
     private val sharedPreferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         when (key) {
@@ -87,7 +84,7 @@ abstract class RenderController(
         queuedBitmapRegionLoader = null
         Prefs.getSharedPreferences(context)
                 .unregisterOnSharedPreferenceChangeListener(sharedPreferenceChangeListener)
-        executorService.shutdownNow()
+        destroyed = true
     }
 
     private fun throttledForceReloadCurrentArtwork() {
@@ -100,8 +97,8 @@ abstract class RenderController(
     ): BitmapRegionLoader?
 
     fun reloadCurrentArtwork(forceReload: Boolean) {
-        if (executorService.isShutdown || executorService.isTerminated) {
-            // Don't reload artwork for shutdown or destroyed RenderControllers
+        if (destroyed) {
+            // Don't reload artwork for destroyed RenderControllers
             return
         }
         launch(UI) {
