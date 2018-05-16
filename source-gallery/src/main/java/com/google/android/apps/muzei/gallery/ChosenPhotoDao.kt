@@ -17,7 +17,6 @@
 package com.google.android.apps.muzei.gallery
 
 import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
 import android.arch.paging.DataSource
 import android.arch.persistence.room.Dao
 import android.arch.persistence.room.Insert
@@ -58,28 +57,23 @@ internal abstract class ChosenPhotoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     internal abstract fun insertInternal(chosenPhoto: ChosenPhoto): Long
 
-    fun insert(
+    @Suppress("RedundantSuspendModifier")
+    suspend fun insert(
             context: Context,
             chosenPhoto: ChosenPhoto,
             callingApplication: String?
-    ): LiveData<Long> {
-        val asyncInsert = MutableLiveData<Long>()
-        if (persistUriAccess(context, chosenPhoto)) {
-            object : Thread() {
-                override fun run() {
-                    val id = insertInternal(chosenPhoto)
-                    if (id != 0L && callingApplication != null) {
-                        val metadata = Metadata(ChosenPhoto.getContentUri(id), Date(),
-                                context.getString(R.string.gallery_shared_from, callingApplication))
-                        GalleryDatabase.getInstance(context).metadataDao().insert(metadata)
-                    }
-                    asyncInsert.postValue(id)
-                }
-            }.start()
+    ): Long {
+        return if (persistUriAccess(context, chosenPhoto)) {
+            val id = insertInternal(chosenPhoto)
+            if (id != 0L && callingApplication != null) {
+                val metadata = Metadata(ChosenPhoto.getContentUri(id), Date(),
+                        context.getString(R.string.gallery_shared_from, callingApplication))
+                GalleryDatabase.getInstance(context).metadataDao().insert(metadata)
+            }
+            id
         } else {
-            asyncInsert.setValue(0L)
+            0L
         }
-        return asyncInsert
     }
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

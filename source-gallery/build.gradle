@@ -20,6 +20,8 @@ apply plugin: 'kotlin-kapt'
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
     implementation "androidx.core:core-ktx:$rootProject.ext.ktxVersion"
     implementation project(':api')
     implementation project(':extensions')
@@ -36,6 +38,8 @@ dependencies {
     kapt "android.arch.persistence.room:compiler:$roomVersion"
     implementation "android.arch.paging:runtime:$pagingVersion"
 }
+
+kotlin.experimental.coroutines "enable"
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion

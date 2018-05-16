@@ -72,8 +72,10 @@ import androidx.core.database.getStringOrNull
 import androidx.core.widget.toast
 import com.google.android.apps.muzei.util.MultiSelectionController
 import com.google.android.apps.muzei.util.observe
-import com.google.android.apps.muzei.util.observeOnce
 import com.squareup.picasso.Picasso
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.launch
 import java.util.ArrayList
 import java.util.HashSet
 import java.util.LinkedList
@@ -541,16 +543,20 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         if (selectedCount == 1) {
             // Double check to make sure we can force a URI for the selected URI
             val selectedId = multiSelectionController.selection.iterator().next()
-            GalleryDatabase.getInstance(this).chosenPhotoDao()
-                    .chosenPhoto(selectedId).observeOnce { chosenPhoto ->
-                        val showForceNow = if (chosenPhoto?.isTreeUri == true) {
-                            // Only show the force now icon if it isn't a tree URI or there is at least one image in the tree
-                            !getImagesFromTreeUri(chosenPhoto.uri, 1).isEmpty()
-                        } else true
-                        if (selectionToolbar.isAttachedToWindow) {
-                            selectionToolbar.menu.findItem(R.id.action_force_now).isVisible = showForceNow
-                        }
-                    }
+            launch(UI) {
+                val chosenPhoto = async {
+                    GalleryDatabase.getInstance(this@GallerySettingsActivity)
+                            .chosenPhotoDao()
+                            .chosenPhotoBlocking(selectedId)
+                }.await()
+                val showForceNow = if (chosenPhoto?.isTreeUri == true) {
+                    // Only show the force now icon if it isn't a tree URI or there is at least one image in the tree
+                    !getImagesFromTreeUri(chosenPhoto.uri, 1).isEmpty()
+                } else true
+                if (selectionToolbar.isAttachedToWindow) {
+                    selectionToolbar.menu.findItem(R.id.action_force_now).isVisible = showForceNow
+                }
+            }
         }
         // Hide the force now button until the callback above sets it
         selectionToolbar.menu.findItem(R.id.action_force_now).isVisible = false
@@ -602,14 +608,18 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             if (selectedCount == 1) {
                 // If they've selected a tree URI, show the DISPLAY_NAME instead of just '1'
                 val selectedId = multiSelectionController.selection.iterator().next()
-                GalleryDatabase.getInstance(this)
-                        .chosenPhotoDao().chosenPhoto(selectedId).observeOnce { chosenPhoto ->
-                            if (chosenPhoto?.isTreeUri == true && selectionToolbar.isAttachedToWindow) {
-                                getDisplayNameForTreeUri(chosenPhoto.uri)?.takeUnless { it.isEmpty() }?.run {
-                                    selectionToolbar.title = this
-                                }
-                            }
+                launch(UI) {
+                    val chosenPhoto = async {
+                        GalleryDatabase.getInstance(this@GallerySettingsActivity)
+                                .chosenPhotoDao()
+                                .chosenPhotoBlocking(selectedId)
+                    }.await()
+                    if (chosenPhoto?.isTreeUri == true && selectionToolbar.isAttachedToWindow) {
+                        getDisplayNameForTreeUri(chosenPhoto.uri)?.takeUnless { it.isEmpty() }?.run {
+                            selectionToolbar.title = this
                         }
+                    }
+                }
             }
             selectionToolbar.title = title
         }
