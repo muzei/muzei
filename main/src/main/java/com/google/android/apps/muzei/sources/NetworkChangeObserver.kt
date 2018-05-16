@@ -31,7 +31,7 @@ import android.util.Log
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_NETWORK_AVAILABLE
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.sync.TaskQueueService
-import com.google.android.apps.muzei.util.observeOnce
+import kotlinx.coroutines.experimental.launch
 
 /**
  * LifecycleObserver responsible for monitoring network connectivity and retrying artwork as necessary
@@ -59,22 +59,21 @@ class NetworkChangeObserver internal constructor(private val context: Context) :
             }
 
             val pendingResult = goAsync()
-            MuzeiDatabase.getInstance(context).sourceDao()
-                    .currentSourcesThatWantNetwork.observeOnce { sources ->
-                if (sources != null) {
-                    for (source in sources) {
-                        val sourceName = source.componentName
-                        try {
-                            context.packageManager.getServiceInfo(sourceName, 0)
-                            context.startService(Intent(ACTION_NETWORK_AVAILABLE)
-                                    .setComponent(sourceName))
-                        } catch (e: PackageManager.NameNotFoundException) {
-                            Log.i(TAG, "Sending network available to $sourceName failed.", e)
-                        } catch (e: IllegalStateException) {
-                            Log.i(TAG, "Sending network available to $sourceName failed.", e)
-                        } catch (e: SecurityException) {
-                            Log.i(TAG, "Sending network available to $sourceName failed.", e)
-                        }
+            launch {
+                val sources = MuzeiDatabase.getInstance(context).sourceDao()
+                        .currentSourcesThatWantNetworkBlocking
+                for (source in sources) {
+                    val sourceName = source.componentName
+                    try {
+                        context.packageManager.getServiceInfo(sourceName, 0)
+                        context.startService(Intent(ACTION_NETWORK_AVAILABLE)
+                                .setComponent(sourceName))
+                    } catch (e: PackageManager.NameNotFoundException) {
+                        Log.i(TAG, "Sending network available to $sourceName failed.", e)
+                    } catch (e: IllegalStateException) {
+                        Log.i(TAG, "Sending network available to $sourceName failed.", e)
+                    } catch (e: SecurityException) {
+                        Log.i(TAG, "Sending network available to $sourceName failed.", e)
                     }
                 }
                 pendingResult.finish()

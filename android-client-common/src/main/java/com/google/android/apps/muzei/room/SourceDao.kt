@@ -50,7 +50,7 @@ interface SourceDao {
     val currentSourceBlocking: Source?
 
     @get:Query("SELECT * FROM sources WHERE selected=1 AND wantsNetworkAvailable=1")
-    val currentSourcesThatWantNetwork: LiveData<List<Source>>
+    val currentSourcesThatWantNetworkBlocking: List<Source>
 
     @Insert
     fun insert(source: Source)
