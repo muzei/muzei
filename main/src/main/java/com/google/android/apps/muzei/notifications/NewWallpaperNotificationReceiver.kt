@@ -40,7 +40,6 @@ import com.google.android.apps.muzei.render.BitmapRegionLoader
 import com.google.android.apps.muzei.render.sampleSize
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.sources.SourceManager
-import com.google.android.apps.muzei.util.observeOnce
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.R
 
@@ -350,7 +349,9 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                 ?.getCharSequence(EXTRA_USER_COMMAND)?.toString()
                 ?: return
         val pendingResult = goAsync()
-        MuzeiDatabase.getInstance(context).sourceDao().currentSource.observeOnce { selectedSource ->
+        launch {
+            val selectedSource = MuzeiDatabase.getInstance(context).sourceDao()
+                    .currentSourceBlocking
             if (selectedSource != null) {
                 for (action in selectedSource.commands) {
                     if (selectedCommand == action.title) {
