@@ -19,7 +19,7 @@ package com.google.android.apps.muzei.single
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import com.google.android.apps.muzei.util.observeOnce
+import kotlinx.coroutines.experimental.launch
 
 /**
  * Settings Activity which allows users to select a new photo
@@ -41,9 +41,12 @@ class SingleSettingsActivity : Activity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        data?.data?.takeIf { requestCode == REQUEST_PHOTO && resultCode == RESULT_OK }?.apply {
-            SingleArtSource.setArtwork(
-                    this@SingleSettingsActivity, this).observeOnce { success ->
+        data?.data?.takeIf {
+            requestCode == REQUEST_PHOTO && resultCode == RESULT_OK
+        }?.also { uri ->
+            launch {
+                val success = SingleArtSource.setArtwork(
+                        this@SingleSettingsActivity, uri)
                 setResult(if (success == true) Activity.RESULT_OK else Activity.RESULT_CANCELED)
                 finish()
             }

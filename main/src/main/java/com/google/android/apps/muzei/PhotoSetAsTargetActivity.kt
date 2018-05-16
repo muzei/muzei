@@ -25,7 +25,6 @@ import androidx.core.os.bundleOf
 import androidx.core.widget.toast
 import com.google.android.apps.muzei.single.SingleArtSource
 import com.google.android.apps.muzei.sources.SourceManager
-import com.google.android.apps.muzei.util.observeOnce
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.R
@@ -39,14 +38,15 @@ class PhotoSetAsTargetActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        intent?.data?.apply {
-            val context = this@PhotoSetAsTargetActivity
-            SingleArtSource.setArtwork(context, this).observeOnce { success ->
+        intent?.data?.also { uri ->
+            launch {
+                val context = this@PhotoSetAsTargetActivity
+                val success = SingleArtSource.setArtwork(context, uri)
                 if (success == false) {
-                    Log.e(TAG, "Unable to insert artwork for ${this@apply}")
-                    context.toast(R.string.set_as_wallpaper_failed)
+                    Log.e(TAG, "Unable to insert artwork for $uri")
+                    toast(R.string.set_as_wallpaper_failed)
                     finish()
-                    return@observeOnce
+                    return@launch
                 }
 
                 // If adding the artwork succeeded, select the single artwork source

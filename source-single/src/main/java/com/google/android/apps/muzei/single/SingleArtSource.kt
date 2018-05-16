@@ -16,8 +16,6 @@
 
 package com.google.android.apps.muzei.single
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -29,8 +27,6 @@ import com.google.android.apps.muzei.api.MuzeiArtSource
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 
 /**
  * [MuzeiArtSource] that displays just a single image
@@ -44,29 +40,21 @@ class SingleArtSource : MuzeiArtSource("SingleArtSource") {
         private const val EXTRA_ARTWORK_TITLE = "title"
         private const val EXTRA_ARTWORK_URI = "uri"
 
-        private val EXECUTOR: ExecutorService by lazy {
-            Executors.newSingleThreadExecutor()
-        }
-
         internal fun getArtworkFile(context: Context): File {
             return File(context.filesDir, "single")
         }
 
-        fun setArtwork(context: Context, artworkUri: Uri): LiveData<Boolean> {
-            val mutableLiveData = MutableLiveData<Boolean>()
-            EXECUTOR.submit {
-                val tempFile = writeUriToFile(context, artworkUri, getArtworkFile(context))?.let { file ->
-                    context.startService(Intent(context, SingleArtSource::class.java).apply {
-                        action = ACTION_PUBLISH_NEW_ARTWORK
-                        putExtra(EXTRA_ARTWORK_TITLE, getDisplayName(context, artworkUri)
-                                ?: context.getString(R.string.single_default_artwork_title)
-                        )
-                        putExtra(EXTRA_ARTWORK_URI, Uri.fromFile(file))
-                    })
-                }
-                mutableLiveData.postValue(tempFile != null)
+        suspend fun setArtwork(context: Context, artworkUri: Uri): Boolean {
+            val tempFile = writeUriToFile(context, artworkUri, getArtworkFile(context))?.let { file ->
+                context.startService(Intent(context, SingleArtSource::class.java).apply {
+                    action = ACTION_PUBLISH_NEW_ARTWORK
+                    putExtra(EXTRA_ARTWORK_TITLE, getDisplayName(context, artworkUri)
+                            ?: context.getString(R.string.single_default_artwork_title)
+                    )
+                    putExtra(EXTRA_ARTWORK_URI, Uri.fromFile(file))
+                })
             }
-            return mutableLiveData
+            return tempFile != null
         }
 
         private fun getDisplayName(context: Context, artworkUri: Uri): String? {
@@ -86,7 +74,8 @@ class SingleArtSource : MuzeiArtSource("SingleArtSource") {
             return null
         }
 
-        private fun writeUriToFile(context: Context, uri: Uri, destFile: File): File? {
+        @Suppress("RedundantSuspendModifier")
+        private suspend fun writeUriToFile(context: Context, uri: Uri, destFile: File): File? {
             try {
                 context.contentResolver.openInputStream(uri)?.use { input ->
                     FileOutputStream(destFile).use { out ->
