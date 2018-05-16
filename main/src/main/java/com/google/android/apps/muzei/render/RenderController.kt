@@ -22,6 +22,7 @@ import android.os.Handler
 import android.util.Log
 import com.google.android.apps.muzei.settings.Prefs
 import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 
 abstract class RenderController(
@@ -102,7 +103,9 @@ abstract class RenderController(
             return
         }
         launch(UI) {
-            val bitmapRegionLoader = openDownloadedCurrentArtwork(forceReload)
+            val bitmapRegionLoader = async {
+                openDownloadedCurrentArtwork(forceReload)
+            }.await()
             if (bitmapRegionLoader == null || bitmapRegionLoader.width == 0 ||
                     bitmapRegionLoader.height == 0) {
                 Log.w(TAG, "Could not open the current artwork")

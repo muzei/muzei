@@ -122,7 +122,7 @@ abstract class ArtworkDao {
             }
         }
         if (canDelete) {
-            val file = MuzeiProvider.getCacheFileForArtworkUri(context, artwork.id)
+            val file = MuzeiProvider.getCacheFileForArtworkUri(context, artwork)
             if (file != null && file.exists()) {
                 file.delete()
             }

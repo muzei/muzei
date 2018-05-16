@@ -32,6 +32,7 @@ import android.provider.DocumentsProvider
 import android.util.Log
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import kotlinx.coroutines.experimental.runBlocking
 import net.nurik.roman.muzei.androidclientcommon.R
 import java.io.File
 import java.io.FileNotFoundException
@@ -95,8 +96,10 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
         val context = context ?: return result
 
         val likeAnyPositionQuery = "%$query%"
-        includeAllArtwork(result, MuzeiDatabase.getInstance(context).artworkDao()
-                .searchArtworkBlocking(likeAnyPositionQuery))
+        includeAllArtwork(result, runBlocking {
+            MuzeiDatabase.getInstance(context).artworkDao()
+                .searchArtworkBlocking(likeAnyPositionQuery)
+        })
         return result
     }
 
@@ -117,8 +120,10 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
         val result = MatrixCursor(projection ?: DEFAULT_DOCUMENT_PROJECTION)
         val context = context ?: return result
         if (ROOT_DOCUMENT_ID == parentDocumentId) {
-            includeAllArtwork(result, MuzeiDatabase.getInstance(context).artworkDao()
-                    .artworkBlocking)
+            includeAllArtwork(result, runBlocking {
+                MuzeiDatabase.getInstance(context).artworkDao()
+                    .artworkBlocking
+            })
         }
         return result
     }
@@ -158,7 +163,10 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
                 // so just return an empty result
                 return result
             }
-            val artwork = MuzeiDatabase.getInstance(context).artworkDao().getArtworkById(artworkId)
+            val artwork = runBlocking {
+                MuzeiDatabase.getInstance(context).artworkDao()
+                    .getArtworkById(artworkId)
+            }
             if (artwork != null) {
                 includeAllArtwork(result, listOf(artwork))
             }
@@ -255,8 +263,10 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
         if (!directory.exists() && !directory.mkdirs()) {
             throw FileNotFoundException("Unable to create cache directory")
         }
-        val artwork = MuzeiDatabase.getInstance(context).artworkDao().getArtworkById(artworkId)
-                ?: throw FileNotFoundException("Unable to get artwork for id $artworkId")
+        val artwork = runBlocking {
+            MuzeiDatabase.getInstance(context).artworkDao()
+                    .getArtworkById(artworkId)
+        } ?: throw FileNotFoundException("Unable to get artwork for id $artworkId")
         return File(directory, artwork.id.toString())
     }
 

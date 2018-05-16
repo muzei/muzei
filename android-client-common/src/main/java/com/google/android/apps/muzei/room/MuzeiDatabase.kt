@@ -48,7 +48,6 @@ abstract class MuzeiDatabase : RoomDatabase() {
             return instance ?: synchronized(this) {
                 instance ?: Room.databaseBuilder(applicationContext,
                         MuzeiDatabase::class.java, "muzei.db")
-                        .allowMainThreadQueries()
                         .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                         .build().also { database ->
                             database.invalidationTracker.addObserver(
