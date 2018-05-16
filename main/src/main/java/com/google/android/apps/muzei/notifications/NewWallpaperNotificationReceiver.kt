@@ -41,6 +41,7 @@ import com.google.android.apps.muzei.render.sampleSize
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.sources.SourceManager
 import com.google.android.apps.muzei.util.observeOnce
+import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.R
 
 class NewWallpaperNotificationReceiver : BroadcastReceiver() {
@@ -62,20 +63,19 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
 
         private const val EXTRA_USER_COMMAND = "com.google.android.apps.muzei.extra.USER_COMMAND"
 
-        fun markNotificationRead(context: Context) {
-            MuzeiDatabase.getInstance(context).artworkDao()
-                    .currentArtwork.observeOnce { lastArtwork ->
-                if (lastArtwork != null) {
-                    val sp = PreferenceManager.getDefaultSharedPreferences(context)
-                    sp.edit {
-                        putLong(PREF_LAST_READ_NOTIFICATION_ARTWORK_ID, lastArtwork.id)
-                        putString(PREF_LAST_READ_NOTIFICATION_ARTWORK_IMAGE_URI, lastArtwork.imageUri?.toString())
-                        putString(PREF_LAST_READ_NOTIFICATION_ARTWORK_TOKEN, lastArtwork.token)
-                    }
+        fun markNotificationRead(context: Context) = launch {
+            val lastArtwork = MuzeiDatabase.getInstance(context).artworkDao()
+                    .currentArtworkBlocking
+            if (lastArtwork != null) {
+                val sp = PreferenceManager.getDefaultSharedPreferences(context)
+                sp.edit {
+                    putLong(PREF_LAST_READ_NOTIFICATION_ARTWORK_ID, lastArtwork.id)
+                    putString(PREF_LAST_READ_NOTIFICATION_ARTWORK_IMAGE_URI, lastArtwork.imageUri?.toString())
+                    putString(PREF_LAST_READ_NOTIFICATION_ARTWORK_TOKEN, lastArtwork.token)
                 }
-
-                cancelNotification(context)
             }
+
+            cancelNotification(context)
         }
 
         fun cancelNotification(context: Context) {
