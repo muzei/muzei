@@ -16,7 +16,6 @@
 
 package com.google.android.apps.muzei.widget
 
-import android.annotation.SuppressLint
 import android.arch.lifecycle.DefaultLifecycleObserver
 import android.arch.lifecycle.LifecycleOwner
 import android.content.Context
@@ -24,22 +23,7 @@ import android.database.ContentObserver
 import android.net.Uri
 import android.os.Handler
 import com.google.android.apps.muzei.api.MuzeiContract
-import java.util.concurrent.Executor
-import java.util.concurrent.Executors
-
-private val EXECUTOR: Executor by lazy {
-    Executors.newSingleThreadExecutor()
-}
-
-@SuppressLint("StaticFieldLeak")
-private var currentTask: AppWidgetUpdateTask? = null
-
-internal fun AppWidgetUpdateTask.executeUpdate() {
-    currentTask?.cancel(true)
-    currentTask = also {
-        it.executeOnExecutor(EXECUTOR)
-    }
-}
+import kotlinx.coroutines.experimental.launch
 
 /**
  * LifecycleObserver which updates the widget when the artwork changes
@@ -49,7 +33,9 @@ class WidgetUpdater(private val context: Context) : DefaultLifecycleObserver {
     private val widgetContentObserver: ContentObserver by lazy {
         object : ContentObserver(Handler()) {
             override fun onChange(selfChange: Boolean, uri: Uri) {
-                AppWidgetUpdateTask(context).executeUpdate()
+                launch {
+                    updateAppWidget(this@WidgetUpdater.context.applicationContext)
+                }
             }
         }
     }
@@ -67,6 +53,8 @@ class WidgetUpdater(private val context: Context) : DefaultLifecycleObserver {
     override fun onDestroy(owner: LifecycleOwner) {
         context.contentResolver.unregisterContentObserver(widgetContentObserver)
         // Update the widget one last time to disable the 'Next' button until Muzei is reactivated
-        AppWidgetUpdateTask(context).executeUpdate()
+        launch {
+            updateAppWidget(this@WidgetUpdater.context.applicationContext)
+        }
     }
 }

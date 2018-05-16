@@ -16,7 +16,6 @@
 
 package com.google.android.apps.muzei.widget
 
-import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
@@ -25,10 +24,9 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Rect
-import android.net.Uri
-import android.os.AsyncTask
 import android.os.Build
 import android.support.annotation.LayoutRes
+import android.support.annotation.RequiresApi
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
@@ -36,72 +34,67 @@ import android.widget.RemoteViews
 import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.render.BitmapRegionLoader
 import com.google.android.apps.muzei.render.sampleSize
+import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.room.Source
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
+import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.R
+
+private const val TAG = "updateAppWidget"
+
+/**
+ * Provide a preview for pinning the widget
+ */
+@RequiresApi(Build.VERSION_CODES.O)
+fun showWidgetPreview(context: Context) = launch {
+    val widget = ComponentName(context, MuzeiAppWidgetProvider::class.java)
+    val appWidgetManager = AppWidgetManager.getInstance(context)
+    if (!appWidgetManager.isRequestPinAppWidgetSupported) {
+        // No preview to show
+        return@launch
+    }
+    val source = MuzeiDatabase.getInstance(context).sourceDao().currentSourceBlocking
+    val artwork = MuzeiDatabase.getInstance(context).artworkDao().currentArtworkBlocking
+    if (source == null || artwork == null) {
+        Log.w(TAG, "No current artwork found")
+        return@launch
+    }
+    val remoteViews = createRemoteViews(context, source, artwork,
+            context.resources.getDimensionPixelSize(R.dimen.widget_min_width),
+            context.resources.getDimensionPixelSize(R.dimen.widget_min_height))
+            ?: return@launch
+    val extras = bundleOf(AppWidgetManager.EXTRA_APPWIDGET_PREVIEW to remoteViews)
+    try {
+        appWidgetManager.requestPinAppWidget(widget, extras, null)
+    } catch (ignored: IllegalStateException) {
+        // The user exited out of the app before we could pop up the pin widget dialog
+    }
+}
 
 /**
  * Async operation used to update the widget or provide a preview for pinning the widget.
  */
-open class AppWidgetUpdateTask(
-        @field:SuppressLint("StaticFieldLeak")
-        private val context: Context,
-        private val showingPreview: Boolean = false
-) : AsyncTask<Void, Void, Boolean>() {
-
-    companion object {
-        private const val TAG = "AppWidgetUpdateTask"
+@Suppress("RedundantSuspendModifier")
+suspend fun updateAppWidget(context: Context) {
+    val widget = ComponentName(context, MuzeiAppWidgetProvider::class.java)
+    val appWidgetManager = AppWidgetManager.getInstance(context)
+    val appWidgetIds = appWidgetManager.getAppWidgetIds(widget)
+    if (appWidgetIds.isEmpty()) {
+        // No app widgets, nothing to do
+        return
     }
-
-    override fun doInBackground(vararg params: Void): Boolean? {
-        val widget = ComponentName(context, MuzeiAppWidgetProvider::class.java)
-        val appWidgetManager = AppWidgetManager.getInstance(context)
-        val appWidgetIds = appWidgetManager.getAppWidgetIds(widget)
-        if (!showingPreview && appWidgetIds.isEmpty()) {
-            // No app widgets, nothing to do
-            return true
-        } else if (showingPreview && (Build.VERSION.SDK_INT < Build.VERSION_CODES.O || !appWidgetManager.isRequestPinAppWidgetSupported)) {
-            // No preview to show
-            return false
-        }
-        val source = MuzeiDatabase.getInstance(context).sourceDao().currentSourceBlocking
-        val artwork = MuzeiDatabase.getInstance(context).artworkDao().currentArtworkBlocking
-        if (source == null || artwork == null) {
-            Log.w(TAG, "No current artwork found")
-            return false
-        }
-        val contentDescription = artwork.title ?: artwork.byline ?: ""
-        val imageUri = artwork.contentUri
-        val supportsNextArtwork = WallpaperActiveState.value == true && source.supportsNextArtwork
-
-        // Update the widget(s) with the new artwork information
-        val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
-        val launchPendingIntent = PendingIntent.getActivity(context,
-                0, launchIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-        val nextArtworkIntent = Intent(context, MuzeiAppWidgetProvider::class.java).apply {
-            action = MuzeiAppWidgetProvider.ACTION_NEXT_ARTWORK
-        }
-        val nextArtworkPendingIntent = PendingIntent.getBroadcast(context,
-                0, nextArtworkIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-        if (showingPreview) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && appWidgetManager.isRequestPinAppWidgetSupported) {
-                val remoteViews = createRemoteViews(imageUri, contentDescription,
-                        launchPendingIntent, nextArtworkPendingIntent, supportsNextArtwork,
-                        context.resources.getDimensionPixelSize(R.dimen.widget_min_width),
-                        context.resources.getDimensionPixelSize(R.dimen.widget_min_height))
-                val extras = bundleOf(AppWidgetManager.EXTRA_APPWIDGET_PREVIEW to remoteViews)
-                try {
-                    return appWidgetManager.requestPinAppWidget(widget, extras, null)
-                } catch (ignored: IllegalStateException) {
-                    // The user exited out of the app before we could pop up the pin widget dialog
-                }
-            }
-            return false
-        }
-        val displayMetrics = context.resources.displayMetrics
-        val minWidgetSize = context.resources.getDimensionPixelSize(
-                R.dimen.widget_min_size)
-        for (widgetId in appWidgetIds) {
+    val source = MuzeiDatabase.getInstance(context).sourceDao().currentSourceBlocking
+    val artwork = MuzeiDatabase.getInstance(context).artworkDao().currentArtworkBlocking
+    if (source == null || artwork == null) {
+        Log.w(TAG, "No current artwork found")
+        return
+    }
+    val displayMetrics = context.resources.displayMetrics
+    val minWidgetSize = context.resources.getDimensionPixelSize(
+            R.dimen.widget_min_size)
+    for (widgetId in appWidgetIds) {
+        launch {
             val extras = appWidgetManager.getAppWidgetOptions(widgetId)
             var widgetWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                     extras.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH).toFloat(), displayMetrics).toInt()
@@ -111,9 +104,9 @@ open class AppWidgetUpdateTask(
             widgetHeight = Math.max(Math.min(widgetHeight, displayMetrics.heightPixels), minWidgetSize)
             var success = false
             while (!success) {
-                val remoteViews = createRemoteViews(imageUri, contentDescription, launchPendingIntent,
-                        nextArtworkPendingIntent, supportsNextArtwork, widgetWidth, widgetHeight)
-                        ?: return false
+                val remoteViews = createRemoteViews(context, source, artwork,
+                        widgetWidth, widgetHeight)
+                        ?: return@launch
                 try {
                     appWidgetManager.updateAppWidget(widgetId, remoteViews)
                     success = true
@@ -124,76 +117,86 @@ open class AppWidgetUpdateTask(
                 }
             }
         }
-        return true
     }
+}
 
-    private fun createRemoteViews(
-            imageUri: Uri,
-            contentDescription: String,
-            launchPendingIntent: PendingIntent,
-            nextArtworkPendingIntent: PendingIntent,
-            supportsNextArtwork: Boolean,
-            widgetWidth: Int,
-            widgetHeight: Int
-    ): RemoteViews? {
-        val smallWidgetHeight = context.resources.getDimensionPixelSize(
-                R.dimen.widget_small_height_breakpoint)
-        val image = BitmapRegionLoader.newInstance(context.contentResolver,
-                imageUri)?.use { regionLoader ->
-            val width = regionLoader.width
-            val height = regionLoader.height
-            val options = BitmapFactory.Options()
-            options.inSampleSize = Math.max(width.sampleSize(widgetWidth / 2),
-                    height.sampleSize(widgetHeight / 2))
-            regionLoader.decodeRegion(Rect(0, 0, width, height), options)
-        } ?: return null
+private fun createRemoteViews(
+        context: Context,
+        source: Source,
+        artwork: Artwork,
+        widgetWidth: Int,
+        widgetHeight: Int
+): RemoteViews? {
+    val contentDescription = artwork.title ?: artwork.byline ?: ""
+    val imageUri = artwork.contentUri
+    val supportsNextArtwork = WallpaperActiveState.value == true && source.supportsNextArtwork
 
-        // Even after using sample size to scale an image down, it might be larger than the
-        // maximum bitmap memory usage for widgets
-        val scaledImage = image.scale(widgetWidth, widgetHeight)
-        @LayoutRes val widgetLayout = if (widgetHeight < smallWidgetHeight)
-            R.layout.widget_small
-        else
-            R.layout.widget
-        val remoteViews = RemoteViews(context.packageName, widgetLayout)
-        remoteViews.setContentDescription(R.id.widget_background, contentDescription)
-        remoteViews.setImageViewBitmap(R.id.widget_background, scaledImage)
-        remoteViews.setOnClickPendingIntent(R.id.widget_background, launchPendingIntent)
-        remoteViews.setOnClickPendingIntent(R.id.widget_next_artwork, nextArtworkPendingIntent)
-        if (supportsNextArtwork) {
-            remoteViews.setViewVisibility(R.id.widget_next_artwork, View.VISIBLE)
-        } else {
-            remoteViews.setViewVisibility(R.id.widget_next_artwork, View.GONE)
-        }
-        return remoteViews
+    // Update the widget(s) with the new artwork information
+    val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+    val launchPendingIntent = PendingIntent.getActivity(context,
+            0, launchIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+    val nextArtworkIntent = Intent(context, MuzeiAppWidgetProvider::class.java).apply {
+        action = MuzeiAppWidgetProvider.ACTION_NEXT_ARTWORK
     }
+    val nextArtworkPendingIntent = PendingIntent.getBroadcast(context,
+            0, nextArtworkIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+    val smallWidgetHeight = context.resources.getDimensionPixelSize(
+            R.dimen.widget_small_height_breakpoint)
+    val image = BitmapRegionLoader.newInstance(context.contentResolver,
+            imageUri)?.use { regionLoader ->
+        val width = regionLoader.width
+        val height = regionLoader.height
+        val options = BitmapFactory.Options()
+        options.inSampleSize = Math.max(width.sampleSize(widgetWidth / 2),
+                height.sampleSize(widgetHeight / 2))
+        regionLoader.decodeRegion(Rect(0, 0, width, height), options)
+    } ?: return null
 
-    private fun Bitmap.scale(widgetWidth: Int, widgetHeight: Int): Bitmap? {
-        if (width == 0 || height == 0 ||
-                widgetWidth == 0 || widgetHeight == 0) {
-            return null
-        }
-        val largestDimension = Math.max(widgetWidth, widgetHeight)
-        var width = width
-        var height = height
-        when {
-            width > height -> {
-                // landscape
-                val ratio = width.toFloat() / largestDimension
-                width = largestDimension
-                height = (height / ratio).toInt()
-            }
-            height > width -> {
-                // portrait
-                val ratio = height.toFloat() / largestDimension
-                height = largestDimension
-                width = (width / ratio).toInt()
-            }
-            else -> {
-                height = largestDimension
-                width = largestDimension
-            }
-        }
-        return Bitmap.createScaledBitmap(this, width, height, true)
+    // Even after using sample size to scale an image down, it might be larger than the
+    // maximum bitmap memory usage for widgets
+    val scaledImage = image.scale(widgetWidth, widgetHeight)
+    @LayoutRes val widgetLayout = if (widgetHeight < smallWidgetHeight)
+        R.layout.widget_small
+    else
+        R.layout.widget
+    val remoteViews = RemoteViews(context.packageName, widgetLayout)
+    remoteViews.setContentDescription(R.id.widget_background, contentDescription)
+    remoteViews.setImageViewBitmap(R.id.widget_background, scaledImage)
+    remoteViews.setOnClickPendingIntent(R.id.widget_background, launchPendingIntent)
+    remoteViews.setOnClickPendingIntent(R.id.widget_next_artwork, nextArtworkPendingIntent)
+    if (supportsNextArtwork) {
+        remoteViews.setViewVisibility(R.id.widget_next_artwork, View.VISIBLE)
+    } else {
+        remoteViews.setViewVisibility(R.id.widget_next_artwork, View.GONE)
     }
+    return remoteViews
+}
+
+private fun Bitmap.scale(widgetWidth: Int, widgetHeight: Int): Bitmap? {
+    if (width == 0 || height == 0 ||
+            widgetWidth == 0 || widgetHeight == 0) {
+        return null
+    }
+    val largestDimension = Math.max(widgetWidth, widgetHeight)
+    var width = width
+    var height = height
+    when {
+        width > height -> {
+            // landscape
+            val ratio = width.toFloat() / largestDimension
+            width = largestDimension
+            height = (height / ratio).toInt()
+        }
+        height > width -> {
+            // portrait
+            val ratio = height.toFloat() / largestDimension
+            height = largestDimension
+            width = (width / ratio).toInt()
+        }
+        else -> {
+            height = largestDimension
+            width = largestDimension
+        }
+    }
+    return Bitmap.createScaledBitmap(this, width, height, true)
 }

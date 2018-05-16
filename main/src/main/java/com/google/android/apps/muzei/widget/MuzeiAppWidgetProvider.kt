@@ -23,10 +23,11 @@ import android.content.Intent
 import android.os.Bundle
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.sources.SourceManager
+import kotlinx.coroutines.experimental.launch
 
 /**
  * AppWidgetProvider for Muzei. The actual updating is done asynchronously in
- * [AppWidgetUpdateTask].
+ * [updateAppWidget].
  */
 class MuzeiAppWidgetProvider : AppWidgetProvider() {
 
@@ -56,19 +57,8 @@ class MuzeiAppWidgetProvider : AppWidgetProvider() {
 
     private fun updateWidgets(context: Context) {
         val result = goAsync()
-        PendingResultUpdateTask(context, result).executeUpdate()
-    }
-
-    private class PendingResultUpdateTask internal constructor(
-            context: Context,
-            private val result: PendingResult
-    ) : AppWidgetUpdateTask(context.applicationContext) {
-
-        override fun onPostExecute(success: Boolean?) {
-            result.finish()
-        }
-
-        override fun onCancelled(success: Boolean?) {
+        launch {
+            updateAppWidget(context)
             result.finish()
         }
     }

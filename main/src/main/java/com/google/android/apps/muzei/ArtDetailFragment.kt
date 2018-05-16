@@ -20,6 +20,7 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.Fragment
@@ -57,7 +58,7 @@ import com.google.android.apps.muzei.util.AnimatedMuzeiLoadingSpinnerView
 import com.google.android.apps.muzei.util.PanScaleProxyView
 import com.google.android.apps.muzei.util.makeCubicGradientScrimDrawable
 import com.google.android.apps.muzei.util.observeNonNull
-import com.google.android.apps.muzei.widget.AppWidgetUpdateTask
+import com.google.android.apps.muzei.widget.showWidgetPreview
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
 
@@ -297,8 +298,10 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
                             View.SYSTEM_UI_FLAG_LOW_PROFILE != 0)
                 }
             }
-            onLongPress = {
-                AppWidgetUpdateTask(requireContext(), true).execute()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                onLongPress = {
+                    showWidgetPreview(requireContext().applicationContext)
+                }
             }
         }
 
