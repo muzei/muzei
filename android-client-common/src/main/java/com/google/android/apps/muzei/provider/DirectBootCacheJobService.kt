@@ -7,13 +7,14 @@ import android.app.job.JobScheduler
 import android.app.job.JobService
 import android.content.ComponentName
 import android.content.Context
-import android.os.AsyncTask
 import android.os.Build
 import android.support.annotation.RequiresApi
 import android.support.v4.content.ContextCompat
 import android.util.Log
 import androidx.core.content.systemService
 import com.google.android.apps.muzei.api.MuzeiContract
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.File
 import java.io.FileOutputStream
@@ -51,13 +52,14 @@ class DirectBootCacheJobService : JobService() {
                 }
     }
 
-    private lateinit var cacheTask: AsyncTask<Void, Void, Boolean>
+    private lateinit var cacheJob: Job
 
     override fun onStartJob(params: JobParameters): Boolean {
         @SuppressLint("StaticFieldLeak")
-        cacheTask = object : AsyncTask<Void, Void, Boolean>() {
-            override fun doInBackground(vararg voids: Void): Boolean? {
-                val artwork = getCachedArtwork(this@DirectBootCacheJobService) ?: return false
+        cacheJob = launch {
+            val success = run {
+                val artwork = getCachedArtwork(this@DirectBootCacheJobService)
+                        ?: return@run false
                 try {
                     contentResolver.openInputStream(MuzeiContract.Artwork.CONTENT_URI)?.use { input ->
                         FileOutputStream(artwork).use { out ->
@@ -65,28 +67,24 @@ class DirectBootCacheJobService : JobService() {
                             if (BuildConfig.DEBUG) {
                                 Log.d(TAG, "Successfully wrote artwork to Direct Boot cache")
                             }
-                            return true
+                            return@run true
                         }
                     }
                 } catch (e: IOException) {
                     Log.e(TAG, "Unable to write artwork to direct boot storage", e)
                 }
                 Log.w(TAG, "Could not open the current artwork")
-                return false
+                return@run false
             }
-
-            override fun onPostExecute(success: Boolean) {
-                jobFinished(params, !success)
-            }
+            jobFinished(params, !success)
         }
-        cacheTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
         // Schedule the job again to catch the next update to the artwork
         scheduleDirectBootCacheJob(this)
         return true
     }
 
     override fun onStopJob(params: JobParameters): Boolean {
-        cacheTask.cancel(true)
+        cacheJob.cancel()
         return true
     }
 }
