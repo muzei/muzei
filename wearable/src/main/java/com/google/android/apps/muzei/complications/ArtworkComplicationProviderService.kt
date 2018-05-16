@@ -32,8 +32,8 @@ import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.FullScreenActivity
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.util.observeOnce
 import com.google.firebase.analytics.FirebaseAnalytics
+import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.BuildConfig
 import java.util.TreeSet
 
@@ -104,14 +104,17 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
             addComplication(complicationId)
         }
         val applicationContext = applicationContext
-        MuzeiDatabase.getInstance(this).artworkDao().currentArtwork.observeOnce { artwork ->
+        launch {
+            val artwork = MuzeiDatabase.getInstance(this@ArtworkComplicationProviderService)
+                    .artworkDao()
+                    .currentArtworkBlocking
             if (artwork == null) {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "Update no artwork for $complicationId")
                 }
                 complicationManager.updateComplicationData(complicationId,
                         ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build())
-                return@observeOnce
+                return@launch
             }
             val builder = ComplicationData.Builder(type).apply {
                 val intent = Intent(applicationContext, FullScreenActivity::class.java)
@@ -124,7 +127,7 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
                             // Both are empty so we don't have any data to show
                             complicationManager.updateComplicationData(complicationId,
                                     ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build())
-                            return@observeOnce
+                            return@launch
                         } else if (title.isNullOrBlank()) {
                             // We only have the byline, so use that as the long text
                             setLongText(ComplicationText.plainText(byline))
