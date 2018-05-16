@@ -75,7 +75,6 @@ fun showWidgetPreview(context: Context) = launch {
 /**
  * Async operation used to update the widget or provide a preview for pinning the widget.
  */
-@Suppress("RedundantSuspendModifier")
 suspend fun updateAppWidget(context: Context) {
     val widget = ComponentName(context, MuzeiAppWidgetProvider::class.java)
     val appWidgetManager = AppWidgetManager.getInstance(context)
@@ -120,7 +119,7 @@ suspend fun updateAppWidget(context: Context) {
     }
 }
 
-private fun createRemoteViews(
+private suspend fun createRemoteViews(
         context: Context,
         source: Source,
         artwork: Artwork,

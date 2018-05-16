@@ -25,6 +25,7 @@ import android.os.Handler
 import android.os.HandlerThread
 
 import com.google.android.apps.muzei.api.MuzeiContract
+import kotlinx.coroutines.experimental.runBlocking
 
 /**
  * LifecycleObserver which updates the notification when the artwork changes
@@ -38,7 +39,10 @@ class NotificationUpdater(private val context: Context) : DefaultLifecycleObserv
     private val notificationContentObserver: ContentObserver by lazy {
         object : ContentObserver(Handler(notificationHandlerThread.looper)) {
             override fun onChange(selfChange: Boolean, uri: Uri) {
-                NewWallpaperNotificationReceiver.maybeShowNewArtworkNotification(context)
+                runBlocking {
+                    NewWallpaperNotificationReceiver.maybeShowNewArtworkNotification(
+                            this@NotificationUpdater.context)
+                }
             }
         }
     }

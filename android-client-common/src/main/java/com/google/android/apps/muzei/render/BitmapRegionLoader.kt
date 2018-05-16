@@ -39,7 +39,7 @@ private constructor(private val inputStream: InputStream, private val rotation: 
     companion object {
         private const val TAG = "BitmapRegionLoader"
 
-        fun newInstance(contentResolver: ContentResolver, uri: Uri): BitmapRegionLoader? {
+        suspend fun newInstance(contentResolver: ContentResolver, uri: Uri): BitmapRegionLoader? {
             var rotation = 0
             try {
                 contentResolver.openInputStream(uri)?.use { input ->
@@ -64,7 +64,8 @@ private constructor(private val inputStream: InputStream, private val rotation: 
             return newInstance(input, rotation)
         }
 
-        fun newInstance(input: InputStream?, rotation: Int = 0): BitmapRegionLoader? {
+        @Suppress("RedundantSuspendModifier")
+        suspend fun newInstance(input: InputStream?, rotation: Int = 0): BitmapRegionLoader? {
             if (input == null) {
                 return null
             }

@@ -101,7 +101,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
             return sp.getBoolean(PREF_ENABLED, true)
         }
 
-        fun maybeShowNewArtworkNotification(context: Context) {
+        suspend fun maybeShowNewArtworkNotification(context: Context) {
             if (ArtDetailOpenLiveData.value == true) {
                 return
             }
