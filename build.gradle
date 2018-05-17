@@ -25,7 +25,7 @@ buildscript {
         supportLibraryVersion = "27.1.1"
         constraintLayoutVersion = "1.1.0"
         lifecycleVersion = "1.1.1"
-        roomVersion = "1.1.0"
+        roomVersion = "1.1.1-rc1"
         pagingVersion = "1.0.0"
         playServicesWearableVersion = "15.0.1"
         firebaseCoreVersion = "15.0.2"
