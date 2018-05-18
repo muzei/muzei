@@ -60,6 +60,7 @@ public abstract class RemoteMuzeiArtSource extends MuzeiArtSource {
 
     private static final int FETCH_WAKELOCK_TIMEOUT_MILLIS = 30 * 1000;
     private static final int INITIAL_RETRY_DELAY_MILLIS = 10 * 1000;
+    private static final int MAX_RETRY_ATTEMPTS = 11;
 
     private static final String PREF_RETRY_ATTEMPT = "retry_attempt";
 
@@ -124,10 +125,12 @@ public abstract class RemoteMuzeiArtSource extends MuzeiArtSource {
             Log.w(TAG, "Error fetching, scheduling retry, id=" + mName);
 
             // Schedule retry with exponential backoff, starting with INITIAL_RETRY... seconds later
-            int retryAttempt = sp.getInt(PREF_RETRY_ATTEMPT, 0);
+            int retryAttempt = Math.min(sp.getInt(PREF_RETRY_ATTEMPT, 0), MAX_RETRY_ATTEMPTS);
             scheduleUpdate(
                     System.currentTimeMillis() + (INITIAL_RETRY_DELAY_MILLIS << retryAttempt));
-            sp.edit().putInt(PREF_RETRY_ATTEMPT, retryAttempt + 1).apply();
+            if (retryAttempt < MAX_RETRY_ATTEMPTS) {
+                sp.edit().putInt(PREF_RETRY_ATTEMPT, retryAttempt + 1).apply();
+            }
             setWantsNetworkAvailable(true);
 
         } finally {
