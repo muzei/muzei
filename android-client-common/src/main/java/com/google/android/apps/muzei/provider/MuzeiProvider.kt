@@ -37,6 +37,7 @@ import android.util.Log
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.runBlocking
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.File
@@ -92,9 +93,11 @@ class MuzeiProvider : ContentProvider() {
 
         fun getCacheFileForArtworkUri(context: Context, artworkId: Long) : File? {
             val artwork = runBlocking {
-                MuzeiDatabase.getInstance(context)
-                    .artworkDao()
-                    .getArtworkById(artworkId)
+                async {
+                    MuzeiDatabase.getInstance(context)
+                            .artworkDao()
+                            .getArtworkById(artworkId)
+                }.await()
             } ?: return null
             return getCacheFileForArtworkUri(context, artwork)
         }
@@ -313,8 +316,10 @@ class MuzeiProvider : ContentProvider() {
         val qb = SupportSQLiteQueryBuilder.builder("artwork")
         qb.columns(computeColumns(projection, allArtworkColumnProjectionMap))
         val source = runBlocking {
-            MuzeiDatabase.getInstance(context).sourceDao()
-                    .currentSourceBlocking
+            async {
+                MuzeiDatabase.getInstance(context).sourceDao()
+                        .currentSourceBlocking
+            }.await()
         }
         var finalSelection = source?.run {
             DatabaseUtils.concatenateWhere(selection,
@@ -329,9 +334,11 @@ class MuzeiProvider : ContentProvider() {
         qb.selection(finalSelection, selectionArgs)
         qb.orderBy(sortOrder ?: "date_added DESC")
         return runBlocking {
-            MuzeiDatabase.getInstance(context).query(qb.create()).apply {
-                setNotificationUri(context.contentResolver, uri)
-            }
+            async {
+                MuzeiDatabase.getInstance(context).query(qb.create()).apply {
+                    setNotificationUri(context.contentResolver, uri)
+                }
+            }.await()
         }
     }
 
@@ -339,19 +346,21 @@ class MuzeiProvider : ContentProvider() {
         val context = context ?: return null
         val c = MatrixCursor(projection)
         runBlocking {
-            MuzeiDatabase.getInstance(context).sourceDao().currentSourceBlocking?.let { source ->
-                c.newRow().apply {
-                    add(BaseColumns._ID, 0L)
-                    add(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, source.componentName)
-                    add(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, true)
-                    add(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION,
-                            source.displayDescription)
-                    add(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE, false)
-                    add(MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,
-                            source.supportsNextArtwork)
-                    add(MuzeiContract.Sources.COLUMN_NAME_COMMANDS, null)
+            async {
+                MuzeiDatabase.getInstance(context).sourceDao().currentSourceBlocking?.let { source ->
+                    c.newRow().apply {
+                        add(BaseColumns._ID, 0L)
+                        add(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, source.componentName)
+                        add(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, true)
+                        add(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION,
+                                source.displayDescription)
+                        add(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE, false)
+                        add(MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,
+                                source.supportsNextArtwork)
+                        add(MuzeiContract.Sources.COLUMN_NAME_COMMANDS, null)
+                    }
                 }
-            }
+            }.await()
         }
         return c.apply { setNotificationUri(context.contentResolver, uri) }
     }
@@ -398,7 +407,9 @@ class MuzeiProvider : ContentProvider() {
                 // an external app attempts to load the latest artwork while an art source is inserting a
                 // new artwork
                 val artworkList = runBlocking {
-                    MuzeiDatabase.getInstance(context).artworkDao().artworkBlocking
+                    async {
+                        MuzeiDatabase.getInstance(context).artworkDao().artworkBlocking
+                    }.await()
                 }
                 if (artworkList.isEmpty()) {
                     if (BuildConfig.DEBUG || context.packageName != callingPackage) {
