@@ -252,18 +252,20 @@ class ChooseSourceFragment : Fragment() {
                     internal var pass = 0
 
                     override fun onGlobalLayout() {
-                        when {
-                            pass == 0 -> {
+                        when (pass) {
+                            0 -> {
                                 // First pass
                                 updatePadding()
                                 ++pass
                             }
-                            (pass == 1) and (selectedSourceIndex >= 0) -> {
+                            1 -> {
                                 // Second pass
-                                sourceScrollerView.scrollX = itemWidth * selectedSourceIndex
-                                showScrollbar()
-                                view.visibility = View.VISIBLE
-                                ++pass
+                                if (selectedSourceIndex >= 0) {
+                                    sourceScrollerView.scrollX = itemWidth * selectedSourceIndex
+                                    showScrollbar()
+                                    view.visibility = View.VISIBLE
+                                    ++pass
+                                }
                             }
                             else -> // Last pass, remove the listener
                                 view.viewTreeObserver.removeOnGlobalLayoutListener(this)
