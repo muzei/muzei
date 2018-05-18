@@ -16,6 +16,7 @@
 
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.google.android.apps.muzei.single">
 
     <application>
@@ -24,7 +25,8 @@
             android:name="com.google.android.apps.muzei.single.SingleArtSource"
             android:description="@string/single_description"
             android:icon="@drawable/single_ic_source"
-            android:label="@string/single_title">
+            android:label="@string/single_title"
+            tools:ignore="ExportedService">
             <intent-filter>
                 <action android:name="com.google.android.apps.muzei.api.MuzeiArtSource"/>
             </intent-filter>

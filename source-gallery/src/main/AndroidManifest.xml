@@ -16,6 +16,7 @@
 
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.google.android.apps.muzei.gallery">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
@@ -30,7 +31,8 @@
             android:name="com.google.android.apps.muzei.gallery.GalleryArtSource"
             android:label="@string/gallery_title"
             android:description="@string/gallery_description"
-            android:icon="@drawable/gallery_ic_source">
+            android:icon="@drawable/gallery_ic_source"
+            tools:ignore="ExportedService">
             <intent-filter>
                 <action android:name="com.google.android.apps.muzei.api.MuzeiArtSource"/>
             </intent-filter>

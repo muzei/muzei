@@ -36,10 +36,10 @@
         android:maxSdkVersion="22"/>
 
     <application
-        android:allowBackup="true"
         android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher"
-        android:supportsRtl="true">
+        android:supportsRtl="true"
+        tools:ignore="GoogleAppIndexingWarning">
 
         <!-- Needed to support long aspect ratio devices as Muzei has resizeableActivity="false" -->
         <meta-data
@@ -50,7 +50,8 @@
             android:name="com.google.android.apps.muzei.MuzeiActivity"
             android:theme="@style/Theme.MuzeiActivity"
             android:launchMode="singleTop"
-            android:resizeableActivity="false">
+            android:resizeableActivity="false"
+            tools:targetApi="n">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -63,7 +64,8 @@
         <service
             android:name="com.google.android.apps.muzei.MuzeiWallpaperService"
             android:directBootAware="true"
-            android:permission="android.permission.BIND_WALLPAPER">
+            android:permission="android.permission.BIND_WALLPAPER"
+            tools:targetApi="n">
             <intent-filter>
                 <action android:name="android.service.wallpaper.WallpaperService"/>
             </intent-filter>
@@ -74,7 +76,8 @@
 
         <service
             android:name="com.google.android.apps.muzei.sources.SourceSubscriberService"
-            android:exported="true"/>
+            android:exported="true"
+            tools:ignore="ExportedService"/>
 
         <service android:name="com.google.android.apps.muzei.sync.TaskQueueService"/>
         <service
