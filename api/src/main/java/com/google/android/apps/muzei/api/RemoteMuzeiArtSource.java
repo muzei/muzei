@@ -140,6 +140,22 @@ public abstract class RemoteMuzeiArtSource extends MuzeiArtSource {
         }
     }
 
+    @RequiresPermission(allOf =
+            {Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.WAKE_LOCK})
+    @CallSuper
+    @Override
+    protected void onEnabled() {
+        super.onEnabled();
+        SharedPreferences sp = getSharedPreferences();
+        int retryAttempt = sp.getInt(PREF_RETRY_ATTEMPT, 0);
+        if (retryAttempt > MAX_RETRY_ATTEMPTS) {
+            // We've overshot the maximum number of attempts
+            // so schedule an update right now to catch up
+            sp.edit().remove(PREF_RETRY_ATTEMPT).apply();
+            onUpdate(UPDATE_REASON_SCHEDULED);
+        }
+    }
+
     @CallSuper
     @Override
     protected void onDisabled() {
