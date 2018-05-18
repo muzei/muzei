@@ -20,11 +20,15 @@ apply plugin: 'kotlin-kapt'
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
     implementation "androidx.core:core-ktx:$rootProject.ext.ktxVersion"
     implementation project(':api')
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
     implementation "com.android.support:customtabs:$supportLibraryVersion"
 }
+
+kotlin.experimental.coroutines "enable"
 
 android {
     resourcePrefix 'featuredart_'

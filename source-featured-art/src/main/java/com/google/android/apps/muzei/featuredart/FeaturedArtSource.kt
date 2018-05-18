@@ -29,6 +29,8 @@ import com.google.android.apps.muzei.api.Artwork
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.api.RemoteMuzeiArtSource
 import com.google.android.apps.muzei.api.UserCommand
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONException
@@ -167,7 +169,7 @@ class FeaturedArtSource : RemoteMuzeiArtSource(SOURCE_NAME) {
                     "None"
                 }
 
-                Handler(Looper.getMainLooper()).post {
+                launch(UI) {
                     toast("Next update time: $nextUpdateTime", Toast.LENGTH_LONG)
                 }
             }
