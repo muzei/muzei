@@ -22,13 +22,12 @@ import android.content.Context
 import android.database.ContentObserver
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Matrix
+import android.graphics.Rect
 import android.net.Uri
 import android.os.Handler
-import android.os.HandlerThread
-import android.support.media.ExifInterface
 import android.util.Log
 import com.google.android.apps.muzei.api.MuzeiContract
+import com.google.android.apps.muzei.render.BitmapRegionLoader
 import com.google.android.apps.muzei.render.sampleSize
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.gms.common.ConnectionResult
@@ -39,9 +38,8 @@ import com.google.android.gms.wearable.Asset
 import com.google.android.gms.wearable.DataItem
 import com.google.android.gms.wearable.PutDataMapRequest
 import com.google.android.gms.wearable.Wearable
+import kotlinx.coroutines.experimental.launch
 import java.io.ByteArrayOutputStream
-import java.io.FileNotFoundException
-import java.io.IOException
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
@@ -55,41 +53,15 @@ class WearableController(private val context: Context) : DefaultLifecycleObserve
         private const val TAG = "WearableController"
     }
 
-    private val wearableHandlerThread by lazy {
-        HandlerThread("MuzeiWallpaperService-Wearable").apply {
-            start()
-        }
-    }
     private val wearableContentObserver by lazy {
-        object : ContentObserver(Handler(wearableHandlerThread.looper)) {
+        object : ContentObserver(Handler()) {
             override fun onChange(selfChange: Boolean, uri: Uri) {
-                updateArtwork()
+                launch {
+                    updateArtwork()
+                }
             }
         }
     }
-
-    private val rotation: Int
-        get() {
-            var rotation = 0
-            try {
-                context.contentResolver.openInputStream(
-                        MuzeiContract.Artwork.CONTENT_URI)?.use { input ->
-                    val exifInterface = ExifInterface(input)
-                    val orientation = exifInterface.getAttributeInt(
-                            ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
-                    when (orientation) {
-                        ExifInterface.ORIENTATION_ROTATE_90 -> rotation = 90
-                        ExifInterface.ORIENTATION_ROTATE_180 -> rotation = 180
-                        ExifInterface.ORIENTATION_ROTATE_270 -> rotation = 270
-                    }
-                }
-            } catch (ignored: IOException) {
-            } catch (ignored: NumberFormatException) {
-            } catch (ignored: StackOverflowError) {
-            }
-
-            return rotation
-        }
 
     override fun onCreate(owner: LifecycleOwner) {
         // Update Android Wear whenever the artwork changes
@@ -99,10 +71,9 @@ class WearableController(private val context: Context) : DefaultLifecycleObserve
 
     override fun onDestroy(owner: LifecycleOwner) {
         context.contentResolver.unregisterContentObserver(wearableContentObserver)
-        wearableHandlerThread.quitSafely()
     }
 
-    private fun updateArtwork() {
+    private suspend fun updateArtwork() {
         if (ConnectionResult.SUCCESS != GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context)) {
             return
         }
@@ -129,15 +100,15 @@ class WearableController(private val context: Context) : DefaultLifecycleObserve
             return
         }
 
-        val image: Bitmap? = getCurrentArtwork()?.let { image ->
-            if (rotation != 0) {
-                // Rotate the image so that Wear always gets a right side up image
-                Bitmap.createBitmap(image, 0, 0, image.width, image.height,
-                        Matrix().apply { postRotate(rotation.toFloat()) }, true)
-            } else {
-                image
-            }
-        }
+        val image: Bitmap? = BitmapRegionLoader.newInstance(context.contentResolver,
+                MuzeiContract.Artwork.CONTENT_URI)?.use { regionLoader ->
+            val width = regionLoader.width
+            val height = regionLoader.height
+            val shortestLength = Math.min(width, height)
+            val options = BitmapFactory.Options()
+            options.inSampleSize = shortestLength.sampleSize(320)
+            regionLoader.decodeRegion(Rect(0, 0, width, height), options)
+        } ?: return
 
         val artwork = MuzeiDatabase.getInstance(context).artworkDao().currentArtworkBlocking
         if (image != null && artwork != null) {
@@ -155,31 +126,6 @@ class WearableController(private val context: Context) : DefaultLifecycleObserve
             } catch (e: InterruptedException) {
                 Log.w(TAG, "Error uploading artwork to Wear", e)
             }
-        }
-    }
-
-    private fun getCurrentArtwork(): Bitmap? {
-        return try {
-            val contentResolver = context.contentResolver
-            val options = BitmapFactory.Options()
-            options.inJustDecodeBounds = true
-            contentResolver.openInputStream(
-                    MuzeiContract.Artwork.CONTENT_URI)?.use {
-                BitmapFactory.decodeStream(it, null, options)
-            }
-            options.inJustDecodeBounds = false
-            if (options.outWidth > options.outHeight) {
-                options.inSampleSize = options.outHeight.sampleSize(320)
-            } else {
-                options.inSampleSize = options.outWidth.sampleSize(320)
-            }
-            contentResolver.openInputStream(
-                    MuzeiContract.Artwork.CONTENT_URI)?.use {
-                BitmapFactory.decodeStream(it, null, options)
-            }
-        } catch (e: FileNotFoundException) {
-            Log.e(TAG, "Unable to read artwork to update Android Wear", e)
-            null
         }
     }
 }
