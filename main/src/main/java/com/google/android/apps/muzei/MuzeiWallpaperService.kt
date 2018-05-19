@@ -30,8 +30,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.database.ContentObserver
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -48,7 +46,6 @@ import com.google.android.apps.muzei.render.BitmapRegionLoader
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer
 import com.google.android.apps.muzei.render.RealRenderController
 import com.google.android.apps.muzei.render.RenderController
-import com.google.android.apps.muzei.render.sampleSize
 import com.google.android.apps.muzei.shortcuts.ArtworkInfoShortcutController
 import com.google.android.apps.muzei.sources.SourceManager
 import com.google.android.apps.muzei.util.observeNonNull
@@ -226,12 +223,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         private suspend fun updateCurrentArtwork() {
             currentArtwork = BitmapRegionLoader.newInstance(contentResolver,
                     MuzeiContract.Artwork.CONTENT_URI)?.use { regionLoader ->
-                val width = regionLoader.width
-                val height = regionLoader.height
-                val shortestLength = Math.min(width, height)
-                val options = BitmapFactory.Options()
-                options.inSampleSize = shortestLength.sampleSize(MAX_ARTWORK_SIZE / 2)
-                regionLoader.decodeRegion(Rect(0, 0, width, height), options)
+                regionLoader.decode(MAX_ARTWORK_SIZE / 2)
             } ?: return
             notifyColorsChanged()
         }

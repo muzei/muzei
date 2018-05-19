@@ -18,6 +18,7 @@ package com.google.android.apps.muzei.render
 
 import android.content.ContentResolver
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.BitmapFactory.Options
 import android.graphics.BitmapRegionDecoder
 import android.graphics.Matrix
@@ -128,6 +129,19 @@ private constructor(private val inputStream: InputStream, private val rotation: 
             }
         }
     }
+
+    /**
+     * Decodes the entire image, resizing it to the given dimensions
+     * using sample size
+     */
+    @Synchronized
+    fun decode(targetWidth: Int, targetHeight: Int = targetWidth) = decodeRegion(
+            Rect(0, 0, width, height),
+            BitmapFactory.Options().apply {
+                inSampleSize = Math.max(
+                        width.sampleSize(targetWidth),
+                        height.sampleSize(targetHeight))
+            })
 
     /**
      * Key difference, aside from support for rotation, from

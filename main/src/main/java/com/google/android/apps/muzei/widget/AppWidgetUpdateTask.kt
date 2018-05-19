@@ -22,8 +22,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Rect
 import android.os.Build
 import android.support.annotation.LayoutRes
 import android.support.annotation.RequiresApi
@@ -33,7 +31,6 @@ import android.view.View
 import android.widget.RemoteViews
 import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.render.BitmapRegionLoader
-import com.google.android.apps.muzei.render.sampleSize
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Source
@@ -143,12 +140,7 @@ private suspend fun createRemoteViews(
             R.dimen.widget_small_height_breakpoint)
     val image = BitmapRegionLoader.newInstance(context.contentResolver,
             imageUri)?.use { regionLoader ->
-        val width = regionLoader.width
-        val height = regionLoader.height
-        val options = BitmapFactory.Options()
-        options.inSampleSize = Math.max(width.sampleSize(widgetWidth / 2),
-                height.sampleSize(widgetHeight / 2))
-        regionLoader.decodeRegion(Rect(0, 0, width, height), options)
+        regionLoader.decode(widgetWidth / 2, widgetHeight / 2)
     } ?: return null
 
     // Even after using sample size to scale an image down, it might be larger than the

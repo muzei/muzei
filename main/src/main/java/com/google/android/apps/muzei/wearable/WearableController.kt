@@ -21,14 +21,11 @@ import android.arch.lifecycle.LifecycleOwner
 import android.content.Context
 import android.database.ContentObserver
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Rect
 import android.net.Uri
 import android.os.Handler
 import android.util.Log
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.render.BitmapRegionLoader
-import com.google.android.apps.muzei.render.sampleSize
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
@@ -102,12 +99,7 @@ class WearableController(private val context: Context) : DefaultLifecycleObserve
 
         val image: Bitmap? = BitmapRegionLoader.newInstance(context.contentResolver,
                 MuzeiContract.Artwork.CONTENT_URI)?.use { regionLoader ->
-            val width = regionLoader.width
-            val height = regionLoader.height
-            val shortestLength = Math.min(width, height)
-            val options = BitmapFactory.Options()
-            options.inSampleSize = shortestLength.sampleSize(320)
-            regionLoader.decodeRegion(Rect(0, 0, width, height), options)
+            regionLoader.decode(320)
         } ?: return
 
         val artwork = MuzeiDatabase.getInstance(context).artworkDao().currentArtworkBlocking

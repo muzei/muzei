@@ -22,8 +22,6 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
-import android.graphics.Rect
 import android.os.Build
 import android.preference.PreferenceManager
 import android.provider.Settings
@@ -37,7 +35,6 @@ import com.google.android.apps.muzei.ArtDetailOpenLiveData
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.render.BitmapRegionLoader
-import com.google.android.apps.muzei.render.sampleSize
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.sources.SourceManager
 import kotlinx.coroutines.experimental.launch
@@ -145,19 +142,11 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
 
             val (largeIcon, bigPicture) = BitmapRegionLoader.newInstance(contentResolver,
                     MuzeiContract.Artwork.CONTENT_URI)?.use { regionLoader ->
-                val width = regionLoader.width
-                val height = regionLoader.height
-                val shortestLength = Math.min(width, height)
-                val options = BitmapFactory.Options()
-                options.inJustDecodeBounds = false
                 val largeIconHeight = context.resources
                         .getDimensionPixelSize(android.R.dimen.notification_large_icon_height)
-                options.inSampleSize = shortestLength.sampleSize(largeIconHeight)
-                val largeIcon = regionLoader.decodeRegion(Rect(0, 0, width, height), options)
+                val largeIcon = regionLoader.decode(largeIconHeight)
                         ?: return
-
-                options.inSampleSize = height.sampleSize(400)
-                val bigPicture = regionLoader.decodeRegion(Rect(0, 0, width, height), options)
+                val bigPicture = regionLoader.decode(400)
                         ?: return
                 Pair(largeIcon, bigPicture)
             } ?: return
