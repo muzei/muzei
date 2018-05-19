@@ -31,19 +31,20 @@ import android.content.IntentFilter
 import android.database.ContentObserver
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.support.annotation.RequiresApi
 import android.support.v4.os.UserManagerCompat
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.ViewConfiguration
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.notifications.NotificationUpdater
+import com.google.android.apps.muzei.render.BitmapRegionLoader
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer
 import com.google.android.apps.muzei.render.RealRenderController
 import com.google.android.apps.muzei.render.RenderController
@@ -55,8 +56,8 @@ import com.google.android.apps.muzei.wallpaper.LockscreenObserver
 import com.google.android.apps.muzei.wallpaper.WallpaperAnalytics
 import com.google.android.apps.muzei.wearable.WearableController
 import com.google.android.apps.muzei.widget.WidgetUpdater
+import kotlinx.coroutines.experimental.launch
 import net.rbgrn.android.glwallpaperservice.GLWallpaperService
-import java.io.IOException
 
 data class WallpaperSize(val width: Int, val height: Int)
 
@@ -65,7 +66,6 @@ object WallpaperSizeLiveData : MutableLiveData<WallpaperSize>()
 class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
 
     companion object {
-        private const val TAG = "MuzeiWallpaperService"
         private const val TEMPORARY_FOCUS_DURATION_MILLIS: Long = 3000
         private const val MAX_ARTWORK_SIZE = 110 // px
     }
@@ -183,7 +183,9 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                         contentObserver = object : ContentObserver(Handler()) {
                             @RequiresApi(Build.VERSION_CODES.O_MR1)
                             override fun onChange(selfChange: Boolean, uri: Uri) {
-                                updateCurrentArtwork()
+                                launch {
+                                    updateCurrentArtwork()
+                                }
                             }
                         }
                         contentResolver.registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
@@ -221,22 +223,17 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         }
 
         @RequiresApi(Build.VERSION_CODES.O_MR1)
-        private fun updateCurrentArtwork() {
-            try {
+        private suspend fun updateCurrentArtwork() {
+            currentArtwork = BitmapRegionLoader.newInstance(contentResolver,
+                    MuzeiContract.Artwork.CONTENT_URI)?.use { regionLoader ->
+                val width = regionLoader.width
+                val height = regionLoader.height
+                val shortestLength = Math.min(width, height)
                 val options = BitmapFactory.Options()
-                options.inJustDecodeBounds = true
-                contentResolver.openInputStream(MuzeiContract.Artwork.CONTENT_URI)?.use { input ->
-                    BitmapFactory.decodeStream(input, null, options)
-                }
-                options.inSampleSize = options.sampleSize(MAX_ARTWORK_SIZE / 2)
-                options.inJustDecodeBounds = false
-                contentResolver.openInputStream(MuzeiContract.Artwork.CONTENT_URI)?.use { input ->
-                    currentArtwork = BitmapFactory.decodeStream(input, null, options)
-                }
-                notifyColorsChanged()
-            } catch (e: IOException) {
-                Log.w(TAG, "Error reading current artwork", e)
-            }
+                options.inSampleSize = shortestLength.sampleSize(MAX_ARTWORK_SIZE / 2)
+                regionLoader.decodeRegion(Rect(0, 0, width, height), options)
+            } ?: return
+            notifyColorsChanged()
         }
 
         @RequiresApi(Build.VERSION_CODES.O_MR1)
