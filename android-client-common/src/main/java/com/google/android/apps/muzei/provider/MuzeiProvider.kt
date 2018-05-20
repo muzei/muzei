@@ -91,14 +91,12 @@ class MuzeiProvider : ContentProvider() {
                     MuzeiProvider.SOURCE_ID)
         }
 
-        fun getCacheFileForArtworkUri(context: Context, artworkId: Long) : File? {
-            val artwork = runBlocking {
-                async {
-                    MuzeiDatabase.getInstance(context)
-                            .artworkDao()
-                            .getArtworkById(artworkId)
-                }.await()
-            } ?: return null
+        suspend fun getCacheFileForArtworkUri(context: Context, artworkId: Long) : File? {
+            val artwork = async {
+                MuzeiDatabase.getInstance(context)
+                        .artworkDao()
+                        .getArtworkById(artworkId)
+            }.await() ?: return null
             return getCacheFileForArtworkUri(context, artwork)
         }
 
@@ -294,18 +292,20 @@ class MuzeiProvider : ContentProvider() {
             Log.w(TAG, "Queries are not supported until the user is unlocked")
             return null
         }
-        return if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK ||
-                MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK_ID) {
-            queryArtwork(uri, projection, selection, selectionArgs, sortOrder)
-        } else if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCES ||
-                MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCE_ID) {
-            querySource(uri, projection)
-        } else {
-            throw IllegalArgumentException("Unknown URI $uri")
+        return runBlocking {
+            if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK ||
+                    MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK_ID) {
+                queryArtwork(uri, projection, selection, selectionArgs, sortOrder)
+            } else if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCES ||
+                    MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCE_ID) {
+                querySource(uri, projection)
+            } else {
+                throw IllegalArgumentException("Unknown URI $uri")
+            }
         }
     }
 
-    private fun queryArtwork(
+    private suspend fun queryArtwork(
             uri: Uri,
             projection: Array<String>?,
             selection: String?,
@@ -315,12 +315,10 @@ class MuzeiProvider : ContentProvider() {
         val context = context ?: return null
         val qb = SupportSQLiteQueryBuilder.builder("artwork")
         qb.columns(computeColumns(projection, allArtworkColumnProjectionMap))
-        val source = runBlocking {
-            async {
-                MuzeiDatabase.getInstance(context).sourceDao()
-                        .currentSourceBlocking
-            }.await()
-        }
+        val source = async {
+            MuzeiDatabase.getInstance(context).sourceDao()
+                    .currentSourceBlocking
+        }.await()
         var finalSelection = source?.run {
             DatabaseUtils.concatenateWhere(selection,
                     "sourceComponentName = \"${source.componentName.flattenToShortString()}\"")
@@ -333,34 +331,32 @@ class MuzeiProvider : ContentProvider() {
         }
         qb.selection(finalSelection, selectionArgs)
         qb.orderBy(sortOrder ?: "date_added DESC")
-        return runBlocking {
-            async {
-                MuzeiDatabase.getInstance(context).query(qb.create()).apply {
-                    setNotificationUri(context.contentResolver, uri)
-                }
-            }.await()
-        }
+        return async {
+            MuzeiDatabase.getInstance(context).query(qb.create()).apply {
+                setNotificationUri(context.contentResolver, uri)
+            }
+        }.await()
     }
 
-    private fun querySource(uri: Uri, projection: Array<String>?): Cursor? {
+    private suspend fun querySource(uri: Uri, projection: Array<String>?): Cursor? {
         val context = context ?: return null
         val c = MatrixCursor(projection)
-        runBlocking {
-            async {
-                MuzeiDatabase.getInstance(context).sourceDao().currentSourceBlocking?.let { source ->
-                    c.newRow().apply {
-                        add(BaseColumns._ID, 0L)
-                        add(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, source.componentName)
-                        add(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, true)
-                        add(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION,
-                                source.displayDescription)
-                        add(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE, false)
-                        add(MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,
-                                source.supportsNextArtwork)
-                        add(MuzeiContract.Sources.COLUMN_NAME_COMMANDS, null)
-                    }
-                }
-            }.await()
+        val currentSource = async {
+            MuzeiDatabase.getInstance(context).sourceDao()
+                    .currentSourceBlocking
+        }.await()
+        currentSource?.let { source ->
+            c.newRow().apply {
+                add(BaseColumns._ID, 0L)
+                add(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, source.componentName)
+                add(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, true)
+                add(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION,
+                        source.displayDescription)
+                add(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE, false)
+                add(MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,
+                        source.supportsNextArtwork)
+                add(MuzeiContract.Sources.COLUMN_NAME_COMMANDS, null)
+            }
         }
         return c.apply { setNotificationUri(context.contentResolver, uri) }
     }
@@ -382,15 +378,18 @@ class MuzeiProvider : ContentProvider() {
 
     @Throws(FileNotFoundException::class)
     override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
-        return if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK || MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK_ID) {
-            openFileArtwork(uri, mode)
-        } else {
-            throw IllegalArgumentException("Unknown URI $uri")
+        return runBlocking {
+            if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK ||
+                    MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK_ID) {
+                openFileArtwork(uri, mode)
+            } else {
+                throw IllegalArgumentException("Unknown URI $uri")
+            }
         }
     }
 
     @Throws(FileNotFoundException::class)
-    private fun openFileArtwork(uri: Uri, mode: String): ParcelFileDescriptor? {
+    private suspend fun openFileArtwork(uri: Uri, mode: String): ParcelFileDescriptor? {
         val context = context ?: return null
         val isWriteOperation = mode.contains("w")
         val file = when {
@@ -406,11 +405,9 @@ class MuzeiProvider : ContentProvider() {
                 // that does have a cached artwork file. This prevents race conditions where
                 // an external app attempts to load the latest artwork while an art source is inserting a
                 // new artwork
-                val artworkList = runBlocking {
-                    async {
-                        MuzeiDatabase.getInstance(context).artworkDao().artworkBlocking
-                    }.await()
-                }
+                val artworkList = async {
+                    MuzeiDatabase.getInstance(context).artworkDao().artworkBlocking
+                }.await()
                 if (artworkList.isEmpty()) {
                     if (BuildConfig.DEBUG || context.packageName != callingPackage) {
                         Log.w(TAG, "You must insert at least one row to read or write artwork")

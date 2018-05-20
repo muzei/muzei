@@ -195,11 +195,13 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
             signal: CancellationSignal?
     ): AssetFileDescriptor? {
         val artworkId = documentId.toLong()
-        return openArtworkThumbnail(Artwork.getContentUri(artworkId), sizeHint, signal)
+        return runBlocking {
+            openArtworkThumbnail(Artwork.getContentUri(artworkId), sizeHint, signal)
+        }
     }
 
     @Throws(FileNotFoundException::class)
-    private fun openArtworkThumbnail(
+    private suspend fun openArtworkThumbnail(
             artworkUri: Uri,
             sizeHint: Point,
             signal: CancellationSignal?
@@ -264,18 +266,16 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
     }
 
     @Throws(FileNotFoundException::class)
-    private fun getCacheFileForArtworkUri(artworkId: Long): File {
+    private suspend fun getCacheFileForArtworkUri(artworkId: Long): File {
         val context = context ?: throw FileNotFoundException("Unable to create cache directory")
         val directory = File(context.cacheDir, "artwork_thumbnails")
         if (!directory.exists() && !directory.mkdirs()) {
             throw FileNotFoundException("Unable to create cache directory")
         }
-        val artwork = runBlocking {
-            async {
-                MuzeiDatabase.getInstance(context).artworkDao()
-                        .getArtworkById(artworkId)
-            }.await()
-        } ?: throw FileNotFoundException("Unable to get artwork for id $artworkId")
+        val artwork = async {
+            MuzeiDatabase.getInstance(context).artworkDao()
+                    .getArtworkById(artworkId)
+        }.await() ?: throw FileNotFoundException("Unable to get artwork for id $artworkId")
         return File(directory, artwork.id.toString())
     }
 

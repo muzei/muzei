@@ -34,6 +34,8 @@ import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.provider.MuzeiProvider
 import com.google.android.apps.muzei.room.converter.ComponentNameTypeConverter
 import com.google.android.apps.muzei.room.converter.UriTypeConverter
+import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.runBlocking
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 
 /**
@@ -59,7 +61,9 @@ abstract class ArtworkDao {
     abstract fun insert(artwork: Artwork): Long
 
     fun insertCompleted(context: Context, id: Long) {
-        val artworkFile = MuzeiProvider.getCacheFileForArtworkUri(context, id)
+        val artworkFile = runBlocking {
+            MuzeiProvider.getCacheFileForArtworkUri(context, id)
+        }
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Created artwork $id with cache file $artworkFile")
         }
@@ -196,9 +200,11 @@ abstract class ArtworkDao {
                     }
                 }
                 if (canDelete) {
-                    val file = MuzeiProvider.getCacheFileForArtworkUri(context, id)
-                    if (file != null && file.exists()) {
-                        file.delete()
+                    launch {
+                        val file = MuzeiProvider.getCacheFileForArtworkUri(context, id)
+                        if (file != null && file.exists()) {
+                            file.delete()
+                        }
                     }
                 }
             }
