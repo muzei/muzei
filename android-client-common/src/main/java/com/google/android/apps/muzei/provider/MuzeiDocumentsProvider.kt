@@ -22,7 +22,6 @@ import android.content.res.AssetFileDescriptor
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Point
 import android.net.Uri
 import android.os.CancellationSignal
@@ -30,6 +29,7 @@ import android.os.ParcelFileDescriptor
 import android.provider.DocumentsContract
 import android.provider.DocumentsProvider
 import android.util.Log
+import com.google.android.apps.muzei.render.BitmapRegionLoader
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import kotlinx.coroutines.experimental.async
@@ -196,15 +196,14 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
     ): AssetFileDescriptor? {
         val artworkId = documentId.toLong()
         return runBlocking {
-            openArtworkThumbnail(Artwork.getContentUri(artworkId), sizeHint, signal)
+            openArtworkThumbnail(Artwork.getContentUri(artworkId), sizeHint)
         }
     }
 
     @Throws(FileNotFoundException::class)
     private suspend fun openArtworkThumbnail(
             artworkUri: Uri,
-            sizeHint: Point,
-            signal: CancellationSignal?
+            sizeHint: Point
     ): AssetFileDescriptor? {
         val contentResolver = context?.contentResolver ?: return null
         val artworkId = ContentUris.parseId(artworkUri)
@@ -214,42 +213,10 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
             return AssetFileDescriptor(ParcelFileDescriptor.open(tempFile, ParcelFileDescriptor.MODE_READ_ONLY), 0,
                     AssetFileDescriptor.UNKNOWN_LENGTH)
         }
-        val options = BitmapFactory.Options()
-        options.inJustDecodeBounds = true
-        try {
-            contentResolver.openInputStream(artworkUri)?.use { input ->
-                BitmapFactory.decodeStream(input, null, options)
-            }
-        } catch (e: IOException) {
-            throw FileNotFoundException("Unable to decode artwork")
-        }
-
-        if (signal?.isCanceled == true) {
-            // Canceled, so we'll stop here to save us the effort of actually decoding the image
-            return null
-        }
-        val targetHeight = 2 * sizeHint.y
-        val targetWidth = 2 * sizeHint.x
-        val height = options.outHeight
-        val width = options.outWidth
-        options.inSampleSize = 1
-        if (height > targetHeight || width > targetWidth) {
-            val halfHeight = height / 2
-            val halfWidth = width / 2
-            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-            // height and width larger than the requested height and width.
-            while (halfHeight / options.inSampleSize > targetHeight || halfWidth / options.inSampleSize > targetWidth) {
-                options.inSampleSize *= 2
-            }
-        }
-        options.inJustDecodeBounds = false
-        val bitmap = try {
-            contentResolver.openInputStream(artworkUri)?.use { input ->
-                BitmapFactory.decodeStream(input, null, options)
-            } ?: throw FileNotFoundException("Unable to open artwork for $artworkUri")
-        } catch (e: IOException) {
-            throw FileNotFoundException("Unable to decode artwork")
-        }
+        val bitmap = BitmapRegionLoader.newInstance(contentResolver,
+                artworkUri)?.use { regionLoader ->
+            regionLoader.decode(sizeHint.x / 2, sizeHint.y / 2)
+        } ?: throw FileNotFoundException("Unable to open artwork for $artworkUri")
 
         // Write out the thumbnail to a temporary file
         try {
