@@ -24,12 +24,11 @@ import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
 import android.graphics.drawable.Icon
 import android.os.Build
-import android.os.Handler
-import android.os.HandlerThread
 import android.support.annotation.RequiresApi
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.observe
+import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.R
 
 /**
@@ -45,21 +44,13 @@ class ArtworkInfoShortcutController(
         private const val ARTWORK_INFO_SHORTCUT_ID = "artwork_info"
     }
 
-    private lateinit var artworkInfoShortcutHandlerThread: HandlerThread
-    private lateinit var artworkInfoShortcutHandler: Handler
-
     override fun onCreate(owner: LifecycleOwner) {
-        artworkInfoShortcutHandlerThread = HandlerThread("MuzeiWallpaperService-ArtworkInfoShortcut")
-        artworkInfoShortcutHandlerThread.start()
-        artworkInfoShortcutHandler = Handler(artworkInfoShortcutHandlerThread.looper)
         MuzeiDatabase.getInstance(context).artworkDao()
                 .currentArtwork.observe(lifecycleOwner) { artwork ->
-            artworkInfoShortcutHandler.post { updateShortcut(artwork) }
+            launch {
+                updateShortcut(artwork)
+            }
         }
-    }
-
-    override fun onDestroy(owner: LifecycleOwner) {
-        artworkInfoShortcutHandlerThread.quitSafely()
     }
 
     private fun updateShortcut(artwork: Artwork?) {
