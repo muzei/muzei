@@ -37,8 +37,6 @@ import android.util.Log
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.runBlocking
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.File
 import java.io.FileNotFoundException
@@ -91,12 +89,12 @@ class MuzeiProvider : ContentProvider() {
                     MuzeiProvider.SOURCE_ID)
         }
 
-        suspend fun getCacheFileForArtworkUri(context: Context, artworkId: Long) : File? {
-            val artwork = async {
+        fun getCacheFileForArtworkUri(context: Context, artworkId: Long) : File? {
+            val artwork = ensureBackground {
                 MuzeiDatabase.getInstance(context)
                         .artworkDao()
                         .getArtworkById(artworkId)
-            }.await() ?: return null
+            } ?: return null
             return getCacheFileForArtworkUri(context, artwork)
         }
 
@@ -292,20 +290,18 @@ class MuzeiProvider : ContentProvider() {
             Log.w(TAG, "Queries are not supported until the user is unlocked")
             return null
         }
-        return runBlocking {
-            if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK ||
-                    MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK_ID) {
-                queryArtwork(uri, projection, selection, selectionArgs, sortOrder)
-            } else if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCES ||
-                    MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCE_ID) {
-                querySource(uri, projection)
-            } else {
-                throw IllegalArgumentException("Unknown URI $uri")
-            }
+        return if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK ||
+                MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK_ID) {
+            queryArtwork(uri, projection, selection, selectionArgs, sortOrder)
+        } else if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCES ||
+                MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCE_ID) {
+            querySource(uri, projection)
+        } else {
+            throw IllegalArgumentException("Unknown URI $uri")
         }
     }
 
-    private suspend fun queryArtwork(
+    private fun queryArtwork(
             uri: Uri,
             projection: Array<String>?,
             selection: String?,
@@ -315,10 +311,10 @@ class MuzeiProvider : ContentProvider() {
         val context = context ?: return null
         val qb = SupportSQLiteQueryBuilder.builder("artwork")
         qb.columns(computeColumns(projection, allArtworkColumnProjectionMap))
-        val source = async {
+        val source = ensureBackground {
             MuzeiDatabase.getInstance(context).sourceDao()
                     .currentSourceBlocking
-        }.await()
+        }
         var finalSelection = source?.run {
             DatabaseUtils.concatenateWhere(selection,
                     "sourceComponentName = \"${source.componentName.flattenToShortString()}\"")
@@ -331,20 +327,20 @@ class MuzeiProvider : ContentProvider() {
         }
         qb.selection(finalSelection, selectionArgs)
         qb.orderBy(sortOrder ?: "date_added DESC")
-        return async {
-            MuzeiDatabase.getInstance(context).query(qb.create()).apply {
-                setNotificationUri(context.contentResolver, uri)
-            }
-        }.await()
+        return ensureBackground {
+            MuzeiDatabase.getInstance(context).query(qb.create())
+        }.apply {
+            setNotificationUri(context.contentResolver, uri)
+        }
     }
 
-    private suspend fun querySource(uri: Uri, projection: Array<String>?): Cursor? {
+    private fun querySource(uri: Uri, projection: Array<String>?): Cursor? {
         val context = context ?: return null
         val c = MatrixCursor(projection)
-        val currentSource = async {
+        val currentSource = ensureBackground {
             MuzeiDatabase.getInstance(context).sourceDao()
                     .currentSourceBlocking
-        }.await()
+        }
         currentSource?.let { source ->
             c.newRow().apply {
                 add(BaseColumns._ID, 0L)
@@ -378,18 +374,16 @@ class MuzeiProvider : ContentProvider() {
 
     @Throws(FileNotFoundException::class)
     override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
-        return runBlocking {
-            if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK ||
-                    MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK_ID) {
-                openFileArtwork(uri, mode)
-            } else {
-                throw IllegalArgumentException("Unknown URI $uri")
-            }
+        return if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK ||
+                MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK_ID) {
+            openFileArtwork(uri, mode)
+        } else {
+            throw IllegalArgumentException("Unknown URI $uri")
         }
     }
 
     @Throws(FileNotFoundException::class)
-    private suspend fun openFileArtwork(uri: Uri, mode: String): ParcelFileDescriptor? {
+    private fun openFileArtwork(uri: Uri, mode: String): ParcelFileDescriptor? {
         val context = context ?: return null
         val isWriteOperation = mode.contains("w")
         val file = when {
@@ -405,9 +399,9 @@ class MuzeiProvider : ContentProvider() {
                 // that does have a cached artwork file. This prevents race conditions where
                 // an external app attempts to load the latest artwork while an art source is inserting a
                 // new artwork
-                val artworkList = async {
+                val artworkList = ensureBackground {
                     MuzeiDatabase.getInstance(context).artworkDao().artworkBlocking
-                }.await()
+                }
                 if (artworkList.isEmpty()) {
                     if (BuildConfig.DEBUG || context.packageName != callingPackage) {
                         Log.w(TAG, "You must insert at least one row to read or write artwork")
