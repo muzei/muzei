@@ -312,7 +312,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
 
         view.findViewById<View>(R.id.image_error_retry_button).setOnClickListener {
             showNextFakeLoading()
-            requireContext().startService(TaskQueueService.getDownloadCurrentArtworkIntent(context))
+            requireContext().startService(TaskQueueService.getDownloadCurrentArtworkIntent(requireContext()))
         }
 
         WallpaperSizeLiveData.observeNonNull(this) { size ->
