@@ -138,7 +138,7 @@ class FeaturedArtSource : RemoteMuzeiArtSource(SOURCE_NAME) {
                     }
                 } ?: run {
                     Log.w(TAG, "No current artwork, can't share.")
-                    Handler(Looper.getMainLooper()).post {
+                    launch(UI) {
                         toast(R.string.featuredart_source_error_no_artwork_to_share)
                     }
                 }

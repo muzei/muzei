@@ -121,15 +121,21 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                             .putExtra(EXTRA_COMMAND_ID, id))
                 } catch (e: PackageManager.NameNotFoundException) {
                     Log.i(TAG, "Sending action + $id to $selectedSource failed; switching to default.", e)
-                    context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
+                    launch(UI) {
+                        context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
+                    }
                     selectSource(context, FeaturedArtSource::class)
                 } catch (e: IllegalStateException) {
                     Log.i(TAG, "Sending action + $id to $selectedSource failed; switching to default.", e)
-                    context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
+                    launch(UI) {
+                        context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
+                    }
                     selectSource(context, FeaturedArtSource::class)
                 } catch (e: SecurityException) {
                     Log.i(TAG, "Sending action + $id to $selectedSource failed; switching to default.", e)
-                    context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
+                    launch(UI) {
+                        context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
+                    }
                     selectSource(context, FeaturedArtSource::class)
                 }
             }

@@ -26,6 +26,7 @@ import androidx.core.widget.toast
 import com.google.android.apps.muzei.single.SingleArtSource
 import com.google.android.apps.muzei.sources.SourceManager
 import com.google.firebase.analytics.FirebaseAnalytics
+import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.R
 
@@ -44,7 +45,9 @@ class PhotoSetAsTargetActivity : Activity() {
                 val success = SingleArtSource.setArtwork(context, uri)
                 if (success == false) {
                     Log.e(TAG, "Unable to insert artwork for $uri")
-                    toast(R.string.set_as_wallpaper_failed)
+                    launch(UI) {
+                        toast(R.string.set_as_wallpaper_failed)
+                    }
                     finish()
                     return@launch
                 }

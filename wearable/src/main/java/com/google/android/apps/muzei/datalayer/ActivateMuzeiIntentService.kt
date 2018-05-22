@@ -44,6 +44,8 @@ import com.google.android.gms.wearable.Wearable
 import com.google.android.wearable.intent.RemoteIntent
 import com.google.android.wearable.playstore.PlayStoreAvailability
 import com.google.firebase.analytics.FirebaseAnalytics
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.R
 import java.io.IOException
 import java.util.TreeSet
@@ -207,7 +209,9 @@ class ActivateMuzeiIntentService : IntentService(TAG) {
                                 putBoolean(ACTIVATE_MUZEI_NOTIF_SHOWN_PREF_KEY, true)
                             }
                         } else {
-                            toast(R.string.activate_install_failed)
+                            launch(UI) {
+                                toast(R.string.activate_install_failed)
+                            }
                         }
                     }
                 })
@@ -227,7 +231,9 @@ class ActivateMuzeiIntentService : IntentService(TAG) {
                 }
 
                 if (nodes.isEmpty()) {
-                    toast(R.string.activate_failed)
+                    launch(UI) {
+                        toast(R.string.activate_failed)
+                    }
                 } else {
                     FirebaseAnalytics.getInstance(this).logEvent("activate_notif_message_sent", null)
                     // Show the open on phone animation
