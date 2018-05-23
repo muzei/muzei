@@ -21,10 +21,6 @@
 
 -keep public class * extends android.app,backup.BackupAgent
 
--keepclassmembers class ** {
-    public void onEvent*(**);
-}
-
 -dontobfuscate
 
 # ViewModel
