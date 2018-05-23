@@ -732,7 +732,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             for (h in 0 until numImages) {
                 val thumbView = vh.thumbViews[h]
                 thumbView.visibility = View.VISIBLE
-                Picasso.with(this@GallerySettingsActivity)
+                Picasso.get()
                         .load(images[h])
                         .resize(targetSize, targetSize)
                         .centerCrop()

@@ -36,6 +36,7 @@ import com.google.android.apps.muzei.util.blur
 import com.google.android.apps.muzei.util.roundMult4
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
+import java.lang.Exception
 
 class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurRenderer.Callbacks {
 
@@ -59,6 +60,7 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
     private var demoFocus: Boolean = false
 
     private val simpleDemoModeLoadedTarget = object : Target {
+
         override fun onBitmapLoaded(bitmap: Bitmap?, loadedFrom: Picasso.LoadedFrom?) {
             simpleDemoModeImageView.setImageBitmap(if (!demoFocus) {
                 bitmap.blur(requireContext())?.apply {
@@ -71,8 +73,8 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
                 bitmap
             })
         }
-
-        override fun onBitmapFailed(drawable: Drawable?) {}
+        override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
+        }
 
         override fun onPrepareLoad(drawable: Drawable?) {}
     }
@@ -103,7 +105,7 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
             simpleDemoModeImageView = ImageView(context).apply {
                 scaleType = ImageView.ScaleType.CENTER_CROP
             }
-            Picasso.with(context)
+            Picasso.get()
                     .load("file:///android_asset/starrynight.jpg")
                     .resize(targetWidth, targetHeight)
                     .centerCrop()

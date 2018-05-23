@@ -34,7 +34,7 @@ buildscript {
         jobDispatcherVersion = "0.8.5"
         wearableVersion = "2.3.0"
         okhttpVersion = "3.10.0"
-        picassoVersion = "2.5.2"
+        picassoVersion = "2.71828"
     }
 
     repositories {
