@@ -85,6 +85,7 @@ dependencies {
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
     implementation "androidx.core:core-ktx:$rootProject.ext.ktxVersion"
+    implementation "android.arch.work:work-runtime-ktx:$workManagerVersion"
     implementation "com.android.support:support-compat:$supportLibraryVersion"
     implementation "com.android.support:exifinterface:$supportLibraryVersion"
     implementation "com.android.support:wear:$supportLibraryVersion"
@@ -98,7 +99,6 @@ dependencies {
     implementation "com.google.firebase:firebase-core:$firebaseCoreVersion"
     implementation "com.google.firebase:firebase-perf:$firebasePerfVersion"
     implementation "com.crashlytics.sdk.android:crashlytics:$crashlyticsVersion"
-    implementation "com.firebase:firebase-jobdispatcher:$jobDispatcherVersion"
 
     implementation project(':api')
     implementation project(':extensions')

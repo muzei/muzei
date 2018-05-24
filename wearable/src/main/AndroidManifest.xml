@@ -91,13 +91,6 @@
                 android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
                 android:value="0"/>
         </service>
-        <service
-            android:name="com.google.android.apps.muzei.complications.ArtworkComplicationJobService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE"/>
-            </intent-filter>
-        </service>
 
         <service
             android:name="com.google.android.apps.muzei.MuzeiWatchFace"
