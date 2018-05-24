@@ -40,7 +40,6 @@
     <string name="action_source_target_too_high_dismiss">Got it</string>
     <string name="source_unavailable">Your selected source is unavailable. Switching to the default source.</string>
 
-    <string name="contentdesc_overflow">More options</string>
     <string name="error_view_details">Couldn\'t view artwork details.</string>
     <string name="error_easter_egg">Hmm, this picture doesn\'t seem to be loading. Grumpy McPuzzles is very sorry about that, and recommends trying a different wallpaper source.</string>
     <string name="error_wallpaper_chooser">Couldn\'t launch wallpaper chooser. You can still activate Muzei by choosing \'Live Wallpapers\' in your home screen wallpaper picker.</string>

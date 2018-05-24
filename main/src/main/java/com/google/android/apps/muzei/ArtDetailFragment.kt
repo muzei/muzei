@@ -24,7 +24,9 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat
 import android.support.v4.content.res.ResourcesCompat
+import android.support.v7.widget.ActionMenuView
 import android.support.v7.widget.TooltipCompat
 import android.util.Log
 import android.util.SparseIntArray
@@ -33,9 +35,9 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.core.view.isGone
+import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.core.widget.toast
 import com.google.android.apps.muzei.api.MuzeiArtSource
@@ -92,7 +94,8 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         // Update overflow and next button
         overflowSourceActionMap.clear()
         overflowMenu.menu.clear()
-        overflowMenu.inflate(R.menu.muzei_overflow)
+        requireActivity().menuInflater.inflate(R.menu.muzei_overflow,
+                overflowMenu.menu)
         if (source != null) {
             supportsNextArtwork = source.supportsNextArtwork
             val commands = source.commands
@@ -104,7 +107,8 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
                 overflowMenu.menu.add(0, SOURCE_ACTION_IDS[i], 0, action.title)
             }
         }
-        nextButton.isVisible = supportsNextArtwork && ArtworkLoadingLiveData.value !== ArtworkLoadingInProgress
+        nextButton.isInvisible = !supportsNextArtwork ||
+                ArtworkLoadingLiveData.value == ArtworkLoadingInProgress
     }
 
     private val artworkObserver = Observer<Artwork?> { currentArtwork ->
@@ -159,7 +163,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
 
     private val handler = Handler()
     private lateinit var containerView: View
-    private lateinit var overflowMenu: PopupMenu
+    private lateinit var overflowMenu: ActionMenuView
     private val overflowSourceActionMap = SparseIntArray()
     private lateinit var chromeContainerView: View
     private lateinit var metadataView: View
@@ -250,10 +254,9 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         bylineView = view.findViewById(R.id.byline)
         attributionView = view.findViewById(R.id.attribution)
 
-        val overflowButton = view.findViewById<View>(R.id.overflow_button)
-        overflowMenu = PopupMenu(context, overflowButton)
-        overflowButton.setOnTouchListener(overflowMenu.dragToOpenListener)
-        overflowButton.setOnClickListener { overflowMenu.show() }
+        overflowMenu = view.findViewById(R.id.overflow_menu_view)
+        overflowMenu.overflowIcon = ContextCompat.getDrawable(requireContext(),
+                R.drawable.ic_overflow)
         overflowMenu.setOnMenuItemClickListener { menuItem ->
             val context = context ?: return@setOnMenuItemClickListener false
             val id = overflowSourceActionMap.get(menuItem.itemId)
@@ -338,7 +341,8 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             }
 
             // Artwork no longer loading, update the visibility of the next button
-            nextButton.isVisible = supportsNextArtwork && state !== ArtworkLoadingInProgress
+            nextButton.isInvisible = !supportsNextArtwork ||
+                    state == ArtworkLoadingInProgress
 
             updateLoadingSpinnerAndErrorVisibility()
         }
@@ -414,7 +418,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
 
     override fun onStop() {
         super.onStop()
-        overflowMenu.dismiss()
+        overflowMenu.hideOverflowMenu()
         ArtDetailOpenLiveData.value = false
     }
 
