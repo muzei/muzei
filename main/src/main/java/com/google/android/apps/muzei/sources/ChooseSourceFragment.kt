@@ -39,7 +39,6 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.provider.Settings
 import android.support.v4.app.Fragment
 import android.support.v4.content.res.ResourcesCompat
@@ -67,6 +66,9 @@ import com.google.android.apps.muzei.util.Scrollbar
 import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.util.observeNonNull
 import com.google.firebase.analytics.FirebaseAnalytics
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.R
 import java.util.ArrayList
@@ -99,8 +101,6 @@ class ChooseSourceFragment : Fragment() {
     private val sourcesLiveData: LiveData<List<Source>> by lazy {
         MuzeiDatabase.getInstance(requireContext()).sourceDao().sources
     }
-
-    private val handler = Handler()
 
     private lateinit var sourceContainerView: ViewGroup
     private lateinit var sourceScrollerView: ObservableHorizontalScrollView
@@ -138,7 +138,7 @@ class ChooseSourceFragment : Fragment() {
 
     private var currentInitialSetupSource: ComponentName? = null
 
-    private val hideScrollbarRunnable = Runnable { scrollbar.hide() }
+    private var hideScrollbar: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -393,8 +393,7 @@ class ChooseSourceFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        // remove all scheduled runnables
-        handler.removeCallbacksAndMessages(null)
+        hideScrollbar?.cancel()
     }
 
     private fun updateSources(sources: List<Source>) {
@@ -612,13 +611,18 @@ class ChooseSourceFragment : Fragment() {
     }
 
     private fun showScrollbar() {
-        handler.removeCallbacks(hideScrollbarRunnable)
+        hideScrollbar?.cancel()
         scrollbar.setScrollRangeAndViewportWidth(
                 sourceScrollerView.computeHorizontalScrollRange(),
                 sourceScrollerView.width)
         scrollbar.setScrollPosition(sourceScrollerView.scrollX)
         scrollbar.show()
-        handler.postDelayed(hideScrollbarRunnable, SCROLLBAR_HIDE_DELAY_MILLIS)
+        hideScrollbar = launch {
+            delay(SCROLLBAR_HIDE_DELAY_MILLIS)
+            launch(UI) {
+                scrollbar.hide()
+            }
+        }
     }
 
     internal inner class SourceView(var source: Source) {
