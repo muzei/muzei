@@ -53,6 +53,8 @@ import com.google.android.apps.muzei.wallpaper.LockscreenObserver
 import com.google.android.apps.muzei.wallpaper.WallpaperAnalytics
 import com.google.android.apps.muzei.wearable.WearableController
 import com.google.android.apps.muzei.widget.WidgetUpdater
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import net.rbgrn.android.glwallpaperservice.GLWallpaperService
 
@@ -119,8 +121,6 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             MuzeiBlurRenderer.Callbacks,
             (Boolean) -> Unit {
 
-        private val mainThreadHandler = Handler()
-
         private lateinit var renderer: MuzeiBlurRenderer
         private lateinit var renderController: RenderController
         private var currentArtwork: Bitmap? = null
@@ -129,7 +129,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
 
         private val engineLifecycle = LifecycleRegistry(this)
 
-        private val doubleTapTimeout = Runnable { queueEvent { validDoubleTap = false } }
+        private var doubleTapTimeout: Job? = null
 
         private val gestureListener = object : GestureDetector.SimpleOnGestureListener() {
             override fun onDown(e: MotionEvent): Boolean {
@@ -145,16 +145,21 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
 
                 validDoubleTap = true // processed in onCommand/COMMAND_TAP
 
-                mainThreadHandler.removeCallbacks(doubleTapTimeout)
+                doubleTapTimeout?.cancel()
                 val timeout = ViewConfiguration.getDoubleTapTimeout().toLong()
-                mainThreadHandler.postDelayed(doubleTapTimeout, timeout)
+                doubleTapTimeout = launch {
+                    delay(timeout)
+                    queueEvent {
+                        validDoubleTap = false
+                    }
+                }
                 return true
             }
         }
         private val gestureDetector: GestureDetector = GestureDetector(this@MuzeiWallpaperService,
                 gestureListener)
 
-        private val blurRunnable = Runnable { queueEvent { renderer.setIsBlurred(true, false) } }
+        private var delayedBlur: Job? = null
 
         override fun onCreate(surfaceHolder: SurfaceHolder) {
             super<GLEngine>.onCreate(surfaceHolder)
@@ -248,6 +253,8 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                 lifecycle.removeObserver(this)
             }
             engineLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+            doubleTapTimeout?.cancel()
+            cancelDelayedBlur()
             queueEvent {
                 renderer.destroy()
             }
@@ -311,7 +318,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         }
 
         private fun cancelDelayedBlur() {
-            mainThreadHandler.removeCallbacks(blurRunnable)
+            delayedBlur?.cancel()
         }
 
         private fun delayedBlur() {
@@ -320,7 +327,12 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             }
 
             cancelDelayedBlur()
-            mainThreadHandler.postDelayed(blurRunnable, TEMPORARY_FOCUS_DURATION_MILLIS)
+            delayedBlur = launch {
+                delay(TEMPORARY_FOCUS_DURATION_MILLIS)
+                queueEvent {
+                    renderer.setIsBlurred(true, false)
+                }
+            }
         }
 
         override fun requestRender() {
