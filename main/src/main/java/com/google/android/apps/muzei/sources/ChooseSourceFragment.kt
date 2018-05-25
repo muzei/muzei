@@ -84,7 +84,7 @@ class ChooseSourceFragment : Fragment() {
 
         private const val PLAY_STORE_PACKAGE_NAME = "com.android.vending"
 
-        private const val SCROLLBAR_HIDE_DELAY_MILLIS = 1000L
+        private const val SCROLLBAR_HIDE_DELAY_MILLIS = 1000
 
         private const val ALPHA_DISABLED = 0.2f
         private const val ALPHA_UNSELECTED = 0.4f
@@ -617,11 +617,9 @@ class ChooseSourceFragment : Fragment() {
                 sourceScrollerView.width)
         scrollbar.setScrollPosition(sourceScrollerView.scrollX)
         scrollbar.show()
-        hideScrollbar = launch {
+        hideScrollbar = launch(UI) {
             delay(SCROLLBAR_HIDE_DELAY_MILLIS)
-            launch(UI) {
-                scrollbar.hide()
-            }
+            scrollbar.hide()
         }
     }
 

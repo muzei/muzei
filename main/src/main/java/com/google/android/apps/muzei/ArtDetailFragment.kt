@@ -412,12 +412,10 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         // the loading spinner will go away. See onEventMainThread(ArtworkLoadingStateChangedEvent)
         updateLoadingSpinnerAndErrorVisibility()
         unsetNextFakeLoading?.cancel()
-        unsetNextFakeLoading = launch {
+        unsetNextFakeLoading = launch(UI) {
             delay(10000)
-            launch(UI) {
-                nextFakeLoading = false
-                updateLoadingSpinnerAndErrorVisibility()
-            }
+            nextFakeLoading = false
+            updateLoadingSpinnerAndErrorVisibility()
         }
         updateLoadingSpinnerAndErrorVisibility()
     }
@@ -432,16 +430,14 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
                 this.showLoadingSpinner = null
             }
             if (showLoadingSpinner) {
-                this.showLoadingSpinner = launch {
+                this.showLoadingSpinner = launch(UI) {
                     delay(700)
-                    launch(UI) {
-                        loadingIndicatorView.start()
-                        loadingContainerView.isVisible = true
-                        loadingContainerView.animate()
-                                .alpha(1f)
-                                .setDuration(300)
-                                .withEndAction(null)
-                    }
+                    loadingIndicatorView.start()
+                    loadingContainerView.isVisible = true
+                    loadingContainerView.animate()
+                            .alpha(1f)
+                            .setDuration(300)
+                            .withEndAction(null)
                 }
             } else {
                 loadingContainerView.animate()
@@ -460,17 +456,15 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
                 showLoadError = null
             }
             if (showError) {
-                showLoadError = launch {
+                showLoadError = launch(UI) {
                     delay(700)
-                    launch(UI) {
-                        ++consecutiveLoadErrorCount
-                        loadErrorEasterEggView.isVisible = consecutiveLoadErrorCount >= LOAD_ERROR_COUNT_EASTER_EGG
-                        loadErrorContainerView.isVisible = true
-                        loadErrorContainerView.animate()
-                                .alpha(1f)
-                                .setDuration(300)
-                                .withEndAction(null)
-                    }
+                    ++consecutiveLoadErrorCount
+                            loadErrorEasterEggView.isVisible = consecutiveLoadErrorCount >= LOAD_ERROR_COUNT_EASTER_EGG
+                    loadErrorContainerView.isVisible = true
+                    loadErrorContainerView.animate()
+                            .alpha(1f)
+                            .setDuration(300)
+                            .withEndAction(null)
                 }
             } else {
                 loadErrorContainerView.animate()
