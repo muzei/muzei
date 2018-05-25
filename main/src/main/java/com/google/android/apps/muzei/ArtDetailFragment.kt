@@ -22,7 +22,6 @@ import android.arch.lifecycle.Observer
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v4.content.res.ResourcesCompat
@@ -62,6 +61,10 @@ import com.google.android.apps.muzei.util.makeCubicGradientScrimDrawable
 import com.google.android.apps.muzei.util.observeNonNull
 import com.google.android.apps.muzei.widget.showWidgetPreview
 import com.google.firebase.analytics.FirebaseAnalytics
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.R
 
 object ArtDetailOpenLiveData : MutableLiveData<Boolean>()
@@ -161,7 +164,6 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
     private var guardViewportChangeListener: Boolean = false
     private var deferResetViewport: Boolean = false
 
-    private val handler = Handler()
     private lateinit var containerView: View
     private lateinit var overflowMenu: ActionMenuView
     private val overflowSourceActionMap = SparseIntArray()
@@ -187,29 +189,9 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         MuzeiDatabase.getInstance(requireContext()).artworkDao().currentArtwork
     }
 
-    private val unsetNextFakeLoading = {
-        nextFakeLoading = false
-        updateLoadingSpinnerAndErrorVisibility()
-    }
-
-    private val showLoadingSpinner = Runnable {
-        loadingIndicatorView.start()
-        loadingContainerView.isVisible = true
-        loadingContainerView.animate()
-                .alpha(1f)
-                .setDuration(300)
-                .withEndAction(null)
-    }
-
-    private val showLoadError = Runnable {
-        ++consecutiveLoadErrorCount
-        loadErrorEasterEggView.isVisible = consecutiveLoadErrorCount >= LOAD_ERROR_COUNT_EASTER_EGG
-        loadErrorContainerView.isVisible = true
-        loadErrorContainerView.animate()
-                .alpha(1f)
-                .setDuration(300)
-                .withEndAction(null)
-    }
+    private var unsetNextFakeLoading: Job? = null
+    private var showLoadingSpinner: Job? = null
+    private var showLoadError: Job? = null
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -375,7 +357,9 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        handler.removeCallbacksAndMessages(null)
+        unsetNextFakeLoading?.cancel()
+        showLoadingSpinner?.cancel()
+        showLoadError?.cancel()
         ArtDetailViewport.removeObserver(this)
         currentSourceLiveData.removeObserver(sourceObserver)
         currentArtworkLiveData.removeObserver(artworkObserver)
@@ -426,8 +410,15 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         nextFakeLoading = true
         // Show a loading spinner for up to 10 seconds. When new artwork is loaded,
         // the loading spinner will go away. See onEventMainThread(ArtworkLoadingStateChangedEvent)
-        handler.removeCallbacks(unsetNextFakeLoading)
-        handler.postDelayed(unsetNextFakeLoading, 10000)
+        updateLoadingSpinnerAndErrorVisibility()
+        unsetNextFakeLoading?.cancel()
+        unsetNextFakeLoading = launch {
+            delay(10000)
+            launch(UI) {
+                nextFakeLoading = false
+                updateLoadingSpinnerAndErrorVisibility()
+            }
+        }
         updateLoadingSpinnerAndErrorVisibility()
     }
 
@@ -437,9 +428,21 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
 
         if (showLoadingSpinner != loadingSpinnerShown) {
             loadingSpinnerShown = showLoadingSpinner
-            handler.removeCallbacks(this.showLoadingSpinner)
+            this.showLoadingSpinner?.cancel()?.also {
+                this.showLoadingSpinner = null
+            }
             if (showLoadingSpinner) {
-                handler.postDelayed(this.showLoadingSpinner, 700)
+                this.showLoadingSpinner = launch {
+                    delay(700)
+                    launch(UI) {
+                        loadingIndicatorView.start()
+                        loadingContainerView.isVisible = true
+                        loadingContainerView.animate()
+                                .alpha(1f)
+                                .setDuration(300)
+                                .withEndAction(null)
+                    }
+                }
             } else {
                 loadingContainerView.animate()
                         .alpha(0f)
@@ -453,9 +456,22 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
 
         if (showError != loadErrorShown) {
             loadErrorShown = showError
-            handler.removeCallbacks(showLoadError)
+            showLoadError?.cancel()?.also {
+                showLoadError = null
+            }
             if (showError) {
-                handler.postDelayed(showLoadError, 700)
+                showLoadError = launch {
+                    delay(700)
+                    launch(UI) {
+                        ++consecutiveLoadErrorCount
+                        loadErrorEasterEggView.isVisible = consecutiveLoadErrorCount >= LOAD_ERROR_COUNT_EASTER_EGG
+                        loadErrorContainerView.isVisible = true
+                        loadErrorContainerView.animate()
+                                .alpha(1f)
+                                .setDuration(300)
+                                .withEndAction(null)
+                    }
+                }
             } else {
                 loadErrorContainerView.animate()
                         .alpha(0f)
