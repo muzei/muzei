@@ -17,7 +17,6 @@
 package com.google.android.apps.muzei.settings
 
 import android.os.Bundle
-import android.os.Handler
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.Menu
@@ -28,9 +27,10 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.SeekBar
 import androidx.core.content.edit
-
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer
-
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.R
 
 /**
@@ -38,28 +38,13 @@ import net.nurik.roman.muzei.R
  */
 class EffectsFragment : Fragment() {
 
-    private val handler = Handler()
     private lateinit var blurSeekBar: SeekBar
     private lateinit var dimSeekBar: SeekBar
     private lateinit var greySeekBar: SeekBar
 
-    private val updateBlurRunnable = Runnable {
-        Prefs.getSharedPreferences(requireContext()).edit {
-            putInt(Prefs.PREF_BLUR_AMOUNT, blurSeekBar.progress)
-        }
-    }
-
-    private val updateDimRunnable = Runnable {
-        Prefs.getSharedPreferences(requireContext()).edit {
-            putInt(Prefs.PREF_DIM_AMOUNT, dimSeekBar.progress)
-        }
-    }
-
-    private val updateGreyRunnable = Runnable {
-        Prefs.getSharedPreferences(requireContext()).edit {
-            putInt(Prefs.PREF_GREY_AMOUNT, greySeekBar.progress)
-        }
-    }
+    private var updateBlur: Job? = null
+    private var updateDim: Job? = null
+    private var updateGrey: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,8 +70,13 @@ class EffectsFragment : Fragment() {
         blurSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
                 if (fromUser) {
-                    handler.removeCallbacks(updateBlurRunnable)
-                    handler.postDelayed(updateBlurRunnable, 750)
+                    updateBlur?.cancel()
+                    updateBlur = launch {
+                        delay(750)
+                        Prefs.getSharedPreferences(requireContext()).edit {
+                            putInt(Prefs.PREF_BLUR_AMOUNT, blurSeekBar.progress)
+                        }
+                    }
                 }
             }
 
@@ -101,8 +91,13 @@ class EffectsFragment : Fragment() {
         dimSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
                 if (fromUser) {
-                    handler.removeCallbacks(updateDimRunnable)
-                    handler.postDelayed(updateDimRunnable, 750)
+                    updateDim?.cancel()
+                    updateDim = launch {
+                        delay(750)
+                        Prefs.getSharedPreferences(requireContext()).edit {
+                            putInt(Prefs.PREF_DIM_AMOUNT, dimSeekBar.progress)
+                        }
+                    }
                 }
             }
 
@@ -117,8 +112,13 @@ class EffectsFragment : Fragment() {
         greySeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
                 if (fromUser) {
-                    handler.removeCallbacks(updateGreyRunnable)
-                    handler.postDelayed(updateGreyRunnable, 750)
+                    updateGrey?.cancel()
+                    updateGrey = launch {
+                        delay(750)
+                        Prefs.getSharedPreferences(requireContext()).edit {
+                            putInt(Prefs.PREF_GREY_AMOUNT, greySeekBar.progress)
+                        }
+                    }
                 }
             }
 
@@ -161,6 +161,8 @@ class EffectsFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        handler.removeCallbacksAndMessages(null)
+        updateBlur?.cancel()
+        updateDim?.cancel()
+        updateGrey?.cancel()
     }
 }
