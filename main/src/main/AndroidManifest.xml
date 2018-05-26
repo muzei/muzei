@@ -74,16 +74,19 @@
                 android:resource="@xml/wallpaper"/>
         </service>
 
+        <provider
+            android:name="com.google.android.apps.muzei.sources.SourceArtProvider"
+            android:authorities="com.google.android.apps.muzei.sources"
+            android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER">
+            <intent-filter>
+                <action android:name="com.google.android.apps.muzei.api.MuzeiArtProvider"/>
+            </intent-filter>
+        </provider>
+
         <service
             android:name="com.google.android.apps.muzei.sources.SourceSubscriberService"
             android:exported="true"
             tools:ignore="ExportedService"/>
-
-        <service android:name="com.google.android.apps.muzei.sync.TaskQueueService"/>
-        <service
-            android:name="com.google.android.apps.muzei.sync.DownloadArtworkJobService"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:exported="true"/>
 
         <activity
             android:name="com.google.android.apps.muzei.settings.SettingsActivity"
@@ -118,6 +121,15 @@
                 <action android:name="android.service.quicksettings.action.QS_TILE"/>
             </intent-filter>
         </service>
+
+        <activity
+            android:name="com.google.android.apps.muzei.ArtworkInfoRedirectActivity"
+            android:label="@string/action_artwork_info"
+            android:icon="@drawable/ic_notif_info"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
 
         <!-- AppWidget -->
 

@@ -33,13 +33,14 @@ allprojects { ext."signing.password" = props["signing.password"] }
 allprojects { ext."signing.secretKeyRingFile" = props["signing.secretKeyRingFile"] }
 
 dependencies {
-    implementation "com.android.support:support-annotations:$supportLibraryVersion"
+    api "com.android.support:support-annotations:$supportLibraryVersion"
+    implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
 }
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     defaultConfig {
-        minSdkVersion 11
+        minSdkVersion 14
         targetSdkVersion rootProject.ext.targetSdkVersion
 
         manifestPlaceholders = [api_version: versionProps['apiCode'].toInteger()]

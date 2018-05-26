@@ -18,8 +18,6 @@ package com.google.android.apps.muzei
 
 import android.app.Activity
 import android.os.Bundle
-
-import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.sources.SourceManager
 
 /**
@@ -28,7 +26,7 @@ import com.google.android.apps.muzei.sources.SourceManager
 class NextArtworkActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        SourceManager.sendAction(this, MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK)
+        SourceManager.nextArtwork(this)
         finish()
     }
 }

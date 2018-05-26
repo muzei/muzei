@@ -42,50 +42,6 @@
 
     </FrameLayout>
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/image_error_container"
-        android:clickable="true"
-        android:orientation="vertical"
-        android:background="@drawable/art_detail_gradient_background"
-        android:visibility="gone"
-        android:alpha="0">
-
-        <TextView
-            android:id="@+id/error_easter_egg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|center_horizontal"
-            android:fontFamily="sans-serif-condensed"
-            android:textStyle="italic"
-            android:textSize="16sp"
-            android:layout_marginTop="32dp"
-            android:layout_marginStart="48dp"
-            android:layout_marginEnd="48dp"
-            android:textColor="#cfff"
-            android:text="@string/error_easter_egg"/>
-
-        <Button
-            android:id="@+id/image_error_retry_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="?selectableItemBackground"
-            android:paddingTop="24dp"
-            android:paddingStart="24dp"
-            android:paddingEnd="24dp"
-            android:paddingBottom="16dp"
-            android:drawableTop="@drawable/grumpy_mcpuzzles"
-            android:text="@string/retry"
-            android:drawablePadding="8dp"
-            android:textSize="22sp"
-            android:fontFamily="sans-serif-condensed"
-            android:textStyle="italic"
-            android:textColor="#fff"/>
-
-    </FrameLayout>
-
     <LinearLayout
         android:id="@+id/chrome_container"
         android:layout_width="match_parent"

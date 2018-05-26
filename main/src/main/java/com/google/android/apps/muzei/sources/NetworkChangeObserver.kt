@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
-
 package com.google.android.apps.muzei.sources
 
 import android.arch.lifecycle.DefaultLifecycleObserver
 import android.arch.lifecycle.LifecycleOwner
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
-import android.os.Build
-import android.support.v4.content.WakefulBroadcastReceiver
 import android.util.Log
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_NETWORK_AVAILABLE
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.sync.TaskQueueService
 import kotlinx.coroutines.experimental.launch
 
 /**
@@ -42,20 +38,12 @@ class NetworkChangeObserver internal constructor(private val context: Context) :
         private const val TAG = "NetworkChangeObserver"
     }
 
-    private val networkChangeReceiver = object : WakefulBroadcastReceiver() {
+    private val networkChangeReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val hasConnectivity = !intent.getBooleanExtra(
                     ConnectivityManager.EXTRA_NO_CONNECTIVITY, false)
             if (!hasConnectivity) {
                 return
-            }
-            // Check with components that may not currently be alive but interested in
-            // network connectivity changes.
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                val retryIntent = TaskQueueService.maybeRetryDownloadDueToGainedConnectivity(context)
-                if (retryIntent != null) {
-                    WakefulBroadcastReceiver.startWakefulService(context, retryIntent)
-                }
             }
 
             val pendingResult = goAsync()
@@ -84,14 +72,6 @@ class NetworkChangeObserver internal constructor(private val context: Context) :
     override fun onStart(owner: LifecycleOwner) {
         val networkChangeFilter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
         context.registerReceiver(networkChangeReceiver, networkChangeFilter)
-
-        // Ensure we retry loading the artwork if the network changed while the wallpaper was disabled
-        val connectivityManager = context.getSystemService(
-                Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val retryIntent = TaskQueueService.maybeRetryDownloadDueToGainedConnectivity(context)
-        if (retryIntent != null && connectivityManager.activeNetworkInfo?.isConnected == true) {
-            context.startService(retryIntent)
-        }
     }
 
     override fun onStop(owner: LifecycleOwner) {

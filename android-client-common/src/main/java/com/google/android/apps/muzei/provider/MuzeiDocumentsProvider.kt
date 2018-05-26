@@ -33,6 +33,7 @@ import com.google.android.apps.muzei.render.BitmapRegionLoader
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import kotlinx.coroutines.experimental.runBlocking
+import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import net.nurik.roman.muzei.androidclientcommon.R
 import java.io.File
 import java.io.FileNotFoundException
@@ -124,11 +125,19 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
                 MuzeiDatabase.getInstance(context).artworkDao()
                         .getArtwork()
             })
+            result.setNotificationUri(context.contentResolver,
+                    DocumentsContract.buildDocumentUri(BuildConfig.DOCUMENTS_AUTHORITY,
+                            ROOT_DOCUMENT_ID))
         }
         return result
     }
 
     private fun includeAllArtwork(result: MatrixCursor, artworkList: List<Artwork>) {
+        val context = context ?: return
+        val currentArtworkId = ensureBackground {
+            MuzeiDatabase.getInstance(context).artworkDao()
+                    .currentArtworkBlocking?.id
+        } ?: -1
         for (artwork in artworkList) {
             result.newRow().apply {
                 add(DocumentsContract.Document.COLUMN_DOCUMENT_ID,
@@ -137,7 +146,9 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
                 add(DocumentsContract.Document.COLUMN_SUMMARY, artwork.byline)
                 add(DocumentsContract.Document.COLUMN_MIME_TYPE, "image/png")
                 // Don't allow deleting the currently displayed artwork
-                add(DocumentsContract.Document.COLUMN_FLAGS, DocumentsContract.Document.FLAG_SUPPORTS_THUMBNAIL)
+                add(DocumentsContract.Document.COLUMN_FLAGS, DocumentsContract.Document.FLAG_SUPPORTS_THUMBNAIL or
+                        (if (artwork.id != currentArtworkId)
+                            DocumentsContract.Document.FLAG_SUPPORTS_DELETE else 0))
                 add(DocumentsContract.Document.COLUMN_SIZE, null)
                 add(DocumentsContract.Document.COLUMN_LAST_MODIFIED, artwork.dateAdded.time)
             }
@@ -169,6 +180,12 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
             }
             if (artwork != null) {
                 includeAllArtwork(result, listOf(artwork))
+            } else {
+                // The artwork isn't there anymore. Delete it to
+                // revoke any document permissions attached to it
+                DocumentsContract.deleteDocument(context.contentResolver,
+                        DocumentsContract.buildDocumentUri(BuildConfig.DOCUMENTS_AUTHORITY,
+                                documentId))
             }
         }
         return result
@@ -178,7 +195,15 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
     override fun openDocument(documentId: String, mode: String, signal: CancellationSignal?): ParcelFileDescriptor? {
         val contentResolver = context?.contentResolver ?: return null
         val artworkId = documentId.toLong()
-        return contentResolver.openFileDescriptor(Artwork.getContentUri(artworkId), mode, signal)
+        try {
+            return contentResolver.openFileDescriptor(Artwork.getContentUri(artworkId), mode, signal)
+        } catch (e: FileNotFoundException) {
+            // The artwork isn't there anymore. Delete it to
+            // revoke any document permissions attached to it
+            DocumentsContract.deleteDocument(contentResolver,
+                    DocumentsContract.buildDocumentUri(BuildConfig.DOCUMENTS_AUTHORITY, documentId))
+            throw e
+        }
     }
 
     @Throws(FileNotFoundException::class)
@@ -209,7 +234,14 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
         val bitmap = BitmapRegionLoader.newInstance(contentResolver,
                 artworkUri)?.use { regionLoader ->
             regionLoader.decode(sizeHint.x / 2, sizeHint.y / 2)
-        } ?: throw FileNotFoundException("Unable to open artwork for $artworkUri")
+        } ?: run {
+            // The artwork isn't there anymore. Delete it to
+            // revoke any document permissions attached to it
+            DocumentsContract.deleteDocument(contentResolver,
+                    DocumentsContract.buildDocumentUri(BuildConfig.DOCUMENTS_AUTHORITY,
+                            artworkId.toString()))
+            throw FileNotFoundException("Unable to open artwork for $artworkUri")
+        }
 
         // Write out the thumbnail to a temporary file
         try {
@@ -236,6 +268,19 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
                 .getArtworkById(artworkId)
                 ?: throw FileNotFoundException("Unable to get artwork for id $artworkId")
         return File(directory, artwork.id.toString())
+    }
+
+    @Throws(FileNotFoundException::class)
+    override fun deleteDocument(documentId: String) {
+        val context = context ?: return
+        val artworkId = documentId.toLong()
+        ensureBackground {
+            MuzeiDatabase.getInstance(context).artworkDao().deleteById(artworkId)
+        }
+        context.contentResolver.notifyChange(
+                DocumentsContract.buildDocumentUri(BuildConfig.DOCUMENTS_AUTHORITY,
+                        ROOT_DOCUMENT_ID),
+                null)
     }
 
     override fun onCreate(): Boolean {

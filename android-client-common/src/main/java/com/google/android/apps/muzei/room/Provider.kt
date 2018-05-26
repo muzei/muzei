@@ -14,13 +14,21 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.sync
+package com.google.android.apps.muzei.room
 
-import android.arch.lifecycle.MutableLiveData
+import android.arch.persistence.room.Entity
+import android.arch.persistence.room.PrimaryKey
+import android.arch.persistence.room.TypeConverters
+import android.content.ComponentName
 
-sealed class ArtworkLoading
-object ArtworkLoadingInProgress : ArtworkLoading()
-object ArtworkLoadingSuccess : ArtworkLoading()
-object ArtworkLoadingFailure : ArtworkLoading()
+import com.google.android.apps.muzei.room.converter.ComponentNameTypeConverter
 
-object ArtworkLoadingLiveData : MutableLiveData<ArtworkLoading>()
+/**
+ * Provider information's representation in Room
+ */
+@Entity(tableName = "provider")
+data class Provider(
+        @field:TypeConverters(ComponentNameTypeConverter::class)
+        @field:PrimaryKey
+        val componentName: ComponentName,
+        var supportsNextArtwork: Boolean = false)

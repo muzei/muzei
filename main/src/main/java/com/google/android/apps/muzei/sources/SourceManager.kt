@@ -36,15 +36,15 @@ import android.util.Log
 import android.widget.Toast
 import androidx.core.widget.toast
 import com.google.android.apps.muzei.api.MuzeiArtSource
-import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_HANDLE_COMMAND
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_SUBSCRIBE
-import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_COMMAND_ID
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_SUBSCRIBER_COMPONENT
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_TOKEN
 import com.google.android.apps.muzei.featuredart.FeaturedArtSource
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.room.Source
-import com.google.android.apps.muzei.sync.TaskQueueService
+import com.google.android.apps.muzei.room.sendAction
+import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.observeNonNull
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.experimental.CommonPool
@@ -56,6 +56,16 @@ import net.nurik.roman.muzei.R
 import java.util.HashSet
 import java.util.concurrent.Executors
 import kotlin.reflect.KClass
+
+suspend fun Provider?.allowsNextArtwork(context: Context): Boolean {
+    return when {
+        this == null -> false
+        supportsNextArtwork -> true
+        componentName != ComponentName(context, SourceArtProvider::class.java) -> false
+        else -> MuzeiDatabase.getInstance(context).sourceDao()
+                .getCurrentSource()?.supportsNextArtwork == true
+    }
+}
 
 /**
  * Class responsible for managing interactions with sources such as subscribing, unsubscribing, and sending actions.
@@ -111,36 +121,21 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
             }
         }
 
-        fun sendAction(context: Context, id: Int) = launch {
-            val source = MuzeiDatabase.getInstance(context)
-                    .sourceDao().getCurrentSource()
-            if (source != null) {
-                val selectedSource = source.componentName
-                try {
-                    // Ensure that we have a valid service before sending the action
-                    context.packageManager.getServiceInfo(selectedSource, 0)
-                    context.startService(Intent(ACTION_HANDLE_COMMAND)
-                            .setComponent(selectedSource)
-                            .putExtra(EXTRA_COMMAND_ID, id))
-                } catch (e: PackageManager.NameNotFoundException) {
-                    Log.i(TAG, "Sending action + $id to $selectedSource failed; switching to default.", e)
-                    launch(UI) {
-                        context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
-                    }
-                    selectSource(context, FeaturedArtSource::class)
-                } catch (e: IllegalStateException) {
-                    Log.i(TAG, "Sending action + $id to $selectedSource failed; switching to default.", e)
-                    launch(UI) {
-                        context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
-                    }
-                    selectSource(context, FeaturedArtSource::class)
-                } catch (e: SecurityException) {
-                    Log.i(TAG, "Sending action + $id to $selectedSource failed; switching to default.", e)
-                    launch(UI) {
-                        context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
-                    }
-                    selectSource(context, FeaturedArtSource::class)
+        fun nextArtwork(context: Context) = launch {
+            val provider = MuzeiDatabase.getInstance(context)
+                    .providerDao().getCurrentProvider()
+            if (provider?.componentName ==
+                    ComponentName(context, SourceArtProvider::class.java)) {
+                val source = MuzeiDatabase.getInstance(context)
+                        .sourceDao().getCurrentSource()
+                if (source?.supportsNextArtwork == true) {
+                    val artwork = MuzeiDatabase.getInstance(context)
+                            .artworkDao().getCurrentArtwork()
+                    artwork?.sendAction(context, MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK)
+                    return@launch
                 }
+            } else {
+                ProviderManager.getInstance(context).nextArtwork()
             }
         }
     }
@@ -254,8 +249,6 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
         SubscriberLiveData().observeNonNull(this) { source ->
             sendSelectedSourceAnalytics(source.componentName)
-            // Ensure the artwork from the newly selected source is downloaded
-            context.startService(TaskQueueService.getDownloadCurrentArtworkIntent(context))
         }
         // Register for package change events
         val packageChangeFilter = IntentFilter().apply {

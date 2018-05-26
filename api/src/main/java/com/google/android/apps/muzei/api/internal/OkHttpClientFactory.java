@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.apps.muzei.sync;
+package com.google.android.apps.muzei.api.internal;
 
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.util.Log;
+
+import com.google.android.apps.muzei.api.BuildConfig;
 
 import java.security.KeyStore;
 import java.util.ArrayList;
@@ -43,7 +46,8 @@ public class OkHttpClientFactory {
     /**
      * Creates an OkHttpClient optionally enabling TLS
      */
-    public static OkHttpClient getNewOkHttpClient(boolean enableTLS) {
+    @NonNull
+    private static OkHttpClient getNewOkHttpClient(boolean enableTLS) {
         OkHttpClient.Builder client = new OkHttpClient.Builder()
                 .connectTimeout(DEFAULT_CONNECT_TIMEOUT, TimeUnit.SECONDS)
                 .readTimeout(DEFAULT_READ_TIMEOUT, TimeUnit.SECONDS);
@@ -54,15 +58,9 @@ public class OkHttpClientFactory {
     }
 
     /**
-     * Creates a new OkHttpClient
-     */
-    public static OkHttpClient getNewOkHttpClient() {
-        return getNewOkHttpClient(false);
-    }
-
-    /**
      * Creates a new OkHttpClient detecting if TLS needs to be enabled
      */
+    @NonNull
     public static OkHttpClient getNewOkHttpsSafeClient() {
         return getNewOkHttpClient(isTLSEnableNeeded());
     }
@@ -70,18 +68,18 @@ public class OkHttpClientFactory {
     /**
      * True if enabling TLS is needed on current device (SDK version >= 16 and < 22)
      */
-    public static boolean isTLSEnableNeeded() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
-            return true;
-        }
-        return false;
+    private static boolean isTLSEnableNeeded() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN &&
+                Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP;
     }
 
     /**
      * Enable TLS on the OKHttp builder by setting a custom SocketFactory
      */
     private static OkHttpClient.Builder enableTls12(OkHttpClient.Builder client) {
-        Log.i(TAG, "Enabling HTTPS compatibility mode");
+        if (BuildConfig.DEBUG) {
+            Log.i(TAG, "Enabling HTTPS compatibility mode");
+        }
         try {
             TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(
                     TrustManagerFactory.getDefaultAlgorithm());

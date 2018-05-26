@@ -32,6 +32,7 @@ import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.FullScreenActivity
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.sync.ProviderChangedWorker
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.BuildConfig
@@ -61,6 +62,7 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
         addComplication(complicationId)
         FirebaseAnalytics.getInstance(this).logEvent("complication_artwork_activated", bundleOf(
                 FirebaseAnalytics.Param.CONTENT_TYPE to type.toString()))
+        ProviderChangedWorker.addPersistentListener(this, "complication_artwork")
     }
 
     private fun addComplication(complicationId: Int) {
@@ -88,6 +90,7 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
         }
         if (complications.isEmpty()) {
             ArtworkComplicationWorker.cancelComplicationUpdate()
+            ProviderChangedWorker.removePersistentListener(this, "complication_artwork")
         }
     }
 

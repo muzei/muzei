@@ -62,7 +62,6 @@ class ActivateMuzeiIntentService : IntentService(TAG) {
         private const val ACTION_MARK_NOTIFICATION_READ = "com.google.android.apps.muzei.action.NOTIFICATION_DELETED"
         private const val ACTION_REMOTE_INSTALL_MUZEI = "com.google.android.apps.muzei.action.REMOTE_INSTALL_MUZEI"
 
-        @JvmStatic
         fun maybeShowActivateMuzeiNotification(context: Context) {
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             if (preferences.getBoolean(ACTIVATE_MUZEI_NOTIF_SHOWN_PREF_KEY, false)) {
@@ -181,7 +180,6 @@ class ActivateMuzeiIntentService : IntentService(TAG) {
             notificationManager?.createNotificationChannel(channel)
         }
 
-        @JvmStatic
         fun clearNotifications(context: Context) {
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
                     ?: return

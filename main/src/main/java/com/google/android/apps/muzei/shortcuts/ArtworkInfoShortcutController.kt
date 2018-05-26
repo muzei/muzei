@@ -19,12 +19,12 @@ package com.google.android.apps.muzei.shortcuts
 import android.arch.lifecycle.DefaultLifecycleObserver
 import android.arch.lifecycle.LifecycleOwner
 import android.content.Context
-import android.content.Intent
 import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.support.annotation.RequiresApi
+import com.google.android.apps.muzei.ArtworkInfoRedirectActivity
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.observe
@@ -54,9 +54,6 @@ class ArtworkInfoShortcutController(
     }
 
     private fun updateShortcut(artwork: Artwork?) {
-        if (artwork == null) {
-            return
-        }
         val shortcutManager = context.getSystemService(ShortcutManager::class.java)
         val dynamicShortcuts = shortcutManager?.dynamicShortcuts ?: return
         var artworkInfoShortcutInfo: ShortcutInfo? = null
@@ -66,9 +63,8 @@ class ArtworkInfoShortcutController(
             }
         }
 
-        val viewIntent = artwork.viewIntent
-        if (viewIntent != null) {
-            if (artworkInfoShortcutInfo != null && !artworkInfoShortcutInfo.isEnabled) {
+        if (artwork != null) {
+            if (artworkInfoShortcutInfo?.isEnabled == false) {
                 // Re-enable a disabled Artwork Info Shortcut
                 shortcutManager.enableShortcuts(
                         listOf(ARTWORK_INFO_SHORTCUT_ID))
@@ -78,12 +74,12 @@ class ArtworkInfoShortcutController(
                     .setIcon(Icon.createWithResource(context,
                             R.drawable.ic_shortcut_artwork_info))
                     .setShortLabel(context.getString(R.string.action_artwork_info))
-                    .setIntent(viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION))
+                    .setIntent(ArtworkInfoRedirectActivity.getIntent(context))
                     .build()
             shortcutManager.addDynamicShortcuts(
                     listOf(shortcutInfo))
         } else {
-            if (artworkInfoShortcutInfo != null && artworkInfoShortcutInfo.isEnabled) {
+            if (artworkInfoShortcutInfo?.isEnabled == false) {
                 shortcutManager.disableShortcuts(
                         listOf(ARTWORK_INFO_SHORTCUT_ID),
                         context.getString(R.string.action_artwork_info_disabled))

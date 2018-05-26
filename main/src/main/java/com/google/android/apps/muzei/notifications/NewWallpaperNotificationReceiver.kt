@@ -32,11 +32,13 @@ import android.support.v4.app.RemoteInput
 import android.support.v4.content.ContextCompat
 import androidx.core.content.edit
 import com.google.android.apps.muzei.ArtDetailOpenLiveData
-import com.google.android.apps.muzei.api.MuzeiArtSource
-import com.google.android.apps.muzei.api.MuzeiContract
+import com.google.android.apps.muzei.ArtworkInfoRedirectActivity
 import com.google.android.apps.muzei.render.BitmapRegionLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.room.getCommands
+import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.sources.SourceManager
+import com.google.android.apps.muzei.sources.allowsNextArtwork
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.R
 
@@ -45,8 +47,6 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
     companion object {
         const val PREF_ENABLED = "new_wallpaper_notification_enabled"
         private const val PREF_LAST_READ_NOTIFICATION_ARTWORK_ID = "last_read_notification_artwork_id"
-        private const val PREF_LAST_READ_NOTIFICATION_ARTWORK_IMAGE_URI = "last_read_notification_artwork_image_uri"
-        private const val PREF_LAST_READ_NOTIFICATION_ARTWORK_TOKEN = "last_read_notification_artwork_token"
 
         internal const val NOTIFICATION_CHANNEL = "new_wallpaper"
         private const val NOTIFICATION_ID = 1234
@@ -66,8 +66,6 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                 val sp = PreferenceManager.getDefaultSharedPreferences(context)
                 sp.edit {
                     putLong(PREF_LAST_READ_NOTIFICATION_ARTWORK_ID, lastArtwork.id)
-                    putString(PREF_LAST_READ_NOTIFICATION_ARTWORK_IMAGE_URI, lastArtwork.imageUri?.toString())
-                    putString(PREF_LAST_READ_NOTIFICATION_ARTWORK_TOKEN, lastArtwork.token)
                 }
             }
 
@@ -107,41 +105,26 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
             }
 
             val contentResolver = context.contentResolver
-            val source = MuzeiDatabase.getInstance(context)
-                    .sourceDao()
-                    .getCurrentSource()
+            val provider = MuzeiDatabase.getInstance(context)
+                    .providerDao()
+                    .getCurrentProvider()
             val artwork = MuzeiDatabase.getInstance(context)
                     .artworkDao()
                     .getCurrentArtwork()
-            if (source == null || artwork == null) {
+            if (provider == null || artwork == null) {
                 return
             }
 
             val sp = PreferenceManager.getDefaultSharedPreferences(context)
             val currentArtworkId = artwork.id
             val lastReadArtworkId = sp.getLong(PREF_LAST_READ_NOTIFICATION_ARTWORK_ID, -1)
-            val currentImageUri = artwork.imageUri?.toString()
-            val lastReadImageUri = sp.getString(PREF_LAST_READ_NOTIFICATION_ARTWORK_IMAGE_URI, null)
-            val currentToken = artwork.token
-            val lastReadToken = sp.getString(PREF_LAST_READ_NOTIFICATION_ARTWORK_TOKEN, null)
             // We've already dismissed the notification if the IDs match
-            var previouslyDismissedNotification = lastReadArtworkId == currentArtworkId
-            // We've already dismissed the notification if the image URIs match and both are not empty
-            previouslyDismissedNotification = previouslyDismissedNotification ||
-                    !lastReadImageUri.isNullOrEmpty() &&
-                    !currentImageUri.isNullOrEmpty() &&
-                    lastReadImageUri == currentImageUri
-            // We've already dismissed the notification if the tokens match and both are not empty
-            previouslyDismissedNotification = previouslyDismissedNotification ||
-                    !lastReadToken.isNullOrEmpty() &&
-                    !currentToken.isNullOrEmpty() &&
-                    lastReadToken == currentToken
-            if (previouslyDismissedNotification) {
+            if (lastReadArtworkId == currentArtworkId) {
                 return
             }
 
             val (largeIcon, bigPicture) = BitmapRegionLoader.newInstance(contentResolver,
-                    MuzeiContract.Artwork.CONTENT_URI)?.use { regionLoader ->
+                    artwork.contentUri)?.use { regionLoader ->
                 val largeIconHeight = context.resources
                         .getDimensionPixelSize(android.R.dimen.notification_large_icon_height)
                 val largeIcon = regionLoader.decode(largeIconHeight)
@@ -183,7 +166,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
             val extender = NotificationCompat.WearableExtender()
 
             // Support Next Artwork
-            if (source.supportsNextArtwork) {
+            if (provider.allowsNextArtwork(context)) {
                 val nextPendingIntent = PendingIntent.getBroadcast(context, 0,
                         Intent(context, NewWallpaperNotificationReceiver::class.java)
                                 .setAction(ACTION_NEXT_ARTWORK),
@@ -198,7 +181,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                 nb.addAction(nextAction)
                 extender.addAction(nextAction)
             }
-            val commands = source.commands
+            val commands = artwork.getCommands(context)
             // Show custom actions as a selectable list on Android Wear devices
             if (!commands.isEmpty()) {
                 val actions = commands.map { it.title }.toTypedArray()
@@ -218,26 +201,17 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                         .extend(NotificationCompat.Action.WearableExtender().setAvailableOffline(false))
                         .build())
             }
-            val viewIntent = artwork.viewIntent
-            if (viewIntent != null) {
-                viewIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                try {
-                    val viewPendingIntent = PendingIntent.getActivity(context, 0,
-                            viewIntent,
-                            PendingIntent.FLAG_UPDATE_CURRENT)
-                    val viewAction = NotificationCompat.Action.Builder(
-                            R.drawable.ic_notif_info,
-                            context.getString(R.string.action_artwork_info),
-                            viewPendingIntent)
-                            .extend(NotificationCompat.Action.WearableExtender().setAvailableOffline(false))
-                            .build()
-                    nb.addAction(viewAction)
-                    extender.addAction(viewAction)
-                } catch (ignored: RuntimeException) {
-                    // This is actually meant to catch a FileUriExposedException, but you can't
-                    // have catch statements for exceptions that don't exist at your minSdkVersion
-                }
-            }
+            val viewPendingIntent = PendingIntent.getActivity(context, 0,
+                    ArtworkInfoRedirectActivity.getIntent(context),
+                    PendingIntent.FLAG_UPDATE_CURRENT)
+            val viewAction = NotificationCompat.Action.Builder(
+                    R.drawable.ic_notif_info,
+                    context.getString(R.string.action_artwork_info),
+                    viewPendingIntent)
+                    .extend(NotificationCompat.Action.WearableExtender().setAvailableOffline(false))
+                    .build()
+            nb.addAction(viewAction)
+            extender.addAction(viewAction)
             nb.extend(extender)
 
             // Hide the image and artwork title for the public version
@@ -263,8 +237,6 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
             // Reset the last read notification
             sp.edit {
                 remove(PREF_LAST_READ_NOTIFICATION_ARTWORK_ID)
-                remove(PREF_LAST_READ_NOTIFICATION_ARTWORK_IMAGE_URI)
-                remove(PREF_LAST_READ_NOTIFICATION_ARTWORK_TOKEN)
             }
         }
 
@@ -328,7 +300,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
         when (intent?.action) {
             ACTION_MARK_NOTIFICATION_READ -> markNotificationRead(context)
-            ACTION_NEXT_ARTWORK -> SourceManager.sendAction(context, MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK)
+            ACTION_NEXT_ARTWORK -> SourceManager.nextArtwork(context)
             ACTION_USER_COMMAND -> triggerUserCommandFromRemoteInput(context, intent)
         }
     }
@@ -339,14 +311,12 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                 ?: return
         val pendingResult = goAsync()
         launch {
-            val selectedSource = MuzeiDatabase.getInstance(context).sourceDao()
-                    .getCurrentSource()
-            if (selectedSource != null) {
-                for (action in selectedSource.commands) {
-                    if (selectedCommand == action.title) {
-                        SourceManager.sendAction(context, action.id)
-                        break
-                    }
+            val artwork = MuzeiDatabase.getInstance(context).artworkDao()
+                    .getCurrentArtwork()
+            if (artwork != null) {
+                val commands = artwork.getCommands(context)
+                commands.find { selectedCommand == it.title }?.run {
+                    artwork.sendAction(context, id)
                 }
             }
             pendingResult.finish()

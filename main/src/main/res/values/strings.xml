@@ -40,7 +40,6 @@
     <string name="source_unavailable">Your selected source is unavailable. Switching to the default source.</string>
 
     <string name="error_view_details">Couldn\'t view artwork details.</string>
-    <string name="error_easter_egg">Hmm, this picture doesn\'t seem to be loading. Grumpy McPuzzles is very sorry about that, and recommends trying a different wallpaper source.</string>
     <string name="error_wallpaper_chooser">Couldn\'t launch wallpaper chooser. You can still activate Muzei by choosing \'Live Wallpapers\' in your home screen wallpaper picker.</string>
 
     <string name="section_choose_source">Sources</string>
@@ -55,7 +54,6 @@
     <string name="action_artwork_info_disabled">There is no artwork info for the current artwork.</string>
 
     <string name="done">Done</string>
-    <string name="retry">Retry</string>
 
     <string name="set_as_wallpaper_using_muzei">Wallpaper (using Muzei)</string>
     <string name="set_as_wallpaper_failed">Unable to read artwork</string>

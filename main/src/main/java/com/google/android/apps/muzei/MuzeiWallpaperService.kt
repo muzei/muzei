@@ -46,8 +46,12 @@ import com.google.android.apps.muzei.render.BitmapRegionLoader
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer
 import com.google.android.apps.muzei.render.RealRenderController
 import com.google.android.apps.muzei.render.RenderController
+import com.google.android.apps.muzei.room.select
 import com.google.android.apps.muzei.shortcuts.ArtworkInfoShortcutController
+import com.google.android.apps.muzei.sources.SourceArtProvider
 import com.google.android.apps.muzei.sources.SourceManager
+import com.google.android.apps.muzei.sync.ProviderManager
+import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.util.observeNonNull
 import com.google.android.apps.muzei.wallpaper.LockscreenObserver
 import com.google.android.apps.muzei.wallpaper.WallpaperAnalytics
@@ -85,6 +89,13 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         wallpaperLifecycle.addObserver(WidgetUpdater(this))
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
             wallpaperLifecycle.addObserver(ArtworkInfoShortcutController(this, this))
+        }
+        ProviderManager.getInstance(this).observe(this) { provider ->
+            if (provider == null) {
+                launch {
+                    SourceArtProvider::class.select(this@MuzeiWallpaperService)
+                }
+            }
         }
         if (UserManagerCompat.isUserUnlocked(this)) {
             wallpaperLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START)

@@ -35,6 +35,23 @@ public class ProtocolConstants {
     public static final String ACTION_PUBLISH_STATE = "com.google.android.apps.muzei.api.action.PUBLISH_UPDATE";
     public static final String EXTRA_STATE = "com.google.android.apps.muzei.api.extra.STATE";
 
+    // MuzeiArtProvider
+    private static final String PREFIX = "com.google.android.apps.muzei.api.";
+    public static final String METHOD_REQUEST_LOAD = PREFIX + "REQUEST_LOAD";
+    public static final String METHOD_MARK_ARTWORK_LOADED = PREFIX + "MARK_ARTWORK_LOADED";
+    public static final String METHOD_GET_LOAD_INFO = PREFIX + "GET_LOAD_INFO";
+    public static final String KEY_MAX_LOADED_ARTWORK_ID = PREFIX + "MAX_LOADED_ARTWORK_ID";
+    public static final String KEY_LAST_LOADED_TIME = PREFIX + "LAST_LOAD_TIME";
+    public static final String KEY_RECENT_ARTWORK_IDS = PREFIX + "RECENT_ARTWORK_IDS";
+    public static final String METHOD_GET_DESCRIPTION = PREFIX + "GET_DESCRIPTION";
+    public static final String KEY_DESCRIPTION = PREFIX + "DESCRIPTION";
+    public static final String METHOD_GET_COMMANDS = PREFIX + "GET_COMMANDS";
+    public static final String KEY_COMMANDS = PREFIX + "COMMANDS";
+    public static final String METHOD_TRIGGER_COMMAND = PREFIX + "TRIGGER_COMMAND";
+    public static final String KEY_COMMAND = PREFIX + "COMMAND";
+    public static final String METHOD_OPEN_ARTWORK_INFO = PREFIX + "OPEN_ARTWORK_INFO";
+    public static final String KEY_OPEN_ARTWORK_INFO_SUCCESS = PREFIX + "ARTWORK_INFO_SUCCESS";
+
     private ProtocolConstants() {
     }
 }

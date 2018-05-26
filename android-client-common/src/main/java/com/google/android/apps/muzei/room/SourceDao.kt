@@ -53,7 +53,7 @@ abstract class SourceDao {
     abstract val currentSource: LiveData<Source?>
 
     @get:Query("SELECT * FROM sources WHERE selected=1 ORDER BY component_name")
-    internal abstract val currentSourceBlocking: Source?
+    abstract val currentSourceBlocking: Source?
 
     suspend fun getCurrentSource() = withContext(CommonPool) {
         currentSourceBlocking

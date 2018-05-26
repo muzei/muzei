@@ -19,6 +19,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="net.nurik.roman.muzei.androidclientcommon">
 
+    <!-- Used to restart jobs listening for MuzeiArtProvider changes on boot -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
+    <permission
+        android:name="com.google.android.apps.muzei.api.ACCESS_PROVIDER"
+        android:protectionLevel="signature"/>
+    <uses-permission android:name="com.google.android.apps.muzei.api.ACCESS_PROVIDER"/>
+
     <permission
         android:name="com.google.android.apps.muzei.WRITE_PROVIDER"
         android:protectionLevel="signature"/>
@@ -39,7 +47,7 @@
             android:permission="android.permission.BIND_JOB_SERVICE"/>
         <provider
             android:name="com.google.android.apps.muzei.provider.MuzeiDocumentsProvider"
-            android:authorities="com.google.android.apps.muzei.documents"
+            android:authorities="${documentsAuthority}"
             android:grantUriPermissions="true"
             android:exported="true"
             android:permission="android.permission.MANAGE_DOCUMENTS">

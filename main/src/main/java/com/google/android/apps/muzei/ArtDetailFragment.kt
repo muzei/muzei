@@ -19,6 +19,7 @@ package com.google.android.apps.muzei
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
+import android.content.ComponentName
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -27,18 +28,16 @@ import android.support.v4.content.ContextCompat
 import android.support.v4.content.res.ResourcesCompat
 import android.support.v7.widget.ActionMenuView
 import android.support.v7.widget.TooltipCompat
-import android.util.Log
 import android.util.SparseIntArray
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.view.isGone
-import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
-import androidx.core.widget.toast
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.notifications.NewWallpaperNotificationReceiver
@@ -48,13 +47,13 @@ import com.google.android.apps.muzei.render.SwitchingPhotosInProgress
 import com.google.android.apps.muzei.render.SwitchingPhotosLiveData
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.room.Source
+import com.google.android.apps.muzei.room.Provider
+import com.google.android.apps.muzei.room.getCommands
+import com.google.android.apps.muzei.room.openArtworkInfo
+import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.settings.AboutActivity
-import com.google.android.apps.muzei.sources.SourceManager
-import com.google.android.apps.muzei.sync.ArtworkLoadingFailure
-import com.google.android.apps.muzei.sync.ArtworkLoadingInProgress
-import com.google.android.apps.muzei.sync.ArtworkLoadingLiveData
-import com.google.android.apps.muzei.sync.TaskQueueService
+import com.google.android.apps.muzei.sources.SourceArtProvider
+import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.AnimatedMuzeiLoadingSpinnerView
 import com.google.android.apps.muzei.util.PanScaleProxyView
 import com.google.android.apps.muzei.util.makeCubicGradientScrimDrawable
@@ -63,6 +62,7 @@ import com.google.android.apps.muzei.widget.showWidgetPreview
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.R
@@ -72,9 +72,6 @@ object ArtDetailOpenLiveData : MutableLiveData<Boolean>()
 class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
 
     companion object {
-        private const val TAG = "ArtDetailFragment"
-
-        private const val LOAD_ERROR_COUNT_EASTER_EGG = 4
         private val SOURCE_ACTION_IDS = intArrayOf(
                 R.id.source_action_1,
                 R.id.source_action_2,
@@ -92,26 +89,9 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
     private var wallpaperAspectRatio: Float = 0f
     private var artworkAspectRatio: Float = 0f
 
-    private var supportsNextArtwork = false
-    private val sourceObserver = Observer<Source?> { source ->
-        // Update overflow and next button
-        overflowSourceActionMap.clear()
-        overflowMenu.menu.clear()
-        requireActivity().menuInflater.inflate(R.menu.muzei_overflow,
-                overflowMenu.menu)
-        if (source != null) {
-            supportsNextArtwork = source.supportsNextArtwork
-            val commands = source.commands
-            val numSourceActions = Math.min(SOURCE_ACTION_IDS.size,
-                    commands.size)
-            for (i in 0 until numSourceActions) {
-                val action = commands[i]
-                overflowSourceActionMap.put(SOURCE_ACTION_IDS[i], action.id)
-                overflowMenu.menu.add(0, SOURCE_ACTION_IDS[i], 0, action.title)
-            }
-        }
-        nextButton.isInvisible = !supportsNextArtwork ||
-                ArtworkLoadingLiveData.value == ArtworkLoadingInProgress
+    private val providerObserver = Observer<Provider?> { provider ->
+        val supportsNextArtwork = provider?.supportsNextArtwork == true
+        nextButton.isVisible = supportsNextArtwork
     }
 
     private val artworkObserver = Observer<Artwork?> { currentArtwork ->
@@ -139,26 +119,33 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             attributionView.isGone = true
         }
 
-        val viewIntent = currentArtwork.viewIntent
-        metadataView.isEnabled = viewIntent != null
-        if (viewIntent != null) {
-            metadataView.setOnClickListener {
-                viewIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                // Make sure any data URIs granted to Muzei are passed onto the
-                // started Activity
-                viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                try {
-                    startActivity(viewIntent)
-                } catch (e: RuntimeException) {
-                    // Catch ActivityNotFoundException, SecurityException,
-                    // and FileUriExposedException
-                    requireContext().toast(R.string.error_view_details)
-                    Log.e(TAG, "Error viewing artwork details.", e)
+        metadataView.setOnClickListener {
+            currentArtworkLiveData.value?.openArtworkInfo(requireContext())
+        }
+
+        launch(UI) {
+            val commands = async{
+                currentArtwork.getCommands(requireContext())
+            }.await()
+            overflowSourceActionMap.clear()
+            overflowMenu.menu.clear()
+            requireActivity().menuInflater.inflate(R.menu.muzei_overflow,
+                    overflowMenu.menu)
+            commands.take(SOURCE_ACTION_IDS.size).forEachIndexed { i, action ->
+                overflowSourceActionMap.put(SOURCE_ACTION_IDS[i], action.id)
+                val menuItem = overflowMenu.menu.add(0, SOURCE_ACTION_IDS[i],
+                        0, action.title)
+                if (action.id == MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK &&
+                        currentProviderLiveData.value?.componentName?.equals(
+                                ComponentName(requireActivity(), SourceArtProvider::class.java)
+                        ) == true) {
+                    menuItem.setIcon(R.drawable.ic_skip)
+                    menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
                 }
             }
-        } else {
-            metadataView.setOnClickListener(null)
         }
+        showFakeLoading = false
+        updateLoadingSpinnerVisibility()
     }
 
     private var guardViewportChangeListener: Boolean = false
@@ -170,8 +157,6 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
     private lateinit var chromeContainerView: View
     private lateinit var metadataView: View
     private lateinit var loadingContainerView: View
-    private lateinit var loadErrorContainerView: View
-    private lateinit var loadErrorEasterEggView: View
     private lateinit var loadingIndicatorView: AnimatedMuzeiLoadingSpinnerView
     private lateinit var nextButton: View
     private lateinit var titleView: TextView
@@ -179,11 +164,9 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
     private lateinit var attributionView: TextView
     private lateinit var panScaleProxyView: PanScaleProxyView
     private var loadingSpinnerShown = false
-    private var loadErrorShown = false
-    private var nextFakeLoading = false
-    private var consecutiveLoadErrorCount = 0
-    private val currentSourceLiveData: LiveData<Source?> by lazy {
-        MuzeiDatabase.getInstance(requireContext()).sourceDao().currentSource
+    private var showFakeLoading = false
+    private val currentProviderLiveData: LiveData<Provider?> by lazy {
+        MuzeiDatabase.getInstance(requireContext()).providerDao().currentProvider
     }
     private val currentArtworkLiveData: LiveData<Artwork?> by lazy {
         MuzeiDatabase.getInstance(requireContext()).artworkDao().currentArtwork
@@ -191,7 +174,6 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
 
     private var unsetNextFakeLoading: Job? = null
     private var showLoadingSpinner: Job? = null
-    private var showLoadError: Job? = null
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -243,7 +225,11 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             val context = context ?: return@setOnMenuItemClickListener false
             val id = overflowSourceActionMap.get(menuItem.itemId)
             if (id > 0) {
-                SourceManager.sendAction(context, id)
+                currentArtworkLiveData.value?.run {
+                    launch {
+                        sendAction(requireContext(), id)
+                    }
+                }
                 return@setOnMenuItemClickListener true
             }
 
@@ -259,11 +245,8 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
 
         nextButton = view.findViewById(R.id.next_button)
         nextButton.setOnClickListener {
-            val context = context ?: return@setOnClickListener
-            SourceManager.sendAction(context,
-                    MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK)
-            nextFakeLoading = true
-            showNextFakeLoading()
+            ProviderManager.getInstance(requireContext()).nextArtwork()
+            showFakeLoading()
         }
         TooltipCompat.setTooltipText(nextButton, nextButton.contentDescription)
 
@@ -292,13 +275,6 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
 
         loadingContainerView = view.findViewById(R.id.image_loading_container)
         loadingIndicatorView = view.findViewById(R.id.image_loading_indicator)
-        loadErrorContainerView = view.findViewById(R.id.image_error_container)
-        loadErrorEasterEggView = view.findViewById(R.id.error_easter_egg)
-
-        view.findViewById<View>(R.id.image_error_retry_button).setOnClickListener {
-            showNextFakeLoading()
-            requireContext().startService(TaskQueueService.getDownloadCurrentArtworkIntent(requireContext()))
-        }
 
         WallpaperSizeLiveData.observeNonNull(this) { size ->
             wallpaperAspectRatio = if (size.height > 0) {
@@ -314,21 +290,6 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             resetProxyViewport()
         }
 
-        ArtworkLoadingLiveData.observeNonNull(this) { state ->
-            if (state !== ArtworkLoadingInProgress) {
-                nextFakeLoading = false
-                if (state !== ArtworkLoadingFailure) {
-                    consecutiveLoadErrorCount = 0
-                }
-            }
-
-            // Artwork no longer loading, update the visibility of the next button
-            nextButton.isInvisible = !supportsNextArtwork ||
-                    state == ArtworkLoadingInProgress
-
-            updateLoadingSpinnerAndErrorVisibility()
-        }
-
         ArtDetailViewport.addObserver(this)
 
         SwitchingPhotosLiveData.observeNonNull(this) { switchingPhotos ->
@@ -340,7 +301,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             }
         }
 
-        currentSourceLiveData.observe(this, sourceObserver)
+        currentProviderLiveData.observe(this, providerObserver)
         currentArtworkLiveData.observe(this, artworkObserver)
     }
 
@@ -351,7 +312,6 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
 
     override fun onResume() {
         super.onResume()
-        consecutiveLoadErrorCount = 0
         NewWallpaperNotificationReceiver.markNotificationRead(requireContext())
     }
 
@@ -359,9 +319,8 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         super.onDestroyView()
         unsetNextFakeLoading?.cancel()
         showLoadingSpinner?.cancel()
-        showLoadError?.cancel()
         ArtDetailViewport.removeObserver(this)
-        currentSourceLiveData.removeObserver(sourceObserver)
+        currentProviderLiveData.removeObserver(providerObserver)
         currentArtworkLiveData.removeObserver(artworkObserver)
     }
 
@@ -406,30 +365,27 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         ArtDetailOpenLiveData.value = false
     }
 
-    private fun showNextFakeLoading() {
-        nextFakeLoading = true
+    private fun showFakeLoading() {
+        showFakeLoading = true
         // Show a loading spinner for up to 10 seconds. When new artwork is loaded,
-        // the loading spinner will go away. See onEventMainThread(ArtworkLoadingStateChangedEvent)
-        updateLoadingSpinnerAndErrorVisibility()
+        // the loading spinner will go away.
+        updateLoadingSpinnerVisibility()
         unsetNextFakeLoading?.cancel()
         unsetNextFakeLoading = launch(UI) {
             delay(10000)
-            nextFakeLoading = false
-            updateLoadingSpinnerAndErrorVisibility()
+            showFakeLoading = false
+            updateLoadingSpinnerVisibility()
         }
-        updateLoadingSpinnerAndErrorVisibility()
+        updateLoadingSpinnerVisibility()
     }
 
-    private fun updateLoadingSpinnerAndErrorVisibility() {
-        val showLoadingSpinner = ArtworkLoadingLiveData.value === ArtworkLoadingInProgress || nextFakeLoading
-        val showError = !showLoadingSpinner && ArtworkLoadingLiveData.value === ArtworkLoadingFailure
-
-        if (showLoadingSpinner != loadingSpinnerShown) {
-            loadingSpinnerShown = showLoadingSpinner
-            this.showLoadingSpinner?.cancel()?.also {
-                this.showLoadingSpinner = null
+    private fun updateLoadingSpinnerVisibility() {
+        if (showFakeLoading != loadingSpinnerShown) {
+            loadingSpinnerShown = showFakeLoading
+            showLoadingSpinner?.cancel()?.also {
+                showLoadingSpinner = null
             }
-            if (showLoadingSpinner) {
+            if (showFakeLoading) {
                 this.showLoadingSpinner = launch(UI) {
                     delay(700)
                     loadingIndicatorView.start()
@@ -447,30 +403,6 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
                             loadingContainerView.isGone = true
                             loadingIndicatorView.stop()
                         }
-            }
-        }
-
-        if (showError != loadErrorShown) {
-            loadErrorShown = showError
-            showLoadError?.cancel()?.also {
-                showLoadError = null
-            }
-            if (showError) {
-                showLoadError = launch(UI) {
-                    delay(700)
-                    ++consecutiveLoadErrorCount
-                            loadErrorEasterEggView.isVisible = consecutiveLoadErrorCount >= LOAD_ERROR_COUNT_EASTER_EGG
-                    loadErrorContainerView.isVisible = true
-                    loadErrorContainerView.animate()
-                            .alpha(1f)
-                            .setDuration(300)
-                            .withEndAction(null)
-                }
-            } else {
-                loadErrorContainerView.animate()
-                        .alpha(0f)
-                        .setDuration(1000)
-                        .withEndAction { loadErrorContainerView.isGone = true }
             }
         }
     }

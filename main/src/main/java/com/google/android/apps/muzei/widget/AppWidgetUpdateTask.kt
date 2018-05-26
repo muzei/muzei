@@ -33,7 +33,8 @@ import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.render.BitmapRegionLoader
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.room.Source
+import com.google.android.apps.muzei.room.Provider
+import com.google.android.apps.muzei.sources.allowsNextArtwork
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.R
@@ -51,13 +52,13 @@ fun showWidgetPreview(context: Context) = launch {
         // No preview to show
         return@launch
     }
-    val source = MuzeiDatabase.getInstance(context).sourceDao().getCurrentSource()
+    val provider = MuzeiDatabase.getInstance(context).providerDao().getCurrentProvider()
     val artwork = MuzeiDatabase.getInstance(context).artworkDao().getCurrentArtwork()
-    if (source == null || artwork == null) {
+    if (provider == null || artwork == null) {
         Log.w(TAG, "No current artwork found")
         return@launch
     }
-    val remoteViews = createRemoteViews(context, source, artwork,
+    val remoteViews = createRemoteViews(context, provider, artwork,
             context.resources.getDimensionPixelSize(R.dimen.widget_min_width),
             context.resources.getDimensionPixelSize(R.dimen.widget_min_height))
             ?: return@launch
@@ -80,9 +81,9 @@ suspend fun updateAppWidget(context: Context) {
         // No app widgets, nothing to do
         return
     }
-    val source = MuzeiDatabase.getInstance(context).sourceDao().getCurrentSource()
+    val provider = MuzeiDatabase.getInstance(context).providerDao().getCurrentProvider()
     val artwork = MuzeiDatabase.getInstance(context).artworkDao().getCurrentArtwork()
-    if (source == null || artwork == null) {
+    if (provider == null || artwork == null) {
         Log.w(TAG, "No current artwork found")
         return
     }
@@ -100,7 +101,7 @@ suspend fun updateAppWidget(context: Context) {
             widgetHeight = Math.max(Math.min(widgetHeight, displayMetrics.heightPixels), minWidgetSize)
             var success = false
             while (!success) {
-                val remoteViews = createRemoteViews(context, source, artwork,
+                val remoteViews = createRemoteViews(context, provider, artwork,
                         widgetWidth, widgetHeight)
                         ?: return@launch
                 try {
@@ -118,14 +119,15 @@ suspend fun updateAppWidget(context: Context) {
 
 private suspend fun createRemoteViews(
         context: Context,
-        source: Source,
+        provider: Provider,
         artwork: Artwork,
         widgetWidth: Int,
         widgetHeight: Int
 ): RemoteViews? {
     val contentDescription = artwork.title ?: artwork.byline ?: ""
     val imageUri = artwork.contentUri
-    val supportsNextArtwork = WallpaperActiveState.value == true && source.supportsNextArtwork
+    val supportsNextArtwork = WallpaperActiveState.value == true &&
+            provider.allowsNextArtwork(context)
 
     // Update the widget(s) with the new artwork information
     val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)

@@ -44,6 +44,18 @@
                 android:value="#fa0"/>
         </service>
 
+        <provider
+            android:name=".FiveHundredPxExampleArtProvider"
+            android:authorities="com.example.muzei.exampleprovider500px"
+            android:label="@string/source_name"
+            android:description="@string/source_description"
+            android:exported="true"
+            android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER">
+            <intent-filter>
+                <action android:name="com.google.android.apps.muzei.api.MuzeiArtProvider"/>
+            </intent-filter>
+        </provider>
+
     </application>
 
 </manifest>

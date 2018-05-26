@@ -32,13 +32,14 @@ import android.support.annotation.RequiresApi
 import android.widget.Toast
 import androidx.core.widget.toast
 import com.google.android.apps.muzei.MuzeiWallpaperService
-import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.room.Source
+import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.sources.SourceManager
+import com.google.android.apps.muzei.sources.allowsNextArtwork
 import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import com.google.firebase.analytics.FirebaseAnalytics
+import kotlinx.coroutines.experimental.runBlocking
 import net.nurik.roman.muzei.R
 
 /**
@@ -50,18 +51,18 @@ import net.nurik.roman.muzei.R
 class NextArtworkTileService : TileService(), LifecycleOwner {
     private val lifecycleRegistry: LifecycleRegistry = LifecycleRegistry(this)
 
-    private lateinit var sourceLiveData: LiveData<Source?>
+    private lateinit var providerLiveData: LiveData<Provider?>
 
     override fun onCreate() {
         super.onCreate()
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
         WallpaperActiveState.observe(this) {
-            updateTile(sourceLiveData.value)
+            updateTile(providerLiveData.value)
         }
         // Start listening for source changes, which will include when a source
         // starts or stops supporting the 'Next Artwork' command
-        sourceLiveData = MuzeiDatabase.getInstance(this).sourceDao().currentSource
-        sourceLiveData.observe(this, this::updateTile)
+        providerLiveData = MuzeiDatabase.getInstance(this).providerDao().currentProvider
+        providerLiveData.observe(this, this::updateTile)
     }
 
     override fun getLifecycle(): Lifecycle {
@@ -76,9 +77,9 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
     }
 
-    private fun updateTile(source: Source?) {
+    private fun updateTile(provider: Provider?) {
         val context = this
-        qsTile?.takeIf { WallpaperActiveState.value != true || source != null }?.apply {
+        qsTile?.takeIf { WallpaperActiveState.value != true || provider != null }?.apply {
             when {
                 WallpaperActiveState.value != true -> {
                     // If the wallpaper isn't active, the quick tile will activate it
@@ -86,7 +87,7 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
                     label = getString(R.string.action_activate)
                     icon = Icon.createWithResource(context, R.drawable.ic_stat_muzei)
                 }
-                source?.supportsNextArtwork == true -> {
+                runBlocking { provider.allowsNextArtwork(context) } -> {
                     state = Tile.STATE_ACTIVE
                     label = getString(R.string.action_next_artwork)
                     icon = Icon.createWithResource(context, R.drawable.ic_notif_next_artwork)
@@ -107,7 +108,7 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
                 Tile.STATE_ACTIVE -> { // Active means we send the 'Next Artwork' command
                     FirebaseAnalytics.getInstance(context).logEvent(
                             "tile_next_artwork_click", null)
-                    SourceManager.sendAction(context, MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK)
+                    SourceManager.nextArtwork(context)
                 }
                 else -> unlockAndRun {
                     // Inactive means we attempt to activate Muzei

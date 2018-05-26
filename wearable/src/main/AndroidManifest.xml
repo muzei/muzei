@@ -58,21 +58,16 @@
             </intent-filter>
         </service>
 
-        <service android:name="com.google.android.apps.muzei.datalayer.ArtworkCacheIntentService"/>
-
-        <service
-            android:name="com.google.android.apps.muzei.datalayer.DataLayerArtSource"
+        <provider
+            android:name="com.google.android.apps.muzei.datalayer.DataLayerArtProvider"
+            android:authorities="com.google.android.apps.muzei.datalayer"
             android:label="@string/datalayer_source_title"
             android:description="@string/datalayer_source_description"
-            android:icon="@drawable/datalayer_ic_source"
-            tools:ignore="ExportedService">
+            android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER">
             <intent-filter>
-                <action android:name="com.google.android.apps.muzei.api.MuzeiArtSource"/>
+                <action android:name="com.google.android.apps.muzei.api.MuzeiArtProvider"/>
             </intent-filter>
-            <meta-data
-                android:name="color"
-                android:value="@color/theme_primary"/>
-        </service>
+        </provider>
 
         <service
             android:name="com.google.android.apps.muzei.complications.ArtworkComplicationProviderService"

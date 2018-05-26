@@ -21,7 +21,6 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.sources.SourceManager
 import kotlinx.coroutines.experimental.launch
 
@@ -38,7 +37,7 @@ class MuzeiAppWidgetProvider : AppWidgetProvider() {
     override fun onReceive(context: Context, intent: Intent?) {
         super.onReceive(context, intent)
         if (intent?.action == ACTION_NEXT_ARTWORK) {
-            SourceManager.sendAction(context.applicationContext, MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK)
+            SourceManager.nextArtwork(context)
         }
     }
 

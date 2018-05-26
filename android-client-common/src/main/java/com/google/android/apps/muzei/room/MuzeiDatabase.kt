@@ -25,16 +25,18 @@ import android.arch.persistence.room.migration.Migration
 import android.content.Context
 import android.content.Intent
 import android.database.sqlite.SQLiteConstraintException
-
 import com.google.android.apps.muzei.api.MuzeiContract
+import java.io.File
 
 /**
  * Room Database for Muzei
  */
-@Database(entities = [(Artwork::class), (Source::class)], version = 6)
+@Database(entities = [(Artwork::class), (Source::class), (Provider::class)], version = 7)
 abstract class MuzeiDatabase : RoomDatabase() {
 
     abstract fun sourceDao(): SourceDao
+
+    abstract fun providerDao(): ProviderDao
 
     abstract fun artworkDao(): ArtworkDao
 
@@ -42,14 +44,29 @@ abstract class MuzeiDatabase : RoomDatabase() {
         @Volatile
         private var instance: MuzeiDatabase? = null
 
-        @JvmStatic
         fun getInstance(context: Context): MuzeiDatabase {
             val applicationContext = context.applicationContext
             return instance ?: synchronized(this) {
                 instance ?: Room.databaseBuilder(applicationContext,
                         MuzeiDatabase::class.java, "muzei.db")
-                        .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+                        .addMigrations(
+                                MIGRATION_1_2,
+                                MIGRATION_2_3,
+                                MIGRATION_3_4,
+                                MIGRATION_4_5,
+                                MIGRATION_5_6,
+                                Migration6to7(applicationContext))
                         .build().also { database ->
+                            database.invalidationTracker.addObserver(
+                                    object : InvalidationTracker.Observer("artwork") {
+                                        override fun onInvalidated(tables: Set<String>) {
+                                            applicationContext.contentResolver
+                                                    .notifyChange(MuzeiContract.Artwork.CONTENT_URI, null)
+                                            applicationContext.sendBroadcast(
+                                                    Intent(MuzeiContract.Artwork.ACTION_ARTWORK_CHANGED))
+                                        }
+                                    }
+                            )
                             database.invalidationTracker.addObserver(
                                     object : InvalidationTracker.Observer("sources") {
                                         override fun onInvalidated(tables: Set<String>) {
@@ -192,6 +209,32 @@ abstract class MuzeiDatabase : RoomDatabase() {
                         + "FROM sources")
                 database.execSQL("DROP TABLE sources")
                 database.execSQL("ALTER TABLE sources2 RENAME TO sources")
+            }
+        }
+
+        private class Migration6to7 internal constructor(private val context: Context) : Migration(6, 7) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Handle Provider
+                database.execSQL("CREATE TABLE provider ("
+                        + "componentName TEXT PRIMARY KEY NOT NULL,"
+                        + "supportsNextArtwork INTEGER NOT NULL)")
+
+                // Handle Artwork
+                database.execSQL("DROP TABLE artwork")
+                database.execSQL("CREATE TABLE artwork ("
+                        + "_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
+                        + "providerComponentName TEXT NOT NULL,"
+                        + "imageUri TEXT NOT NULL,"
+                        + "title TEXT,"
+                        + "byline TEXT,"
+                        + "attribution TEXT,"
+                        + "metaFont TEXT NOT NULL,"
+                        + "date_added INTEGER NOT NULL)")
+                database.execSQL("CREATE INDEX index_Artwork_providerComponentName " + "ON artwork (providerComponentName)")
+
+                // Delete previously cached artwork - providers now cache their own artwork
+                val artworkDirectory = File(context.filesDir, "artwork")
+                artworkDirectory.delete()
             }
         }
     }

@@ -19,18 +19,16 @@ package com.google.android.apps.muzei.tasker
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.google.android.apps.muzei.api.internal.ProtocolConstants
 import com.google.android.apps.muzei.sources.SourceManager
 import com.twofortyfouram.locale.api.Intent.ACTION_FIRE_SETTING
-import com.twofortyfouram.locale.api.Intent.EXTRA_BUNDLE
 
 /**
  * Tasker FIRE_SETTING receiver that fires source actions
  */
 class TaskerActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
-        intent?.takeIf { it.action == ACTION_FIRE_SETTING }?.getBundleExtra(EXTRA_BUNDLE)?.run {
-            SourceManager.sendAction(context, getInt(ProtocolConstants.EXTRA_COMMAND_ID))
+        if (intent?.action == ACTION_FIRE_SETTING) {
+            SourceManager.nextArtwork(context)
         }
     }
 }

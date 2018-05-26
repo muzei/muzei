@@ -54,10 +54,14 @@ import android.view.SurfaceHolder
 import androidx.core.content.edit
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.complications.ArtworkComplicationProviderService
-import com.google.android.apps.muzei.datalayer.ArtworkCacheIntentService
+import com.google.android.apps.muzei.datalayer.DataLayerArtProvider
+import com.google.android.apps.muzei.room.select
+import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.ImageBlurrer
 import com.google.android.apps.muzei.util.blur
+import com.google.android.apps.muzei.util.observe
 import com.google.firebase.analytics.FirebaseAnalytics
+import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
 import java.io.FileNotFoundException
@@ -103,6 +107,13 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
         super.onCreate()
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
         FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
+        ProviderManager.getInstance(this).observe(this) { provider ->
+            if (provider == null) {
+                launch {
+                    DataLayerArtProvider::class.select(this@MuzeiWatchFace)
+                }
+            }
+        }
     }
 
     override fun onCreateEngine(): CanvasWatchFaceService.Engine {
@@ -221,13 +232,10 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                 }
 
                 if (bitmap == null) {
+                    // We'll get another callback when the real artwork is loaded, but
+                    // we should show something to the users right away
                     try {
                         bitmap = BitmapFactory.decodeStream(assets.open("starrynight.jpg"))
-                        // Try to download the artwork from the DataLayer, showing a notification
-                        // to activate Muzei if it isn't found
-                        val intent = Intent(this@MuzeiWatchFace, ArtworkCacheIntentService::class.java)
-                        intent.putExtra(ArtworkCacheIntentService.SHOW_ACTIVATE_NOTIFICATION_EXTRA, true)
-                        startService(intent)
                     } catch (e: IOException) {
                         Log.e(TAG, "Error opening starry night asset", e)
                     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Google Inc.
+ * Copyright 2018 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,12 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.datalayer
+package com.example.muzei.examplesource500px
 
-import com.google.android.gms.wearable.DataEventBuffer
-import com.google.android.gms.wearable.WearableListenerService
+import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 
-/**
- * WearableListenerService responsible to receiving Data Layer changes with updated artwork
- */
-class ArtworkChangedListenerService : WearableListenerService() {
-    override fun onDataChanged(dataEvents: DataEventBuffer) {
-        // Only artwork changes trigger this WearableListenerService
-        DataLayerLoadWorker.enqueueLoad()
+class FiveHundredPxExampleArtProvider : MuzeiArtProvider() {
+    override fun onLoadRequested(initial: Boolean) {
+        FiveHundredPxExampleWorker.enqueueLoad()
     }
 }

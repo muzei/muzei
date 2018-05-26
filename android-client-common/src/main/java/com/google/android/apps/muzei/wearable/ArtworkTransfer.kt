@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:JvmName("ArtworkTransfer")
-
 package com.google.android.apps.muzei.wearable
 
 import androidx.core.net.toUri
@@ -27,7 +25,6 @@ private const val KEY_IMAGE_URI = "imageUri"
 private const val KEY_TITLE = "title"
 private const val KEY_BYLINE = "byline"
 private const val KEY_ATTRIBUTION = "attribution"
-private const val KEY_TOKEN = "token"
 
 /**
  * Serializes this artwork object to a [DataMap] representation.
@@ -36,11 +33,10 @@ private const val KEY_TOKEN = "token"
  * @see toArtwork
  */
 fun Artwork.toDataMap(): DataMap = DataMap.fromBundle(bundleOf(
-        KEY_IMAGE_URI to imageUri?.toString(),
+        KEY_IMAGE_URI to imageUri.toString(),
         KEY_TITLE to title,
         KEY_BYLINE to byline,
-        KEY_ATTRIBUTION to attribution,
-        KEY_TOKEN to token))
+        KEY_ATTRIBUTION to attribution))
 
 /**
  * Deserializes an artwork object from a [DataMap].
@@ -48,16 +44,15 @@ fun Artwork.toDataMap(): DataMap = DataMap.fromBundle(bundleOf(
  * @return the artwork from the [DataMap]
  * @see toDataMap
  */
-fun DataMap.toArtwork(): Artwork {
+fun DataMap.toArtwork(): com.google.android.apps.muzei.api.provider.Artwork {
     val bundle = toBundle()
-    return Artwork().apply {
-        val uriString = bundle.getString(KEY_IMAGE_URI)
-        if (!uriString.isNullOrBlank()) {
-            imageUri = uriString.toUri()
+    return com.google.android.apps.muzei.api.provider.Artwork().apply {
+        val imageUri = bundle.getString(KEY_IMAGE_URI)
+        if (!imageUri.isNullOrBlank()) {
+            persistentUri = imageUri.toUri()
         }
         title = bundle.getString(KEY_TITLE)
         byline = bundle.getString(KEY_BYLINE)
         attribution = bundle.getString(KEY_ATTRIBUTION)
-        token = bundle.getString(KEY_TOKEN)
     }
 }
