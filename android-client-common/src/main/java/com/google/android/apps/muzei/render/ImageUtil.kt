@@ -17,7 +17,6 @@
 package com.google.android.apps.muzei.render
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Color
 
 fun Bitmap?.darkness(): Float {
@@ -54,7 +53,3 @@ fun Int.sampleSize(targetSize: Int): Int {
     }
     return sampleSize
 }
-
-fun BitmapFactory.Options.sampleSize(targetSize: Int): Int =
-        Math.max(outWidth.sampleSize(targetSize),
-                outHeight.sampleSize(targetSize))

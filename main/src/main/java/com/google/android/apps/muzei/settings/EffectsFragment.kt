@@ -142,21 +142,19 @@ class EffectsFragment : Fragment() {
         inflater.inflate(R.menu.settings_advanced, menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.action_reset_defaults -> {
-                Prefs.getSharedPreferences(requireContext()).edit {
-                    putInt(Prefs.PREF_BLUR_AMOUNT, MuzeiBlurRenderer.DEFAULT_BLUR)
-                    putInt(Prefs.PREF_DIM_AMOUNT, MuzeiBlurRenderer.DEFAULT_MAX_DIM)
-                    putInt(Prefs.PREF_GREY_AMOUNT, MuzeiBlurRenderer.DEFAULT_GREY)
-                }
-                blurSeekBar.progress = MuzeiBlurRenderer.DEFAULT_BLUR
-                dimSeekBar.progress = MuzeiBlurRenderer.DEFAULT_MAX_DIM
-                greySeekBar.progress = MuzeiBlurRenderer.DEFAULT_GREY
-                return true
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        R.id.action_reset_defaults -> {
+            Prefs.getSharedPreferences(requireContext()).edit {
+                putInt(Prefs.PREF_BLUR_AMOUNT, MuzeiBlurRenderer.DEFAULT_BLUR)
+                putInt(Prefs.PREF_DIM_AMOUNT, MuzeiBlurRenderer.DEFAULT_MAX_DIM)
+                putInt(Prefs.PREF_GREY_AMOUNT, MuzeiBlurRenderer.DEFAULT_GREY)
             }
-            else -> return super.onOptionsItemSelected(item)
+            blurSeekBar.progress = MuzeiBlurRenderer.DEFAULT_BLUR
+            dimSeekBar.progress = MuzeiBlurRenderer.DEFAULT_MAX_DIM
+            greySeekBar.progress = MuzeiBlurRenderer.DEFAULT_GREY
+            true
         }
+        else -> super.onOptionsItemSelected(item)
     }
 
     override fun onDestroy() {

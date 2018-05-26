@@ -81,7 +81,7 @@ class AnimatedMuzeiLogoFragment : Fragment() {
         logoView.start()
     }
 
-    fun reset() {
+    private fun reset() {
         logoView.reset()
         logoView.translationY = initialLogoOffset
         subtitleView.visibility = View.INVISIBLE

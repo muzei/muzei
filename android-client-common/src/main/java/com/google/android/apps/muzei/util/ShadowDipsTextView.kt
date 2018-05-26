@@ -19,21 +19,22 @@ package com.google.android.apps.muzei.util
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.TextView
+import androidx.core.content.res.use
 import net.nurik.roman.muzei.androidclientcommon.R
 
 class ShadowDipsTextView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0)
     : TextView(context, attrs, defStyle) {
 
     init {
-        val a = context.obtainStyledAttributes(attrs,
-                R.styleable.ShadowDipsTextView, defStyle, 0)
-        val shadowDx = a.getDimensionPixelSize(R.styleable.ShadowDipsTextView_shadowDx, 0)
-        val shadowDy = a.getDimensionPixelSize(R.styleable.ShadowDipsTextView_shadowDy, 0)
-        val shadowRadius = a.getDimensionPixelSize(R.styleable.ShadowDipsTextView_shadowRadius, 0)
-        val shadowColor = a.getColor(R.styleable.ShadowDipsTextView_shadowColor, 0)
-        if (shadowColor != 0) {
-            setShadowLayer(shadowRadius.toFloat(), shadowDx.toFloat(), shadowDy.toFloat(), shadowColor)
+        context.obtainStyledAttributes(attrs,
+                R.styleable.ShadowDipsTextView, defStyle, 0).use {
+            val shadowDx = it.getDimensionPixelSize(R.styleable.ShadowDipsTextView_shadowDx, 0)
+            val shadowDy = it.getDimensionPixelSize(R.styleable.ShadowDipsTextView_shadowDy, 0)
+            val shadowRadius = it.getDimensionPixelSize(R.styleable.ShadowDipsTextView_shadowRadius, 0)
+            val shadowColor = it.getColor(R.styleable.ShadowDipsTextView_shadowColor, 0)
+            if (shadowColor != 0) {
+                setShadowLayer(shadowRadius.toFloat(), shadowDx.toFloat(), shadowDy.toFloat(), shadowColor)
+            }
         }
-        a.recycle()
     }
 }

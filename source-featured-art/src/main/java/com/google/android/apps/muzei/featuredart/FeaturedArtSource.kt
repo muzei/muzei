@@ -18,8 +18,6 @@ package com.google.android.apps.muzei.featuredart
 
 import android.content.Intent
 import android.net.Uri
-import android.os.Handler
-import android.os.Looper
 import android.support.customtabs.CustomTabsIntent
 import android.support.v4.content.ContextCompat
 import android.util.Log
@@ -71,6 +69,7 @@ class FeaturedArtSource : RemoteMuzeiArtSource(SOURCE_NAME) {
     }
 
     override fun onEnabled() {
+        super.onEnabled()
         val nextUpdateTimeMillis = sharedPreferences
                 .getLong("scheduled_update_time_millis", 0)
         if (nextUpdateTimeMillis == 0L && currentArtwork != null) {

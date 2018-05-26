@@ -176,9 +176,6 @@ internal abstract class ChosenPhotoDao {
     }
 
     @Query("SELECT * FROM chosen_photos WHERE _id = :id")
-    internal abstract fun chosenPhoto(id: Long): LiveData<ChosenPhoto>
-
-    @Query("SELECT * FROM chosen_photos WHERE _id = :id")
     internal abstract fun chosenPhotoBlocking(id: Long): ChosenPhoto?
 
     @Query("SELECT * FROM chosen_photos WHERE _id IN (:ids)")
