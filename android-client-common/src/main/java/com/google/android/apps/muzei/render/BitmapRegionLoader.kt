@@ -27,6 +27,8 @@ import android.net.Uri
 import android.os.Build
 import android.support.media.ExifInterface
 import android.util.Log
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.withContext
 import java.io.IOException
 import java.io.InputStream
 
@@ -40,7 +42,10 @@ private constructor(private val inputStream: InputStream, private val rotation: 
     companion object {
         private const val TAG = "BitmapRegionLoader"
 
-        suspend fun newInstance(contentResolver: ContentResolver, uri: Uri): BitmapRegionLoader? {
+        suspend fun newInstance(
+                contentResolver: ContentResolver,
+                uri: Uri
+        ): BitmapRegionLoader? = withContext(CommonPool) {
             var rotation = 0
             try {
                 contentResolver.openInputStream(uri)?.use { input ->
@@ -62,21 +67,22 @@ private constructor(private val inputStream: InputStream, private val rotation: 
                 Log.w(TAG, "Couldn't openInputStream for $uri", e)
                 null
             }
-            return newInstance(input, rotation)
+            newInstance(input, rotation)
         }
 
-        @Suppress("RedundantSuspendModifier")
         suspend fun newInstance(input: InputStream?, rotation: Int = 0): BitmapRegionLoader? {
             if (input == null) {
                 return null
             }
 
-            return try {
-                BitmapRegionLoader(input, rotation)
-            } catch (e: Exception) {
-                Log.e(TAG, "Error creating BitmapRegionLoader", e)
-                input.close()
-                null
+            return withContext(CommonPool) {
+                try {
+                    BitmapRegionLoader(input, rotation)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error creating BitmapRegionLoader", e)
+                    input.close()
+                    null
+                }
             }
         }
     }

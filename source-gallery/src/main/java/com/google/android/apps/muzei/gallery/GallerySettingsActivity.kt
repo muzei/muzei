@@ -73,9 +73,10 @@ import androidx.core.widget.toast
 import com.google.android.apps.muzei.util.MultiSelectionController
 import com.google.android.apps.muzei.util.observe
 import com.squareup.picasso.Picasso
+import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.withContext
 import java.util.ArrayList
 import java.util.HashSet
 import java.util.LinkedList
@@ -544,11 +545,11 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             // Double check to make sure we can force a URI for the selected URI
             val selectedId = multiSelectionController.selection.iterator().next()
             launch(UI) {
-                val chosenPhoto = async {
+                val chosenPhoto = withContext(CommonPool) {
                     GalleryDatabase.getInstance(this@GallerySettingsActivity)
                             .chosenPhotoDao()
                             .chosenPhotoBlocking(selectedId)
-                }.await()
+                }
                 val showForceNow = if (chosenPhoto?.isTreeUri == true) {
                     // Only show the force now icon if it isn't a tree URI or there is at least one image in the tree
                     !getImagesFromTreeUri(chosenPhoto.uri, 1).isEmpty()
@@ -609,11 +610,11 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                 // If they've selected a tree URI, show the DISPLAY_NAME instead of just '1'
                 val selectedId = multiSelectionController.selection.iterator().next()
                 launch(UI) {
-                    val chosenPhoto = async {
+                    val chosenPhoto = withContext(CommonPool) {
                         GalleryDatabase.getInstance(this@GallerySettingsActivity)
                                 .chosenPhotoDao()
                                 .chosenPhotoBlocking(selectedId)
-                    }.await()
+                    }
                     if (chosenPhoto?.isTreeUri == true && selectionToolbar.isAttachedToWindow) {
                         getDisplayNameForTreeUri(chosenPhoto.uri)?.takeUnless { it.isEmpty() }?.run {
                             selectionToolbar.title = this

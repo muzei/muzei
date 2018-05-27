@@ -30,6 +30,8 @@ import android.os.Binder
 import android.os.Build
 import android.provider.DocumentsContract
 import android.util.Log
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -57,13 +59,12 @@ internal abstract class ChosenPhotoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     internal abstract fun insertInternal(chosenPhoto: ChosenPhoto): Long
 
-    @Suppress("RedundantSuspendModifier")
     suspend fun insert(
             context: Context,
             chosenPhoto: ChosenPhoto,
             callingApplication: String?
-    ): Long {
-        return if (persistUriAccess(context, chosenPhoto)) {
+    ): Long = withContext(CommonPool) {
+        if (persistUriAccess(context, chosenPhoto)) {
             val id = insertInternal(chosenPhoto)
             if (id != 0L && callingApplication != null) {
                 val metadata = Metadata(ChosenPhoto.getContentUri(id), Date(),

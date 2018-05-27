@@ -47,8 +47,10 @@ import com.google.android.apps.muzei.room.Source
 import com.google.android.apps.muzei.sync.TaskQueueService
 import com.google.android.apps.muzei.util.observeNonNull
 import com.google.firebase.analytics.FirebaseAnalytics
+import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.withContext
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
 import java.util.HashSet
@@ -71,13 +73,14 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                 source: KClass<out MuzeiArtSource>
         ) = selectSource(context, ComponentName(context, source.java))
 
-        @Suppress("RedundantSuspendModifier")
         suspend fun selectSource(
                 context: Context,
                 source: ComponentName
         ): Source {
             val database = MuzeiDatabase.getInstance(context)
-            val selectedSource = database.sourceDao().currentSourceBlocking
+            val selectedSource = withContext(CommonPool) {
+                database.sourceDao().currentSourceBlocking
+            }
             if (source == selectedSource?.componentName) {
                 return selectedSource
             }
@@ -86,26 +89,28 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                 Log.d(TAG, "Source $source selected.")
             }
 
-            database.beginTransaction()
-            if (selectedSource != null) {
-                // Unselect the old source
-                selectedSource.selected = false
-                database.sourceDao().update(selectedSource)
+            return withContext(CommonPool) {
+                database.beginTransaction()
+                if (selectedSource != null) {
+                    // Unselect the old source
+                    selectedSource.selected = false
+                    database.sourceDao().update(selectedSource)
+                }
+
+                // Select the new source
+                val newSource = database.sourceDao().getSourceByComponentNameBlocking(source)?.apply {
+                    selected = true
+                    database.sourceDao().update(this)
+                } ?: Source(source).apply {
+                    selected = true
+                    database.sourceDao().insert(this)
+                }
+
+                database.setTransactionSuccessful()
+                database.endTransaction()
+
+                newSource
             }
-
-            // Select the new source
-            val newSource = database.sourceDao().getSourceByComponentNameBlocking(source)?.apply {
-                selected = true
-                database.sourceDao().update(this)
-            } ?: Source(source).apply {
-                selected = true
-                database.sourceDao().insert(this)
-            }
-
-            database.setTransactionSuccessful()
-            database.endTransaction()
-
-            return newSource
         }
 
         fun sendAction(context: Context, id: Int) = launch {

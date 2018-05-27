@@ -24,6 +24,8 @@ import android.util.Log
 import androidx.core.database.getStringOrNull
 import com.google.android.apps.muzei.api.Artwork
 import com.google.android.apps.muzei.api.MuzeiArtSource
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -74,8 +76,10 @@ class SingleArtSource : MuzeiArtSource("SingleArtSource") {
             return null
         }
 
-        @Suppress("RedundantSuspendModifier")
-        private suspend fun writeUriToFile(context: Context, uri: Uri, destFile: File): File? {
+        private suspend fun writeUriToFile(
+                context: Context, uri:
+                Uri, destFile: File
+        ): File? = withContext(CommonPool) {
             try {
                 context.contentResolver.openInputStream(uri)?.use { input ->
                     FileOutputStream(destFile).use { out ->
@@ -104,21 +108,18 @@ class SingleArtSource : MuzeiArtSource("SingleArtSource") {
                                 tempOut.write(buffer, 0, bytes)
                                 bytes = input.read(buffer)
                             }
-                            return tempFile
+                            return@withContext tempFile
                         }
                     }
                 }
-                return null
             } catch (e: IOException) {
                 Log.e(TAG, "Unable to read Uri: $uri", e)
-                return null
             } catch (e: SecurityException) {
                 Log.e(TAG, "Unable to read Uri: $uri", e)
-                return null
             } catch (e: UnsupportedOperationException) {
                 Log.e(TAG, "Unable to read Uri: $uri", e)
-                return null
             }
+            null
         }
     }
 

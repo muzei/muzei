@@ -8,7 +8,6 @@ import android.support.v4.app.ShareCompat
 import android.util.Log
 import androidx.core.widget.toast
 import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 
 /**
@@ -41,10 +40,8 @@ class GalleryAddPhotosActivity : Activity() {
 
             launch(UI) {
                 val context = this@GalleryAddPhotosActivity
-                val id = async {
-                    GalleryDatabase.getInstance(context).chosenPhotoDao()
+                val id = GalleryDatabase.getInstance(context).chosenPhotoDao()
                         .insert(context, chosenPhoto, callingApplication)
-                }.await()
                 if (id == 0L) {
                     Log.e(TAG, "Unable to insert chosen artwork for $photoUri")
                     failureCount++
