@@ -31,6 +31,7 @@ import android.os.Build
 import android.provider.DocumentsContract
 import android.util.Log
 import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.withContext
 import java.io.File
 import java.io.FileOutputStream
@@ -55,6 +56,10 @@ internal abstract class ChosenPhotoDao {
 
     @get:Query("SELECT * FROM chosen_photos ORDER BY _id DESC")
     internal abstract val chosenPhotosBlocking: List<ChosenPhoto>
+
+    private suspend fun getChosenPhotos() = withContext(CommonPool) {
+        chosenPhotosBlocking
+    }
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     internal abstract fun insertInternal(chosenPhoto: ChosenPhoto): Long
@@ -182,20 +187,28 @@ internal abstract class ChosenPhotoDao {
     @Query("SELECT * FROM chosen_photos WHERE _id IN (:ids)")
     internal abstract fun chosenPhotoBlocking(ids: List<Long>): List<ChosenPhoto>
 
+    private suspend fun getChosenPhotos(ids: List<Long>) = withContext(CommonPool) {
+        chosenPhotoBlocking(ids)
+    }
+
     @Query("DELETE FROM chosen_photos WHERE _id IN (:ids)")
     internal abstract fun deleteInternal(ids: List<Long>)
 
-    fun delete(context: Context, ids: List<Long>) {
-        deleteBackingPhotos(context, chosenPhotoBlocking(ids))
-        deleteInternal(ids)
+    suspend fun delete(context: Context, ids: List<Long>) {
+        deleteBackingPhotos(context, getChosenPhotos(ids))
+        withContext(CommonPool) {
+            deleteInternal(ids)
+        }
     }
 
     @Query("DELETE FROM chosen_photos")
     internal abstract fun deleteAllInternal()
 
-    fun deleteAll(context: Context) {
-        deleteBackingPhotos(context, chosenPhotosBlocking)
-        deleteAllInternal()
+    suspend fun deleteAll(context: Context) {
+        deleteBackingPhotos(context, getChosenPhotos())
+        withContext(CommonPool) {
+            deleteAllInternal()
+        }
     }
 
     /**
@@ -203,8 +216,11 @@ internal abstract class ChosenPhotoDao {
      * chosen image files for each row being deleted. Instead we have to query
      * and manually delete each chosen image file
      */
-    private fun deleteBackingPhotos(context: Context, chosenPhotos: List<ChosenPhoto>) {
-        for (chosenPhoto in chosenPhotos) {
+    private suspend fun deleteBackingPhotos(
+            context: Context,
+            chosenPhotos: List<ChosenPhoto>
+    ) = chosenPhotos.map { chosenPhoto ->
+        async {
             val file = GalleryProvider.getCacheFileForUri(context, chosenPhoto.uri)
             if (file?.exists() == true) {
                 if (!file.delete()) {
@@ -229,5 +245,7 @@ internal abstract class ChosenPhotoDao {
                 }
             }
         }
+    }.forEach {
+        it.await()
     }
 }
