@@ -142,14 +142,6 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         findViewById<Toolbar>(R.id.selection_toolbar)
     }
 
-    private val lazyHandlerThread = lazy {
-        HandlerThread("GallerySettingsActivity").apply {
-            start()
-        }
-    }
-    private val handler by lazy {
-        Handler(lazyHandlerThread.value.looper)
-    }
     private val photoGridView: RecyclerView by lazy {
         findViewById<RecyclerView>(R.id.photo_grid).apply {
             itemAnimator = DefaultItemAnimator().apply {
@@ -327,9 +319,6 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
 
     override fun onDestroy() {
         super.onDestroy()
-        if (lazyHandlerThread.isInitialized()) {
-            lazyHandlerThread.value.quitSafely()
-        }
         unbindService(serviceConnection)
     }
 
@@ -403,9 +392,10 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                 return true
             }
             R.id.action_clear_photos -> {
-                handler.post {
-                    GalleryDatabase.getInstance(this)
-                            .chosenPhotoDao().deleteAll(this)
+                val context = this
+                launch {
+                    GalleryDatabase.getInstance(context)
+                            .chosenPhotoDao().deleteAll(context)
                 }
                 return true
             }
@@ -446,10 +436,11 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                     val removePhotos = ArrayList(
                             multiSelectionController.selection)
 
-                    handler.post {
+                    launch {
                         // Remove chosen URIs
-                        GalleryDatabase.getInstance(this).chosenPhotoDao()
-                                .delete(this, removePhotos)
+                        GalleryDatabase.getInstance(this@GallerySettingsActivity)
+                                .chosenPhotoDao()
+                                .delete(this@GallerySettingsActivity, removePhotos)
                     }
 
                     multiSelectionController.reset(true)
@@ -886,9 +877,10 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             return
         }
         // Update chosen URIs
-        handler.post {
-            GalleryDatabase.getInstance(this).chosenPhotoDao()
-                    .insertAll(this, uris)
+        launch {
+            GalleryDatabase.getInstance(this@GallerySettingsActivity)
+                    .chosenPhotoDao()
+                    .insertAll(this@GallerySettingsActivity, uris)
         }
     }
 
