@@ -78,9 +78,7 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                 source: ComponentName
         ): Source {
             val database = MuzeiDatabase.getInstance(context)
-            val selectedSource = withContext(CommonPool) {
-                database.sourceDao().currentSourceBlocking
-            }
+            val selectedSource = database.sourceDao().getCurrentSource()
             if (source == selectedSource?.componentName) {
                 return selectedSource
             }
@@ -98,7 +96,7 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                 }
 
                 // Select the new source
-                val newSource = database.sourceDao().getSourceByComponentNameBlocking(source)?.apply {
+                val newSource = database.sourceDao().getSourceByComponentName(source)?.apply {
                     selected = true
                     database.sourceDao().update(this)
                 } ?: Source(source).apply {
@@ -115,7 +113,7 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
 
         fun sendAction(context: Context, id: Int) = launch {
             val source = MuzeiDatabase.getInstance(context)
-                    .sourceDao().currentSourceBlocking
+                    .sourceDao().getCurrentSource()
             if (source != null) {
                 val selectedSource = source.componentName
                 try {
@@ -160,7 +158,7 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
             val pendingResult = goAsync()
             launch {
                 val source = MuzeiDatabase.getInstance(context)
-                        .sourceDao().currentSourceBlocking
+                        .sourceDao().getCurrentSource()
                 if (source != null && packageName == source.componentName.packageName) {
                     try {
                         this@SourceManager.context.packageManager.getServiceInfo(source.componentName, 0)

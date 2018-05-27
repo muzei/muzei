@@ -154,7 +154,7 @@ class MuzeiProvider : ContentProvider() {
                 override fun run() = runBlocking {
                     val database = MuzeiDatabase.getInstance(context)
                     val currentArtwork = database.artworkDao().getCurrentArtwork() ?: return@runBlocking
-                    val sources = database.sourceDao().sourcesBlocking
+                    val sources = database.sourceDao().getSources()
 
                     // Loop through each source, cleaning up old artwork
                     for (source in sources) {

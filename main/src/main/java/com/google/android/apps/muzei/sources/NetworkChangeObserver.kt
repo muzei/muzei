@@ -61,7 +61,7 @@ class NetworkChangeObserver internal constructor(private val context: Context) :
             val pendingResult = goAsync()
             launch {
                 val sources = MuzeiDatabase.getInstance(context).sourceDao()
-                        .currentSourcesThatWantNetworkBlocking
+                        .getCurrentSourcesThatWantNetwork()
                 for (source in sources) {
                     val sourceName = source.componentName
                     try {

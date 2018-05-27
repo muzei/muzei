@@ -109,7 +109,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
             val contentResolver = context.contentResolver
             val source = MuzeiDatabase.getInstance(context)
                     .sourceDao()
-                    .currentSourceBlocking
+                    .getCurrentSource()
             val artwork = MuzeiDatabase.getInstance(context)
                     .artworkDao()
                     .getCurrentArtwork()
@@ -340,7 +340,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
         val pendingResult = goAsync()
         launch {
             val selectedSource = MuzeiDatabase.getInstance(context).sourceDao()
-                    .currentSourceBlocking
+                    .getCurrentSource()
             if (selectedSource != null) {
                 for (action in selectedSource.commands) {
                     if (selectedCommand == action.title) {

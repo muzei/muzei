@@ -26,50 +26,69 @@ import android.arch.persistence.room.Update
 import android.content.ComponentName
 
 import com.google.android.apps.muzei.room.converter.ComponentNameTypeConverter
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.withContext
 
 /**
  * Dao for Sources
  */
 @Dao
-interface SourceDao {
+abstract class SourceDao {
 
     @get:Query("SELECT * FROM sources")
-    val sources: LiveData<List<Source>>
+    abstract val sources: LiveData<List<Source>>
 
     @get:Query("SELECT * FROM sources")
-    val sourcesBlocking: List<Source>
+    internal abstract val sourcesBlocking: List<Source>
+
+    suspend fun getSources() = withContext(CommonPool) {
+        sourcesBlocking
+    }
 
     @get:TypeConverters(ComponentNameTypeConverter::class)
     @get:Query("SELECT component_name FROM sources")
-    val sourceComponentNamesBlocking: List<ComponentName>
+    abstract val sourceComponentNamesBlocking: List<ComponentName>
 
     @get:Query("SELECT * FROM sources WHERE selected=1 ORDER BY component_name")
-    val currentSource: LiveData<Source?>
+    abstract val currentSource: LiveData<Source?>
 
     @get:Query("SELECT * FROM sources WHERE selected=1 ORDER BY component_name")
-    val currentSourceBlocking: Source?
+    internal abstract val currentSourceBlocking: Source?
+
+    suspend fun getCurrentSource() = withContext(CommonPool) {
+        currentSourceBlocking
+    }
 
     @get:Query("SELECT * FROM sources WHERE selected=1 AND wantsNetworkAvailable=1")
-    val currentSourcesThatWantNetworkBlocking: List<Source>
+    internal abstract val currentSourcesThatWantNetworkBlocking: List<Source>
+
+    suspend fun getCurrentSourcesThatWantNetwork() = withContext(CommonPool) {
+        currentSourcesThatWantNetworkBlocking
+    }
 
     @Insert
-    fun insert(source: Source)
+    abstract fun insert(source: Source)
 
     @TypeConverters(ComponentNameTypeConverter::class)
     @Query("SELECT component_name FROM sources WHERE component_name LIKE :packageName || '%'")
-    fun getSourcesComponentNamesByPackageNameBlocking(packageName: String): List<ComponentName>
+    abstract fun getSourcesComponentNamesByPackageNameBlocking(packageName: String): List<ComponentName>
 
     @TypeConverters(ComponentNameTypeConverter::class)
     @Query("SELECT * FROM sources WHERE component_name = :componentName")
-    fun getSourceByComponentNameBlocking(componentName: ComponentName): Source?
+    abstract fun getSourceByComponentNameBlocking(componentName: ComponentName): Source?
 
+    suspend fun getSourceByComponentName(
+            componentName: ComponentName
+    ) = withContext(CommonPool) {
+        getSourceByComponentNameBlocking(componentName)
+    }
     @Update
-    fun update(source: Source)
+    abstract fun update(source: Source)
 
     @Delete
-    fun delete(source: Source)
+    abstract fun delete(source: Source)
 
     @TypeConverters(ComponentNameTypeConverter::class)
     @Query("DELETE FROM sources WHERE component_name IN (:componentNames)")
-    fun deleteAll(componentNames: Array<ComponentName>)
+    abstract fun deleteAll(componentNames: Array<ComponentName>)
 }

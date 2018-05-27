@@ -28,6 +28,7 @@ import com.google.android.apps.muzei.api.internal.SourceState
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.sync.TaskQueueService
+import kotlinx.coroutines.experimental.runBlocking
 import java.util.ArrayList
 
 class SourceSubscriberService : IntentService("SourceSubscriberService") {
@@ -36,22 +37,23 @@ class SourceSubscriberService : IntentService("SourceSubscriberService") {
         private const val TAG = "SourceSubscriberService"
     }
 
-    override fun onHandleIntent(intent: Intent?) {
+    override fun onHandleIntent(intent: Intent?) = runBlocking {
         if (ACTION_PUBLISH_STATE != intent?.action) {
-            return
+            return@runBlocking
         }
         // Handle API call from source
         val token = intent.getStringExtra(EXTRA_TOKEN)
-        val source = MuzeiDatabase.getInstance(this).sourceDao().currentSourceBlocking
+        val database = MuzeiDatabase.getInstance(this@SourceSubscriberService)
+        val source = database.sourceDao().getCurrentSource()
         if (source == null || token != source.componentName.flattenToShortString()) {
             Log.w(TAG, "Dropping update from non-selected source, token=$token " +
                     "does not match token for ${source?.componentName}")
-            return
+            return@runBlocking
         }
 
         val state: SourceState = intent.getBundleExtra(EXTRA_STATE)?.run {
             SourceState.fromBundle(this)
-        } ?: return // If there is no state, there is nothing to change
+        } ?: return@runBlocking // If there is no state, there is nothing to change
 
         source.apply {
             description = state.description
@@ -70,7 +72,6 @@ class SourceSubscriberService : IntentService("SourceSubscriberService") {
 
         val currentArtwork = state.currentArtwork
         if (currentArtwork != null) {
-            val database = MuzeiDatabase.getInstance(this)
             database.beginTransaction()
             database.sourceDao().update(source)
             val artwork = Artwork().apply {
@@ -89,7 +90,8 @@ class SourceSubscriberService : IntentService("SourceSubscriberService") {
             if (artwork.viewIntent != null) {
                 try {
                     // Make sure we can construct a PendingIntent for the Intent
-                    PendingIntent.getActivity(this, 0, artwork.viewIntent,
+                    PendingIntent.getActivity(this@SourceSubscriberService,
+                            0, artwork.viewIntent,
                             PendingIntent.FLAG_UPDATE_CURRENT)
                 } catch (e: RuntimeException) {
                     // This is actually meant to catch a FileUriExposedException, but you can't
@@ -103,10 +105,12 @@ class SourceSubscriberService : IntentService("SourceSubscriberService") {
 
             database.setTransactionSuccessful()
             database.endTransaction()
-            database.artworkDao().insertCompleted(this, artworkId)
+            database.artworkDao()
+                    .insertCompleted(this@SourceSubscriberService, artworkId)
 
             // Download the artwork contained from the newly published SourceState
-            startService(TaskQueueService.getDownloadCurrentArtworkIntent(this))
+            startService(TaskQueueService.getDownloadCurrentArtworkIntent(
+                    this@SourceSubscriberService))
         }
     }
 }
