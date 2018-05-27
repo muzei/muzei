@@ -44,6 +44,7 @@ import androidx.core.database.getString
 import androidx.core.net.toUri
 import com.google.android.apps.muzei.api.Artwork
 import com.google.android.apps.muzei.api.MuzeiArtSource
+import kotlinx.coroutines.experimental.launch
 import java.io.IOException
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -316,12 +317,10 @@ class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
         }
         if (!idsToDelete.isEmpty()) {
             val applicationContext = applicationContext
-            object : Thread() {
-                override fun run() {
-                    GalleryDatabase.getInstance(applicationContext).chosenPhotoDao()
-                            .delete(applicationContext, idsToDelete)
-                }
-            }.start()
+            launch {
+                GalleryDatabase.getInstance(applicationContext).chosenPhotoDao()
+                        .delete(applicationContext, idsToDelete)
+            }
         }
         setDescription(if (numImages > 0)
             resources.getQuantityString(
