@@ -25,6 +25,7 @@ import android.net.Uri
 import android.os.ParcelFileDescriptor
 import android.text.TextUtils
 import android.util.Log
+import kotlinx.coroutines.experimental.launch
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.UnsupportedEncodingException
@@ -119,20 +120,31 @@ class GalleryProvider : ContentProvider() {
                 return context.contentResolver.openFileDescriptor(chosenPhoto.uri, mode)
             } catch (e: SecurityException) {
                 Log.d(TAG, "Unable to load $uri, deleting the row", e)
-                GalleryDatabase.getInstance(context).chosenPhotoDao().delete(
-                        context, listOf(chosenPhoto.id))
+                launch {
+                    GalleryDatabase.getInstance(context).chosenPhotoDao()
+                            .delete(context, listOf(chosenPhoto.id))
+                }
                 throw FileNotFoundException("No permission to load $uri")
             } catch (e: IllegalArgumentException) {
                 Log.d(TAG, "Unable to load $uri, deleting the row", e)
-                GalleryDatabase.getInstance(context).chosenPhotoDao().delete(context, listOf(chosenPhoto.id))
+                launch {
+                    GalleryDatabase.getInstance(context).chosenPhotoDao()
+                            .delete(context, listOf(chosenPhoto.id))
+                }
                 throw FileNotFoundException("No permission to load $uri")
             } catch (e: UnsupportedOperationException) {
                 Log.d(TAG, "Unable to load $uri, deleting the row", e)
-                GalleryDatabase.getInstance(context).chosenPhotoDao().delete(context, listOf(chosenPhoto.id))
+                launch {
+                    GalleryDatabase.getInstance(context).chosenPhotoDao()
+                            .delete(context, listOf(chosenPhoto.id))
+                }
                 throw FileNotFoundException("No permission to load $uri")
             } catch (e: NullPointerException) {
                 Log.d(TAG, "Unable to load $uri, deleting the row", e)
-                GalleryDatabase.getInstance(context).chosenPhotoDao().delete(context, listOf(chosenPhoto.id))
+                launch {
+                    GalleryDatabase.getInstance(context).chosenPhotoDao()
+                            .delete(context, listOf(chosenPhoto.id))
+                }
                 throw FileNotFoundException("No permission to load $uri")
             }
         }
