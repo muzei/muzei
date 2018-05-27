@@ -6,8 +6,6 @@ import android.net.Uri
 import android.util.Log
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.withContext
 import net.nurik.roman.muzei.BuildConfig
 import okhttp3.Request
 import java.io.File
@@ -29,9 +27,7 @@ internal suspend fun downloadArtwork(context: Context)
 }
 
 private suspend fun doDownload(context: Context): Boolean {
-    val artwork = withContext(CommonPool) {
-        MuzeiDatabase.getInstance(context).artworkDao().currentArtworkBlocking
-    }
+    val artwork = MuzeiDatabase.getInstance(context).artworkDao().getCurrentArtwork()
     val resolver = context.contentResolver
     if (artwork == null) {
         Log.w(TAG, "Could not read current artwork")

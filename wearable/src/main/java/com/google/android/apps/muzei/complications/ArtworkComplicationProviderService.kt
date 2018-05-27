@@ -107,7 +107,7 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
         launch {
             val artwork = MuzeiDatabase.getInstance(this@ArtworkComplicationProviderService)
                     .artworkDao()
-                    .currentArtworkBlocking
+                    .getCurrentArtwork()
             if (artwork == null) {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "Update no artwork for $complicationId")

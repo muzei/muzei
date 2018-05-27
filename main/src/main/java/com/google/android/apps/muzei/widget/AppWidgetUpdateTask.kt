@@ -52,7 +52,7 @@ fun showWidgetPreview(context: Context) = launch {
         return@launch
     }
     val source = MuzeiDatabase.getInstance(context).sourceDao().currentSourceBlocking
-    val artwork = MuzeiDatabase.getInstance(context).artworkDao().currentArtworkBlocking
+    val artwork = MuzeiDatabase.getInstance(context).artworkDao().getCurrentArtwork()
     if (source == null || artwork == null) {
         Log.w(TAG, "No current artwork found")
         return@launch
@@ -81,7 +81,7 @@ suspend fun updateAppWidget(context: Context) {
         return
     }
     val source = MuzeiDatabase.getInstance(context).sourceDao().currentSourceBlocking
-    val artwork = MuzeiDatabase.getInstance(context).artworkDao().currentArtworkBlocking
+    val artwork = MuzeiDatabase.getInstance(context).artworkDao().getCurrentArtwork()
     if (source == null || artwork == null) {
         Log.w(TAG, "No current artwork found")
         return

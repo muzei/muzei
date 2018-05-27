@@ -34,6 +34,9 @@ import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.provider.MuzeiProvider
 import com.google.android.apps.muzei.room.converter.ComponentNameTypeConverter
 import com.google.android.apps.muzei.room.converter.UriTypeConverter
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.withContext
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 
 /**
@@ -47,18 +50,26 @@ abstract class ArtworkDao {
     }
 
     @get:Query("SELECT * FROM artwork ORDER BY date_added DESC LIMIT 100")
-    abstract val artworkBlocking: List<Artwork>
+    internal abstract val artworkBlocking: List<Artwork>
+
+    suspend fun getArtwork() = withContext(CommonPool) {
+        artworkBlocking
+    }
 
     @get:Query("SELECT * FROM artwork ORDER BY date_added DESC")
     abstract val currentArtwork: LiveData<Artwork?>
 
     @get:Query("SELECT * FROM artwork ORDER BY date_added DESC")
-    abstract val currentArtworkBlocking: Artwork?
+    internal abstract val currentArtworkBlocking: Artwork?
+
+    suspend fun getCurrentArtwork() = withContext(CommonPool) {
+        currentArtworkBlocking
+    }
 
     @Insert
     abstract fun insert(artwork: Artwork): Long
 
-    fun insertCompleted(context: Context, id: Long) {
+    fun insertCompleted(context: Context, id: Long) = launch {
         val artworkFile = MuzeiProvider.getCacheFileForArtworkUri(context, id)
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Created artwork $id with cache file $artworkFile")
@@ -79,29 +90,59 @@ abstract class ArtworkDao {
 
     @TypeConverters(ComponentNameTypeConverter::class)
     @Query("SELECT COUNT(distinct imageUri) FROM artwork " + "WHERE sourceComponentName = :sourceComponentName")
-    abstract fun getArtworkCountForSourceBlocking(sourceComponentName: ComponentName): Int
+    internal abstract fun getArtworkCountForSourceBlocking(sourceComponentName: ComponentName): Int
+
+    suspend fun getArtworkCountForSource(
+            sourceComponentName: ComponentName
+    ) = withContext(CommonPool) {
+        getArtworkCountForSourceBlocking(sourceComponentName)
+    }
 
     @TypeConverters(ComponentNameTypeConverter::class)
     @Query("SELECT * FROM artwork WHERE sourceComponentName = :sourceComponentName ORDER BY date_added DESC")
-    abstract fun getArtworkForSourceBlocking(sourceComponentName: ComponentName): List<Artwork>
+    internal abstract fun getArtworkForSourceBlocking(
+            sourceComponentName: ComponentName
+    ): List<Artwork>
+
+    suspend fun getArtworkForSource(
+            sourceComponentName: ComponentName
+    ) = withContext(CommonPool) {
+        getArtworkForSourceBlocking(sourceComponentName)
+    }
 
     @Query("SELECT * FROM artwork WHERE _id=:id")
-    abstract fun getArtworkById(id: Long): Artwork?
+    internal abstract fun getArtworkByIdBlocking(id: Long): Artwork?
+
+    suspend fun getArtworkById(id: Long) = withContext(CommonPool) {
+        getArtworkByIdBlocking(id)
+    }
 
     @Query("SELECT * FROM artwork WHERE title LIKE :query OR byline LIKE :query OR attribution LIKE :query")
-    abstract fun searchArtworkBlocking(query: String): List<Artwork>
+    internal abstract fun searchArtworkBlocking(query: String): List<Artwork>
+
+    suspend fun searchArtwork(query: String) = withContext(CommonPool) {
+        searchArtworkBlocking(query)
+    }
 
     @Query("SELECT * FROM artwork WHERE token=:token ORDER BY date_added DESC")
-    abstract fun getArtworkByToken(token: String): List<Artwork>?
+    internal abstract fun getArtworkByTokenBlocking(token: String): List<Artwork>?
+
+    private suspend fun getArtworkByToken(token: String) = withContext(CommonPool) {
+        getArtworkByTokenBlocking(token)
+    }
 
     @TypeConverters(UriTypeConverter::class)
     @Query("SELECT * FROM artwork WHERE imageUri=:imageUri ORDER BY date_added DESC")
-    abstract fun getArtworkByImageUri(imageUri: Uri): List<Artwork>?
+    internal abstract fun getArtworkByImageUriBlocking(imageUri: Uri): List<Artwork>?
+
+    private suspend fun getArtworkByImageUri(imageUri: Uri) = withContext(CommonPool) {
+        getArtworkByImageUriBlocking(imageUri)
+    }
 
     @Delete
     internal abstract fun deleteInternal(artwork: Artwork)
 
-    fun delete(context: Context, artwork: Artwork) {
+    suspend fun delete(context: Context, artwork: Artwork) {
         // Check to see if we can delete the artwork file associated with this row
         var canDelete = false
         if (artwork.token.isNullOrEmpty() && artwork.imageUri == null) {
@@ -134,11 +175,27 @@ abstract class ArtworkDao {
     @Query("SELECT * FROM artwork WHERE sourceComponentName=:sourceComponentName")
     internal abstract fun getArtworkCursorForSourceBlocking(sourceComponentName: ComponentName): Cursor?
 
+    private suspend fun getArtworkCursorForSource(
+            sourceComponentName: ComponentName
+    ) = withContext(CommonPool) {
+        getArtworkCursorForSourceBlocking(sourceComponentName)
+    }
+
     @TypeConverters(ComponentNameTypeConverter::class)
     @Query("DELETE FROM artwork WHERE sourceComponentName = :sourceComponentName " + "AND _id NOT IN (:ids)")
-    internal abstract fun deleteNonMatchingInternal(sourceComponentName: ComponentName, ids: List<Long>)
+    internal abstract fun deleteNonMatchingBlocking(
+            sourceComponentName: ComponentName,
+            ids:List<Long>
+    )
 
-    fun deleteNonMatching(
+    private suspend fun deleteNonMatchingInternal(
+            sourceComponentName: ComponentName,
+            ids: List<Long>
+    ) = withContext(CommonPool) {
+        deleteNonMatchingBlocking(sourceComponentName, ids)
+    }
+
+    suspend fun deleteNonMatching(
             context: Context,
             sourceComponentName: ComponentName,
             ids: List<Long>
@@ -148,23 +205,43 @@ abstract class ArtworkDao {
     }
 
     @Query("SELECT * FROM artwork WHERE token=:token AND _id IN (:ids)")
-    internal abstract fun findMatchingByToken(token: String, ids: List<Long>): List<Artwork>?
+    internal abstract fun findMatchingByTokenBlocking(
+            token: String,
+            ids: List<Long>
+    ): List<Artwork>?
+
+    private suspend fun findMatchingByToken(
+            token: String,
+            ids: List<Long>
+    ) = withContext(CommonPool) {
+        findMatchingByTokenBlocking(token, ids)
+    }
 
     @TypeConverters(UriTypeConverter::class)
     @Query("SELECT * FROM artwork WHERE imageUri=:imageUri AND _id IN (:ids)")
-    internal abstract fun findMatchingByImageUri(imageUri: Uri, ids: List<Long>): List<Artwork>?
+    internal abstract fun findMatchingByImageUriBlocking(
+            imageUri: Uri,
+            ids: List<Long>
+    ): List<Artwork>?
+
+    private suspend fun findMatchingByImageUri(
+            imageUri: Uri,
+            ids: List<Long>
+    ) = withContext(CommonPool) {
+        findMatchingByImageUriBlocking(imageUri, ids)
+    }
 
     /**
      * We can't just simply delete the rows as that won't free up the space occupied by the
      * artwork image files associated with each row being deleted. Instead we have to query
      * and manually delete each artwork file
      */
-    private fun deleteImages(
+    private suspend fun deleteImages(
             context: Context,
             sourceComponentName: ComponentName,
             ids: List<Long>
     ) {
-        getArtworkCursorForSourceBlocking(sourceComponentName)?.use { artworkList ->
+        getArtworkCursorForSource(sourceComponentName)?.use { artworkList ->
             // Now we actually go through the list of rows to be deleted
             // and check if we can delete the artwork image file associated with each one
             while (artworkList.moveToNext()) {

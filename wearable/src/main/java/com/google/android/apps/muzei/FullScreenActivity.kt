@@ -40,6 +40,7 @@ import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.PanView
 import com.google.firebase.analytics.FirebaseAnalytics
+import kotlinx.coroutines.experimental.runBlocking
 
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
@@ -160,15 +161,15 @@ class FullScreenActivity : FragmentActivity(), LoaderManager.LoaderCallbacks<Pai
             forceLoad()
         }
 
-        override fun loadInBackground(): Pair<Artwork?, Bitmap?> {
+        override fun loadInBackground(): Pair<Artwork?, Bitmap?> = runBlocking {
             try {
-                artwork = MuzeiDatabase.getInstance(context)
-                        .artworkDao().currentArtworkBlocking
-                image = MuzeiContract.Artwork.getCurrentArtworkBitmap(context)
+                artwork = MuzeiDatabase.getInstance(this@ArtworkLoader.context)
+                        .artworkDao().getCurrentArtwork()
+                image = MuzeiContract.Artwork.getCurrentArtworkBitmap(this@ArtworkLoader.context)
             } catch (e: FileNotFoundException) {
                 Log.e(TAG, "Error getting artwork", e)
             }
-            return Pair(artwork, image)
+            Pair(artwork, image)
         }
 
         override fun onReset() {

@@ -102,7 +102,7 @@ class WearableController(private val context: Context) : DefaultLifecycleObserve
             regionLoader.decode(320)
         } ?: return
 
-        val artwork = MuzeiDatabase.getInstance(context).artworkDao().currentArtworkBlocking
+        val artwork = MuzeiDatabase.getInstance(context).artworkDao().getCurrentArtwork()
         if (image != null && artwork != null) {
             val byteStream = ByteArrayOutputStream()
             image.compress(Bitmap.CompressFormat.PNG, 100, byteStream)

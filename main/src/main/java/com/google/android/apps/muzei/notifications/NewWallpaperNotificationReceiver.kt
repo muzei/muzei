@@ -61,7 +61,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
 
         fun markNotificationRead(context: Context) = launch {
             val lastArtwork = MuzeiDatabase.getInstance(context).artworkDao()
-                    .currentArtworkBlocking
+                    .getCurrentArtwork()
             if (lastArtwork != null) {
                 val sp = PreferenceManager.getDefaultSharedPreferences(context)
                 sp.edit {
@@ -112,7 +112,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                     .currentSourceBlocking
             val artwork = MuzeiDatabase.getInstance(context)
                     .artworkDao()
-                    .currentArtworkBlocking
+                    .getCurrentArtwork()
             if (source == null || artwork == null) {
                 return
             }

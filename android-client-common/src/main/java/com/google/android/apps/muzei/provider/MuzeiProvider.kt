@@ -37,6 +37,7 @@ import android.util.Log
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import kotlinx.coroutines.experimental.runBlocking
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.File
 import java.io.FileNotFoundException
@@ -89,12 +90,19 @@ class MuzeiProvider : ContentProvider() {
                     MuzeiProvider.SOURCE_ID)
         }
 
-        fun getCacheFileForArtworkUri(context: Context, artworkId: Long) : File? {
+        private fun getCacheFileForArtworkUriBlocking(context: Context, artworkId: Long) : File? {
             val artwork = ensureBackground {
                 MuzeiDatabase.getInstance(context)
                         .artworkDao()
-                        .getArtworkById(artworkId)
+                        .getArtworkByIdBlocking(artworkId)
             } ?: return null
+            return getCacheFileForArtworkUri(context, artwork)
+        }
+
+        suspend fun getCacheFileForArtworkUri(context: Context, artworkId: Long) : File? {
+            val artwork = MuzeiDatabase.getInstance(context)
+                    .artworkDao()
+                    .getArtworkById(artworkId) ?: return null
             return getCacheFileForArtworkUri(context, artwork)
         }
 
@@ -143,15 +151,15 @@ class MuzeiProvider : ContentProvider() {
          */
         fun cleanupCachedFiles(context: Context) {
             object : Thread() {
-                override fun run() {
+                override fun run() = runBlocking {
                     val database = MuzeiDatabase.getInstance(context)
-                    val currentArtwork = database.artworkDao().currentArtworkBlocking ?: return
+                    val currentArtwork = database.artworkDao().getCurrentArtwork() ?: return@runBlocking
                     val sources = database.sourceDao().sourcesBlocking
 
                     // Loop through each source, cleaning up old artwork
                     for (source in sources) {
                         val componentName = source.componentName
-                        val artworkCount = database.artworkDao().getArtworkCountForSourceBlocking(source.componentName)
+                        val artworkCount = database.artworkDao().getArtworkCountForSource(source.componentName)
                         if (artworkCount > MAX_CACHE_SIZE * 5) {
                             // Woah, that's way, way more than the allowed size
                             // Delete them all (except the current artwork)
@@ -162,7 +170,7 @@ class MuzeiProvider : ContentProvider() {
                         }
                         // Now use that ComponentName to look through the past artwork from that source
                         val artworkList = database.artworkDao()
-                                .getArtworkForSourceBlocking(source.componentName)
+                                .getArtworkForSource(source.componentName)
                         if (artworkList.isEmpty()) {
                             continue
                         }
@@ -411,7 +419,7 @@ class MuzeiProvider : ContentProvider() {
                 artworkList.asSequence().map { artwork -> getCacheFileForArtworkUri(context, artwork) }
                         .find { it?.exists() == true }
             }
-            else -> getCacheFileForArtworkUri(context, ContentUris.parseId(uri))
+            else -> getCacheFileForArtworkUriBlocking(context, ContentUris.parseId(uri))
         } ?: throw FileNotFoundException("Could not create artwork file for $uri for mode $mode")
 
         if (file.exists() && file.length() > 0 && isWriteOperation) {
