@@ -37,7 +37,8 @@ import android.util.Log
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.File
 import java.io.FileNotFoundException
@@ -146,74 +147,74 @@ class MuzeiProvider : ContentProvider() {
         }
 
         /**
-         * Limit the number of cached files per art source to [.MAX_CACHE_SIZE].
+         * Limit the number of cached files per art source to [MAX_CACHE_SIZE].
          * @see [MAX_CACHE_SIZE]
          */
-        fun cleanupCachedFiles(context: Context) {
-            object : Thread() {
-                override fun run() = runBlocking {
-                    val database = MuzeiDatabase.getInstance(context)
-                    val currentArtwork = database.artworkDao().getCurrentArtwork() ?: return@runBlocking
-                    val sources = database.sourceDao().getSources()
+        suspend fun cleanupCachedFiles(context: Context) {
+            val database = MuzeiDatabase.getInstance(context)
+            val currentArtwork = database.artworkDao().getCurrentArtwork() ?: return
+            val sources = database.sourceDao().getSources()
 
-                    // Loop through each source, cleaning up old artwork
-                    for (source in sources) {
-                        val componentName = source.componentName
-                        val artworkCount = database.artworkDao().getArtworkCountForSource(source.componentName)
-                        if (artworkCount > MAX_CACHE_SIZE * 5) {
-                            // Woah, that's way, way more than the allowed size
-                            // Delete them all (except the current artwork)
-                            // to get us back into a sane state
-                            database.artworkDao().deleteNonMatching(context, componentName,
-                                    listOf(currentArtwork.id))
+            // Go through each source, cleaning up old artwork
+            sources.map { source ->
+                async {
+                    val componentName = source.componentName
+                    val artworkCount = database.artworkDao().getArtworkCountForSource(source.componentName)
+                    if (artworkCount > MAX_CACHE_SIZE * 5) {
+                        // Woah, that's way, way more than the allowed size
+                        // Delete them all (except the current artwork)
+                        // to get us back into a sane state
+                        database.artworkDao().deleteNonMatching(context, componentName,
+                                listOf(currentArtwork.id))
+                        return@async
+                    }
+                    // Now use that ComponentName to look through the past artwork from that source
+                    val artworkList = database.artworkDao()
+                            .getArtworkForSource(source.componentName)
+                    if (artworkList.isEmpty()) {
+                        return@async
+                    }
+                    val artworkIdsToKeep = ArrayList<Long>()
+                    val artworkToKeep = ArrayList<String>()
+                    // Go through the artwork from this source and find the most recent artwork
+                    // and mark them as artwork to keep
+                    var count = 0
+                    val mostRecentArtworkIds = ArrayList<Long>()
+                    val mostRecentArtwork = ArrayList<String>()
+                    for (artwork in artworkList) {
+                        val unique = artwork.imageUri?.toString() ?: artwork.token ?: ""
+                        if (mostRecentArtworkIds.size < MAX_CACHE_SIZE && !mostRecentArtwork.contains(unique)) {
+                            mostRecentArtwork.add(unique)
+                            mostRecentArtworkIds.add(artwork.id)
+                        }
+                        if (artworkToKeep.contains(unique)) {
+                            // This ensures we aren't double counting the same artwork in our count
                             continue
                         }
-                        // Now use that ComponentName to look through the past artwork from that source
-                        val artworkList = database.artworkDao()
-                                .getArtworkForSource(source.componentName)
-                        if (artworkList.isEmpty()) {
-                            continue
-                        }
-                        val artworkIdsToKeep = ArrayList<Long>()
-                        val artworkToKeep = ArrayList<String>()
-                        // Go through the artwork from this source and find the most recent artwork
-                        // and mark them as artwork to keep
-                        var count = 0
-                        val mostRecentArtworkIds = ArrayList<Long>()
-                        val mostRecentArtwork = ArrayList<String>()
-                        for (artwork in artworkList) {
-                            val unique = artwork.imageUri?.toString() ?: artwork.token ?: ""
-                            if (mostRecentArtworkIds.size < MAX_CACHE_SIZE && !mostRecentArtwork.contains(unique)) {
-                                mostRecentArtwork.add(unique)
-                                mostRecentArtworkIds.add(artwork.id)
-                            }
-                            if (artworkToKeep.contains(unique)) {
-                                // This ensures we aren't double counting the same artwork in our count
-                                continue
-                            }
-                            if (count++ < MAX_CACHE_SIZE) {
-                                // Keep artwork below the MAX_CACHE_SIZE
-                                artworkIdsToKeep.add(artwork.id)
-                                artworkToKeep.add(unique)
-                            }
-                        }
-                        // Now delete all artwork not in the keep list
-                        try {
-                            database.artworkDao().deleteNonMatching(context,
-                                    componentName, artworkIdsToKeep)
-                        } catch (e: IllegalStateException) {
-                            Log.e(TAG, "Unable to read all artwork for $componentName, " +
-                                    "deleting everything but the latest artwork to get back to a good state", e)
-                            database.artworkDao().deleteNonMatching(context,
-                                    componentName, mostRecentArtworkIds)
-                        } catch (e: SQLiteException) {
-                            Log.e(TAG, "Unable to read all artwork for $componentName, " +
-                                    "deleting everything but the latest artwork to get back to a good state", e)
-                            database.artworkDao().deleteNonMatching(context, componentName, mostRecentArtworkIds)
+                        if (count++ < MAX_CACHE_SIZE) {
+                            // Keep artwork below the MAX_CACHE_SIZE
+                            artworkIdsToKeep.add(artwork.id)
+                            artworkToKeep.add(unique)
                         }
                     }
+                    // Now delete all artwork not in the keep list
+                    try {
+                        database.artworkDao().deleteNonMatching(context,
+                                componentName, artworkIdsToKeep)
+                    } catch (e: IllegalStateException) {
+                        Log.e(TAG, "Unable to read all artwork for $componentName, " +
+                                "deleting everything but the latest artwork to get back to a good state", e)
+                        database.artworkDao().deleteNonMatching(context,
+                                componentName, mostRecentArtworkIds)
+                    } catch (e: SQLiteException) {
+                        Log.e(TAG, "Unable to read all artwork for $componentName, " +
+                                "deleting everything but the latest artwork to get back to a good state", e)
+                        database.artworkDao().deleteNonMatching(context, componentName, mostRecentArtworkIds)
+                    }
                 }
-            }.start()
+            }.forEach {
+                it.await()
+            }
         }
     }
 
@@ -452,7 +453,9 @@ class MuzeiProvider : ContentProvider() {
                                 .notifyChange(MuzeiContract.Artwork.CONTENT_URI, null)
                         context.sendBroadcast(
                                 Intent(MuzeiContract.Artwork.ACTION_ARTWORK_CHANGED))
-                        cleanupCachedFiles(context)
+                        launch {
+                            cleanupCachedFiles(context)
+                        }
                     }
                 }
             }

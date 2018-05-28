@@ -161,15 +161,19 @@ class FullScreenActivity : FragmentActivity(), LoaderManager.LoaderCallbacks<Pai
             forceLoad()
         }
 
-        override fun loadInBackground(): Pair<Artwork?, Bitmap?> = runBlocking {
+        override fun loadInBackground() = runBlocking {
+            loadArtworkAndImage()
+        }
+
+        private suspend fun loadArtworkAndImage(): Pair<Artwork?, Bitmap?> {
             try {
-                artwork = MuzeiDatabase.getInstance(this@ArtworkLoader.context)
+                artwork = MuzeiDatabase.getInstance(context)
                         .artworkDao().getCurrentArtwork()
-                image = MuzeiContract.Artwork.getCurrentArtworkBitmap(this@ArtworkLoader.context)
+                image = MuzeiContract.Artwork.getCurrentArtworkBitmap(context)
             } catch (e: FileNotFoundException) {
                 Log.e(TAG, "Error getting artwork", e)
             }
-            Pair(artwork, image)
+            return Pair(artwork, image)
         }
 
         override fun onReset() {

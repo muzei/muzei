@@ -37,23 +37,29 @@ class SourceSubscriberService : IntentService("SourceSubscriberService") {
         private const val TAG = "SourceSubscriberService"
     }
 
-    override fun onHandleIntent(intent: Intent?) = runBlocking {
+    override fun onHandleIntent(intent: Intent?) {
         if (ACTION_PUBLISH_STATE != intent?.action) {
-            return@runBlocking
+            return
         }
         // Handle API call from source
         val token = intent.getStringExtra(EXTRA_TOKEN)
-        val database = MuzeiDatabase.getInstance(this@SourceSubscriberService)
+        val state = intent.getBundleExtra(EXTRA_STATE)?.run {
+            SourceState.fromBundle(this)
+        } ?: return // If there's no state, there's nothing to change
+
+        runBlocking {
+            update(token, state)
+        }
+    }
+
+    private suspend fun update(token: String, state: SourceState)  {
+        val database = MuzeiDatabase.getInstance(this)
         val source = database.sourceDao().getCurrentSource()
         if (source == null || token != source.componentName.flattenToShortString()) {
             Log.w(TAG, "Dropping update from non-selected source, token=$token " +
                     "does not match token for ${source?.componentName}")
-            return@runBlocking
+            return
         }
-
-        val state: SourceState = intent.getBundleExtra(EXTRA_STATE)?.run {
-            SourceState.fromBundle(this)
-        } ?: return@runBlocking // If there is no state, there is nothing to change
 
         source.apply {
             description = state.description
@@ -90,8 +96,7 @@ class SourceSubscriberService : IntentService("SourceSubscriberService") {
             if (artwork.viewIntent != null) {
                 try {
                     // Make sure we can construct a PendingIntent for the Intent
-                    PendingIntent.getActivity(this@SourceSubscriberService,
-                            0, artwork.viewIntent,
+                    PendingIntent.getActivity(this,0, artwork.viewIntent,
                             PendingIntent.FLAG_UPDATE_CURRENT)
                 } catch (e: RuntimeException) {
                     // This is actually meant to catch a FileUriExposedException, but you can't
@@ -105,12 +110,10 @@ class SourceSubscriberService : IntentService("SourceSubscriberService") {
 
             database.setTransactionSuccessful()
             database.endTransaction()
-            database.artworkDao()
-                    .insertCompleted(this@SourceSubscriberService, artworkId)
+            database.artworkDao().insertCompleted(this, artworkId)
 
             // Download the artwork contained from the newly published SourceState
-            startService(TaskQueueService.getDownloadCurrentArtworkIntent(
-                    this@SourceSubscriberService))
+            startService(TaskQueueService.getDownloadCurrentArtworkIntent(this))
         }
     }
 }
