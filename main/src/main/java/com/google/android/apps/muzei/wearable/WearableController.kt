@@ -19,14 +19,12 @@ package com.google.android.apps.muzei.wearable
 import android.arch.lifecycle.DefaultLifecycleObserver
 import android.arch.lifecycle.LifecycleOwner
 import android.content.Context
-import android.database.ContentObserver
 import android.graphics.Bitmap
-import android.net.Uri
-import android.os.Handler
 import android.util.Log
-import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.render.BitmapRegionLoader
+import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.util.observeNonNull
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.api.AvailabilityException
@@ -50,27 +48,17 @@ class WearableController(private val context: Context) : DefaultLifecycleObserve
         private const val TAG = "WearableController"
     }
 
-    private val wearableContentObserver by lazy {
-        object : ContentObserver(Handler()) {
-            override fun onChange(selfChange: Boolean, uri: Uri) {
-                launch {
-                    updateArtwork()
-                }
-            }
-        }
-    }
-
     override fun onCreate(owner: LifecycleOwner) {
         // Update Android Wear whenever the artwork changes
-        context.contentResolver.registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
-                true, wearableContentObserver)
+        MuzeiDatabase.getInstance(context).artworkDao().currentArtwork
+                .observeNonNull(owner) { artwork ->
+                    launch {
+                        updateArtwork(artwork)
+                    }
+                }
     }
 
-    override fun onDestroy(owner: LifecycleOwner) {
-        context.contentResolver.unregisterContentObserver(wearableContentObserver)
-    }
-
-    private suspend fun updateArtwork() {
+    private suspend fun updateArtwork(artwork: Artwork) {
         if (ConnectionResult.SUCCESS != GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context)) {
             return
         }
@@ -97,27 +85,24 @@ class WearableController(private val context: Context) : DefaultLifecycleObserve
             return
         }
 
-        val image: Bitmap? = BitmapRegionLoader.newInstance(context.contentResolver,
-                MuzeiContract.Artwork.CONTENT_URI)?.use { regionLoader ->
+        val image: Bitmap = BitmapRegionLoader.newInstance(context.contentResolver,
+                artwork.contentUri)?.use { regionLoader ->
             regionLoader.decode(320)
         } ?: return
 
-        val artwork = MuzeiDatabase.getInstance(context).artworkDao().getCurrentArtwork()
-        if (image != null && artwork != null) {
-            val byteStream = ByteArrayOutputStream()
-            image.compress(Bitmap.CompressFormat.PNG, 100, byteStream)
-            val asset = Asset.createFromBytes(byteStream.toByteArray())
-            val dataMapRequest = PutDataMapRequest.create("/artwork").apply {
-                dataMap.putDataMap("artwork", artwork.toDataMap())
-                dataMap.putAsset("image", asset)
-            }
-            try {
-                Tasks.await<DataItem>(dataClient.putDataItem(dataMapRequest.asPutDataRequest().setUrgent()))
-            } catch (e: ExecutionException) {
-                Log.w(TAG, "Error uploading artwork to Wear", e)
-            } catch (e: InterruptedException) {
-                Log.w(TAG, "Error uploading artwork to Wear", e)
-            }
+        val byteStream = ByteArrayOutputStream()
+        image.compress(Bitmap.CompressFormat.PNG, 100, byteStream)
+        val asset = Asset.createFromBytes(byteStream.toByteArray())
+        val dataMapRequest = PutDataMapRequest.create("/artwork").apply {
+            dataMap.putDataMap("artwork", artwork.toDataMap())
+            dataMap.putAsset("image", asset)
+        }
+        try {
+            Tasks.await<DataItem>(dataClient.putDataItem(dataMapRequest.asPutDataRequest().setUrgent()))
+        } catch (e: ExecutionException) {
+            Log.w(TAG, "Error uploading artwork to Wear", e)
+        } catch (e: InterruptedException) {
+            Log.w(TAG, "Error uploading artwork to Wear", e)
         }
     }
 }

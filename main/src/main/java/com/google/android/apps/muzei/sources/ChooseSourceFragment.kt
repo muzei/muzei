@@ -64,7 +64,6 @@ import com.google.android.apps.muzei.room.Source
 import com.google.android.apps.muzei.util.ObservableHorizontalScrollView
 import com.google.android.apps.muzei.util.Scrollbar
 import com.google.android.apps.muzei.util.observe
-import com.google.android.apps.muzei.util.observeNonNull
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
@@ -154,9 +153,11 @@ class ChooseSourceFragment : Fragment() {
         FirebaseAnalytics.getInstance(context).logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST,
                 bundleOf(FirebaseAnalytics.Param.ITEM_CATEGORY to "sources"))
 
-        sourcesLiveData.observeNonNull(this) { sources ->
-            updateSources(sources)
-            updatePadding()
+        sourcesLiveData.observe(this) { sources ->
+            if (sources != null) {
+                updateSources(sources)
+                updatePadding()
+            }
         }
 
         currentSourceLiveData.observe(this) { source ->

@@ -30,7 +30,6 @@ import android.util.Log
 import androidx.core.content.edit
 import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.FullScreenActivity
-import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.sync.ProviderChangedWorker
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -144,10 +143,10 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
                     }
                     ComplicationData.TYPE_SMALL_IMAGE -> {
                         setImageStyle(ComplicationData.IMAGE_STYLE_PHOTO)
-                                .setSmallImage(Icon.createWithContentUri(MuzeiContract.Artwork.CONTENT_URI))
+                                .setSmallImage(Icon.createWithContentUri(artwork.contentUri))
                         setTapAction(tapAction)
                     }
-                    ComplicationData.TYPE_LARGE_IMAGE -> setLargeImage(Icon.createWithContentUri(MuzeiContract.Artwork.CONTENT_URI))
+                    ComplicationData.TYPE_LARGE_IMAGE -> setLargeImage(Icon.createWithContentUri(artwork.contentUri))
                 }
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "Updated $complicationId")

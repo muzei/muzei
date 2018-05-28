@@ -16,6 +16,8 @@
 
 package com.google.android.apps.muzei.render
 
+import android.arch.lifecycle.DefaultLifecycleObserver
+import android.arch.lifecycle.LifecycleOwner
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Handler
@@ -28,7 +30,7 @@ abstract class RenderController(
         protected var context: Context,
         protected var renderer: MuzeiBlurRenderer,
         protected var callbacks: Callbacks
-) {
+) : DefaultLifecycleObserver {
 
     companion object {
         private const val TAG = "RenderController"
@@ -74,12 +76,12 @@ abstract class RenderController(
         })
     }
 
-    init {
+    override fun onCreate(owner: LifecycleOwner) {
         Prefs.getSharedPreferences(context)
                 .registerOnSharedPreferenceChangeListener(sharedPreferenceChangeListener)
     }
 
-    open fun destroy() {
+    override fun onDestroy(owner: LifecycleOwner) {
         queuedBitmapRegionLoader?.close()
         queuedBitmapRegionLoader = null
         Prefs.getSharedPreferences(context)

@@ -16,11 +16,11 @@
 
 package com.google.android.apps.muzei.render
 
+import android.arch.lifecycle.LifecycleOwner
 import android.content.Context
-import android.database.ContentObserver
-import android.net.Uri
-import android.os.Handler
 import com.google.android.apps.muzei.api.MuzeiContract
+import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.util.observeNonNull
 
 class RealRenderController(
         context: Context,
@@ -28,24 +28,27 @@ class RealRenderController(
         callbacks: RenderController.Callbacks
 ) : RenderController(context, renderer, callbacks) {
 
-    private val contentObserver: ContentObserver = object : ContentObserver(Handler()) {
-        override fun onChange(selfChange: Boolean, uri: Uri) {
+    private val artworkLiveData = MuzeiDatabase.getInstance(context)
+            .artworkDao().currentArtwork
+
+    init {
+        reloadCurrentArtwork(false)
+    }
+
+    override fun onCreate(owner: LifecycleOwner) {
+        super.onCreate(owner)
+        artworkLiveData.observeNonNull(owner) {
             reloadCurrentArtwork(false)
         }
     }
 
-    init {
-        context.contentResolver.registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
-                true, contentObserver)
-        reloadCurrentArtwork(false)
-    }
-
-    override fun destroy() {
-        super.destroy()
-        context.contentResolver.unregisterContentObserver(contentObserver)
-    }
-
+    /**
+     * Create a [BitmapRegionLoader] for the current artwork. If [artworkLiveData]
+     * doesn't have artwork yet (as is the case when in Direct Boot), then we
+     * use [MuzeiContract.Artwork.CONTENT_URI].
+     */
     override suspend fun openDownloadedCurrentArtwork(forceReload: Boolean) =
             BitmapRegionLoader.newInstance(context.contentResolver,
-                    MuzeiContract.Artwork.CONTENT_URI)
+                    artworkLiveData.value?.contentUri
+                            ?: MuzeiContract.Artwork.CONTENT_URI)
 }

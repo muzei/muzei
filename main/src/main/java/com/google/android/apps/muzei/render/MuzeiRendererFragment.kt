@@ -162,6 +162,7 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
                 RealRenderController(getContext(), renderer,
                         this@MuzeiRendererFragment)
             }
+            lifecycle.addObserver(renderController)
             renderController.visible = true
         }
 
@@ -172,7 +173,6 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
         }
 
         override fun onDetachedFromWindow() {
-            renderController.destroy()
             queueEventOnGlThread { renderer.destroy() }
             super.onDetachedFromWindow()
         }

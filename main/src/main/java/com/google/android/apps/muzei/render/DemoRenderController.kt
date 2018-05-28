@@ -18,6 +18,7 @@ package com.google.android.apps.muzei.render
 
 import android.animation.Animator
 import android.animation.ObjectAnimator
+import android.arch.lifecycle.LifecycleOwner
 import android.content.Context
 import androidx.core.animation.doOnEnd
 import kotlinx.coroutines.experimental.Job
@@ -69,8 +70,8 @@ class DemoRenderController(
         }
     }
 
-    override fun destroy() {
-        super.destroy()
+    override fun onDestroy(owner: LifecycleOwner) {
+        super.onDestroy(owner)
         currentScrollAnimator?.cancel()
         currentScrollAnimator?.removeAllListeners()
         focusSwap?.cancel()

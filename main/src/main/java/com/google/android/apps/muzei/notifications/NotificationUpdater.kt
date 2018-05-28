@@ -19,10 +19,8 @@ package com.google.android.apps.muzei.notifications
 import android.arch.lifecycle.DefaultLifecycleObserver
 import android.arch.lifecycle.LifecycleOwner
 import android.content.Context
-import android.database.ContentObserver
-import android.net.Uri
-import android.os.Handler
-import com.google.android.apps.muzei.api.MuzeiContract
+import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.util.observeNonNull
 import kotlinx.coroutines.experimental.launch
 
 /**
@@ -30,25 +28,18 @@ import kotlinx.coroutines.experimental.launch
  */
 class NotificationUpdater(private val context: Context) : DefaultLifecycleObserver {
 
-    private val notificationContentObserver: ContentObserver by lazy {
-        object : ContentObserver(Handler()) {
-            override fun onChange(selfChange: Boolean, uri: Uri) {
-                launch {
-                    NewWallpaperNotificationReceiver.maybeShowNewArtworkNotification(
-                            this@NotificationUpdater.context)
-                }
+    override fun onCreate(owner: LifecycleOwner) {
+        // Update notifications whenever the artwork changes
+        MuzeiDatabase.getInstance(context).artworkDao().currentArtwork
+                .observeNonNull(owner) {
+            launch {
+                NewWallpaperNotificationReceiver.maybeShowNewArtworkNotification(
+                        this@NotificationUpdater.context)
             }
         }
     }
 
-    override fun onCreate(owner: LifecycleOwner) {
-        // Set up a thread to update notifications whenever the artwork changes
-        context.contentResolver.registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
-                true, notificationContentObserver)
-    }
-
     override fun onDestroy(owner: LifecycleOwner) {
-        context.contentResolver.unregisterContentObserver(notificationContentObserver)
         NewWallpaperNotificationReceiver.cancelNotification(context)
     }
 }

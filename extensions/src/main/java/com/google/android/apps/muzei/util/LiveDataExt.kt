@@ -26,8 +26,8 @@ fun <T> LiveData<T>.observe(owner: LifecycleOwner, callback: (T?) -> Unit) {
     })
 }
 
-fun <T> LiveData<T>.observeNonNull(owner: LifecycleOwner, callback: (T) -> Unit) {
-    observe(owner, Observer<T?> { value ->
+fun <T> LiveData<T?>.observeNonNull(owner: LifecycleOwner, callback: (T) -> Unit) {
+    observe(owner, Observer { value ->
         if (value != null) {
             callback(value)
         }

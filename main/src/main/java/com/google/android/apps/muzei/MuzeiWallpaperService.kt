@@ -28,24 +28,22 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.database.ContentObserver
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.support.annotation.RequiresApi
 import android.support.v4.os.UserManagerCompat
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.ViewConfiguration
-import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.notifications.NotificationUpdater
 import com.google.android.apps.muzei.render.BitmapRegionLoader
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer
 import com.google.android.apps.muzei.render.RealRenderController
 import com.google.android.apps.muzei.render.RenderController
+import com.google.android.apps.muzei.room.Artwork
+import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.select
 import com.google.android.apps.muzei.shortcuts.ArtworkInfoShortcutController
 import com.google.android.apps.muzei.sources.SourceArtProvider
@@ -179,6 +177,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                     false, isPreview)
             renderController = RealRenderController(this@MuzeiWallpaperService,
                     renderer, this)
+            engineLifecycle.addObserver(renderController)
             setEGLContextClientVersion(2)
             setEGLConfigChooser(8, 8, 8, 0, 0, 0)
             setRenderer(renderer)
@@ -189,27 +188,13 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             engineLifecycle.addObserver(WallpaperAnalytics(this@MuzeiWallpaperService))
             engineLifecycle.addObserver(LockscreenObserver(this@MuzeiWallpaperService, this))
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-                engineLifecycle.addObserver(object : DefaultLifecycleObserver {
-                    private lateinit var contentObserver: ContentObserver
-
-                    override fun onCreate(owner: LifecycleOwner) {
-                        contentObserver = object : ContentObserver(Handler()) {
-                            @RequiresApi(Build.VERSION_CODES.O_MR1)
-                            override fun onChange(selfChange: Boolean, uri: Uri) {
-                                launch {
-                                    updateCurrentArtwork()
-                                }
+                MuzeiDatabase.getInstance(this@MuzeiWallpaperService)
+                        .artworkDao().currentArtwork
+                        .observeNonNull(this) { artwork ->
+                            launch {
+                                updateCurrentArtwork(artwork)
                             }
                         }
-                        contentResolver.registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
-                                true, contentObserver)
-                        contentObserver.onChange(true, MuzeiContract.Artwork.CONTENT_URI)
-                    }
-
-                    override fun onDestroy(owner: LifecycleOwner) {
-                        contentResolver.unregisterContentObserver(contentObserver)
-                    }
-                })
             }
 
             if (!isPreview) {
@@ -236,9 +221,9 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         }
 
         @RequiresApi(Build.VERSION_CODES.O_MR1)
-        private suspend fun updateCurrentArtwork() {
+        private suspend fun updateCurrentArtwork(artwork: Artwork) {
             currentArtwork = BitmapRegionLoader.newInstance(contentResolver,
-                    MuzeiContract.Artwork.CONTENT_URI)?.use { regionLoader ->
+                    artwork.contentUri)?.use { regionLoader ->
                 regionLoader.decode(MAX_ARTWORK_SIZE / 2)
             } ?: return
             notifyColorsChanged()
@@ -269,7 +254,6 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             queueEvent {
                 renderer.destroy()
             }
-            renderController.destroy()
             super<GLEngine>.onDestroy()
         }
 

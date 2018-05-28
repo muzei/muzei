@@ -19,10 +19,8 @@ package com.google.android.apps.muzei.widget
 import android.arch.lifecycle.DefaultLifecycleObserver
 import android.arch.lifecycle.LifecycleOwner
 import android.content.Context
-import android.database.ContentObserver
-import android.net.Uri
-import android.os.Handler
-import com.google.android.apps.muzei.api.MuzeiContract
+import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.util.observe
 import kotlinx.coroutines.experimental.launch
 
 /**
@@ -30,29 +28,23 @@ import kotlinx.coroutines.experimental.launch
  */
 class WidgetUpdater(private val context: Context) : DefaultLifecycleObserver {
 
-    private val widgetContentObserver: ContentObserver by lazy {
-        object : ContentObserver(Handler()) {
-            override fun onChange(selfChange: Boolean, uri: Uri) {
-                launch {
-                    updateAppWidget(this@WidgetUpdater.context.applicationContext)
-                }
-            }
+    override fun onCreate(owner: LifecycleOwner) {
+        // Set up a ContentObserver to update widgets whenever the artwork changes
+        val database = MuzeiDatabase.getInstance(context)
+        database.artworkDao().currentArtwork.observe(owner) {
+            updateAppWidget()
+        }
+        database.providerDao().currentProvider.observe(owner) {
+            updateAppWidget()
         }
     }
 
-    override fun onCreate(owner: LifecycleOwner) {
-        // Set up a ContentObserver to update widgets whenever the artwork changes
-        context.contentResolver.registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
-                true, widgetContentObserver)
-        context.contentResolver.registerContentObserver(MuzeiContract.Sources.CONTENT_URI,
-                true, widgetContentObserver)
-        // Update the widget now that the wallpaper is active to enable the 'Next' button if supported
-        widgetContentObserver.onChange(true)
+    override fun onDestroy(owner: LifecycleOwner) {
+        // Update the widget one last time to disable the 'Next' button until Muzei is reactivated
+        updateAppWidget()
     }
 
-    override fun onDestroy(owner: LifecycleOwner) {
-        context.contentResolver.unregisterContentObserver(widgetContentObserver)
-        // Update the widget one last time to disable the 'Next' button until Muzei is reactivated
+    private fun updateAppWidget() {
         launch {
             updateAppWidget(this@WidgetUpdater.context.applicationContext)
         }
