@@ -19,39 +19,27 @@ package com.google.android.apps.muzei
 import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
-import android.content.Context
-import android.database.ContentObserver
-import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.support.v4.app.FragmentActivity
-import android.support.v4.app.LoaderManager
-import android.support.v4.content.AsyncTaskLoader
-import android.support.v4.content.Loader
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.widget.TextView
-
-import com.google.android.apps.muzei.api.MuzeiContract
-import com.google.android.apps.muzei.room.Artwork
+import androidx.core.view.isVisible
+import com.google.android.apps.muzei.render.BitmapRegionLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.PanView
+import com.google.android.apps.muzei.util.observeNonNull
 import com.google.firebase.analytics.FirebaseAnalytics
-import kotlinx.coroutines.experimental.runBlocking
-
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
 
-import java.io.FileNotFoundException
-
-class FullScreenActivity : FragmentActivity(), LoaderManager.LoaderCallbacks<Pair<Artwork?, Bitmap?>> {
-
-    companion object {
-        private const val TAG = "FullScreenActivity"
-    }
+class FullScreenActivity : FragmentActivity() {
 
     private lateinit var panView: PanView
     private lateinit var loadingIndicatorView: View
@@ -63,22 +51,23 @@ class FullScreenActivity : FragmentActivity(), LoaderManager.LoaderCallbacks<Pai
     private lateinit var dismissOverlay: android.support.wearable.view.DismissOverlayView
     private lateinit var detector: GestureDetector
     private var blurAnimator: Animator? = null
-    private val handler = Handler()
 
     private var metadataVisible = false
 
-    private val showLoadingIndicatorRunnable = Runnable { loadingIndicatorView.visibility = View.VISIBLE }
+    private var showLoadingIndicator: Job? = null
 
     public override fun onCreate(savedState: Bundle?) {
         super.onCreate(savedState)
         setContentView(R.layout.full_screen_activity)
         FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
         panView = findViewById(R.id.pan_view)
-        supportLoaderManager.initLoader(0, null, this)
 
         scrimView = findViewById(R.id.scrim)
         loadingIndicatorView = findViewById(R.id.loading_indicator)
-        handler.postDelayed(showLoadingIndicatorRunnable, 500)
+        showLoadingIndicator = launch(UI) {
+            delay(500)
+            loadingIndicatorView.isVisible = true
+        }
 
         metadataContainerView = findViewById(R.id.metadata_container)
         titleView = findViewById(R.id.title)
@@ -92,7 +81,7 @@ class FullScreenActivity : FragmentActivity(), LoaderManager.LoaderCallbacks<Pai
         }
         detector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
             override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-                if (dismissOverlay.visibility == View.VISIBLE) {
+                if (dismissOverlay.isVisible) {
                     return false
                 }
 
@@ -105,7 +94,7 @@ class FullScreenActivity : FragmentActivity(), LoaderManager.LoaderCallbacks<Pai
             }
 
             override fun onLongPress(ev: MotionEvent) {
-                if (dismissOverlay.visibility == View.VISIBLE) {
+                if (dismissOverlay.isVisible) {
                     return
                 }
                 // Only show the dismiss overlay on Wear 1.0 devices
@@ -114,6 +103,21 @@ class FullScreenActivity : FragmentActivity(), LoaderManager.LoaderCallbacks<Pai
                 }
             }
         })
+        MuzeiDatabase.getInstance(this).artworkDao()
+                .currentArtwork.observeNonNull(this) { artwork ->
+            launch(UI) {
+                val image = BitmapRegionLoader.newInstance(contentResolver,
+                        artwork.contentUri)?.use { regionLoader ->
+                    regionLoader.decode(regionLoader.width, regionLoader.height)
+                }
+                showLoadingIndicator?.cancel()
+                loadingIndicatorView.isVisible = false
+                panView.isVisible = true
+                panView.setImage(image)
+                titleView.text = artwork.title
+                bylineView.text = artwork.byline
+            }
+        }
     }
 
     private fun setMetadataVisible(metadataVisible: Boolean) {
@@ -136,75 +140,5 @@ class FullScreenActivity : FragmentActivity(), LoaderManager.LoaderCallbacks<Pai
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
         return detector.onTouchEvent(ev) || super.dispatchTouchEvent(ev)
-    }
-
-    private class ArtworkLoader internal constructor(context: Context)
-        : AsyncTaskLoader<Pair<Artwork?, Bitmap?>>(context) {
-        private var contentObserver: ContentObserver? = null
-        private var artwork: Artwork? = null
-        private var image: Bitmap? = null
-
-        override fun onStartLoading() {
-            if (artwork != null && image != null) {
-                deliverResult(Pair(artwork, image))
-            }
-            if (contentObserver == null) {
-                contentObserver = object : ContentObserver(null) {
-                    override fun onChange(selfChange: Boolean) {
-                        onContentChanged()
-                    }
-                }.also { contentObserver ->
-                    context.contentResolver.registerContentObserver(
-                            MuzeiContract.Artwork.CONTENT_URI, true, contentObserver)
-                }
-            }
-            forceLoad()
-        }
-
-        override fun loadInBackground() = runBlocking {
-            loadArtworkAndImage()
-        }
-
-        private suspend fun loadArtworkAndImage(): Pair<Artwork?, Bitmap?> {
-            try {
-                artwork = MuzeiDatabase.getInstance(context)
-                        .artworkDao().getCurrentArtwork()
-                image = MuzeiContract.Artwork.getCurrentArtworkBitmap(context)
-            } catch (e: FileNotFoundException) {
-                Log.e(TAG, "Error getting artwork", e)
-            }
-            return Pair(artwork, image)
-        }
-
-        override fun onReset() {
-            super.onReset()
-            image = null
-            contentObserver?.let { contentObserver ->
-                context.contentResolver.unregisterContentObserver(contentObserver)
-                this.contentObserver = null
-            }
-        }
-    }
-
-    override fun onCreateLoader(id: Int, args: Bundle?): Loader<Pair<Artwork?, Bitmap?>> {
-        return ArtworkLoader(this)
-    }
-
-    override fun onLoadFinished(loader: Loader<Pair<Artwork?, Bitmap?>>, pair: Pair<Artwork?, Bitmap?>) {
-        val (artwork, image) = pair
-        if (artwork == null || image == null) {
-            return
-        }
-
-        handler.removeCallbacks(showLoadingIndicatorRunnable)
-        loadingIndicatorView.visibility = View.GONE
-        panView.visibility = View.VISIBLE
-        panView.setImage(image)
-        titleView.text = artwork.title
-        bylineView.text = artwork.byline
-    }
-
-    override fun onLoaderReset(loader: Loader<Pair<Artwork?, Bitmap?>>) {
-        panView.setImage(null)
     }
 }
