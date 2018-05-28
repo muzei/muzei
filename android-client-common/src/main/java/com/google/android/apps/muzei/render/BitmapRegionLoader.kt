@@ -66,8 +66,8 @@ private constructor(private val inputStream: InputStream, private val rotation: 
             } catch (e: IOException) {
                 Log.w(TAG, "Couldn't openInputStream for $uri", e)
                 null
-            }
-            newInstance(input, rotation)
+            } ?: return@withContext null
+            createInstance(input, rotation)
         }
 
         suspend fun newInstance(input: InputStream?, rotation: Int = 0): BitmapRegionLoader? {
@@ -76,14 +76,16 @@ private constructor(private val inputStream: InputStream, private val rotation: 
             }
 
             return withContext(CommonPool) {
-                try {
-                    BitmapRegionLoader(input, rotation)
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error creating BitmapRegionLoader", e)
-                    input.close()
-                    null
-                }
+                createInstance(input, rotation)
             }
+        }
+
+        private fun createInstance(input: InputStream, rotation: Int = 0) = try {
+            BitmapRegionLoader(input, rotation)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error creating BitmapRegionLoader", e)
+            input.close()
+            null
         }
     }
 
