@@ -20,12 +20,12 @@ import android.annotation.SuppressLint
 import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.LifecycleRegistry
+import android.arch.lifecycle.Observer
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.database.ContentObserver
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
@@ -37,7 +37,6 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.os.HandlerThread
 import android.os.Message
 import android.preference.PreferenceManager
 import android.support.v4.content.res.ResourcesCompat
@@ -52,9 +51,11 @@ import android.util.Log
 import android.view.Gravity
 import android.view.SurfaceHolder
 import androidx.core.content.edit
-import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.complications.ArtworkComplicationProviderService
 import com.google.android.apps.muzei.datalayer.DataLayerArtProvider
+import com.google.android.apps.muzei.render.BitmapRegionLoader
+import com.google.android.apps.muzei.room.Artwork
+import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.select
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.ImageBlurrer
@@ -139,9 +140,6 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
             }
         }
 
-        internal lateinit var loadImageHandlerThread: HandlerThread
-        internal lateinit var loadImageHandler: Handler
-        internal lateinit var loadImageContentObserver: ContentObserver
         internal var registeredTimeZoneReceiver = false
         internal var registeredLocaleChangedReceiver = false
         internal val backgroundPaint: Paint = Paint().apply {
@@ -220,38 +218,48 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
         internal lateinit var tapAction: String
         internal var blurred: Boolean = false
 
-        private inner class LoadImageContentObserver internal constructor(handler: Handler) : ContentObserver(handler) {
-
-            override fun onChange(selfChange: Boolean) {
-                var bitmap: Bitmap?
-                bitmap = try {
-                    MuzeiContract.Artwork.getCurrentArtworkBitmap(this@MuzeiWatchFace)
-                } catch (e: FileNotFoundException) {
-                    Log.w(TAG, "Could not find current artwork image", e)
-                    null
+        private inner class LoadImageObserver : Observer<Artwork?> {
+            override fun onChanged(artwork: Artwork?) {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "Artwork = ${artwork?.contentUri}")
                 }
-
-                if (bitmap == null) {
-                    // We'll get another callback when the real artwork is loaded, but
-                    // we should show something to the users right away
-                    try {
-                        bitmap = BitmapFactory.decodeStream(assets.open("starrynight.jpg"))
-                    } catch (e: IOException) {
-                        Log.e(TAG, "Error opening starry night asset", e)
+                launch {
+                    val bitmap: Bitmap? = try {
+                        artwork?.run {
+                            BitmapRegionLoader.newInstance(contentResolver,
+                                contentUri)?.use { regionLoader ->
+                                regionLoader.decode(regionLoader.width, regionLoader.height)
+                            }
+                        }
+                    } catch (e: FileNotFoundException) {
+                        Log.w(TAG, "Could not find current artwork image", e)
+                        null
+                    } ?: run {
+                        // We'll get another callback when the real artwork is loaded, but
+                        // we should show something to the users right away
+                        try {
+                            BitmapFactory.decodeStream(assets.open("starrynight.jpg"))
+                        } catch (e: IOException) {
+                            Log.e(TAG, "Error opening starry night asset", e)
+                            null
+                        }
                     }
-                }
-                if (bitmap != null && !bitmap.sameAs(backgroundBitmap)) {
-                    backgroundBitmap = bitmap
-                    createScaledBitmap()
-                    postInvalidate()
+
+                    if (bitmap != null && !bitmap.sameAs(backgroundBitmap)) {
+                        backgroundBitmap = bitmap
+                        createScaledBitmap()
+                        postInvalidate()
+                    }
                 }
             }
         }
 
         override fun onCreate(holder: SurfaceHolder) {
             super.onCreate(holder)
-            lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
             FirebaseAnalytics.getInstance(this@MuzeiWatchFace).logEvent("watchface_created", null)
+            MuzeiDatabase.getInstance(this@MuzeiWatchFace)
+                    .artworkDao().currentArtwork
+                    .observe(this@MuzeiWatchFace, LoadImageObserver())
 
             clockPaint = Paint().apply {
                 color = Color.WHITE
@@ -369,7 +377,6 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
         override fun onDestroy() {
             FirebaseAnalytics.getInstance(this@MuzeiWatchFace).logEvent("watchface_destroyed", null)
             updateTimeHandler.removeMessages(MSG_UPDATE_TIME)
-            lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
             super.onDestroy()
         }
 
@@ -407,33 +414,26 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
 
         override fun onVisibilityChanged(visible: Boolean) {
             super.onVisibilityChanged(visible)
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "onVisibilityChanged: visible = $visible")
+            }
             if (visible) {
-                loadImageHandlerThread = HandlerThread("MuzeiWatchFace-LoadImage")
-                loadImageHandlerThread.start()
-                loadImageHandler = Handler(loadImageHandlerThread.looper)
-                loadImageContentObserver = LoadImageContentObserver(loadImageHandler)
-                contentResolver.registerContentObserver(MuzeiContract.Artwork.CONTENT_URI,
-                        true, loadImageContentObserver)
+                lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
 
                 registerReceiver()
 
                 // Update time zone in case it changed while we weren't visible.
                 calendar.timeZone = TimeZone.getDefault()
 
-                // Load the image in case it has changed while we weren't visible
-                loadImageHandler.post { loadImageContentObserver.onChange(true) }
-
                 // Update the blurred status in case the preference has changed
                 updateBlurredStatus()
 
                 updateTimeHandler.sendEmptyMessage(MSG_UPDATE_TIME)
             } else {
+                lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
                 updateTimeHandler.removeMessages(MSG_UPDATE_TIME)
 
                 unregisterReceiver()
-
-                contentResolver.unregisterContentObserver(loadImageContentObserver)
-                loadImageHandlerThread.quit()
             }
         }
 
