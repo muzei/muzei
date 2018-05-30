@@ -43,6 +43,7 @@ android {
         minSdkVersion 14
         targetSdkVersion rootProject.ext.targetSdkVersion
 
+        consumerProguardFiles "proguard-rules.txt"
         manifestPlaceholders = [api_version: versionProps['apiCode'].toInteger()]
     }
 
