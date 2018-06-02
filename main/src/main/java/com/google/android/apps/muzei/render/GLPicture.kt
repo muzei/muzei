@@ -154,11 +154,14 @@ internal class GLPicture {
                     rect.offset(0, -unsampledTileSize + leftoverHeight)
                 }
                 rect.intersect(0, 0, originalWidth, originalHeight)
-                val useBitmap = bitmapRegionLoader.decodeRegion(rect, options)
-                if (useBitmap != null) {
-                    textureHandles[y * numColumns + x] = GLUtil.loadTexture(useBitmap)
-                    if (useBitmap != tileBitmap) {
-                        useBitmap.recycle()
+                for (attempt in 1..3) {
+                    val useBitmap = bitmapRegionLoader.decodeRegion(rect, options)
+                    if (useBitmap != null) {
+                        textureHandles[y * numColumns + x] = GLUtil.loadTexture(useBitmap)
+                        if (useBitmap != tileBitmap) {
+                            useBitmap.recycle()
+                        }
+                        break
                     }
                 }
             }
