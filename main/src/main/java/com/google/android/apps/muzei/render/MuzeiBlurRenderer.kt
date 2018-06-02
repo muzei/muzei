@@ -20,9 +20,7 @@ import android.app.ActivityManager
 import android.arch.lifecycle.MutableLiveData
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Color
-import android.graphics.Rect
 import android.graphics.RectF
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
@@ -305,15 +303,8 @@ class MuzeiBlurRenderer(
             destroyPictures()
 
             if (hasBitmap) {
-                val options = BitmapFactory.Options()
-                val rect = Rect()
-                val originalWidth = bitmapRegionLoader.width
-                val originalHeight = bitmapRegionLoader.height
-
                 // Calculate image darkness to determine dim amount
-                rect.set(0, 0, originalWidth, originalHeight)
-                options.inSampleSize = originalHeight.sampleSize(64)
-                var tempBitmap = bitmapRegionLoader.decodeRegion(rect, options)
+                var tempBitmap = bitmapRegionLoader.decode(64)
                 val darkness = tempBitmap.darkness()
                 dimAmount = if (demoMode)
                     DEMO_DIM
@@ -333,19 +324,14 @@ class MuzeiBlurRenderer(
                     } else {
                         currentHeight
                     }
-                    val scaledHeight: Int
-                    val scaledWidth: Int
-
                     // Note that image width should be a multiple of 4 to avoid
                     // issues with RenderScript allocations.
-                    scaledHeight = Math.max(2, sampleSizeTargetHeight.floorEven())
-                    scaledWidth = Math.max(4, (scaledHeight * bitmapAspectRatio).toInt().roundMult4())
+                    val scaledHeight = Math.max(2, sampleSizeTargetHeight.floorEven())
+                    val scaledWidth = Math.max(4, (scaledHeight * bitmapAspectRatio).toInt().roundMult4())
 
                     // To blur, first load the entire bitmap region, but at a very large
                     // sample size that's appropriate for the final blurred image
-                    options.inSampleSize = originalHeight.sampleSize(sampleSizeTargetHeight)
-                    rect.set(0, 0, originalWidth, originalHeight)
-                    tempBitmap = bitmapRegionLoader.decodeRegion(rect, options)
+                    tempBitmap = bitmapRegionLoader.decode(scaledWidth, scaledHeight)
 
                     if (tempBitmap != null
                             && tempBitmap.width != 0 && tempBitmap.height != 0) {
@@ -379,7 +365,7 @@ class MuzeiBlurRenderer(
 
                         scaledBitmap.recycle()
                     } else {
-                        Log.e(TAG, "BitmapRegionLoader failed to decode the region, rect=${rect.toShortString()}")
+                        Log.e(TAG, "BitmapRegionLoader failed to decode the image")
                         for (f in 1..blurKeyframes) {
                             pictures[f] = null
                         }
