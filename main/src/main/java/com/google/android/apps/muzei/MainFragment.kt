@@ -161,7 +161,14 @@ class MainFragment : Fragment(), FragmentManager.OnBackStackChangedListener, Cho
                             0,
                             insets.systemWindowInsetRight,
                             insets.systemWindowInsetBottom))
-            insets.consumeSystemWindowInsets()
+            insets.consumeSystemWindowInsets().run {
+                // Workaround for https://issuetracker.google.com/issues/109830520
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    consumeDisplayCutout()
+                } else {
+                    this
+                }
+            }
         }
 
         // Listen for visibility changes to know when to hide our views
