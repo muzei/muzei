@@ -14,7 +14,7 @@
   limitations under the License.
   -->
 
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Muzei activity -->
 
@@ -93,6 +93,7 @@
     <style name="Theme.Muzei.Wallpaper" parent="Theme.Muzei">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowShowWallpaper">true</item>
+        <item name="android:windowLayoutInDisplayCutoutMode" tools:ignore="NewApi">shortEdges</item>
     </style>
 
     <style name="Widget.Muzei.PopupMenu" parent="Widget.AppCompat.PopupMenu">
