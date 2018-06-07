@@ -231,10 +231,10 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
             return AssetFileDescriptor(ParcelFileDescriptor.open(tempFile, ParcelFileDescriptor.MODE_READ_ONLY), 0,
                     AssetFileDescriptor.UNKNOWN_LENGTH)
         }
-        val bitmap = BitmapRegionLoader.newInstance(contentResolver,
-                artworkUri)?.use { regionLoader ->
-            regionLoader.decode(sizeHint.x / 2, sizeHint.y / 2)
-        } ?: run {
+        val bitmap = BitmapRegionLoader.decode(
+                contentResolver, artworkUri,
+                sizeHint.x / 2, sizeHint.y / 2
+        ) ?: run {
             // The artwork isn't there anymore. Delete it to
             // revoke any document permissions attached to it
             DocumentsContract.deleteDocument(contentResolver,

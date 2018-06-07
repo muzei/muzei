@@ -222,10 +222,9 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
 
         @RequiresApi(Build.VERSION_CODES.O_MR1)
         private suspend fun updateCurrentArtwork(artwork: Artwork) {
-            currentArtwork = BitmapRegionLoader.newInstance(contentResolver,
-                    artwork.contentUri)?.use { regionLoader ->
-                regionLoader.decode(MAX_ARTWORK_SIZE / 2)
-            } ?: return
+            currentArtwork = BitmapRegionLoader.decode(
+                    contentResolver, artwork.contentUri,
+                    MAX_ARTWORK_SIZE / 2) ?: return
             notifyColorsChanged()
         }
 

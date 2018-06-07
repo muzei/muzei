@@ -140,10 +140,9 @@ private suspend fun createRemoteViews(
             0, nextArtworkIntent, PendingIntent.FLAG_UPDATE_CURRENT)
     val smallWidgetHeight = context.resources.getDimensionPixelSize(
             R.dimen.widget_small_height_breakpoint)
-    val image = BitmapRegionLoader.newInstance(context.contentResolver,
-            imageUri)?.use { regionLoader ->
-        regionLoader.decode(widgetWidth / 2, widgetHeight / 2)
-    } ?: return null
+    val image = BitmapRegionLoader.decode(
+            context.contentResolver, imageUri,
+            widgetWidth / 2, widgetHeight / 2) ?: return null
 
     // Even after using sample size to scale an image down, it might be larger than the
     // maximum bitmap memory usage for widgets

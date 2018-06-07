@@ -42,25 +42,81 @@ private constructor(private val inputStream: InputStream, private val rotation: 
     companion object {
         private const val TAG = "BitmapRegionLoader"
 
+        suspend fun decode(
+                contentResolver: ContentResolver,
+                uri: Uri,
+                targetWidth: Int = 0,
+                targetHeight: Int = targetWidth
+        ): Bitmap? = withContext(CommonPool) {
+            try {
+                val (originalWidth, originalHeight) = contentResolver.openInputStream(
+                        uri)?.use { input ->
+                    val options = BitmapFactory.Options().apply {
+                        inJustDecodeBounds = true
+                    }
+                    BitmapFactory.decodeStream(input, null, options)
+                    Pair(options.outWidth, options.outHeight)
+                } ?: return@withContext null
+                val rotation = getRotation(contentResolver, uri)
+                val width = if (rotation == 90 || rotation == 270) originalHeight else originalWidth
+                val height = if (rotation == 90 || rotation == 270) originalWidth else originalHeight
+                contentResolver.openInputStream(uri)?.use { input ->
+                    BitmapFactory.decodeStream(input, null,
+                            BitmapFactory.Options().apply {
+                                if (targetWidth != 0) {
+                                    inSampleSize = Math.max(
+                                            width.sampleSize(targetWidth),
+                                            height.sampleSize(targetHeight))
+                                }
+                            })
+                }?.run {
+                    when (rotation) {
+                        0 -> this
+                        else -> {
+                            val rotateMatrix = Matrix().apply {
+                                postRotate(rotation.toFloat())
+                            }
+                            Bitmap.createBitmap(
+                                    this, 0, 0,
+                                    width, height,
+                                    rotateMatrix, true).also { rotatedBitmap ->
+                                if (rotatedBitmap != this) {
+                                    recycle()
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Error decoding $uri", e)
+                null
+            }
+        }
+
+        private fun getRotation(
+                contentResolver: ContentResolver,
+                uri: Uri
+        ): Int = try {
+            contentResolver.openInputStream(uri)?.use { input ->
+                val exifInterface = ExifInterface(input)
+                val orientation = exifInterface.getAttributeInt(
+                        ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+                when (orientation) {
+                    ExifInterface.ORIENTATION_ROTATE_90 -> 90
+                    ExifInterface.ORIENTATION_ROTATE_180 -> 180
+                    ExifInterface.ORIENTATION_ROTATE_270 -> 270
+                    else -> 0
+                }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Couldn't open EXIF interface for $uri", e)
+        } ?: 0
+
         suspend fun newInstance(
                 contentResolver: ContentResolver,
                 uri: Uri
         ): BitmapRegionLoader? = withContext(CommonPool) {
-            var rotation = 0
-            try {
-                contentResolver.openInputStream(uri)?.use { input ->
-                    val exifInterface = ExifInterface(input)
-                    val orientation = exifInterface.getAttributeInt(
-                            ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
-                    when (orientation) {
-                        ExifInterface.ORIENTATION_ROTATE_90 -> rotation = 90
-                        ExifInterface.ORIENTATION_ROTATE_180 -> rotation = 180
-                        ExifInterface.ORIENTATION_ROTATE_270 -> rotation = 270
-                    }
-                }
-            } catch (e: Exception) {
-                Log.w(TAG, "Couldn't open EXIF interface for $uri", e)
-            }
+            val rotation = getRotation(contentResolver, uri)
             val input = try {
                 contentResolver.openInputStream(uri)
             } catch (e: IOException) {

@@ -226,10 +226,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                 launch {
                     val bitmap: Bitmap? = try {
                         artwork?.run {
-                            BitmapRegionLoader.newInstance(contentResolver,
-                                contentUri)?.use { regionLoader ->
-                                regionLoader.decode(regionLoader.width, regionLoader.height)
-                            }
+                            BitmapRegionLoader.decode(contentResolver, contentUri)
                         }
                     } catch (e: FileNotFoundException) {
                         Log.w(TAG, "Could not find current artwork image", e)

@@ -106,10 +106,8 @@ class FullScreenActivity : FragmentActivity() {
         MuzeiDatabase.getInstance(this).artworkDao()
                 .currentArtwork.observeNonNull(this) { artwork ->
             launch(UI) {
-                val image = BitmapRegionLoader.newInstance(contentResolver,
-                        artwork.contentUri)?.use { regionLoader ->
-                    regionLoader.decode(regionLoader.width, regionLoader.height)
-                }
+                val image = BitmapRegionLoader.decode(
+                        contentResolver, artwork.contentUri)
                 showLoadingIndicator?.cancel()
                 loadingIndicatorView.isVisible = false
                 panView.isVisible = true

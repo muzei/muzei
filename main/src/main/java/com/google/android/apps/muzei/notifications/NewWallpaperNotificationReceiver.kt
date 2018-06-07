@@ -122,17 +122,12 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
             if (lastReadArtworkId == currentArtworkId) {
                 return
             }
-
-            val (largeIcon, bigPicture) = BitmapRegionLoader.newInstance(contentResolver,
-                    artwork.contentUri)?.use { regionLoader ->
-                val largeIconHeight = context.resources
-                        .getDimensionPixelSize(android.R.dimen.notification_large_icon_height)
-                val largeIcon = regionLoader.decode(largeIconHeight)
-                        ?: return
-                val bigPicture = regionLoader.decode(400)
-                        ?: return
-                Pair(largeIcon, bigPicture)
-            } ?: return
+            val largeIconHeight = context.resources
+                    .getDimensionPixelSize(android.R.dimen.notification_large_icon_height)
+            val largeIcon = BitmapRegionLoader.decode(
+                    contentResolver,artwork.contentUri, largeIconHeight) ?: return
+            val bigPicture = BitmapRegionLoader.decode(
+                    contentResolver,artwork.contentUri, 400) ?: return
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 createNotificationChannel(context)

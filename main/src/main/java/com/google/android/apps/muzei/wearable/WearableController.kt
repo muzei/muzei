@@ -85,10 +85,9 @@ class WearableController(private val context: Context) : DefaultLifecycleObserve
             return
         }
 
-        val image: Bitmap = BitmapRegionLoader.newInstance(context.contentResolver,
-                artwork.contentUri)?.use { regionLoader ->
-            regionLoader.decode(320)
-        } ?: return
+        val image: Bitmap = BitmapRegionLoader.decode(
+                context.contentResolver, artwork.contentUri,
+                320) ?: return
 
         val byteStream = ByteArrayOutputStream()
         image.compress(Bitmap.CompressFormat.PNG, 100, byteStream)
