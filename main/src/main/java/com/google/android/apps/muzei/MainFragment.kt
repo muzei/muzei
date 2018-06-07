@@ -20,8 +20,6 @@ import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentTransaction
 import android.support.v4.view.ViewCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
@@ -29,6 +27,8 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.findNavController
+import androidx.navigation.ui.setupWithNavController
 import com.google.android.apps.muzei.settings.EffectsFragment
 import com.google.android.apps.muzei.sources.ChooseSourceFragment
 import com.google.android.apps.muzei.util.makeCubicGradientScrimDrawable
@@ -39,22 +39,9 @@ import net.nurik.roman.muzei.R
  * Fragment which controls the main view of the Muzei app and handles the bottom navigation
  * between various screens.
  */
-class MainFragment : Fragment(), FragmentManager.OnBackStackChangedListener, ChooseSourceFragment.Callbacks {
+class MainFragment : Fragment(), ChooseSourceFragment.Callbacks {
 
     private lateinit var bottomNavigationView: BottomNavigationView
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        childFragmentManager.addOnBackStackChangedListener(this)
-    }
-
-    override fun onBackStackChanged() {
-        if (childFragmentManager.backStackEntryCount == 0) {
-            if (bottomNavigationView.selectedItemId != R.id.main_art_details) {
-                bottomNavigationView.selectedItemId = R.id.main_art_details
-            }
-        }
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.main_fragment, container, false)
@@ -75,60 +62,28 @@ class MainFragment : Fragment(), FragmentManager.OnBackStackChangedListener, Cho
 
         // Set up the container for the child fragments
         val container = view.findViewById<View>(R.id.container)
-        if (savedInstanceState == null) {
-            FirebaseAnalytics.getInstance(requireContext())
-                    .setCurrentScreen(requireActivity(), "ArtDetail",
-                            ArtDetailFragment::class.java.simpleName)
-            childFragmentManager.beginTransaction()
-                    .replace(R.id.container, ArtDetailFragment())
-                    .commit()
-        }
+        val navController = container.findNavController()
 
         // Set up the bottom nav
         bottomNavigationView = view.findViewById(R.id.bottom_nav)
-        bottomNavigationView.setOnNavigationItemSelectedListener { item ->
-            if (childFragmentManager.isStateSaved) {
-                // Can't navigate after the state is saved
-                return@setOnNavigationItemSelectedListener false
-            }
-            return@setOnNavigationItemSelectedListener when (item.itemId) {
+        bottomNavigationView.setupWithNavController(navController)
+        navController.addOnNavigatedListener { _, destination ->
+            when (destination.id) {
                 R.id.main_art_details -> {
                     FirebaseAnalytics.getInstance(requireContext())
                             .setCurrentScreen(requireActivity(), "ArtDetail",
                                     ArtDetailFragment::class.java.simpleName)
-                    // The ArtDetailFragment is on the back stack, so just remove
-                    // any other Fragment that has replaced it
-                    childFragmentManager.popBackStack("main",
-                            FragmentManager.POP_BACK_STACK_INCLUSIVE)
-                    true
                 }
                 R.id.main_choose_source -> {
                     FirebaseAnalytics.getInstance(requireContext())
                             .setCurrentScreen(requireActivity(), "ChooseSource",
                                     ChooseSourceFragment::class.java.simpleName)
-                    childFragmentManager.popBackStack("main",
-                            FragmentManager.POP_BACK_STACK_INCLUSIVE)
-                    childFragmentManager.beginTransaction()
-                            .replace(R.id.container, ChooseSourceFragment())
-                            .addToBackStack("main")
-                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                            .commit()
-                    true
                 }
                 R.id.main_effects -> {
                     FirebaseAnalytics.getInstance(requireContext())
                             .setCurrentScreen(requireActivity(), "Effects",
                                     EffectsFragment::class.java.simpleName)
-                    childFragmentManager.popBackStack("main",
-                            FragmentManager.POP_BACK_STACK_INCLUSIVE)
-                    childFragmentManager.beginTransaction()
-                            .replace(R.id.container, EffectsFragment())
-                            .addToBackStack("main")
-                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                            .commit()
-                    true
                 }
-                else -> false
             }
         }
         bottomNavigationView.setOnNavigationItemReselectedListener { item ->
@@ -205,10 +160,5 @@ class MainFragment : Fragment(), FragmentManager.OnBackStackChangedListener, Cho
         super.onDestroyView()
         val activity = activity as AppCompatActivity?
         activity?.setSupportActionBar(null)
-    }
-
-    override fun onDestroy() {
-        childFragmentManager.removeOnBackStackChangedListener(this)
-        super.onDestroy()
     }
 }
