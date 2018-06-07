@@ -185,6 +185,7 @@ public class MuzeiProvider extends ContentProvider {
         final SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(MuzeiContract.Artwork.TABLE_NAME);
         qb.setProjectionMap(allColumnProjectionMap);
+        qb.setStrict(true);
         final SQLiteDatabase db = databaseHelper.getReadableDatabase();
         final Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, sortOrder, null);
         c.setNotificationUri(getContext().getContentResolver(), uri);
