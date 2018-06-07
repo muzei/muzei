@@ -124,6 +124,7 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
 
     override fun onDestroyView() {
         super.onDestroyView()
+        Picasso.get().cancelRequest(simpleDemoModeLoadedTarget)
         muzeiView = null
     }
 
