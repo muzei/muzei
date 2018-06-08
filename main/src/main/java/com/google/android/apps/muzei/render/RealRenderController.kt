@@ -32,13 +32,13 @@ class RealRenderController(
             .artworkDao().currentArtwork
 
     init {
-        reloadCurrentArtwork(false)
+        reloadCurrentArtwork()
     }
 
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
         artworkLiveData.observeNonNull(owner) {
-            reloadCurrentArtwork(false)
+            reloadCurrentArtwork()
         }
     }
 
@@ -47,7 +47,7 @@ class RealRenderController(
      * doesn't have artwork yet (as is the case when in Direct Boot), then we
      * use [MuzeiContract.Artwork.CONTENT_URI].
      */
-    override suspend fun openDownloadedCurrentArtwork(forceReload: Boolean) =
+    override suspend fun openDownloadedCurrentArtwork() =
             BitmapRegionLoader.newInstance(context.contentResolver,
                     artworkLiveData.value?.contentUri
                             ?: MuzeiContract.Artwork.CONTENT_URI)

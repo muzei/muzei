@@ -71,7 +71,7 @@ abstract class RenderController(
 
     private val throttledForceReloadHandler by lazy {
         Handler(Handler.Callback {
-            reloadCurrentArtwork(true)
+            reloadCurrentArtwork()
             true
         })
     }
@@ -95,16 +95,15 @@ abstract class RenderController(
     }
 
     protected abstract suspend fun openDownloadedCurrentArtwork(
-            forceReload: Boolean
     ): BitmapRegionLoader?
 
-    fun reloadCurrentArtwork(forceReload: Boolean) {
+    fun reloadCurrentArtwork() {
         if (destroyed) {
             // Don't reload artwork for destroyed RenderControllers
             return
         }
         launch(UI) {
-            val bitmapRegionLoader = openDownloadedCurrentArtwork(forceReload)
+            val bitmapRegionLoader = openDownloadedCurrentArtwork()
             if (bitmapRegionLoader == null || bitmapRegionLoader.width == 0 ||
                     bitmapRegionLoader.height == 0) {
                 Log.w(TAG, "Could not open the current artwork")

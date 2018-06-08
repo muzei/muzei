@@ -170,7 +170,7 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
         override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
             super.onSizeChanged(w, h, oldw, oldh)
             renderer.hintViewportSize(w, h)
-            renderController.reloadCurrentArtwork(true)
+            renderController.reloadCurrentArtwork()
         }
 
         override fun onDetachedFromWindow() {

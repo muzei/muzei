@@ -77,6 +77,6 @@ class DemoRenderController(
         focusSwap?.cancel()
     }
 
-    override suspend fun openDownloadedCurrentArtwork(forceReload: Boolean) =
+    override suspend fun openDownloadedCurrentArtwork() =
             BitmapRegionLoader.newInstance(context.assets.open("starrynight.jpg"))
 }

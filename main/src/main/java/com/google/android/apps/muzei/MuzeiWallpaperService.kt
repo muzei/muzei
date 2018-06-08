@@ -239,7 +239,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             if (!isPreview) {
                 WallpaperSizeLiveData.value = WallpaperSize(width, height)
             }
-            renderController.reloadCurrentArtwork(true)
+            renderController.reloadCurrentArtwork()
         }
 
         override fun onDestroy() {
