@@ -127,6 +127,10 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             val commands = async{
                 currentArtwork.getCommands(requireContext())
             }.await()
+            if (activity == null) {
+                // No need to refresh the commands if we're detached
+                return@launch
+            }
             overflowSourceActionMap.clear()
             overflowMenu.menu.clear()
             requireActivity().menuInflater.inflate(R.menu.muzei_overflow,
