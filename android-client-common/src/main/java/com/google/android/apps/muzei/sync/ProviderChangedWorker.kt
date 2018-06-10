@@ -40,6 +40,7 @@ import com.google.android.apps.muzei.render.BitmapRegionLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
+import kotlinx.coroutines.experimental.newSingleThreadContext
 import kotlinx.coroutines.experimental.runBlocking
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.IOException
@@ -58,6 +59,9 @@ class ProviderChangedWorker : Worker() {
         private const val PERSISTENT_CHANGED_TAG = "persistent_changed"
         private const val EXTRA_CONTENT_URI = "content_uri"
         private const val PREF_PERSISTENT_LISTENERS = "persistentListeners"
+        private val singleThreadContext by lazy {
+            newSingleThreadContext(TAG)
+        }
 
         internal fun enqueueSelected() {
             val workManager = WorkManager.getInstance()
@@ -163,7 +167,7 @@ class ProviderChangedWorker : Worker() {
         }
     }
 
-    override fun doWork() = runBlocking {
+    override fun doWork() = runBlocking(singleThreadContext) {
         val tag = inputData.getString(TAG, "")
         handleProviderChange(tag).also {
             if (tag == PERSISTENT_CHANGED_TAG &&
