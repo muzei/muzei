@@ -42,6 +42,7 @@ import com.google.android.apps.muzei.render.BitmapRegionLoader
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
+import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.newSingleThreadContext
 import kotlinx.coroutines.experimental.runBlocking
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
@@ -58,6 +59,7 @@ class ArtworkLoadWorker : Worker() {
     companion object {
         private const val TAG = "ArtworkLoad"
         private const val PERIODIC_TAG = "ArtworkLoadPeriodic"
+        private const val ARTWORK_LOAD_THROTTLE = 250 // quarter second
         private val singleThreadContext by lazy {
             newSingleThreadContext(TAG)
         }
@@ -88,6 +90,8 @@ class ArtworkLoadWorker : Worker() {
     }
 
     override fun doWork() = runBlocking(singleThreadContext) {
+        // Throttle artwork loads
+        delay(ARTWORK_LOAD_THROTTLE)
         loadArtwork()
     }
 
