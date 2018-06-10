@@ -24,6 +24,7 @@ import android.provider.BaseColumns
 import android.util.Log
 import androidx.core.database.getLong
 import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
@@ -41,6 +42,7 @@ import com.google.android.apps.muzei.render.BitmapRegionLoader
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
+import kotlinx.coroutines.experimental.newSingleThreadContext
 import kotlinx.coroutines.experimental.runBlocking
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.IOException
@@ -56,10 +58,15 @@ class ArtworkLoadWorker : Worker() {
     companion object {
         private const val TAG = "ArtworkLoad"
         private const val PERIODIC_TAG = "ArtworkLoadPeriodic"
+        private val singleThreadContext by lazy {
+            newSingleThreadContext(TAG)
+        }
 
         internal fun enqueueNext() {
             val workManager = WorkManager.getInstance()
-            workManager.enqueue(OneTimeWorkRequestBuilder<ArtworkLoadWorker>().build())
+            workManager.beginUniqueWork(TAG, ExistingWorkPolicy.REPLACE,
+                    OneTimeWorkRequestBuilder<ArtworkLoadWorker>().build())
+                    .enqueue()
         }
 
         internal fun enqueuePeriodic(loadFrequencySeconds: Long) {
@@ -80,7 +87,7 @@ class ArtworkLoadWorker : Worker() {
         }
     }
 
-    override fun doWork() = runBlocking {
+    override fun doWork() = runBlocking(singleThreadContext) {
         loadArtwork()
     }
 
