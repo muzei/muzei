@@ -172,8 +172,8 @@ class MuzeiBlurRenderer(
         surfaceCreated = true
         val loader = queuedNextBitmapRegionLoader
         if (loader != null) {
-            setAndConsumeBitmapRegionLoader(loader)
             queuedNextBitmapRegionLoader = null
+            setAndConsumeBitmapRegionLoader(loader)
         }
     }
 
@@ -243,6 +243,7 @@ class MuzeiBlurRenderer(
 
     fun setAndConsumeBitmapRegionLoader(bitmapRegionLoader: BitmapRegionLoader) {
         if (!surfaceCreated) {
+            queuedNextBitmapRegionLoader?.close()
             queuedNextBitmapRegionLoader = bitmapRegionLoader
             return
         }
@@ -276,8 +277,8 @@ class MuzeiBlurRenderer(
             System.gc()
             val loader = queuedNextBitmapRegionLoader
             if (loader != null) {
-                setAndConsumeBitmapRegionLoader(loader)
                 queuedNextBitmapRegionLoader = null
+                setAndConsumeBitmapRegionLoader(loader)
             }
         }
         callbacks.requestRender()
