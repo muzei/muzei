@@ -22,6 +22,7 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
 import android.os.Build
 import android.preference.PreferenceManager
 import android.provider.Settings
@@ -30,6 +31,7 @@ import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.app.RemoteInput
 import android.support.v4.content.ContextCompat
+import android.util.Log
 import androidx.core.content.edit
 import com.google.android.apps.muzei.ArtDetailOpenLiveData
 import com.google.android.apps.muzei.ArtworkInfoRedirectActivity
@@ -133,6 +135,13 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                 createNotificationChannel(context)
             }
 
+            try {
+                ContextCompat.getDrawable(context, R.drawable.ic_stat_muzei)
+            } catch (e : Resources.NotFoundException) {
+                Log.e("Notification", "Invalid installation: " +
+                        "missing notification icon", e)
+                return
+            }
             val artworkTitle = artwork.title
             val title = artworkTitle?.takeUnless { it.isEmpty() }
                     ?: context.getString(R.string.app_name)

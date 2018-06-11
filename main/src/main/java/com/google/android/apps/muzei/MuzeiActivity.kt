@@ -72,6 +72,9 @@ class MuzeiActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (MissingResourcesDialogFragment.showDialogIfNeeded(this)) {
+            return
+        }
         setContentView(R.layout.muzei_activity)
         FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
         val containerView = findViewById<View>(R.id.container)

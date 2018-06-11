@@ -65,6 +65,11 @@
     <string name="reset_advanced_settings_defaults">Reset sliders</string>
     <string name="play_store_not_found">Unable to open Play Store.</string>
 
+    <string name="missing_resources_title">Invalid Muzei installation</string>
+    <string name="missing_resources_message">Muzei is in an invalid state. Please uninstall Muzei and install it from the Google Play Store to repair your installation.</string>
+    <string name="missing_resources_open">Open Play Store</string>
+    <string name="missing_resources_quit">Close Muzei</string>
+
     <string name="about_title">About Muzei</string>
     <string name="about_body"><![CDATA[
         Made by Roman Nurik and Ian Lake, with major contributions from
