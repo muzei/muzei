@@ -27,7 +27,7 @@ import android.net.Uri
 import android.os.Build
 import android.support.media.ExifInterface
 import android.util.Log
-import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.newSingleThreadContext
 import kotlinx.coroutines.experimental.withContext
 import java.io.IOException
 import java.io.InputStream
@@ -42,12 +42,16 @@ private constructor(private val inputStream: InputStream, private val rotation: 
     companion object {
         private const val TAG = "BitmapRegionLoader"
 
+        private val singleThreadContext by lazy {
+            newSingleThreadContext(TAG)
+        }
+
         suspend fun decode(
                 contentResolver: ContentResolver,
                 uri: Uri,
                 targetWidth: Int = 0,
                 targetHeight: Int = targetWidth
-        ): Bitmap? = withContext(CommonPool) {
+        ): Bitmap? = withContext(singleThreadContext) {
             try {
                 val (originalWidth, originalHeight) = contentResolver.openInputStream(
                         uri)?.use { input ->
@@ -115,7 +119,7 @@ private constructor(private val inputStream: InputStream, private val rotation: 
         suspend fun newInstance(
                 contentResolver: ContentResolver,
                 uri: Uri
-        ): BitmapRegionLoader? = withContext(CommonPool) {
+        ): BitmapRegionLoader? = withContext(singleThreadContext) {
             val rotation = getRotation(contentResolver, uri)
             val input = try {
                 contentResolver.openInputStream(uri)
@@ -131,7 +135,7 @@ private constructor(private val inputStream: InputStream, private val rotation: 
                 return null
             }
 
-            return withContext(CommonPool) {
+            return withContext(singleThreadContext) {
                 createInstance(input, rotation)
             }
         }
