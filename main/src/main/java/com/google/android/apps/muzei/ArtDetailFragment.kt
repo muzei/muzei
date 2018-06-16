@@ -62,7 +62,6 @@ import com.google.android.apps.muzei.widget.showWidgetPreview
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.R
@@ -124,11 +123,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         }
 
         launch(UI) {
-            val commands = async{
-                activity?.run {
-                    currentArtwork.getCommands(this)
-                } ?: listOf()
-            }.await()
+            val commands = currentArtwork.getCommands(requireContext())
             if (activity == null) {
                 // No need to refresh the commands if we're detached
                 return@launch
