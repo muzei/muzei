@@ -33,8 +33,8 @@ class NotificationUpdater(private val context: Context) : DefaultLifecycleObserv
         MuzeiDatabase.getInstance(context).artworkDao().currentArtwork
                 .observeNonNull(owner) {
             launch {
-                NewWallpaperNotificationReceiver.maybeShowNewArtworkNotification(
-                        this@NotificationUpdater.context)
+                NewWallpaperNotificationReceiver
+                        .maybeShowNewArtworkNotification(context)
             }
         }
     }

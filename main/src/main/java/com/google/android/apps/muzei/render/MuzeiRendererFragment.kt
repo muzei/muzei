@@ -139,7 +139,9 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
     }
 
     override fun queueEventOnGlThread(event: () -> Unit) {
-        muzeiView?.queueEvent({ event() })
+        muzeiView?.queueEvent {
+            event()
+        }
     }
 
     override fun requestRender() {

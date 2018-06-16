@@ -336,7 +336,9 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         }
 
         override fun queueEventOnGlThread(event: () -> Unit) {
-            queueEvent({ event() })
+            queueEvent {
+                event()
+            }
         }
     }
 }

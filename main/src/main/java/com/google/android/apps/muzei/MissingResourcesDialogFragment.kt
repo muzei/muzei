@@ -52,8 +52,7 @@ class MissingResourcesDialogFragment : DialogFragment() {
         return AlertDialog.Builder(requireContext())
                 .setTitle(R.string.missing_resources_title)
                 .setMessage(R.string.missing_resources_message)
-                .setPositiveButton(R.string.missing_resources_open, {
-                    _: DialogInterface, _: Int ->
+                .setPositiveButton(R.string.missing_resources_open) { _: DialogInterface, _: Int ->
                     try {
                         val playStoreIntent = Intent(Intent.ACTION_VIEW,
                                 Uri.parse("https://play.google.com/store/apps/details?id=" + requireContext().packageName))
@@ -64,11 +63,10 @@ class MissingResourcesDialogFragment : DialogFragment() {
                         requireContext().toast(R.string.play_store_not_found, Toast.LENGTH_LONG)
                     }
                     requireActivity().finish()
-                })
-                .setNegativeButton(R.string.missing_resources_quit, {
-                    _: DialogInterface, _: Int ->
+                }
+                .setNegativeButton(R.string.missing_resources_quit) { _: DialogInterface, _: Int ->
                     requireActivity().finish()
-                })
+                }
                 .create()
     }
 }

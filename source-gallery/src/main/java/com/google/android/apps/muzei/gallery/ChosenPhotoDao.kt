@@ -32,6 +32,7 @@ import android.provider.DocumentsContract
 import android.util.Log
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.awaitAll
 import kotlinx.coroutines.experimental.withContext
 import java.io.File
 import java.io.FileOutputStream
@@ -245,7 +246,5 @@ internal abstract class ChosenPhotoDao {
                 }
             }
         }
-    }.forEach {
-        it.await()
-    }
+    }.awaitAll()
 }

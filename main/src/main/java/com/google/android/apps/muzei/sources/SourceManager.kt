@@ -156,7 +156,7 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                         .sourceDao().getCurrentSource()
                 if (source != null && packageName == source.componentName.packageName) {
                     try {
-                        this@SourceManager.context.packageManager.getServiceInfo(source.componentName, 0)
+                        context.packageManager.getServiceInfo(source.componentName, 0)
                     } catch (e: PackageManager.NameNotFoundException) {
                         Log.i(TAG, "Selected source ${source.componentName} is no longer available")
                         selectSource(context, FeaturedArtSource::class)
@@ -224,8 +224,7 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                         postValue(source)
                     } else {
                         // Can't have no source at all, so select the default
-                        selectSource(this@SourceManager.context,
-                                FeaturedArtSource::class)
+                        selectSource(context, FeaturedArtSource::class)
                     }
                 }
             }
@@ -378,22 +377,19 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
         } catch (e: PackageManager.NameNotFoundException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
             launch(UI) {
-                this@SourceManager.context.toast(
-                        R.string.source_unavailable, Toast.LENGTH_LONG)
+                context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
             }
             selectSource(context, FeaturedArtSource::class)
         } catch (e: IllegalStateException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
             launch(UI) {
-                this@SourceManager.context.toast(
-                        R.string.source_unavailable, Toast.LENGTH_LONG)
+                context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
             }
             selectSource(context, FeaturedArtSource::class)
         } catch (e: SecurityException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
             launch(UI) {
-                this@SourceManager.context.toast(
-                        R.string.source_unavailable, Toast.LENGTH_LONG)
+                context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
             }
             selectSource(context, FeaturedArtSource::class)
         }

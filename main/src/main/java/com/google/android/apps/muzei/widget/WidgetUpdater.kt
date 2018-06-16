@@ -46,7 +46,7 @@ class WidgetUpdater(private val context: Context) : DefaultLifecycleObserver {
 
     private fun updateAppWidget() {
         launch {
-            updateAppWidget(this@WidgetUpdater.context.applicationContext)
+            updateAppWidget(context.applicationContext)
         }
     }
 }

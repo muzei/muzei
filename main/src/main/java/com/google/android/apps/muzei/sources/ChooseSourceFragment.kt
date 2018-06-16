@@ -250,7 +250,7 @@ class ChooseSourceFragment : Fragment() {
         view.visibility = View.INVISIBLE
         view.viewTreeObserver.addOnGlobalLayoutListener(
                 object : ViewTreeObserver.OnGlobalLayoutListener {
-                    internal var pass = 0
+                    var pass = 0
 
                     override fun onGlobalLayout() {
                         when (pass) {

@@ -36,7 +36,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.os.HandlerThread
 import android.os.IBinder
 import android.provider.DocumentsContract
 import android.provider.Settings

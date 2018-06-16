@@ -76,7 +76,6 @@ class SourceArtProvider : MuzeiArtProvider() {
     }
 
     private fun sendAction(id: Int) = launch {
-        val context = this@SourceArtProvider.context
         MuzeiDatabase.getInstance(context).sourceDao().getCurrentSource()?.componentName?.run {
             try {
                 if (BuildConfig.DEBUG) {
