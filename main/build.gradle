@@ -104,6 +104,9 @@ dependencies {
     implementation ("com.twofortyfouram:android-plugin-api-for-locale:1.0.2") {
         exclude module: 'support-annotations'
     }
+    implementation ("com.android.support:support-v4:$supportLibraryVersion") {
+        exclude module: 'support-media-compat'
+    }
     implementation "com.android.support:appcompat-v7:$supportLibraryVersion"
     implementation "com.android.support:recyclerview-v7:$supportLibraryVersion"
     implementation "com.android.support:design:$supportLibraryVersion"
