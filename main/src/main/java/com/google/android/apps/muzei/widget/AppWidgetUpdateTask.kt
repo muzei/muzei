@@ -75,7 +75,7 @@ fun showWidgetPreview(context: Context) = launch {
  */
 suspend fun updateAppWidget(context: Context) {
     val widget = ComponentName(context, MuzeiAppWidgetProvider::class.java)
-    val appWidgetManager = AppWidgetManager.getInstance(context)
+    val appWidgetManager = AppWidgetManager.getInstance(context) ?: return
     val appWidgetIds = appWidgetManager.getAppWidgetIds(widget)
     if (appWidgetIds.isEmpty()) {
         // No app widgets, nothing to do
