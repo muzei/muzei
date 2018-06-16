@@ -79,7 +79,7 @@ class SourceSubscriberService : IntentService("SourceSubscriberService") {
         sourceDao.update(source)
 
         val currentArtwork = state.currentArtwork
-        if (currentArtwork != null) {
+        if (currentArtwork?.imageUri != null) {
             val newArtwork = Artwork().apply {
                 metadata = source.componentName.toShortString()
                 persistentUri = currentArtwork.imageUri
@@ -95,6 +95,8 @@ class SourceSubscriberService : IntentService("SourceSubscriberService") {
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Set artwork to: $artworkUri")
             }
+        } else if (currentArtwork != null) {
+            Log.w(TAG, "Skipping artwork with an imageUri: $currentArtwork")
         }
     }
 }
