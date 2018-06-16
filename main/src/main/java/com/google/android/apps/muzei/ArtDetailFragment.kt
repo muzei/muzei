@@ -125,7 +125,9 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
 
         launch(UI) {
             val commands = async{
-                currentArtwork.getCommands(requireContext())
+                activity?.run {
+                    currentArtwork.getCommands(this)
+                } ?: listOf()
             }.await()
             if (activity == null) {
                 // No need to refresh the commands if we're detached
