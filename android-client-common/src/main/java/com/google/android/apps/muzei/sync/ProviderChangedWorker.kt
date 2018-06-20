@@ -36,7 +36,7 @@ import androidx.work.Worker
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_LAST_LOADED_TIME
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_LOAD_INFO
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
-import com.google.android.apps.muzei.render.BitmapRegionLoader
+import com.google.android.apps.muzei.render.isValidImage
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
@@ -257,7 +257,7 @@ class ProviderChangedWorker : Worker() {
         val artworkUri = ContentUris.withAppendedId(contentUri, providerArtwork.id)
         try {
             client.openInputStream(artworkUri)?.use { inputStream ->
-                return BitmapRegionLoader.newInstance(inputStream) != null
+                return inputStream.isValidImage()
             }
         } catch (e: IOException) {
             Log.w(TAG, "Unable to preload artwork $artworkUri", e)

@@ -33,6 +33,14 @@ import kotlinx.coroutines.experimental.withContext
 import java.io.IOException
 import java.io.InputStream
 
+fun InputStream.isValidImage(): Boolean {
+    val options = BitmapFactory.Options().apply {
+        inJustDecodeBounds = true
+    }
+    BitmapFactory.decodeStream(this, null, options)
+    return options.outWidth != 0 && options.outHeight != 0
+}
+
 /**
  * Wrapper for [BitmapRegionDecoder] with some extra functionality.
  */

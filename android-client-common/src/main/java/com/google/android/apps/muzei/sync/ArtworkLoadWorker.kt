@@ -38,7 +38,7 @@ import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_REQUE
 import com.google.android.apps.muzei.api.internal.RecentArtworkIdsConverter
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.api.provider.ProviderContract
-import com.google.android.apps.muzei.render.BitmapRegionLoader
+import com.google.android.apps.muzei.render.isValidImage
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
@@ -217,13 +217,12 @@ class ArtworkLoadWorker : Worker() {
         val artworkUri = ContentUris.withAppendedId(contentUri, providerArtwork.id)
         try {
             client.openInputStream(artworkUri)?.use { inputStream ->
-                if (BitmapRegionLoader.newInstance(inputStream) == null) {
-                    return null
-                }
-                return Artwork(artworkUri).apply {
-                    title = providerArtwork.title
-                    byline = providerArtwork.byline
-                    attribution = providerArtwork.attribution
+                if (inputStream.isValidImage()) {
+                    return Artwork(artworkUri).apply {
+                        title = providerArtwork.title
+                        byline = providerArtwork.byline
+                        attribution = providerArtwork.attribution
+                    }
                 }
             }
         } catch (e: IOException) {
