@@ -494,8 +494,9 @@ class ChooseSourceFragment : Fragment() {
                     FirebaseAnalytics.getInstance(requireContext()).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
                             FirebaseAnalytics.Param.ITEM_ID to source.componentName.flattenToShortString(),
                             FirebaseAnalytics.Param.CONTENT_TYPE to "sources"))
+                    val context = requireContext()
                     launch {
-                        SourceManager.selectSource(requireContext(), source.componentName)
+                        SourceManager.selectSource(context, source.componentName)
                     }
                 }
             }
