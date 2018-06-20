@@ -28,7 +28,6 @@ import com.google.android.apps.muzei.api.internal.SourceState
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import kotlinx.coroutines.experimental.runBlocking
 import net.nurik.roman.muzei.BuildConfig
 import java.util.ArrayList
 
@@ -48,14 +47,12 @@ class SourceSubscriberService : IntentService("SourceSubscriberService") {
             SourceState.fromBundle(this)
         } ?: return // If there's no state, there's nothing to change
 
-        runBlocking {
-            update(token, state)
-        }
+        update(token, state)
     }
 
-    private suspend fun update(sourceToken: String, state: SourceState)  {
+    private fun update(sourceToken: String, state: SourceState)  {
         val sourceDao = MuzeiDatabase.getInstance(this).sourceDao()
-        val source = sourceDao.getCurrentSource()
+        val source = sourceDao.currentSourceBlocking
         if (source == null || sourceToken != source.componentName.flattenToShortString()) {
             Log.w(TAG, "Dropping update from non-selected source, token=$sourceToken " +
                     "does not match token for ${source?.componentName}")
