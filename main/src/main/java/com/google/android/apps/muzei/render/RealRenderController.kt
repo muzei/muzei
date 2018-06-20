@@ -43,12 +43,12 @@ class RealRenderController(
     }
 
     /**
-     * Create a [BitmapRegionLoader] for the current artwork. If [artworkLiveData]
+     * Create a [ImageLoader] for the current artwork. If [artworkLiveData]
      * doesn't have artwork yet (as is the case when in Direct Boot), then we
      * use [MuzeiContract.Artwork.CONTENT_URI].
      */
     override suspend fun openDownloadedCurrentArtwork() =
-            BitmapRegionLoader.newInstance(context.contentResolver,
+            ContentUriImageLoader(context.contentResolver,
                     artworkLiveData.value?.contentUri
                             ?: MuzeiContract.Artwork.CONTENT_URI)
 }

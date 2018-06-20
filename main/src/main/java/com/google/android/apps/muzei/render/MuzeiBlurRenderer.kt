@@ -46,10 +46,7 @@ data class SwitchingPhotosDone(private val currentId: Int) : SwitchingPhotos(cur
 
 object SwitchingPhotosLiveData : MutableLiveData<SwitchingPhotos>()
 
-data class ArtworkSize(val width: Int, val height: Int) {
-    internal constructor(bitmapRegionLoader: BitmapRegionLoader)
-            : this(bitmapRegionLoader.width, bitmapRegionLoader.height)
-}
+data class ArtworkSize(val width: Int, val height: Int)
 
 object ArtworkSizeLiveData : MutableLiveData<ArtworkSize>()
 
@@ -92,7 +89,7 @@ class MuzeiBlurRenderer(
     private var nextGLPictureSet: GLPictureSet
     private lateinit var colorOverlay: GLColorOverlay
 
-    private var queuedNextBitmapRegionLoader: BitmapRegionLoader? = null
+    private var queuedNextImageLoader: ImageLoader? = null
 
     private var surfaceCreated: Boolean = false
 
@@ -170,10 +167,10 @@ class MuzeiBlurRenderer(
         colorOverlay = GLColorOverlay()
 
         surfaceCreated = true
-        val loader = queuedNextBitmapRegionLoader
+        val loader = queuedNextImageLoader
         if (loader != null) {
-            queuedNextBitmapRegionLoader = null
-            setAndConsumeBitmapRegionLoader(loader)
+            queuedNextImageLoader = null
+            setAndConsumeImageLoader(loader)
         }
     }
 
@@ -241,28 +238,31 @@ class MuzeiBlurRenderer(
         return maxPrescaledBlurPixels * blurInterpolator.getInterpolation(f / blurKeyframes)
     }
 
-    fun setAndConsumeBitmapRegionLoader(bitmapRegionLoader: BitmapRegionLoader) {
+    fun setAndConsumeImageLoader(imageLoader: ImageLoader) {
         if (!surfaceCreated) {
-            queuedNextBitmapRegionLoader?.close()
-            queuedNextBitmapRegionLoader = bitmapRegionLoader
+            queuedNextImageLoader = imageLoader
             return
         }
 
         if (crossfadeAnimator.isRunning) {
-            queuedNextBitmapRegionLoader?.close()
-            queuedNextBitmapRegionLoader = bitmapRegionLoader
+            queuedNextImageLoader = imageLoader
+            return
+        }
+
+        val (width, height) = imageLoader.getSize()
+        if (width == 0 || height == 0) {
             return
         }
 
         if (!demoMode && !preview) {
             SwitchingPhotosLiveData.postValue(SwitchingPhotosInProgress(nextGLPictureSet.id))
-            ArtworkSizeLiveData.postValue(ArtworkSize(bitmapRegionLoader))
+            ArtworkSizeLiveData.postValue(ArtworkSize(width, height))
             ArtDetailViewport.setDefaultViewport(nextGLPictureSet.id,
-                    bitmapRegionLoader.width * 1f / bitmapRegionLoader.height,
+                    width * 1f / height,
                     aspectRatio)
         }
 
-        nextGLPictureSet.load(bitmapRegionLoader)
+        nextGLPictureSet.load(imageLoader)
 
         crossfadeAnimator.start(0, 1) {
             // swap current and next picturesets
@@ -275,10 +275,10 @@ class MuzeiBlurRenderer(
                 SwitchingPhotosLiveData.postValue(SwitchingPhotosDone(currentGLPictureSet.id))
             }
             System.gc()
-            val loader = queuedNextBitmapRegionLoader
+            val loader = queuedNextImageLoader
             if (loader != null) {
-                queuedNextBitmapRegionLoader = null
-                setAndConsumeBitmapRegionLoader(loader)
+                queuedNextImageLoader = null
+                setAndConsumeImageLoader(loader)
             }
         }
         callbacks.requestRender()
@@ -292,10 +292,11 @@ class MuzeiBlurRenderer(
         private var bitmapAspectRatio = 1f
         internal var dimAmount = 0
 
-        internal fun load(bitmapRegionLoader: BitmapRegionLoader) {
-            hasBitmap = bitmapRegionLoader.width != 0 && bitmapRegionLoader.height != 0
+        internal fun load(imageLoader: ImageLoader) {
+            val (width, height) = imageLoader.getSize()
+            hasBitmap = width != 0 && height != 0
             bitmapAspectRatio = if (hasBitmap)
-                bitmapRegionLoader.width * 1f / bitmapRegionLoader.height
+                width * 1f / height
             else
                 1f
 
@@ -305,7 +306,7 @@ class MuzeiBlurRenderer(
 
             if (hasBitmap) {
                 // Calculate image darkness to determine dim amount
-                var tempBitmap = bitmapRegionLoader.decode(64)
+                var tempBitmap = imageLoader.decode(64)
                 val darkness = tempBitmap.darkness()
                 dimAmount = if (demoMode)
                     DEMO_DIM
@@ -320,7 +321,7 @@ class MuzeiBlurRenderer(
                     val attemptedWidth = (bitmapAspectRatio * currentHeight / sampleSize).toInt()
                     val attemptedHeight = currentHeight / sampleSize
                     try {
-                        val image = bitmapRegionLoader.decode(
+                        val image = imageLoader.decode(
                                 attemptedWidth,
                                 attemptedHeight)
                         pictures[0] = image?.toGLPicture()
@@ -348,7 +349,7 @@ class MuzeiBlurRenderer(
 
                     // To blur, first load the entire bitmap region, but at a very large
                     // sample size that's appropriate for the final blurred image
-                    tempBitmap = bitmapRegionLoader.decode(scaledWidth, scaledHeight)
+                    tempBitmap = imageLoader.decode(scaledWidth, scaledHeight)
 
                     if (tempBitmap != null
                             && tempBitmap.width != 0 && tempBitmap.height != 0) {
@@ -382,14 +383,13 @@ class MuzeiBlurRenderer(
 
                         scaledBitmap.recycle()
                     } else {
-                        Log.e(TAG, "BitmapRegionLoader failed to decode the image")
+                        Log.e(TAG, "ImageLoader failed to decode the image")
                         for (f in 1..blurKeyframes) {
                             pictures[f] = null
                         }
                     }
                 }
             }
-            bitmapRegionLoader.close()
 
             recomputeTransformMatrices()
             callbacks.requestRender()

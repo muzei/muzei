@@ -53,7 +53,7 @@ import android.view.SurfaceHolder
 import androidx.core.content.edit
 import com.google.android.apps.muzei.complications.ArtworkComplicationProviderService
 import com.google.android.apps.muzei.datalayer.DataLayerArtProvider
-import com.google.android.apps.muzei.render.BitmapRegionLoader
+import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.select
@@ -226,7 +226,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                 launch {
                     val bitmap: Bitmap? = try {
                         artwork?.run {
-                            BitmapRegionLoader.decode(contentResolver, contentUri)
+                            ImageLoader.decode(contentResolver, contentUri)
                         }
                     } catch (e: FileNotFoundException) {
                         Log.w(TAG, "Could not find current artwork image", e)

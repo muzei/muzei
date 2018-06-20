@@ -21,7 +21,6 @@ import android.arch.lifecycle.LifecycleOwner
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Handler
-import android.util.Log
 import com.google.android.apps.muzei.settings.Prefs
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
@@ -32,26 +31,22 @@ abstract class RenderController(
         protected var callbacks: Callbacks
 ) : DefaultLifecycleObserver {
 
-    companion object {
-        private const val TAG = "RenderController"
-    }
-
     var visible: Boolean = false
         set(value) {
             field = value
             if (value) {
                 callbacks.queueEventOnGlThread {
-                    val loader = queuedBitmapRegionLoader
+                    val loader = queuedImageLoader
                     if (loader != null) {
-                        renderer.setAndConsumeBitmapRegionLoader(loader)
-                        queuedBitmapRegionLoader = null
+                        queuedImageLoader = null
+                        renderer.setAndConsumeImageLoader(loader)
                     }
                 }
                 callbacks.requestRender()
             }
         }
     private var destroyed = false
-    private var queuedBitmapRegionLoader: BitmapRegionLoader? = null
+    private var queuedImageLoader: ImageLoader? = null
     private val sharedPreferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         when (key) {
             Prefs.PREF_BLUR_AMOUNT -> {
@@ -82,8 +77,7 @@ abstract class RenderController(
     }
 
     override fun onDestroy(owner: LifecycleOwner) {
-        queuedBitmapRegionLoader?.close()
-        queuedBitmapRegionLoader = null
+        queuedImageLoader = null
         Prefs.getSharedPreferences(context)
                 .unregisterOnSharedPreferenceChangeListener(sharedPreferenceChangeListener)
         destroyed = true
@@ -94,8 +88,7 @@ abstract class RenderController(
         throttledForceReloadHandler.sendEmptyMessageDelayed(0, 250)
     }
 
-    protected abstract suspend fun openDownloadedCurrentArtwork(
-    ): BitmapRegionLoader?
+    protected abstract suspend fun openDownloadedCurrentArtwork(): ImageLoader
 
     fun reloadCurrentArtwork() {
         if (destroyed) {
@@ -103,20 +96,13 @@ abstract class RenderController(
             return
         }
         launch(UI) {
-            val bitmapRegionLoader = openDownloadedCurrentArtwork()
-            if (bitmapRegionLoader == null || bitmapRegionLoader.width == 0 ||
-                    bitmapRegionLoader.height == 0) {
-                Log.w(TAG, "Could not open the current artwork")
-                bitmapRegionLoader?.close()
-                return@launch
-            }
+            val imageLoader = openDownloadedCurrentArtwork()
 
             callbacks.queueEventOnGlThread {
                 if (visible) {
-                    renderer.setAndConsumeBitmapRegionLoader(bitmapRegionLoader)
+                    renderer.setAndConsumeImageLoader(imageLoader)
                 } else {
-                    queuedBitmapRegionLoader?.close()
-                    queuedBitmapRegionLoader = bitmapRegionLoader
+                    queuedImageLoader = imageLoader
                 }
             }
         }

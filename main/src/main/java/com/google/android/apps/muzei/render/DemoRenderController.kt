@@ -78,5 +78,5 @@ class DemoRenderController(
     }
 
     override suspend fun openDownloadedCurrentArtwork() =
-            BitmapRegionLoader.newInstance(context.assets.open("starrynight.jpg"))
+            AssetImageLoader(context.assets, "starrynight.jpg")
 }

@@ -35,7 +35,7 @@ import android.util.Log
 import androidx.core.content.edit
 import com.google.android.apps.muzei.ArtDetailOpenLiveData
 import com.google.android.apps.muzei.ArtworkInfoRedirectActivity
-import com.google.android.apps.muzei.render.BitmapRegionLoader
+import com.google.android.apps.muzei.render.ContentUriImageLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.getCommands
 import com.google.android.apps.muzei.room.sendAction
@@ -126,10 +126,9 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
             }
             val largeIconHeight = context.resources
                     .getDimensionPixelSize(android.R.dimen.notification_large_icon_height)
-            val largeIcon = BitmapRegionLoader.decode(
-                    contentResolver,artwork.contentUri, largeIconHeight) ?: return
-            val bigPicture = BitmapRegionLoader.decode(
-                    contentResolver,artwork.contentUri, 400) ?: return
+            val imageLoader = ContentUriImageLoader(contentResolver, artwork.contentUri)
+            val largeIcon = imageLoader.decode(largeIconHeight) ?: return
+            val bigPicture = imageLoader.decode(400) ?: return
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 createNotificationChannel(context)

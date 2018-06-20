@@ -21,7 +21,7 @@ import android.arch.lifecycle.LifecycleOwner
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
-import com.google.android.apps.muzei.render.BitmapRegionLoader
+import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.observeNonNull
@@ -85,7 +85,7 @@ class WearableController(private val context: Context) : DefaultLifecycleObserve
             return
         }
 
-        val image: Bitmap = BitmapRegionLoader.decode(
+        val image: Bitmap = ImageLoader.decode(
                 context.contentResolver, artwork.contentUri,
                 320) ?: return
 

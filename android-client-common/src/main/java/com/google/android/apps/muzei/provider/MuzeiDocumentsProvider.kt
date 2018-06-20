@@ -29,7 +29,7 @@ import android.os.ParcelFileDescriptor
 import android.provider.DocumentsContract
 import android.provider.DocumentsProvider
 import android.util.Log
-import com.google.android.apps.muzei.render.BitmapRegionLoader
+import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import kotlinx.coroutines.experimental.runBlocking
@@ -231,7 +231,7 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
             return AssetFileDescriptor(ParcelFileDescriptor.open(tempFile, ParcelFileDescriptor.MODE_READ_ONLY), 0,
                     AssetFileDescriptor.UNKNOWN_LENGTH)
         }
-        val bitmap = BitmapRegionLoader.decode(
+        val bitmap = ImageLoader.decode(
                 contentResolver, artworkUri,
                 sizeHint.x / 2, sizeHint.y / 2
         ) ?: run {

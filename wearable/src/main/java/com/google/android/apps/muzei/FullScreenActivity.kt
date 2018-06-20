@@ -27,7 +27,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.TextView
 import androidx.core.view.isVisible
-import com.google.android.apps.muzei.render.BitmapRegionLoader
+import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.PanView
 import com.google.android.apps.muzei.util.observeNonNull
@@ -106,7 +106,7 @@ class FullScreenActivity : FragmentActivity() {
         MuzeiDatabase.getInstance(this).artworkDao()
                 .currentArtwork.observeNonNull(this) { artwork ->
             launch(UI) {
-                val image = BitmapRegionLoader.decode(
+                val image = ImageLoader.decode(
                         contentResolver, artwork.contentUri)
                 showLoadingIndicator?.cancel()
                 loadingIndicatorView.isVisible = false

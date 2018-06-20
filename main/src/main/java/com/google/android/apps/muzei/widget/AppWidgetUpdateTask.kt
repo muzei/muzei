@@ -30,7 +30,7 @@ import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
 import androidx.core.os.bundleOf
-import com.google.android.apps.muzei.render.BitmapRegionLoader
+import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
@@ -140,7 +140,7 @@ private suspend fun createRemoteViews(
             0, nextArtworkIntent, PendingIntent.FLAG_UPDATE_CURRENT)
     val smallWidgetHeight = context.resources.getDimensionPixelSize(
             R.dimen.widget_small_height_breakpoint)
-    val image = BitmapRegionLoader.decode(
+    val image = ImageLoader.decode(
             context.contentResolver, imageUri,
             widgetWidth / 2, widgetHeight / 2) ?: return null
 
