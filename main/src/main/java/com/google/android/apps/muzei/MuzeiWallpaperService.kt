@@ -197,10 +197,8 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                         }
             }
 
-            if (!isPreview) {
-                // Use the MuzeiWallpaperService's lifecycle to wait for the user to unlock
-                wallpaperLifecycle.addObserver(this)
-            }
+            // Use the MuzeiWallpaperService's lifecycle to wait for the user to unlock
+            wallpaperLifecycle.addObserver(this)
             setTouchEventsEnabled(true)
             setOffsetNotificationsEnabled(true)
             ArtDetailOpenLiveData.observeNonNull(this) { isArtDetailOpened ->
@@ -217,7 +215,9 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         override fun onStart(owner: LifecycleOwner) {
             // The MuzeiWallpaperService only gets to ON_START when the user is unlocked
             // At that point, we can proceed with the engine's lifecycle
-            engineLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            // In preview mode, we only move to ON_START to avoid analytics events.
+            engineLifecycle.handleLifecycleEvent(if (isPreview)
+                Lifecycle.Event.ON_START else Lifecycle.Event.ON_RESUME)
         }
 
         @RequiresApi(Build.VERSION_CODES.O_MR1)
