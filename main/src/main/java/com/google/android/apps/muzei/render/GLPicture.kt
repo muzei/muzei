@@ -18,19 +18,10 @@ package com.google.android.apps.muzei.render
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Rect
 import android.opengl.GLES20
 import com.google.android.apps.muzei.util.divideRoundUp
-
 import java.nio.FloatBuffer
-
-internal fun BitmapRegionLoader.toGLPicture(maxHeight: Int): GLPicture? {
-    if (maxHeight == 0 || width == 0 || height == 0) {
-        return null
-    }
-    return GLPicture(this, maxHeight)
-}
 
 internal fun Bitmap.toGLPicture(): GLPicture? {
     if (width == 0 || height == 0) {
@@ -39,7 +30,9 @@ internal fun Bitmap.toGLPicture(): GLPicture? {
     return GLPicture(this)
 }
 
-internal class GLPicture {
+internal class GLPicture @SuppressLint("CheckResult") internal constructor(
+        bitmap: Bitmap
+) {
 
     companion object {
         private const val VERTEX_SHADER_CODE = "" +
@@ -115,63 +108,11 @@ internal class GLPicture {
 
     private val numColumns: Int
     private val numRows: Int
-    private val width: Int
-    private val height: Int
+    private val width = bitmap.width
+    private val height = bitmap.height
     private val textureHandles: IntArray
 
-    @SuppressLint("CheckResult")
-    internal constructor(bitmapRegionLoader: BitmapRegionLoader, maxHeight: Int) {
-        val originalWidth = bitmapRegionLoader.width
-        val originalHeight = bitmapRegionLoader.height
-        val sampleSize = originalHeight.sampleSize(maxHeight)
-
-        width = originalWidth / sampleSize
-        height = originalHeight / sampleSize
-
-        val unsampledTileSize = TILE_SIZE * sampleSize
-        val leftoverHeight = originalHeight % unsampledTileSize
-
-        // Load m x n textures
-        numColumns = width.divideRoundUp(TILE_SIZE)
-        numRows = height.divideRoundUp(TILE_SIZE)
-
-        textureHandles = IntArray(numColumns * numRows)
-
-        val tileBitmap = Bitmap.createBitmap(TILE_SIZE, TILE_SIZE, Bitmap.Config.ARGB_8888)
-        val rect = Rect()
-        val options = BitmapFactory.Options()
-        options.inSampleSize = sampleSize
-        options.inBitmap = tileBitmap
-        for (y in 0 until numRows) {
-            for (x in 0 until numColumns) {
-                rect.set(x * unsampledTileSize,
-                        (numRows - y - 1) * unsampledTileSize,
-                        (x + 1) * unsampledTileSize,
-                        (numRows - y) * unsampledTileSize)
-                // The bottom tiles must be full tiles for drawing, so only allow edge tiles
-                // at the top
-                if (leftoverHeight > 0) {
-                    rect.offset(0, -unsampledTileSize + leftoverHeight)
-                }
-                rect.intersect(0, 0, originalWidth, originalHeight)
-                for (attempt in 1..3) {
-                    val useBitmap = bitmapRegionLoader.decodeRegion(rect, options)
-                    if (useBitmap != null) {
-                        textureHandles[y * numColumns + x] = GLUtil.loadTexture(useBitmap)
-                        if (useBitmap != tileBitmap) {
-                            useBitmap.recycle()
-                        }
-                        break
-                    }
-                }
-            }
-        }
-    }
-
-    @SuppressLint("CheckResult")
-    internal constructor(bitmap: Bitmap) {
-        width = bitmap.width
-        height = bitmap.height
+    init {
         val leftoverHeight = height % TILE_SIZE
 
         // Load m x n textures

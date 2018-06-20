@@ -28,6 +28,7 @@ import android.os.Build
 import android.support.media.ExifInterface
 import android.util.Log
 import kotlinx.coroutines.experimental.newSingleThreadContext
+import kotlinx.coroutines.experimental.runBlocking
 import kotlinx.coroutines.experimental.withContext
 import java.io.IOException
 import java.io.InputStream
@@ -36,8 +37,12 @@ import java.io.InputStream
  * Wrapper for [BitmapRegionDecoder] with some extra functionality.
  */
 class BitmapRegionLoader @Throws(IOException::class)
-private constructor(private val inputStream: InputStream, private val rotation: Int = 0)
-    : AutoCloseable {
+private constructor(
+        private val inputStream: InputStream,
+        private val rotation: Int = 0,
+        private val contentResolver: ContentResolver? = null,
+        private val uri: Uri? = null
+) : AutoCloseable {
 
     companion object {
         private const val TAG = "BitmapRegionLoader"
@@ -127,7 +132,7 @@ private constructor(private val inputStream: InputStream, private val rotation: 
                 Log.w(TAG, "Couldn't openInputStream for $uri", e)
                 null
             } ?: return@withContext null
-            createInstance(input, rotation)
+            createInstance(input, rotation, contentResolver, uri)
         }
 
         suspend fun newInstance(input: InputStream?, rotation: Int = 0): BitmapRegionLoader? {
@@ -140,8 +145,13 @@ private constructor(private val inputStream: InputStream, private val rotation: 
             }
         }
 
-        private fun createInstance(input: InputStream, rotation: Int = 0) = try {
-            BitmapRegionLoader(input, rotation)
+        private fun createInstance(
+                input: InputStream,
+                rotation: Int = 0,
+                contentResolver: ContentResolver? = null,
+                uri: Uri? = null
+        ) = try {
+            BitmapRegionLoader(input, rotation, contentResolver, uri)
         } catch (e: Exception) {
             Log.e(TAG, "Error creating BitmapRegionLoader", e)
             input.close()
@@ -203,13 +213,21 @@ private constructor(private val inputStream: InputStream, private val rotation: 
      * using sample size
      */
     @Synchronized
-    fun decode(targetWidth: Int, targetHeight: Int = targetWidth) = decodeRegion(
-            Rect(0, 0, width, height),
-            BitmapFactory.Options().apply {
-                inSampleSize = Math.max(
-                        width.sampleSize(targetWidth),
-                        height.sampleSize(targetHeight))
-            })
+    fun decode(targetWidth: Int, targetHeight: Int = targetWidth): Bitmap? {
+        return if (contentResolver != null && uri != null) {
+            runBlocking {
+                decode(contentResolver, uri, targetWidth, targetHeight)
+            }
+        } else {
+            decodeRegion(
+                    Rect(0, 0, width, height),
+                    BitmapFactory.Options().apply {
+                        inSampleSize = Math.max(
+                                width.sampleSize(targetWidth),
+                                height.sampleSize(targetHeight))
+                    })
+        }
+    }
 
     /**
      * Key difference, aside from support for rotation, from
@@ -217,7 +235,7 @@ private constructor(private val inputStream: InputStream, private val rotation: 
      * if `inBitmap` is given, a sub-bitmap might be returned.
      */
     @Synchronized
-    fun decodeRegion(rect: Rect, options: Options = Options()): Bitmap? {
+    private fun decodeRegion(rect: Rect, options: Options = Options()): Bitmap? {
         options.inPreferredConfig = Bitmap.Config.ARGB_8888
         var unsampledInBitmapWidth = -1
         var unsampledInBitmapHeight = -1

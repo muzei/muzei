@@ -314,7 +314,23 @@ class MuzeiBlurRenderer(
                 tempBitmap?.recycle()
 
                 // Create the GLPicture objects
-                pictures[0] = bitmapRegionLoader.toGLPicture(currentHeight)
+                var success = false
+                var sampleSize = 1
+                do {
+                    val attemptedWidth = (bitmapAspectRatio * currentHeight / sampleSize).toInt()
+                    val attemptedHeight = currentHeight / sampleSize
+                    try {
+                        val image = bitmapRegionLoader.decode(
+                                attemptedWidth,
+                                attemptedHeight)
+                        pictures[0] = image?.toGLPicture()
+                        success = true
+                    } catch (e: OutOfMemoryError) {
+                        sampleSize = sampleSize shl 1
+                        Log.d(TAG, "Decoding image at ${attemptedWidth}x$attemptedHeight " +
+                                "was too large, trying a sample size of $sampleSize")
+                    }
+                } while (!success)
                 if (maxPrescaledBlurPixels == 0 && maxGrey == 0) {
                     for (f in 1..blurKeyframes) {
                         pictures[f] = pictures[0]
