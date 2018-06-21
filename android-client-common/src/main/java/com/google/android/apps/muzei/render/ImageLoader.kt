@@ -22,6 +22,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.net.Uri
+import android.os.Build
 import android.support.media.ExifInterface
 import android.util.Log
 import kotlinx.coroutines.experimental.CommonPool
@@ -33,9 +34,14 @@ import java.io.InputStream
 fun InputStream.isValidImage(): Boolean {
     val options = BitmapFactory.Options().apply {
         inJustDecodeBounds = true
+        inPreferredConfig = Bitmap.Config.ARGB_8888
     }
     BitmapFactory.decodeStream(this, null, options)
-    return options.outWidth != 0 && options.outHeight != 0
+    return with(options) {
+        outWidth != 0 && outHeight != 0 &&
+                (Build.VERSION.SDK_INT < Build.VERSION_CODES.O ||
+                        outConfig == Bitmap.Config.ARGB_8888)
+    }
 }
 
 /**
@@ -94,6 +100,7 @@ sealed class ImageLoader {
             openInputStream()?.use { input ->
                 BitmapFactory.decodeStream(input, null,
                         BitmapFactory.Options().apply {
+                            inPreferredConfig = Bitmap.Config.ARGB_8888
                             if (targetWidth != 0) {
                                 inSampleSize = Math.max(
                                         width.sampleSize(targetWidth),
