@@ -123,14 +123,13 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         }
 
         launch(UI) {
-            val commands = currentArtwork.getCommands(requireContext())
-            if (activity == null) {
-                // No need to refresh the commands if we're detached
-                return@launch
-            }
+            val commands = context?.run {
+                currentArtwork.getCommands(this)
+            } ?: return@launch
+            val activity = activity ?: return@launch
             overflowSourceActionMap.clear()
             overflowMenu.menu.clear()
-            requireActivity().menuInflater.inflate(R.menu.muzei_overflow,
+            activity.menuInflater.inflate(R.menu.muzei_overflow,
                     overflowMenu.menu)
             commands.take(SOURCE_ACTION_IDS.size).forEachIndexed { i, action ->
                 overflowSourceActionMap.put(SOURCE_ACTION_IDS[i], action.id)
@@ -138,7 +137,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
                         0, action.title)
                 if (action.id == MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK &&
                         currentProviderLiveData.value?.componentName?.equals(
-                                ComponentName(requireActivity(), SourceArtProvider::class.java)
+                                ComponentName(activity, SourceArtProvider::class.java)
                         ) == true) {
                     menuItem.setIcon(R.drawable.ic_skip)
                     menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
