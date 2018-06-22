@@ -177,10 +177,10 @@ class ProviderChangedWorker : Worker() {
         }
     }
 
-    private suspend fun handleProviderChange(tag: String): WorkerResult {
+    private suspend fun handleProviderChange(tag: String): Result {
         val database = MuzeiDatabase.getInstance(applicationContext)
         val provider = database.providerDao()
-                .getCurrentProvider() ?: return WorkerResult.FAILURE
+                .getCurrentProvider() ?: return Result.FAILURE
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Provider Change ($tag) for ${provider.componentName}")
         }
@@ -188,7 +188,7 @@ class ProviderChangedWorker : Worker() {
         try {
             ContentProviderClientCompat.getClient(applicationContext, contentUri)?.use { client ->
                 val result = client.call(METHOD_GET_LOAD_INFO)
-                        ?: return WorkerResult.RETRY
+                        ?: return Result.RETRY
                 val lastLoadedTime = result.getLong(KEY_LAST_LOADED_TIME, 0L)
                 client.query(contentUri)?.use { allArtwork ->
                     val loadFrequencySeconds = ProviderManager.getInstance(applicationContext).loadFrequencySeconds
@@ -224,13 +224,13 @@ class ProviderChangedWorker : Worker() {
                         Log.d(TAG, "Found at least $validArtworkCount artwork for $provider")
                     }
                     database.providerDao().update(provider)
-                    return WorkerResult.SUCCESS
+                    return Result.SUCCESS
                 }
             }
         } catch (e: RemoteException) {
             Log.i(TAG, "Provider ${provider.componentName} crashed while retrieving artwork", e)
         }
-        return WorkerResult.RETRY
+        return Result.RETRY
     }
 
     private suspend fun isCurrentArtworkValid(

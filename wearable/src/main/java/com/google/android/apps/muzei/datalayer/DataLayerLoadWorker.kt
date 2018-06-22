@@ -67,11 +67,11 @@ class DataLayerLoadWorker : Worker() {
         }
     }
 
-    override fun doWork(): WorkerResult = runBlocking {
+    override fun doWork(): Result = runBlocking {
         loadFromDataLayer()
     }
 
-    private suspend fun loadFromDataLayer(): WorkerResult {
+    private suspend fun loadFromDataLayer(): Result {
         val showActivateNotification = inputData.getBoolean(SHOW_ACTIVATE_NOTIFICATION_EXTRA,
                 false)
         if (BuildConfig.DEBUG) {
@@ -89,7 +89,7 @@ class DataLayerLoadWorker : Worker() {
                 if (showActivateNotification) {
                     ActivateMuzeiIntentService.maybeShowActivateMuzeiNotification(applicationContext)
                 }
-                return WorkerResult.FAILURE
+                return Result.FAILURE
             }
             val dataMap = dataItemBuffer.map {
                 DataMapItem.fromDataItem(it).dataMap
@@ -102,7 +102,7 @@ class DataLayerLoadWorker : Worker() {
                 if (showActivateNotification) {
                     ActivateMuzeiIntentService.maybeShowActivateMuzeiNotification(applicationContext)
                 }
-                return WorkerResult.FAILURE
+                return Result.FAILURE
             }
             val selectedProvider = MuzeiDatabase.getInstance(applicationContext).providerDao()
                     .getCurrentProvider()
@@ -123,7 +123,7 @@ class DataLayerLoadWorker : Worker() {
                 }
             } catch (e: IOException) {
                 Log.e(TAG, "Unable to save asset to local storage", e)
-                return WorkerResult.FAILURE
+                return Result.FAILURE
             } finally {
                 result.release()
             }
@@ -139,13 +139,13 @@ class DataLayerLoadWorker : Worker() {
                         ArtworkComplicationProviderService::class)
                 ActivateMuzeiIntentService.clearNotifications(applicationContext)
             }
-            return WorkerResult.SUCCESS
+            return Result.SUCCESS
         } catch (e: ExecutionException) {
             Log.w(TAG, "Error getting artwork from Wear Data Layer", e)
-            return WorkerResult.FAILURE
+            return Result.FAILURE
         } catch (e: InterruptedException) {
             Log.w(TAG, "Error getting artwork from Wear Data Layer", e)
-            return WorkerResult.FAILURE
+            return Result.FAILURE
         }
     }
 

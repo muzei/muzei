@@ -42,17 +42,17 @@ class FiveHundredPxExampleWorker : Worker() {
         }
     }
 
-    override fun doWork(): WorkerResult {
+    override fun doWork(): Result {
         val photos = try {
             FiveHundredPxService.popularPhotos()
         } catch (e: IOException) {
             Log.w(TAG, "Error reading 500px response", e)
-            return WorkerResult.RETRY
+            return Result.RETRY
         }
 
         if (photos.isEmpty()) {
             Log.w(TAG, "No photos returned from API.")
-            return WorkerResult.FAILURE
+            return Result.FAILURE
         }
 
         photos.map { photo ->
@@ -68,6 +68,6 @@ class FiveHundredPxExampleWorker : Worker() {
                     FiveHundredPxExampleArtProvider::class.java,
                     artwork)
         }
-        return WorkerResult.SUCCESS
+        return Result.SUCCESS
     }
 }

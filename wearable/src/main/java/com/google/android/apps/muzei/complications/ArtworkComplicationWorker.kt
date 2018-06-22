@@ -63,7 +63,7 @@ class ArtworkComplicationWorker : Worker() {
         }
     }
 
-    override fun doWork(): WorkerResult {
+    override fun doWork(): Result {
         val providerUpdateRequester = ProviderUpdateRequester(applicationContext,
                 ComponentName(applicationContext, ArtworkComplicationProviderService::class.java))
         val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
@@ -74,6 +74,6 @@ class ArtworkComplicationWorker : Worker() {
         }
         // Reschedule the job to listen for the next change
         scheduleComplicationUpdate()
-        return WorkerResult.SUCCESS
+        return Result.SUCCESS
     }
 }
