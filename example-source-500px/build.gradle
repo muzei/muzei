@@ -23,6 +23,7 @@ dependencies {
     implementation "android.arch.work:work-runtime-ktx:$workManagerVersion"
     implementation "com.squareup.retrofit2:retrofit:2.3.0"
     implementation "com.squareup.retrofit2:converter-gson:2.3.0"
+    implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
     //implementation "com.google.android.apps.muzei:muzei-api:+"
     implementation project(':api')
 }
