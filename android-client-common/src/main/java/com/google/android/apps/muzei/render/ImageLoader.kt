@@ -116,7 +116,7 @@ sealed class ImageLoader {
                         }
                         Bitmap.createBitmap(
                                 this, 0, 0,
-                                width, height,
+                                this.width, this.height,
                                 rotateMatrix, true).also { rotatedBitmap ->
                             if (rotatedBitmap != this) {
                                 recycle()
