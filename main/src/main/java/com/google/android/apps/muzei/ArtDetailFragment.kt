@@ -227,7 +227,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             if (id > 0) {
                 currentArtworkLiveData.value?.run {
                     launch {
-                        sendAction(requireContext(), id)
+                        sendAction(context, id)
                     }
                 }
                 return@setOnMenuItemClickListener true
