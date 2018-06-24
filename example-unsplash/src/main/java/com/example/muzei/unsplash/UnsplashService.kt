@@ -18,10 +18,9 @@ package com.example.muzei.unsplash
 
 import androidx.core.net.toUri
 import okhttp3.OkHttpClient
-import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
 import java.io.IOException
@@ -44,7 +43,7 @@ internal interface UnsplashService {
             val retrofit = Retrofit.Builder()
                     .baseUrl("https://api.unsplash.com/")
                     .client(okHttpClient)
-                    .addConverterFactory(GsonConverterFactory.create())
+                    .addConverterFactory(MoshiConverterFactory.create())
                     .build()
 
             return retrofit.create<UnsplashService>(UnsplashService::class.java)
@@ -66,7 +65,7 @@ internal interface UnsplashService {
     val popularPhotos: Call<List<Photo>>
 
     @GET("photos/{id}/download")
-    fun trackDownload(@Path("id") photoId: String) : Call<JSONObject>
+    fun trackDownload(@Path("id") photoId: String) : Call<Any>
 
     data class Photo(
             val id: String,
