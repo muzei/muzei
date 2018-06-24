@@ -16,8 +16,8 @@
 
 <resources>
     <string name="app_name">Unsplash (Example Muzei Source)</string>
-    <string name="source_name">Unsplash (Example)</string>
-    <string name="source_description">Popular photos from Unsplash</string>
+    <string name="name">Unsplash (Example)</string>
+    <string name="description">Popular photos from Unsplash</string>
     <string name="attribution">Photo on Unsplash</string>
     <string name="action_view_profile">View %s\'s profile</string>
     <string name="action_visit_unsplash">Visit Unsplash</string>

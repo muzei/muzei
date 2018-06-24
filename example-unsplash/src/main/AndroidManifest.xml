@@ -32,8 +32,8 @@
 
         <service
             android:name="com.example.muzei.unsplash.UnsplashExampleArtSource"
-            android:label="@string/source_name"
-            android:description="@string/source_description"
+            android:label="@string/name"
+            android:description="@string/description"
             android:icon="@drawable/ic_source"
             tools:ignore="ExportedService">
             <intent-filter>
@@ -47,8 +47,8 @@
         <provider
             android:name="com.example.muzei.unsplash.UnsplashExampleArtProvider"
             android:authorities="com.example.muzei.exampleunsplash"
-            android:label="@string/source_name"
-            android:description="@string/source_description"
+            android:label="@string/name"
+            android:description="@string/description"
             android:exported="true"
             android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER">
             <intent-filter>
