@@ -58,15 +58,17 @@ internal interface UnsplashService {
     data class Photo(
             val id: String,
             val urls: Urls,
-            val description: String,
+            val description: String?,
             val user: User,
             val links: Links)
 
     data class Urls(val full: String)
 
     data class Links(val html: String) {
-        val webUri get() = "$html?utm_source=example_api_muzei&utm_medium=referral".toUri()
+        val webUri get() = "$html$ATTRIBUTION_QUERY_PARAMETERS".toUri()
     }
 
-    data class User(val name: String)
+    data class User(
+            val name: String,
+            val links: Links)
 }

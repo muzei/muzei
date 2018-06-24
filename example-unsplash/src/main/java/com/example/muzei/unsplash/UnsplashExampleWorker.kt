@@ -55,14 +55,16 @@ class UnsplashExampleWorker : Worker() {
             return Result.FAILURE
         }
 
+        val attributionString = applicationContext.getString(R.string.attribution)
         photos.map { photo ->
             Artwork().apply {
                 token = photo.id
-                title = photo.description
+                title = photo.description ?: attributionString
                 byline = photo.user.name
-                attribution = applicationContext.getString(R.string.attribution)
+                attribution = if (photo.description != null) attributionString else null
                 persistentUri = photo.urls.full.toUri()
                 webUri = photo.links.webUri
+                metadata = photo.user.links.webUri.toString()
             }
         }.forEach { artwork ->
             ProviderContract.Artwork.addArtwork(applicationContext,

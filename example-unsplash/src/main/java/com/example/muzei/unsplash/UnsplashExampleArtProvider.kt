@@ -16,10 +16,39 @@
 
 package com.example.muzei.unsplash
 
+import android.content.Intent
+import androidx.core.net.toUri
+import com.google.android.apps.muzei.api.UserCommand
+import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 
 class UnsplashExampleArtProvider : MuzeiArtProvider() {
+
+    companion object {
+        private const val COMMAND_ID_VIEW_PROFILE = 1
+        private const val COMMAND_ID_VISIT_UNSPLASH = 2
+    }
     override fun onLoadRequested(initial: Boolean) {
         UnsplashExampleWorker.enqueueLoad()
+    }
+
+    override fun getCommands(artwork: Artwork) = listOf(
+            UserCommand(COMMAND_ID_VIEW_PROFILE,
+                    context.getString(R.string.action_view_profile, artwork.byline)),
+            UserCommand(COMMAND_ID_VISIT_UNSPLASH,
+                    context.getString(R.string.action_visit_unsplash)))
+
+    override fun onCommand(artwork: Artwork, id: Int) {
+        when (id) {
+            COMMAND_ID_VIEW_PROFILE -> {
+                val profileUri = artwork.metadata?.toUri() ?: return
+                context.startActivity(Intent(Intent.ACTION_VIEW, profileUri))
+            }
+            COMMAND_ID_VISIT_UNSPLASH -> {
+                val unsplashUri = context.getString(R.string.unsplash_link) +
+                        ATTRIBUTION_QUERY_PARAMETERS
+                context.startActivity(Intent(Intent.ACTION_VIEW, unsplashUri.toUri()))
+            }
+        }
     }
 }
