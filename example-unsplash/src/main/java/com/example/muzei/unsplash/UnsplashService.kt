@@ -18,17 +18,19 @@ package com.example.muzei.unsplash
 
 import androidx.core.net.toUri
 import okhttp3.OkHttpClient
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Path
 import java.io.IOException
 
 internal interface UnsplashService {
 
     companion object {
-        @Throws(IOException::class)
-        internal fun popularPhotos(): List<UnsplashService.Photo> {
+
+        private fun createService() : UnsplashService {
             val okHttpClient = OkHttpClient.Builder()
                     .addInterceptor { chain ->
                         var request = chain.request()
@@ -45,15 +47,26 @@ internal interface UnsplashService {
                     .addConverterFactory(GsonConverterFactory.create())
                     .build()
 
-            val service = retrofit.create<UnsplashService>(UnsplashService::class.java)
+            return retrofit.create<UnsplashService>(UnsplashService::class.java)
+        }
 
-            return service.popularPhotos.execute().body()
+        @Throws(IOException::class)
+        internal fun popularPhotos(): List<UnsplashService.Photo> {
+            return createService().popularPhotos.execute().body()
                     ?: throw IOException("Response was null")
+        }
+
+        @Throws(IOException::class)
+        internal fun trackDownload(photoId: String) {
+            createService().trackDownload(photoId).execute()
         }
     }
 
     @get:GET("photos/curated?order_by=popular&per_page=30")
     val popularPhotos: Call<List<Photo>>
+
+    @GET("photos/{id}/download")
+    fun trackDownload(@Path("id") photoId: String) : Call<JSONObject>
 
     data class Photo(
             val id: String,

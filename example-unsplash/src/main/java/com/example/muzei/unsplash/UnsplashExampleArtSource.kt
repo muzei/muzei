@@ -67,6 +67,11 @@ class UnsplashExampleArtSource : RemoteMuzeiArtSource(SOURCE_NAME) {
             }
         }
 
+        try {
+            UnsplashService.trackDownload(photo.id)
+        } catch (e: IOException) {
+            Log.w(TAG, "Error reporting download to Unsplash", e)
+        }
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Loaded ${photo.id} with uri: ${photo.urls.full}")
         }
