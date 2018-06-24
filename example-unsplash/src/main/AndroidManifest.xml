@@ -1,5 +1,5 @@
 <!--
-  Copyright 2014 Google Inc.
+  Copyright 2018 Google Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.muzei.examplesource500px">
+    package="com.example.muzei.unsplash">
 
     <uses-permission android:name="android.permission.INTERNET"/>
 
@@ -31,7 +31,7 @@
         tools:ignore="GoogleAppIndexingWarning">
 
         <service
-            android:name=".FiveHundredPxExampleArtSource"
+            android:name="com.example.muzei.unsplash.UnsplashExampleArtSource"
             android:label="@string/source_name"
             android:description="@string/source_description"
             android:icon="@drawable/ic_source"
@@ -45,8 +45,8 @@
         </service>
 
         <provider
-            android:name=".FiveHundredPxExampleArtProvider"
-            android:authorities="com.example.muzei.exampleprovider500px"
+            android:name="com.example.muzei.unsplash.UnsplashExampleArtProvider"
+            android:authorities="com.example.muzei.exampleunsplash"
             android:label="@string/source_name"
             android:description="@string/source_description"
             android:exported="true"

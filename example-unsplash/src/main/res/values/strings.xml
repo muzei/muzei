@@ -1,5 +1,5 @@
 <!--
-  Copyright 2014 Google Inc.
+  Copyright 2018 Google Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,7 +15,8 @@
   -->
 
 <resources>
-    <string name="app_name">500px (Example Muzei Source)</string>
-    <string name="source_name">500px (Example)</string>
-    <string name="source_description">Popular photos from 500px</string>
+    <string name="app_name">Unsplash (Example Muzei Source)</string>
+    <string name="source_name">Unsplash (Example)</string>
+    <string name="source_description">Popular photos from Unsplash</string>
+    <string name="attribution">Photo on Unsplash</string>
 </resources>

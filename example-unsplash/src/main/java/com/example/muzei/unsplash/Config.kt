@@ -14,12 +14,6 @@
  * limitations under the License.
  */
 
-package com.example.muzei.examplesource500px
+package com.example.muzei.unsplash
 
-import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
-
-class FiveHundredPxExampleArtProvider : MuzeiArtProvider() {
-    override fun onLoadRequested(initial: Boolean) {
-        FiveHundredPxExampleWorker.enqueueLoad()
-    }
-}
+const val CONSUMER_KEY = "be30fc3297f8e5ab39c6dc746caab6dd599c3167790b093f14f6c803a67f6e53"

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Google Inc.
+ * Copyright 2018 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 
-package com.example.muzei.examplesource500px
+package com.example.muzei.unsplash
 
-const val CONSUMER_KEY = "HocY5wY9GQaa9sdNO9HvagCGuGt34snyMTHckIQJ"
+import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
+
+class UnsplashExampleArtProvider : MuzeiArtProvider() {
+    override fun onLoadRequested(initial: Boolean) {
+        UnsplashExampleWorker.enqueueLoad()
+    }
+}

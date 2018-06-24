@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.muzei.examplesource500px
+package com.example.muzei.unsplash
 
 import android.util.Log
 import androidx.core.net.toUri
@@ -27,14 +27,14 @@ import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import java.io.IOException
 
-class FiveHundredPxExampleWorker : Worker() {
+class UnsplashExampleWorker : Worker() {
 
     companion object {
-        private const val TAG = "500pxExample"
+        private const val TAG = "UnsplashExample"
 
         internal fun enqueueLoad() {
             val workManager = WorkManager.getInstance()
-            workManager.enqueue(OneTimeWorkRequestBuilder<FiveHundredPxExampleWorker>()
+            workManager.enqueue(OneTimeWorkRequestBuilder<UnsplashExampleWorker>()
                     .setConstraints(Constraints.Builder()
                             .setRequiredNetworkType(NetworkType.CONNECTED)
                             .build())
@@ -44,9 +44,9 @@ class FiveHundredPxExampleWorker : Worker() {
 
     override fun doWork(): Result {
         val photos = try {
-            FiveHundredPxService.popularPhotos()
+            UnsplashService.popularPhotos()
         } catch (e: IOException) {
-            Log.w(TAG, "Error reading 500px response", e)
+            Log.w(TAG, "Error reading Unsplash response", e)
             return Result.RETRY
         }
 
@@ -57,15 +57,16 @@ class FiveHundredPxExampleWorker : Worker() {
 
         photos.map { photo ->
             Artwork().apply {
-                token = photo.id.toString()
-                title = photo.name
-                byline = photo.user.fullname
-                persistentUri = photo.images[0].https_url?.toUri()
-                webUri = "http://500px.com/photo/${photo.id}".toUri()
+                token = photo.id
+                title = photo.description
+                byline = photo.user.name
+                attribution = applicationContext.getString(R.string.attribution)
+                persistentUri = photo.urls.full.toUri()
+                webUri = photo.links.webUri
             }
         }.forEach { artwork ->
             ProviderContract.Artwork.addArtwork(applicationContext,
-                    FiveHundredPxExampleArtProvider::class.java,
+                    UnsplashExampleArtProvider::class.java,
                     artwork)
         }
         return Result.SUCCESS
