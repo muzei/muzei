@@ -523,7 +523,6 @@ public abstract class MuzeiArtProvider extends ContentProvider {
      * @return A List of {@link UserCommand commands} that the user can trigger.
      * @see #onCommand(Artwork, int)
      */
-    @SuppressWarnings("unused")
     @NonNull
     protected List<UserCommand> getCommands(@NonNull final Artwork artwork) {
         return new ArrayList<>();
@@ -536,7 +535,6 @@ public abstract class MuzeiArtProvider extends ContentProvider {
      * @param id      the ID of the command the user has chosen.
      * @see #getCommands(Artwork)
      */
-    @SuppressWarnings({"unused", "EmptyMethod"})
     protected void onCommand(@NonNull final Artwork artwork, int id) {
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Google Inc.
+ * Copyright 2018 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.example.muzei.examplesource500px
+package com.example.muzei.unsplash
 
+import androidx.core.net.toUri
 import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Retrofit
@@ -23,51 +24,51 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import java.io.IOException
 
-internal interface FiveHundredPxService {
+internal interface UnsplashService {
 
     companion object {
         @Throws(IOException::class)
-        internal fun popularPhotos(): List<FiveHundredPxService.Photo> {
+        internal fun popularPhotos(): List<UnsplashService.Photo> {
             val okHttpClient = OkHttpClient.Builder()
                     .addInterceptor { chain ->
                         var request = chain.request()
                         val url = request.url().newBuilder()
-                                .addQueryParameter("consumer_key", CONSUMER_KEY).build()
+                                .addQueryParameter("client_id", CONSUMER_KEY).build()
                         request = request.newBuilder().url(url).build()
                         chain.proceed(request)
                     }
                     .build()
 
             val retrofit = Retrofit.Builder()
-                    .baseUrl("https://api.500px.com/")
+                    .baseUrl("https://api.unsplash.com/")
                     .client(okHttpClient)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build()
 
-            val service = retrofit.create<FiveHundredPxService>(FiveHundredPxService::class.java)
-            val response: FiveHundredPxService.PhotosResponse = service.popularPhotos.execute().body()
-                    ?: throw IOException("Response was null")
+            val service = retrofit.create<UnsplashService>(UnsplashService::class.java)
 
-            return response.photos.filterNot { photo ->
-                val images = photo.images
-                images.isEmpty() || images[0].https_url.isNullOrEmpty()
-            }
+            return service.popularPhotos.execute().body()
+                    ?: throw IOException("Response was null")
         }
     }
 
-    @get:GET("v1/photos?feature=popular&sort=rating&image_size=5&rpp=40")
-    val popularPhotos: Call<PhotosResponse>
-
-    data class PhotosResponse(val photos: List<Photo>)
+    @get:GET("photos/curated?order_by=popular&per_page=30")
+    val popularPhotos: Call<List<Photo>>
 
     data class Photo(
-            val id: Int,
-            val images: List<Image>,
-            val name: String?,
-            val user: User)
+            val id: String,
+            val urls: Urls,
+            val description: String?,
+            val user: User,
+            val links: Links)
 
-    data class Image(@Suppress("PropertyName")
-    val https_url: String? = null)
+    data class Urls(val full: String)
 
-    data class User(val fullname: String?)
+    data class Links(val html: String) {
+        val webUri get() = "$html$ATTRIBUTION_QUERY_PARAMETERS".toUri()
+    }
+
+    data class User(
+            val name: String,
+            val links: Links)
 }
