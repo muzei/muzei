@@ -39,10 +39,14 @@ abstract class ArtworkDao {
         artworkBlocking
     }
 
-    @get:Query("SELECT * FROM artwork ORDER BY date_added DESC")
+    @get:Query("SELECT * FROM artwork " +
+            "inner join provider on providerComponentName = componentName " +
+            "ORDER BY date_added DESC")
     abstract val currentArtwork: LiveData<Artwork?>
 
-    @get:Query("SELECT * FROM artwork ORDER BY date_added DESC")
+    @get:Query("SELECT * FROM artwork " +
+            "inner join provider on providerComponentName = componentName " +
+            "ORDER BY date_added DESC")
     internal abstract val currentArtworkBlocking: Artwork?
 
     suspend fun getCurrentArtwork() = withContext(CommonPool) {
