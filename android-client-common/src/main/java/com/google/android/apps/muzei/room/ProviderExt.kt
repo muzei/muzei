@@ -43,8 +43,11 @@ suspend fun ComponentName.select(context: Context) = withContext(CommonPool) {
     database.endTransaction()
 }
 
-suspend fun Provider.getDescription(context: Context): String {
-    val contentUri = MuzeiArtProvider.getContentUri(context, componentName)
+suspend fun Provider.getDescription(context: Context) =
+        componentName.getProviderDescription(context)
+
+suspend fun ComponentName.getProviderDescription(context: Context): String {
+    val contentUri = MuzeiArtProvider.getContentUri(context, this)
     return ContentProviderClientCompat.getClient(context, contentUri)?.use { client ->
         return try {
             val result = client.call(METHOD_GET_DESCRIPTION)

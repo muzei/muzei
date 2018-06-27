@@ -51,8 +51,8 @@ class SourceArtProvider : MuzeiArtProvider() {
 
     override fun getDescription(): String =
             MuzeiDatabase.getInstance(context).sourceDao().currentSourceBlocking?.run {
-                listOf(displayDescription, label)
-                        .filter { it.isNullOrEmpty() }
+                listOf(label, displayDescription)
+                        .filterNot { it.isNullOrEmpty() }
                         .joinToString(separator = ": ")
             } ?: ""
 
