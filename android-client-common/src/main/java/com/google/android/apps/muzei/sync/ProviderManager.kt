@@ -28,8 +28,12 @@ import android.os.Looper
 import android.preference.PreferenceManager
 import android.util.Log
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
+import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 
 /**
@@ -58,6 +62,26 @@ class ProviderManager private constructor(private val context: Context)
     private val providerLiveData by lazy {
         MuzeiDatabase.getInstance(context).providerDao().currentProvider
     }
+    private val artworkLiveData by lazy {
+        MuzeiDatabase.getInstance(context).artworkDao().currentArtwork
+    }
+    private var nextArtworkJob: Job? = null
+    private val artworkObserver = Observer<Artwork?> { artwork ->
+        if (artwork == null) {
+            // Can't have no artwork at all,
+            // try loading the next artwork with a slight delay
+            nextArtworkJob?.cancel()
+            nextArtworkJob = launch {
+                delay(1000)
+                if (nextArtworkJob?.isCancelled == false) {
+                    nextArtwork()
+                }
+            }
+        } else {
+            nextArtworkJob?.cancel()
+        }
+    }
+
 
     internal val loadFrequencySeconds: Long
         get() = PreferenceManager.getDefaultSharedPreferences(context)
@@ -82,6 +106,7 @@ class ProviderManager private constructor(private val context: Context)
             ProviderChangedWorker.activeListeningStateChanged(context, true)
         }
         providerLiveData.observeForever(this)
+        artworkLiveData.observeForever(artworkObserver)
         startArtworkLoad()
     }
 
@@ -111,6 +136,8 @@ class ProviderManager private constructor(private val context: Context)
     }
 
     override fun onInactive() {
+        nextArtworkJob?.cancel()
+        artworkLiveData.removeObserver(artworkObserver)
         providerLiveData.removeObserver(this)
         context.contentResolver.unregisterContentObserver(contentObserver)
         ArtworkLoadWorker.cancelPeriodic()

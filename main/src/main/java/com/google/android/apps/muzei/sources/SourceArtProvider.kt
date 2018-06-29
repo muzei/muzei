@@ -46,7 +46,11 @@ class SourceArtProvider : MuzeiArtProvider() {
     }
 
     override fun onLoadRequested(initial: Boolean) {
-        // Sources will load on their own schedule
+        if (initial) {
+            // If there's no artwork at all, immediately queue up the next artwork
+            sendAction(MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK)
+        }
+        // else, Sources will load on their own schedule
     }
 
     override fun getDescription(): String =
