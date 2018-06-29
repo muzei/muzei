@@ -76,17 +76,31 @@
 
         <provider
             android:name="com.google.android.apps.muzei.sources.SourceArtProvider"
+            android:label="@string/source_provider_name"
             android:authorities="com.google.android.apps.muzei.sources"
             android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER">
             <intent-filter>
                 <action android:name="com.google.android.apps.muzei.api.MuzeiArtProvider"/>
             </intent-filter>
+            <meta-data android:name="settingsActivity"
+                       android:value="com.google.android.apps.muzei.sources.SourceSettingsActivity" />
+            <meta-data android:name="setupActivity"
+                       android:value="com.google.android.apps.muzei.sources.SourceSetupActivity" />
         </provider>
 
         <service
             android:name="com.google.android.apps.muzei.sources.SourceSubscriberService"
             android:exported="true"
             tools:ignore="ExportedService"/>
+
+        <activity android:name="com.google.android.apps.muzei.sources.SourceSetupActivity"
+                  android:label="@string/source_provider_name"
+                  android:theme="@android:style/Theme.Translucent.NoTitleBar"
+                  android:exported="true" />
+        <activity android:name="com.google.android.apps.muzei.sources.SourceSettingsActivity"
+                  android:label="@string/source_provider_name"
+                  android:theme="@style/Theme.AppCompat"
+                  android:exported="true" />
 
         <activity
             android:name="com.google.android.apps.muzei.settings.SettingsActivity"

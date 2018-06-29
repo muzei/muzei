@@ -29,9 +29,9 @@ import android.widget.AdapterView
 import android.widget.BaseAdapter
 import android.widget.Spinner
 import android.widget.TextView
+import com.google.android.apps.muzei.ChooseProviderFragment
 import com.google.android.apps.muzei.MissingResourcesDialogFragment
 import com.google.android.apps.muzei.render.MuzeiRendererFragment
-import com.google.android.apps.muzei.sources.ChooseSourceFragment
 import com.google.android.apps.muzei.util.observeNonNull
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -41,7 +41,7 @@ import net.nurik.roman.muzei.R
  * The primary widget configuration activity. Serves as an interstitial when adding the widget, and
  * shows when pressing the settings button in the widget.
  */
-class SettingsActivity : AppCompatActivity(), ChooseSourceFragment.Callbacks {
+class SettingsActivity : AppCompatActivity(), ChooseProviderFragment.Callbacks {
 
     companion object {
         private const val EXTRA_START_SECTION = "com.google.android.apps.muzei.settings.extra.START_SECTION"
@@ -52,10 +52,10 @@ class SettingsActivity : AppCompatActivity(), ChooseSourceFragment.Callbacks {
         private val SECTION_LABELS = intArrayOf(R.string.section_choose_source, R.string.section_advanced)
 
         private val SECTION_FRAGMENTS = arrayOf(
-                ChooseSourceFragment::class.java,
+                ChooseProviderFragment::class.java,
                 EffectsFragment::class.java)
 
-        private val SECTION_SCREEN_NAME = arrayOf("ChooseSource", "Effects")
+        private val SECTION_SCREEN_NAME = arrayOf("ChooseProvider", "Effects")
     }
 
     private val startSection = START_SECTION_SOURCE

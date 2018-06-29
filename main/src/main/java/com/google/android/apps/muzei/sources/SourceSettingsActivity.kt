@@ -17,13 +17,10 @@
 package com.google.android.apps.muzei.sources
 
 import android.animation.ObjectAnimator
-import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.Notification
 import android.arch.lifecycle.LiveData
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
@@ -40,25 +37,18 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.support.v4.app.Fragment
 import android.support.v4.content.res.ResourcesCompat
 import android.support.v7.app.AlertDialog
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.TooltipCompat
 import android.text.TextUtils
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.os.bundleOf
-import androidx.core.widget.toast
 import com.google.android.apps.muzei.api.MuzeiArtSource
-import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Source
 import com.google.android.apps.muzei.util.ObservableHorizontalScrollView
@@ -76,12 +66,10 @@ import java.util.Comparator
 /**
  * Activity for allowing the user to choose the active source.
  */
-class ChooseSourceFragment : Fragment() {
+class SourceSettingsActivity : AppCompatActivity() {
 
     companion object {
-        private const val TAG = "SettingsChooseSourceFrg"
-
-        private const val PLAY_STORE_PACKAGE_NAME = "com.android.vending"
+        private const val TAG = "SourceSettings"
 
         private const val SCROLLBAR_HIDE_DELAY_MILLIS = 1000
 
@@ -94,13 +82,14 @@ class ChooseSourceFragment : Fragment() {
 
     private var selectedSource: ComponentName? = null
     private val currentSourceLiveData: LiveData<Source?> by lazy {
-        MuzeiDatabase.getInstance(requireContext()).sourceDao().currentSource
+        MuzeiDatabase.getInstance(this).sourceDao().currentSource
     }
     private val sourceViews = ArrayList<SourceView>()
     private val sourcesLiveData: LiveData<List<Source>> by lazy {
-        MuzeiDatabase.getInstance(requireContext()).sourceDao().sources
+        MuzeiDatabase.getInstance(this).sourceDao().sources
     }
 
+    private lateinit var rootView: ViewGroup
     private lateinit var sourceContainerView: ViewGroup
     private lateinit var sourceScrollerView: ObservableHorizontalScrollView
     private lateinit var scrollbar: Scrollbar
@@ -141,16 +130,11 @@ class ChooseSourceFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
         if (savedInstanceState != null) {
             currentInitialSetupSource = savedInstanceState.getParcelable(CURRENT_INITIAL_SETUP_SOURCE)
         }
-    }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
-        FirebaseAnalytics.getInstance(context).logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST,
+        FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST,
                 bundleOf(FirebaseAnalytics.Param.ITEM_CATEGORY to "sources"))
 
         sourcesLiveData.observe(this) { sources ->
@@ -164,70 +148,10 @@ class ChooseSourceFragment : Fragment() {
             updateSelectedItem(source, true)
         }
 
-        if (activity?.intent?.categories?.contains(Notification.INTENT_CATEGORY_NOTIFICATION_PREFERENCES) == true) {
-            FirebaseAnalytics.getInstance(context).logEvent("notification_preferences_open", null)
-            NotificationSettingsDialogFragment.showSettings(this)
-        }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.settings_choose_source, menu)
-    }
-
-    @SuppressLint("InlinedApi")
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.action_notification_settings -> {
-                NotificationSettingsDialogFragment.showSettings(this)
-                return true
-            }
-            R.id.action_get_more_sources -> {
-                FirebaseAnalytics.getInstance(requireContext()).logEvent("more_sources_open", null)
-                try {
-                    val playStoreIntent = Intent(Intent.ACTION_VIEW,
-                            Uri.parse("http://play.google.com/store/search?q=Muzei&c=apps"))
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
-                    preferPackageForIntent(playStoreIntent, PLAY_STORE_PACKAGE_NAME)
-                    startActivity(playStoreIntent)
-                } catch (e: ActivityNotFoundException) {
-                    requireContext().toast(R.string.play_store_not_found, Toast.LENGTH_LONG)
-                } catch (e: SecurityException) {
-                    requireContext().toast(R.string.play_store_not_found, Toast.LENGTH_LONG)
-                }
-
-                return true
-            }
-            else -> return super.onOptionsItemSelected(item)
-        }
-    }
-
-    private fun preferPackageForIntent(intent: Intent, packageName: String) {
-        val pm = requireContext().packageManager
-        for (resolveInfo in pm.queryIntentActivities(intent, 0)) {
-            if (resolveInfo.activityInfo.packageName == packageName) {
-                intent.`package` = packageName
-                break
-            }
-        }
-    }
-
-    override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(
-                R.layout.settings_choose_source_fragment, container, false)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        // Ensure we have the latest insets
-        @Suppress("DEPRECATION")
-        view.requestFitSystemWindows()
-
-        scrollbar = view.findViewById(R.id.source_scrollbar)
-        sourceScrollerView = view.findViewById(R.id.source_scroller)
+        setContentView(R.layout.settings_choose_source_fragment)
+        rootView = findViewById(R.id.source_root_view)
+        scrollbar = findViewById(R.id.source_scrollbar)
+        sourceScrollerView = findViewById(R.id.source_scroller)
         sourceScrollerView.callbacks = object : ObservableHorizontalScrollView.Callbacks {
             override fun onScrollChanged(scrollX: Int) {
                 showScrollbar()
@@ -240,15 +164,15 @@ class ChooseSourceFragment : Fragment() {
                 }
             }
         }
-        sourceContainerView = view.findViewById(R.id.source_container)
+        sourceContainerView = findViewById(R.id.source_container)
 
         val sources = sourcesLiveData.value
         if (sources != null) {
             updateSources(sources)
         }
 
-        view.visibility = View.INVISIBLE
-        view.viewTreeObserver.addOnGlobalLayoutListener(
+        rootView.visibility = View.INVISIBLE
+        rootView.viewTreeObserver.addOnGlobalLayoutListener(
                 object : ViewTreeObserver.OnGlobalLayoutListener {
                     var pass = 0
 
@@ -264,18 +188,18 @@ class ChooseSourceFragment : Fragment() {
                                 if (selectedSourceIndex >= 0) {
                                     sourceScrollerView.scrollX = itemWidth * selectedSourceIndex
                                     showScrollbar()
-                                    view.visibility = View.VISIBLE
+                                    rootView.visibility = View.VISIBLE
                                     ++pass
                                 }
                             }
                             else -> // Last pass, remove the listener
-                                view.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                                rootView.viewTreeObserver.removeOnGlobalLayoutListener(this)
                         }
                     }
                 })
 
-        view.alpha = 0f
-        view.animate().alpha(1f).duration = 500
+        rootView.alpha = 0f
+        rootView.animate().alpha(1f).duration = 500
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -284,8 +208,8 @@ class ChooseSourceFragment : Fragment() {
     }
 
     private fun updatePadding() {
-        val rootViewWidth = view?.width ?: 0
-        val rootViewHeight = view?.height ?: 0
+        val rootViewWidth = rootView.width ?: 0
+        val rootViewHeight = rootView.height ?: 0
         if (rootViewWidth == 0) {
             return
         }
@@ -399,7 +323,7 @@ class ChooseSourceFragment : Fragment() {
 
     private fun updateSources(sources: List<Source>) {
         selectedSource = null
-        val pm = requireContext().packageManager
+        val pm = packageManager
         sourceViews.clear()
 
         for (source in sources) {
@@ -419,7 +343,7 @@ class ChooseSourceFragment : Fragment() {
             sourceViews.add(sourceView)
         }
 
-        val appPackage = requireContext().packageName
+        val appPackage = packageName
         sourceViews.sortWith(Comparator { sourceView1, sourceView2 ->
             val s1 = sourceView1.source
             val s2 = sourceView2.source
@@ -458,16 +382,9 @@ class ChooseSourceFragment : Fragment() {
             val source = sourceView.source
             sourceView.selectSourceButton.setOnClickListener {
                 if (source.componentName == selectedSource) {
-                    if (context is Callbacks) {
-                        (context as Callbacks).onRequestCloseActivity()
-                    } else if (parentFragment is Callbacks) {
-                        (parentFragment as Callbacks).onRequestCloseActivity()
-                    }
+                    finish()
                 } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && source.targetSdkVersion >= Build.VERSION_CODES.O) {
-                    if (isStateSaved || isRemoving) {
-                        return@setOnClickListener
-                    }
-                    val builder = AlertDialog.Builder(requireContext())
+                    val builder = AlertDialog.Builder(this)
                             .setTitle(R.string.action_source_target_too_high_title)
                             .setMessage(getString(R.string.action_source_target_too_high_message, source.label))
                             .setNegativeButton(R.string.action_source_target_too_high_learn_more) { _, _ ->
@@ -477,33 +394,33 @@ class ChooseSourceFragment : Fragment() {
                             .setPositiveButton(R.string.action_source_target_too_high_dismiss, null)
                     val sendFeedbackIntent = Intent(Intent.ACTION_VIEW,
                             Uri.parse("https://play.google.com/store/apps/details?id=${source.componentName.packageName}"))
-                    if (sendFeedbackIntent.resolveActivity(requireContext().packageManager) != null) {
+                    if (sendFeedbackIntent.resolveActivity(packageManager) != null) {
                         builder.setNeutralButton(
                                 getString(R.string.action_source_target_too_high_send_feedback, source.label)
                         ) { _, _ -> startActivity(sendFeedbackIntent) }
                     }
                     builder.show()
                 } else if (source.setupActivity != null) {
-                    FirebaseAnalytics.getInstance(requireContext()).logEvent(FirebaseAnalytics.Event.VIEW_ITEM, bundleOf(
+                    FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.VIEW_ITEM,
+                            bundleOf(
                             FirebaseAnalytics.Param.ITEM_ID to source.componentName.flattenToShortString(),
                             FirebaseAnalytics.Param.ITEM_NAME to source.label,
                             FirebaseAnalytics.Param.ITEM_CATEGORY to "sources"))
                     currentInitialSetupSource = source.componentName
                     launchSourceSetup(source)
                 } else {
-                    FirebaseAnalytics.getInstance(requireContext()).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
+                    FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
                             FirebaseAnalytics.Param.ITEM_ID to source.componentName.flattenToShortString(),
                             FirebaseAnalytics.Param.CONTENT_TYPE to "sources"))
-                    val context = requireContext()
                     launch {
-                        SourceManager.selectSource(context, source.componentName)
+                        SourceManager.selectSource(this@SourceSettingsActivity, source.componentName)
                     }
                 }
             }
 
             sourceView.selectSourceButton.setOnLongClickListener {
                 val pkg = source.componentName.packageName
-                if (TextUtils.equals(pkg, requireContext().packageName)) {
+                if (TextUtils.equals(pkg, packageName)) {
                     // Don't open Muzei's app info
                     return@setOnLongClickListener false
                 }
@@ -575,12 +492,11 @@ class ChooseSourceFragment : Fragment() {
         if (requestCode == REQUEST_EXTENSION_SETUP) {
             val setupSource = currentInitialSetupSource
             if (resultCode == Activity.RESULT_OK && setupSource != null) {
-                FirebaseAnalytics.getInstance(requireContext()).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
+                FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
                         FirebaseAnalytics.Param.ITEM_ID to setupSource.flattenToShortString(),
                         FirebaseAnalytics.Param.CONTENT_TYPE to "sources"))
-                val context = requireContext()
                 launch {
-                    SourceManager.selectSource(context, setupSource)
+                    SourceManager.selectSource(this@SourceSettingsActivity, setupSource)
                 }
             }
 
@@ -631,9 +547,5 @@ class ChooseSourceFragment : Fragment() {
         lateinit var icon: Drawable
         lateinit var selectSourceButton: View
         lateinit var settingsButton: View
-    }
-
-    interface Callbacks {
-        fun onRequestCloseActivity()
     }
 }

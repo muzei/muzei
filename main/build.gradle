@@ -112,6 +112,7 @@ dependencies {
     implementation "com.android.support:design:$supportLibraryVersion"
     implementation "com.android.support:customtabs:$supportLibraryVersion"
     implementation "com.android.support:exifinterface:$supportLibraryVersion"
+    implementation "com.android.support.constraint:constraint-layout:$constraintLayoutVersion"
     implementation "android.arch.lifecycle:livedata:$lifecycleVersion"
     implementation "android.arch.lifecycle:common-java8:$lifecycleVersion"
     implementation "android.arch.lifecycle:runtime:$lifecycleVersion"

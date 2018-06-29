@@ -53,6 +53,9 @@
     <string name="action_artwork_info">Artwork info</string>
     <string name="action_artwork_info_disabled">There is no artwork info for the current artwork.</string>
 
+    <string name="provider_settings">Settings</string>
+    <string name="provider_browse">Browse</string>
+
     <string name="done">Done</string>
 
     <string name="set_as_wallpaper_using_muzei">Wallpaper (using Muzei)</string>
@@ -61,6 +64,7 @@
     <string name="tutorial_main">Open the Muzei app to see your wallpaper</string>
     <string name="tutorial_subtitle">Double touch the blurred wallpaper on your home screen to temporarily focus</string>
 
+    <string name="source_provider_name">Legacy Sources</string>
     <string name="get_more_sources">Get more sources</string>
     <string name="reset_advanced_settings_defaults">Reset sliders</string>
     <string name="play_store_not_found">Unable to open Play Store.</string>

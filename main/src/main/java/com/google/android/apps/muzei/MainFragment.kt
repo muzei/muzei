@@ -30,7 +30,6 @@ import android.view.ViewGroup
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.apps.muzei.settings.EffectsFragment
-import com.google.android.apps.muzei.sources.ChooseSourceFragment
 import com.google.android.apps.muzei.util.makeCubicGradientScrimDrawable
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
@@ -39,7 +38,7 @@ import net.nurik.roman.muzei.R
  * Fragment which controls the main view of the Muzei app and handles the bottom navigation
  * between various screens.
  */
-class MainFragment : Fragment(), ChooseSourceFragment.Callbacks {
+class MainFragment : Fragment(), ChooseProviderFragment.Callbacks {
 
     private lateinit var bottomNavigationView: BottomNavigationView
 
@@ -74,10 +73,10 @@ class MainFragment : Fragment(), ChooseSourceFragment.Callbacks {
                             .setCurrentScreen(requireActivity(), "ArtDetail",
                                     ArtDetailFragment::class.java.simpleName)
                 }
-                R.id.main_choose_source -> {
+                R.id.main_choose_provider -> {
                     FirebaseAnalytics.getInstance(requireContext())
-                            .setCurrentScreen(requireActivity(), "ChooseSource",
-                                    ChooseSourceFragment::class.java.simpleName)
+                            .setCurrentScreen(requireActivity(), "ChooseProvider",
+                                    ChooseProviderFragment::class.java.simpleName)
                 }
                 R.id.main_effects -> {
                     FirebaseAnalytics.getInstance(requireContext())
