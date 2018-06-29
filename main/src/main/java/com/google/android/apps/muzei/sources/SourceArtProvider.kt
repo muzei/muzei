@@ -64,11 +64,11 @@ class SourceArtProvider : MuzeiArtProvider() {
     override fun getCommands(artwork: Artwork): List<UserCommand> =
             MuzeiDatabase.getInstance(context).sourceDao().currentSourceBlocking?.run{
                 mutableListOf<UserCommand>().apply{
-                    addAll(commands)
                     if (supportsNextArtwork) {
                         add(UserCommand(MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK,
                                 context.getString(R.string.action_next_artwork)))
                     }
+                    addAll(commands)
                 }
             } ?: super.getCommands(artwork)
 
