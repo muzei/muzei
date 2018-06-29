@@ -68,7 +68,9 @@ suspend fun Artwork.getCommands(context: Context) : List<UserCommand> {
             Log.i(TAG, "Provider for $imageUri crashed while retrieving commands", e)
             ArrayList()
         }
-    } ?: ArrayList()
+    } ?: ArrayList<UserCommand>().also {
+        Log.i(TAG, "Could not connect to provider for $imageUri while retrieving commands")
+    }
 }
 
 suspend fun Artwork.sendAction(context: Context, id: Int) {
