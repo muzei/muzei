@@ -41,10 +41,6 @@
             android:grantUriPermissions="true"
             android:writePermission="com.google.android.apps.muzei.WRITE_PROVIDER"
             tools:targetApi="n"/>
-        <service
-            android:name="com.google.android.apps.muzei.provider.DirectBootCacheJobService"
-            android:exported="true"
-            android:permission="android.permission.BIND_JOB_SERVICE"/>
         <provider
             android:name="com.google.android.apps.muzei.provider.MuzeiDocumentsProvider"
             android:authorities="${documentsAuthority}"

@@ -26,7 +26,6 @@ import android.database.DatabaseUtils
 import android.database.MatrixCursor
 import android.net.Uri
 import android.os.Binder
-import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.provider.BaseColumns
 import android.support.v4.os.UserManagerCompat
@@ -136,11 +135,6 @@ class MuzeiProvider : ContentProvider() {
      * @see android.content.ContentProvider.onCreate
      */
     override fun onCreate(): Boolean {
-        // Schedule a job that will update the latest artwork in the Direct Boot cache directory
-        // whenever the artwork changes
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            context?.run { DirectBootCacheJobService.scheduleDirectBootCacheJob(this) }
-        }
         return true
     }
 
@@ -252,7 +246,7 @@ class MuzeiProvider : ContentProvider() {
     private fun openFileArtwork(uri: Uri, mode: String): ParcelFileDescriptor? {
         val context = context ?: return null
         if (!UserManagerCompat.isUserUnlocked(context)) {
-            val file = DirectBootCacheJobService.getCachedArtwork(context)
+            val file = DirectBootCache.getCachedArtwork(context)
                     ?: throw FileNotFoundException("No wallpaper was cached for Direct Boot")
             return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
         }

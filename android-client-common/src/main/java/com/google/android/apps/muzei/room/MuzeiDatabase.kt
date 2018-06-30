@@ -26,6 +26,7 @@ import android.content.Context
 import android.content.Intent
 import android.database.sqlite.SQLiteConstraintException
 import com.google.android.apps.muzei.api.MuzeiContract
+import com.google.android.apps.muzei.provider.DirectBootCache
 import java.io.File
 
 /**
@@ -60,6 +61,7 @@ abstract class MuzeiDatabase : RoomDatabase() {
                             database.invalidationTracker.addObserver(
                                     object : InvalidationTracker.Observer("artwork") {
                                         override fun onInvalidated(tables: Set<String>) {
+                                            DirectBootCache.onArtworkChanged(applicationContext)
                                             applicationContext.contentResolver
                                                     .notifyChange(MuzeiContract.Artwork.CONTENT_URI, null)
                                             applicationContext.sendBroadcast(
