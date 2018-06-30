@@ -39,12 +39,12 @@ abstract class ArtworkDao {
         artworkBlocking
     }
 
-    @get:Query("SELECT * FROM artwork " +
+    @get:Query("SELECT artwork.* FROM artwork " +
             "inner join provider on providerComponentName = componentName " +
             "ORDER BY date_added DESC")
     abstract val currentArtwork: LiveData<Artwork?>
 
-    @get:Query("SELECT * FROM artwork " +
+    @get:Query("SELECT artwork.* FROM artwork " +
             "inner join provider on providerComponentName = componentName " +
             "ORDER BY date_added DESC")
     internal abstract val currentArtworkBlocking: Artwork?
