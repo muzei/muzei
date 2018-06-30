@@ -35,6 +35,7 @@ class MissingResourcesDialogFragment : DialogFragment() {
     companion object {
         fun showDialogIfNeeded(activity: FragmentActivity) : Boolean {
             val missingResources = try {
+                ContextCompat.getDrawable(activity, R.drawable.ic_stat_muzei)
                 ContextCompat.getDrawable(activity, R.drawable.logo_subtitle)
                 false
             } catch (e : Resources.NotFoundException) {
