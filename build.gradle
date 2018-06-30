@@ -26,7 +26,7 @@ buildscript {
         constraintLayoutVersion = "1.1.2"
         lifecycleVersion = "1.1.1"
         roomVersion = "1.1.1"
-        pagingVersion = "1.0.0"
+        pagingVersion = "1.0.1"
         navigationVersion = "1.0.0-alpha02"
         workManagerVersion = "1.0.0-alpha03"
         playServicesWearableVersion = "15.0.1"
