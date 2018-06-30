@@ -476,6 +476,9 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                 .translationY(resources.getDimension(R.dimen.gallery_fab_margin))
                 .setDuration(duration.toLong())
                 .withEndAction {
+                    if (isDestroyed) {
+                        return@withEndAction
+                    }
                     addButton.visibility = View.INVISIBLE
                     // Then show the toolbar
                     addToolbar.visibility = View.VISIBLE
