@@ -23,6 +23,16 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <application>
+        <provider
+            android:name="com.google.android.apps.muzei.featuredart.FeaturedArtProvider"
+            android:authorities="com.google.android.apps.muzei.featuredart"
+            android:description="@string/featuredart_source_description"
+            android:label="@string/featuredart_source_title"
+            android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER">
+            <intent-filter>
+                <action android:name="com.google.android.apps.muzei.api.MuzeiArtProvider"/>
+            </intent-filter>
+        </provider>
         <service
             android:name="com.google.android.apps.muzei.featuredart.FeaturedArtSource"
             android:description="@string/featuredart_source_description"
