@@ -64,7 +64,7 @@ class ProviderChangedWorker : Worker() {
         }
 
         internal fun enqueueSelected() {
-            val workManager = WorkManager.getInstance()
+            val workManager = WorkManager.getInstance() ?: return
             workManager.enqueue(OneTimeWorkRequestBuilder<ProviderChangedWorker>()
                     .setInputData(Data.Builder()
                             .putString(TAG, "selected")
@@ -73,7 +73,7 @@ class ProviderChangedWorker : Worker() {
         }
 
         internal fun enqueueChanged() {
-            val workManager = WorkManager.getInstance()
+            val workManager = WorkManager.getInstance() ?: return
             workManager.enqueue(OneTimeWorkRequestBuilder<ProviderChangedWorker>()
                     .setInputData(Data.Builder()
                             .putString(TAG, "changed")
@@ -148,7 +148,7 @@ class ProviderChangedWorker : Worker() {
 
         @RequiresApi(Build.VERSION_CODES.N)
         private fun scheduleObserver(contentUri: Uri) {
-            val workManager = WorkManager.getInstance()
+            val workManager = WorkManager.getInstance() ?: return
             workManager.enqueue(OneTimeWorkRequestBuilder<ProviderChangedWorker>()
                     .addTag(PERSISTENT_CHANGED_TAG)
                     .setInputData(Data.Builder()
@@ -162,17 +162,19 @@ class ProviderChangedWorker : Worker() {
         }
 
         private fun cancelObserver() {
-            val workManager = WorkManager.getInstance()
+            val workManager = WorkManager.getInstance() ?: return
             workManager.cancelAllWorkByTag(PERSISTENT_CHANGED_TAG)
         }
     }
 
     override fun doWork() = runBlocking(singleThreadContext) {
-        val tag = inputData.getString(TAG, "")
+        val tag = inputData.getString(TAG, "") ?: ""
         handleProviderChange(tag).also {
             if (tag == PERSISTENT_CHANGED_TAG &&
                     Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                scheduleObserver(inputData.getString(EXTRA_CONTENT_URI, "").toUri())
+                inputData.getString(EXTRA_CONTENT_URI, "")?.toUri()?.run {
+                    scheduleObserver(this)
+                }
             }
         }
     }

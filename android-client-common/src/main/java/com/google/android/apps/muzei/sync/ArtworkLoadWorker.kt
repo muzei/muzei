@@ -65,14 +65,14 @@ class ArtworkLoadWorker : Worker() {
         }
 
         internal fun enqueueNext() {
-            val workManager = WorkManager.getInstance()
+            val workManager = WorkManager.getInstance() ?: return
             workManager.beginUniqueWork(TAG, ExistingWorkPolicy.REPLACE,
                     OneTimeWorkRequestBuilder<ArtworkLoadWorker>().build())
                     .enqueue()
         }
 
         internal fun enqueuePeriodic(loadFrequencySeconds: Long) {
-            val workManager = WorkManager.getInstance()
+            val workManager = WorkManager.getInstance() ?: return
             workManager.enqueue(PeriodicWorkRequestBuilder<ArtworkLoadWorker>(
                     loadFrequencySeconds, TimeUnit.SECONDS,
                     loadFrequencySeconds / 10, TimeUnit.SECONDS)
@@ -84,7 +84,7 @@ class ArtworkLoadWorker : Worker() {
         }
 
         fun cancelPeriodic() {
-            val workManager = WorkManager.getInstance()
+            val workManager = WorkManager.getInstance() ?: return
             workManager.cancelAllWorkByTag(PERIODIC_TAG)
         }
     }
