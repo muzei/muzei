@@ -46,8 +46,8 @@
 
             <include
                 layout="@layout/about_include_content"
-                android:layout_width="400dp"
-                android:layout_height="550dp"
+                android:layout_width="600dp"
+                android:layout_height="match_parent"
                 android:layout_gravity="center"/>
         </FrameLayout>
 

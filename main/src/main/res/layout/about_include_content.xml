@@ -21,12 +21,11 @@
     android:layout_marginBottom="16dp"
     android:layout_marginTop="16dp"
     android:fadingEdgeLength="32dp"
-    android:fitsSystemWindows="true"
+    android:fillViewport="true"
     android:overScrollMode="never"
     android:scrollbars="none"
     android:paddingEnd="32dp"
     android:paddingStart="32dp"
-    android:paddingBottom="32dp"
     android:requiresFadingEdge="vertical">
 
     <LinearLayout
