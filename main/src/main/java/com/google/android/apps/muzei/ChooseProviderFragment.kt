@@ -27,7 +27,6 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
-import android.support.constraint.Group
 import android.support.v4.app.Fragment
 import android.support.v7.recyclerview.extensions.ListAdapter
 import android.support.v7.util.DiffUtil
@@ -173,7 +172,6 @@ class ChooseProviderFragment : Fragment() {
         private val providerSelected: ImageView = itemView.findViewById(R.id.provider_selected)
         private val providerArtwork: ImageView = itemView.findViewById(R.id.provider_artwork)
         private val providerDescription: TextView = itemView.findViewById(R.id.provider_description)
-        private val providerDescriptionGroup: Group = itemView.findViewById(R.id.provider_description_group)
         private val providerSettings: Button = itemView.findViewById(R.id.provider_settings)
 
         private var isSelected = false
@@ -230,7 +228,7 @@ class ChooseProviderFragment : Fragment() {
 
             providerTitle.text = title
             providerDescription.text = description
-            providerDescriptionGroup.isGone = description.isNullOrEmpty()
+            providerDescription.isGone = description.isNullOrEmpty()
 
             loadArtworkJob?.cancel()
             providerArtwork.isVisible = false

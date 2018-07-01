@@ -85,30 +85,12 @@
             app:layout_constraintTop_toBottomOf="@+id/provider_artwork"
             tools:text="Description" />
 
-
-        <android.support.constraint.Group
-            android:id="@+id/provider_description_group"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:constraint_referenced_ids="provider_space,provider_description" />
-
         <android.support.constraint.Barrier
             android:id="@+id/provider_button_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="top"
-            app:constraint_referenced_ids="provider_space,provider_settings,provider_browse" />
-
-        <Space
-            android:id="@+id/provider_space"
-            android:layout_width="wrap_content"
-            android:layout_height="8dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/provider_settings"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintHorizontal_chainStyle="packed"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/provider_button_bar" />
+            app:constraint_referenced_ids="provider_settings,provider_browse" />
 
         <Button
             android:id="@+id/provider_settings"
@@ -116,11 +98,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
             android:text="@string/provider_settings"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/provider_browse"
-            app:layout_constraintStart_toEndOf="@+id/provider_space"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/provider_button_bar" />
 
         <Button
@@ -130,7 +113,6 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
             android:text="@string/provider_browse"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
