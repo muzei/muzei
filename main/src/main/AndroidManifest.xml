@@ -95,7 +95,7 @@
 
         <activity android:name="com.google.android.apps.muzei.sources.SourceSetupActivity"
                   android:label="@string/source_provider_name"
-                  android:theme="@android:style/Theme.Translucent.NoTitleBar"
+                  android:theme="@style/Theme.Muzei.Transparent"
                   android:exported="true" />
         <activity android:name="com.google.android.apps.muzei.sources.SourceSettingsActivity"
                   android:label="@string/source_provider_name"
@@ -143,7 +143,7 @@
             android:exported="true"
             android:excludeFromRecents="true"
             android:taskAffinity=""
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+            android:theme="@style/Theme.Muzei.Transparent"/>
 
         <!-- AppWidget -->
 
@@ -160,7 +160,7 @@
 
         <activity
             android:name="com.google.android.apps.muzei.PhotoSetAsTargetActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            android:theme="@style/Theme.Muzei.Transparent">
             <intent-filter android:label="@string/set_as_wallpaper_using_muzei">
                 <action android:name="android.intent.action.ATTACH_DATA"/>
                 <category android:name="android.intent.category.DEFAULT"/>
