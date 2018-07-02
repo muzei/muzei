@@ -33,6 +33,7 @@
 
     <dimen name="tutorial_content_margin">32dp</dimen>
 
+    <dimen name="provider_padding">16dp</dimen>
     <dimen name="choose_source_item_image_size">40dp</dimen>
     <dimen name="settings_text_size_large">20sp</dimen>
     <dimen name="settings_text_size_normal">16sp</dimen>

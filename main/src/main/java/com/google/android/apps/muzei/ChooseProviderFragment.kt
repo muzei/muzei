@@ -93,7 +93,7 @@ class ChooseProviderFragment : Fragment() {
         view.requestFitSystemWindows()
 
         val providerList = view.findViewById<RecyclerView>(R.id.provider_list)
-        val spacing = resources.getDimensionPixelSize(R.dimen.widget_padding)
+        val spacing = resources.getDimensionPixelSize(R.dimen.provider_padding)
         providerList.addItemDecoration(object : RecyclerView.ItemDecoration() {
             override fun getItemOffsets(
                     outRect: Rect,
@@ -106,6 +106,8 @@ class ChooseProviderFragment : Fragment() {
                 } else {
                     0
                 }
+                outRect.left = spacing
+                outRect.right = spacing
             }
         })
         //providerList.addItemDecoration(SpacesItemDecoration(spacing))
