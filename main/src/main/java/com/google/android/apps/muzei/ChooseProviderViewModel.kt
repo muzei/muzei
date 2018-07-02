@@ -113,8 +113,8 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
         if (resolveInfos != null) {
             val existingProviders = HashSet(currentProviders.values)
             if (packageName != null) {
-                existingProviders.filter {
-                    it.componentName.packageName == packageName
+                existingProviders.removeAll {
+                    it.componentName.packageName != packageName
                 }
             }
             for (ri in resolveInfos) {
