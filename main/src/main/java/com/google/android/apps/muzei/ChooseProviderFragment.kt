@@ -231,6 +231,8 @@ class ChooseProviderFragment : Fragment() {
             if (currentArtworkUri != null) {
                 Picasso.get()
                         .load(currentArtworkUri)
+                        .centerCrop()
+                        .fit()
                         .into(providerArtwork, this@ProviderViewHolder)
             } else {
                 providerArtwork.isVisible = false
