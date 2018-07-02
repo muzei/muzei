@@ -68,6 +68,11 @@ abstract class ArtworkDao {
         getCurrentArtworkForProviderBlocking(providerComponentName)
     }
 
+    @get:Query("SELECT * FROM artwork art1 WHERE _id IN (" +
+            "SELECT _id FROM artwork art2 WHERE art1._id=art2._id " +
+            "ORDER BY date_added DESC limit 1)")
+    abstract val currentArtworkByProvider : LiveData<List<Artwork>>
+
     @Query("SELECT * FROM artwork WHERE _id=:id")
     internal abstract fun getArtworkByIdBlocking(id: Long): Artwork?
 

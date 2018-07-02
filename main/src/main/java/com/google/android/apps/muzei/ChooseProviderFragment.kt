@@ -21,9 +21,7 @@ import android.arch.lifecycle.ViewModelProvider
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Intent
-import android.graphics.Color
 import android.graphics.Rect
-import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
@@ -230,12 +228,12 @@ class ChooseProviderFragment : Fragment() {
             providerDescription.text = description
             providerDescription.isGone = description.isNullOrEmpty()
 
-            providerArtwork.isVisible = false
             if (currentArtworkUri != null) {
                 Picasso.get()
                         .load(currentArtworkUri)
-                        .placeholder(ColorDrawable(Color.argb(0x33, 0x00, 0x00, 0x00)))
                         .into(providerArtwork, this@ProviderViewHolder)
+            } else {
+                providerArtwork.isVisible = false
             }
 
             providerSelected.isInvisible = !selected

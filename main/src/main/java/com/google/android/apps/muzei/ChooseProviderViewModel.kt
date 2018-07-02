@@ -150,6 +150,20 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
                 value = currentProviders.values.sortedWith(comparator)
             }
         }
+        val currentArtworkByProviderLiveData = MuzeiDatabase.getInstance(application).artworkDao()
+                .currentArtworkByProvider
+        val currentArtworkByProviderObserver = Observer<List<com.google.android.apps.muzei.room.Artwork>> { artworkByProvider ->
+            if (artworkByProvider != null) {
+                val artworkMap = HashMap<ComponentName, Uri>()
+                artworkByProvider.forEach { artwork ->
+                    artworkMap[artwork.providerComponentName] = artwork.imageUri
+                }
+                currentProviders.forEach {
+                    currentProviders[it.key] = it.value.copy(currentArtworkUri = artworkMap[it.key])
+                }
+                value = currentProviders.values.sortedWith(comparator)
+            }
+        }
 
         override fun onActive() {
             // Register for package change events
@@ -163,9 +177,11 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
             application.registerReceiver(packageChangeReceiver, packageChangeFilter)
             updateProviders()
             currentProviderLiveData.observeForever(currentProviderObserver)
+            currentArtworkByProviderLiveData.observeForever(currentArtworkByProviderObserver)
         }
 
         override fun onInactive() {
+            currentArtworkByProviderLiveData.removeObserver(currentArtworkByProviderObserver)
             currentProviderLiveData.removeObserver(currentProviderObserver)
             application.unregisterReceiver(packageChangeReceiver)
         }
