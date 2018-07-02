@@ -23,8 +23,8 @@ import android.os.Bundle
 import android.util.Log
 import androidx.core.os.bundleOf
 import androidx.core.widget.toast
-import com.google.android.apps.muzei.single.SingleArtSource
-import com.google.android.apps.muzei.sources.SourceManager
+import com.google.android.apps.muzei.room.select
+import com.google.android.apps.muzei.single.SingleArtProvider
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
@@ -42,7 +42,7 @@ class PhotoSetAsTargetActivity : Activity() {
         intent?.data?.also { uri ->
             launch {
                 val context = this@PhotoSetAsTargetActivity
-                val success = SingleArtSource.setArtwork(context, uri)
+                val success = SingleArtProvider.setArtwork(context, uri)
                 if (success == false) {
                     Log.e(TAG, "Unable to insert artwork for $uri")
                     launch(UI) {
@@ -52,13 +52,13 @@ class PhotoSetAsTargetActivity : Activity() {
                     return@launch
                 }
 
-                // If adding the artwork succeeded, select the single artwork source
+                // If adding the artwork succeeded, select the single artwork provider
                 val bundle = bundleOf(FirebaseAnalytics.Param.ITEM_ID to
-                        ComponentName(context, SingleArtSource::class.java).flattenToShortString(),
-                        FirebaseAnalytics.Param.CONTENT_TYPE to "sources")
+                        ComponentName(context, SingleArtProvider::class.java).flattenToShortString(),
+                        FirebaseAnalytics.Param.CONTENT_TYPE to "providers")
                 FirebaseAnalytics.getInstance(context).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
                 launch {
-                    SourceManager.selectSource(context, SingleArtSource::class)
+                    SingleArtProvider::class.select(context)
                     startActivity(Intent.makeMainActivity(ComponentName(
                             context, MuzeiActivity::class.java))
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))

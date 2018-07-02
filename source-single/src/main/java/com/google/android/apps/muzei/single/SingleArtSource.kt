@@ -16,19 +16,13 @@
 
 package com.google.android.apps.muzei.single
 
+import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import android.provider.DocumentsContract
-import android.util.Log
-import androidx.core.database.getStringOrNull
 import com.google.android.apps.muzei.api.Artwork
 import com.google.android.apps.muzei.api.MuzeiArtSource
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.withContext
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
+import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
+import com.google.android.apps.muzei.api.provider.ProviderContract
 
 /**
  * [MuzeiArtSource] that displays just a single image
@@ -36,102 +30,38 @@ import java.io.IOException
 class SingleArtSource : MuzeiArtSource("SingleArtSource") {
 
     companion object {
+        private const val ACTION_MIGRATE = "migrate"
 
-        private const val TAG = "SingleArtwork"
-        private const val ACTION_PUBLISH_NEW_ARTWORK = "publish_new_artwork"
-        private const val EXTRA_ARTWORK_TITLE = "title"
-        private const val EXTRA_ARTWORK_URI = "uri"
-
-        internal fun getArtworkFile(context: Context): File {
-            return File(context.filesDir, "single")
-        }
-
-        suspend fun setArtwork(context: Context, artworkUri: Uri): Boolean {
-            val tempFile = writeUriToFile(context, artworkUri, getArtworkFile(context))?.let { file ->
-                context.startService(Intent(context, SingleArtSource::class.java).apply {
-                    action = ACTION_PUBLISH_NEW_ARTWORK
-                    putExtra(EXTRA_ARTWORK_TITLE, getDisplayName(context, artworkUri)
-                            ?: context.getString(R.string.single_default_artwork_title)
-                    )
-                    putExtra(EXTRA_ARTWORK_URI, Uri.fromFile(file))
-                })
-            }
-            return tempFile != null
-        }
-
-        private fun getDisplayName(context: Context, artworkUri: Uri): String? {
-            if (DocumentsContract.isDocumentUri(context, artworkUri)) {
-                try {
-                    context.contentResolver.query(artworkUri,
-                            arrayOf(DocumentsContract.Document.COLUMN_DISPLAY_NAME),
-                            null, null, null)?.use { data ->
-                        if (data.moveToNext()) {
-                            return data.getStringOrNull(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
-                        }
-                    }
-                } catch (e: SecurityException) {
-                    // Whelp, I guess no display name for us
-                }
-            }
-            return null
-        }
-
-        private suspend fun writeUriToFile(
-                context: Context, uri:
-                Uri, destFile: File
-        ): File? = withContext(CommonPool) {
-            try {
-                context.contentResolver.openInputStream(uri)?.use { input ->
-                    FileOutputStream(destFile).use { out ->
-                        val directory = File(context.cacheDir, "single").apply {
-                            mkdirs()
-                        }
-
-                        for (existingTempFile in directory.listFiles()) {
-                            existingTempFile.delete()
-                        }
-                        val filename = StringBuilder().apply {
-                            append(uri.scheme).append("_")
-                            append(uri.host).append("_")
-                            uri.encodedPath?.takeUnless { it.isEmpty() }?.run {
-                                append((if (length > 60) substring(length - 60) else this)
-                                        .replace('/', '_')).append("_")
-                            }
-                        }
-
-                        val tempFile = File(directory, filename.toString())
-                        FileOutputStream(tempFile).use { tempOut ->
-                            val buffer = ByteArray(1024)
-                            var bytes = input.read(buffer)
-                            while (bytes >= 0) {
-                                out.write(buffer, 0, bytes)
-                                tempOut.write(buffer, 0, bytes)
-                                bytes = input.read(buffer)
-                            }
-                            return@withContext tempFile
-                        }
-                    }
-                }
-            } catch (e: IOException) {
-                Log.e(TAG, "Unable to read Uri: $uri", e)
-            } catch (e: SecurityException) {
-                Log.e(TAG, "Unable to read Uri: $uri", e)
-            } catch (e: UnsupportedOperationException) {
-                Log.e(TAG, "Unable to read Uri: $uri", e)
-            }
-            null
+        fun migrateToProvider(context: Context) {
+            context.startService(Intent(context, SingleArtSource::class.java).apply {
+                action = ACTION_MIGRATE
+            })
         }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        intent?.takeIf { ACTION_PUBLISH_NEW_ARTWORK == it.action }?.apply {
-            publishArtwork(Artwork.Builder()
-                    .title(getStringExtra(EXTRA_ARTWORK_TITLE))
-                    .imageUri(getParcelableExtra(EXTRA_ARTWORK_URI))
-                    .build())
+        if (intent?.action == ACTION_MIGRATE) {
+            currentArtwork?.let { currentArtwork ->
+                ProviderContract.Artwork.setArtwork(this,
+                        SingleArtProvider::class.java,
+                        com.google.android.apps.muzei.api.provider.Artwork().apply {
+                            title = currentArtwork.title
+                        })
+            }
         }
         return super.onStartCommand(intent, flags, startId)
     }
 
-    override fun onUpdate(reason: Int) {}
+    override fun onUpdate(reason: Int) {
+        val artwork = ProviderContract.Artwork.getLastAddedArtwork(this,
+                SingleArtProvider::class.java)
+        if (artwork != null) {
+            publishArtwork(Artwork.Builder()
+                    .title(artwork.title)
+                    .imageUri(ContentUris.withAppendedId(
+                            MuzeiArtProvider.getContentUri(this, SingleArtProvider::class.java),
+                            artwork.id))
+                    .build())
+        }
+    }
 }
