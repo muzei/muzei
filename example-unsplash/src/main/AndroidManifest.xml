@@ -42,6 +42,9 @@
             <meta-data
                 android:name="color"
                 android:value="#fa0"/>
+            <meta-data
+                android:name="replacement"
+                android:value="com.example.muzei.unsplash.UnsplashExampleArtProvider"/>
         </service>
 
         <provider
