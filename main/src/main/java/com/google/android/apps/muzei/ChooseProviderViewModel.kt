@@ -28,6 +28,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
@@ -39,6 +40,7 @@ data class ProviderInfo(
         val componentName: ComponentName,
         val title: String,
         val description: String?,
+        val currentArtworkUri: Uri?,
         val icon: Drawable,
         val setupActivity: ComponentName?,
         val settingsActivity: ComponentName?,
@@ -48,11 +50,13 @@ data class ProviderInfo(
             packageManager: PackageManager,
             providerInfo: android.content.pm.ProviderInfo,
             description: String?,
+            currentArtworkUri: Uri?,
             selected: Boolean
     ) : this(
                 ComponentName(providerInfo.packageName, providerInfo.name),
                 providerInfo.loadLabel(packageManager)?.toString() ?: "",
                 description,
+                currentArtworkUri,
                 providerInfo.loadIcon(packageManager),
                 providerInfo.metaData?.getString("setupActivity")?.run {
                     ComponentName(providerInfo.packageName, this)
@@ -114,11 +118,13 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
                 if (ri.providerInfo.enabled) {
                     val context = getApplication<Application>()
                     val selected = currentProviders[componentName]?.selected == true
-                    val description = runBlocking(CommonPool) {
-                        componentName.getProviderDescription(context)
+                    val (description, currentArtwork) = runBlocking(CommonPool) {
+                        componentName.getProviderDescription(context) to
+                                MuzeiDatabase.getInstance(context).artworkDao()
+                                        .getCurrentArtworkForProvider(componentName)
                     }
                     currentProviders[componentName] = ProviderInfo(pm, ri.providerInfo,
-                            description, selected)
+                            description, currentArtwork?.imageUri, selected)
                 } else {
                     currentProviders.remove(componentName)
                 }

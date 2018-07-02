@@ -44,14 +44,11 @@ import androidx.core.view.isGone
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
-import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.select
 import com.google.android.apps.muzei.util.observe
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.R
 import java.lang.Exception
@@ -61,6 +58,8 @@ class ChooseProviderFragment : Fragment() {
         private const val TAG = "ChooseProviderFragment"
         private const val REQUEST_EXTENSION_SETUP = 1
         private const val INITIAL_SETUP_PROVIDER = "initialSetupProvider"
+
+        private const val PAYLOAD_SELECTED = "SELECTED"
     }
 
     private val viewModelProvider by lazy {
@@ -177,7 +176,6 @@ class ChooseProviderFragment : Fragment() {
         private val providerSettings: Button = itemView.findViewById(R.id.provider_settings)
 
         private var isSelected = false
-        private var loadArtworkJob: Job? = null
 
         fun bind(providerInfo: ProviderInfo) = providerInfo.run {
             isSelected = selected
@@ -232,17 +230,12 @@ class ChooseProviderFragment : Fragment() {
             providerDescription.text = description
             providerDescription.isGone = description.isNullOrEmpty()
 
-            loadArtworkJob?.cancel()
             providerArtwork.isVisible = false
-            loadArtworkJob = launch(UI) {
-                val artwork = MuzeiDatabase.getInstance(itemView.context).artworkDao()
-                        .getCurrentArtworkForProvider(componentName)
-                if (artwork != null) {
-                    Picasso.get()
-                            .load(artwork.imageUri)
-                            .placeholder(ColorDrawable(Color.argb(0x33, 0x00, 0x00, 0x00)))
-                            .into(providerArtwork, this@ProviderViewHolder)
-                }
+            if (currentArtworkUri != null) {
+                Picasso.get()
+                        .load(currentArtworkUri)
+                        .placeholder(ColorDrawable(Color.argb(0x33, 0x00, 0x00, 0x00)))
+                        .into(providerArtwork, this@ProviderViewHolder)
             }
 
             providerSelected.isInvisible = !selected
@@ -279,7 +272,7 @@ class ChooseProviderFragment : Fragment() {
 
                 override fun getChangePayload(oldItem: ProviderInfo, newItem: ProviderInfo): Any? {
                     return when {
-                        oldItem.selected != newItem.selected -> "SELECTED"
+                        oldItem.selected != newItem.selected -> PAYLOAD_SELECTED
                         else -> null
                     }
                 }
@@ -298,7 +291,7 @@ class ChooseProviderFragment : Fragment() {
                 position: Int,
                 payloads: MutableList<Any>
         ) {
-            if (payloads.isNotEmpty() && payloads[0] == "SELECTED") {
+            if (payloads.isNotEmpty() && payloads[0] == PAYLOAD_SELECTED) {
                 holder.setSelected(getItem(position))
             } else {
                 super.onBindViewHolder(holder, position, payloads)
