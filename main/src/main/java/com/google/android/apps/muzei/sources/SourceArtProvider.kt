@@ -28,8 +28,9 @@ import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_HANDL
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_COMMAND_ID
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
-import com.google.android.apps.muzei.featuredart.FeaturedArtSource
+import com.google.android.apps.muzei.featuredart.FeaturedArtProvider
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.room.select
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.BuildConfig
@@ -95,19 +96,19 @@ class SourceArtProvider : MuzeiArtProvider() {
                 launch(UI) {
                     context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
                 }
-                SourceManager.selectSource(context, FeaturedArtSource::class)
+                FeaturedArtProvider::class.select(context)
             } catch (e: IllegalStateException) {
                 Log.i(TAG, "Sending action $id to $this failed; switching to default.", e)
                 launch(UI) {
                     context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
                 }
-                SourceManager.selectSource(context, FeaturedArtSource::class)
+                FeaturedArtProvider::class.select(context)
             } catch (e: SecurityException) {
                 Log.i(TAG, "Sending action $id to $this failed; switching to default.", e)
                 launch(UI) {
                     context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
                 }
-                SourceManager.selectSource(context, FeaturedArtSource::class)
+                FeaturedArtProvider::class.select(context)
             }
         }
     }

@@ -39,10 +39,11 @@ import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_SUBSCRIBE
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_SUBSCRIBER_COMPONENT
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_TOKEN
-import com.google.android.apps.muzei.featuredart.FeaturedArtSource
+import com.google.android.apps.muzei.featuredart.FeaturedArtProvider
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.room.Source
+import com.google.android.apps.muzei.room.select
 import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.observeNonNull
@@ -159,7 +160,7 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                         context.packageManager.getServiceInfo(source.componentName, 0)
                     } catch (e: PackageManager.NameNotFoundException) {
                         Log.i(TAG, "Selected source ${source.componentName} is no longer available")
-                        selectSource(context, FeaturedArtSource::class)
+                        FeaturedArtProvider::class.select(context)
                         return@launch
                     }
 
@@ -222,9 +223,6 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                     if (source != null) {
                         source.subscribe()
                         postValue(source)
-                    } else {
-                        // Can't have no source at all, so select the default
-                        selectSource(context, FeaturedArtSource::class)
                     }
                 }
             }
@@ -268,7 +266,22 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
         val componentName = ComponentName(info.packageName, info.name)
         val sourceDao = MuzeiDatabase.getInstance(context).sourceDao()
         val existingSource = sourceDao.getSourceByComponentNameBlocking(componentName)
-        if (!info.isEnabled) {
+        if (metaData != null && metaData.containsKey("replacement")) {
+            // Skip sources having a replacement MuzeiArtProvider that should be used instead
+            if (existingSource != null) {
+                if (existingSource.selected) {
+                    // If this is the selected source, switch Muzei to the new MuzeiArtProvider
+                    // rather than continue to use the legacy MuzeiArtSource
+                    val replacement = ComponentName(context.packageName,
+                            metaData.getString("replacement"))
+                    launch {
+                        replacement.select(context)
+                    }
+                }
+                sourceDao.delete(existingSource)
+            }
+            return
+        } else if (!info.isEnabled) {
             // Disabled sources can't be used
             if (existingSource != null) {
                 sourceDao.delete(existingSource)
@@ -379,19 +392,19 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
             launch(UI) {
                 context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
             }
-            selectSource(context, FeaturedArtSource::class)
+            FeaturedArtProvider::class.select(context)
         } catch (e: IllegalStateException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
             launch(UI) {
                 context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
             }
-            selectSource(context, FeaturedArtSource::class)
+            FeaturedArtProvider::class.select(context)
         } catch (e: SecurityException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
             launch(UI) {
                 context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
             }
-            selectSource(context, FeaturedArtSource::class)
+            FeaturedArtProvider::class.select(context)
         }
     }
 
