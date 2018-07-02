@@ -33,6 +33,7 @@ import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.room.getProviderDescription
+import com.google.android.apps.muzei.sources.SourceArtProvider
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.runBlocking
 
@@ -68,7 +69,16 @@ data class ProviderInfo(
 }
 
 class ChooseProviderViewModel(application: Application) : AndroidViewModel(application) {
+    private val sourceArtProvider = ComponentName(application, SourceArtProvider::class.java)
+
     private val comparator = Comparator<ProviderInfo> { p1, p2 ->
+        // The SourceArtProvider should always be at the end of the list
+        if (p1.componentName == sourceArtProvider) {
+            return@Comparator 1
+        } else if (p2.componentName == sourceArtProvider) {
+            return@Comparator -1
+        }
+        // Then put providers from Muzei on top
         val pn1 = p1.componentName.packageName
         val pn2 = p2.componentName.packageName
         if (pn1 != pn2) {
@@ -78,12 +88,8 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
                 return@Comparator 1
             }
         }
-        // These labels should be non-null with the isNullOrEmpty() check above
-        val title1 = p1.title
-                ?: throw IllegalStateException("Found null label for ${p1.componentName}")
-        val title2 = p2.title
-                ?: throw IllegalStateException("Found null label for ${p2.componentName}")
-        title1.compareTo(title2)
+        // Finally, sort providers by their title
+        p1.title.compareTo(p2.title)
     }
 
     private val currentProviders = HashMap<ComponentName, ProviderInfo>()
