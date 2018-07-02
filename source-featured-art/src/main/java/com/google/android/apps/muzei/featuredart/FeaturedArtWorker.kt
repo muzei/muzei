@@ -22,6 +22,7 @@ import android.util.Log
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -73,14 +74,21 @@ class FeaturedArtWorker : Worker() {
             val nextUpdateMillis = sp.getLong(PREF_NEXT_UPDATE_MILLIS, 0)
             if (nextUpdateMillis <= System.currentTimeMillis()) {
                 // Load the next artwork
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "Enqueuing next artwork")
+                }
                 val workManager = WorkManager.getInstance() ?: return
-                workManager.enqueue(OneTimeWorkRequestBuilder<FeaturedArtWorker>()
-                        .setConstraints(Constraints.Builder()
-                                .setRequiredNetworkType(NetworkType.CONNECTED)
-                                .build())
-                        .setInputData(mapOf(KEY_INITIAL_LOAD to initialLoad)
-                                .toWorkData())
-                        .build())
+                workManager.beginUniqueWork(
+                        TAG,
+                        ExistingWorkPolicy.KEEP,
+                        OneTimeWorkRequestBuilder<FeaturedArtWorker>()
+                                .setConstraints(Constraints.Builder()
+                                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                                        .build())
+                                .setInputData(mapOf(KEY_INITIAL_LOAD to initialLoad)
+                                        .toWorkData())
+                                .build()
+                ).enqueue()
             }
         }
     }
@@ -101,11 +109,17 @@ class FeaturedArtWorker : Worker() {
 
             val initialLoad = inputData.getBoolean(KEY_INITIAL_LOAD, false)
             if (initialLoad) {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "Adding new artwork: $imageUri")
+                }
                 // Keep the initial artwork until we've loaded a second piece of real artwork
                 ProviderContract.Artwork.addArtwork(applicationContext,
                         FeaturedArtProvider::class.java,
                         artwork)
             } else {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "Setting artwork: $imageUri")
+                }
                 // Use setArtwork to clear out previous artwork, ensuring everyone is on today's
                 ProviderContract.Artwork.setArtwork(applicationContext,
                         FeaturedArtProvider::class.java,

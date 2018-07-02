@@ -16,10 +16,14 @@
 
 package com.google.android.apps.muzei.featuredart
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
+import android.provider.BaseColumns
 import android.support.customtabs.CustomTabsIntent
 import android.support.v4.content.ContextCompat
+import android.util.Log
+import androidx.core.database.getString
 import com.google.android.apps.muzei.api.UserCommand
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
@@ -27,14 +31,19 @@ import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 class FeaturedArtProvider : MuzeiArtProvider() {
 
     companion object {
+        private const val TAG = "FeaturedArtProvider"
         private val ARCHIVE_URI = Uri.parse("http://muzei.co/archive")
 
         private const val COMMAND_ID_SHARE = 1
         private const val COMMAND_ID_VIEW_ARCHIVE = 2
     }
 
+    @SuppressLint("Recycle")
     override fun onLoadRequested(initial: Boolean) {
         val context = context ?: return
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "onLoadRequested: $initial")
+        }
         if (initial) {
             // Show the initial photo (starry night)
             addArtwork(Artwork.Builder()
@@ -45,6 +54,20 @@ class FeaturedArtProvider : MuzeiArtProvider() {
                     .persistentUri(Uri.parse("file:///android_asset/starrynight.jpg"))
                     .webUri(Uri.parse("http://www.wikiart.org/en/vincent-van-gogh/the-starry-night-1889"))
                     .build())
+        }
+        if (!initial) {
+            query(contentUri, null, null, null, null).use { data ->
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "Found ${data.count} existing artwork")
+                }
+                if (data.count > 1 && data.moveToFirst()) {
+                    val count = delete(contentUri, BaseColumns._ID + " != ?",
+                            arrayOf(data.getString(BaseColumns._ID)))
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "Deleted $count")
+                    }
+                }
+            }
         }
         FeaturedArtWorker.enqueueLoadIfNeeded(context, initial)
     }
