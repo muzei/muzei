@@ -31,6 +31,7 @@
     <string name="notification_settings_moved_text">Review your notification settings</string>
 
     <string name="action_activate">Activate</string>
+    <string name="action_souce_done">Done</string>
     <string name="action_source_settings">Customize source</string>
     <string name="action_source_target_too_high_title">This source is disabled</string>
     <string name="action_source_target_too_high_message">%s is incompatible with Muzei\'s API. To use this source, the developer must change their targetSdkVersion to 25 or lower.</string>

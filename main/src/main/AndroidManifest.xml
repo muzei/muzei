@@ -99,7 +99,7 @@
                   android:exported="true" />
         <activity android:name="com.google.android.apps.muzei.sources.SourceSettingsActivity"
                   android:label="@string/source_provider_name"
-                  android:theme="@style/Theme.AppCompat"
+                  android:theme="@style/Theme.Muzei.Transparent"
                   android:exported="true" />
 
         <activity

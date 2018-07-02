@@ -71,8 +71,19 @@
         <item name="colorAccent">@color/theme_accent</item>
     </style>
 
-    <style name="Theme.Muzei.Dialog" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="colorAccent">@color/theme_primary</item>
+    <style name="Theme.Muzei.Transparent.Base"
+           parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+
+    <style name="Theme.Muzei.Transparent"
+           parent="Theme.Muzei.Transparent.Base"> <!-- pre-Lollipop -->
+    </style>
+
+    <style name="Theme.Muzei.Dialog" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="colorAccent">@color/theme_accent</item>
     </style>
 
     <style name="ThemeOverlay.Muzei.Toolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">

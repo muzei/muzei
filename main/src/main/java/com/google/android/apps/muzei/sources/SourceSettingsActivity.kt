@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Google Inc.
+ * Copyright 2018 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,14 @@
 
 package com.google.android.apps.muzei.sources
 
-import android.animation.ObjectAnimator
 import android.app.Activity
 import android.arch.lifecycle.LiveData
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
+import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.pm.ServiceInfo
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -36,32 +36,26 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.support.v4.content.res.ResourcesCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.TooltipCompat
-import android.text.TextUtils
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewTreeObserver
+import android.view.ViewPropertyAnimator
+import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.core.os.bundleOf
+import androidx.core.text.bold
+import androidx.core.text.buildSpannedString
+import androidx.core.view.isVisible
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Source
-import com.google.android.apps.muzei.util.ObservableHorizontalScrollView
-import com.google.android.apps.muzei.util.Scrollbar
 import com.google.android.apps.muzei.util.observe
 import com.google.firebase.analytics.FirebaseAnalytics
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.R
-import java.util.ArrayList
-import java.util.Comparator
 
 /**
  * Activity for allowing the user to choose the active source.
@@ -71,44 +65,24 @@ class SourceSettingsActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "SourceSettings"
 
-        private const val SCROLLBAR_HIDE_DELAY_MILLIS = 1000
-
         private const val ALPHA_DISABLED = 0.2f
-        private const val ALPHA_UNSELECTED = 0.4f
+        private const val ALPHA_DEFAULT = 1.0f
 
         private const val REQUEST_EXTENSION_SETUP = 1
         private const val CURRENT_INITIAL_SETUP_SOURCE = "currentInitialSetupSource"
     }
 
-    private var selectedSource: ComponentName? = null
-    private val currentSourceLiveData: LiveData<Source?> by lazy {
-        MuzeiDatabase.getInstance(this).sourceDao().currentSource
-    }
-    private val sourceViews = ArrayList<SourceView>()
     private val sourcesLiveData: LiveData<List<Source>> by lazy {
         MuzeiDatabase.getInstance(this).sourceDao().sources
     }
 
-    private lateinit var rootView: ViewGroup
-    private lateinit var sourceContainerView: ViewGroup
-    private lateinit var sourceScrollerView: ObservableHorizontalScrollView
-    private lateinit var scrollbar: Scrollbar
-    private var animateScroll: Boolean = true
-    private var currentScroller: ObjectAnimator? = null
+    private val adapter by lazy {
+        SourceListAdapter(this)
+    }
 
-    private val animationDuration: Long by lazy {
-        resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
-    }
-    private val itemWidth: Int by lazy {
-        resources.getDimensionPixelSize(R.dimen.settings_choose_source_item_width)
-    }
     private val itemImageSize: Int by lazy {
-        resources.getDimensionPixelSize(R.dimen.settings_choose_source_item_image_size)
+        resources.getDimensionPixelSize(R.dimen.choose_source_item_image_size)
     }
-    private val itemEstimatedHeight: Int by lazy {
-        resources.getDimensionPixelSize(R.dimen.settings_choose_source_item_estimated_height)
-    }
-
     private val tempRectF = RectF()
     private val imageFillPaint = Paint().apply {
         color = Color.WHITE
@@ -122,84 +96,83 @@ class SourceSettingsActivity : AppCompatActivity() {
                 generateSourceImage(ResourcesCompat.getDrawable(resources,
                         R.drawable.ic_source_selected, null)))
     }
-    private var selectedSourceIndex: Int = -1
 
     private var currentInitialSetupSource: ComponentName? = null
-
-    private var hideScrollbar: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState != null) {
             currentInitialSetupSource = savedInstanceState.getParcelable(CURRENT_INITIAL_SETUP_SOURCE)
         }
-
-        FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST,
-                bundleOf(FirebaseAnalytics.Param.ITEM_CATEGORY to "sources"))
-
+        val dialog = AlertDialog.Builder(this, R.style.Theme_Muzei_Dialog)
+                .setTitle(R.string.source_provider_name)
+                .setSingleChoiceItems(adapter, -1) { dialog: DialogInterface, which: Int ->
+                    val source = adapter.getItem(which).source
+                    onSourceSelected(dialog, source)
+                }
+                .setPositiveButton(R.string.action_souce_done, null)
+                .setOnDismissListener {
+                    finish()
+                }
+                .create()
         sourcesLiveData.observe(this) { sources ->
             if (sources != null) {
-                updateSources(sources)
-                updatePadding()
-            }
-        }
-
-        currentSourceLiveData.observe(this) { source ->
-            updateSelectedItem(source, true)
-        }
-
-        setContentView(R.layout.settings_choose_source_fragment)
-        rootView = findViewById(R.id.source_root_view)
-        scrollbar = findViewById(R.id.source_scrollbar)
-        sourceScrollerView = findViewById(R.id.source_scroller)
-        sourceScrollerView.callbacks = object : ObservableHorizontalScrollView.Callbacks {
-            override fun onScrollChanged(scrollX: Int) {
-                showScrollbar()
-            }
-
-            override fun onDownMotionEvent() {
-                if (currentScroller != null) {
-                    currentScroller?.cancel()
-                    currentScroller = null
+                if (sources.any { it.selected }) {
+                    setResult(RESULT_OK)
+                }
+                val pm = packageManager
+                val sourcesViews = sources.filterNot { source ->
+                    source.label.isNullOrEmpty()
+                }.mapNotNull { source ->
+                    try {
+                        source to pm.getServiceInfo(source.componentName, 0)
+                    } catch (e: PackageManager.NameNotFoundException) {
+                        null
+                    }
+                }.map { (source, info) ->
+                    SourceView(source).apply {
+                        icon = BitmapDrawable(resources, generateSourceImage(
+                                info.loadIcon(pm))).apply {
+                            setColorFilter(source.color, PorterDuff.Mode.SRC_ATOP)
+                        }
+                    }
+                }.sortedWith(Comparator { sourceView1, sourceView2 ->
+                    val s1 = sourceView1.source
+                    val s2 = sourceView2.source
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        val target1IsO = s1.targetSdkVersion >= Build.VERSION_CODES.O
+                        val target2IsO = s2.targetSdkVersion >= Build.VERSION_CODES.O
+                        if (target1IsO && !target2IsO) {
+                            return@Comparator 1
+                        } else if (!target1IsO && target2IsO) {
+                            return@Comparator -1
+                        }
+                    }
+                    val pn1 = s1.componentName.packageName
+                    val pn2 = s2.componentName.packageName
+                    if (pn1 != pn2) {
+                        if (packageName == pn1) {
+                            return@Comparator -1
+                        } else if (packageName == pn2) {
+                            return@Comparator 1
+                        }
+                    }
+                    // These labels should be non-null with the isNullOrEmpty() check above
+                    val label1 = s1.label
+                            ?: throw IllegalStateException("Found null label for ${s1.componentName}")
+                    val label2 = s2.label
+                            ?: throw IllegalStateException("Found null label for ${s2.componentName}")
+                    label1.compareTo(label2)
+                })
+                adapter.clear()
+                adapter.addAll(sourcesViews)
+                if (!dialog.isShowing) {
+                    FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST,
+                            bundleOf(FirebaseAnalytics.Param.ITEM_CATEGORY to "sources"))
+                    dialog.show()
                 }
             }
         }
-        sourceContainerView = findViewById(R.id.source_container)
-
-        val sources = sourcesLiveData.value
-        if (sources != null) {
-            updateSources(sources)
-        }
-
-        rootView.visibility = View.INVISIBLE
-        rootView.viewTreeObserver.addOnGlobalLayoutListener(
-                object : ViewTreeObserver.OnGlobalLayoutListener {
-                    var pass = 0
-
-                    override fun onGlobalLayout() {
-                        when (pass) {
-                            0 -> {
-                                // First pass
-                                updatePadding()
-                                ++pass
-                            }
-                            1 -> {
-                                // Second pass
-                                if (selectedSourceIndex >= 0) {
-                                    sourceScrollerView.scrollX = itemWidth * selectedSourceIndex
-                                    showScrollbar()
-                                    rootView.visibility = View.VISIBLE
-                                    ++pass
-                                }
-                            }
-                            else -> // Last pass, remove the listener
-                                rootView.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                        }
-                    }
-                })
-
-        rootView.alpha = 0f
-        rootView.animate().alpha(1f).duration = 500
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -207,259 +180,42 @@ class SourceSettingsActivity : AppCompatActivity() {
         outState.putParcelable(CURRENT_INITIAL_SETUP_SOURCE, currentInitialSetupSource)
     }
 
-    private fun updatePadding() {
-        val rootViewWidth = rootView.width ?: 0
-        val rootViewHeight = rootView.height ?: 0
-        if (rootViewWidth == 0) {
-            return
-        }
-        val topPadding = Math.max(0, (rootViewHeight - itemEstimatedHeight) / 2)
-        val numItems = sourceViews.size
-        val sidePadding: Int
-        val minSidePadding = resources.getDimensionPixelSize(
-                R.dimen.settings_choose_source_min_side_padding)
-        sidePadding = if (minSidePadding * 2 + itemWidth * numItems < rootViewWidth) {
-            // Don't allow scrolling since all items can be visible. Center the entire
-            // list by using just the right amount of padding to center it.
-            (rootViewWidth - itemWidth * numItems) / 2 - 1
-        } else {
-            // Allow scrolling
-            Math.max(0, (rootViewWidth - itemWidth) / 2)
-        }
-        sourceContainerView.setPadding(sidePadding, topPadding, sidePadding, 0)
-    }
-
-    private fun updateSelectedItem(newSelectedSource: Source?, allowAnimate: Boolean) {
-        val previousSelectedSource = selectedSource
-        selectedSource = newSelectedSource?.componentName
-        if (previousSelectedSource != null && previousSelectedSource == selectedSource) {
-            // Only update status
-            sourceViews
-                    .filter { it.source.componentName == selectedSource }
-                    .forEach { updateSourceStatusUi(it) }
-            return
-        }
-
-        // This is a newly selected source.
-        var selected: Boolean
-        var index = -1
-        for (sourceView in sourceViews) {
-            ++index
-            if (sourceView.source.componentName == previousSelectedSource) {
-                selected = false
-            } else if (sourceView.source.componentName == selectedSource) {
-                selectedSourceIndex = index
-                selected = true
-            } else {
-                continue
-            }
-
-            val sourceImageButton = sourceView.rootView.findViewById<View>(R.id.source_image)
-            val drawable = if (selected) selectedSourceImage else sourceView.icon
-            drawable.setColorFilter(sourceView.source.color, PorterDuff.Mode.SRC_ATOP)
-            sourceImageButton.background = drawable
-
-            val alpha = if (selected)
-                1f
-            else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && sourceView.source.targetSdkVersion >= Build.VERSION_CODES.O)
-                ALPHA_DISABLED
-            else
-                ALPHA_UNSELECTED
-            sourceView.rootView.animate()
-                    .alpha(alpha).duration = animationDuration
-
-            if (selected) {
-                updateSourceStatusUi(sourceView)
-            }
-
-            animateSettingsButton(sourceView.settingsButton,
-                    selected && sourceView.source.settingsActivity != null, allowAnimate)
-        }
-
-        if (selectedSourceIndex >= 0 && animateScroll) {
-            currentScroller?.cancel()
-
-            // For some reason smoothScrollTo isn't very smooth..
-            currentScroller = ObjectAnimator.ofInt(sourceScrollerView, "scrollX",
-                    itemWidth * selectedSourceIndex).apply {
-                duration = animationDuration
-                start()
-            }
-            animateScroll = false
-        }
-    }
-
-    private fun animateSettingsButton(
-            settingsButton: View,
-            show: Boolean,
-            allowAnimate: Boolean
-    ) {
-        if (show && settingsButton.visibility == View.VISIBLE || !show && settingsButton.visibility == View.INVISIBLE) {
-            return
-        }
-        settingsButton.visibility = View.VISIBLE
-        settingsButton.animate()
-                .translationY((if (show)
-                    0
-                else
-                    -resources.getDimensionPixelSize(
-                            R.dimen.settings_choose_source_settings_button_animate_distance)).toFloat())
-                .alpha(if (show) 1f else 0f)
-                .rotation((if (show) 0f else -90f))
-                .setDuration((if (allowAnimate) 300L else 0L))
-                .setStartDelay((if (show && allowAnimate) 200L else 0L))
-                .withLayer()
-                .withEndAction {
-                    if (!show) {
-                        settingsButton.visibility = View.INVISIBLE
+    private fun onSourceSelected(dialog: DialogInterface, source: Source) {
+        if (source.selected) {
+            dialog.dismiss()
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && source.targetSdkVersion >= Build.VERSION_CODES.O) {
+            val builder = AlertDialog.Builder(this)
+                    .setTitle(R.string.action_source_target_too_high_title)
+                    .setMessage(getString(R.string.action_source_target_too_high_message, source.label))
+                    .setNegativeButton(R.string.action_source_target_too_high_learn_more) { _, _ ->
+                        startActivity(Intent(Intent.ACTION_VIEW,
+                                Uri.parse("https://medium.com/@ianhlake/the-muzei-plugin-api-and-androids-evolution-9b9979265cfb")))
                     }
-                }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        hideScrollbar?.cancel()
-    }
-
-    private fun updateSources(sources: List<Source>) {
-        selectedSource = null
-        val pm = packageManager
-        sourceViews.clear()
-
-        for (source in sources) {
-            // Skip Sources without a label
-            if (source.label.isNullOrEmpty()) {
-                continue
+                    .setPositiveButton(R.string.action_source_target_too_high_dismiss, null)
+            val sendFeedbackIntent = Intent(Intent.ACTION_VIEW,
+                    Uri.parse("https://play.google.com/store/apps/details?id=${source.componentName.packageName}"))
+            if (sendFeedbackIntent.resolveActivity(packageManager) != null) {
+                builder.setNeutralButton(
+                        getString(R.string.action_source_target_too_high_send_feedback, source.label)
+                ) { _, _ -> startActivity(sendFeedbackIntent) }
             }
-            val sourceView = SourceView(source)
-            val info: ServiceInfo
-            try {
-                info = pm.getServiceInfo(source.componentName, 0)
-            } catch (e: PackageManager.NameNotFoundException) {
-                continue
-            }
-
-            sourceView.icon = BitmapDrawable(resources, generateSourceImage(info.loadIcon(pm)))
-            sourceViews.add(sourceView)
-        }
-
-        val appPackage = packageName
-        sourceViews.sortWith(Comparator { sourceView1, sourceView2 ->
-            val s1 = sourceView1.source
-            val s2 = sourceView2.source
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val target1IsO = s1.targetSdkVersion >= Build.VERSION_CODES.O
-                val target2IsO = s2.targetSdkVersion >= Build.VERSION_CODES.O
-                if (target1IsO && !target2IsO) {
-                    return@Comparator 1
-                } else if (!target1IsO && target2IsO) {
-                    return@Comparator -1
-                }
-            }
-            val pn1 = s1.componentName.packageName
-            val pn2 = s2.componentName.packageName
-            if (pn1 != pn2) {
-                if (appPackage == pn1) {
-                    return@Comparator -1
-                } else if (appPackage == pn2) {
-                    return@Comparator 1
-                }
-            }
-            // These labels should be non-null with the isNullOrEmpty() check above
-            val label1 = s1.label
-                    ?: throw IllegalStateException("Found null label for ${s1.componentName}")
-            val label2 = s2.label
-                    ?: throw IllegalStateException("Found null label for ${s2.componentName}")
-            label1.compareTo(label2)
-        })
-
-        sourceContainerView.removeAllViews()
-        for (sourceView in sourceViews) {
-            sourceView.rootView = layoutInflater.inflate(
-                    R.layout.settings_choose_source_item, sourceContainerView, false)
-
-            sourceView.selectSourceButton = sourceView.rootView.findViewById(R.id.source_image)
-            val source = sourceView.source
-            sourceView.selectSourceButton.setOnClickListener {
-                if (source.componentName == selectedSource) {
-                    finish()
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && source.targetSdkVersion >= Build.VERSION_CODES.O) {
-                    val builder = AlertDialog.Builder(this)
-                            .setTitle(R.string.action_source_target_too_high_title)
-                            .setMessage(getString(R.string.action_source_target_too_high_message, source.label))
-                            .setNegativeButton(R.string.action_source_target_too_high_learn_more) { _, _ ->
-                                startActivity(Intent(Intent.ACTION_VIEW,
-                                        Uri.parse("https://medium.com/@ianhlake/the-muzei-plugin-api-and-androids-evolution-9b9979265cfb")))
-                            }
-                            .setPositiveButton(R.string.action_source_target_too_high_dismiss, null)
-                    val sendFeedbackIntent = Intent(Intent.ACTION_VIEW,
-                            Uri.parse("https://play.google.com/store/apps/details?id=${source.componentName.packageName}"))
-                    if (sendFeedbackIntent.resolveActivity(packageManager) != null) {
-                        builder.setNeutralButton(
-                                getString(R.string.action_source_target_too_high_send_feedback, source.label)
-                        ) { _, _ -> startActivity(sendFeedbackIntent) }
-                    }
-                    builder.show()
-                } else if (source.setupActivity != null) {
-                    FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.VIEW_ITEM,
-                            bundleOf(
+            builder.show()
+        } else if (source.setupActivity != null) {
+            FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.VIEW_ITEM,
+                    bundleOf(
                             FirebaseAnalytics.Param.ITEM_ID to source.componentName.flattenToShortString(),
                             FirebaseAnalytics.Param.ITEM_NAME to source.label,
                             FirebaseAnalytics.Param.ITEM_CATEGORY to "sources"))
-                    currentInitialSetupSource = source.componentName
-                    launchSourceSetup(source)
-                } else {
-                    FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                            FirebaseAnalytics.Param.ITEM_ID to source.componentName.flattenToShortString(),
-                            FirebaseAnalytics.Param.CONTENT_TYPE to "sources"))
-                    launch {
-                        SourceManager.selectSource(this@SourceSettingsActivity, source.componentName)
-                    }
-                }
+            currentInitialSetupSource = source.componentName
+            launchSourceSetup(source)
+        } else {
+            FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
+                    FirebaseAnalytics.Param.ITEM_ID to source.componentName.flattenToShortString(),
+                    FirebaseAnalytics.Param.CONTENT_TYPE to "sources"))
+            launch {
+                SourceManager.selectSource(this@SourceSettingsActivity, source.componentName)
             }
-
-            sourceView.selectSourceButton.setOnLongClickListener {
-                val pkg = source.componentName.packageName
-                if (TextUtils.equals(pkg, packageName)) {
-                    // Don't open Muzei's app info
-                    return@setOnLongClickListener false
-                }
-                // Otherwise open third party extensions
-                try {
-                    startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                            Uri.fromParts("package", pkg, null)))
-                } catch (e: ActivityNotFoundException) {
-                    return@setOnLongClickListener false
-                }
-
-                true
-            }
-
-            val alpha = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && source.targetSdkVersion >= Build.VERSION_CODES.O)
-                ALPHA_DISABLED
-            else
-                ALPHA_UNSELECTED
-            sourceView.rootView.alpha = alpha
-
-            sourceView.icon.setColorFilter(source.color, PorterDuff.Mode.SRC_ATOP)
-            sourceView.selectSourceButton.background = sourceView.icon
-
-            val titleView = sourceView.rootView.findViewById<TextView>(R.id.source_title)
-            titleView.text = source.label
-            titleView.setTextColor(source.color)
-
-            updateSourceStatusUi(sourceView)
-
-            sourceView.settingsButton = sourceView.rootView.findViewById(R.id.source_settings_button)
-            TooltipCompat.setTooltipText(sourceView.settingsButton, sourceView.settingsButton.contentDescription)
-            sourceView.settingsButton.setOnClickListener { launchSourceSettings(source) }
-
-            animateSettingsButton(sourceView.settingsButton, false, false)
-
-            sourceContainerView.addView(sourceView.rootView)
         }
-
-        updateSelectedItem(currentSourceLiveData.value, false)
     }
 
     private fun launchSourceSettings(source: Source) {
@@ -507,11 +263,6 @@ class SourceSettingsActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    private fun updateSourceStatusUi(sourceView: SourceView) {
-        (sourceView.rootView.findViewById<View>(R.id.source_status) as TextView).text =
-                sourceView.source.displayDescription
-    }
-
     private fun generateSourceImage(image: Drawable?): Bitmap {
         val bitmap = Bitmap.createBitmap(itemImageSize, itemImageSize,
                 Bitmap.Config.ARGB_8888)
@@ -529,23 +280,63 @@ class SourceSettingsActivity : AppCompatActivity() {
         return bitmap
     }
 
-    private fun showScrollbar() {
-        hideScrollbar?.cancel()
-        scrollbar.setScrollRangeAndViewportWidth(
-                sourceScrollerView.computeHorizontalScrollRange(),
-                sourceScrollerView.width)
-        scrollbar.setScrollPosition(sourceScrollerView.scrollX)
-        scrollbar.show()
-        hideScrollbar = launch(UI) {
-            delay(SCROLLBAR_HIDE_DELAY_MILLIS)
-            scrollbar.hide()
+    internal inner class SourceListAdapter(
+            context: Context
+    ) : ArrayAdapter<SourceView>(context, R.layout.choose_source_item, R.id.choose_source_title) {
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+            val view = super.getView(position, convertView, parent)
+            val sourceView = getItem(position)
+            return view.apply {
+                val textView: TextView = findViewById(R.id.choose_source_title)
+                textView.text = sourceView.toCharSequence()
+                alpha = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+                        sourceView.source.targetSdkVersion >= Build.VERSION_CODES.O) {
+                    ALPHA_DISABLED
+                } else {
+                    ALPHA_DEFAULT
+                }
+                if (sourceView.source.selected) {
+                    selectedSourceImage.setColorFilter(
+                            sourceView.source.color, PorterDuff.Mode.SRC_ATOP)
+                    textView.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                            selectedSourceImage,null, null, null)
+
+                } else {
+                    textView.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                            sourceView.icon,null, null, null)
+                }
+                findViewById<View>(R.id.choose_source_settings).apply {
+                    val show = sourceView.source.selected &&
+                            sourceView.source.settingsActivity != null
+                    val wasVisible = isVisible
+                    isVisible = show
+                    if (!wasVisible && show) {
+                        if (rotation == 0f) {
+                            rotation = -90f
+                        }
+                        animate()
+                                .rotation(0f)
+                                .setDuration(300L)
+                                .withLayer()
+                    }
+                    setOnClickListener {
+                        launchSourceSettings(sourceView.source)
+                    }
+                }
+            }
         }
     }
 
     internal inner class SourceView(var source: Source) {
-        lateinit var rootView: View
         lateinit var icon: Drawable
-        lateinit var selectSourceButton: View
-        lateinit var settingsButton: View
+        var animation: ViewPropertyAnimator? = null
+
+        fun toCharSequence() = buildSpannedString {
+            bold { append(source.label) }
+            if (source.displayDescription != null) {
+                append("\n")
+                append(source.displayDescription)
+            }
+        }
     }
 }

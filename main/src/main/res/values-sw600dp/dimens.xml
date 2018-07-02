@@ -33,9 +33,6 @@
 
     <dimen name="tutorial_content_margin">0dp</dimen>
 
-    <dimen name="settings_choose_source_item_width">280dp</dimen>
-    <dimen name="settings_choose_source_item_image_size">140dp</dimen>
-    <dimen name="settings_choose_source_item_estimated_height">300dp</dimen>
     <dimen name="settings_text_size_large">24sp</dimen>
     <dimen name="settings_text_size_normal">20sp</dimen>
 </resources>
