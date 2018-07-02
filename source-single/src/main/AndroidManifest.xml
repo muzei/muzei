@@ -25,6 +25,7 @@
             android:name="com.google.android.apps.muzei.single.SingleArtProvider"
             android:authorities="com.google.android.apps.muzei.single"
             android:description="@string/single_description"
+            android:icon="@drawable/single_ic_launcher"
             android:label="@string/single_title"
             android:grantUriPermissions="true"
             android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER">
