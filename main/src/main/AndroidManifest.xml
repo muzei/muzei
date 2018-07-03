@@ -77,6 +77,7 @@
         <provider
             android:name="com.google.android.apps.muzei.sources.SourceArtProvider"
             android:label="@string/source_provider_name"
+            android:icon="@drawable/source_ic_launcher"
             android:authorities="com.google.android.apps.muzei.sources"
             android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER">
             <intent-filter>
