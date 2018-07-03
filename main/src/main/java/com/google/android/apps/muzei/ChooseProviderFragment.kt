@@ -32,6 +32,9 @@ import android.support.v7.widget.RecyclerView
 import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -44,6 +47,7 @@ import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.core.widget.toast
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
+import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
 import com.google.android.apps.muzei.room.select
 import com.google.android.apps.muzei.util.observe
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -75,7 +79,23 @@ class ChooseProviderFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         currentInitialSetupProvider = savedInstanceState?.getParcelable(INITIAL_SETUP_PROVIDER)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.choose_provider_fragment, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_notification_settings -> {
+                NotificationSettingsDialogFragment.showSettings(this)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     override fun onCreateView(
