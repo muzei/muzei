@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
@@ -36,6 +37,7 @@ import com.google.android.apps.muzei.room.getProviderDescription
 import com.google.android.apps.muzei.sources.SourceArtProvider
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.runBlocking
+import net.nurik.roman.muzei.R
 
 data class ProviderInfo(
         val componentName: ComponentName,
@@ -69,10 +71,47 @@ data class ProviderInfo(
 }
 
 class ChooseProviderViewModel(application: Application) : AndroidViewModel(application) {
+
+    companion object {
+        private const val PLAY_STORE_PACKAGE_NAME = "com.android.vending"
+    }
+
+    private val currentProviders = HashMap<ComponentName, ProviderInfo>()
+
+    @SuppressLint("InlinedApi")
+    val playStoreIntent: Intent = Intent(Intent.ACTION_VIEW,
+            Uri.parse("http://play.google.com/store/search?q=Muzei&c=apps"))
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
+            .setPackage(PLAY_STORE_PACKAGE_NAME)
+    val playStoreComponentName: ComponentName? = playStoreIntent.resolveActivity(
+            application.packageManager)
+
+    init {
+        if (playStoreComponentName != null) {
+            val pm = application.packageManager
+            currentProviders[playStoreComponentName] = ProviderInfo(
+                    playStoreComponentName,
+                    application.getString(R.string.get_more_sources),
+                    application.getString(R.string.get_more_sources_description),
+                    null,
+                    pm.getActivityLogo(playStoreIntent)
+                            ?: pm.getApplicationIcon(PLAY_STORE_PACKAGE_NAME),
+                    null,
+                    null,
+                    false)
+        }
+    }
+
     private val sourceArtProvider = ComponentName(application, SourceArtProvider::class.java)
 
     private val comparator = Comparator<ProviderInfo> { p1, p2 ->
-        // The SourceArtProvider should always be at the end of the list
+        // Get More Sources should always be at the end of the list
+        if (p1.componentName == playStoreComponentName) {
+            return@Comparator 1
+        } else if (p2.componentName == playStoreComponentName) {
+            return@Comparator -1
+        }
+        // The SourceArtProvider should always the last provider listed
         if (p1.componentName == sourceArtProvider) {
             return@Comparator 1
         } else if (p2.componentName == sourceArtProvider) {
@@ -92,7 +131,6 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
         p1.title.compareTo(p2.title)
     }
 
-    private val currentProviders = HashMap<ComponentName, ProviderInfo>()
     private val packageChangeReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
             if (intent?.data == null) {
@@ -116,6 +154,9 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
                 existingProviders.removeAll {
                     it.componentName.packageName != packageName
                 }
+            }
+            existingProviders.removeAll {
+                it.componentName == playStoreComponentName
             }
             for (ri in resolveInfos) {
                 val componentName = ComponentName(ri.providerInfo.packageName,

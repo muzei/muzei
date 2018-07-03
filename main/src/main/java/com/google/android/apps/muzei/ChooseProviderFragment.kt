@@ -37,10 +37,12 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
+import androidx.core.widget.toast
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.room.select
 import com.google.android.apps.muzei.util.observe
@@ -194,6 +196,15 @@ class ChooseProviderFragment : Fragment() {
                             FirebaseAnalytics.Param.ITEM_CATEGORY to "providers"))
                     currentInitialSetupProvider = componentName
                     launchProviderSetup(this)
+                } else if (providerInfo.componentName == viewModel.playStoreComponentName) {
+                    FirebaseAnalytics.getInstance(requireContext()).logEvent("more_sources_open", null)
+                    try {
+                        startActivity(viewModel.playStoreIntent)
+                    } catch (e: ActivityNotFoundException) {
+                        requireContext().toast(R.string.play_store_not_found, Toast.LENGTH_LONG)
+                    } catch (e: SecurityException) {
+                        requireContext().toast(R.string.play_store_not_found, Toast.LENGTH_LONG)
+                    }
                 } else {
                     FirebaseAnalytics.getInstance(requireContext()).logEvent(
                             FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
