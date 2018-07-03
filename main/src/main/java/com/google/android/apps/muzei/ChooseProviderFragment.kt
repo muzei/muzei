@@ -120,16 +120,9 @@ class ChooseProviderFragment : Fragment() {
                     parent: RecyclerView,
                     state: RecyclerView.State
             ) {
-                outRect.top = if (parent.getChildAdapterPosition(view) != 0) {
-                    spacing
-                } else {
-                    0
-                }
-                outRect.left = spacing
-                outRect.right = spacing
+                outRect.set(spacing, spacing, spacing, spacing)
             }
         })
-        //providerList.addItemDecoration(SpacesItemDecoration(spacing))
         providerList.adapter = adapter
         viewModel.providers.observe(this) {
             adapter.submitList(it)

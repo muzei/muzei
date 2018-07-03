@@ -1,5 +1,5 @@
 <!--
-  Copyright 2015 Google Inc.
+  Copyright 2018 Google Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,8 +15,5 @@
   -->
 
 <resources>
-    <integer name="tutorial_icon_emanate_duration">2000</integer>
-    <integer name="tutorial_icon_emanate_wave2_delay">400</integer>
-
-    <integer name="provider_span_count">1</integer>
+    <integer name="provider_span_count">2</integer>
 </resources>

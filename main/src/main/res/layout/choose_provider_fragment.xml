@@ -3,11 +3,17 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/provider_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layoutManager="android.support.v7.widget.LinearLayoutManager"/>
+        android:clipToPadding="false"
+        android:paddingBottom="@dimen/provider_padding"
+        android:paddingEnd="@dimen/provider_padding"
+        android:paddingStart="@dimen/provider_padding"
+        app:layoutManager="android.support.v7.widget.StaggeredGridLayoutManager"
+        app:spanCount="@integer/provider_span_count"/>
 </android.support.design.widget.CoordinatorLayout>
