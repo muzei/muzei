@@ -28,6 +28,7 @@
     <application
         android:allowBackup="true"
         android:label="@string/app_name"
+        android:icon="@mipmap/source_ic_launcher"
         tools:ignore="GoogleAppIndexingWarning">
 
         <service
@@ -41,7 +42,7 @@
             </intent-filter>
             <meta-data
                 android:name="color"
-                android:value="#fa0"/>
+                android:value="@color/colorPrimary"/>
             <meta-data
                 android:name="replacement"
                 android:value="com.example.muzei.unsplash.UnsplashExampleArtProvider"/>
