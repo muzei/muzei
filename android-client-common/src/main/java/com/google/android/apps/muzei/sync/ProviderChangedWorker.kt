@@ -193,7 +193,8 @@ class ProviderChangedWorker : Worker() {
                         ?: return Result.RETRY
                 val lastLoadedTime = result.getLong(KEY_LAST_LOADED_TIME, 0L)
                 client.query(contentUri)?.use { allArtwork ->
-                    val loadFrequencySeconds = ProviderManager.getInstance(applicationContext).loadFrequencySeconds
+                    val providerManager = ProviderManager.getInstance(applicationContext)
+                    val loadFrequencySeconds = providerManager.loadFrequencySeconds
                     val shouldSchedule = loadFrequencySeconds > 0
                     val overDue = shouldSchedule &&
                             System.currentTimeMillis() - lastLoadedTime >= TimeUnit.SECONDS.toMillis(loadFrequencySeconds)
@@ -206,7 +207,8 @@ class ProviderChangedWorker : Worker() {
                     }
                     if (shouldSchedule) {
                         // Schedule the periodic work
-                        ArtworkLoadWorker.enqueuePeriodic(loadFrequencySeconds)
+                        ArtworkLoadWorker.enqueuePeriodic(loadFrequencySeconds,
+                                providerManager.loadOnWifi)
                     } else {
                         // Clear any existing recurring work as it isn't needed anymore
                         ArtworkLoadWorker.cancelPeriodic()

@@ -27,6 +27,7 @@ import android.os.Handler
 import android.os.Looper
 import android.preference.PreferenceManager
 import android.util.Log
+import androidx.core.content.edit
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
@@ -45,7 +46,9 @@ class ProviderManager private constructor(private val context: Context)
     companion object {
         private const val TAG = "ProviderManager"
         private const val PREF_LOAD_FREQUENCY_SECONDS = "loadFrequencySeconds"
-        private const val DEFAULT_LOAD_FREQUENCY_SECONDS = -1L // By default, never auto-load
+        private const val DEFAULT_LOAD_FREQUENCY_SECONDS = 3600L
+        private const val PREF_LOAD_ON_WIFI = "loadOnWifi"
+        private const val DEFAULT_LOAD_ON_WIFI = false
 
         @SuppressLint("StaticFieldLeak")
         @Volatile
@@ -82,10 +85,31 @@ class ProviderManager private constructor(private val context: Context)
         }
     }
 
-
-    internal val loadFrequencySeconds: Long
+    var loadFrequencySeconds: Long
+        set(newLoadFrequency) {
+            PreferenceManager.getDefaultSharedPreferences(context).edit {
+                putLong(PREF_LOAD_FREQUENCY_SECONDS, newLoadFrequency)
+            }
+            if (newLoadFrequency > 0) {
+                ArtworkLoadWorker.enqueuePeriodic(newLoadFrequency, loadOnWifi)
+            } else {
+                ArtworkLoadWorker.cancelPeriodic()
+            }
+        }
         get() = PreferenceManager.getDefaultSharedPreferences(context)
                 .getLong(PREF_LOAD_FREQUENCY_SECONDS, DEFAULT_LOAD_FREQUENCY_SECONDS)
+
+    var loadOnWifi: Boolean
+        set(newLoadOnWifi) {
+            PreferenceManager.getDefaultSharedPreferences(context).edit {
+                putBoolean(PREF_LOAD_ON_WIFI, newLoadOnWifi)
+            }
+            if (loadFrequencySeconds > 0) {
+                ArtworkLoadWorker.enqueuePeriodic(loadFrequencySeconds, newLoadOnWifi)
+            }
+        }
+        get() = PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(PREF_LOAD_ON_WIFI, DEFAULT_LOAD_ON_WIFI)
 
     init {
         contentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {

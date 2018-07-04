@@ -21,16 +21,19 @@ import android.arch.lifecycle.ViewModelProvider
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.support.v4.app.Fragment
+import android.support.v4.widget.DrawerLayout
 import android.support.v7.recyclerview.extensions.ListAdapter
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.text.TextUtils
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -48,7 +51,9 @@ import androidx.core.view.isVisible
 import androidx.core.widget.toast
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
+import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.select
+import com.google.android.apps.muzei.sources.SourceArtProvider
 import com.google.android.apps.muzei.util.observe
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.squareup.picasso.Callback
@@ -66,6 +71,10 @@ class ChooseProviderFragment : Fragment() {
         private const val PAYLOAD_SELECTED = "SELECTED"
     }
 
+    private val currentProviderLiveData by lazy {
+        MuzeiDatabase.getInstance(requireContext()).providerDao()
+                .currentProvider
+    }
     private val viewModelProvider by lazy {
         ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory
                 .getInstance(requireActivity().application))
@@ -74,6 +83,8 @@ class ChooseProviderFragment : Fragment() {
         viewModelProvider[ChooseProviderViewModel::class.java]
     }
     private val adapter = ProviderListAdapter()
+
+    private lateinit var drawerLayout: DrawerLayout
 
     private var currentInitialSetupProvider: ComponentName? = null
 
@@ -88,8 +99,38 @@ class ChooseProviderFragment : Fragment() {
         inflater.inflate(R.menu.choose_provider_fragment, menu)
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        val sourceArtProvider = ComponentName(requireContext(),
+                SourceArtProvider::class.java)
+        val legacySelected = currentProviderLiveData.value?.componentName ==
+                sourceArtProvider
+        menu.findItem(R.id.auto_advance_settings).isVisible = !legacySelected
+        menu.findItem(R.id.auto_advance_disabled).isVisible = legacySelected
+        if (legacySelected) {
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
+                    Gravity.END)
+        } else {
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED,
+                    Gravity.END)
+        }
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            R.id.auto_advance_settings -> {
+                if (drawerLayout.isDrawerOpen(Gravity.END)) {
+                    drawerLayout.closeDrawer(Gravity.END)
+                } else {
+                    drawerLayout.openDrawer(Gravity.END)
+                }
+                true
+            }
+            R.id.auto_advance_disabled -> {
+                requireContext().toast(R.string.auto_advance_disabled_description,
+                        Toast.LENGTH_LONG)
+                true
+            }
             R.id.action_notification_settings -> {
                 NotificationSettingsDialogFragment.showSettings(this)
                 true
@@ -110,6 +151,12 @@ class ChooseProviderFragment : Fragment() {
         // Ensure we have the latest insets
         @Suppress("DEPRECATION")
         view.requestFitSystemWindows()
+
+        drawerLayout = view.findViewById(R.id.choose_provider_drawer)
+        drawerLayout.setScrimColor(Color.argb(68, 0, 0, 0))
+        currentProviderLiveData.observe(this) {
+            requireActivity().invalidateOptionsMenu()
+        }
 
         val providerList = view.findViewById<RecyclerView>(R.id.provider_list)
         val spacing = resources.getDimensionPixelSize(R.dimen.provider_padding)

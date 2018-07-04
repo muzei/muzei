@@ -24,6 +24,7 @@ import android.provider.BaseColumns
 import android.util.Log
 import androidx.core.database.getLong
 import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
@@ -71,21 +72,28 @@ class ArtworkLoadWorker : Worker() {
                     .enqueue()
         }
 
-        internal fun enqueuePeriodic(loadFrequencySeconds: Long) {
+        internal fun enqueuePeriodic(
+                loadFrequencySeconds: Long,
+                loadOnWifi: Boolean
+        ) {
             val workManager = WorkManager.getInstance() ?: return
-            workManager.enqueue(PeriodicWorkRequestBuilder<ArtworkLoadWorker>(
-                    loadFrequencySeconds, TimeUnit.SECONDS,
-                    loadFrequencySeconds / 10, TimeUnit.SECONDS)
-                    .addTag(PERIODIC_TAG)
-                    .setConstraints(Constraints.Builder()
-                            .setRequiredNetworkType(NetworkType.CONNECTED)
+            workManager.enqueueUniquePeriodicWork(PERIODIC_TAG, ExistingPeriodicWorkPolicy.REPLACE,
+                    PeriodicWorkRequestBuilder<ArtworkLoadWorker>(
+                            loadFrequencySeconds, TimeUnit.SECONDS,
+                            loadFrequencySeconds / 10, TimeUnit.SECONDS)
+                            .setConstraints(Constraints.Builder()
+                                    .setRequiredNetworkType(if (loadOnWifi) {
+                                        NetworkType.UNMETERED
+                                    } else {
+                                        NetworkType.CONNECTED
+                                    })
+                                    .build())
                             .build())
-                    .build())
         }
 
         fun cancelPeriodic() {
             val workManager = WorkManager.getInstance() ?: return
-            workManager.cancelAllWorkByTag(PERIODIC_TAG)
+            workManager.cancelUniqueWork(PERIODIC_TAG)
         }
     }
 

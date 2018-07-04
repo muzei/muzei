@@ -18,6 +18,16 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/auto_advance_settings"
+        android:icon="@drawable/ic_auto_advance"
+        android:title="@string/auto_advance_settings"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/auto_advance_disabled"
+        android:icon="@drawable/ic_auto_advance_disabled"
+        android:title="@string/auto_advance_disabled"
+        app:showAsAction="ifRoom"/>
+    <item
         android:id="@+id/action_notification_settings"
         android:title="@string/notification_settings"
         app:showAsAction="never"/>

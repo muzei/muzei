@@ -30,6 +30,25 @@
     <string name="notification_settings_moved_title">Notification settings have moved</string>
     <string name="notification_settings_moved_text">Review your notification settings</string>
 
+    <string name="auto_advance_settings">Auto Advance Settings</string>
+    <string name="auto_advance_disabled">Auto Advance disabled</string>
+    <string name="auto_advance_disabled_description">Legacy Sources handle their own
+        wallpaper loading and do not support Auto Advance</string>
+    <string name="auto_advance_title">Auto Advance</string>
+    <string name="auto_advance_description">Control when Muzei automatically advances to the next
+        wallpaper.</string>
+    <string name="auto_advance_wifi">Auto advance only on Wi-Fi</string>
+    <string name="auto_advance_interval">Interval</string>
+    <string name="auto_advance_interval_15m">Every 15 minutes</string>
+    <string name="auto_advance_interval_30m">Every 30 minutes</string>
+    <string name="auto_advance_interval_1h">Every hour</string>
+    <string name="auto_advance_interval_3h">Every 3 hours</string>
+    <string name="auto_advance_interval_6h">Every 6 hours</string>
+    <string name="auto_advance_interval_24h">Every 24 hours</string>
+    <string name="auto_advance_interval_72h">Every 3 days</string>
+    <string name="auto_advance_interval_never">Don\'t auto advance</string>
+    <string name="auto_advance_tasker">For exact control over what triggers your wallpaper to change, use the \'Next artwork\' action available in Tasker under Plugin -> Muzei and disable auto advance here.</string>
+
     <string name="action_activate">Activate</string>
     <string name="action_souce_done">Done</string>
     <string name="action_source_settings">Customize source</string>
