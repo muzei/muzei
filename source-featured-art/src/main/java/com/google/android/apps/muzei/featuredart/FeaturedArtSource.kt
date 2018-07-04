@@ -42,6 +42,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.Random
 import java.util.TimeZone
+import java.util.concurrent.TimeUnit
 
 class FeaturedArtSource : RemoteMuzeiArtSource(SOURCE_NAME) {
 
@@ -76,6 +77,11 @@ class FeaturedArtSource : RemoteMuzeiArtSource(SOURCE_NAME) {
             // Handle cases where we've crashed midway through updating the image
             // and lost our scheduled update
             onUpdate(UPDATE_REASON_OTHER)
+        } else if (nextUpdateTimeMillis >
+                System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)) {
+            // Handle cases where the server returned a date suspiciously
+            // far in the future
+            onUpdate(UPDATE_REASON_SCHEDULED)
         }
     }
 
