@@ -126,6 +126,8 @@ class FeaturedArtWorker : Worker() {
                 ProviderContract.Artwork.addArtwork(applicationContext,
                         FeaturedArtProvider::class.java,
                         artwork)
+                // Schedule a load shortly in the future to clear out the initial artwork
+                FeaturedArtInitialTimeoutReceiver.scheduleTimeout(applicationContext)
             } else {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "Setting artwork: $imageUri")
@@ -190,3 +192,4 @@ class FeaturedArtWorker : Worker() {
         return tokener.nextValue() as? JSONObject ?: throw JSONException("Expected JSON object.")
     }
 }
+
