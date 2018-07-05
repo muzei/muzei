@@ -18,6 +18,7 @@ package com.google.android.apps.muzei.featuredart
 
 import android.content.Context
 import android.preference.PreferenceManager
+import android.text.format.DateUtils
 import android.util.Log
 import androidx.core.content.edit
 import androidx.core.net.toUri
@@ -70,9 +71,12 @@ class FeaturedArtWorker : Worker() {
         }
 
         internal fun enqueueLoadIfNeeded(context: Context, initialLoad: Boolean) {
+            val currentArtwork = ProviderContract.Artwork.getLastAddedArtwork(
+                    context, FeaturedArtProvider::class.java)
             val sp = PreferenceManager.getDefaultSharedPreferences(context)
             val nextUpdateMillis = sp.getLong(PREF_NEXT_UPDATE_MILLIS, 0)
-            if (nextUpdateMillis <= System.currentTimeMillis()) {
+            if (nextUpdateMillis <= System.currentTimeMillis() ||
+                    currentArtwork?.token == "initial") {
                 // Load the next artwork
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "Enqueuing next artwork")
@@ -89,6 +93,12 @@ class FeaturedArtWorker : Worker() {
                                         .toWorkData())
                                 .build()
                 ).enqueue()
+            } else {
+                if (BuildConfig.DEBUG) {
+                    Log.v(TAG, "Waiting until " + DateUtils.formatDateTime(context,
+                            nextUpdateMillis, DateUtils.FORMAT_SHOW_DATE or
+                            DateUtils.FORMAT_SHOW_TIME))
+                }
             }
         }
     }
