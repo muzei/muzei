@@ -170,14 +170,16 @@ class ProviderChangedWorker : Worker() {
 
     override fun doWork() = runBlocking(singleThreadContext) {
         val tag = inputData.getString(TAG, "") ?: ""
-        handleProviderChange(tag).also {
-            if (tag == PERSISTENT_CHANGED_TAG &&
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                inputData.getString(EXTRA_CONTENT_URI, "")?.toUri()?.run {
-                    scheduleObserver(this)
-                }
+        // First schedule the observer to pick up any changes fired
+        // by the work done in handleProviderChange
+        if (tag == PERSISTENT_CHANGED_TAG &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            inputData.getString(EXTRA_CONTENT_URI, "")?.toUri()?.run {
+                scheduleObserver(this)
             }
         }
+        // Now actually handle the provider change
+        handleProviderChange(tag)
     }
 
     private suspend fun handleProviderChange(tag: String): Result {
