@@ -33,6 +33,7 @@ import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
+import com.google.android.apps.muzei.api.internal.ProtocolConstants
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_LAST_LOADED_TIME
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_LOAD_INFO
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
@@ -198,7 +199,8 @@ class ProviderChangedWorker : Worker() {
                     val shouldSchedule = loadFrequencySeconds > 0
                     val overDue = shouldSchedule &&
                             System.currentTimeMillis() - lastLoadedTime >= TimeUnit.SECONDS.toMillis(loadFrequencySeconds)
-                    if (overDue || !isCurrentArtworkValid(client, provider)) {
+                    val enqueueNext = overDue || !isCurrentArtworkValid(client, provider)
+                    if (enqueueNext) {
                         // Schedule an immediate load
                         if (BuildConfig.DEBUG) {
                             Log.d(TAG, "Scheduling an immediate load")
@@ -228,6 +230,11 @@ class ProviderChangedWorker : Worker() {
                         Log.d(TAG, "Found at least $validArtworkCount artwork for $provider")
                     }
                     database.providerDao().update(provider)
+                    if (validArtworkCount <= 1 && !enqueueNext) {
+                        // Request a load if we don't have any more artwork
+                        // and haven't just called enqueueNext
+                        client.call(ProtocolConstants.METHOD_REQUEST_LOAD)
+                    }
                     return Result.SUCCESS
                 }
             }
