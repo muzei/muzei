@@ -54,8 +54,9 @@ class FeaturedArtProvider : MuzeiArtProvider() {
                     .persistentUri(Uri.parse("file:///android_asset/starrynight.jpg"))
                     .webUri(Uri.parse("http://www.wikiart.org/en/vincent-van-gogh/the-starry-night-1889"))
                     .build())
-        }
-        if (!initial) {
+        } else {
+            // Delete all but the latest artwork to avoid
+            // cycling through all of the previously Featured Art
             query(contentUri, null, null, null, null).use { data ->
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "Found ${data.count} existing artwork")
@@ -69,7 +70,7 @@ class FeaturedArtProvider : MuzeiArtProvider() {
                 }
             }
         }
-        FeaturedArtWorker.enqueueLoadIfNeeded(context, initial)
+        FeaturedArtWorker.enqueueLoad(context)
     }
 
     override fun getCommands(artwork: Artwork): List<UserCommand> {

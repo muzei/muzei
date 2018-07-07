@@ -28,7 +28,6 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
-import androidx.work.toWorkData
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import okhttp3.OkHttpClient
@@ -43,13 +42,13 @@ import java.util.Date
 import java.util.Locale
 import java.util.Random
 import java.util.TimeZone
+import java.util.concurrent.TimeUnit
 
 class FeaturedArtWorker : Worker() {
 
     companion object {
         private const val TAG = "FeaturedArtWorker"
         private const val PREF_NEXT_UPDATE_MILLIS = "next_update_millis"
-        private const val KEY_INITIAL_LOAD = "com.google.android.apps.muzei.featuredart.INITIAL_LOAD"
 
         private const val QUERY_URL = "http://muzeiapi.appspot.com/featured?cachebust=1"
 
@@ -70,36 +69,29 @@ class FeaturedArtWorker : Worker() {
             DATE_FORMAT_TZ.timeZone = TimeZone.getTimeZone("UTC")
         }
 
-        internal fun enqueueLoadIfNeeded(context: Context, initialLoad: Boolean) {
-            val currentArtwork = ProviderContract.Artwork.getLastAddedArtwork(
-                    context, FeaturedArtProvider::class.java)
+        internal fun enqueueLoad(context: Context) {
             val sp = PreferenceManager.getDefaultSharedPreferences(context)
             val nextUpdateMillis = sp.getLong(PREF_NEXT_UPDATE_MILLIS, 0)
-            if (nextUpdateMillis <= System.currentTimeMillis() ||
-                    currentArtwork?.token == "initial") {
-                // Load the next artwork
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "Enqueuing next artwork")
-                }
-                val workManager = WorkManager.getInstance() ?: return
-                workManager.beginUniqueWork(
-                        TAG,
-                        ExistingWorkPolicy.KEEP,
-                        OneTimeWorkRequestBuilder<FeaturedArtWorker>()
-                                .setConstraints(Constraints.Builder()
-                                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                                        .build())
-                                .setInputData(mapOf(KEY_INITIAL_LOAD to initialLoad)
-                                        .toWorkData())
-                                .build()
-                ).enqueue()
+            val delay = if (nextUpdateMillis == 0L) {
+                0
             } else {
-                if (BuildConfig.DEBUG) {
-                    Log.v(TAG, "Waiting until " + DateUtils.formatDateTime(context,
-                            nextUpdateMillis, DateUtils.FORMAT_SHOW_DATE or
-                            DateUtils.FORMAT_SHOW_TIME))
-                }
+                nextUpdateMillis - System.currentTimeMillis()
             }
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Enqueuing next artwork with delay of " +
+                    DateUtils.formatElapsedTime(TimeUnit.MILLISECONDS.toSeconds(delay)))
+            }
+            val workManager = WorkManager.getInstance() ?: return
+            workManager.beginUniqueWork(
+                    TAG,
+                    ExistingWorkPolicy.KEEP,
+                    OneTimeWorkRequestBuilder<FeaturedArtWorker>()
+                            .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+                            .setConstraints(Constraints.Builder()
+                                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                                    .build())
+                            .build()
+            ).enqueue()
         }
     }
 
@@ -117,26 +109,12 @@ class FeaturedArtWorker : Worker() {
                 webUri = jsonObject.optString(KEY_DETAILS_URI)?.toUri()
             }
 
-            val initialLoad = inputData.getBoolean(KEY_INITIAL_LOAD, false)
-            if (initialLoad) {
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "Adding new artwork: $imageUri")
-                }
-                // Keep the initial artwork until we've loaded a second piece of real artwork
-                ProviderContract.Artwork.addArtwork(applicationContext,
-                        FeaturedArtProvider::class.java,
-                        artwork)
-                // Schedule a load shortly in the future to clear out the initial artwork
-                FeaturedArtInitialTimeoutReceiver.scheduleTimeout(applicationContext)
-            } else {
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "Setting artwork: $imageUri")
-                }
-                // Use setArtwork to clear out previous artwork, ensuring everyone is on today's
-                ProviderContract.Artwork.setArtwork(applicationContext,
-                        FeaturedArtProvider::class.java,
-                        artwork)
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Adding new artwork: $imageUri")
             }
+            ProviderContract.Artwork.addArtwork(applicationContext,
+                    FeaturedArtProvider::class.java,
+                    artwork)
         } catch (e: JSONException) {
             Log.e(TAG, "Error reading JSON", e)
             return Result.RETRY
