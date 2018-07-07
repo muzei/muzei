@@ -62,12 +62,13 @@ object DirectBootCache {
                         if (BuildConfig.DEBUG) {
                             Log.d(TAG, "Successfully wrote artwork to Direct Boot cache")
                         }
+                        return@launch
                     }
                 }
+                Log.w(TAG, "Could not open the current artwork")
             } catch (e: IOException) {
                 Log.e(TAG, "Unable to write artwork to direct boot storage", e)
             }
-            Log.w(TAG, "Could not open the current artwork")
         }
     }
 }
