@@ -16,12 +16,11 @@
 
 package com.google.android.apps.muzei.settings
 
+import android.app.Activity
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.Toolbar
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
@@ -46,11 +45,6 @@ class EffectsFragment : Fragment() {
     private var updateDim: Job? = null
     private var updateGrey: Job? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
@@ -63,6 +57,35 @@ class EffectsFragment : Fragment() {
         // Ensure we have the latest insets
         @Suppress("DEPRECATION")
         view.requestFitSystemWindows()
+
+        val toolbar: Toolbar = view.findViewById(R.id.toolbar)
+        if (requireActivity() is SettingsActivity) {
+            toolbar.setNavigationIcon(R.drawable.ic_ab_done)
+            toolbar.navigationContentDescription = getString(R.string.done)
+            toolbar.setNavigationOnClickListener {
+                requireActivity().run {
+                    setResult(Activity.RESULT_OK)
+                    finish()
+                }
+            }
+        }
+        requireActivity().menuInflater.inflate(R.menu.settings_advanced, toolbar.menu)
+        toolbar.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.action_reset_defaults -> {
+                    Prefs.getSharedPreferences(requireContext()).edit {
+                        putInt(Prefs.PREF_BLUR_AMOUNT, MuzeiBlurRenderer.DEFAULT_BLUR)
+                        putInt(Prefs.PREF_DIM_AMOUNT, MuzeiBlurRenderer.DEFAULT_MAX_DIM)
+                        putInt(Prefs.PREF_GREY_AMOUNT, MuzeiBlurRenderer.DEFAULT_GREY)
+                    }
+                    blurSeekBar.progress = MuzeiBlurRenderer.DEFAULT_BLUR
+                    dimSeekBar.progress = MuzeiBlurRenderer.DEFAULT_MAX_DIM
+                    greySeekBar.progress = MuzeiBlurRenderer.DEFAULT_GREY
+                    true
+                }
+                else -> false
+            }
+        }
 
         blurSeekBar = view.findViewById(R.id.blur_amount)
         blurSeekBar.progress = Prefs.getSharedPreferences(requireContext())
@@ -135,26 +158,6 @@ class EffectsFragment : Fragment() {
         }
         blurOnLockScreenCheckBox.isChecked = !Prefs.getSharedPreferences(requireContext())
                 .getBoolean(Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED, false)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.settings_advanced, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        R.id.action_reset_defaults -> {
-            Prefs.getSharedPreferences(requireContext()).edit {
-                putInt(Prefs.PREF_BLUR_AMOUNT, MuzeiBlurRenderer.DEFAULT_BLUR)
-                putInt(Prefs.PREF_DIM_AMOUNT, MuzeiBlurRenderer.DEFAULT_MAX_DIM)
-                putInt(Prefs.PREF_GREY_AMOUNT, MuzeiBlurRenderer.DEFAULT_GREY)
-            }
-            blurSeekBar.progress = MuzeiBlurRenderer.DEFAULT_BLUR
-            dimSeekBar.progress = MuzeiBlurRenderer.DEFAULT_MAX_DIM
-            greySeekBar.progress = MuzeiBlurRenderer.DEFAULT_GREY
-            true
-        }
-        else -> super.onOptionsItemSelected(item)
     }
 
     override fun onDestroy() {

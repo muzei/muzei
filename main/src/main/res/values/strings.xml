@@ -63,7 +63,6 @@
     <string name="error_wallpaper_chooser">Couldn\'t launch wallpaper chooser. You can still activate Muzei by choosing \'Live Wallpapers\' in your home screen wallpaper picker.</string>
 
     <string name="section_choose_source">Sources</string>
-    <string name="section_advanced">Advanced</string>
     <string name="section_effects">Effects</string>
 
     <string name="action_next_artwork">Next artwork</string>

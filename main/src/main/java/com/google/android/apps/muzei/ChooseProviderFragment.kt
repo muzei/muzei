@@ -31,13 +31,11 @@ import android.support.v4.widget.DrawerLayout
 import android.support.v7.recyclerview.extensions.ListAdapter
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.Toolbar
 import android.text.TextUtils
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -84,59 +82,14 @@ class ChooseProviderFragment : Fragment() {
     }
     private val adapter = ProviderListAdapter()
 
+    private lateinit var toolbar: Toolbar
     private lateinit var drawerLayout: DrawerLayout
 
     private var currentInitialSetupProvider: ComponentName? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
         currentInitialSetupProvider = savedInstanceState?.getParcelable(INITIAL_SETUP_PROVIDER)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.choose_provider_fragment, menu)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        val sourceArtProvider = ComponentName(requireContext(),
-                SourceArtProvider::class.java)
-        val legacySelected = currentProviderLiveData.value?.componentName ==
-                sourceArtProvider
-        menu.findItem(R.id.auto_advance_settings).isVisible = !legacySelected
-        menu.findItem(R.id.auto_advance_disabled).isVisible = legacySelected
-        if (legacySelected) {
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
-                    Gravity.END)
-        } else {
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED,
-                    Gravity.END)
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.auto_advance_settings -> {
-                if (drawerLayout.isDrawerOpen(Gravity.END)) {
-                    drawerLayout.closeDrawer(Gravity.END)
-                } else {
-                    drawerLayout.openDrawer(Gravity.END)
-                }
-                true
-            }
-            R.id.auto_advance_disabled -> {
-                requireContext().toast(R.string.auto_advance_disabled_description,
-                        Toast.LENGTH_LONG)
-                true
-            }
-            R.id.action_notification_settings -> {
-                NotificationSettingsDialogFragment.showSettings(this)
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
     }
 
     override fun onCreateView(
@@ -152,10 +105,48 @@ class ChooseProviderFragment : Fragment() {
         @Suppress("DEPRECATION")
         view.requestFitSystemWindows()
 
+        toolbar = view.findViewById(R.id.toolbar)
+        requireActivity().menuInflater.inflate(R.menu.choose_provider_fragment,
+                toolbar.menu)
+        toolbar.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.auto_advance_settings -> {
+                    if (drawerLayout.isDrawerOpen(Gravity.END)) {
+                        drawerLayout.closeDrawer(Gravity.END)
+                    } else {
+                        drawerLayout.openDrawer(Gravity.END)
+                    }
+                    true
+                }
+                R.id.auto_advance_disabled -> {
+                    requireContext().toast(R.string.auto_advance_disabled_description,
+                            Toast.LENGTH_LONG)
+                    true
+                }
+                R.id.action_notification_settings -> {
+                    NotificationSettingsDialogFragment.showSettings(this)
+                    true
+                }
+                else -> false
+            }
+        }
+
         drawerLayout = view.findViewById(R.id.choose_provider_drawer)
+        drawerLayout.setStatusBarBackgroundColor(Color.TRANSPARENT)
         drawerLayout.setScrimColor(Color.argb(68, 0, 0, 0))
-        currentProviderLiveData.observe(this) {
-            requireActivity().invalidateOptionsMenu()
+        currentProviderLiveData.observe(this) { provider ->
+            val sourceArtProvider = ComponentName(requireContext(),
+                    SourceArtProvider::class.java)
+            val legacySelected = provider?.componentName == sourceArtProvider
+            toolbar.menu.findItem(R.id.auto_advance_settings).isVisible = !legacySelected
+            toolbar.menu.findItem(R.id.auto_advance_disabled).isVisible = legacySelected
+            if (legacySelected) {
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
+                        Gravity.END)
+            } else {
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED,
+                        Gravity.END)
+            }
         }
 
         val providerList = view.findViewById<RecyclerView>(R.id.provider_list)

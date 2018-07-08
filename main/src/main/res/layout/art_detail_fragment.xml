@@ -20,6 +20,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <View
+        android:id="@+id/art_detail_scrim"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"/>
+
     <com.google.android.apps.muzei.util.PanScaleProxyView
         android:id="@+id/pan_scale_proxy"
         android:layout_width="match_parent"

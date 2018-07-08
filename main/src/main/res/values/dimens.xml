@@ -29,7 +29,6 @@
     <dimen name="intro_activate_button_size">100dp</dimen>
 
     <dimen name="keyline_2">72dp</dimen>
-    <dimen name="keyline_2_minus_16dp">56dp</dimen>
 
     <dimen name="tutorial_content_margin">32dp</dimen>
 
