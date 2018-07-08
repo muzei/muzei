@@ -102,7 +102,7 @@ class FeaturedArtWorker : Worker() {
             val imageUri = jsonObject.optString(KEY_IMAGE_URI) ?: return Result.SUCCESS
             val artwork = Artwork().apply {
                 persistentUri = imageUri.toUri()
-                token = jsonObject.optString(KEY_TOKEN) ?: imageUri
+                token = jsonObject.optString(KEY_TOKEN).takeUnless { it.isEmpty() } ?: imageUri
                 title = jsonObject.optString(KEY_TITLE)
                 byline = jsonObject.optString(KEY_BYLINE)
                 attribution = jsonObject.optString(KEY_ATTRIBUTION)
