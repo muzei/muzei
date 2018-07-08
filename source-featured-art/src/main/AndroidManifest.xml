@@ -33,8 +33,6 @@
                 <action android:name="com.google.android.apps.muzei.api.MuzeiArtProvider"/>
             </intent-filter>
         </provider>
-        <receiver
-            android:name="com.google.android.apps.muzei.featuredart.FeaturedArtInitialTimeoutReceiver"/>
         <service
             android:name="com.google.android.apps.muzei.featuredart.FeaturedArtSource"
             android:description="@string/featuredart_source_description"
