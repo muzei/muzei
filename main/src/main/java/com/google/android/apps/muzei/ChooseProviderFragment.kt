@@ -335,7 +335,9 @@ class ChooseProviderFragment : Fragment() {
 
                 override fun getChangePayload(oldItem: ProviderInfo, newItem: ProviderInfo): Any? {
                     return when {
-                        oldItem.selected != newItem.selected -> PAYLOAD_SELECTED
+                        oldItem.selected != newItem.selected &&
+                                oldItem.copy(selected = newItem.selected) == newItem ->
+                            PAYLOAD_SELECTED
                         else -> null
                     }
                 }
