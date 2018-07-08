@@ -113,7 +113,7 @@
 
         <activity-alias
             android:name="com.google.android.apps.muzei.settings.NotificationSettings"
-            android:targetActivity="com.google.android.apps.muzei.settings.SettingsActivity"
+            android:targetActivity="com.google.android.apps.muzei.MuzeiActivity"
             android:enabled="@bool/enable_notification_settings">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

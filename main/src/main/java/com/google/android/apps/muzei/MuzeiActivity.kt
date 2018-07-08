@@ -17,6 +17,7 @@
 package com.google.android.apps.muzei
 
 import android.app.Application
+import android.app.Notification
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
@@ -29,6 +30,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
 import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -98,6 +100,10 @@ class MuzeiActivity : AppCompatActivity() {
                     .setPrimaryNavigationFragment(fragment)
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                     .commitAllowingStateLoss()
+        }
+        if (intent?.hasCategory(Notification.INTENT_CATEGORY_NOTIFICATION_PREFERENCES) == true) {
+            NotificationSettingsDialogFragment.showSettings(this,
+                    supportFragmentManager)
         }
     }
 

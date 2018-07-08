@@ -124,7 +124,8 @@ class ChooseProviderFragment : Fragment() {
                     true
                 }
                 R.id.action_notification_settings -> {
-                    NotificationSettingsDialogFragment.showSettings(this)
+                    NotificationSettingsDialogFragment.showSettings(requireContext(),
+                            childFragmentManager)
                     true
                 }
                 else -> false
