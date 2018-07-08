@@ -164,7 +164,7 @@ class ArtworkLoadWorker : Worker() {
                             val currentArtwork = database.artworkDao().getCurrentArtwork()
                             if (artworkUri == currentArtwork?.imageUri) {
                                 if (BuildConfig.DEBUG) {
-                                    Log.i(TAG, "Unable to find any other artwork for $componentName")
+                                    Log.i(TAG, "Provider $componentName only has one artwork")
                                 }
                                 return Result.FAILURE
                             }
@@ -179,12 +179,18 @@ class ArtworkLoadWorker : Worker() {
                         }
                         // Now find a random piece of artwork that isn't in our previous list
                         val random = Random()
-                        var remainingAttempts = allArtwork.count
-                        while (remainingAttempts-- > 0) {
-                            val position = random.nextInt(allArtwork.count)
+                        val randomSequence = generateSequence {
+                            random.nextInt(allArtwork.count)
+                        }.distinct().take(allArtwork.count)
+                        val iterator = randomSequence.iterator()
+                        while (iterator.hasNext()) {
+                            val position = iterator.next()
                             if (allArtwork.moveToPosition(position)) {
                                 var artworkId = allArtwork.getLong(BaseColumns._ID)
                                 if (recentArtworkIds.contains(artworkId)) {
+                                    if (BuildConfig.DEBUG) {
+                                        Log.v(TAG, "Skipping $artworkId")
+                                    }
                                     // Skip previously selected artwork
                                     continue
                                 }
@@ -192,10 +198,7 @@ class ArtworkLoadWorker : Worker() {
                                     providerComponentName = componentName
                                     artworkId = database.artworkDao().insert(this)
                                     if (BuildConfig.DEBUG) {
-                                        val attempts = allArtwork.count - remainingAttempts
-                                        Log.d(TAG, "Loaded $imageUri into id $artworkId, took "
-                                                + "$attempts attempt" +
-                                                if (attempts > 1) "s" else "")
+                                        Log.d(TAG, "Loaded $imageUri into id $artworkId")
                                     }
                                     client.call(METHOD_MARK_ARTWORK_LOADED, imageUri.toString())
                                     return Result.SUCCESS
