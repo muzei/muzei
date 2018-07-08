@@ -69,7 +69,7 @@ class EffectsFragment : Fragment() {
                 }
             }
         }
-        requireActivity().menuInflater.inflate(R.menu.settings_advanced, toolbar.menu)
+        requireActivity().menuInflater.inflate(R.menu.effects_fragment, toolbar.menu)
         toolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_reset_defaults -> {
