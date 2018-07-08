@@ -34,5 +34,5 @@
         android:id="@+id/main_effects"
         android:name="com.google.android.apps.muzei.settings.EffectsFragment"
         android:label="@string/section_effects"
-        tools:layout="@layout/settings_advanced_fragment"/>
+        tools:layout="@layout/effects_fragment"/>
 </navigation>

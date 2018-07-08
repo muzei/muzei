@@ -50,7 +50,7 @@ class EffectsFragment : Fragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.settings_advanced_fragment, container, false)
+        return inflater.inflate(R.layout.effects_fragment, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
