@@ -306,14 +306,13 @@ class ChooseProviderFragment : Fragment() {
         }
 
         fun setImage(providerInfo: ProviderInfo) = providerInfo.run {
+            providerArtwork.isVisible = currentArtworkUri != null
             if (currentArtworkUri != null) {
                 Picasso.get()
                         .load(currentArtworkUri)
                         .centerCrop()
                         .fit()
                         .into(providerArtwork, this@ProviderViewHolder)
-            } else {
-                providerArtwork.isVisible = false
             }
         }
 
