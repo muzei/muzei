@@ -35,7 +35,7 @@
         android:layout_height="match_parent"
         android:id="@+id/image_loading_container"
         android:clickable="true"
-        android:background="@drawable/art_detail_gradient_background"
+        android:background="@color/art_detail_loading_background"
         android:visibility="gone"
         android:alpha="0">
 
