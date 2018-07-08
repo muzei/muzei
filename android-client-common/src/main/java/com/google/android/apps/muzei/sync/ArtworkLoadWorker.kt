@@ -44,7 +44,6 @@ import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
 import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.newSingleThreadContext
 import kotlinx.coroutines.experimental.runBlocking
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.IOException
@@ -61,9 +60,6 @@ class ArtworkLoadWorker : Worker() {
         private const val TAG = "ArtworkLoad"
         private const val PERIODIC_TAG = "ArtworkLoadPeriodic"
         private const val ARTWORK_LOAD_THROTTLE = 250 // quarter second
-        private val singleThreadContext by lazy {
-            newSingleThreadContext(TAG)
-        }
 
         internal fun enqueueNext() {
             val workManager = WorkManager.getInstance() ?: return
@@ -97,7 +93,7 @@ class ArtworkLoadWorker : Worker() {
         }
     }
 
-    override fun doWork() = runBlocking(singleThreadContext) {
+    override fun doWork() = runBlocking(syncSingleThreadContext) {
         // Throttle artwork loads
         delay(ARTWORK_LOAD_THROTTLE)
         loadArtwork()

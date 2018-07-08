@@ -41,7 +41,6 @@ import com.google.android.apps.muzei.render.isValidImage
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
-import kotlinx.coroutines.experimental.newSingleThreadContext
 import kotlinx.coroutines.experimental.runBlocking
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.IOException
@@ -60,9 +59,6 @@ class ProviderChangedWorker : Worker() {
         private const val PERSISTENT_CHANGED_TAG = "persistent_changed"
         private const val EXTRA_CONTENT_URI = "content_uri"
         private const val PREF_PERSISTENT_LISTENERS = "persistentListeners"
-        private val singleThreadContext by lazy {
-            newSingleThreadContext(TAG)
-        }
 
         internal fun enqueueSelected() {
             val workManager = WorkManager.getInstance() ?: return
@@ -168,7 +164,7 @@ class ProviderChangedWorker : Worker() {
         }
     }
 
-    override fun doWork() = runBlocking(singleThreadContext) {
+    override fun doWork() = runBlocking(syncSingleThreadContext) {
         val tag = inputData.getString(TAG, "") ?: ""
         // First schedule the observer to pick up any changes fired
         // by the work done in handleProviderChange
@@ -233,6 +229,9 @@ class ProviderChangedWorker : Worker() {
                     }
                     database.providerDao().update(provider)
                     if (validArtworkCount <= 1 && !enqueueNext) {
+                        if (BuildConfig.DEBUG) {
+                            Log.d(TAG, "Requesting a load from $provider")
+                        }
                         // Request a load if we don't have any more artwork
                         // and haven't just called enqueueNext
                         client.call(ProtocolConstants.METHOD_REQUEST_LOAD)

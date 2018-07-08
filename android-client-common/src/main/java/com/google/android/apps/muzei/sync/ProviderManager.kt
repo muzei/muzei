@@ -35,7 +35,15 @@ import com.google.android.apps.muzei.room.Provider
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.newSingleThreadContext
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
+
+/**
+ * Single threaded coroutine context used for all sync operations
+ */
+internal val syncSingleThreadContext by lazy {
+    newSingleThreadContext("ProviderSync")
+}
 
 /**
  * Manager which monitors the current Provider
