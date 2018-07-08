@@ -17,7 +17,6 @@
 package com.google.android.apps.muzei
 
 import android.app.Application
-import android.app.WallpaperManager
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
@@ -84,15 +83,6 @@ class MuzeiActivity : AppCompatActivity() {
                 or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
 
         if (savedInstanceState == null) {
-            if (WallpaperActiveState.value != true) {
-                // Double check to make sure we aren't just in the processing of being started
-                val wallpaperManager = WallpaperManager.getInstance(this)
-                if (wallpaperManager.wallpaperInfo?.packageName == packageName) {
-                    // Ah, we are the active wallpaper. We'll just mark ourselves as active here
-                    // to skip the Intro screen
-                    WallpaperActiveState.value = true
-                }
-            }
             val currentFragment = currentFragment
             supportFragmentManager.beginTransaction()
                     .add(R.id.container, currentFragment)
