@@ -19,6 +19,7 @@ package com.google.android.apps.muzei
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.text.style.UnderlineSpan
@@ -31,7 +32,6 @@ import android.widget.CheckBox
 import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.net.toUri
 import androidx.core.text.set
 import androidx.core.text.toSpannable
 import androidx.core.widget.toast
@@ -98,8 +98,12 @@ class AutoAdvanceSettingsFragment : Fragment() {
                 val pm = context.packageManager
                 context.startActivity(
                         (pm.getLaunchIntentForPackage(TASKER_PACKAGE_NAME)
-                                ?: Intent(Intent.ACTION_VIEW,
-                                        "https://play.google.com/store/apps/details?id=$TASKER_PACKAGE_NAME".toUri())
+                                ?: Intent(Intent.ACTION_VIEW, Uri.parse(
+                                        "https://play.google.com/store/apps/details?id=" +
+                                                TASKER_PACKAGE_NAME +
+                                                "&referrer=utm_source%3Dmuzei" +
+                                                "%26utm_medium%3Dapp" +
+                                                "%26utm_campaign%3Dauto_advance"))
                                 ).addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT))
             } catch (e: ActivityNotFoundException) {
                 context.toast(R.string.play_store_not_found, Toast.LENGTH_LONG)

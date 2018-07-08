@@ -80,7 +80,10 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
 
     @SuppressLint("InlinedApi")
     val playStoreIntent: Intent = Intent(Intent.ACTION_VIEW,
-            Uri.parse("http://play.google.com/store/search?q=Muzei&c=apps"))
+            Uri.parse("http://play.google.com/store/search?q=Muzei&c=apps" +
+                    "&referrer=utm_source%3Dmuzei" +
+                    "%26utm_medium%3Dapp" +
+                    "%26utm_campaign%3Dget_more_sources"))
             .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
             .setPackage(PLAY_STORE_PACKAGE_NAME)
     val playStoreComponentName: ComponentName? = playStoreIntent.resolveActivity(
