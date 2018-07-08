@@ -66,6 +66,7 @@ class ChooseProviderFragment : Fragment() {
         private const val REQUEST_EXTENSION_SETUP = 1
         private const val INITIAL_SETUP_PROVIDER = "initialSetupProvider"
 
+        private const val PAYLOAD_CURRENT_IMAGE_URI = "CURRENT_IMAGE_URI"
         private const val PAYLOAD_SELECTED = "SELECTED"
     }
 
@@ -230,7 +231,6 @@ class ChooseProviderFragment : Fragment() {
         private var isSelected = false
 
         fun bind(providerInfo: ProviderInfo) = providerInfo.run {
-            isSelected = selected
             itemView.setOnClickListener {
                 if (isSelected) {
                     val context = context
@@ -291,18 +291,9 @@ class ChooseProviderFragment : Fragment() {
             providerDescription.text = description
             providerDescription.isGone = description.isNullOrEmpty()
 
-            if (currentArtworkUri != null) {
-                Picasso.get()
-                        .load(currentArtworkUri)
-                        .centerCrop()
-                        .fit()
-                        .into(providerArtwork, this@ProviderViewHolder)
-            } else {
-                providerArtwork.isVisible = false
-            }
+            setImage(providerInfo)
 
-            providerSelected.isInvisible = !selected
-            providerSettings.isVisible = selected && settingsActivity != null
+            setSelected(providerInfo)
             providerSettings.setOnClickListener { launchProviderSettings(this) }
         }
 
@@ -312,6 +303,18 @@ class ChooseProviderFragment : Fragment() {
 
         override fun onError(e: Exception?) {
             providerArtwork.isVisible = false
+        }
+
+        fun setImage(providerInfo: ProviderInfo) = providerInfo.run {
+            if (currentArtworkUri != null) {
+                Picasso.get()
+                        .load(currentArtworkUri)
+                        .centerCrop()
+                        .fit()
+                        .into(providerArtwork, this@ProviderViewHolder)
+            } else {
+                providerArtwork.isVisible = false
+            }
         }
 
         fun setSelected(providerInfo: ProviderInfo) = providerInfo.run {
@@ -335,6 +338,10 @@ class ChooseProviderFragment : Fragment() {
 
                 override fun getChangePayload(oldItem: ProviderInfo, newItem: ProviderInfo): Any? {
                     return when {
+                        oldItem.currentArtworkUri != newItem.currentArtworkUri &&
+                                oldItem.copy(currentArtworkUri = newItem.currentArtworkUri) ==
+                                newItem ->
+                            PAYLOAD_CURRENT_IMAGE_URI
                         oldItem.selected != newItem.selected &&
                                 oldItem.copy(selected = newItem.selected) == newItem ->
                             PAYLOAD_SELECTED
@@ -356,10 +363,11 @@ class ChooseProviderFragment : Fragment() {
                 position: Int,
                 payloads: MutableList<Any>
         ) {
-            if (payloads.isNotEmpty() && payloads[0] == PAYLOAD_SELECTED) {
-                holder.setSelected(getItem(position))
-            } else {
-                super.onBindViewHolder(holder, position, payloads)
+            when {
+                payloads.isEmpty() -> super.onBindViewHolder(holder, position, payloads)
+                payloads[0] == PAYLOAD_CURRENT_IMAGE_URI -> holder.setImage(getItem(position))
+                payloads[0] == PAYLOAD_SELECTED -> holder.setSelected(getItem(position))
+                else -> IllegalArgumentException("Forgot to handle ${payloads[0]}")
             }
         }
     }
