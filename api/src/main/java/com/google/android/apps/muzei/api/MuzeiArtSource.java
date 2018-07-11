@@ -121,6 +121,12 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA
  * component name for an initial setup activity that must be ran before the source can be
  * activated. It will be started with {@link Activity#startActivityForResult} and must return
  * {@link Activity#RESULT_OK} for the source to be activated. This activity must be exported.</li>
+ * <li><code>replacement</code> (optional): if present, should be the qualified
+ * component name of a {@link com.google.android.apps.muzei.api.provider.MuzeiArtProvider}
+ * that fully replaces this MuzeiArtSource. This informs Muzei that users should
+ * automatically be migrated to the MuzeiArtProvider if they had the MuzeiArtSource
+ * selected previously. It will also cause this MuzeiArtSource to be hidden
+ * from the Muzei UI.</li>
  * </ul>
  *
  * <h3>Example</h3>
