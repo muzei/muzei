@@ -36,6 +36,7 @@ import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.room.getProviderDescription
 import com.google.android.apps.muzei.sources.SourceArtProvider
 import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
 import net.nurik.roman.muzei.R
 
@@ -238,4 +239,17 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
     }
 
     val providers : LiveData<List<ProviderInfo>> = mutableProviders
+
+    internal fun refreshDescription(componentName: ComponentName) {
+        launch {
+            val updatedDescription = componentName.getProviderDescription(getApplication())
+            currentProviders[componentName]?.let { providerInfo ->
+                if (providerInfo.description != updatedDescription) {
+                    currentProviders[componentName] =
+                            providerInfo.copy(description = updatedDescription)
+                    mutableProviders.postValue(currentProviders.values.sortedWith(comparator))
+                }
+            }
+        }
+    }
 }

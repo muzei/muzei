@@ -64,8 +64,10 @@ class ChooseProviderFragment : Fragment() {
     companion object {
         private const val TAG = "ChooseProviderFragment"
         private const val REQUEST_EXTENSION_SETUP = 1
-        private const val INITIAL_SETUP_PROVIDER = "initialSetupProvider"
+        private const val REQUEST_EXTENSION_SETTINGS = 2
+        private const val START_ACTIVITY_PROVIDER = "startActivityProvider"
 
+        private const val PAYLOAD_DESCRIPTION = "DESCRIPTION"
         private const val PAYLOAD_CURRENT_IMAGE_URI = "CURRENT_IMAGE_URI"
         private const val PAYLOAD_SELECTED = "SELECTED"
     }
@@ -86,11 +88,11 @@ class ChooseProviderFragment : Fragment() {
     private lateinit var toolbar: Toolbar
     private lateinit var drawerLayout: DrawerLayout
 
-    private var currentInitialSetupProvider: ComponentName? = null
+    private var startActivityProvider: ComponentName? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        currentInitialSetupProvider = savedInstanceState?.getParcelable(INITIAL_SETUP_PROVIDER)
+        startActivityProvider = savedInstanceState?.getParcelable(START_ACTIVITY_PROVIDER)
     }
 
     override fun onCreateView(
@@ -171,11 +173,12 @@ class ChooseProviderFragment : Fragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putParcelable(INITIAL_SETUP_PROVIDER, currentInitialSetupProvider)
+        outState.putParcelable(START_ACTIVITY_PROVIDER, startActivityProvider)
     }
 
     private fun launchProviderSetup(provider: ProviderInfo) {
         try {
+            startActivityProvider = provider.componentName
             val setupIntent = Intent()
                     .setComponent(provider.setupActivity)
                     .putExtra(MuzeiArtProvider.EXTRA_FROM_MUZEI_SETTINGS, true)
@@ -189,10 +192,11 @@ class ChooseProviderFragment : Fragment() {
 
     private fun launchProviderSettings(provider: ProviderInfo) {
         try {
+            startActivityProvider = provider.componentName
             val settingsIntent = Intent()
                     .setComponent(provider.settingsActivity)
                     .putExtra(MuzeiArtProvider.EXTRA_FROM_MUZEI_SETTINGS, true)
-            startActivity(settingsIntent)
+            startActivityForResult(settingsIntent, REQUEST_EXTENSION_SETTINGS)
         } catch (e: ActivityNotFoundException) {
             Log.e(TAG, "Can't launch provider settings.", e)
         } catch (e: SecurityException) {
@@ -203,7 +207,7 @@ class ChooseProviderFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             REQUEST_EXTENSION_SETUP -> {
-                val provider = currentInitialSetupProvider
+                val provider = startActivityProvider
                 if (resultCode == Activity.RESULT_OK && provider != null) {
                     FirebaseAnalytics.getInstance(requireContext()).logEvent(
                             FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
@@ -214,7 +218,12 @@ class ChooseProviderFragment : Fragment() {
                         provider.select(context)
                     }
                 }
-                currentInitialSetupProvider = null
+                startActivityProvider = null
+            }
+            REQUEST_EXTENSION_SETTINGS -> {
+                startActivityProvider?.let { componentName ->
+                    viewModel.refreshDescription(componentName)
+                }
             }
             else -> super.onActivityResult(requestCode, resultCode, data)
         }
@@ -246,7 +255,6 @@ class ChooseProviderFragment : Fragment() {
                             FirebaseAnalytics.Param.ITEM_ID to componentName.flattenToShortString(),
                             FirebaseAnalytics.Param.ITEM_NAME to title,
                             FirebaseAnalytics.Param.ITEM_CATEGORY to "providers"))
-                    currentInitialSetupProvider = componentName
                     launchProviderSetup(this)
                 } else if (providerInfo.componentName == viewModel.playStoreComponentName) {
                     FirebaseAnalytics.getInstance(requireContext()).logEvent("more_sources_open", null)
@@ -288,8 +296,8 @@ class ChooseProviderFragment : Fragment() {
             providerIcon.setImageDrawable(icon)
 
             providerTitle.text = title
-            providerDescription.text = description
-            providerDescription.isGone = description.isNullOrEmpty()
+
+            setDescription(providerInfo)
 
             setImage(providerInfo)
 
@@ -303,6 +311,11 @@ class ChooseProviderFragment : Fragment() {
 
         override fun onError(e: Exception?) {
             providerArtwork.isVisible = false
+        }
+
+        fun setDescription(providerInfo: ProviderInfo) = providerInfo.run {
+            providerDescription.text = description
+            providerDescription.isGone = description.isNullOrEmpty()
         }
 
         fun setImage(providerInfo: ProviderInfo) = providerInfo.run {
@@ -337,6 +350,10 @@ class ChooseProviderFragment : Fragment() {
 
                 override fun getChangePayload(oldItem: ProviderInfo, newItem: ProviderInfo): Any? {
                     return when {
+                        oldItem.description != newItem.description &&
+                                oldItem.copy(description = newItem.description) ==
+                                newItem ->
+                            PAYLOAD_DESCRIPTION
                         oldItem.currentArtworkUri != newItem.currentArtworkUri &&
                                 oldItem.copy(currentArtworkUri = newItem.currentArtworkUri) ==
                                 newItem ->
@@ -364,6 +381,7 @@ class ChooseProviderFragment : Fragment() {
         ) {
             when {
                 payloads.isEmpty() -> super.onBindViewHolder(holder, position, payloads)
+                payloads[0] == PAYLOAD_DESCRIPTION -> holder.setDescription(getItem(position))
                 payloads[0] == PAYLOAD_CURRENT_IMAGE_URI -> holder.setImage(getItem(position))
                 payloads[0] == PAYLOAD_SELECTED -> holder.setSelected(getItem(position))
                 else -> IllegalArgumentException("Forgot to handle ${payloads[0]}")
