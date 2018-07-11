@@ -33,17 +33,6 @@ import android.support.annotation.RequiresApi;
  */
 public class ProviderContract {
     /**
-     * Permission that can be used with your {@link MuzeiArtProvider} to ensure that only your app
-     * and Muzei can read and write its data.
-     * <p>
-     * This is a signature permission that only Muzei can hold.
-     * </p>
-     */
-    @SuppressWarnings("WeakerAccess")
-    public static final String ACCESS_PERMISSION
-            = "com.google.android.apps.muzei.api.ACCESS_PROVIDER";
-
-    /**
      * Constants and helper methods for working with the
      * {@link com.google.android.apps.muzei.api.provider.Artwork} associated
      * with a {@link MuzeiArtProvider}.

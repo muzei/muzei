@@ -101,7 +101,7 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHO
  * The Muzei app discover available providers using Android's {@link Intent} mechanism. Ensure
  * that your <code>provider</code> definition includes an <code>&lt;intent-filter&gt;</code> with
  * an action of {@link #ACTION_MUZEI_ART_PROVIDER}. It is strongly recommended to protect access
- * to your provider's data by adding the {@link ProviderContract#ACCESS_PERMISSION}, which will
+ * to your provider's data by adding the {@link #ACCESS_PERMISSION}, which will
  * ensure that only your app and Muzei can access your data.
  * <p>
  * Lastly, there are a few <code>&lt;meta-data&gt;</code> elements that you should add to your
@@ -186,6 +186,16 @@ public abstract class MuzeiArtProvider extends ContentProvider {
     private static final String TAG = "MuzeiArtProvider";
     private static final boolean DEBUG = false;
     private static final int MAX_RECENT_ARTWORK = 100;
+    /**
+     * Permission that can be used with your {@link MuzeiArtProvider} to ensure that only your app
+     * and Muzei can read and write its data.
+     * <p>
+     * This is a signature permission that only Muzei can hold.
+     * </p>
+     */
+    @SuppressWarnings({"WeakerAccess", "unused"})
+    public static final String ACCESS_PERMISSION
+            = "com.google.android.apps.muzei.api.ACCESS_PROVIDER";
     /**
      * The {@link Intent} action representing a Muzei art provider. This provider should
      * declare an <code>&lt;intent-filter&gt;</code> for this action in order to register with
