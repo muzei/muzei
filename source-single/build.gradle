@@ -23,7 +23,7 @@ dependencies {
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
     implementation "androidx.core:core-ktx:$rootProject.ext.ktxVersion"
-    api project(':api')
+    api project(':muzei-api')
     implementation project(':extensions')
     api "android.arch.lifecycle:livedata:$lifecycleVersion"
 }

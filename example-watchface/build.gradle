@@ -24,7 +24,7 @@ dependencies {
     compileOnly "com.google.android.wearable:wearable:$wearableVersion"
     implementation "com.google.android.support:wearable:$wearableVersion"
     //implementation "com.google.android.apps.muzei:muzei-api:+"
-    implementation project(':api')
+    implementation project(':muzei-api')
 }
 
 

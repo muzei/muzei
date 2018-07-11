@@ -121,7 +121,7 @@ dependencies {
     implementation "android.arch.navigation:navigation-fragment-ktx:$navigationVersion"
     implementation "android.arch.navigation:navigation-ui-ktx:$navigationVersion"
 
-    implementation project(':api')
+    implementation project(':muzei-api')
     implementation project(':extensions')
     implementation project(':android-client-common')
     implementation project(':source-featured-art')

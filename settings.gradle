@@ -1,4 +1,4 @@
-include ':api'
+include ':muzei-api'
 include ':extensions'
 include ':android-client-common'
 include ':source-featured-art'

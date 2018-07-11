@@ -100,7 +100,7 @@ dependencies {
     implementation "com.google.firebase:firebase-perf:$firebasePerfVersion"
     implementation "com.crashlytics.sdk.android:crashlytics:$crashlyticsVersion"
 
-    implementation project(':api')
+    implementation project(':muzei-api')
     implementation project(':extensions')
     implementation project(':android-client-common')
 }
