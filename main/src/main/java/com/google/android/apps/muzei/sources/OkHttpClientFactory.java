@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.apps.muzei.api.internal;
+package com.google.android.apps.muzei.sources;
 
 import android.os.Build;
 import android.support.annotation.NonNull;

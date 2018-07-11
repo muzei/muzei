@@ -35,7 +35,10 @@ import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
+import okhttp3.Request
+import java.io.IOException
 import java.net.URISyntaxException
+import java.net.URL
 
 /**
  * A MuzeiArtProvider that encapsulates all of the logic for working with MuzeiArtSources
@@ -138,4 +141,20 @@ class SourceArtProvider : MuzeiArtProvider() {
                     false
                 }
             } ?: false
+
+    override fun openFile(artwork: Artwork) =
+            artwork.persistentUri?.takeIf {
+                it.scheme == "http" || it.scheme == "https"
+            }?.run {
+                val client = OkHttpClientFactory.getNewOkHttpsSafeClient()
+                val request = Request.Builder().url(URL(toString())).build()
+                val response = client.newCall(request).execute()
+                val responseCode = response.code()
+                if (responseCode !in 200..299) {
+                    throw IOException("HTTP error response $responseCode")
+                }
+                val body = response.body()
+                return body?.byteStream()
+                        ?: throw IOException("Unable to open stream for $this")
+            } ?: super.openFile(artwork)
 }

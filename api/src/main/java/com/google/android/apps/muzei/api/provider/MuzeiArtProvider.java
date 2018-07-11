@@ -45,7 +45,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.apps.muzei.api.UserCommand;
-import com.google.android.apps.muzei.api.internal.OkHttpClientFactory;
 import com.google.android.apps.muzei.api.internal.RecentArtworkIdsConverter;
 
 import org.json.JSONArray;
@@ -56,16 +55,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_COMMAND;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_COMMANDS;
@@ -867,16 +862,13 @@ public abstract class MuzeiArtProvider extends ContentProvider {
                 in = new FileInputStream(new File(persistentUri.getPath()));
             }
         } else if ("http".equals(scheme) || "https".equals(scheme)) {
-            OkHttpClient client = OkHttpClientFactory.getNewOkHttpsSafeClient();
-            Request request;
-            request = new Request.Builder().url(new URL(persistentUri.toString())).build();
-            Response response = client.newCall(request).execute();
-            int responseCode = response.code();
+            URL url = new URL(persistentUri.toString());
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            int responseCode = urlConnection.getResponseCode();
             if (!(responseCode >= 200 && responseCode < 300)) {
                 throw new IOException("HTTP error response " + responseCode);
             }
-            ResponseBody body = response.body();
-            in = body != null ? body.byteStream() : null;
+            in = urlConnection.getInputStream();
         }
         if (in == null) {
             throw new FileNotFoundException("Null input stream for URI: " + persistentUri);

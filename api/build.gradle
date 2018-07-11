@@ -34,7 +34,6 @@ allprojects { ext."signing.secretKeyRingFile" = props["signing.secretKeyRingFile
 
 dependencies {
     api "com.android.support:support-annotations:$supportLibraryVersion"
-    implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
 }
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -43,7 +42,6 @@ android {
         minSdkVersion 14
         targetSdkVersion rootProject.ext.targetSdkVersion
 
-        consumerProguardFiles "proguard-rules.txt"
         manifestPlaceholders = [api_version: versionProps['apiCode'].toInteger()]
     }
 
