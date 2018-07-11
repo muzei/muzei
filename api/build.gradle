@@ -33,7 +33,7 @@ allprojects { ext."signing.password" = props["signing.password"] }
 allprojects { ext."signing.secretKeyRingFile" = props["signing.secretKeyRingFile"] }
 
 dependencies {
-    api "com.android.support:support-annotations:$supportLibraryVersion"
+    api "com.android.support:support-annotations:27.1.1"
 }
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
