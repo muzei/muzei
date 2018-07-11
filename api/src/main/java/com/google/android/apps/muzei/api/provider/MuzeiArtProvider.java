@@ -216,54 +216,6 @@ public abstract class MuzeiArtProvider extends ContentProvider {
     private static final String PREF_LAST_LOADED_TIME = "lastLoadTime";
     private static final String PREF_RECENT_ARTWORK_IDS = "recentArtworkIds";
 
-    /**
-     * Retrieve the content URI for the given {@link MuzeiArtProvider}, allowing you to build
-     * custom queries, inserts, updates, and deletes using a {@link ContentResolver}.
-     * <p>
-     * This will throw an {@link IllegalArgumentException} if the provider is not valid.
-     *
-     * @param context  Context used to retrieve the content URI.
-     * @param provider The {@link MuzeiArtProvider} you need a content URI for
-     * @return The content URI for the {@link MuzeiArtProvider}
-     * @see MuzeiArtProvider#getContentUri()
-     */
-    @NonNull
-    public static Uri getContentUri(
-            @NonNull Context context,
-            @NonNull Class<? extends MuzeiArtProvider> provider
-    ) {
-        return getContentUri(context, new ComponentName(context, provider));
-    }
-
-    /**
-     * Retrieve the content URI for the given {@link MuzeiArtProvider}, allowing you to build
-     * custom queries, inserts, updates, and deletes using a {@link ContentResolver}.
-     * <p>
-     * This will throw an {@link IllegalArgumentException} if the provider is not valid.
-     *
-     * @param context  Context used to retrieve the content URI.
-     * @param provider The {@link MuzeiArtProvider} you need a content URI for
-     * @return The content URI for the {@link MuzeiArtProvider}
-     * @see MuzeiArtProvider#getContentUri()
-     */
-    @NonNull
-    public static Uri getContentUri(@NonNull Context context, @NonNull ComponentName provider) {
-        PackageManager pm = context.getPackageManager();
-        String authority;
-        try {
-            @SuppressLint("InlinedApi")
-            ProviderInfo info = pm.getProviderInfo(provider,
-                            PackageManager.MATCH_DISABLED_COMPONENTS);
-            authority = info.authority;
-        } catch (PackageManager.NameNotFoundException e) {
-            throw new IllegalArgumentException("Invalid MuzeiArtProvider: " + provider, e);
-        }
-        return new Uri.Builder()
-                .scheme(ContentResolver.SCHEME_CONTENT)
-                .authority(authority)
-                .build();
-    }
-
     private static final String TABLE_NAME = "artwork";
     /**
      * An identity all column projection mapping for artwork
@@ -311,7 +263,7 @@ public abstract class MuzeiArtProvider extends ContentProvider {
      * custom queries, inserts, updates, and deletes using a {@link ContentResolver}.
      *
      * @return The content URI for this {@link MuzeiArtProvider}
-     * @see MuzeiArtProvider#getContentUri(Context, Class)
+     * @see ProviderContract.Artwork#getContentUri(Context, Class)
      */
     @NonNull
     protected final Uri getContentUri() {
@@ -319,7 +271,7 @@ public abstract class MuzeiArtProvider extends ContentProvider {
             throw new IllegalStateException("getContentUri() should not be called before onCreate()");
         }
         if (contentUri == null) {
-            contentUri = getContentUri(getContext(), getClass());
+            contentUri = ProviderContract.Artwork.getContentUri(getContext(), getClass());
         }
         return contentUri;
     }

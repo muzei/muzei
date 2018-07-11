@@ -21,7 +21,6 @@ import android.content.Context
 import android.content.Intent
 import com.google.android.apps.muzei.api.Artwork
 import com.google.android.apps.muzei.api.MuzeiArtSource
-import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.api.provider.ProviderContract
 
 /**
@@ -59,7 +58,7 @@ class SingleArtSource : MuzeiArtSource("SingleArtSource") {
             publishArtwork(Artwork.Builder()
                     .title(artwork.title)
                     .imageUri(ContentUris.withAppendedId(
-                            MuzeiArtProvider.getContentUri(this, SingleArtProvider::class.java),
+                            ProviderContract.Artwork.getContentUri(this, SingleArtProvider::class.java),
                             artwork.id))
                     .build())
         }

@@ -37,6 +37,7 @@ import com.google.android.apps.muzei.api.internal.ProtocolConstants
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_LAST_LOADED_TIME
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_LOAD_INFO
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
+import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.render.isValidImage
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
@@ -134,7 +135,7 @@ class ProviderChangedWorker : Worker() {
                                 providerLiveData.removeObserver(this)
                                 // Make sure we're still not actively listening
                                 if (!providerManager.hasActiveObservers()) {
-                                    val contentUri = MuzeiArtProvider.getContentUri(
+                                    val contentUri = ProviderContract.Artwork.getContentUri(
                                             context, provider.componentName)
                                     scheduleObserver(contentUri)
                                 }
@@ -185,7 +186,7 @@ class ProviderChangedWorker : Worker() {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Provider Change ($tag) for ${provider.componentName}")
         }
-        val contentUri = MuzeiArtProvider.getContentUri(applicationContext, provider.componentName)
+        val contentUri = ProviderContract.Artwork.getContentUri(applicationContext, provider.componentName)
         try {
             ContentProviderClientCompat.getClient(applicationContext, contentUri)?.use { client ->
                 val result = client.call(METHOD_GET_LOAD_INFO)
@@ -252,7 +253,7 @@ class ProviderChangedWorker : Worker() {
         MuzeiDatabase.getInstance(applicationContext).artworkDao()
                 .getCurrentArtworkForProvider(provider.componentName)?.let { artwork ->
                     client.query(artwork.imageUri)?.use { cursor ->
-                        val contentUri = MuzeiArtProvider.getContentUri(applicationContext, provider.componentName)
+                        val contentUri = ProviderContract.Artwork.getContentUri(applicationContext, provider.componentName)
                         return cursor.moveToNext() && isValidArtwork(client, contentUri, cursor)
                     }
                 }

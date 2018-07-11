@@ -28,7 +28,7 @@ import android.os.Looper
 import android.preference.PreferenceManager
 import android.util.Log
 import androidx.core.content.edit
-import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
+import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
@@ -149,7 +149,7 @@ class ProviderManager private constructor(private val context: Context)
                 Log.d(TAG, "Starting artwork load")
             }
             // Listen for MuzeiArtProvider changes
-            val contentUri = MuzeiArtProvider.getContentUri(context, currentSource.componentName)
+            val contentUri = ProviderContract.Artwork.getContentUri(context, currentSource.componentName)
             context.contentResolver.registerContentObserver(
                     contentUri, true, contentObserver)
             ProviderChangedWorker.enqueueSelected()
