@@ -169,7 +169,6 @@ public class Artwork {
     /**
      * Sets the artwork's persistent URI, which must resolve to a JPEG or PNG image, ideally
      * under 5MB.
-     * <p>
      * <p>When a persistent URI is present, your {@link MuzeiArtProvider} will store
      * downloaded images in the {@link Context#getCacheDir() cache directory} and automatically
      * re-download the image as needed. If it is not present, then you must write the image
@@ -203,6 +202,7 @@ public class Artwork {
      * {@link MuzeiArtProvider#openArtworkInfo(Artwork)} to allow the user to view more details
      * about the artwork.
      *
+     * @param webUri a Uri to more details about the artwork.
      * @see MuzeiArtProvider#openArtworkInfo(Artwork)
      */
     public void setWebUri(@Nullable Uri webUri) {
@@ -225,6 +225,8 @@ public class Artwork {
      * Sets the provider specific metadata about the artwork.
      * This is not used by Muzei at all, so can contain any data that makes it easier to query
      * or otherwise work with your Artwork.
+     *
+     * @param metadata any provider specific data associated with the artwork
      */
     public void setMetadata(@Nullable String metadata) {
         this.metadata = metadata;
@@ -348,7 +350,6 @@ public class Artwork {
      * A <a href="http://en.wikipedia.org/wiki/Builder_pattern">builder</a>-style, <a
      * href="http://en.wikipedia.org/wiki/Fluent_interface">fluent interface</a> for creating
      * {@link Artwork} objects. Example usage is below.
-     * <p>
      * <pre class="prettyprint">
      * Artwork artwork = new Artwork.Builder()
      *   .persistentUri(Uri.parse("http://example.com/image.jpg"))
@@ -420,7 +421,6 @@ public class Artwork {
         /**
          * Sets the artwork's persistent URI, which must resolve to a JPEG or PNG image, ideally
          * under 5MB.
-         * <p>
          * <p>When a persistent URI is present, your {@link MuzeiArtProvider} will store
          * downloaded images in the {@link Context#getCacheDir() cache directory} and automatically
          * re-download the image as needed. If it is not present, then you must write the image
@@ -445,6 +445,7 @@ public class Artwork {
          * {@link MuzeiArtProvider#openArtworkInfo(Artwork)}
          * to allow the user to view more details about the artwork.
          *
+         * @param webUri a Uri to more details about the artwork.
          * @return this {@link Builder}.
          * @see MuzeiArtProvider#openArtworkInfo(Artwork)
          */
@@ -459,6 +460,7 @@ public class Artwork {
          * This is not used by Muzei at all, so can contain any data that makes it easier to query
          * or otherwise work with your Artwork.
          *
+         * @param metadata any provider specific data associated with the artwork
          * @return this {@link Builder}.
          */
         @NonNull

@@ -19,8 +19,6 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.google.android.apps.muzei.api.BuildConfig;
-
 import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,6 +43,8 @@ public class OkHttpClientFactory {
 
     /**
      * Creates an OkHttpClient optionally enabling TLS
+     * @param enableTLS Whether TLS should be enabled
+     * @return a valid OkHttpClient
      */
     @NonNull
     private static OkHttpClient getNewOkHttpClient(boolean enableTLS) {
@@ -59,6 +59,7 @@ public class OkHttpClientFactory {
 
     /**
      * Creates a new OkHttpClient detecting if TLS needs to be enabled
+     * @return a valid OkHttpClient
      */
     @NonNull
     public static OkHttpClient getNewOkHttpsSafeClient() {
@@ -66,7 +67,7 @@ public class OkHttpClientFactory {
     }
 
     /**
-     * True if enabling TLS is needed on current device (SDK version >= 16 and < 22)
+     * @return True if enabling TLS is needed on current device (SDK version &gt;= 16 and &lt; 22)
      */
     private static boolean isTLSEnableNeeded() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN &&
@@ -75,11 +76,10 @@ public class OkHttpClientFactory {
 
     /**
      * Enable TLS on the OKHttp builder by setting a custom SocketFactory
+     * @param client the client to enable TLS
+     * @return an OkhttpClient.Builder with TLS enabled
      */
     private static OkHttpClient.Builder enableTls12(OkHttpClient.Builder client) {
-        if (BuildConfig.DEBUG) {
-            Log.i(TAG, "Enabling HTTPS compatibility mode");
-        }
         try {
             TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(
                     TrustManagerFactory.getDefaultAlgorithm());

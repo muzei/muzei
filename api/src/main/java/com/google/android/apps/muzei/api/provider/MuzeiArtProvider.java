@@ -44,7 +44,6 @@ import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.google.android.apps.muzei.api.BuildConfig;
 import com.google.android.apps.muzei.api.UserCommand;
 import com.google.android.apps.muzei.api.internal.OkHttpClientFactory;
 import com.google.android.apps.muzei.api.internal.RecentArtworkIdsConverter;
@@ -124,7 +123,6 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHO
  * </ul>
  * <h3>Example</h3>
  * Below is an example provider declaration in the manifest:
- * <p>
  * <pre class="prettyprint">
  * &lt;provider android:name=".ExampleArtSource"
  * android:authority="com.example.artprovider"
@@ -144,7 +142,6 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHO
  * component name should be defined and exported in the application's manifest as well. Muzei
  * will set the {@link #EXTRA_FROM_MUZEI_SETTINGS} extra to true in the launch intent for this
  * activity. An example is shown below:
- * <p>
  * <pre class="prettyprint">
  * &lt;activity android:name=".ExampleSettingsActivity"
  * android:label="@string/title_settings"
@@ -153,7 +150,6 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHO
  * <p>
  * Finally, below is a simple example {@link MuzeiArtProvider} subclass that publishes a single,
  * static artwork:
- * <p>
  * <pre class="prettyprint">
  * public class ExampleArtSource extends MuzeiArtProvider {
  * protected void onLoadRequested(boolean initial) {
@@ -187,6 +183,7 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHO
 @RequiresApi(Build.VERSION_CODES.KITKAT)
 public abstract class MuzeiArtProvider extends ContentProvider {
     private static final String TAG = "MuzeiArtProvider";
+    private static final boolean DEBUG = false;
     private static final int MAX_RECENT_ARTWORK = 100;
     /**
      * The {@link Intent} action representing a Muzei art provider. This provider should
@@ -374,7 +371,7 @@ public abstract class MuzeiArtProvider extends ContentProvider {
             return null;
         }
         long token = Binder.clearCallingIdentity();
-        if (BuildConfig.DEBUG) {
+        if (DEBUG) {
             Log.d(TAG, "Received command " + method + " with arg \"" + arg + "\" and extras " + extras);
         }
         try {
@@ -418,7 +415,7 @@ public abstract class MuzeiArtProvider extends ContentProvider {
                     bundle.putLong(KEY_MAX_LOADED_ARTWORK_ID, prefs.getLong(PREF_MAX_LOADED_ARTWORK_ID, 0L));
                     bundle.putLong(KEY_LAST_LOADED_TIME, prefs.getLong(PREF_LAST_LOADED_TIME, 0L));
                     bundle.putString(KEY_RECENT_ARTWORK_IDS, prefs.getString(PREF_RECENT_ARTWORK_IDS, ""));
-                    if (BuildConfig.DEBUG) {
+                    if (DEBUG) {
                         Log.d(TAG, "For " + METHOD_GET_LOAD_INFO + " returning " + bundle);
                     }
                     return bundle;
@@ -439,7 +436,7 @@ public abstract class MuzeiArtProvider extends ContentProvider {
                                 commandsSerialized.put(command.serialize());
                             }
                             bundle.putString(KEY_COMMANDS, commandsSerialized.toString());
-                            if (BuildConfig.DEBUG) {
+                            if (DEBUG) {
                                 Log.d(TAG, "For " + METHOD_GET_COMMANDS + " returning " + bundle);
                             }
                             return bundle;
@@ -463,7 +460,7 @@ public abstract class MuzeiArtProvider extends ContentProvider {
                             Bundle bundle = new Bundle();
                             boolean success = openArtworkInfo(Artwork.fromCursor(data));
                             bundle.putBoolean(KEY_OPEN_ARTWORK_INFO_SUCCESS, success);
-                            if (BuildConfig.DEBUG) {
+                            if (DEBUG) {
                                 Log.d(TAG, "For " + METHOD_OPEN_ARTWORK_INFO + " returning " + bundle);
                             }
                             return bundle;
