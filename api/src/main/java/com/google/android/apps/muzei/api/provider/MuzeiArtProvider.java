@@ -44,9 +44,7 @@ import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.google.android.apps.muzei.api.BuildConfig;
 import com.google.android.apps.muzei.api.UserCommand;
-import com.google.android.apps.muzei.api.internal.OkHttpClientFactory;
 import com.google.android.apps.muzei.api.internal.RecentArtworkIdsConverter;
 
 import org.json.JSONArray;
@@ -57,16 +55,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_COMMAND;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_COMMANDS;
@@ -107,7 +101,7 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHO
  * The Muzei app discover available providers using Android's {@link Intent} mechanism. Ensure
  * that your <code>provider</code> definition includes an <code>&lt;intent-filter&gt;</code> with
  * an action of {@link #ACTION_MUZEI_ART_PROVIDER}. It is strongly recommended to protect access
- * to your provider's data by adding the {@link ProviderContract#ACCESS_PERMISSION}, which will
+ * to your provider's data by adding the {@link #ACCESS_PERMISSION}, which will
  * ensure that only your app and Muzei can access your data.
  * <p>
  * Lastly, there are a few <code>&lt;meta-data&gt;</code> elements that you should add to your
@@ -124,36 +118,33 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHO
  * </ul>
  * <h3>Example</h3>
  * Below is an example provider declaration in the manifest:
- * <p>
  * <pre class="prettyprint">
  * &lt;provider android:name=".ExampleArtSource"
- * android:authority="com.example.artprovider"
- * android:label="@string/source_title"
- * android:description="@string/source_description"
- * android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER"&gt;
- * &lt;intent-filter&gt;
- * &lt;action android:name="com.google.android.apps.muzei.api.MuzeiArtProvider" /&gt;
- * &lt;/intent-filter&gt;
- * &lt;!-- A settings activity is optional --&gt;
- * &lt;meta-data android:name="settingsActivity"
- * android:value=".ExampleSettingsActivity" /&gt;
+ *     android:authority="com.example.artprovider"
+ *     android:label="@string/source_title"
+ *     android:description="@string/source_description"
+ *     android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER"&gt;
+ *     &lt;intent-filter&gt;
+ *         &lt;action android:name="com.google.android.apps.muzei.api.MuzeiArtProvider" /&gt;
+ *     &lt;/intent-filter&gt;
+ *     &lt;!-- A settings activity is optional --&gt;
+ *     &lt;meta-data android:name="settingsActivity"
+ *         android:value=".ExampleSettingsActivity" /&gt;
  * &lt;/provider&gt;
  * </pre>
  * <p>
  * If a <code>settingsActivity</code> meta-data element is present, an activity with the given
  * component name should be defined and exported in the application's manifest as well. Muzei
- * will set the {@link #EXTRA_FROM_MUZEI_SETTINGS} extra to true in the launch intent for this
+ * will set the {@link #EXTRA_FROM_MUZEI} extra to true in the launch intent for this
  * activity. An example is shown below:
- * <p>
  * <pre class="prettyprint">
  * &lt;activity android:name=".ExampleSettingsActivity"
- * android:label="@string/title_settings"
- * android:exported="true" /&gt;
+ *     android:label="@string/title_settings"
+ *     android:exported="true" /&gt;
  * </pre>
  * <p>
  * Finally, below is a simple example {@link MuzeiArtProvider} subclass that publishes a single,
  * static artwork:
- * <p>
  * <pre class="prettyprint">
  * public class ExampleArtSource extends MuzeiArtProvider {
  * protected void onLoadRequested(boolean initial) {
@@ -166,6 +157,12 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHO
  *   }
  * }
  * </pre>
+ * As onLoadRequested can be called at any time (including when offline), it is
+ * strongly recommended to use the callback of onLoadRequested to kick off
+ * a load operation using WorkManager, JobScheduler, or a comparable API. These
+ * other components can then use
+ * {@link ProviderContract.Artwork#addArtwork(Context, Class, Artwork)} to add
+ * Artwork to the MuzeiArtProvider.
  * <h3>Additional notes</h3>
  * Providers can also expose additional user-facing commands (such as 'Share artwork') by
  * returning one or more {@link UserCommand commands} from {@link #getCommands(Artwork)}. To handle
@@ -187,74 +184,37 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHO
 @RequiresApi(Build.VERSION_CODES.KITKAT)
 public abstract class MuzeiArtProvider extends ContentProvider {
     private static final String TAG = "MuzeiArtProvider";
+    private static final boolean DEBUG = false;
     private static final int MAX_RECENT_ARTWORK = 100;
+    /**
+     * Permission that can be used with your {@link MuzeiArtProvider} to ensure that only your app
+     * and Muzei can read and write its data.
+     * <p>
+     * This is a signature permission that only Muzei can hold.
+     * </p>
+     */
+    @SuppressWarnings({"WeakerAccess", "unused"})
+    public static final String ACCESS_PERMISSION
+            = "com.google.android.apps.muzei.api.ACCESS_PROVIDER";
     /**
      * The {@link Intent} action representing a Muzei art provider. This provider should
      * declare an <code>&lt;intent-filter&gt;</code> for this action in order to register with
      * Muzei.
      */
-    @SuppressWarnings("unused")
     public static final String ACTION_MUZEI_ART_PROVIDER
             = "com.google.android.apps.muzei.api.MuzeiArtProvider";
     /**
-     * Boolean extra that will be set to true when Muzei starts provider settings activities.
-     * Check for this extra in your settings activity if you need to adjust your UI depending on
-     * whether or not the user came from Muzei's settings screen.
+     * Boolean extra that will be set to true when Muzei starts provider settings and setup
+     * activities.
+     * <p>
+     * Check for this extra in your activity if you need to adjust your UI depending on
+     * whether or not the user came from Muzei.
      */
-    @SuppressWarnings("unused")
-    public static final String EXTRA_FROM_MUZEI_SETTINGS
+    public static final String EXTRA_FROM_MUZEI
             = "com.google.android.apps.muzei.api.extra.FROM_MUZEI_SETTINGS";
     private static final String PREF_MAX_LOADED_ARTWORK_ID = "maxLoadedArtworkId";
     private static final String PREF_LAST_LOADED_TIME = "lastLoadTime";
     private static final String PREF_RECENT_ARTWORK_IDS = "recentArtworkIds";
-
-    /**
-     * Retrieve the content URI for the given {@link MuzeiArtProvider}, allowing you to build
-     * custom queries, inserts, updates, and deletes using a {@link ContentResolver}.
-     * <p>
-     * This will throw an {@link IllegalArgumentException} if the provider is not valid.
-     *
-     * @param context  Context used to retrieve the content URI.
-     * @param provider The {@link MuzeiArtProvider} you need a content URI for
-     * @return The content URI for the {@link MuzeiArtProvider}
-     * @see MuzeiArtProvider#getContentUri()
-     */
-    @NonNull
-    public static Uri getContentUri(
-            @NonNull Context context,
-            @NonNull Class<? extends MuzeiArtProvider> provider
-    ) {
-        return getContentUri(context, new ComponentName(context, provider));
-    }
-
-    /**
-     * Retrieve the content URI for the given {@link MuzeiArtProvider}, allowing you to build
-     * custom queries, inserts, updates, and deletes using a {@link ContentResolver}.
-     * <p>
-     * This will throw an {@link IllegalArgumentException} if the provider is not valid.
-     *
-     * @param context  Context used to retrieve the content URI.
-     * @param provider The {@link MuzeiArtProvider} you need a content URI for
-     * @return The content URI for the {@link MuzeiArtProvider}
-     * @see MuzeiArtProvider#getContentUri()
-     */
-    @NonNull
-    public static Uri getContentUri(@NonNull Context context, @NonNull ComponentName provider) {
-        PackageManager pm = context.getPackageManager();
-        String authority;
-        try {
-            @SuppressLint("InlinedApi")
-            ProviderInfo info = pm.getProviderInfo(provider,
-                            PackageManager.MATCH_DISABLED_COMPONENTS);
-            authority = info.authority;
-        } catch (PackageManager.NameNotFoundException e) {
-            throw new IllegalArgumentException("Invalid MuzeiArtProvider: " + provider, e);
-        }
-        return new Uri.Builder()
-                .scheme(ContentResolver.SCHEME_CONTENT)
-                .authority(authority)
-                .build();
-    }
 
     private static final String TABLE_NAME = "artwork";
     /**
@@ -303,7 +263,7 @@ public abstract class MuzeiArtProvider extends ContentProvider {
      * custom queries, inserts, updates, and deletes using a {@link ContentResolver}.
      *
      * @return The content URI for this {@link MuzeiArtProvider}
-     * @see MuzeiArtProvider#getContentUri(Context, Class)
+     * @see ProviderContract.Artwork#getContentUri(Context, Class)
      */
     @NonNull
     protected final Uri getContentUri() {
@@ -311,7 +271,7 @@ public abstract class MuzeiArtProvider extends ContentProvider {
             throw new IllegalStateException("getContentUri() should not be called before onCreate()");
         }
         if (contentUri == null) {
-            contentUri = getContentUri(getContext(), getClass());
+            contentUri = ProviderContract.Artwork.getContentUri(getContext(), getClass());
         }
         return contentUri;
     }
@@ -374,7 +334,7 @@ public abstract class MuzeiArtProvider extends ContentProvider {
             return null;
         }
         long token = Binder.clearCallingIdentity();
-        if (BuildConfig.DEBUG) {
+        if (DEBUG) {
             Log.d(TAG, "Received command " + method + " with arg \"" + arg + "\" and extras " + extras);
         }
         try {
@@ -418,7 +378,7 @@ public abstract class MuzeiArtProvider extends ContentProvider {
                     bundle.putLong(KEY_MAX_LOADED_ARTWORK_ID, prefs.getLong(PREF_MAX_LOADED_ARTWORK_ID, 0L));
                     bundle.putLong(KEY_LAST_LOADED_TIME, prefs.getLong(PREF_LAST_LOADED_TIME, 0L));
                     bundle.putString(KEY_RECENT_ARTWORK_IDS, prefs.getString(PREF_RECENT_ARTWORK_IDS, ""));
-                    if (BuildConfig.DEBUG) {
+                    if (DEBUG) {
                         Log.d(TAG, "For " + METHOD_GET_LOAD_INFO + " returning " + bundle);
                     }
                     return bundle;
@@ -439,7 +399,7 @@ public abstract class MuzeiArtProvider extends ContentProvider {
                                 commandsSerialized.put(command.serialize());
                             }
                             bundle.putString(KEY_COMMANDS, commandsSerialized.toString());
-                            if (BuildConfig.DEBUG) {
+                            if (DEBUG) {
                                 Log.d(TAG, "For " + METHOD_GET_COMMANDS + " returning " + bundle);
                             }
                             return bundle;
@@ -463,7 +423,7 @@ public abstract class MuzeiArtProvider extends ContentProvider {
                             Bundle bundle = new Bundle();
                             boolean success = openArtworkInfo(Artwork.fromCursor(data));
                             bundle.putBoolean(KEY_OPEN_ARTWORK_INFO_SUCCESS, success);
-                            if (BuildConfig.DEBUG) {
+                            if (DEBUG) {
                                 Log.d(TAG, "For " + METHOD_OPEN_ARTWORK_INFO + " returning " + bundle);
                             }
                             return bundle;
@@ -482,7 +442,7 @@ public abstract class MuzeiArtProvider extends ContentProvider {
      * as a cue to load more artwork so that the user has a constant stream of new artwork.
      * <p>
      * Muzei will always prefer to show unseen artwork, but will automatically cycle through all
-     * of the available artwork if no new artwork is found (i.e., you don't load new artwork
+     * of the available artwork if no new artwork is found (i.e., if you don't load new artwork
      * after receiving this callback).
      *
      * @param initial true when there is no artwork available, such as is the case when this is
@@ -870,16 +830,13 @@ public abstract class MuzeiArtProvider extends ContentProvider {
                 in = new FileInputStream(new File(persistentUri.getPath()));
             }
         } else if ("http".equals(scheme) || "https".equals(scheme)) {
-            OkHttpClient client = OkHttpClientFactory.getNewOkHttpsSafeClient();
-            Request request;
-            request = new Request.Builder().url(new URL(persistentUri.toString())).build();
-            Response response = client.newCall(request).execute();
-            int responseCode = response.code();
+            URL url = new URL(persistentUri.toString());
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            int responseCode = urlConnection.getResponseCode();
             if (!(responseCode >= 200 && responseCode < 300)) {
                 throw new IOException("HTTP error response " + responseCode);
             }
-            ResponseBody body = response.body();
-            in = body != null ? body.byteStream() : null;
+            in = urlConnection.getInputStream();
         }
         if (in == null) {
             throw new FileNotFoundException("Null input stream for URI: " + persistentUri);

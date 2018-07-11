@@ -17,7 +17,7 @@
 package com.google.android.apps.muzei
 
 import android.app.Application
-import android.app.WallpaperManager
+import android.app.Notification
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
@@ -30,6 +30,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
 import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -84,15 +85,6 @@ class MuzeiActivity : AppCompatActivity() {
                 or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
 
         if (savedInstanceState == null) {
-            if (WallpaperActiveState.value != true) {
-                // Double check to make sure we aren't just in the processing of being started
-                val wallpaperManager = WallpaperManager.getInstance(this)
-                if (wallpaperManager.wallpaperInfo?.packageName == packageName) {
-                    // Ah, we are the active wallpaper. We'll just mark ourselves as active here
-                    // to skip the Intro screen
-                    WallpaperActiveState.value = true
-                }
-            }
             val currentFragment = currentFragment
             supportFragmentManager.beginTransaction()
                     .add(R.id.container, currentFragment)
@@ -108,6 +100,10 @@ class MuzeiActivity : AppCompatActivity() {
                     .setPrimaryNavigationFragment(fragment)
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                     .commitAllowingStateLoss()
+        }
+        if (intent?.hasCategory(Notification.INTENT_CATEGORY_NOTIFICATION_PREFERENCES) == true) {
+            NotificationSettingsDialogFragment.showSettings(this,
+                    supportFragmentManager)
         }
     }
 

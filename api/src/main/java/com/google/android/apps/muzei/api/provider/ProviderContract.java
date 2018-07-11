@@ -15,10 +15,13 @@
  */
 package com.google.android.apps.muzei.api.provider;
 
+import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.pm.ProviderInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -33,16 +36,10 @@ import android.support.annotation.RequiresApi;
  */
 public class ProviderContract {
     /**
-     * Permission that can be used with your {@link MuzeiArtProvider} to ensure that only your app
-     * and Muzei can read and write its data.
-     * <p>
-     * This is a signature permission that only Muzei can hold.
-     * </p>
+     * Constants and helper methods for working with the
+     * {@link com.google.android.apps.muzei.api.provider.Artwork} associated
+     * with a {@link MuzeiArtProvider}.
      */
-    @SuppressWarnings("WeakerAccess")
-    public static final String ACCESS_PERMISSION
-            = "com.google.android.apps.muzei.api.ACCESS_PROVIDER";
-
     public static final class Artwork implements BaseColumns {
         /**
          * The token that uniquely defines the artwork. Any inserts using the same non-null token
@@ -110,6 +107,54 @@ public class ProviderContract {
         public static final String DATE_MODIFIED = "date_modified";
 
         /**
+         * Retrieve the content URI for the given {@link MuzeiArtProvider}, allowing you to build
+         * custom queries, inserts, updates, and deletes using a {@link ContentResolver}.
+         * <p>
+         * This will throw an {@link IllegalArgumentException} if the provider is not valid.
+         *
+         * @param context  Context used to retrieve the content URI.
+         * @param provider The {@link MuzeiArtProvider} you need a content URI for
+         * @return The content URI for the {@link MuzeiArtProvider}
+         * @see MuzeiArtProvider#getContentUri()
+         */
+        @NonNull
+        public static Uri getContentUri(
+                @NonNull Context context,
+                @NonNull Class<? extends MuzeiArtProvider> provider
+        ) {
+            return getContentUri(context, new ComponentName(context, provider));
+        }
+
+        /**
+         * Retrieve the content URI for the given {@link MuzeiArtProvider}, allowing you to build
+         * custom queries, inserts, updates, and deletes using a {@link ContentResolver}.
+         * <p>
+         * This will throw an {@link IllegalArgumentException} if the provider is not valid.
+         *
+         * @param context  Context used to retrieve the content URI.
+         * @param provider The {@link MuzeiArtProvider} you need a content URI for
+         * @return The content URI for the {@link MuzeiArtProvider}
+         * @see MuzeiArtProvider#getContentUri()
+         */
+        @NonNull
+        public static Uri getContentUri(@NonNull Context context, @NonNull ComponentName provider) {
+            PackageManager pm = context.getPackageManager();
+            String authority;
+            try {
+                @SuppressLint("InlinedApi")
+                ProviderInfo info = pm.getProviderInfo(provider,
+                        PackageManager.MATCH_DISABLED_COMPONENTS);
+                authority = info.authority;
+            } catch (PackageManager.NameNotFoundException e) {
+                throw new IllegalArgumentException("Invalid MuzeiArtProvider: " + provider, e);
+            }
+            return new Uri.Builder()
+                    .scheme(ContentResolver.SCHEME_CONTENT)
+                    .authority(authority)
+                    .build();
+        }
+
+        /**
          * Retrieve the last added artwork for the given {@link MuzeiArtProvider}.
          *
          * @param context  Context used to retrieve the artwork
@@ -137,7 +182,7 @@ public class ProviderContract {
         public static com.google.android.apps.muzei.api.provider.Artwork getLastAddedArtwork(
                 @NonNull Context context, @NonNull ComponentName provider) {
             try (Cursor data = context.getContentResolver().query(
-                    MuzeiArtProvider.getContentUri(context, provider),
+                    getContentUri(context, provider),
                     null, null, null,
                     DATE_ADDED + " DESC")) {
                 return data != null && data.moveToFirst()
@@ -181,7 +226,7 @@ public class ProviderContract {
         public static Uri addArtwork(@NonNull Context context, @NonNull ComponentName provider,
                 @NonNull com.google.android.apps.muzei.api.provider.Artwork artwork) {
             ContentResolver contentResolver = context.getContentResolver();
-            Uri contentUri = MuzeiArtProvider.getContentUri(context, provider);
+            Uri contentUri = getContentUri(context, provider);
             return contentResolver.insert(contentUri, artwork.toContentValues());
         }
 
@@ -224,7 +269,7 @@ public class ProviderContract {
         public static Uri setArtwork(@NonNull Context context, @NonNull ComponentName provider,
                 @NonNull com.google.android.apps.muzei.api.provider.Artwork artwork) {
             ContentResolver contentResolver = context.getContentResolver();
-            Uri contentUri = MuzeiArtProvider.getContentUri(context, provider);
+            Uri contentUri = getContentUri(context, provider);
             Uri artworkUri = contentResolver.insert(contentUri, artwork.toContentValues());
             if (artworkUri != null) {
                 contentResolver.delete(contentUri, BaseColumns._ID + " != ?",

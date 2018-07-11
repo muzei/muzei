@@ -45,7 +45,7 @@ class SingleSettingsActivity : Activity() {
             requestCode == REQUEST_PHOTO && resultCode == RESULT_OK
         }?.also { uri ->
             launch {
-                val success = SingleArtSource.setArtwork(
+                val success = SingleArtProvider.setArtwork(
                         this@SingleSettingsActivity, uri)
                 setResult(if (success == true) Activity.RESULT_OK else Activity.RESULT_CANCELED)
                 finish()

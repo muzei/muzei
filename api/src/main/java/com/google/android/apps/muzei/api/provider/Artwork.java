@@ -39,11 +39,21 @@ import static com.google.android.apps.muzei.api.provider.ProviderContract.Artwor
 import static com.google.android.apps.muzei.api.provider.ProviderContract.Artwork.WEB_URI;
 
 /**
- * Artwork associated with a {@link MuzeiArtProvider}. Use the {@link Builder} to construct a
- * new instance that can be passed to {@link MuzeiArtProvider#addArtwork(Artwork)} or
- * {@link ProviderContract.Artwork#addArtwork(Context, Class, Artwork)} and use
- * {@link Artwork#fromCursor(Cursor)} to convert a row retrieved from a
- * {@link MuzeiArtProvider} into Artwork instance.
+ * Artwork associated with a {@link MuzeiArtProvider}.
+ * <p>
+ * Artwork can be constructed using the empty constructor and the setter
+ * methods found on the Artwork object itself or by using the {@link Builder}.
+ * </p>
+ * <p>
+ * Artwork can then be added to a {@link MuzeiArtProvider} by calling
+ * {@link MuzeiArtProvider#addArtwork(Artwork) addArtwork(Artwork)} directly
+ * from within a MuzeiArtProvider or by calling
+ * {@link ProviderContract.Artwork#addArtwork(Context, Class, Artwork)}
+ * from anywhere in your application.
+ * </p>
+ * <p>
+ * The static {@link Artwork#fromCursor(Cursor)} method allows you to convert
+ * a row retrieved from a {@link MuzeiArtProvider} into Artwork instance.
  */
 public class Artwork {
     private long id;
@@ -58,9 +68,20 @@ public class Artwork {
     private Date dateAdded;
     private Date dateModified;
 
+    /**
+     * Creates an empty Artwork instance.
+     */
     public Artwork() {
     }
 
+    /**
+     * Returns the ID assigned to this Artwork by its {@link MuzeiArtProvider}.
+     * <p>
+     * Note: this will only be available if the artwork is retrieved from a
+     * {@link MuzeiArtProvider}.
+     *
+     * @return the artwork's ID.
+     */
     public long getId() {
         return id;
     }
@@ -169,7 +190,6 @@ public class Artwork {
     /**
      * Sets the artwork's persistent URI, which must resolve to a JPEG or PNG image, ideally
      * under 5MB.
-     * <p>
      * <p>When a persistent URI is present, your {@link MuzeiArtProvider} will store
      * downloaded images in the {@link Context#getCacheDir() cache directory} and automatically
      * re-download the image as needed. If it is not present, then you must write the image
@@ -203,6 +223,7 @@ public class Artwork {
      * {@link MuzeiArtProvider#openArtworkInfo(Artwork)} to allow the user to view more details
      * about the artwork.
      *
+     * @param webUri a Uri to more details about the artwork.
      * @see MuzeiArtProvider#openArtworkInfo(Artwork)
      */
     public void setWebUri(@Nullable Uri webUri) {
@@ -225,22 +246,24 @@ public class Artwork {
      * Sets the provider specific metadata about the artwork.
      * This is not used by Muzei at all, so can contain any data that makes it easier to query
      * or otherwise work with your Artwork.
+     *
+     * @param metadata any provider specific data associated with the artwork
      */
     public void setMetadata(@Nullable String metadata) {
         this.metadata = metadata;
     }
 
     /**
-     * Returns the {@link File} where a local copy of this artwork will be stored. In almost
-     * all cases, you should consider reading and writing artwork by passing the artwork URI to
-     * {@link android.content.ContentResolver#openInputStream(Uri)} and
-     * {@link android.content.ContentResolver#openOutputStream(Uri)}, respectively.
+     * Returns the {@link File} where a local copy of this artwork is stored.
+     * When first inserted, this file most certainly does not exist and will be
+     * created from the InputStream returned by {@link MuzeiArtProvider#openFile(Artwork)}.
      * <p>
      * Note: this will only be available if the artwork is retrieved from a
      * {@link MuzeiArtProvider}.
      *
-     * @return the local {@link File} where the artwork will be stored, or null if the Artwork
-     * was not retrieved from a {@link MuzeiArtProvider}
+     * @return the local {@link File} where the artwork will be stored
+     * @throws IllegalStateException if the Artwork was not retrieved from a
+     * {@link MuzeiArtProvider}
      */
     @NonNull
     public File getData() {
@@ -302,6 +325,16 @@ public class Artwork {
         this.dateModified = dateModified;
     }
 
+    /**
+     * Converts the current row of the given Cursor to an Artwork object. The
+     * assumption is that this Cursor was retrieve from a {@link MuzeiArtProvider}
+     * and has the columns listed in {@link ProviderContract.Artwork}.
+     *
+     * @param data A Cursor retrieved from a {@link MuzeiArtProvider}, already
+     *             positioned at the correct row you wish to convert.
+     * @return a valid Artwork with values filled in from the
+     * {@link ProviderContract.Artwork} columns.
+     */
     @NonNull
     public static Artwork fromCursor(@NonNull Cursor data) {
         Artwork artwork =
@@ -328,7 +361,7 @@ public class Artwork {
     }
 
     @NonNull
-    public ContentValues toContentValues() {
+    ContentValues toContentValues() {
         ContentValues values = new ContentValues();
         values.put(TOKEN, getToken());
         values.put(TITLE, getTitle());
@@ -348,7 +381,6 @@ public class Artwork {
      * A <a href="http://en.wikipedia.org/wiki/Builder_pattern">builder</a>-style, <a
      * href="http://en.wikipedia.org/wiki/Fluent_interface">fluent interface</a> for creating
      * {@link Artwork} objects. Example usage is below.
-     * <p>
      * <pre class="prettyprint">
      * Artwork artwork = new Artwork.Builder()
      *   .persistentUri(Uri.parse("http://example.com/image.jpg"))
@@ -420,7 +452,6 @@ public class Artwork {
         /**
          * Sets the artwork's persistent URI, which must resolve to a JPEG or PNG image, ideally
          * under 5MB.
-         * <p>
          * <p>When a persistent URI is present, your {@link MuzeiArtProvider} will store
          * downloaded images in the {@link Context#getCacheDir() cache directory} and automatically
          * re-download the image as needed. If it is not present, then you must write the image
@@ -445,6 +476,7 @@ public class Artwork {
          * {@link MuzeiArtProvider#openArtworkInfo(Artwork)}
          * to allow the user to view more details about the artwork.
          *
+         * @param webUri a Uri to more details about the artwork.
          * @return this {@link Builder}.
          * @see MuzeiArtProvider#openArtworkInfo(Artwork)
          */
@@ -459,6 +491,7 @@ public class Artwork {
          * This is not used by Muzei at all, so can contain any data that makes it easier to query
          * or otherwise work with your Artwork.
          *
+         * @param metadata any provider specific data associated with the artwork
          * @return this {@link Builder}.
          */
         @NonNull

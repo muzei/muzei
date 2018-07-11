@@ -23,6 +23,7 @@ import android.util.Log
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_DESCRIPTION
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_DESCRIPTION
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
+import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.withContext
@@ -47,7 +48,7 @@ suspend fun Provider.getDescription(context: Context) =
         componentName.getProviderDescription(context)
 
 suspend fun ComponentName.getProviderDescription(context: Context): String {
-    val contentUri = MuzeiArtProvider.getContentUri(context, this)
+    val contentUri = ProviderContract.Artwork.getContentUri(context, this)
     return ContentProviderClientCompat.getClient(context, contentUri)?.use { client ->
         return try {
             val result = client.call(METHOD_GET_DESCRIPTION)

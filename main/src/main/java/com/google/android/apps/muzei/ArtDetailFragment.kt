@@ -193,6 +193,11 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         @Suppress("DEPRECATION")
         view.requestFitSystemWindows()
 
+        val scrim = view.findViewById<View>(R.id.art_detail_scrim)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            scrim.background = makeCubicGradientScrimDrawable(Gravity.TOP, 0x44)
+        }
+
         chromeContainerView.background = makeCubicGradientScrimDrawable(Gravity.BOTTOM, 0xAA)
 
         metadataView = view.findViewById(R.id.metadata)
@@ -201,6 +206,16 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
                 TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics)
         containerView.setOnSystemUiVisibilityChangeListener { vis ->
             val visible = vis and View.SYSTEM_UI_FLAG_LOW_PROFILE == 0
+
+            scrim.visibility = View.VISIBLE
+            scrim.animate()
+                    .alpha(if (visible) 1f else 0f)
+                    .setDuration(200)
+                    .withEndAction {
+                        if (!visible) {
+                            scrim.visibility = View.GONE
+                        }
+                    }
 
             chromeContainerView.isVisible = true
             chromeContainerView.animate()

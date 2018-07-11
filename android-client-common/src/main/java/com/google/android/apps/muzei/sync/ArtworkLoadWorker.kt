@@ -24,6 +24,7 @@ import android.provider.BaseColumns
 import android.util.Log
 import androidx.core.database.getLong
 import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
@@ -43,7 +44,6 @@ import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
 import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.newSingleThreadContext
 import kotlinx.coroutines.experimental.runBlocking
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.IOException
@@ -60,9 +60,6 @@ class ArtworkLoadWorker : Worker() {
         private const val TAG = "ArtworkLoad"
         private const val PERIODIC_TAG = "ArtworkLoadPeriodic"
         private const val ARTWORK_LOAD_THROTTLE = 250 // quarter second
-        private val singleThreadContext by lazy {
-            newSingleThreadContext(TAG)
-        }
 
         internal fun enqueueNext() {
             val workManager = WorkManager.getInstance() ?: return
@@ -71,25 +68,32 @@ class ArtworkLoadWorker : Worker() {
                     .enqueue()
         }
 
-        internal fun enqueuePeriodic(loadFrequencySeconds: Long) {
+        internal fun enqueuePeriodic(
+                loadFrequencySeconds: Long,
+                loadOnWifi: Boolean
+        ) {
             val workManager = WorkManager.getInstance() ?: return
-            workManager.enqueue(PeriodicWorkRequestBuilder<ArtworkLoadWorker>(
-                    loadFrequencySeconds, TimeUnit.SECONDS,
-                    loadFrequencySeconds / 10, TimeUnit.SECONDS)
-                    .addTag(PERIODIC_TAG)
-                    .setConstraints(Constraints.Builder()
-                            .setRequiredNetworkType(NetworkType.CONNECTED)
+            workManager.enqueueUniquePeriodicWork(PERIODIC_TAG, ExistingPeriodicWorkPolicy.REPLACE,
+                    PeriodicWorkRequestBuilder<ArtworkLoadWorker>(
+                            loadFrequencySeconds, TimeUnit.SECONDS,
+                            loadFrequencySeconds / 10, TimeUnit.SECONDS)
+                            .setConstraints(Constraints.Builder()
+                                    .setRequiredNetworkType(if (loadOnWifi) {
+                                        NetworkType.UNMETERED
+                                    } else {
+                                        NetworkType.CONNECTED
+                                    })
+                                    .build())
                             .build())
-                    .build())
         }
 
         fun cancelPeriodic() {
             val workManager = WorkManager.getInstance() ?: return
-            workManager.cancelAllWorkByTag(PERIODIC_TAG)
+            workManager.cancelUniqueWork(PERIODIC_TAG)
         }
     }
 
-    override fun doWork() = runBlocking(singleThreadContext) {
+    override fun doWork() = runBlocking(syncSingleThreadContext) {
         // Throttle artwork loads
         delay(ARTWORK_LOAD_THROTTLE)
         loadArtwork()
@@ -102,7 +106,7 @@ class ArtworkLoadWorker : Worker() {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Artwork Load for $componentName")
         }
-        val contentUri = MuzeiArtProvider.getContentUri(applicationContext, componentName)
+        val contentUri = ProviderContract.Artwork.getContentUri(applicationContext, componentName)
         try {
             ContentProviderClientCompat.getClient(applicationContext, contentUri)?.use { client ->
                 val result = client.call(METHOD_GET_LOAD_INFO)
@@ -156,7 +160,7 @@ class ArtworkLoadWorker : Worker() {
                             val currentArtwork = database.artworkDao().getCurrentArtwork()
                             if (artworkUri == currentArtwork?.imageUri) {
                                 if (BuildConfig.DEBUG) {
-                                    Log.i(TAG, "Unable to find any other artwork for $componentName")
+                                    Log.i(TAG, "Provider $componentName only has one artwork")
                                 }
                                 return Result.FAILURE
                             }
@@ -171,12 +175,18 @@ class ArtworkLoadWorker : Worker() {
                         }
                         // Now find a random piece of artwork that isn't in our previous list
                         val random = Random()
-                        var remainingAttempts = allArtwork.count
-                        while (remainingAttempts-- > 0) {
-                            val position = random.nextInt(allArtwork.count)
+                        val randomSequence = generateSequence {
+                            random.nextInt(allArtwork.count)
+                        }.distinct().take(allArtwork.count)
+                        val iterator = randomSequence.iterator()
+                        while (iterator.hasNext()) {
+                            val position = iterator.next()
                             if (allArtwork.moveToPosition(position)) {
                                 var artworkId = allArtwork.getLong(BaseColumns._ID)
                                 if (recentArtworkIds.contains(artworkId)) {
+                                    if (BuildConfig.DEBUG) {
+                                        Log.v(TAG, "Skipping $artworkId")
+                                    }
                                     // Skip previously selected artwork
                                     continue
                                 }
@@ -184,10 +194,7 @@ class ArtworkLoadWorker : Worker() {
                                     providerComponentName = componentName
                                     artworkId = database.artworkDao().insert(this)
                                     if (BuildConfig.DEBUG) {
-                                        val attempts = allArtwork.count - remainingAttempts
-                                        Log.d(TAG, "Loaded $imageUri into id $artworkId, took "
-                                                + "$attempts attempt" +
-                                                if (attempts > 1) "s" else "")
+                                        Log.d(TAG, "Loaded $imageUri into id $artworkId")
                                     }
                                     client.call(METHOD_MARK_ARTWORK_LOADED, imageUri.toString())
                                     return Result.SUCCESS

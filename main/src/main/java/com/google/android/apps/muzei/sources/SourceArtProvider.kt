@@ -28,13 +28,17 @@ import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_HANDL
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_COMMAND_ID
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
-import com.google.android.apps.muzei.featuredart.FeaturedArtSource
+import com.google.android.apps.muzei.featuredart.FeaturedArtProvider
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.room.select
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
+import okhttp3.Request
+import java.io.IOException
 import java.net.URISyntaxException
+import java.net.URL
 
 /**
  * A MuzeiArtProvider that encapsulates all of the logic for working with MuzeiArtSources
@@ -95,19 +99,19 @@ class SourceArtProvider : MuzeiArtProvider() {
                 launch(UI) {
                     context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
                 }
-                SourceManager.selectSource(context, FeaturedArtSource::class)
+                FeaturedArtProvider::class.select(context)
             } catch (e: IllegalStateException) {
                 Log.i(TAG, "Sending action $id to $this failed; switching to default.", e)
                 launch(UI) {
                     context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
                 }
-                SourceManager.selectSource(context, FeaturedArtSource::class)
+                FeaturedArtProvider::class.select(context)
             } catch (e: SecurityException) {
                 Log.i(TAG, "Sending action $id to $this failed; switching to default.", e)
                 launch(UI) {
                     context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
                 }
-                SourceManager.selectSource(context, FeaturedArtSource::class)
+                FeaturedArtProvider::class.select(context)
             }
         }
     }
@@ -137,4 +141,20 @@ class SourceArtProvider : MuzeiArtProvider() {
                     false
                 }
             } ?: false
+
+    override fun openFile(artwork: Artwork) =
+            artwork.persistentUri?.takeIf {
+                it.scheme == "http" || it.scheme == "https"
+            }?.run {
+                val client = OkHttpClientFactory.getNewOkHttpsSafeClient()
+                val request = Request.Builder().url(URL(toString())).build()
+                val response = client.newCall(request).execute()
+                val responseCode = response.code()
+                if (responseCode !in 200..299) {
+                    throw IOException("HTTP error response $responseCode")
+                }
+                val body = response.body()
+                return body?.byteStream()
+                        ?: throw IOException("Unable to open stream for $this")
+            } ?: super.openFile(artwork)
 }

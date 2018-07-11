@@ -33,14 +33,15 @@ import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
+import com.google.android.apps.muzei.api.internal.ProtocolConstants
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_LAST_LOADED_TIME
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_LOAD_INFO
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
+import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.render.isValidImage
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
-import kotlinx.coroutines.experimental.newSingleThreadContext
 import kotlinx.coroutines.experimental.runBlocking
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.IOException
@@ -59,9 +60,6 @@ class ProviderChangedWorker : Worker() {
         private const val PERSISTENT_CHANGED_TAG = "persistent_changed"
         private const val EXTRA_CONTENT_URI = "content_uri"
         private const val PREF_PERSISTENT_LISTENERS = "persistentListeners"
-        private val singleThreadContext by lazy {
-            newSingleThreadContext(TAG)
-        }
 
         internal fun enqueueSelected() {
             val workManager = WorkManager.getInstance() ?: return
@@ -137,7 +135,7 @@ class ProviderChangedWorker : Worker() {
                                 providerLiveData.removeObserver(this)
                                 // Make sure we're still not actively listening
                                 if (!providerManager.hasActiveObservers()) {
-                                    val contentUri = MuzeiArtProvider.getContentUri(
+                                    val contentUri = ProviderContract.Artwork.getContentUri(
                                             context, provider.componentName)
                                     scheduleObserver(contentUri)
                                 }
@@ -167,16 +165,18 @@ class ProviderChangedWorker : Worker() {
         }
     }
 
-    override fun doWork() = runBlocking(singleThreadContext) {
+    override fun doWork() = runBlocking(syncSingleThreadContext) {
         val tag = inputData.getString(TAG, "") ?: ""
-        handleProviderChange(tag).also {
-            if (tag == PERSISTENT_CHANGED_TAG &&
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                inputData.getString(EXTRA_CONTENT_URI, "")?.toUri()?.run {
-                    scheduleObserver(this)
-                }
+        // First schedule the observer to pick up any changes fired
+        // by the work done in handleProviderChange
+        if (tag == PERSISTENT_CHANGED_TAG &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            inputData.getString(EXTRA_CONTENT_URI, "")?.toUri()?.run {
+                scheduleObserver(this)
             }
         }
+        // Now actually handle the provider change
+        handleProviderChange(tag)
     }
 
     private suspend fun handleProviderChange(tag: String): Result {
@@ -186,18 +186,20 @@ class ProviderChangedWorker : Worker() {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Provider Change ($tag) for ${provider.componentName}")
         }
-        val contentUri = MuzeiArtProvider.getContentUri(applicationContext, provider.componentName)
+        val contentUri = ProviderContract.Artwork.getContentUri(applicationContext, provider.componentName)
         try {
             ContentProviderClientCompat.getClient(applicationContext, contentUri)?.use { client ->
                 val result = client.call(METHOD_GET_LOAD_INFO)
                         ?: return Result.RETRY
                 val lastLoadedTime = result.getLong(KEY_LAST_LOADED_TIME, 0L)
                 client.query(contentUri)?.use { allArtwork ->
-                    val loadFrequencySeconds = ProviderManager.getInstance(applicationContext).loadFrequencySeconds
+                    val providerManager = ProviderManager.getInstance(applicationContext)
+                    val loadFrequencySeconds = providerManager.loadFrequencySeconds
                     val shouldSchedule = loadFrequencySeconds > 0
                     val overDue = shouldSchedule &&
                             System.currentTimeMillis() - lastLoadedTime >= TimeUnit.SECONDS.toMillis(loadFrequencySeconds)
-                    if (overDue || !isCurrentArtworkValid(client, provider)) {
+                    val enqueueNext = overDue || !isCurrentArtworkValid(client, provider)
+                    if (enqueueNext) {
                         // Schedule an immediate load
                         if (BuildConfig.DEBUG) {
                             Log.d(TAG, "Scheduling an immediate load")
@@ -206,7 +208,8 @@ class ProviderChangedWorker : Worker() {
                     }
                     if (shouldSchedule) {
                         // Schedule the periodic work
-                        ArtworkLoadWorker.enqueuePeriodic(loadFrequencySeconds)
+                        ArtworkLoadWorker.enqueuePeriodic(loadFrequencySeconds,
+                                providerManager.loadOnWifi)
                     } else {
                         // Clear any existing recurring work as it isn't needed anymore
                         ArtworkLoadWorker.cancelPeriodic()
@@ -226,6 +229,14 @@ class ProviderChangedWorker : Worker() {
                         Log.d(TAG, "Found at least $validArtworkCount artwork for $provider")
                     }
                     database.providerDao().update(provider)
+                    if (validArtworkCount <= 1 && !enqueueNext) {
+                        if (BuildConfig.DEBUG) {
+                            Log.d(TAG, "Requesting a load from $provider")
+                        }
+                        // Request a load if we don't have any more artwork
+                        // and haven't just called enqueueNext
+                        client.call(ProtocolConstants.METHOD_REQUEST_LOAD)
+                    }
                     return Result.SUCCESS
                 }
             }
@@ -242,7 +253,7 @@ class ProviderChangedWorker : Worker() {
         MuzeiDatabase.getInstance(applicationContext).artworkDao()
                 .getCurrentArtworkForProvider(provider.componentName)?.let { artwork ->
                     client.query(artwork.imageUri)?.use { cursor ->
-                        val contentUri = MuzeiArtProvider.getContentUri(applicationContext, provider.componentName)
+                        val contentUri = ProviderContract.Artwork.getContentUri(applicationContext, provider.componentName)
                         return cursor.moveToNext() && isValidArtwork(client, contentUri, cursor)
                     }
                 }

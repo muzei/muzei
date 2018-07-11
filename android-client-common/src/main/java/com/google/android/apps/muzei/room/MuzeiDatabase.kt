@@ -22,12 +22,16 @@ import android.arch.persistence.room.InvalidationTracker
 import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
 import android.arch.persistence.room.migration.Migration
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.database.sqlite.SQLiteConstraintException
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.provider.DirectBootCache
 import java.io.File
+
+
 
 /**
  * Room Database for Muzei
@@ -220,6 +224,30 @@ abstract class MuzeiDatabase : RoomDatabase() {
                 database.execSQL("CREATE TABLE provider ("
                         + "componentName TEXT PRIMARY KEY NOT NULL,"
                         + "supportsNextArtwork INTEGER NOT NULL)")
+                // Try to populate the provider table with an initial provider
+                // by seeing if the current source has a replacement provider available
+                try {
+                    database.query("SELECT component_name FROM sources WHERE selected=1").use { selectedSource ->
+                        if (selectedSource != null && selectedSource.moveToFirst()) {
+                            val componentName = ComponentName.unflattenFromString(
+                                    selectedSource.getString(0))
+                            val info = context.packageManager.getServiceInfo(componentName,
+                                    PackageManager.GET_META_DATA)
+                            val metadata = info.metaData
+                            if (metadata != null) {
+                                val replacement = metadata.getString("replacement")
+                                if (replacement != null && replacement.isNotEmpty()) {
+                                    val replacementName = ComponentName.unflattenFromString(
+                                            "${info.packageName}/$replacement")
+                                    database.execSQL("INSERT INTO provider (componentName) "
+                                            + "VALUES (" + replacementName.flattenToShortString() + ")")
+                                }
+                            }
+                        }
+                    }
+                } catch (e: PackageManager.NameNotFoundException) {
+                    // Couldn't find the selected source, so there's nothing more to do
+                }
 
                 // Handle Artwork
                 database.execSQL("DROP TABLE artwork")

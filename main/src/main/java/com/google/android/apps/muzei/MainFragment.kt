@@ -21,17 +21,12 @@ import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.Fragment
 import android.support.v4.view.ViewCompat
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.Toolbar
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.apps.muzei.settings.EffectsFragment
-import com.google.android.apps.muzei.sources.ChooseSourceFragment
-import com.google.android.apps.muzei.util.makeCubicGradientScrimDrawable
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
 
@@ -39,7 +34,7 @@ import net.nurik.roman.muzei.R
  * Fragment which controls the main view of the Muzei app and handles the bottom navigation
  * between various screens.
  */
-class MainFragment : Fragment(), ChooseSourceFragment.Callbacks {
+class MainFragment : Fragment(), ChooseProviderFragment.Callbacks {
 
     private lateinit var bottomNavigationView: BottomNavigationView
 
@@ -48,18 +43,6 @@ class MainFragment : Fragment(), ChooseSourceFragment.Callbacks {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        // Set up the action bar
-        val actionBarContainer = view.findViewById<View>(R.id.action_bar_container)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            actionBarContainer.background = makeCubicGradientScrimDrawable(Gravity.TOP, 0x44)
-        }
-        val toolbar = view.findViewById<Toolbar>(R.id.toolbar)
-        val activity = activity as AppCompatActivity?
-        activity?.apply {
-            setSupportActionBar(toolbar)
-            supportActionBar?.setDisplayShowTitleEnabled(false)
-        }
-
         // Set up the container for the child fragments
         val container = view.findViewById<View>(R.id.container)
         val navController = container.findNavController()
@@ -74,10 +57,10 @@ class MainFragment : Fragment(), ChooseSourceFragment.Callbacks {
                             .setCurrentScreen(requireActivity(), "ArtDetail",
                                     ArtDetailFragment::class.java.simpleName)
                 }
-                R.id.main_choose_source -> {
+                R.id.main_choose_provider -> {
                     FirebaseAnalytics.getInstance(requireContext())
-                            .setCurrentScreen(requireActivity(), "ChooseSource",
-                                    ChooseSourceFragment::class.java.simpleName)
+                            .setCurrentScreen(requireActivity(), "ChooseProvider",
+                                    ChooseProviderFragment::class.java.simpleName)
                 }
                 R.id.main_effects -> {
                     FirebaseAnalytics.getInstance(requireContext())
@@ -88,7 +71,7 @@ class MainFragment : Fragment(), ChooseSourceFragment.Callbacks {
         }
         bottomNavigationView.setOnNavigationItemReselectedListener { item ->
             if (item.itemId == R.id.main_art_details) {
-                getActivity()?.window?.decorView?.systemUiVisibility = (View.SYSTEM_UI_FLAG_LOW_PROFILE
+                activity?.window?.decorView?.systemUiVisibility = (View.SYSTEM_UI_FLAG_LOW_PROFILE
                         or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         or View.SYSTEM_UI_FLAG_FULLSCREEN
                         or View.SYSTEM_UI_FLAG_IMMERSIVE
@@ -100,15 +83,10 @@ class MainFragment : Fragment(), ChooseSourceFragment.Callbacks {
 
         // Send the correct window insets to each view
         ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
-            // Ensure the action bar container gets the appropriate insets
-            ViewCompat.dispatchApplyWindowInsets(actionBarContainer,
-                    insets.replaceSystemWindowInsets(insets.systemWindowInsetLeft,
-                            insets.systemWindowInsetTop,
-                            insets.systemWindowInsetRight,
-                            0))
+            // Ensure the container gets the appropriate insets
             ViewCompat.dispatchApplyWindowInsets(container,
                     insets.replaceSystemWindowInsets(insets.systemWindowInsetLeft,
-                            0,
+                            insets.systemWindowInsetTop,
                             insets.systemWindowInsetRight,
                             0))
             ViewCompat.dispatchApplyWindowInsets(bottomNavigationView,
@@ -130,16 +108,6 @@ class MainFragment : Fragment(), ChooseSourceFragment.Callbacks {
         view.setOnSystemUiVisibilityChangeListener { vis ->
             val visible = vis and View.SYSTEM_UI_FLAG_LOW_PROFILE == 0
 
-            actionBarContainer.visibility = View.VISIBLE
-            actionBarContainer.animate()
-                    .alpha(if (visible) 1f else 0f)
-                    .setDuration(200)
-                    .withEndAction {
-                        if (!visible) {
-                            actionBarContainer.visibility = View.GONE
-                        }
-                    }
-
             bottomNavigationView.visibility = View.VISIBLE
             bottomNavigationView.animate()
                     .alpha(if (visible) 1f else 0f)
@@ -154,11 +122,5 @@ class MainFragment : Fragment(), ChooseSourceFragment.Callbacks {
 
     override fun onRequestCloseActivity() {
         bottomNavigationView.selectedItemId = R.id.main_art_details
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        val activity = activity as AppCompatActivity?
-        activity?.setSupportActionBar(null)
     }
 }

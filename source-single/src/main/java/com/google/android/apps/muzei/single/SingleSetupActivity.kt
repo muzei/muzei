@@ -31,7 +31,7 @@ class SingleSetupActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (SingleArtSource.getArtworkFile(this).exists()) {
+        if (SingleArtProvider.getArtworkFile(this).exists()) {
             // We already have a single artwork available
             setResult(RESULT_OK)
             finish()

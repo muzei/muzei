@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.wallpaper
 
+import android.app.WallpaperManager
 import android.arch.lifecycle.DefaultLifecycleObserver
 import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.MutableLiveData
@@ -29,6 +30,12 @@ object WallpaperActiveState : MutableLiveData<Boolean>()
  * LifecycleObserver responsible for sending analytics callbacks based on the state of the wallpaper
  */
 class WallpaperAnalytics(private val context: Context) : DefaultLifecycleObserver {
+
+    init {
+        val wallpaperManager = WallpaperManager.getInstance(context)
+        WallpaperActiveState.value =
+                wallpaperManager.wallpaperInfo?.packageName == context.packageName
+    }
 
     override fun onCreate(owner: LifecycleOwner) {
         FirebaseAnalytics.getInstance(context).setUserProperty("device_type", BuildConfig.DEVICE_TYPE)

@@ -30,7 +30,27 @@
     <string name="notification_settings_moved_title">Notification settings have moved</string>
     <string name="notification_settings_moved_text">Review your notification settings</string>
 
+    <string name="auto_advance_settings">Auto Advance Settings</string>
+    <string name="auto_advance_disabled">Auto Advance disabled</string>
+    <string name="auto_advance_disabled_description">Legacy Sources handle their own
+        wallpaper loading and do not support Auto Advance</string>
+    <string name="auto_advance_title">Auto Advance</string>
+    <string name="auto_advance_description">Control when Muzei automatically advances to the next
+        wallpaper.</string>
+    <string name="auto_advance_wifi">Auto advance only on Wi-Fi</string>
+    <string name="auto_advance_interval">Interval</string>
+    <string name="auto_advance_interval_15m">Every 15 minutes</string>
+    <string name="auto_advance_interval_30m">Every 30 minutes</string>
+    <string name="auto_advance_interval_1h">Every hour</string>
+    <string name="auto_advance_interval_3h">Every 3 hours</string>
+    <string name="auto_advance_interval_6h">Every 6 hours</string>
+    <string name="auto_advance_interval_24h">Every 24 hours</string>
+    <string name="auto_advance_interval_72h">Every 3 days</string>
+    <string name="auto_advance_interval_never">Don\'t auto advance</string>
+    <string name="auto_advance_tasker">For exact control over what triggers your wallpaper to change, use the \'Next artwork\' action available in Tasker under Plugin -> Muzei and disable auto advance here.</string>
+
     <string name="action_activate">Activate</string>
+    <string name="action_souce_done">Done</string>
     <string name="action_source_settings">Customize source</string>
     <string name="action_source_target_too_high_title">This source is disabled</string>
     <string name="action_source_target_too_high_message">%s is incompatible with Muzei\'s API. To use this source, the developer must change their targetSdkVersion to 25 or lower.</string>
@@ -43,7 +63,6 @@
     <string name="error_wallpaper_chooser">Couldn\'t launch wallpaper chooser. You can still activate Muzei by choosing \'Live Wallpapers\' in your home screen wallpaper picker.</string>
 
     <string name="section_choose_source">Sources</string>
-    <string name="section_advanced">Advanced</string>
     <string name="section_effects">Effects</string>
 
     <string name="action_next_artwork">Next artwork</string>
@@ -53,6 +72,9 @@
     <string name="action_artwork_info">Artwork info</string>
     <string name="action_artwork_info_disabled">There is no artwork info for the current artwork.</string>
 
+    <string name="provider_settings">Settings</string>
+    <string name="provider_browse">Browse</string>
+
     <string name="done">Done</string>
 
     <string name="set_as_wallpaper_using_muzei">Wallpaper (using Muzei)</string>
@@ -61,7 +83,10 @@
     <string name="tutorial_main">Open the Muzei app to see your wallpaper</string>
     <string name="tutorial_subtitle">Double touch the blurred wallpaper on your home screen to temporarily focus</string>
 
+    <string name="source_provider_name">Legacy Sources</string>
     <string name="get_more_sources">Get more sources</string>
+    <string name="get_more_sources_description">Change your wallpaper entirely with
+        additional sources installed from the Google Play Store</string>
     <string name="reset_advanced_settings_defaults">Reset sliders</string>
     <string name="play_store_not_found">Unable to open Play Store.</string>
 

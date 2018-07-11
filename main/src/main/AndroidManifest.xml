@@ -76,17 +76,32 @@
 
         <provider
             android:name="com.google.android.apps.muzei.sources.SourceArtProvider"
+            android:label="@string/source_provider_name"
+            android:icon="@drawable/source_ic_launcher"
             android:authorities="com.google.android.apps.muzei.sources"
             android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER">
             <intent-filter>
                 <action android:name="com.google.android.apps.muzei.api.MuzeiArtProvider"/>
             </intent-filter>
+            <meta-data android:name="settingsActivity"
+                       android:value="com.google.android.apps.muzei.sources.SourceSettingsActivity" />
+            <meta-data android:name="setupActivity"
+                       android:value="com.google.android.apps.muzei.sources.SourceSetupActivity" />
         </provider>
 
         <service
             android:name="com.google.android.apps.muzei.sources.SourceSubscriberService"
             android:exported="true"
             tools:ignore="ExportedService"/>
+
+        <activity android:name="com.google.android.apps.muzei.sources.SourceSetupActivity"
+                  android:label="@string/source_provider_name"
+                  android:theme="@style/Theme.Muzei.Transparent"
+                  android:exported="true" />
+        <activity android:name="com.google.android.apps.muzei.sources.SourceSettingsActivity"
+                  android:label="@string/source_provider_name"
+                  android:theme="@style/Theme.Muzei.Transparent"
+                  android:exported="true" />
 
         <activity
             android:name="com.google.android.apps.muzei.settings.SettingsActivity"
@@ -98,7 +113,7 @@
 
         <activity-alias
             android:name="com.google.android.apps.muzei.settings.NotificationSettings"
-            android:targetActivity="com.google.android.apps.muzei.settings.SettingsActivity"
+            android:targetActivity="com.google.android.apps.muzei.MuzeiActivity"
             android:enabled="@bool/enable_notification_settings">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -129,7 +144,7 @@
             android:exported="true"
             android:excludeFromRecents="true"
             android:taskAffinity=""
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+            android:theme="@style/Theme.Muzei.Transparent"/>
 
         <!-- AppWidget -->
 
@@ -146,7 +161,7 @@
 
         <activity
             android:name="com.google.android.apps.muzei.PhotoSetAsTargetActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            android:theme="@style/Theme.Muzei.Transparent">
             <intent-filter android:label="@string/set_as_wallpaper_using_muzei">
                 <action android:name="android.intent.action.ATTACH_DATA"/>
                 <category android:name="android.intent.category.DEFAULT"/>

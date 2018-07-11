@@ -17,13 +17,14 @@
 package com.google.android.apps.muzei.notifications
 
 import android.app.Dialog
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.provider.Settings
 import android.support.v4.app.DialogFragment
-import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentManager
 import android.support.v7.app.AlertDialog
 import androidx.core.content.edit
 import net.nurik.roman.muzei.R
@@ -35,9 +36,8 @@ class NotificationSettingsDialogFragment : DialogFragment() {
          * Show the notification settings. This may come in the form of this dialog or the
          * system notification settings on O+ devices.
          */
-        fun showSettings(fragment: Fragment) {
+        fun showSettings(context: Context, fragmentManager: FragmentManager) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val context = fragment.requireContext()
                 // Ensure the notification channel exists
                 NewWallpaperNotificationReceiver.createNotificationChannel(context)
                 val intent = Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
@@ -48,7 +48,7 @@ class NotificationSettingsDialogFragment : DialogFragment() {
                 context.startActivity(intent)
             } else {
                 NotificationSettingsDialogFragment().show(
-                        fragment.childFragmentManager, "notifications")
+                        fragmentManager, "notifications")
             }
         }
     }

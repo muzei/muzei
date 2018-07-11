@@ -29,15 +29,11 @@
     <dimen name="intro_activate_button_size">100dp</dimen>
 
     <dimen name="keyline_2">72dp</dimen>
-    <dimen name="keyline_2_minus_16dp">56dp</dimen>
 
     <dimen name="tutorial_content_margin">32dp</dimen>
 
-    <dimen name="settings_choose_source_item_width">200dp</dimen>
-    <dimen name="settings_choose_source_item_image_size">100dp</dimen>
-    <dimen name="settings_choose_source_item_estimated_height">220dp</dimen>
-    <dimen name="settings_choose_source_min_side_padding">64dp</dimen>
-    <dimen name="settings_choose_source_settings_button_animate_distance">24dp</dimen>
+    <dimen name="provider_padding">8dp</dimen>
+    <dimen name="choose_source_item_image_size">40dp</dimen>
     <dimen name="settings_text_size_large">20sp</dimen>
     <dimen name="settings_text_size_normal">16sp</dimen>
 

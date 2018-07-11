@@ -26,13 +26,13 @@
         android:label="ArtDetailFragment"
         tools:layout="@layout/art_detail_fragment"/>
     <fragment
-        android:id="@+id/main_choose_source"
-        android:name="com.google.android.apps.muzei.sources.ChooseSourceFragment"
+        android:id="@+id/main_choose_provider"
+        android:name="com.google.android.apps.muzei.ChooseProviderFragment"
         android:label="@string/section_choose_source"
-        tools:layout="@layout/settings_choose_source_fragment"/>
+        tools:layout="@layout/choose_provider_fragment"/>
     <fragment
         android:id="@+id/main_effects"
         android:name="com.google.android.apps.muzei.settings.EffectsFragment"
         android:label="@string/section_effects"
-        tools:layout="@layout/settings_advanced_fragment"/>
+        tools:layout="@layout/effects_fragment"/>
 </navigation>
