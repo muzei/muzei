@@ -120,27 +120,27 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHO
  * Below is an example provider declaration in the manifest:
  * <pre class="prettyprint">
  * &lt;provider android:name=".ExampleArtSource"
- * android:authority="com.example.artprovider"
- * android:label="@string/source_title"
- * android:description="@string/source_description"
- * android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER"&gt;
- * &lt;intent-filter&gt;
- * &lt;action android:name="com.google.android.apps.muzei.api.MuzeiArtProvider" /&gt;
- * &lt;/intent-filter&gt;
- * &lt;!-- A settings activity is optional --&gt;
- * &lt;meta-data android:name="settingsActivity"
- * android:value=".ExampleSettingsActivity" /&gt;
+ *     android:authority="com.example.artprovider"
+ *     android:label="@string/source_title"
+ *     android:description="@string/source_description"
+ *     android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER"&gt;
+ *     &lt;intent-filter&gt;
+ *         &lt;action android:name="com.google.android.apps.muzei.api.MuzeiArtProvider" /&gt;
+ *     &lt;/intent-filter&gt;
+ *     &lt;!-- A settings activity is optional --&gt;
+ *     &lt;meta-data android:name="settingsActivity"
+ *         android:value=".ExampleSettingsActivity" /&gt;
  * &lt;/provider&gt;
  * </pre>
  * <p>
  * If a <code>settingsActivity</code> meta-data element is present, an activity with the given
  * component name should be defined and exported in the application's manifest as well. Muzei
- * will set the {@link #EXTRA_FROM_MUZEI_SETTINGS} extra to true in the launch intent for this
+ * will set the {@link #EXTRA_FROM_MUZEI} extra to true in the launch intent for this
  * activity. An example is shown below:
  * <pre class="prettyprint">
  * &lt;activity android:name=".ExampleSettingsActivity"
- * android:label="@string/title_settings"
- * android:exported="true" /&gt;
+ *     android:label="@string/title_settings"
+ *     android:exported="true" /&gt;
  * </pre>
  * <p>
  * Finally, below is a simple example {@link MuzeiArtProvider} subclass that publishes a single,
@@ -157,6 +157,12 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHO
  *   }
  * }
  * </pre>
+ * As onLoadRequested can be called at any time (including when offline), it is
+ * strongly recommended to use the callback of onLoadRequested to kick off
+ * a load operation using WorkManager, JobScheduler, or a comparable API. These
+ * other components can then use
+ * {@link ProviderContract.Artwork#addArtwork(Context, Class, Artwork)} to add
+ * Artwork to the MuzeiArtProvider.
  * <h3>Additional notes</h3>
  * Providers can also expose additional user-facing commands (such as 'Share artwork') by
  * returning one or more {@link UserCommand commands} from {@link #getCommands(Artwork)}. To handle
@@ -185,16 +191,16 @@ public abstract class MuzeiArtProvider extends ContentProvider {
      * declare an <code>&lt;intent-filter&gt;</code> for this action in order to register with
      * Muzei.
      */
-    @SuppressWarnings("unused")
     public static final String ACTION_MUZEI_ART_PROVIDER
             = "com.google.android.apps.muzei.api.MuzeiArtProvider";
     /**
-     * Boolean extra that will be set to true when Muzei starts provider settings activities.
-     * Check for this extra in your settings activity if you need to adjust your UI depending on
-     * whether or not the user came from Muzei's settings screen.
+     * Boolean extra that will be set to true when Muzei starts provider settings and setup
+     * activities.
+     * <p>
+     * Check for this extra in your activity if you need to adjust your UI depending on
+     * whether or not the user came from Muzei.
      */
-    @SuppressWarnings("unused")
-    public static final String EXTRA_FROM_MUZEI_SETTINGS
+    public static final String EXTRA_FROM_MUZEI
             = "com.google.android.apps.muzei.api.extra.FROM_MUZEI_SETTINGS";
     private static final String PREF_MAX_LOADED_ARTWORK_ID = "maxLoadedArtworkId";
     private static final String PREF_LAST_LOADED_TIME = "lastLoadTime";
@@ -474,7 +480,7 @@ public abstract class MuzeiArtProvider extends ContentProvider {
      * as a cue to load more artwork so that the user has a constant stream of new artwork.
      * <p>
      * Muzei will always prefer to show unseen artwork, but will automatically cycle through all
-     * of the available artwork if no new artwork is found (i.e., you don't load new artwork
+     * of the available artwork if no new artwork is found (i.e., if you don't load new artwork
      * after receiving this callback).
      *
      * @param initial true when there is no artwork available, such as is the case when this is

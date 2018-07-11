@@ -43,6 +43,11 @@ public class ProviderContract {
     public static final String ACCESS_PERMISSION
             = "com.google.android.apps.muzei.api.ACCESS_PROVIDER";
 
+    /**
+     * Constants and helper methods for working with the
+     * {@link com.google.android.apps.muzei.api.provider.Artwork} associated
+     * with a {@link MuzeiArtProvider}.
+     */
     public static final class Artwork implements BaseColumns {
         /**
          * The token that uniquely defines the artwork. Any inserts using the same non-null token

@@ -181,7 +181,7 @@ class ChooseProviderFragment : Fragment() {
             startActivityProvider = provider.componentName
             val setupIntent = Intent()
                     .setComponent(provider.setupActivity)
-                    .putExtra(MuzeiArtProvider.EXTRA_FROM_MUZEI_SETTINGS, true)
+                    .putExtra(MuzeiArtProvider.EXTRA_FROM_MUZEI, true)
             startActivityForResult(setupIntent, REQUEST_EXTENSION_SETUP)
         } catch (e: ActivityNotFoundException) {
             Log.e(TAG, "Can't launch provider setup.", e)
@@ -195,7 +195,7 @@ class ChooseProviderFragment : Fragment() {
             startActivityProvider = provider.componentName
             val settingsIntent = Intent()
                     .setComponent(provider.settingsActivity)
-                    .putExtra(MuzeiArtProvider.EXTRA_FROM_MUZEI_SETTINGS, true)
+                    .putExtra(MuzeiArtProvider.EXTRA_FROM_MUZEI, true)
             startActivityForResult(settingsIntent, REQUEST_EXTENSION_SETTINGS)
         } catch (e: ActivityNotFoundException) {
             Log.e(TAG, "Can't launch provider settings.", e)
