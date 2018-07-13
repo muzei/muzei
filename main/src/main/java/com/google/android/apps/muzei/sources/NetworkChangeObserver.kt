@@ -70,6 +70,7 @@ class NetworkChangeObserver internal constructor(private val context: Context) :
     }
 
     override fun onStart(owner: LifecycleOwner) {
+        @Suppress("DEPRECATION")
         val networkChangeFilter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
         context.registerReceiver(networkChangeReceiver, networkChangeFilter)
     }
