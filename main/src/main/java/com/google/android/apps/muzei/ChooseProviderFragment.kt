@@ -47,7 +47,9 @@ import androidx.core.view.isGone
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.core.widget.toast
+import androidx.navigation.fragment.findNavController
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
+import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.select
@@ -236,6 +238,7 @@ class ChooseProviderFragment : Fragment() {
         private val providerArtwork: ImageView = itemView.findViewById(R.id.provider_artwork)
         private val providerDescription: TextView = itemView.findViewById(R.id.provider_description)
         private val providerSettings: Button = itemView.findViewById(R.id.provider_settings)
+        private val providerBrowse: Button = itemView.findViewById(R.id.provider_browse)
 
         private var isSelected = false
 
@@ -303,6 +306,13 @@ class ChooseProviderFragment : Fragment() {
 
             setSelected(providerInfo)
             providerSettings.setOnClickListener { launchProviderSettings(this) }
+            providerBrowse.setOnClickListener {
+                findNavController().navigate(
+                        ChooseProviderFragmentDirections.browse(
+                                ProviderContract.Artwork.getContentUri(
+                                        requireContext(),
+                                        componentName)))
+            }
         }
 
         override fun onSuccess() {
@@ -333,6 +343,7 @@ class ChooseProviderFragment : Fragment() {
             isSelected = selected
             providerSelected.isInvisible = !selected
             providerSettings.isVisible = selected && settingsActivity != null
+            providerBrowse.isVisible = selected
         }
     }
 

@@ -18,5 +18,6 @@
     <integer name="tutorial_icon_emanate_duration">2000</integer>
     <integer name="tutorial_icon_emanate_wave2_delay">400</integer>
 
-    <integer name="provider_span_count">1</integer>
+    <integer name="choose_provider_span_count">1</integer>
+    <integer name="browse_provider_span_count">2</integer>
 </resources>
