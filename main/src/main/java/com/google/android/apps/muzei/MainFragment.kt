@@ -26,6 +26,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
+import com.google.android.apps.muzei.browse.BrowseProviderFragment
 import com.google.android.apps.muzei.settings.EffectsFragment
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
@@ -61,6 +62,11 @@ class MainFragment : Fragment(), ChooseProviderFragment.Callbacks {
                     FirebaseAnalytics.getInstance(requireContext())
                             .setCurrentScreen(requireActivity(), "ChooseProvider",
                                     ChooseProviderFragment::class.java.simpleName)
+                }
+                R.id.browse_provider -> {
+                    FirebaseAnalytics.getInstance(requireContext())
+                            .setCurrentScreen(requireActivity(), "BrowseProvider",
+                                    BrowseProviderFragment::class.java.simpleName)
                 }
                 R.id.main_effects -> {
                     FirebaseAnalytics.getInstance(requireContext())
