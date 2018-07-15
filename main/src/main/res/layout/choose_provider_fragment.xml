@@ -50,7 +50,7 @@
             android:paddingStart="@dimen/provider_padding"
             app:layoutManager="android.support.v7.widget.StaggeredGridLayoutManager"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            app:spanCount="@integer/provider_span_count"/>
+            app:spanCount="@integer/choose_provider_span_count"/>
     </android.support.design.widget.CoordinatorLayout>
 
     <fragment
