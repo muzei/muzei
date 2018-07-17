@@ -35,6 +35,7 @@ dependencies {
     implementation "android.arch.lifecycle:livedata:$lifecycleVersion"
     implementation "android.arch.lifecycle:viewmodel:$lifecycleVersion"
     implementation "android.arch.persistence.room:runtime:$roomVersion"
+    implementation "android.arch.work:work-runtime-ktx:$workManagerVersion"
     kapt "android.arch.persistence.room:compiler:$roomVersion"
     implementation "android.arch.paging:runtime:$pagingVersion"
 }

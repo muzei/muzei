@@ -651,6 +651,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             val animator = findViewById<ViewAnimator>(R.id.empty_animator)
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 // Permission is granted, we can show the random camera photos image
+                GalleryScanWorker.enqueueRescan()
                 animator.displayedChild = 0
                 emptyDescription.setText(R.string.gallery_empty)
                 setResult(RESULT_OK)

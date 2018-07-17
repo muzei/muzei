@@ -22,6 +22,7 @@ import android.arch.persistence.room.Dao
 import android.arch.persistence.room.Insert
 import android.arch.persistence.room.OnConflictStrategy
 import android.arch.persistence.room.Query
+import android.arch.persistence.room.TypeConverters
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -30,6 +31,8 @@ import android.os.Binder
 import android.os.Build
 import android.provider.DocumentsContract
 import android.util.Log
+import com.google.android.apps.muzei.api.provider.ProviderContract
+import com.google.android.apps.muzei.gallery.converter.UriTypeConverter
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.awaitAll
@@ -77,6 +80,7 @@ internal abstract class ChosenPhotoDao {
                         context.getString(R.string.gallery_shared_from, callingApplication))
                 GalleryDatabase.getInstance(context).metadataDao().insert(metadata)
             }
+            GalleryScanWorker.enqueueInitialScan(listOf(id))
             id
         } else {
             0L
@@ -84,12 +88,15 @@ internal abstract class ChosenPhotoDao {
     }
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    internal abstract fun insertAllInternal(chosenPhoto: List<ChosenPhoto>)
+    internal abstract fun insertAllInternal(chosenPhoto: List<ChosenPhoto>): List<Long>
 
     fun insertAll(context: Context, uris: Collection<Uri>) {
         insertAllInternal(uris
                 .map { ChosenPhoto(it) }
-                .filter { persistUriAccess(context, it) })
+                .filter { persistUriAccess(context, it) }
+        ).run {
+            GalleryScanWorker.enqueueInitialScan(this)
+        }
     }
 
     private fun persistUriAccess(context: Context, chosenPhoto: ChosenPhoto): Boolean {
@@ -202,6 +209,25 @@ internal abstract class ChosenPhotoDao {
         }
     }
 
+    @TypeConverters(UriTypeConverter::class)
+    @Query("SELECT * FROM chosen_photos WHERE uri=:uri")
+    internal abstract fun chosenPhotoBlocking(uri: Uri): List<ChosenPhoto>
+
+    private suspend fun getChosenPhotos(uri: Uri) = withContext(CommonPool) {
+        chosenPhotoBlocking(uri)
+    }
+
+    @TypeConverters(UriTypeConverter::class)
+    @Query("DELETE FROM chosen_photos WHERE uri=:uri")
+    internal abstract fun deleteInternal(uri: Uri)
+
+    suspend fun delete(context: Context, uri: Uri) {
+        deleteBackingPhotos(context, getChosenPhotos(uri))
+        withContext(CommonPool) {
+            deleteInternal(uri)
+        }
+    }
+
     @Query("DELETE FROM chosen_photos")
     internal abstract fun deleteAllInternal()
 
@@ -222,6 +248,11 @@ internal abstract class ChosenPhotoDao {
             chosenPhotos: List<ChosenPhoto>
     ) = chosenPhotos.map { chosenPhoto ->
         async {
+            val contentUri = ProviderContract.Artwork.getContentUri(
+                    context, GalleryArtProvider::class.java)
+            context.contentResolver.delete(contentUri,
+                    "${ProviderContract.Artwork.METADATA}=?",
+                    arrayOf(chosenPhoto.uri.toString()))
             val file = GalleryProvider.getCacheFileForUri(context, chosenPhoto.uri)
             if (file?.exists() == true) {
                 if (!file.delete()) {

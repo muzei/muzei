@@ -62,6 +62,7 @@ class GallerySetupActivity : FragmentActivity() {
         }
 
         if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            GalleryScanWorker.enqueueRescan()
             setResult(RESULT_OK)
             finish()
         } else {

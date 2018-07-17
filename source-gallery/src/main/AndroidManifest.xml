@@ -27,6 +27,24 @@
             android:name="com.google.android.apps.muzei.gallery.GalleryProvider"
             android:exported="false"
             android:grantUriPermissions="true"/>
+
+        <provider
+            android:name="com.google.android.apps.muzei.gallery.GalleryArtProvider"
+            android:authorities="com.google.android.apps.muzei.gallery.art"
+            android:label="@string/gallery_title"
+            android:description="@string/gallery_description"
+            android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER">
+            <intent-filter>
+                <action android:name="com.google.android.apps.muzei.api.MuzeiArtProvider" />
+            </intent-filter>
+
+            <meta-data
+                android:name="settingsActivity"
+                android:value="com.google.android.apps.muzei.gallery.GallerySettingsActivity" />
+            <meta-data
+                android:name="setupActivity"
+                android:value="com.google.android.apps.muzei.gallery.GallerySetupActivity" />
+        </provider>
         <service
             android:name="com.google.android.apps.muzei.gallery.GalleryArtSource"
             android:label="@string/gallery_title"
@@ -46,6 +64,9 @@
             <meta-data
                 android:name="color"
                 android:value="#4db6ac"/>
+            <meta-data
+                android:name="replacement"
+                android:value="com.google.android.apps.muzei.gallery.GalleryArtProvider" />
         </service>
 
         <activity
