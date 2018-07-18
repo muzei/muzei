@@ -18,11 +18,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_force_now"
-        android:icon="@drawable/gallery_ic_action_play"
-        android:title="@string/gallery_action_force_now"
-        app:showAsAction="ifRoom"/>
-    <item
         android:id="@+id/action_remove"
         android:icon="@drawable/gallery_ic_action_remove"
         android:title="@string/gallery_action_remove"

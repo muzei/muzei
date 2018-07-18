@@ -91,23 +91,6 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         private const val REQUEST_STORAGE_PERMISSION = 3
         private const val STATE_SELECTION = "selection"
 
-        private val ROTATE_MENU_IDS_BY_MIN = SparseIntArray()
-        private val ROTATE_MINS_BY_MENU_ID = SparseIntArray()
-
-        init {
-            ROTATE_MENU_IDS_BY_MIN.apply {
-                put(0, R.id.action_rotate_interval_none)
-                put(60, R.id.action_rotate_interval_1h)
-                put(60 * 3, R.id.action_rotate_interval_3h)
-                put(60 * 6, R.id.action_rotate_interval_6h)
-                put(60 * 24, R.id.action_rotate_interval_24h)
-                put(60 * 72, R.id.action_rotate_interval_72h)
-            }
-            for (i in 0 until ROTATE_MENU_IDS_BY_MIN.size()) {
-                ROTATE_MINS_BY_MENU_ID.put(ROTATE_MENU_IDS_BY_MIN.valueAt(i), ROTATE_MENU_IDS_BY_MIN.keyAt(i))
-            }
-        }
-
         internal val CHOSEN_PHOTO_DIFF_CALLBACK: DiffUtil.ItemCallback<ChosenPhoto> = object : DiffUtil.ItemCallback<ChosenPhoto>() {
             override fun areItemsTheSame(oldItem: ChosenPhoto, newItem: ChosenPhoto): Boolean {
                 return oldItem.uri == newItem.uri
@@ -324,16 +307,6 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         super.onCreateOptionsMenu(menu)
         menuInflater.inflate(R.menu.gallery_activity, menu)
-
-        val rotateIntervalMin = GalleryArtSource.getSharedPreferences(this)
-                .getInt(GalleryArtSource.PREF_ROTATE_INTERVAL_MIN,
-                        GalleryArtSource.DEFAULT_ROTATE_INTERVAL_MIN)
-        val menuId = ROTATE_MENU_IDS_BY_MIN.get(rotateIntervalMin)
-        if (menuId != 0) {
-            menu.findItem(menuId)?.run {
-                isChecked = true
-            }
-        }
         return true
     }
 
@@ -361,17 +334,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val itemId = item.itemId
-        val rotateMin = ROTATE_MINS_BY_MENU_ID.get(itemId, -1)
-        if (rotateMin != -1) {
-            GalleryArtSource.getSharedPreferences(this).edit()
-                    .putInt(GalleryArtSource.PREF_ROTATE_INTERVAL_MIN, rotateMin)
-                    .apply()
-            item.isChecked = true
-            return true
-        }
-
-        when (itemId) {
+        when (item.itemId) {
             R.id.action_import_photos -> {
                 getContentActivitiesLiveData.value?.run {
                     when (size) {
@@ -418,19 +381,6 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         selectionToolbar.inflateMenu(R.menu.gallery_selection)
         selectionToolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
-                R.id.action_force_now -> {
-                    val selection = multiSelectionController.selection
-                    if (selection.size > 0) {
-                        val selectedUri = ChosenPhoto.getContentUri(selection.iterator().next())
-                        startService(
-                                Intent(this, GalleryArtSource::class.java)
-                                        .setAction(GalleryArtSource.ACTION_PUBLISH_NEXT_GALLERY_ITEM)
-                                        .putExtra(GalleryArtSource.EXTRA_FORCE_URI, selectedUri))
-                        toast(R.string.gallery_temporary_force_image)
-                    }
-                    multiSelectionController.reset(true)
-                    return@setOnMenuItemClickListener true
-                }
                 R.id.action_remove -> {
                     val removePhotos = ArrayList(
                             multiSelectionController.selection)
@@ -534,26 +484,6 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
 
         val selectedCount = multiSelectionController.selectedCount
         val toolbarVisible = selectedCount > 0
-        if (selectedCount == 1) {
-            // Double check to make sure we can force a URI for the selected URI
-            val selectedId = multiSelectionController.selection.iterator().next()
-            launch(UI) {
-                val chosenPhoto = withContext(CommonPool) {
-                    GalleryDatabase.getInstance(this@GallerySettingsActivity)
-                            .chosenPhotoDao()
-                            .chosenPhotoBlocking(selectedId)
-                }
-                val showForceNow = if (chosenPhoto?.isTreeUri == true) {
-                    // Only show the force now icon if it isn't a tree URI or there is at least one image in the tree
-                    !getImagesFromTreeUri(chosenPhoto.uri, 1).isEmpty()
-                } else true
-                if (selectionToolbar.isAttachedToWindow) {
-                    selectionToolbar.menu.findItem(R.id.action_force_now).isVisible = showForceNow
-                }
-            }
-        }
-        // Hide the force now button until the callback above sets it
-        selectionToolbar.menu.findItem(R.id.action_force_now).isVisible = false
 
         val previouslyVisible: Boolean = selectionToolbarContainer.getTag(
                 R.id.gallery_viewtag_previously_visible) as? Boolean ?: false

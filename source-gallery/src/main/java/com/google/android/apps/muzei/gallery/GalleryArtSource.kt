@@ -337,11 +337,8 @@ class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
     }
 
     private fun scheduleNext() {
-        val rotateIntervalMinutes = sharedPreferences.getInt(PREF_ROTATE_INTERVAL_MIN,
-                DEFAULT_ROTATE_INTERVAL_MIN)
-        if (rotateIntervalMinutes > 0) {
-            scheduleUpdate(System.currentTimeMillis() + rotateIntervalMinutes * 60 * 1000)
-        }
+        scheduleUpdate(System.currentTimeMillis() +
+                DEFAULT_ROTATE_INTERVAL_MIN * 60 * 1000)
     }
 
     private fun ensureMetadataExists(imageUri: Uri): Metadata {

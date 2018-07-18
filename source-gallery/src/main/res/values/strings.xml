@@ -24,19 +24,11 @@
     <string name="gallery_add_folder_error">Your device does not support adding folders.\nPlease contact your manufacturer.</string>
 
     <string name="gallery_action_clear_photos">Remove all photos</string>
-    <string name="gallery_action_rotate_interval">Change interval</string>
-    <string name="gallery_action_rotate_interval_none">Don\'t change wallpaper</string>
-    <string name="gallery_action_rotate_interval_1h">Every hour</string>
-    <string name="gallery_action_rotate_interval_3h">Every 3 hours</string>
-    <string name="gallery_action_rotate_interval_6h">Every 6 hours</string>
-    <string name="gallery_action_rotate_interval_24h">Every 24 hours</string>
-    <string name="gallery_action_rotate_interval_72h">Every 3 days</string>
     <string name="gallery_action_import_photos">Import photos…</string>
     <string name="gallery_action_import_photos_from">Import photos from %s</string>
 
     <string name="gallery_import_dialog_title">Import photos from</string>
 
-    <string name="gallery_action_force_now">Set as wallpaper now</string>
     <string name="gallery_action_remove">Remove</string>
 
     <string name="gallery_title">My Photos</string>
@@ -47,7 +39,6 @@
     </plurals>
     <string name="gallery_empty">Random camera photos</string>
     <string name="gallery_empty_subtitle">Choose specific photos instead</string>
-    <string name="gallery_temporary_force_image">Wallpaper set to selected image.</string>
     <string name="gallery_from_gallery">From your gallery</string>
     <string name="gallery_touch_to_view">Touch to view</string>
     <string name="gallery_shared_from">Shared from %s</string>
