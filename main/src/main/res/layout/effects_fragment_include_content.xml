@@ -1,5 +1,5 @@
 <!--
-  Copyright 2014 Google Inc.
+  Copyright 2018 Google Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,64 +14,95 @@
   limitations under the License.
   -->
 
-<GridLayout
+<android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:columnCount="3"
-    android:orientation="horizontal">
+    android:layout_height="wrap_content">
 
     <TextView
+        android:id="@+id/settings_blur_amount_title"
         style="@style/Widget.Muzei.TextView.SettingsAdvancedSeekBarLabel"
-        android:layout_gravity="fill_vertical|end"
-        android:text="@string/settings_blur_amount_title"/>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="@string/settings_blur_amount_title"
+        app:layout_constraintBottom_toTopOf="@+id/settings_dim_amount_title"
+        app:layout_constraintEnd_toEndOf="@+id/settings_dim_amount_title"
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <SeekBar
-        style="@style/Settings.Widget.SeekBar.BlurAmount"
         android:id="@+id/blur_amount"
-        android:layout_gravity="center_vertical|fill_horizontal"
-        android:layout_columnSpan="2"
-        android:max="500"/>
-
-    <Space
-        android:layout_height="16dp"
-        android:layout_columnSpan="3"/>
+        style="@style/Settings.Widget.SeekBar.BlurAmount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:max="500"
+        app:layout_constraintBottom_toBottomOf="@+id/settings_blur_amount_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/settings_title_barrier"
+        app:layout_constraintTop_toTopOf="@+id/settings_blur_amount_title"/>
 
     <TextView
+        android:id="@+id/settings_dim_amount_title"
         style="@style/Widget.Muzei.TextView.SettingsAdvancedSeekBarLabel"
-        android:layout_gravity="fill_vertical|end"
-        android:text="@string/settings_dim_amount_title"/>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="@string/settings_dim_amount_title"
+        app:layout_constraintBottom_toTopOf="@+id/settings_grey_amount_title"
+        app:layout_constraintEnd_toEndOf="@+id/settings_grey_amount_title"
+        app:layout_constraintTop_toBottomOf="@+id/settings_blur_amount_title"/>
 
     <SeekBar
-        style="@style/Settings.Widget.SeekBar.DimAmount"
         android:id="@+id/dim_amount"
-        android:layout_gravity="center_vertical|fill_horizontal"
-        android:layout_columnSpan="2"
-        android:max="255"/>
-
-    <Space
-        android:layout_height="16dp"
-        android:layout_columnSpan="3"/>
+        style="@style/Settings.Widget.SeekBar.DimAmount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:max="255"
+        app:layout_constraintBottom_toBottomOf="@+id/settings_dim_amount_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/settings_title_barrier"
+        app:layout_constraintTop_toTopOf="@+id/settings_dim_amount_title"/>
 
     <TextView
+        android:id="@+id/settings_grey_amount_title"
         style="@style/Widget.Muzei.TextView.SettingsAdvancedSeekBarLabel"
-        android:layout_gravity="fill_vertical|end"
-        android:text="@string/settings_grey_amount_title"/>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="@string/settings_grey_amount_title"
+        app:layout_constraintBottom_toTopOf="@+id/blur_on_lockscreen_checkbox"
+        app:layout_constraintTop_toBottomOf="@+id/settings_dim_amount_title"/>
 
     <SeekBar
-        style="@style/Settings.Widget.SeekBar.GreyAmount"
         android:id="@+id/grey_amount"
-        android:layout_gravity="center_vertical|fill_horizontal"
-        android:layout_columnSpan="2"
-        android:max="500"/>
+        style="@style/Settings.Widget.SeekBar.GreyAmount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:max="500"
+        app:layout_constraintBottom_toBottomOf="@+id/settings_grey_amount_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/settings_title_barrier"
+        app:layout_constraintTop_toTopOf="@+id/settings_grey_amount_title"/>
 
     <CheckBox
         android:id="@+id/blur_on_lockscreen_checkbox"
         style="@style/Widget.Muzei.CheckBox.SettingsAdvanced"
-        android:text="@string/settings_blur_on_lockscreen"
-        android:layout_column="@integer/settings_advanced_checkbox_column"
-        android:layout_columnSpan="@integer/settings_advanced_checkbox_column_span"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/settings_advanced_checkbox_margin_start"
-        android:layout_marginTop="16dp"/>
+        android:text="@string/settings_blur_on_lockscreen"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/settings_title_barrier"
+        app:layout_constraintTop_toBottomOf="@+id/settings_grey_amount_title"/>
 
-</GridLayout>
+
+    <android.support.constraint.Barrier
+        android:id="@+id/settings_title_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        app:barrierDirection="right"
+        app:constraint_referenced_ids="settings_dim_amount_title,settings_grey_amount_title,settings_blur_amount_title"/>
+</android.support.constraint.ConstraintLayout>
