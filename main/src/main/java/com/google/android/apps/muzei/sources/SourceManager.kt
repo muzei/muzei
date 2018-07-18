@@ -56,7 +56,6 @@ import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
 import java.util.HashSet
 import java.util.concurrent.Executors
-import kotlin.reflect.KClass
 
 suspend fun Provider?.allowsNextArtwork(context: Context): Boolean {
     return when {
@@ -78,11 +77,6 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
         private const val USER_PROPERTY_SELECTED_SOURCE = "selected_source"
         private const val USER_PROPERTY_SELECTED_SOURCE_PACKAGE = "selected_source_package"
         private const val MAX_VALUE_LENGTH = 36
-
-        internal suspend fun selectSource(
-                context: Context,
-                source: KClass<out MuzeiArtSource>
-        ) = selectSource(context, ComponentName(context, source.java))
 
         suspend fun selectSource(
                 context: Context,
