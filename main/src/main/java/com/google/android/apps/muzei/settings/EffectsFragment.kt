@@ -23,27 +23,14 @@ import android.support.v7.widget.Toolbar
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
-import android.widget.SeekBar
 import androidx.core.content.edit
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.R
 
 /**
  * Fragment for allowing the user to configure advanced settings.
  */
 class EffectsFragment : Fragment() {
-
-    private lateinit var blurSeekBar: SeekBar
-    private lateinit var dimSeekBar: SeekBar
-    private lateinit var greySeekBar: SeekBar
-
-    private var updateBlur: Job? = null
-    private var updateDim: Job? = null
-    private var updateGrey: Job? = null
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -78,92 +65,19 @@ class EffectsFragment : Fragment() {
                         putInt(Prefs.PREF_DIM_AMOUNT, MuzeiBlurRenderer.DEFAULT_MAX_DIM)
                         putInt(Prefs.PREF_GREY_AMOUNT, MuzeiBlurRenderer.DEFAULT_GREY)
                     }
-                    blurSeekBar.progress = MuzeiBlurRenderer.DEFAULT_BLUR
-                    dimSeekBar.progress = MuzeiBlurRenderer.DEFAULT_MAX_DIM
-                    greySeekBar.progress = MuzeiBlurRenderer.DEFAULT_GREY
                     true
                 }
                 else -> false
             }
         }
-
-        blurSeekBar = view.findViewById(R.id.blur_amount)
-        blurSeekBar.progress = Prefs.getSharedPreferences(requireContext())
-                .getInt(Prefs.PREF_BLUR_AMOUNT, MuzeiBlurRenderer.DEFAULT_BLUR)
-        blurSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
-                if (fromUser) {
-                    updateBlur?.cancel()
-                    updateBlur = launch {
-                        delay(750)
-                        Prefs.getSharedPreferences(requireContext()).edit {
-                            putInt(Prefs.PREF_BLUR_AMOUNT, blurSeekBar.progress)
-                        }
-                    }
-                }
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar) {}
-
-            override fun onStopTrackingTouch(seekBar: SeekBar) {}
-        })
-
-        dimSeekBar = view.findViewById(R.id.dim_amount)
-        dimSeekBar.progress = Prefs.getSharedPreferences(requireContext())
-                .getInt(Prefs.PREF_DIM_AMOUNT, MuzeiBlurRenderer.DEFAULT_MAX_DIM)
-        dimSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
-                if (fromUser) {
-                    updateDim?.cancel()
-                    updateDim = launch {
-                        delay(750)
-                        Prefs.getSharedPreferences(requireContext()).edit {
-                            putInt(Prefs.PREF_DIM_AMOUNT, dimSeekBar.progress)
-                        }
-                    }
-                }
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar) {}
-
-            override fun onStopTrackingTouch(seekBar: SeekBar) {}
-        })
-
-        greySeekBar = view.findViewById(R.id.grey_amount)
-        greySeekBar.progress = Prefs.getSharedPreferences(requireContext())
-                .getInt(Prefs.PREF_GREY_AMOUNT, MuzeiBlurRenderer.DEFAULT_GREY)
-        greySeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
-                if (fromUser) {
-                    updateGrey?.cancel()
-                    updateGrey = launch {
-                        delay(750)
-                        Prefs.getSharedPreferences(requireContext()).edit {
-                            putInt(Prefs.PREF_GREY_AMOUNT, greySeekBar.progress)
-                        }
-                    }
-                }
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar) {}
-
-            override fun onStopTrackingTouch(seekBar: SeekBar) {}
-        })
-        val blurOnLockScreenCheckBox = view.findViewById<CheckBox>(
-                R.id.blur_on_lockscreen_checkbox)
-        blurOnLockScreenCheckBox.setOnCheckedChangeListener { _, checked ->
-            Prefs.getSharedPreferences(requireContext()).edit()
-                    .putBoolean(Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED, !checked)
-                    .apply()
+        if (savedInstanceState == null) {
+            childFragmentManager.beginTransaction()
+                    .replace(R.id.container, EffectsScreenFragment.create(
+                            Prefs.PREF_BLUR_AMOUNT,
+                            Prefs.PREF_DIM_AMOUNT,
+                            Prefs.PREF_GREY_AMOUNT
+                    ))
+                    .commit()
         }
-        blurOnLockScreenCheckBox.isChecked = !Prefs.getSharedPreferences(requireContext())
-                .getBoolean(Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED, false)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        updateBlur?.cancel()
-        updateDim?.cancel()
-        updateGrey?.cancel()
     }
 }

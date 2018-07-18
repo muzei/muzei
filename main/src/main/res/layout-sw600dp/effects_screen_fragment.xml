@@ -1,5 +1,5 @@
 <!--
-  Copyright 2014 Google Inc.
+  Copyright 2018 Google Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,22 +14,15 @@
   limitations under the License.
   -->
 
-<android.support.design.widget.CoordinatorLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
-
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
+    android:layout_height="match_parent">
 
     <include
-        layout="@layout/effects_fragment_include_content"
+        layout="@layout/effects_screen_fragment_include_content"
         android:layout_width="500dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"/>
 
-</android.support.design.widget.CoordinatorLayout>
+</FrameLayout>
