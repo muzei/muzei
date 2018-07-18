@@ -39,7 +39,7 @@ abstract class SourceDao {
     abstract val sources: LiveData<List<Source>>
 
     @get:Query("SELECT * FROM sources")
-    internal abstract val sourcesBlocking: List<Source>
+    abstract val sourcesBlocking: List<Source>
 
     suspend fun getSources() = withContext(CommonPool) {
         sourcesBlocking

@@ -204,6 +204,22 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
             database.sourceDao().deleteAll(existingSources.toTypedArray())
             database.setTransactionSuccessful()
             database.endTransaction()
+
+            // Enable or disable the SourceArtProvider based on whether
+            // there are any available sources
+            val sources = database.sourceDao().sourcesBlocking
+            val legacyComponentName = ComponentName(context, SourceArtProvider::class.java)
+            val currentState = pm.getComponentEnabledSetting(legacyComponentName)
+            val newState = if (sources.isEmpty()) {
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+            } else {
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+            }
+            if (currentState != newState) {
+                pm.setComponentEnabledSetting(legacyComponentName,
+                        newState,
+                        PackageManager.DONT_KILL_APP)
+            }
         }
     }
 
