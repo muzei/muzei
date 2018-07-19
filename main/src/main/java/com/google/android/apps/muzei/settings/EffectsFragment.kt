@@ -18,6 +18,7 @@ package com.google.android.apps.muzei.settings
 
 import android.app.Activity
 import android.arch.lifecycle.MutableLiveData
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
@@ -39,7 +40,85 @@ object EffectsLockScreenOpenLiveData : MutableLiveData<Boolean>()
  */
 class EffectsFragment : Fragment() {
 
+    private lateinit var toolbar: Toolbar
     private lateinit var viewPager: ViewPager
+
+    private val sharedPreferencesListener = SharedPreferences.OnSharedPreferenceChangeListener {
+        sp, key ->
+        val effectsLinked = sp.getBoolean(Prefs.PREF_LINK_EFFECTS, false)
+        if (key == Prefs.PREF_LINK_EFFECTS) {
+            if (effectsLinked) {
+                if (viewPager.currentItem == 0) {
+                    // Update the lock screen effects to match the home screen
+                    sp.edit {
+                        putInt(Prefs.PREF_LOCK_BLUR_AMOUNT,
+                                sp.getInt(Prefs.PREF_BLUR_AMOUNT, MuzeiBlurRenderer.DEFAULT_BLUR))
+                        putInt(Prefs.PREF_LOCK_DIM_AMOUNT,
+                                sp.getInt(Prefs.PREF_DIM_AMOUNT, MuzeiBlurRenderer.DEFAULT_MAX_DIM))
+                        putInt(Prefs.PREF_LOCK_GREY_AMOUNT,
+                                sp.getInt(Prefs.PREF_GREY_AMOUNT, MuzeiBlurRenderer.DEFAULT_GREY))
+                    }
+                } else {
+                    // Update the home screen effects to match the lock screen
+                    sp.edit {
+                        putInt(Prefs.PREF_BLUR_AMOUNT,
+                                sp.getInt(Prefs.PREF_LOCK_BLUR_AMOUNT, MuzeiBlurRenderer.DEFAULT_BLUR))
+                        putInt(Prefs.PREF_DIM_AMOUNT,
+                                sp.getInt(Prefs.PREF_LOCK_DIM_AMOUNT, MuzeiBlurRenderer.DEFAULT_MAX_DIM))
+                        putInt(Prefs.PREF_GREY_AMOUNT,
+                                sp.getInt(Prefs.PREF_LOCK_GREY_AMOUNT, MuzeiBlurRenderer.DEFAULT_GREY))
+                    }
+                }
+            }
+            // Update the menu item
+            updateLinkEffectsMenuItem(effectsLinked)
+        } else if (effectsLinked) {
+            when (key) {
+                Prefs.PREF_BLUR_AMOUNT -> {
+                    // Update the lock screen effect to match the updated home screen
+                    sp.edit {
+                        putInt(Prefs.PREF_LOCK_BLUR_AMOUNT, sp.getInt(Prefs.PREF_BLUR_AMOUNT,
+                                MuzeiBlurRenderer.DEFAULT_BLUR))
+                    }
+                }
+                Prefs.PREF_DIM_AMOUNT -> {
+                    // Update the lock screen effect to match the updated home screen
+                    sp.edit {
+                        putInt(Prefs.PREF_LOCK_DIM_AMOUNT, sp.getInt(Prefs.PREF_DIM_AMOUNT,
+                                MuzeiBlurRenderer.DEFAULT_MAX_DIM))
+                    }
+                }
+                Prefs.PREF_GREY_AMOUNT -> {
+                    // Update the lock screen effect to match the updated home screen
+                    sp.edit {
+                        putInt(Prefs.PREF_LOCK_GREY_AMOUNT, sp.getInt(Prefs.PREF_GREY_AMOUNT,
+                                MuzeiBlurRenderer.DEFAULT_GREY))
+                    }
+                }
+                Prefs.PREF_LOCK_BLUR_AMOUNT -> {
+                    // Update the home screen effect to match the updated lock screen
+                    sp.edit {
+                        putInt(Prefs.PREF_BLUR_AMOUNT, sp.getInt(Prefs.PREF_LOCK_BLUR_AMOUNT,
+                                MuzeiBlurRenderer.DEFAULT_BLUR))
+                    }
+                }
+                Prefs.PREF_LOCK_DIM_AMOUNT -> {
+                    // Update the home screen effect to match the updated lock screen
+                    sp.edit {
+                        putInt(Prefs.PREF_DIM_AMOUNT, sp.getInt(Prefs.PREF_LOCK_DIM_AMOUNT,
+                                MuzeiBlurRenderer.DEFAULT_MAX_DIM))
+                    }
+                }
+                Prefs.PREF_LOCK_GREY_AMOUNT -> {
+                    // Update the home screen effect to match the updated lock screen
+                    sp.edit {
+                        putInt(Prefs.PREF_GREY_AMOUNT, sp.getInt(Prefs.PREF_LOCK_GREY_AMOUNT,
+                                MuzeiBlurRenderer.DEFAULT_GREY))
+                    }
+                }
+            }
+        }
+    }
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -54,7 +133,7 @@ class EffectsFragment : Fragment() {
         @Suppress("DEPRECATION")
         view.requestFitSystemWindows()
 
-        val toolbar: Toolbar = view.findViewById(R.id.toolbar)
+        toolbar = view.findViewById(R.id.toolbar)
         if (requireActivity() is SettingsActivity) {
             toolbar.setNavigationIcon(R.drawable.ic_ab_done)
             toolbar.navigationContentDescription = getString(R.string.done)
@@ -66,8 +145,17 @@ class EffectsFragment : Fragment() {
             }
         }
         requireActivity().menuInflater.inflate(R.menu.effects_fragment, toolbar.menu)
+        updateLinkEffectsMenuItem()
         toolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
+                R.id.action_link_effects -> {
+                    val sp = Prefs.getSharedPreferences(requireContext())
+                    val effectsLinked = sp.getBoolean(Prefs.PREF_LINK_EFFECTS, false)
+                    sp.edit {
+                        putBoolean(Prefs.PREF_LINK_EFFECTS, !effectsLinked)
+                    }
+                    true
+                }
                 R.id.action_reset_defaults -> {
                     Prefs.getSharedPreferences(requireContext()).edit {
                         putInt(Prefs.PREF_BLUR_AMOUNT, MuzeiBlurRenderer.DEFAULT_BLUR)
@@ -91,9 +179,28 @@ class EffectsFragment : Fragment() {
                 EffectsLockScreenOpenLiveData.value = position == 1
             }
         })
+        Prefs.getSharedPreferences(requireContext())
+                .registerOnSharedPreferenceChangeListener(sharedPreferencesListener)
+    }
+
+    private fun updateLinkEffectsMenuItem(
+            effectsLinked: Boolean = Prefs.getSharedPreferences(requireContext())
+                    .getBoolean(Prefs.PREF_LINK_EFFECTS, false)
+    ) {
+        val menuItem = toolbar.menu.findItem(R.id.action_link_effects)
+        menuItem.setIcon(if (effectsLinked)
+            R.drawable.ic_action_link_effects
+        else
+            R.drawable.ic_action_link_effects_off)
+        menuItem.title = if (effectsLinked)
+            getString(R.string.action_link_effects)
+        else
+            getString(R.string.action_link_effects_off)
     }
 
     override fun onDestroyView() {
+        Prefs.getSharedPreferences(requireContext())
+                .unregisterOnSharedPreferenceChangeListener(sharedPreferencesListener)
         EffectsLockScreenOpenLiveData.value = false
         super.onDestroyView()
     }
