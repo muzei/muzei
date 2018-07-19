@@ -23,10 +23,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.SharedPreferences
 import android.support.v4.os.UserManagerCompat
 import com.google.android.apps.muzei.MuzeiWallpaperService
-import com.google.android.apps.muzei.settings.Prefs
 
 /**
  * LifecycleObserver responsible for monitoring the state of the lock screen
@@ -36,28 +34,6 @@ class LockscreenObserver(
         private val engine: MuzeiWallpaperService.MuzeiWallpaperEngine
 ) : DefaultLifecycleObserver {
 
-    private var lockScreenVisibleReceiverRegistered = false
-    private val lockScreenPreferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { sp, key ->
-        if (Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED == key) {
-            if (sp.getBoolean(Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED, false)) {
-                val intentFilter = IntentFilter().apply {
-                    addAction(Intent.ACTION_USER_PRESENT)
-                    addAction(Intent.ACTION_SCREEN_OFF)
-                    addAction(Intent.ACTION_SCREEN_ON)
-                }
-                context.registerReceiver(lockScreenVisibleReceiver, intentFilter)
-                lockScreenVisibleReceiverRegistered = true
-                // If the user is not yet unlocked (i.e., using Direct Boot), we should
-                // immediately send the lock screen visible callback
-                if (!UserManagerCompat.isUserUnlocked(context)) {
-                    engine.lockScreenVisibleChanged(true)
-                }
-            } else if (lockScreenVisibleReceiverRegistered) {
-                context.unregisterReceiver(lockScreenVisibleReceiver)
-                lockScreenVisibleReceiverRegistered = false
-            }
-        }
-    }
     private val lockScreenVisibleReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
             when (intent?.action) {
@@ -74,18 +50,20 @@ class LockscreenObserver(
     }
 
     override fun onCreate(owner: LifecycleOwner) {
-        val sp = Prefs.getSharedPreferences(context)
-        sp.registerOnSharedPreferenceChangeListener(lockScreenPreferenceChangeListener)
-        // Trigger the initial registration if needed
-        lockScreenPreferenceChangeListener.onSharedPreferenceChanged(sp,
-                Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED)
+        val intentFilter = IntentFilter().apply {
+            addAction(Intent.ACTION_USER_PRESENT)
+            addAction(Intent.ACTION_SCREEN_OFF)
+            addAction(Intent.ACTION_SCREEN_ON)
+        }
+        context.registerReceiver(lockScreenVisibleReceiver, intentFilter)
+        // If the user is not yet unlocked (i.e., using Direct Boot), we should
+        // immediately send the lock screen visible callback
+        if (!UserManagerCompat.isUserUnlocked(context)) {
+            engine.lockScreenVisibleChanged(true)
+        }
     }
 
     override fun onDestroy(owner: LifecycleOwner) {
-        if (lockScreenVisibleReceiverRegistered) {
-            context.unregisterReceiver(lockScreenVisibleReceiver)
-        }
-        Prefs.getSharedPreferences(context)
-                .unregisterOnSharedPreferenceChangeListener(lockScreenPreferenceChangeListener)
+        context.unregisterReceiver(lockScreenVisibleReceiver)
     }
 }

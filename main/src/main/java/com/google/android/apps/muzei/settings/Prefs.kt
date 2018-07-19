@@ -21,6 +21,7 @@ import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import android.support.v4.content.ContextCompat
 import android.support.v4.os.UserManagerCompat
+import androidx.core.content.edit
 
 /**
  * Preference constants/helpers.
@@ -29,7 +30,10 @@ object Prefs {
     const val PREF_GREY_AMOUNT = "grey_amount"
     const val PREF_DIM_AMOUNT = "dim_amount"
     const val PREF_BLUR_AMOUNT = "blur_amount"
-    const val PREF_DISABLE_BLUR_WHEN_LOCKED = "disable_blur_when_screen_locked_enabled"
+    const val PREF_LOCK_GREY_AMOUNT = "lock_grey_amount"
+    const val PREF_LOCK_DIM_AMOUNT = "lock_dim_amount"
+    const val PREF_LOCK_BLUR_AMOUNT = "lock_blur_amount"
+    private const val PREF_DISABLE_BLUR_WHEN_LOCKED = "disable_blur_when_screen_locked_enabled"
 
     private const val WALLPAPER_PREFERENCES_NAME = "wallpaper_preferences"
     private const val PREF_MIGRATED = "migrated_from_default"
@@ -53,7 +57,37 @@ object Prefs {
         }
         // Now open the correct SharedPreferences
         val contextToUse = deviceProtectedContext ?: context
-        return contextToUse.getSharedPreferences(WALLPAPER_PREFERENCES_NAME, Context.MODE_PRIVATE)
+        return contextToUse.getSharedPreferences(WALLPAPER_PREFERENCES_NAME,
+                Context.MODE_PRIVATE).also { sp ->
+            if (sp.contains(PREF_DISABLE_BLUR_WHEN_LOCKED)) {
+                sp.edit {
+                    val disableBlurWhenLocked = sp.getBoolean(
+                            PREF_DISABLE_BLUR_WHEN_LOCKED, false)
+                    if (sp.contains(PREF_GREY_AMOUNT)) {
+                        val greyAmount = sp.getInt(PREF_GREY_AMOUNT, 0)
+                        putInt(PREF_LOCK_GREY_AMOUNT,
+                                if (disableBlurWhenLocked) 0 else greyAmount)
+                    } else if (disableBlurWhenLocked) {
+                        putInt(PREF_LOCK_GREY_AMOUNT, 0)
+                    }
+                    if (sp.contains(PREF_DIM_AMOUNT)) {
+                        val dimAmount = sp.getInt(PREF_DIM_AMOUNT, 0)
+                        putInt(PREF_LOCK_DIM_AMOUNT,
+                                if (disableBlurWhenLocked) 0 else dimAmount)
+                    } else if (disableBlurWhenLocked) {
+                        putInt(PREF_LOCK_DIM_AMOUNT, 0)
+                    }
+                    if (sp.contains(PREF_BLUR_AMOUNT)) {
+                        val blurAmount = sp.getInt(PREF_BLUR_AMOUNT, 0)
+                        putInt(PREF_LOCK_BLUR_AMOUNT,
+                                if (disableBlurWhenLocked) 0 else blurAmount)
+                    } else if (disableBlurWhenLocked) {
+                        putInt(PREF_LOCK_BLUR_AMOUNT, 0)
+                    }
+                    remove(PREF_DISABLE_BLUR_WHEN_LOCKED)
+                }
+            }
+        }
     }
 
     private fun migratePreferences(source: SharedPreferences, destination: SharedPreferences) {
@@ -63,22 +97,35 @@ object Prefs {
         val sourceEditor = source.edit()
         val destinationEditor = destination.edit()
 
+        val disableBlurWhenLocked = source.getBoolean(
+                PREF_DISABLE_BLUR_WHEN_LOCKED, false)
+        sourceEditor.remove(PREF_DISABLE_BLUR_WHEN_LOCKED)
         if (source.contains(PREF_GREY_AMOUNT)) {
-            destinationEditor.putInt(PREF_GREY_AMOUNT, source.getInt(PREF_GREY_AMOUNT, 0))
+            val greyAmount = source.getInt(PREF_GREY_AMOUNT, 0)
+            destinationEditor.putInt(PREF_GREY_AMOUNT, greyAmount)
+            destinationEditor.putInt(PREF_LOCK_GREY_AMOUNT,
+                    if (disableBlurWhenLocked) 0 else greyAmount)
             sourceEditor.remove(PREF_GREY_AMOUNT)
+        } else if (disableBlurWhenLocked) {
+            destinationEditor.putInt(PREF_LOCK_GREY_AMOUNT, 0)
         }
         if (source.contains(PREF_DIM_AMOUNT)) {
-            destinationEditor.putInt(PREF_DIM_AMOUNT, source.getInt(PREF_DIM_AMOUNT, 0))
+            val dimAmount = source.getInt(PREF_DIM_AMOUNT, 0)
+            destinationEditor.putInt(PREF_DIM_AMOUNT, dimAmount)
+            destinationEditor.putInt(PREF_LOCK_DIM_AMOUNT,
+                    if (disableBlurWhenLocked) 0 else dimAmount)
             sourceEditor.remove(PREF_DIM_AMOUNT)
+        } else if (disableBlurWhenLocked) {
+            destinationEditor.putInt(PREF_LOCK_DIM_AMOUNT, 0)
         }
         if (source.contains(PREF_BLUR_AMOUNT)) {
-            destinationEditor.putInt(PREF_BLUR_AMOUNT, source.getInt(PREF_BLUR_AMOUNT, 0))
+            val blurAmount = source.getInt(PREF_BLUR_AMOUNT, 0)
+            destinationEditor.putInt(PREF_BLUR_AMOUNT, blurAmount)
+            destinationEditor.putInt(PREF_LOCK_BLUR_AMOUNT,
+                    if (disableBlurWhenLocked) 0 else blurAmount)
             sourceEditor.remove(PREF_BLUR_AMOUNT)
-        }
-        if (source.contains(PREF_DISABLE_BLUR_WHEN_LOCKED)) {
-            destinationEditor.putBoolean(PREF_DISABLE_BLUR_WHEN_LOCKED,
-                    source.getBoolean(PREF_DISABLE_BLUR_WHEN_LOCKED, false))
-            sourceEditor.remove(PREF_DISABLE_BLUR_WHEN_LOCKED)
+        } else if (disableBlurWhenLocked) {
+            destinationEditor.putInt(PREF_LOCK_BLUR_AMOUNT, 0)
         }
         sourceEditor.putBoolean(PREF_MIGRATED, true)
         sourceEditor.apply()

@@ -19,8 +19,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginEnd="32dp"
-    android:layout_marginStart="32dp">
+    android:paddingEnd="32dp"
+    android:paddingStart="32dp">
 
     <include
         layout="@layout/effects_screen_fragment_include_content"

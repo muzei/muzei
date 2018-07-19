@@ -45,21 +45,51 @@ abstract class RenderController(
                 callbacks.requestRender()
             }
         }
+    var onLockScreen: Boolean = false
+        set(value) {
+            if (field != value) {
+                field = value
+                renderer.recomputeMaxPrescaledBlurPixels(
+                        if (value) Prefs.PREF_LOCK_BLUR_AMOUNT else Prefs.PREF_BLUR_AMOUNT)
+                renderer.recomputeMaxDimAmount(
+                        if (value) Prefs.PREF_LOCK_DIM_AMOUNT else Prefs.PREF_DIM_AMOUNT)
+                renderer.recomputeGreyAmount(
+                        if (value) Prefs.PREF_LOCK_GREY_AMOUNT else Prefs.PREF_GREY_AMOUNT)
+                reloadCurrentArtwork()
+            }
+        }
     private var destroyed = false
     private var queuedImageLoader: ImageLoader? = null
     private val sharedPreferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-        when (key) {
-            Prefs.PREF_BLUR_AMOUNT -> {
-                renderer.recomputeMaxPrescaledBlurPixels()
-                throttledForceReloadCurrentArtwork()
+        if (onLockScreen) {
+            when (key) {
+                Prefs.PREF_LOCK_BLUR_AMOUNT -> {
+                    renderer.recomputeMaxPrescaledBlurPixels()
+                    throttledForceReloadCurrentArtwork()
+                }
+                Prefs.PREF_LOCK_DIM_AMOUNT -> {
+                    renderer.recomputeMaxDimAmount()
+                    throttledForceReloadCurrentArtwork()
+                }
+                Prefs.PREF_LOCK_GREY_AMOUNT -> {
+                    renderer.recomputeGreyAmount()
+                    throttledForceReloadCurrentArtwork()
+                }
             }
-            Prefs.PREF_DIM_AMOUNT -> {
-                renderer.recomputeMaxDimAmount()
-                throttledForceReloadCurrentArtwork()
-            }
-            Prefs.PREF_GREY_AMOUNT -> {
-                renderer.recomputeGreyAmount()
-                throttledForceReloadCurrentArtwork()
+        } else {
+            when (key) {
+                Prefs.PREF_BLUR_AMOUNT -> {
+                    renderer.recomputeMaxPrescaledBlurPixels()
+                    throttledForceReloadCurrentArtwork()
+                }
+                Prefs.PREF_DIM_AMOUNT -> {
+                    renderer.recomputeMaxDimAmount()
+                    throttledForceReloadCurrentArtwork()
+                }
+                Prefs.PREF_GREY_AMOUNT -> {
+                    renderer.recomputeGreyAmount()
+                    throttledForceReloadCurrentArtwork()
+                }
             }
         }
     }

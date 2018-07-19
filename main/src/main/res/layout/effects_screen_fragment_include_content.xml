@@ -69,9 +69,8 @@
         style="@style/Widget.Muzei.TextView.SettingsAdvancedSeekBarLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
         android:text="@string/settings_grey_amount_title"
-        app:layout_constraintBottom_toTopOf="@+id/blur_on_lockscreen_checkbox"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/settings_dim_amount_title"/>
 
     <SeekBar
@@ -84,20 +83,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/settings_title_barrier"
         app:layout_constraintTop_toTopOf="@+id/settings_grey_amount_title"/>
-
-    <CheckBox
-        android:id="@+id/blur_on_lockscreen_checkbox"
-        style="@style/Widget.Muzei.CheckBox.SettingsAdvanced"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/settings_advanced_checkbox_margin_start"
-        android:text="@string/settings_blur_on_lockscreen"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/settings_title_barrier"
-        app:layout_constraintTop_toBottomOf="@+id/settings_grey_amount_title"/>
-
 
     <android.support.constraint.Barrier
         android:id="@+id/settings_title_barrier"

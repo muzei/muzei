@@ -22,7 +22,6 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
 import android.widget.SeekBar
 import androidx.core.content.edit
 import androidx.core.os.bundleOf
@@ -165,16 +164,6 @@ class EffectsScreenFragment : Fragment() {
             greySeekBar.progress = prefs.getInt(greyPref, MuzeiBlurRenderer.DEFAULT_GREY)
         }
         prefs.registerOnSharedPreferenceChangeListener(greyOnPreferenceChangeListener)
-
-        val blurOnLockScreenCheckBox = view.findViewById<CheckBox>(
-                R.id.blur_on_lockscreen_checkbox)
-        blurOnLockScreenCheckBox.setOnCheckedChangeListener { _, checked ->
-            Prefs.getSharedPreferences(requireContext()).edit()
-                    .putBoolean(Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED, !checked)
-                    .apply()
-        }
-        blurOnLockScreenCheckBox.isChecked = !Prefs.getSharedPreferences(requireContext())
-                .getBoolean(Prefs.PREF_DISABLE_BLUR_WHEN_LOCKED, false)
     }
 
     override fun onDestroy() {
