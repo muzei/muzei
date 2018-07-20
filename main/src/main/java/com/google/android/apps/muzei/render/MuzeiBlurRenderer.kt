@@ -99,6 +99,9 @@ class MuzeiBlurRenderer(
 
     var isBlurred = true
         private set
+    var blurPreferenceName = Prefs.PREF_BLUR_AMOUNT
+    var dimPreferenceName = Prefs.PREF_DIM_AMOUNT
+    var greyPreferenceName = Prefs.PREF_GREY_AMOUNT
     private var blurRelatedToArtDetailMode = false
     private val blurInterpolator = AccelerateDecelerateInterpolator()
     private val blurAnimator = TickingFloatAnimator(BLUR_ANIMATION_DURATION * if (demoMode) 5 else 1)
@@ -117,13 +120,16 @@ class MuzeiBlurRenderer(
         recomputeGreyAmount()
     }
 
-    fun recomputeMaxPrescaledBlurPixels() {
+    fun recomputeMaxPrescaledBlurPixels(
+            newBlurPreferenceName: String = blurPreferenceName
+    ) {
+        blurPreferenceName = newBlurPreferenceName
         // Compute blur sizes
         val blurAmount = if (demoMode)
             DEMO_BLUR
         else
             Prefs.getSharedPreferences(context)
-                    .getInt(Prefs.PREF_BLUR_AMOUNT, DEFAULT_BLUR)
+                    .getInt(blurPreferenceName, DEFAULT_BLUR)
         val maxBlurRadiusOverScreenHeight = blurAmount * 0.0001f
         val dm = context.resources.displayMetrics
         val maxBlurPx = (dm.heightPixels * maxBlurRadiusOverScreenHeight).toInt()
@@ -134,17 +140,23 @@ class MuzeiBlurRenderer(
         maxPrescaledBlurPixels = maxBlurPx / blurredSampleSize
     }
 
-    fun recomputeMaxDimAmount() {
+    fun recomputeMaxDimAmount(
+            newDimPreferenceName: String = dimPreferenceName
+    ) {
+        dimPreferenceName = newDimPreferenceName
         maxDim = Prefs.getSharedPreferences(context).getInt(
-                Prefs.PREF_DIM_AMOUNT, DEFAULT_MAX_DIM)
+                dimPreferenceName, DEFAULT_MAX_DIM)
     }
 
-    fun recomputeGreyAmount() {
+    fun recomputeGreyAmount(
+            newGreyPreferenceName: String = greyPreferenceName
+    ) {
+        greyPreferenceName = newGreyPreferenceName
         maxGrey = if (demoMode)
             DEMO_GREY
         else
             Prefs.getSharedPreferences(context)
-                    .getInt(Prefs.PREF_GREY_AMOUNT, DEFAULT_GREY)
+                    .getInt(greyPreferenceName, DEFAULT_GREY)
     }
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {

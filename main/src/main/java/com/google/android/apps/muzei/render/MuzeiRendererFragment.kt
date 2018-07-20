@@ -30,9 +30,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.os.bundleOf
+import com.google.android.apps.muzei.settings.EffectsLockScreenOpenLiveData
 
 import com.google.android.apps.muzei.util.ImageBlurrer
 import com.google.android.apps.muzei.util.blur
+import com.google.android.apps.muzei.util.observeNonNull
 import com.google.android.apps.muzei.util.roundMult4
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
@@ -166,6 +168,12 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
                         this@MuzeiRendererFragment)
             }
             lifecycle.addObserver(renderController)
+            if (!demoMode) {
+                EffectsLockScreenOpenLiveData.observeNonNull(this@MuzeiRendererFragment) {
+                    isEffectsLockScreenOpen ->
+                    renderController.onLockScreen = isEffectsLockScreenOpen
+                }
+            }
             renderController.visible = true
         }
 

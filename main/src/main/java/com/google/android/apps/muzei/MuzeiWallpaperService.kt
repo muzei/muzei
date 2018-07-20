@@ -46,6 +46,7 @@ import com.google.android.apps.muzei.render.RenderController
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.select
+import com.google.android.apps.muzei.settings.EffectsLockScreenOpenLiveData
 import com.google.android.apps.muzei.shortcuts.ArtworkInfoShortcutController
 import com.google.android.apps.muzei.sources.SourceManager
 import com.google.android.apps.muzei.sync.ProviderManager
@@ -201,6 +202,9 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             wallpaperLifecycle.addObserver(this)
             setTouchEventsEnabled(true)
             setOffsetNotificationsEnabled(true)
+            EffectsLockScreenOpenLiveData.observeNonNull(this) { isEffectsLockScreenOpen ->
+                renderController.onLockScreen = isEffectsLockScreenOpen
+            }
             ArtDetailOpenLiveData.observeNonNull(this) { isArtDetailOpened ->
                 cancelDelayedBlur()
                 queueEvent { renderer.setIsBlurred(!isArtDetailOpened, true) }
@@ -261,8 +265,9 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         }
 
         fun lockScreenVisibleChanged(isLockScreenVisible: Boolean) {
-            cancelDelayedBlur()
-            queueEvent { renderer.setIsBlurred(!isLockScreenVisible, false) }
+            if (EffectsLockScreenOpenLiveData.value != true) {
+                renderController.onLockScreen = isLockScreenVisible
+            }
         }
 
         override fun onVisibilityChanged(visible: Boolean) {
