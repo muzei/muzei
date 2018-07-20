@@ -85,7 +85,6 @@ object Prefs {
                     } else if (disableBlurWhenLocked) {
                         putInt(PREF_LOCK_BLUR_AMOUNT, 0)
                     }
-                    putBoolean(PREF_LINK_EFFECTS, !disableBlurWhenLocked)
                     remove(PREF_DISABLE_BLUR_WHEN_LOCKED)
                 }
             }
