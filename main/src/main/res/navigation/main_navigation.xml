@@ -44,7 +44,7 @@
         tools:layout="@layout/browse_provider_fragment">
         <argument
             android:name="contentUri"
-            app:type="android.net.Uri"/>
+            app:argType="android.net.Uri"/>
     </fragment>
     <fragment
         android:id="@+id/main_effects"
