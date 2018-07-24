@@ -56,7 +56,6 @@ class GalleryScanWorker : Worker() {
 
         fun enqueueInitialScan(ids: List<Long>) {
             val workManager = WorkManager.getInstance()
-                    ?: return
             workManager.enqueue(ids.map { id ->
                 OneTimeWorkRequestBuilder<GalleryScanWorker>()
                         .addTag(INITIAL_SCAN_TAG)
@@ -69,7 +68,6 @@ class GalleryScanWorker : Worker() {
 
         fun enqueueRescan() {
             val workManager = WorkManager.getInstance()
-                    ?: return
             workManager.beginUniqueWork("rescan",
                     ExistingWorkPolicy.REPLACE,
                     OneTimeWorkRequestBuilder<GalleryScanWorker>()

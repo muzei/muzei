@@ -41,7 +41,7 @@ class ArtworkComplicationWorker : Worker() {
         private const val TAG = "ArtworkComplication"
 
         internal fun scheduleComplicationUpdate() {
-            val workManager = WorkManager.getInstance() ?: return
+            val workManager = WorkManager.getInstance()
             workManager.beginUniqueWork(TAG, ExistingWorkPolicy.REPLACE,
                     OneTimeWorkRequestBuilder<ArtworkComplicationWorker>()
                             .setConstraints(Constraints.Builder()
@@ -55,7 +55,7 @@ class ArtworkComplicationWorker : Worker() {
         }
 
         internal fun cancelComplicationUpdate() {
-            val workManager = WorkManager.getInstance() ?: return
+            val workManager = WorkManager.getInstance()
             workManager.cancelUniqueWork(TAG)
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Work cancelled")

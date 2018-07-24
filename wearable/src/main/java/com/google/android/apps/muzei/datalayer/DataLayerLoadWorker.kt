@@ -56,7 +56,7 @@ class DataLayerLoadWorker : Worker() {
          * @param showNotification Show a notification to activate Muzei if the artwork is not found
          */
         fun enqueueLoad(showNotification: Boolean = false) {
-            val workManager = WorkManager.getInstance() ?: return
+            val workManager = WorkManager.getInstance()
             workManager.enqueue(OneTimeWorkRequestBuilder<DataLayerLoadWorker>().apply{
                 if (showNotification) {
                     setInputData(Data.Builder()
