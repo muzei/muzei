@@ -28,6 +28,7 @@ import androidx.core.content.edit
  */
 object Prefs {
     const val PREF_DOUBLE_TAP = "double_tap"
+    const val PREF_THREE_FINGER_TAP = "three_finger_tap"
     const val PREF_TAP_ACTION_TEMP = "temp"
     const val PREF_TAP_ACTION_NEXT = "next"
     const val PREF_TAP_ACTION_VIEW_DETAILS = "view_details"

@@ -78,7 +78,7 @@
                 android:id="@+id/gestures_double_tap_action"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/gestures_three_finger_tap_title"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/gestures_double_tap_description"
@@ -108,6 +108,74 @@
 
                 <RadioButton
                     android:id="@+id/gestures_double_tap_none"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="8dp"
+                    android:paddingTop="8dp"
+                    android:text="@string/gestures_tap_action_none"/>
+
+            </RadioGroup>
+
+            <TextView
+                android:id="@+id/gestures_three_finger_tap_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/gestures_three_finger_tap_title"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                app:layout_constraintBottom_toTopOf="@+id/gestures_three_finger_tap_description"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/gestures_double_tap_action"
+                app:layout_constraintWidth_max="500dp"/>
+
+            <TextView
+                android:id="@+id/gestures_three_finger_tap_description"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/gestures_three_finger_tap_description"
+                app:layout_constraintBottom_toTopOf="@+id/gestures_three_finger_tap_action"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/gestures_three_finger_tap_title"
+                app:layout_constraintWidth_max="500dp"/>
+
+            <RadioGroup
+                android:id="@+id/gestures_three_finger_tap_action"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/gestures_three_finger_tap_description"
+                app:layout_constraintWidth_max="500dp">
+
+                <RadioButton
+                    android:id="@+id/gestures_three_finger_tap_temporary_disable"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="8dp"
+                    android:paddingTop="8dp"
+                    android:text="@string/gestures_tap_action_temporary_disable"/>
+
+                <RadioButton
+                    android:id="@+id/gestures_three_finger_tap_next"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="8dp"
+                    android:paddingTop="8dp"
+                    android:text="@string/gestures_tap_action_next"/>
+
+                <RadioButton
+                    android:id="@+id/gestures_three_finger_tap_view_details"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/gestures_tap_action_view_details"/>
+
+                <RadioButton
+                    android:id="@+id/gestures_three_finger_tap_none"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingBottom="8dp"

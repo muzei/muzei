@@ -80,6 +80,27 @@ class GesturesFragment: Fragment() {
                 putString(Prefs.PREF_DOUBLE_TAP, newValue)
             }
         }
+
+        val threeFingerTap = view.findViewById<RadioGroup>(R.id.gestures_three_finger_tap_action)
+        val threeFingerTapValue = prefs.getString(Prefs.PREF_THREE_FINGER_TAP,
+                Prefs.PREF_TAP_ACTION_NONE)
+        threeFingerTap.check(when (threeFingerTapValue) {
+            Prefs.PREF_TAP_ACTION_TEMP -> R.id.gestures_three_finger_tap_temporary_disable
+            Prefs.PREF_TAP_ACTION_NEXT -> R.id.gestures_three_finger_tap_next
+            Prefs.PREF_TAP_ACTION_VIEW_DETAILS -> R.id.gestures_three_finger_tap_view_details
+            else -> R.id.gestures_three_finger_tap_none
+        })
+        threeFingerTap.setOnCheckedChangeListener { _, index ->
+            val newValue = when(index) {
+                R.id.gestures_three_finger_tap_temporary_disable -> Prefs.PREF_TAP_ACTION_TEMP
+                R.id.gestures_three_finger_tap_next -> Prefs.PREF_TAP_ACTION_NEXT
+                R.id.gestures_three_finger_tap_view_details -> Prefs.PREF_TAP_ACTION_VIEW_DETAILS
+                else -> Prefs.PREF_TAP_ACTION_NONE
+            }
+            prefs.edit {
+                putString(Prefs.PREF_THREE_FINGER_TAP, newValue)
+            }
+        }
     }
 
     override fun onDestroyView() {

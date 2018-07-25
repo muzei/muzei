@@ -31,6 +31,7 @@ import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
+import android.os.SystemClock
 import android.support.annotation.RequiresApi
 import android.support.v4.os.UserManagerCompat
 import android.view.GestureDetector
@@ -71,6 +72,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
 
     companion object {
         private const val TEMPORARY_FOCUS_DURATION_MILLIS: Long = 3000
+        private const val THREE_FINGER_TAP_INTERVAL_MS = 1000L
         private const val MAX_ARTWORK_SIZE = 110 // px
     }
 
@@ -138,6 +140,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         private var currentArtwork: Bitmap? = null
 
         private var validDoubleTap: Boolean = false
+        private var lastThreeFingerTap = 0L
 
         private val engineLifecycle = LifecycleRegistry(this)
 
@@ -302,32 +305,36 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                 val prefs = Prefs.getSharedPreferences(this@MuzeiWallpaperService)
                 val doubleTapValue = prefs.getString(Prefs.PREF_DOUBLE_TAP,
                         Prefs.PREF_TAP_ACTION_TEMP)
-                when (doubleTapValue) {
-                    Prefs.PREF_TAP_ACTION_TEMP -> {
-                        // Temporarily toggle focused/blurred
-                        queueEvent {
-                            renderer.setIsBlurred(!renderer.isBlurred, false)
-                            // Schedule a re-blur
-                            delayedBlur()
-                        }
-                    }
-                    Prefs.PREF_TAP_ACTION_NEXT -> {
-                        SourceManager.nextArtwork(this@MuzeiWallpaperService)
-                    }
-                    Prefs.PREF_TAP_ACTION_VIEW_DETAILS -> {
-                        launch {
-                            val artwork = MuzeiDatabase
-                                    .getInstance(this@MuzeiWallpaperService)
-                                    .artworkDao()
-                                    .getCurrentArtwork()
-                            artwork?.openArtworkInfo(this@MuzeiWallpaperService)
-                        }
-                    }
-                }
+                triggerTapAction(doubleTapValue)
                 // Reset the flag
                 validDoubleTap = false
             }
             return super.onCommand(action, x, y, z, extras, resultRequested)
+        }
+
+        private fun triggerTapAction(action: String) {
+            when (action) {
+                Prefs.PREF_TAP_ACTION_TEMP -> {
+                    // Temporarily toggle focused/blurred
+                    queueEvent {
+                        renderer.setIsBlurred(!renderer.isBlurred, false)
+                        // Schedule a re-blur
+                        delayedBlur()
+                    }
+                }
+                Prefs.PREF_TAP_ACTION_NEXT -> {
+                    SourceManager.nextArtwork(this@MuzeiWallpaperService)
+                }
+                Prefs.PREF_TAP_ACTION_VIEW_DETAILS -> {
+                    launch {
+                        val artwork = MuzeiDatabase
+                                .getInstance(this@MuzeiWallpaperService)
+                                .artworkDao()
+                                .getCurrentArtwork()
+                        artwork?.openArtworkInfo(this@MuzeiWallpaperService)
+                    }
+                }
+            }
         }
 
         override fun onTouchEvent(event: MotionEvent) {
@@ -335,6 +342,18 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             gestureDetector.onTouchEvent(event)
             // Delay blur from temporary refocus while touching the screen
             delayedBlur()
+            // See if there was a valid three finger tap
+            val now = SystemClock.elapsedRealtime()
+            val timeSinceLastThreeFingerTap = now - lastThreeFingerTap
+            if (event.pointerCount == 3
+                && timeSinceLastThreeFingerTap > THREE_FINGER_TAP_INTERVAL_MS) {
+                lastThreeFingerTap = now
+                val prefs = Prefs.getSharedPreferences(this@MuzeiWallpaperService)
+                val threeFingerTapValue = prefs.getString(Prefs.PREF_THREE_FINGER_TAP,
+                        Prefs.PREF_TAP_ACTION_NONE)
+
+                triggerTapAction(threeFingerTapValue)
+            }
         }
 
         private fun cancelDelayedBlur() {
