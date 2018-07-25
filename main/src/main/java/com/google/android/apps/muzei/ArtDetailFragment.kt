@@ -38,6 +38,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import androidx.navigation.fragment.findNavController
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.notifications.NewWallpaperNotificationReceiver
@@ -249,6 +250,11 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             }
 
             return@setOnMenuItemClickListener when (menuItem.itemId) {
+                R.id.action_gestures -> {
+                    FirebaseAnalytics.getInstance(context).logEvent("gestures_open", null)
+                    findNavController().navigate(ArtDetailFragmentDirections.gestures())
+                    true
+                }
                 R.id.action_about -> {
                     FirebaseAnalytics.getInstance(context).logEvent("about_open", null)
                     startActivity(Intent(context, AboutActivity::class.java))

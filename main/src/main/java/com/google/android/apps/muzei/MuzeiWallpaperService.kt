@@ -45,8 +45,10 @@ import com.google.android.apps.muzei.render.RealRenderController
 import com.google.android.apps.muzei.render.RenderController
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.room.openArtworkInfo
 import com.google.android.apps.muzei.room.select
 import com.google.android.apps.muzei.settings.EffectsLockScreenOpenLiveData
+import com.google.android.apps.muzei.settings.Prefs
 import com.google.android.apps.muzei.shortcuts.ArtworkInfoShortcutController
 import com.google.android.apps.muzei.sources.SourceManager
 import com.google.android.apps.muzei.sync.ProviderManager
@@ -297,11 +299,30 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         ): Bundle? {
             // validDoubleTap previously set in the gesture listener
             if (WallpaperManager.COMMAND_TAP == action && validDoubleTap) {
-                // Temporarily toggle focused/blurred
-                queueEvent {
-                    renderer.setIsBlurred(!renderer.isBlurred, false)
-                    // Schedule a re-blur
-                    delayedBlur()
+                val prefs = Prefs.getSharedPreferences(this@MuzeiWallpaperService)
+                val doubleTapValue = prefs.getString(Prefs.PREF_DOUBLE_TAP,
+                        Prefs.PREF_DOUBLE_TAP_TEMP)
+                when (doubleTapValue) {
+                    Prefs.PREF_DOUBLE_TAP_TEMP -> {
+                        // Temporarily toggle focused/blurred
+                        queueEvent {
+                            renderer.setIsBlurred(!renderer.isBlurred, false)
+                            // Schedule a re-blur
+                            delayedBlur()
+                        }
+                    }
+                    Prefs.PREF_DOUBLE_TAP_NEXT -> {
+                        SourceManager.nextArtwork(this@MuzeiWallpaperService)
+                    }
+                    Prefs.PREF_DOUBLE_TAP_VIEW_DETAILS -> {
+                        launch {
+                            val artwork = MuzeiDatabase
+                                    .getInstance(this@MuzeiWallpaperService)
+                                    .artworkDao()
+                                    .getCurrentArtwork()
+                            artwork?.openArtworkInfo(this@MuzeiWallpaperService)
+                        }
+                    }
                 }
                 // Reset the flag
                 validDoubleTap = false
