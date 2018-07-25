@@ -62,19 +62,19 @@ class GesturesFragment: Fragment() {
         val prefs = Prefs.getSharedPreferences(requireContext())
         val doubleTap = view.findViewById<RadioGroup>(R.id.gestures_double_tap_action)
         val doubleTapValue = prefs.getString(Prefs.PREF_DOUBLE_TAP,
-                Prefs.PREF_DOUBLE_TAP_TEMP)
+                Prefs.PREF_TAP_ACTION_TEMP)
         doubleTap.check(when (doubleTapValue) {
-            Prefs.PREF_DOUBLE_TAP_TEMP -> R.id.gestures_double_tap_temporary_disable
-            Prefs.PREF_DOUBLE_TAP_NEXT -> R.id.gestures_double_tap_next
-            Prefs.PREF_DOUBLE_TAP_VIEW_DETAILS -> R.id.gestures_double_tap_view_details
+            Prefs.PREF_TAP_ACTION_TEMP -> R.id.gestures_double_tap_temporary_disable
+            Prefs.PREF_TAP_ACTION_NEXT -> R.id.gestures_double_tap_next
+            Prefs.PREF_TAP_ACTION_VIEW_DETAILS -> R.id.gestures_double_tap_view_details
             else -> R.id.gestures_double_tap_none
         })
         doubleTap.setOnCheckedChangeListener { _, index ->
             val newValue = when(index) {
-                R.id.gestures_double_tap_temporary_disable -> Prefs.PREF_DOUBLE_TAP_TEMP
-                R.id.gestures_double_tap_next -> Prefs.PREF_DOUBLE_TAP_NEXT
-                R.id.gestures_double_tap_view_details -> Prefs.PREF_DOUBLE_TAP_VIEW_DETAILS
-                else -> Prefs.PREF_DOUBLE_TAP_NONE
+                R.id.gestures_double_tap_temporary_disable -> Prefs.PREF_TAP_ACTION_TEMP
+                R.id.gestures_double_tap_next -> Prefs.PREF_TAP_ACTION_NEXT
+                R.id.gestures_double_tap_view_details -> Prefs.PREF_TAP_ACTION_VIEW_DETAILS
+                else -> Prefs.PREF_TAP_ACTION_NONE
             }
             prefs.edit {
                 putString(Prefs.PREF_DOUBLE_TAP, newValue)

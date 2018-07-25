@@ -106,10 +106,10 @@
     <string name="gestures_double_tap_title">Double Tap</string>
     <string name="gestures_double_tap_description">Double tap the blurred wallpaper on your home
         screen to trigger the action of your choice.</string>
-    <string name="gestures_double_tap_temporary_disable">Temporarily disable effects</string>
-    <string name="gestures_double_tap_next">Next Artwork</string>
-    <string name="gestures_double_tap_view_details">View Artwork Details</string>
-    <string name="gestures_double_tap_none">None</string>
+    <string name="gestures_tap_action_temporary_disable">Temporarily disable effects</string>
+    <string name="gestures_tap_action_next">Next Artwork</string>
+    <string name="gestures_tap_action_view_details">View Artwork Details</string>
+    <string name="gestures_tap_action_none">None</string>
 
     <string name="about_title">About Muzei</string>
     <string name="about_body"><![CDATA[

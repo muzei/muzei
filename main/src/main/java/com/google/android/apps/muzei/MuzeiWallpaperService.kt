@@ -301,9 +301,9 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             if (WallpaperManager.COMMAND_TAP == action && validDoubleTap) {
                 val prefs = Prefs.getSharedPreferences(this@MuzeiWallpaperService)
                 val doubleTapValue = prefs.getString(Prefs.PREF_DOUBLE_TAP,
-                        Prefs.PREF_DOUBLE_TAP_TEMP)
+                        Prefs.PREF_TAP_ACTION_TEMP)
                 when (doubleTapValue) {
-                    Prefs.PREF_DOUBLE_TAP_TEMP -> {
+                    Prefs.PREF_TAP_ACTION_TEMP -> {
                         // Temporarily toggle focused/blurred
                         queueEvent {
                             renderer.setIsBlurred(!renderer.isBlurred, false)
@@ -311,10 +311,10 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                             delayedBlur()
                         }
                     }
-                    Prefs.PREF_DOUBLE_TAP_NEXT -> {
+                    Prefs.PREF_TAP_ACTION_NEXT -> {
                         SourceManager.nextArtwork(this@MuzeiWallpaperService)
                     }
-                    Prefs.PREF_DOUBLE_TAP_VIEW_DETAILS -> {
+                    Prefs.PREF_TAP_ACTION_VIEW_DETAILS -> {
                         launch {
                             val artwork = MuzeiDatabase
                                     .getInstance(this@MuzeiWallpaperService)

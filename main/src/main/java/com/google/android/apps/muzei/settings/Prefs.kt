@@ -28,10 +28,10 @@ import androidx.core.content.edit
  */
 object Prefs {
     const val PREF_DOUBLE_TAP = "double_tap"
-    const val PREF_DOUBLE_TAP_TEMP = "temp"
-    const val PREF_DOUBLE_TAP_NEXT = "next"
-    const val PREF_DOUBLE_TAP_VIEW_DETAILS = "view_details"
-    const val PREF_DOUBLE_TAP_NONE = "none"
+    const val PREF_TAP_ACTION_TEMP = "temp"
+    const val PREF_TAP_ACTION_NEXT = "next"
+    const val PREF_TAP_ACTION_VIEW_DETAILS = "view_details"
+    const val PREF_TAP_ACTION_NONE = "none"
     const val PREF_GREY_AMOUNT = "grey_amount"
     const val PREF_DIM_AMOUNT = "dim_amount"
     const val PREF_BLUR_AMOUNT = "blur_amount"

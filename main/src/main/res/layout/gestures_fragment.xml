@@ -90,7 +90,7 @@
                     android:layout_height="wrap_content"
                     android:paddingBottom="8dp"
                     android:paddingTop="8dp"
-                    android:text="@string/gestures_double_tap_temporary_disable"/>
+                    android:text="@string/gestures_tap_action_temporary_disable"/>
 
                 <RadioButton
                     android:id="@+id/gestures_double_tap_next"
@@ -98,13 +98,13 @@
                     android:layout_height="wrap_content"
                     android:paddingBottom="8dp"
                     android:paddingTop="8dp"
-                    android:text="@string/gestures_double_tap_next"/>
+                    android:text="@string/gestures_tap_action_next"/>
 
                 <RadioButton
                     android:id="@+id/gestures_double_tap_view_details"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/gestures_double_tap_view_details"/>
+                    android:text="@string/gestures_tap_action_view_details"/>
 
                 <RadioButton
                     android:id="@+id/gestures_double_tap_none"
@@ -112,7 +112,7 @@
                     android:layout_height="wrap_content"
                     android:paddingBottom="8dp"
                     android:paddingTop="8dp"
-                    android:text="@string/gestures_double_tap_none"/>
+                    android:text="@string/gestures_tap_action_none"/>
 
             </RadioGroup>
         </android.support.constraint.ConstraintLayout>
