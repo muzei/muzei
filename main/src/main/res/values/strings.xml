@@ -101,6 +101,19 @@
     <string name="missing_resources_open">Open Play Store</string>
     <string name="missing_resources_quit">Close Muzei</string>
 
+    <string name="actions_gestures">Customize Gestures</string>
+    <string name="gestures_title">Gestures</string>
+    <string name="gestures_double_tap_title">Double Tap</string>
+    <string name="gestures_double_tap_description">Double tap the blurred wallpaper on your home
+        screen to trigger the action of your choice.</string>
+    <string name="gestures_three_finger_tap_title">Three Finger Tap</string>
+    <string name="gestures_three_finger_tap_description">Tap the blurred wallpaper on your home
+        screen with three fingers to trigger the action of your choice.</string>
+    <string name="gestures_tap_action_temporary_disable">Temporarily disable effects</string>
+    <string name="gestures_tap_action_next">Next Artwork</string>
+    <string name="gestures_tap_action_view_details">View Artwork Details</string>
+    <string name="gestures_tap_action_none">None</string>
+
     <string name="about_title">About Muzei</string>
     <string name="about_body"><![CDATA[
         Made by Roman Nurik and Ian Lake, with major contributions from
