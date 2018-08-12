@@ -234,7 +234,7 @@ class AnimatedMuzeiLogoView @JvmOverloads constructor(context: Context, attrs: A
         var state: Int = 0
         var startTime: Long = 0
 
-        constructor(superState: Parcelable) : super(superState)
+        constructor(superState: Parcelable?) : super(superState)
 
         private constructor(source: Parcel) : super(source) {
             state = source.readInt()

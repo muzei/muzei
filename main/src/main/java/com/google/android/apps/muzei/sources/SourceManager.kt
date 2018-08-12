@@ -282,10 +282,11 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                 if (existingSource.selected) {
                     // If this is the selected source, switch Muzei to the new MuzeiArtProvider
                     // rather than continue to use the legacy MuzeiArtSource
-                    val replacement = ComponentName(context.packageName,
-                            metaData.getString("replacement"))
-                    launch {
-                        replacement.select(context)
+                    metaData.getString("replacement").takeUnless { it.isNullOrEmpty() }?.run {
+                        val replacement = ComponentName(context.packageName, this)
+                        launch {
+                            replacement.select(context)
+                        }
                     }
                 }
                 sourceDao.delete(existingSource)

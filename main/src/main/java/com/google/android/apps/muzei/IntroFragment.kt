@@ -60,7 +60,7 @@ class IntroFragment : Fragment() {
             try {
                 startActivity(Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
                         .putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
-                                ComponentName(context,
+                                ComponentName(requireContext(),
                                         MuzeiWallpaperService::class.java))
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
             } catch (e: ActivityNotFoundException) {
