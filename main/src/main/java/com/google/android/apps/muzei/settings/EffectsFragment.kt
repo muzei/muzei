@@ -183,6 +183,12 @@ class EffectsFragment : Fragment() {
                 .registerOnSharedPreferenceChangeListener(sharedPreferencesListener)
     }
 
+    override fun onStart() {
+        super.onStart()
+        // Reset the value here to restore the state lost in onStop()
+        EffectsLockScreenOpenLiveData.value = viewPager.currentItem == 1
+    }
+
     private fun updateLinkEffectsMenuItem(
             effectsLinked: Boolean = Prefs.getSharedPreferences(requireContext())
                     .getBoolean(Prefs.PREF_LINK_EFFECTS, false)
@@ -198,10 +204,15 @@ class EffectsFragment : Fragment() {
             getString(R.string.action_link_effects_off)
     }
 
+    override fun onStop() {
+        // The lock screen effects screen is no longer visible, so set the value to false
+        EffectsLockScreenOpenLiveData.value = false
+        super.onStop()
+    }
+
     override fun onDestroyView() {
         Prefs.getSharedPreferences(requireContext())
                 .unregisterOnSharedPreferenceChangeListener(sharedPreferencesListener)
-        EffectsLockScreenOpenLiveData.value = false
         super.onDestroyView()
     }
 
