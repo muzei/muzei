@@ -102,9 +102,7 @@ dependencies {
     implementation "com.google.firebase:firebase-core:$firebaseCoreVersion"
     implementation "com.google.firebase:firebase-perf:$firebasePerfVersion"
     implementation "com.crashlytics.sdk.android:crashlytics:$crashlyticsVersion"
-    implementation ("com.twofortyfouram:android-plugin-api-for-locale:1.0.2") {
-        exclude module: 'support-annotations'
-    }
+    implementation "com.twofortyfouram:android-plugin-api-for-locale:1.0.4"
     implementation ("com.android.support:support-v4:$supportLibraryVersion") {
         exclude module: 'support-media-compat'
     }
