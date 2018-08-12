@@ -23,7 +23,6 @@ import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.os.ParcelFileDescriptor
-import android.text.TextUtils
 import android.util.Log
 import kotlinx.coroutines.experimental.launch
 import java.io.File
@@ -52,13 +51,14 @@ class GalleryProvider : ContentProvider() {
             val filename = StringBuilder()
             filename.append(uri.scheme).append("_")
                     .append(uri.host).append("_")
-            var encodedPath = uri.encodedPath
-            if (!TextUtils.isEmpty(encodedPath)) {
-                val length = encodedPath.length
+            val encodedPath = uri.encodedPath.takeUnless { it.isNullOrEmpty() }?.run {
                 if (length > 60) {
-                    encodedPath = encodedPath.substring(length - 60)
-                }
-                encodedPath = encodedPath.replace('/', '_')
+                    substring(length - 60)
+                } else {
+                    this
+                }.replace('/', '_')
+            }
+            if (encodedPath != null) {
                 filename.append(encodedPath).append("_")
             }
             try {

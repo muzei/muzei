@@ -35,9 +35,9 @@ class GalleryImportPhotosDialogFragment : DialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        context?.withStyledAttributes(attrs = R.styleable.AlertDialog, defStyleAttr = R.attr.alertDialogStyle) {
+        requireContext().withStyledAttributes(attrs = R.styleable.AlertDialog, defStyleAttr = R.attr.alertDialogStyle) {
             @LayoutRes val listItemLayout = getResourceId(R.styleable.AlertDialog_listItemLayout, 0)
-            adapter = ArrayAdapter(context, listItemLayout)
+            adapter = ArrayAdapter(requireContext(), listItemLayout)
         }
     }
 
@@ -70,7 +70,7 @@ class GalleryImportPhotosDialogFragment : DialogFragment() {
     }
 
     private fun updateAdapter(getContentActivites: List<ActivityInfo>) {
-        val packageManager = context?.packageManager
+        val packageManager = requireContext().packageManager
         adapter.apply {
             clear()
             addAll(getContentActivites.map { it.loadLabel(packageManager) })

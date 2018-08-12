@@ -38,13 +38,16 @@ class UnsplashExampleArtProvider : MuzeiArtProvider() {
         UnsplashExampleWorker.enqueueLoad()
     }
 
-    override fun getCommands(artwork: Artwork) = listOf(
-            UserCommand(COMMAND_ID_VIEW_PROFILE,
-                    context.getString(R.string.action_view_profile, artwork.byline)),
-            UserCommand(COMMAND_ID_VISIT_UNSPLASH,
-                    context.getString(R.string.action_visit_unsplash)))
+    override fun getCommands(artwork: Artwork) = context?.run {
+        listOf(
+                UserCommand(COMMAND_ID_VIEW_PROFILE,
+                        getString(R.string.action_view_profile, artwork.byline)),
+                UserCommand(COMMAND_ID_VISIT_UNSPLASH,
+                        getString(R.string.action_visit_unsplash)))
+    } ?: super.getCommands(artwork)
 
     override fun onCommand(artwork: Artwork, id: Int) {
+        val context = context ?: return
         when (id) {
             COMMAND_ID_VIEW_PROFILE -> {
                 val profileUri = artwork.metadata?.toUri() ?: return

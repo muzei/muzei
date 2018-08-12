@@ -58,7 +58,7 @@ data class ProviderInfo(
             selected: Boolean
     ) : this(
                 ComponentName(providerInfo.packageName, providerInfo.name),
-                providerInfo.loadLabel(packageManager)?.toString() ?: "",
+                providerInfo.loadLabel(packageManager).toString(),
                 description,
                 currentArtworkUri,
                 providerInfo.loadIcon(packageManager),

@@ -32,6 +32,7 @@ import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.withContext
 import java.io.File
 import java.io.FileInputStream
+import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 
@@ -126,6 +127,7 @@ class SingleArtProvider : MuzeiArtProvider() {
     }
 
     override fun onLoadRequested(initial: Boolean) {
+        val context = context ?: return
         if (initial) {
             // Check if there's artwork from the SingleArtSource to import
             if (getArtworkFile(context).exists()) {
@@ -137,6 +139,7 @@ class SingleArtProvider : MuzeiArtProvider() {
     }
 
     override fun openArtworkInfo(artwork: Artwork): Boolean {
+        val context = context ?: return false
         val uri = ContentUris.withAppendedId(contentUri, artwork.id)
         return try {
             context.startActivity(Intent(Intent.ACTION_VIEW).apply {
@@ -151,5 +154,6 @@ class SingleArtProvider : MuzeiArtProvider() {
         }
     }
 
-    override fun openFile(artwork: Artwork) = FileInputStream(getArtworkFile(context))
+    override fun openFile(artwork: Artwork) = FileInputStream(getArtworkFile(
+            context ?: throw FileNotFoundException("Invalid Context")))
 }

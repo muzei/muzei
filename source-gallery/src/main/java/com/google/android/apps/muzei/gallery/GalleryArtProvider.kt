@@ -60,9 +60,11 @@ class GalleryArtProvider: MuzeiArtProvider() {
             return super.openFile(artwork)
         } catch (e: Exception) {
             Log.i(TAG, "Unable to load $metadata, deleting the row", e)
-            launch {
-                GalleryDatabase.getInstance(context).chosenPhotoDao().delete(
-                        context, metadata)
+            context?.let { context ->
+                launch {
+                    GalleryDatabase.getInstance(context).chosenPhotoDao().delete(
+                            context, metadata)
+                }
             }
             throw SecurityException("No permission to load $metadata")
         }

@@ -66,7 +66,8 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
 
     private fun addComplication(complicationId: Int) {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val complications = preferences.getStringSet(KEY_COMPLICATION_IDS, TreeSet())
+        val complications = preferences.getStringSet(KEY_COMPLICATION_IDS,
+                null) ?: TreeSet()
         complications.add(Integer.toString(complicationId))
         preferences.edit { putStringSet(KEY_COMPLICATION_IDS, complications) }
         if (BuildConfig.DEBUG) {
@@ -81,7 +82,8 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
         }
         FirebaseAnalytics.getInstance(this).logEvent("complication_artwork_deactivated", null)
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val complications = preferences.getStringSet(KEY_COMPLICATION_IDS, TreeSet())
+        val complications = preferences.getStringSet(KEY_COMPLICATION_IDS,
+                null) ?: TreeSet()
         complications.remove(Integer.toString(complicationId))
         preferences.edit { putStringSet(KEY_COMPLICATION_IDS, complications) }
         if (BuildConfig.DEBUG) {
@@ -98,7 +100,8 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
         // This fixes corner cases like Muzei being uninstalled and reinstalled
         // (which wipes out our SharedPreferences but keeps any complications activated)
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val complications = preferences.getStringSet(KEY_COMPLICATION_IDS, TreeSet())
+        val complications = preferences.getStringSet(KEY_COMPLICATION_IDS,
+                null) ?: TreeSet()
         if (!complications.contains(complicationId.toString())) {
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Update missing id $complicationId")

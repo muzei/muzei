@@ -327,7 +327,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
         private fun updateBlurredStatus() {
             val preferences = PreferenceManager.getDefaultSharedPreferences(this@MuzeiWatchFace)
             tapAction = preferences.getString(ConfigActivity.TAP_PREFERENCE_KEY,
-                    getString(R.string.config_tap_default))
+                    null) ?: getString(R.string.config_tap_default)
             blurred = when(tapAction) {
                 "always" -> true
                 "never" -> false

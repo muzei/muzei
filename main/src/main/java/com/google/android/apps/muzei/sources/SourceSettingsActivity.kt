@@ -107,8 +107,9 @@ class SourceSettingsActivity : AppCompatActivity() {
         val dialog = AlertDialog.Builder(this, R.style.Theme_Muzei_Dialog)
                 .setTitle(R.string.source_provider_name)
                 .setSingleChoiceItems(adapter, -1) { dialog: DialogInterface, which: Int ->
-                    val source = adapter.getItem(which).source
-                    onSourceSelected(dialog, source)
+                    adapter.getItem(which)?.source?.let { source ->
+                        onSourceSelected(dialog, source)
+                    }
                 }
                 .setPositiveButton(R.string.action_souce_done, null)
                 .setOnDismissListener {
@@ -285,7 +286,7 @@ class SourceSettingsActivity : AppCompatActivity() {
     ) : ArrayAdapter<SourceView>(context, R.layout.choose_source_item, R.id.choose_source_title) {
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
             val view = super.getView(position, convertView, parent)
-            val sourceView = getItem(position)
+            val sourceView = getItem(position) ?: return view
             return view.apply {
                 val textView: TextView = findViewById(R.id.choose_source_title)
                 textView.text = sourceView.toCharSequence()

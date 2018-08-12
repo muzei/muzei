@@ -447,7 +447,7 @@ class PanScaleProxyView @JvmOverloads constructor(context: Context, attrs: Attri
 
         internal lateinit var viewport: RectF
 
-        constructor(superState: Parcelable) : super(superState)
+        constructor(superState: Parcelable?) : super(superState)
 
         internal constructor(source: Parcel) : super(source) {
             viewport = RectF(source.readFloat(), source.readFloat(), source.readFloat(), source.readFloat())

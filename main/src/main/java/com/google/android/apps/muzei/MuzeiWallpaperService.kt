@@ -304,7 +304,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             if (WallpaperManager.COMMAND_TAP == action && validDoubleTap) {
                 val prefs = Prefs.getSharedPreferences(this@MuzeiWallpaperService)
                 val doubleTapValue = prefs.getString(Prefs.PREF_DOUBLE_TAP,
-                        Prefs.PREF_TAP_ACTION_TEMP)
+                        null) ?: Prefs.PREF_TAP_ACTION_TEMP
                 triggerTapAction(doubleTapValue)
                 // Reset the flag
                 validDoubleTap = false
@@ -350,7 +350,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                 lastThreeFingerTap = now
                 val prefs = Prefs.getSharedPreferences(this@MuzeiWallpaperService)
                 val threeFingerTapValue = prefs.getString(Prefs.PREF_THREE_FINGER_TAP,
-                        Prefs.PREF_TAP_ACTION_NONE)
+                        null) ?: Prefs.PREF_TAP_ACTION_NONE
 
                 triggerTapAction(threeFingerTapValue)
             }

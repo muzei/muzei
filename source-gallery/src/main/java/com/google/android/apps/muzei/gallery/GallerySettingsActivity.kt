@@ -795,8 +795,9 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
 
         // Add chosen items
         val uris = HashSet<Uri>()
-        if (result.data != null) {
-            uris.add(result.data)
+        val data = result.data
+        if (data != null) {
+            uris.add(data)
         }
         // When selecting multiple images, "Photos" returns the first URI in getData and all URIs
         // in getClipData.

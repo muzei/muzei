@@ -237,10 +237,11 @@ abstract class MuzeiDatabase : RoomDatabase() {
                             if (metadata != null) {
                                 val replacement = metadata.getString("replacement")
                                 if (replacement != null && replacement.isNotEmpty()) {
-                                    val replacementName = ComponentName.unflattenFromString(
-                                            "${info.packageName}/$replacement")
-                                    database.execSQL("INSERT INTO provider (componentName) "
-                                            + "VALUES (" + replacementName.flattenToShortString() + ")")
+                                    ComponentName.unflattenFromString(
+                                            "${info.packageName}/$replacement")?.run {
+                                        database.execSQL("INSERT INTO provider (componentName) "
+                                                + "VALUES (${flattenToShortString()})")
+                                    }
                                 }
                             }
                         }
