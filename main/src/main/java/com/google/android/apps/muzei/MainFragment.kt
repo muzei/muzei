@@ -16,7 +16,6 @@
 
 package com.google.android.apps.muzei
 
-import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.Fragment
@@ -100,14 +99,7 @@ class MainFragment : Fragment(), ChooseProviderFragment.Callbacks {
                             0,
                             insets.systemWindowInsetRight,
                             insets.systemWindowInsetBottom))
-            insets.consumeSystemWindowInsets().run {
-                // Workaround for https://issuetracker.google.com/issues/109830520
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    consumeDisplayCutout()
-                } else {
-                    this
-                }
-            }
+            insets.consumeSystemWindowInsets().consumeDisplayCutout()
         }
 
         // Listen for visibility changes to know when to hide our views
