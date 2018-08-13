@@ -35,6 +35,7 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.room.getProviderDescription
 import com.google.android.apps.muzei.sources.SourceArtProvider
+import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.newSingleThreadContext
 import net.nurik.roman.muzei.R
@@ -126,11 +127,13 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
             if (intent?.data == null) {
                 return
             }
-            updateProviders(intent.data?.schemeSpecificPart)
+            launch(singleThreadContext) {
+                updateProviders(intent.data?.schemeSpecificPart)
+            }
         }
     }
 
-    private fun updateProviders(packageName: String? = null) = launch(singleThreadContext) {
+    private suspend fun updateProviders(packageName: String? = null) {
         val queryIntent = Intent(MuzeiArtProvider.ACTION_MUZEI_ART_PROVIDER)
         if (packageName != null) {
             queryIntent.`package` = packageName
@@ -202,9 +205,7 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
                         currentProviders[it.key] = it.value.copy(selected = newlySelected)
                     }
                 }
-                if (currentProviders.size > 0) {
-                    value = currentProviders.values.sortedWith(comparator)
-                }
+                value = currentProviders.values.sortedWith(comparator)
             }
         }
         val currentArtworkByProviderLiveData = MuzeiDatabase.getInstance(application).artworkDao()
@@ -218,9 +219,7 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
                 currentProviders.forEach {
                     currentProviders[it.key] = it.value.copy(currentArtworkUri = artworkMap[it.key])
                 }
-                if (currentProviders.size > 0) {
-                    value = currentProviders.values.sortedWith(comparator)
-                }
+                value = currentProviders.values.sortedWith(comparator)
             }
         }
 
@@ -234,14 +233,22 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
                 addAction(Intent.ACTION_PACKAGE_REMOVED)
             }
             application.registerReceiver(packageChangeReceiver, packageChangeFilter)
-            currentProviderLiveData.observeForever(currentProviderObserver)
-            currentArtworkByProviderLiveData.observeForever(currentArtworkByProviderObserver)
-            updateProviders()
+            launch(singleThreadContext) {
+                updateProviders()
+                launch(UI) {
+                    if (isActive) {
+                        currentProviderLiveData.observeForever(currentProviderObserver)
+                        currentArtworkByProviderLiveData.observeForever(currentArtworkByProviderObserver)
+                    }
+                }
+            }
         }
 
         override fun onInactive() {
-            currentArtworkByProviderLiveData.removeObserver(currentArtworkByProviderObserver)
-            currentProviderLiveData.removeObserver(currentProviderObserver)
+            if (currentArtworkByProviderLiveData.hasObservers()) {
+                currentArtworkByProviderLiveData.removeObserver(currentArtworkByProviderObserver)
+                currentProviderLiveData.removeObserver(currentProviderObserver)
+            }
             application.unregisterReceiver(packageChangeReceiver)
         }
     }
