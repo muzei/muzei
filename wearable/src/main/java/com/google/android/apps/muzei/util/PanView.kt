@@ -425,7 +425,7 @@ class PanView @JvmOverloads constructor(context: Context, attrs: AttributeSet? =
         var offsetX = 0f
         var offsetY = 0f
 
-        constructor(superState: Parcelable) : super(superState)
+        constructor(superState: Parcelable?) : super(superState)
 
         internal constructor(source: Parcel) : super(source) {
             offsetX = source.readFloat()
