@@ -285,7 +285,7 @@ public abstract class MuzeiArtProvider extends ContentProvider {
     @Nullable
     protected final Artwork getLastAddedArtwork() {
         try (Cursor data = query(contentUri, null, null, null,
-                ProviderContract.Artwork.DATE_ADDED + " DESC")) {
+                BaseColumns._ID + " DESC")) {
             return data.moveToFirst() ? Artwork.fromCursor(data) : null;
         }
     }
