@@ -362,6 +362,9 @@ public abstract class MuzeiArtProvider extends ContentProvider {
                         // Update the list of recent artwork ids
                         ArrayDeque<Long> recentArtworkIds = RecentArtworkIdsConverter.fromString(
                                 prefs.getString(PREF_RECENT_ARTWORK_IDS, ""));
+                        // Remove the loadedId if it exists in the list already
+                        recentArtworkIds.remove(loadedId);
+                        // Then add the loadedId to the end of the list
                         recentArtworkIds.addLast(loadedId);
                         int maxSize = Math.min(Math.max(data.getCount(), 1), MAX_RECENT_ARTWORK);
                         while (recentArtworkIds.size() > maxSize) {
