@@ -184,7 +184,7 @@ public class ProviderContract {
             try (Cursor data = context.getContentResolver().query(
                     getContentUri(context, provider),
                     null, null, null,
-                    DATE_ADDED + " DESC")) {
+                    BaseColumns._ID + " DESC")) {
                 return data != null && data.moveToFirst()
                         ? com.google.android.apps.muzei.api.provider.Artwork.fromCursor(data)
                         : null;
