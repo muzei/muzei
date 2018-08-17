@@ -593,15 +593,53 @@ public abstract class MuzeiArtProvider extends ContentProvider {
                 values.remove(token);
             } else {
                 try (Cursor existingData = query(contentUri,
-                        new String[]{BaseColumns._ID},
+                        null,
                         ProviderContract.Artwork.TOKEN + "=?",
                         new String[]{token},
                         null)) {
                     if (existingData.moveToFirst()) {
                         // If there's already a row with the same token, update it rather than
                         // inserting a new row
-                        Uri updateUri = ContentUris.withAppendedId(contentUri, existingData.getLong(0));
-                        update(updateUri, values, null, null);
+
+                        // But first check whether there's actually anything changing
+                        String title = existingData.getString(existingData.getColumnIndex(
+                                ProviderContract.Artwork.TITLE));
+                        String byline = existingData.getString(existingData.getColumnIndex(
+                                ProviderContract.Artwork.BYLINE));
+                        String attribution = existingData.getString(existingData.getColumnIndex(
+                                ProviderContract.Artwork.ATTRIBUTION));
+                        String persistentUri = existingData.getString(existingData.getColumnIndex(
+                                ProviderContract.Artwork.PERSISTENT_URI));
+                        String webUri = existingData.getString(existingData.getColumnIndex(
+                                ProviderContract.Artwork.WEB_URI));
+                        String metadata = existingData.getString(existingData.getColumnIndex(
+                                ProviderContract.Artwork.METADATA));
+                        boolean noChange = TextUtils.equals(title, values.getAsString(
+                                ProviderContract.Artwork.TITLE)) &&
+                                TextUtils.equals(byline, values.getAsString(
+                                        ProviderContract.Artwork.BYLINE)) &&
+                                TextUtils.equals(attribution, values.getAsString(
+                                        ProviderContract.Artwork.ATTRIBUTION)) &&
+                                TextUtils.equals(persistentUri, values.getAsString(
+                                        ProviderContract.Artwork.PERSISTENT_URI)) &&
+                                TextUtils.equals(webUri, values.getAsString(
+                                        ProviderContract.Artwork.WEB_URI)) &&
+                                TextUtils.equals(metadata, values.getAsString(
+                                        ProviderContract.Artwork.METADATA));
+                        long id = existingData.getLong(0);
+                        Uri updateUri = ContentUris.withAppendedId(contentUri, id);
+                        if (noChange) {
+                            // Just update the DATE_MODIFIED and don't send a notifyChange()
+                            values.clear();
+                            values.put(ProviderContract.Artwork.DATE_MODIFIED,
+                                    System.currentTimeMillis());
+                            final SQLiteDatabase db = databaseHelper.getWritableDatabase();
+                            db.update(TABLE_NAME, values, BaseColumns._ID + "=?",
+                                    new String[] { Long.toString(id) });
+                        } else {
+                            // Do a full update
+                            update(updateUri, values, null, null);
+                        }
                         return updateUri;
                     }
                 }
