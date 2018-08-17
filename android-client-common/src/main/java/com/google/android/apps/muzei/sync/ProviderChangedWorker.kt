@@ -29,10 +29,10 @@ import android.util.Log
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.work.Constraints
-import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
+import androidx.work.workDataOf
 import com.google.android.apps.muzei.api.internal.ProtocolConstants
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_LAST_LOADED_TIME
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_LOAD_INFO
@@ -62,20 +62,16 @@ class ProviderChangedWorker : Worker() {
         private const val PREF_PERSISTENT_LISTENERS = "persistentListeners"
 
         internal fun enqueueSelected() {
-            val workManager = WorkManager.getInstance() ?: return
+            val workManager = WorkManager.getInstance()
             workManager.enqueue(OneTimeWorkRequestBuilder<ProviderChangedWorker>()
-                    .setInputData(Data.Builder()
-                            .putString(TAG, "selected")
-                            .build())
+                    .setInputData(workDataOf(TAG to "selected"))
                     .build())
         }
 
         internal fun enqueueChanged() {
-            val workManager = WorkManager.getInstance() ?: return
+            val workManager = WorkManager.getInstance()
             workManager.enqueue(OneTimeWorkRequestBuilder<ProviderChangedWorker>()
-                    .setInputData(Data.Builder()
-                            .putString(TAG, "changed")
-                            .build())
+                    .setInputData(workDataOf(TAG to "changed"))
                     .build())
         }
 
@@ -146,13 +142,12 @@ class ProviderChangedWorker : Worker() {
 
         @RequiresApi(Build.VERSION_CODES.N)
         private fun scheduleObserver(contentUri: Uri) {
-            val workManager = WorkManager.getInstance() ?: return
+            val workManager = WorkManager.getInstance()
             workManager.enqueue(OneTimeWorkRequestBuilder<ProviderChangedWorker>()
                     .addTag(PERSISTENT_CHANGED_TAG)
-                    .setInputData(Data.Builder()
-                            .putString(TAG, PERSISTENT_CHANGED_TAG)
-                            .putString(EXTRA_CONTENT_URI, contentUri.toString())
-                            .build())
+                    .setInputData(workDataOf(
+                            TAG to PERSISTENT_CHANGED_TAG,
+                            EXTRA_CONTENT_URI to contentUri.toString()))
                     .setConstraints(Constraints.Builder()
                             .addContentUriTrigger(contentUri, true)
                             .build())
@@ -160,18 +155,18 @@ class ProviderChangedWorker : Worker() {
         }
 
         private fun cancelObserver() {
-            val workManager = WorkManager.getInstance() ?: return
+            val workManager = WorkManager.getInstance()
             workManager.cancelAllWorkByTag(PERSISTENT_CHANGED_TAG)
         }
     }
 
     override fun doWork() = runBlocking(syncSingleThreadContext) {
-        val tag = inputData.getString(TAG, "") ?: ""
+        val tag = inputData.getString(TAG) ?: ""
         // First schedule the observer to pick up any changes fired
         // by the work done in handleProviderChange
         if (tag == PERSISTENT_CHANGED_TAG &&
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            inputData.getString(EXTRA_CONTENT_URI, "")?.toUri()?.run {
+            inputData.getString(EXTRA_CONTENT_URI)?.toUri()?.run {
                 scheduleObserver(this)
             }
         }

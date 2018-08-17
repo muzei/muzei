@@ -33,7 +33,7 @@ class UnsplashExampleWorker : Worker() {
         private const val TAG = "UnsplashExample"
 
         internal fun enqueueLoad() {
-            val workManager = WorkManager.getInstance() ?: return
+            val workManager = WorkManager.getInstance()
             workManager.enqueue(OneTimeWorkRequestBuilder<UnsplashExampleWorker>()
                     .setConstraints(Constraints.Builder()
                             .setRequiredNetworkType(NetworkType.CONNECTED)

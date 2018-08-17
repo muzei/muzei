@@ -20,10 +20,10 @@ import android.content.ComponentName
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.Log
-import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
+import androidx.work.workDataOf
 import com.google.android.apps.muzei.FullScreenActivity
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.complications.ArtworkComplicationProviderService
@@ -56,12 +56,10 @@ class DataLayerLoadWorker : Worker() {
          * @param showNotification Show a notification to activate Muzei if the artwork is not found
          */
         fun enqueueLoad(showNotification: Boolean = false) {
-            val workManager = WorkManager.getInstance() ?: return
+            val workManager = WorkManager.getInstance()
             workManager.enqueue(OneTimeWorkRequestBuilder<DataLayerLoadWorker>().apply{
                 if (showNotification) {
-                    setInputData(Data.Builder()
-                            .putBoolean(SHOW_ACTIVATE_NOTIFICATION_EXTRA, true)
-                            .build())
+                    setInputData(workDataOf(SHOW_ACTIVATE_NOTIFICATION_EXTRA to true))
                 }
             }.build())
         }

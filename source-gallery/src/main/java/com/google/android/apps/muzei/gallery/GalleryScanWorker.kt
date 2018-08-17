@@ -30,11 +30,11 @@ import android.support.v4.content.ContextCompat
 import android.text.TextUtils
 import android.text.format.DateUtils
 import android.util.Log
-import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
+import androidx.work.workDataOf
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import kotlinx.coroutines.experimental.launch
@@ -56,20 +56,16 @@ class GalleryScanWorker : Worker() {
 
         fun enqueueInitialScan(ids: List<Long>) {
             val workManager = WorkManager.getInstance()
-                    ?: return
             workManager.enqueue(ids.map { id ->
                 OneTimeWorkRequestBuilder<GalleryScanWorker>()
                         .addTag(INITIAL_SCAN_TAG)
-                        .setInputData(Data.Builder()
-                                .putLong(INITIAL_SCAN_ID, id)
-                                .build())
+                        .setInputData(workDataOf(INITIAL_SCAN_ID to id))
                         .build()
             })
         }
 
         fun enqueueRescan() {
             val workManager = WorkManager.getInstance()
-                    ?: return
             workManager.beginUniqueWork("rescan",
                     ExistingWorkPolicy.REPLACE,
                     OneTimeWorkRequestBuilder<GalleryScanWorker>()
