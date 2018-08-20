@@ -269,8 +269,13 @@ internal abstract class ChosenPhotoDao {
                     val persistedUriPermissions = contentResolver.persistedUriPermissions
                     for (persistedUriPermission in persistedUriPermissions) {
                         if (persistedUriPermission.uri == uriToRelease) {
-                            contentResolver.releasePersistableUriPermission(
-                                    uriToRelease, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            try {
+                                contentResolver.releasePersistableUriPermission(
+                                        uriToRelease, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            } catch (e: SecurityException) {
+                                // Thrown if we don't have permission...despite in being in
+                                // the getPersistedUriPermissions(). Alright then.
+                            }
                             break
                         }
                     }
