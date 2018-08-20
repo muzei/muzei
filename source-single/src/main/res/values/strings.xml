@@ -17,6 +17,7 @@
 <resources>
     <string name="single_title">Single Artwork</string>
     <string name="single_description">Display a single image of your choosing</string>
+    <string name="single_get_content_failure">Unable to open the image picker</string>
 
     <string name="single_default_artwork_title">Your artwork</string>
 </resources>

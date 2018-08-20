@@ -19,6 +19,7 @@ package com.google.android.apps.muzei.single
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import androidx.core.widget.toast
 import kotlinx.coroutines.experimental.launch
 
 /**
@@ -36,7 +37,12 @@ class SingleSettingsActivity : Activity() {
             type = "image/*"
             addCategory(Intent.CATEGORY_OPENABLE)
         }
-        startActivityForResult(intent, REQUEST_PHOTO)
+        if (intent.resolveActivity(packageManager) != null) {
+            startActivityForResult(intent, REQUEST_PHOTO)
+        } else {
+            toast(R.string.single_get_content_failure)
+            finish()
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
