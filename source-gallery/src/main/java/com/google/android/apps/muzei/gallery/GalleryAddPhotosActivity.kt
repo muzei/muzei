@@ -36,6 +36,10 @@ class GalleryAddPhotosActivity : Activity() {
         streamCount = intentReader.streamCount
         for (index in 0 until streamCount) {
             val photoUri = intentReader.getStream(index)
+            if (photoUri == null) {
+                streamCount--
+                continue
+            }
             val chosenPhoto = ChosenPhoto(photoUri)
 
             launch(UI) {
