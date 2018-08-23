@@ -19,7 +19,10 @@ package com.google.android.apps.muzei.sync
 import android.annotation.SuppressLint
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.database.ContentObserver
 import android.net.Uri
 import android.os.Build
@@ -69,6 +72,16 @@ class ProviderManager private constructor(private val context: Context)
                 }
     }
 
+    private val packageChangeReceiver : BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent?) {
+            val provider = value ?: return
+            val packageName = intent?.data?.schemeSpecificPart
+            if (provider.componentName.packageName == packageName) {
+                // The selected provider changed,
+                startArtworkLoad()
+            }
+        }
+    }
     private val contentObserver: ContentObserver
     private val providerLiveData by lazy {
         MuzeiDatabase.getInstance(context).providerDao().currentProvider
@@ -134,6 +147,15 @@ class ProviderManager private constructor(private val context: Context)
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "ProviderManager became active")
         }
+        // Register for package change events
+        val packageChangeFilter = IntentFilter().apply {
+            addDataScheme("package")
+            addAction(Intent.ACTION_PACKAGE_ADDED)
+            addAction(Intent.ACTION_PACKAGE_CHANGED)
+            addAction(Intent.ACTION_PACKAGE_REPLACED)
+            addAction(Intent.ACTION_PACKAGE_REMOVED)
+        }
+        context.registerReceiver(packageChangeReceiver, packageChangeFilter)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             ProviderChangedWorker.activeListeningStateChanged(context, true)
         }
@@ -142,28 +164,49 @@ class ProviderManager private constructor(private val context: Context)
         startArtworkLoad()
     }
 
-    private fun startArtworkLoad() {
-        val currentSource = value ?: return
-        if (hasActiveObservers()) {
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "Starting artwork load")
+    private fun runIfValid(provider: Provider?, block: (provider: Provider) -> Unit) {
+        if (provider != null) {
+            try {
+                ProviderContract.Artwork.getContentUri(context, provider.componentName)
+                // getContentUri succeeded, so it is a valid ContentProvider
+                block(provider)
+            } catch (e: IllegalArgumentException) {
+                // Invalid ContentProvider, remove it from the ProviderDao
+                launch {
+                    if (BuildConfig.DEBUG) {
+                        Log.w(TAG, "Invalid provider ${provider.componentName}", e)
+                    }
+                    MuzeiDatabase.getInstance(context).providerDao().delete(provider)
+                }
             }
-            // Listen for MuzeiArtProvider changes
-            val contentUri = ProviderContract.Artwork.getContentUri(context, currentSource.componentName)
-            context.contentResolver.registerContentObserver(
-                    contentUri, true, contentObserver)
-            ProviderChangedWorker.enqueueSelected()
         }
     }
 
-    override fun onChanged(provider: Provider?) {
-        val existingProvider = value
-        value = provider
-        if (existingProvider == null || provider != null && provider.componentName != existingProvider.componentName) {
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "Provider changed to ${provider?.componentName}")
+    private fun startArtworkLoad() {
+        if (hasActiveObservers()) {
+            runIfValid(value) { currentSource ->
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "Starting artwork load")
+                }
+                // Listen for MuzeiArtProvider changes
+                val contentUri = ProviderContract.Artwork.getContentUri(context, currentSource.componentName)
+                context.contentResolver.registerContentObserver(
+                        contentUri, true, contentObserver)
+                ProviderChangedWorker.enqueueSelected()
             }
-            startArtworkLoad()
+        }
+    }
+
+    override fun onChanged(newProvider: Provider?) {
+        val existingProvider = value
+        value = newProvider
+        runIfValid(newProvider) { provider ->
+            if (existingProvider == null || provider.componentName != existingProvider.componentName) {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "Provider changed to ${provider.componentName}")
+                }
+                startArtworkLoad()
+            }
         }
     }
 
@@ -177,6 +220,7 @@ class ProviderManager private constructor(private val context: Context)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             ProviderChangedWorker.activeListeningStateChanged(context, false)
         }
+        context.unregisterReceiver(packageChangeReceiver)
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "ProviderManager is now inactive")
         }
