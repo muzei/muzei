@@ -111,7 +111,7 @@
 
         <activity
             android:name="com.google.android.apps.muzei.ConfigActivity"
-            android:theme="@style/ConfigTheme">
+            android:theme="@style/MuzeiTheme">
             <intent-filter>
                 <action android:name="com.google.android.apps.muzei.CONFIG_WATCH_FACE"/>
 
