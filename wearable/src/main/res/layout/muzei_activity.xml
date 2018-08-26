@@ -75,6 +75,15 @@
                 android:paddingTop="8dp"
                 android:textSize="@dimen/art_detail_attribution_text_size"
                 android:textStyle="italic"/>
+
+            <Button
+                android:id="@+id/open_on_phone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="?android:selectableItemBackground"
+                android:text="@string/common_open_on_phone"
+                android:textAllCaps="false"/>
         </LinearLayout>
     </android.support.wear.widget.BoxInsetLayout>
 </android.support.v4.widget.NestedScrollView>

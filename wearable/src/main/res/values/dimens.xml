@@ -27,4 +27,7 @@
     <dimen name="art_detail_title_text_size">20sp</dimen>
     <dimen name="art_detail_byline_text_size">16sp</dimen>
     <dimen name="art_detail_attribution_text_size">16sp</dimen>
+
+    <dimen name="art_detail_open_on_phone_size">32dp</dimen>
+    <dimen name="art_detail_open_on_phone_radius">24dp</dimen>
 </resources>

@@ -3,18 +3,24 @@ package com.google.android.apps.muzei
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.ViewModelProvider
+import android.content.ComponentName
 import android.content.Intent
+import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
+import android.support.v4.content.ContextCompat
 import android.support.wear.ambient.AmbientModeSupport
 import android.support.wear.widget.RoundedDrawable
 import android.text.format.DateFormat
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.isVisible
+import com.google.android.apps.muzei.datalayer.DataLayerArtProvider
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.util.observeNonNull
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.experimental.android.UI
@@ -68,6 +74,7 @@ class MuzeiActivity : FragmentActivity(),
     private lateinit var titleView: TextView
     private lateinit var bylineView: TextView
     private lateinit var attributionView: TextView
+    private lateinit var openOnPhone: Button
 
     private val viewModelProvider by lazy {
         ViewModelProvider(this,
@@ -88,11 +95,21 @@ class MuzeiActivity : FragmentActivity(),
         titleView = findViewById(R.id.title)
         bylineView = findViewById(R.id.byline)
         attributionView = findViewById(R.id.attribution)
+        openOnPhone = findViewById(R.id.open_on_phone)
 
         imageView.setOnClickListener {
             startActivity(Intent(this@MuzeiActivity,
                     FullScreenActivity::class.java))
         }
+        openOnPhone.setCompoundDrawablesRelative(RoundedDrawable().apply {
+            isClipEnabled = true
+            radius = resources.getDimensionPixelSize(R.dimen.art_detail_open_on_phone_radius)
+            backgroundColor = ContextCompat.getColor(this@MuzeiActivity,
+                    R.color.theme_primary)
+            drawable = ContextCompat.getDrawable(this@MuzeiActivity,
+                    R.drawable.open_on_phone_button)
+            bounds = Rect(0, 0, radius * 2, radius * 2)
+        }, null, null, null)
 
         viewModel.artworkLiveData.observeNonNull(this) { artwork ->
             launch(UI) {
@@ -115,6 +132,14 @@ class MuzeiActivity : FragmentActivity(),
                 bylineView.isVisible = !artwork.byline.isNullOrBlank()
                 attributionView.text = artwork.attribution
                 attributionView.isVisible = !artwork.attribution.isNullOrBlank()
+                openOnPhone.setOnClickListener {
+                    launch {
+                        artwork.sendAction(this@MuzeiActivity,
+                                DataLayerArtProvider.OPEN_ON_PHONE_ACTION)
+                    }
+                }
+                openOnPhone.isVisible = artwork.providerComponentName ==
+                        ComponentName(this@MuzeiActivity, DataLayerArtProvider::class.java)
             }
         }
     }
