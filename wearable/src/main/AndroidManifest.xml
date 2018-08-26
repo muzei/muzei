@@ -37,14 +37,18 @@
         tools:ignore="GoogleAppIndexingWarning">
 
         <activity
-            android:name="com.google.android.apps.muzei.FullScreenActivity"
-            android:enabled="false"
-            android:theme="@style/FullScreenTheme">
+            android:name="com.google.android.apps.muzei.MuzeiActivity"
+            android:theme="@style/MuzeiTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="com.google.android.apps.muzei.FullScreenActivity"
+            android:theme="@style/FullScreenTheme"
+            android:parentActivityName="com.google.android.apps.muzei.MuzeiActivity"/>
 
         <service
             android:name="com.google.android.apps.muzei.datalayer.ArtworkChangedListenerService"

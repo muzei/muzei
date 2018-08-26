@@ -24,7 +24,6 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.workDataOf
-import com.google.android.apps.muzei.FullScreenActivity
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.complications.ArtworkComplicationProviderService
 import com.google.android.apps.muzei.room.MuzeiDatabase
@@ -133,7 +132,6 @@ class DataLayerLoadWorker : Worker() {
                     Log.d(TAG, "Successfully wrote artwork to $artworkUri")
                 }
                 enableComponents(
-                        FullScreenActivity::class,
                         ArtworkComplicationProviderService::class)
                 ActivateMuzeiIntentService.clearNotifications(applicationContext)
             }

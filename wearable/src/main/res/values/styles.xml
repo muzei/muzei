@@ -22,7 +22,6 @@
     </style>
 
     <style name="FullScreenTheme" parent="MuzeiTheme">
-        <item name="android:windowSwipeToDismiss">false</item>
         <item name="android:colorEdgeEffect">#fff</item>
         <item name="android:progressBarStyleLarge">
             @android:style/Widget.Material.ProgressBar.Large
