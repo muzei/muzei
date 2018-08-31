@@ -46,6 +46,7 @@ import com.google.android.apps.muzei.room.Source
 import com.google.android.apps.muzei.room.select
 import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.sync.ProviderManager
+import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.util.observeNonNull
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.experimental.CommonPool
@@ -145,26 +146,26 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
             val packageName = intent.data?.schemeSpecificPart
             // Update the sources from the changed package
             executor.execute(UpdateSourcesRunnable(packageName))
-            val pendingResult = goAsync()
-            launch {
-                val source = MuzeiDatabase.getInstance(context)
-                        .sourceDao().getCurrentSource()
-                if (source != null && packageName == source.componentName.packageName) {
-                    try {
-                        context.packageManager.getServiceInfo(source.componentName, 0)
-                    } catch (e: PackageManager.NameNotFoundException) {
-                        Log.i(TAG, "Selected source ${source.componentName} is no longer available")
-                        FeaturedArtProvider::class.select(context)
-                        return@launch
-                    }
+            if (lifecycleRegistry.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                val pendingResult = goAsync()
+                launch {
+                    val source = MuzeiDatabase.getInstance(context)
+                            .sourceDao().getCurrentSource()
+                    if (source != null && packageName == source.componentName.packageName) {
+                        try {
+                            context.packageManager.getServiceInfo(source.componentName, 0)
+                        } catch (e: PackageManager.NameNotFoundException) {
+                            Log.i(TAG, "Selected source ${source.componentName} is no longer available")
+                            FeaturedArtProvider::class.select(context)
+                            return@launch
+                        }
 
-                    // Some other change.
-                    if (lifecycleRegistry.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                        // Some other change.
                         Log.i(TAG, "Source package changed or replaced. Re-subscribing to ${source.componentName}")
                         source.subscribe()
                     }
+                    pendingResult.finish()
                 }
-                pendingResult.finish()
             }
         }
     }
@@ -253,7 +254,14 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
     }
 
     override fun onCreate(owner: LifecycleOwner) {
-        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        MuzeiDatabase.getInstance(context).providerDao().currentProvider.observe(owner) { provider ->
+            if (provider?.componentName == ComponentName(context, SourceArtProvider::class.java)) {
+                lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
+            } else {
+                lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+            }
+        }
         SubscriberLiveData().observeNonNull(this) { source ->
             sendSelectedSourceAnalytics(source.componentName)
         }
