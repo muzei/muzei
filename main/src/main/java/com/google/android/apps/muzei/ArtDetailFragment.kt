@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei
 
+import android.annotation.SuppressLint
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
@@ -41,6 +42,7 @@ import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.MuzeiContract
+import com.google.android.apps.muzei.api.UserCommand
 import com.google.android.apps.muzei.notifications.NewWallpaperNotificationReceiver
 import com.google.android.apps.muzei.render.ArtworkSizeLiveData
 import com.google.android.apps.muzei.render.SwitchingPhotosDone
@@ -94,24 +96,22 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         nextButton.isVisible = supportsNextArtwork
     }
 
+    @SuppressLint("Range")
     private val artworkObserver = Observer<Artwork?> { currentArtwork ->
-        if (currentArtwork == null) {
-            return@Observer
-        }
         var titleFont = R.font.alegreya_sans_black
         var bylineFont = R.font.alegreya_sans_medium
-        if (MuzeiContract.Artwork.META_FONT_TYPE_ELEGANT == currentArtwork.metaFont) {
+        if (MuzeiContract.Artwork.META_FONT_TYPE_ELEGANT == currentArtwork?.metaFont) {
             titleFont = R.font.alegreya_black_italic
             bylineFont = R.font.alegreya_italic
         }
 
         titleView.typeface = ResourcesCompat.getFont(requireContext(), titleFont)
-        titleView.text = currentArtwork.title
+        titleView.text = currentArtwork?.title
 
         bylineView.typeface = ResourcesCompat.getFont(requireContext(), bylineFont)
-        bylineView.text = currentArtwork.byline
+        bylineView.text = currentArtwork?.byline
 
-        val attribution = currentArtwork.attribution
+        val attribution = currentArtwork?.attribution
         if (attribution?.isNotEmpty() == true) {
             attributionView.text = attribution
             attributionView.isVisible = true
@@ -125,7 +125,17 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
 
         launch(UI) {
             val commands = context?.run {
-                currentArtwork.getCommands(this)
+                currentArtwork?.getCommands(this) ?: run {
+                    if (currentProviderLiveData.value?.componentName?.equals(
+                            ComponentName(this, SourceArtProvider::class.java)
+                    ) == true) {
+                        listOf(UserCommand(
+                                MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK,
+                                        getString(R.string.action_next_artwork)))
+                    } else {
+                        listOf()
+                    }
+                }
             } ?: return@launch
             val activity = activity ?: return@launch
             overflowSourceActionMap.clear()
