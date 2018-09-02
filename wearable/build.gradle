@@ -103,6 +103,7 @@ dependencies {
     implementation project(':muzei-api')
     implementation project(':extensions')
     implementation project(':android-client-common')
+    implementation project(':source-featured-art')
 }
 
 apply plugin: 'com.google.gms.google-services'
