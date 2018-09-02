@@ -50,6 +50,11 @@
             android:theme="@style/FullScreenTheme"
             android:parentActivityName="com.google.android.apps.muzei.MuzeiActivity"/>
 
+        <activity
+            android:name="com.google.android.apps.muzei.ChooseProviderActivity"
+            android:theme="@style/MuzeiTheme"
+            android:parentActivityName="com.google.android.apps.muzei.MuzeiActivity"/>
+
         <service
             android:name="com.google.android.apps.muzei.datalayer.ArtworkChangedListenerService"
             tools:ignore="ExportedService">

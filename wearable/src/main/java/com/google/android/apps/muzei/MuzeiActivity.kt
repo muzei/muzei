@@ -16,11 +16,14 @@ import android.text.format.DateFormat
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import com.google.android.apps.muzei.datalayer.DataLayerArtProvider
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.room.getProviderDescription
 import com.google.android.apps.muzei.room.sendAction
+import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.observeNonNull
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.experimental.android.UI
@@ -33,6 +36,8 @@ import java.util.Locale
 class MuzeiViewModel(application: Application) : AndroidViewModel(application) {
 
     val artworkLiveData = MuzeiDatabase.getInstance(application).artworkDao().currentArtwork
+
+    val providerLiveData = MuzeiDatabase.getInstance(application).providerDao().currentProvider
 }
 
 class MuzeiActivity : FragmentActivity(),
@@ -74,7 +79,11 @@ class MuzeiActivity : FragmentActivity(),
     private lateinit var titleView: TextView
     private lateinit var bylineView: TextView
     private lateinit var attributionView: TextView
+    private lateinit var nextArtwork: Button
     private lateinit var openOnPhone: Button
+    private lateinit var providerView: Button
+    private lateinit var providerDescriptionView: TextView
+    private lateinit var providerSettingsView: Button
 
     private val viewModelProvider by lazy {
         ViewModelProvider(this,
@@ -95,11 +104,27 @@ class MuzeiActivity : FragmentActivity(),
         titleView = findViewById(R.id.title)
         bylineView = findViewById(R.id.byline)
         attributionView = findViewById(R.id.attribution)
+        nextArtwork = findViewById(R.id.next_artwork)
         openOnPhone = findViewById(R.id.open_on_phone)
+        providerView = findViewById(R.id.provider)
+        providerDescriptionView = findViewById(R.id.provider_description)
+        providerSettingsView = findViewById(R.id.provider_settings)
 
         imageView.setOnClickListener {
             startActivity(Intent(this@MuzeiActivity,
                     FullScreenActivity::class.java))
+        }
+        nextArtwork.setCompoundDrawablesRelative(RoundedDrawable().apply {
+            isClipEnabled = true
+            radius = resources.getDimensionPixelSize(R.dimen.art_detail_open_on_phone_radius)
+            backgroundColor = ContextCompat.getColor(this@MuzeiActivity,
+                    R.color.theme_primary)
+            drawable = ContextCompat.getDrawable(this@MuzeiActivity,
+                    R.drawable.ic_next_artwork)
+            bounds = Rect(0, 0, radius * 2, radius * 2)
+        }, null, null, null)
+        nextArtwork.setOnClickListener {
+            ProviderManager.getInstance(this).nextArtwork()
         }
         openOnPhone.setCompoundDrawablesRelative(RoundedDrawable().apply {
             isClipEnabled = true
@@ -108,6 +133,19 @@ class MuzeiActivity : FragmentActivity(),
                     R.color.theme_primary)
             drawable = ContextCompat.getDrawable(this@MuzeiActivity,
                     R.drawable.open_on_phone_button)
+            bounds = Rect(0, 0, radius * 2, radius * 2)
+        }, null, null, null)
+        providerView.setOnClickListener {
+            startActivity(Intent(this@MuzeiActivity,
+                    ChooseProviderActivity::class.java))
+        }
+        providerSettingsView.setCompoundDrawablesRelative(RoundedDrawable().apply {
+            isClipEnabled = true
+            radius = resources.getDimensionPixelSize(R.dimen.art_detail_open_on_phone_radius)
+            backgroundColor = ContextCompat.getColor(this@MuzeiActivity,
+                    R.color.theme_primary)
+            drawable = ContextCompat.getDrawable(this@MuzeiActivity,
+                    R.drawable.ic_provider_settings)
             bounds = Rect(0, 0, radius * 2, radius * 2)
         }, null, null, null)
 
@@ -140,6 +178,41 @@ class MuzeiActivity : FragmentActivity(),
                 }
                 openOnPhone.isVisible = artwork.providerComponentName ==
                         ComponentName(this@MuzeiActivity, DataLayerArtProvider::class.java)
+            }
+        }
+
+        viewModel.providerLiveData.observeNonNull(this) { provider ->
+            nextArtwork.isVisible = provider.supportsNextArtwork
+            val pm = packageManager
+            val intent = Intent().apply {
+                component = provider.componentName
+            }
+            val resolveInfos = pm.queryIntentContentProviders(intent, 0)
+            resolveInfos?.firstOrNull()?.providerInfo?.let { providerInfo ->
+                val size = resources.getDimensionPixelSize(R.dimen.choose_provider_image_size)
+                val icon = providerInfo.loadIcon(pm)
+                icon.bounds = Rect(0, 0, size, size)
+                providerView.setCompoundDrawablesRelative(icon,
+                        null, null, null)
+                providerView.text = providerInfo.loadLabel(pm)
+                val componentName = ComponentName(providerInfo.packageName,
+                        providerInfo.name)
+                launch(UI) {
+                    val description = componentName.getProviderDescription(this@MuzeiActivity)
+                    providerDescriptionView.isGone = description.isBlank()
+                    providerDescriptionView.text = description
+                }
+                val settingsActivity = providerInfo.metaData?.getString("settingsActivity")?.run {
+                    ComponentName(providerInfo.packageName, this)
+                }
+                providerSettingsView.isVisible = settingsActivity != null
+                providerSettingsView.setOnClickListener {
+                    if (settingsActivity != null) {
+                        startActivity(Intent().apply {
+                            component = settingsActivity
+                        })
+                    }
+                }
             }
         }
     }

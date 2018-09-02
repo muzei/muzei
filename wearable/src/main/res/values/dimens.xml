@@ -30,4 +30,6 @@
 
     <dimen name="art_detail_open_on_phone_size">32dp</dimen>
     <dimen name="art_detail_open_on_phone_radius">24dp</dimen>
+
+    <dimen name="choose_provider_image_size">48dp</dimen>
 </resources>
