@@ -51,6 +51,8 @@ import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.R
 import java.util.TreeSet
 import java.util.concurrent.ExecutionException
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 
 class ActivateMuzeiIntentService : IntentService(TAG) {
 
@@ -74,7 +76,13 @@ class ActivateMuzeiIntentService : IntentService(TAG) {
         }
 
         fun checkForPhoneApp(context: Context) {
-            val node = getNode(context, CapabilityClient.FILTER_ALL)
+            val node: Node?
+            try {
+                node = getNode(context, CapabilityClient.FILTER_ALL)
+            } catch (e: TimeoutException) {
+                // Google Play services is out of date, nothing more we can do
+                return
+            }
             if (node != null) {
                 // Muzei's phone app is installed, allow use of the DataLayerArtProvider
                 context.packageManager.setComponentEnabledSetting(
@@ -167,11 +175,12 @@ class ActivateMuzeiIntentService : IntentService(TAG) {
             notificationManager?.createNotificationChannel(channel)
         }
 
+        @Throws(TimeoutException::class)
         private fun getNode(context: Context, capability: Int): Node? {
             val capabilityClient = Wearable.getCapabilityClient(context)
             val nodes: Set<Node> = try {
                 Tasks.await<CapabilityInfo>(capabilityClient.getCapability(
-                        "activate_muzei", capability)).nodes
+                        "activate_muzei", capability), 1, TimeUnit.SECONDS).nodes
             } catch (e: ExecutionException) {
                 Log.e(TAG, "Error getting all capability info", e)
                 TreeSet()
