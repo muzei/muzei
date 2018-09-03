@@ -31,7 +31,7 @@ android {
     defaultConfig {
         applicationId "net.nurik.roman.muzei"
         minSdkVersion 23
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        targetSdkVersion 28
 
         versionName versionProps['name']
         versionCode versionProps['codeWear'].toInteger()
