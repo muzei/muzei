@@ -18,12 +18,16 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import com.google.android.apps.muzei.datalayer.ActivateMuzeiIntentService
 import com.google.android.apps.muzei.datalayer.DataLayerArtProvider
+import com.google.android.apps.muzei.featuredart.FeaturedArtProvider
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.getProviderDescription
+import com.google.android.apps.muzei.room.select
 import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.sync.ProviderManager
+import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.util.observeNonNull
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.experimental.android.UI
@@ -36,8 +40,6 @@ import java.util.Locale
 class MuzeiViewModel(application: Application) : AndroidViewModel(application) {
 
     val artworkLiveData = MuzeiDatabase.getInstance(application).artworkDao().currentArtwork
-
-    val providerLiveData = MuzeiDatabase.getInstance(application).providerDao().currentProvider
 }
 
 class MuzeiActivity : FragmentActivity(),
@@ -181,7 +183,15 @@ class MuzeiActivity : FragmentActivity(),
             }
         }
 
-        viewModel.providerLiveData.observeNonNull(this) { provider ->
+        ProviderManager.getInstance(this).observe(this) { provider ->
+            if (provider == null) {
+                val context = this@MuzeiActivity
+                launch {
+                    FeaturedArtProvider::class.select(context)
+                    ActivateMuzeiIntentService.checkForPhoneApp(context)
+                }
+                return@observe
+            }
             nextArtwork.isVisible = provider.supportsNextArtwork
             val pm = packageManager
             val intent = Intent().apply {

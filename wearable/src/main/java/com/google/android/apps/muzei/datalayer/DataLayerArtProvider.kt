@@ -54,7 +54,7 @@ class DataLayerArtProvider : MuzeiArtProvider() {
 
     override fun onLoadRequested(initial: Boolean) {
         if (initial) {
-            DataLayerLoadWorker.enqueueLoad(showNotification = true)
+            DataLayerLoadWorker.enqueueLoad()
         }
     }
 

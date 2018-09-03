@@ -27,7 +27,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -52,7 +51,8 @@ import android.view.Gravity
 import android.view.SurfaceHolder
 import androidx.core.content.edit
 import com.google.android.apps.muzei.complications.ArtworkComplicationProviderService
-import com.google.android.apps.muzei.datalayer.DataLayerArtProvider
+import com.google.android.apps.muzei.datalayer.ActivateMuzeiIntentService
+import com.google.android.apps.muzei.featuredart.FeaturedArtProvider
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
@@ -66,7 +66,6 @@ import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
 import java.io.FileNotFoundException
-import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -110,8 +109,10 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
         FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
         ProviderManager.getInstance(this).observe(this) { provider ->
             if (provider == null) {
+                val context = this@MuzeiWatchFace
                 launch {
-                    DataLayerArtProvider::class.select(this@MuzeiWatchFace)
+                    FeaturedArtProvider::class.select(context)
+                    ActivateMuzeiIntentService.checkForPhoneApp(context)
                 }
             }
         }
@@ -231,15 +232,6 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                     } catch (e: FileNotFoundException) {
                         Log.w(TAG, "Could not find current artwork image", e)
                         null
-                    } ?: run {
-                        // We'll get another callback when the real artwork is loaded, but
-                        // we should show something to the users right away
-                        try {
-                            BitmapFactory.decodeStream(assets.open("starrynight.jpg"))
-                        } catch (e: IOException) {
-                            Log.e(TAG, "Error opening starry night asset", e)
-                            null
-                        }
                     }
 
                     if (bitmap != null && !bitmap.sameAs(backgroundBitmap)) {

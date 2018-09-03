@@ -133,6 +133,16 @@
 
         <service android:name="com.google.android.apps.muzei.datalayer.ActivateMuzeiIntentService"/>
 
+        <service
+            android:name="com.google.android.apps.muzei.datalayer.CapabilityListenerService"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.CAPABILITY_CHANGED" />
+                <data android:host="*" android:scheme="wear"
+                      android:path="/activate_muzei"/>
+            </intent-filter>
+        </service>
+
         <activity android:name="android.support.wearable.activity.ConfirmationActivity"/>
 
         <meta-data
