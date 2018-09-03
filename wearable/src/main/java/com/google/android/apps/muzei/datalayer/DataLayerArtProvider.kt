@@ -79,7 +79,7 @@ class DataLayerArtProvider : MuzeiArtProvider() {
 
                 if (nodes.isEmpty()) {
                     launch(UI) {
-                        context.toast(R.string.activate_failed)
+                        context.toast(R.string.datalayer_open_failed)
                     }
                 } else {
                     FirebaseAnalytics.getInstance(context).logEvent("data_layer_open_on_phone", null)

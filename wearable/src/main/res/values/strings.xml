@@ -30,7 +30,7 @@
         as your phone\'s wallpaper</string>
     <string name="datalayer_install_action">Open Play Store on your phone</string>
     <string name="datalayer_install_failed">Unable to find your phone to install Muzei</string>
-    <string name="activate_failed">Unable to find your phone to activate Muzei</string>
+    <string name="datalayer_open_failed">Unable to find your phone to open Muzei</string>
     <string name="config_show_date_title">Date</string>
     <string name="config_top_complication_title">Top Complication</string>
     <string name="config_bottom_complication_title">Bottom Complication</string>
