@@ -16,124 +16,121 @@
 
 <android.support.v4.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:clipToPadding="false"
-    android:padding="8dp">
+    android:layout_height="match_parent">
 
-    <android.support.wear.widget.BoxInsetLayout
+    <LinearLayout
+        android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:boxedEdges="left|right|bottom">
+        android:orientation="vertical"
+        android:paddingBottom="8dp"
+        android:paddingEnd="8dp"
+        android:paddingStart="8dp">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/time"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="@dimen/art_detail_image_size"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/nunito_clock_regular"
+            android:gravity="center"
+            android:textSize="@dimen/clock_text_size"
+            android:visibility="gone"/>
 
-            <TextView
-                android:id="@+id/time"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/art_detail_image_size"
-                android:fontFamily="@font/nunito_clock_regular"
-                android:gravity="center"
-                android:textSize="@dimen/clock_text_size"
-                android:visibility="gone"/>
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="@dimen/art_detail_image_size"
+            android:layout_height="@dimen/art_detail_image_size"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            tools:ignore="ContentDescription"/>
 
-            <ImageView
-                android:id="@+id/image"
-                android:layout_width="@dimen/art_detail_image_size"
-                android:layout_height="@dimen/art_detail_image_size"
-                android:layout_gravity="center_horizontal"
-                tools:ignore="ContentDescription"/>
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/alegreya"
+            android:paddingTop="8dp"
+            android:textSize="@dimen/art_detail_title_text_size"
+            android:textStyle="bold|italic"/>
 
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/alegreya"
-                android:paddingTop="8dp"
-                android:textSize="@dimen/art_detail_title_text_size"
-                android:textStyle="bold|italic"/>
+        <TextView
+            android:id="@+id/byline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/alegreya"
+            android:paddingTop="8dp"
+            android:textSize="@dimen/art_detail_byline_text_size"
+            android:textStyle="italic"/>
 
-            <TextView
-                android:id="@+id/byline"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/alegreya"
-                android:paddingTop="8dp"
-                android:textSize="@dimen/art_detail_byline_text_size"
-                android:textStyle="italic"/>
+        <TextView
+            android:id="@+id/attribution"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/alegreya"
+            android:paddingTop="8dp"
+            android:textSize="@dimen/art_detail_attribution_text_size"
+            android:textStyle="italic"/>
 
-            <TextView
-                android:id="@+id/attribution"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/alegreya"
-                android:paddingTop="8dp"
-                android:textSize="@dimen/art_detail_attribution_text_size"
-                android:textStyle="italic"/>
+        <Button
+            android:id="@+id/next_artwork"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="?android:selectableItemBackground"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical"
+            android:text="@string/next_artwork"
+            android:textAllCaps="false"/>
 
-            <Button
-                android:id="@+id/next_artwork"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="?android:selectableItemBackground"
-                android:drawablePadding="8dp"
-                android:gravity="center_vertical"
-                android:text="@string/next_artwork"
-                android:textAllCaps="false"/>
+        <Button
+            android:id="@+id/open_on_phone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="?android:selectableItemBackground"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical"
+            android:text="@string/common_open_on_phone"
+            android:textAllCaps="false"/>
 
-            <Button
-                android:id="@+id/open_on_phone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="?android:selectableItemBackground"
-                android:drawablePadding="8dp"
-                android:gravity="center_vertical"
-                android:text="@string/common_open_on_phone"
-                android:textAllCaps="false"/>
+        <TextView
+            android:id="@+id/current_provider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="8dp"
+            android:text="@string/provider_title"
+            android:textAppearance="@android:style/TextAppearance.Material.Title"
+            android:textColor="@color/theme_primary"/>
 
-            <TextView
-                android:id="@+id/current_provider"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingTop="8dp"
-                android:text="@string/provider_title"
-                android:textAppearance="@android:style/TextAppearance.Material.Title"
-                android:textColor="@color/theme_primary"/>
+        <Button
+            android:id="@+id/provider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:selectableItemBackground"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical"
+            android:paddingBottom="8dp"
+            android:paddingTop="8dp"
+            android:textAllCaps="false"
+            android:textSize="20sp"/>
 
-            <Button
-                android:id="@+id/provider"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?android:selectableItemBackground"
-                android:drawablePadding="8dp"
-                android:gravity="center_vertical"
-                android:paddingBottom="8dp"
-                android:paddingTop="8dp"
-                android:textAllCaps="false"
-                android:textSize="20sp"/>
+        <TextView
+            android:id="@+id/provider_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp"/>
 
-            <TextView
-                android:id="@+id/provider_description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingBottom="8dp"/>
-
-            <Button
-                android:id="@+id/provider_settings"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="?android:selectableItemBackground"
-                android:text="@string/provider_settings"
-                android:textAllCaps="false"/>
-        </LinearLayout>
-    </android.support.wear.widget.BoxInsetLayout>
+        <Button
+            android:id="@+id/provider_settings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="?android:selectableItemBackground"
+            android:text="@string/provider_settings"
+            android:textAllCaps="false"/>
+    </LinearLayout>
 </android.support.v4.widget.NestedScrollView>

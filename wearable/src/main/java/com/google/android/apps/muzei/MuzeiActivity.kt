@@ -5,6 +5,7 @@ import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.ViewModelProvider
 import android.content.ComponentName
 import android.content.Intent
+import android.content.res.Resources
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
@@ -13,6 +14,7 @@ import android.support.v4.content.ContextCompat
 import android.support.wear.ambient.AmbientModeSupport
 import android.support.wear.widget.RoundedDrawable
 import android.text.format.DateFormat
+import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -44,6 +46,10 @@ class MuzeiViewModel(application: Application) : AndroidViewModel(application) {
 
 class MuzeiActivity : FragmentActivity(),
         AmbientModeSupport.AmbientCallbackProvider {
+    companion object {
+        private const val FACTOR = 0.146467f // c = a * sqrt(2)
+    }
+
     private val ambientCallback: AmbientModeSupport.AmbientCallback =
             object : AmbientModeSupport.AmbientCallback() {
                 private val timeFormat12h = SimpleDateFormat("h:mm", Locale.getDefault())
@@ -76,6 +82,7 @@ class MuzeiActivity : FragmentActivity(),
             }
     private lateinit var ambientController: AmbientModeSupport.AmbientController
 
+    private lateinit var content: View
     private lateinit var timeView: TextView
     private lateinit var imageView: ImageView
     private lateinit var titleView: TextView
@@ -101,6 +108,7 @@ class MuzeiActivity : FragmentActivity(),
         FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
 
         setContentView(R.layout.muzei_activity)
+        content = findViewById(R.id.content)
         timeView = findViewById(R.id.time)
         imageView = findViewById(R.id.image)
         titleView = findViewById(R.id.title)
@@ -112,6 +120,10 @@ class MuzeiActivity : FragmentActivity(),
         providerDescriptionView = findViewById(R.id.provider_description)
         providerSettingsView = findViewById(R.id.provider_settings)
 
+        if (resources.configuration.isScreenRound) {
+            val inset = (FACTOR * Resources.getSystem().displayMetrics.widthPixels).toInt()
+            content.setPadding(inset, 0, inset, inset)
+        }
         imageView.setOnClickListener {
             startActivity(Intent(this@MuzeiActivity,
                     FullScreenActivity::class.java))

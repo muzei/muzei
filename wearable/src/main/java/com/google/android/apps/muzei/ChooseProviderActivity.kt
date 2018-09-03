@@ -66,6 +66,7 @@ class ChooseProviderActivity : FragmentActivity() {
         startActivityProvider = savedInstanceState?.getParcelable(START_ACTIVITY_PROVIDER)
         setContentView(R.layout.choose_provider_activity)
         val providerList = findViewById<WearableRecyclerView>(R.id.provider_list)
+        providerList.isEdgeItemsCenteringEnabled = true
         providerList.layoutManager = WearableLinearLayoutManager(this)
         providerList.adapter = adapter
 
