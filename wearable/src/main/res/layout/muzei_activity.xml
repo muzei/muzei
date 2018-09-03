@@ -83,7 +83,8 @@
             android:drawablePadding="8dp"
             android:gravity="center_vertical"
             android:text="@string/next_artwork"
-            android:textAllCaps="false"/>
+            android:textAllCaps="false"
+            android:visibility="gone"/>
 
         <Button
             android:id="@+id/open_on_phone"
@@ -94,7 +95,8 @@
             android:drawablePadding="8dp"
             android:gravity="center_vertical"
             android:text="@string/common_open_on_phone"
-            android:textAllCaps="false"/>
+            android:textAllCaps="false"
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/current_provider"
@@ -131,6 +133,7 @@
             android:layout_marginTop="8dp"
             android:background="?android:selectableItemBackground"
             android:text="@string/provider_settings"
-            android:textAllCaps="false"/>
+            android:textAllCaps="false"
+            android:visibility="gone"/>
     </LinearLayout>
 </android.support.v4.widget.NestedScrollView>
