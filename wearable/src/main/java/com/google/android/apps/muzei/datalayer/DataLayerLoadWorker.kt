@@ -16,15 +16,12 @@
 
 package com.google.android.apps.muzei.datalayer
 
-import android.content.ComponentName
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.Log
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
 import com.google.android.apps.muzei.api.provider.ProviderContract
-import com.google.android.apps.muzei.complications.ArtworkComplicationProviderService
 import com.google.android.apps.muzei.wearable.toArtwork
 import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.DataClient
@@ -34,7 +31,6 @@ import net.nurik.roman.muzei.BuildConfig
 import java.io.FileOutputStream
 import java.io.IOException
 import java.util.concurrent.ExecutionException
-import kotlin.reflect.KClass
 
 /**
  * Load artwork from the Wear Data Layer, writing it into [DataLayerArtProvider].
@@ -100,8 +96,6 @@ class DataLayerLoadWorker : Worker() {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "Successfully wrote artwork to $artworkUri")
                 }
-                enableComponents(
-                        ArtworkComplicationProviderService::class)
             }
             return Result.SUCCESS
         } catch (e: ExecutionException) {
@@ -111,15 +105,5 @@ class DataLayerLoadWorker : Worker() {
             Log.w(TAG, "Error getting artwork from Wear Data Layer", e)
             return Result.FAILURE
         }
-    }
-
-    private fun enableComponents(vararg components: KClass<*>) {
-        components
-                .map { ComponentName(applicationContext, it.java) }
-                .forEach {
-                    applicationContext.packageManager.setComponentEnabledSetting(it,
-                            PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-                            PackageManager.DONT_KILL_APP)
-                }
     }
 }
