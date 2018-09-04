@@ -31,6 +31,7 @@
         <provider
             android:name="com.google.android.apps.muzei.gallery.GalleryArtProvider"
             android:authorities="com.google.android.apps.muzei.gallery.art"
+            android:icon="@drawable/gallery_ic_launcher"
             android:label="@string/gallery_title"
             android:description="@string/gallery_description"
             android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER">
