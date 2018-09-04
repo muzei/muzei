@@ -16,16 +16,10 @@
 
 package com.google.android.apps.muzei
 
-import android.animation.Animator
-import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
-import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
-import android.view.GestureDetector
-import android.view.MotionEvent
+import android.support.wear.ambient.AmbientModeSupport
 import android.view.View
-import android.widget.TextView
 import androidx.core.view.isVisible
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
@@ -39,70 +33,33 @@ import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
 
-class FullScreenActivity : FragmentActivity() {
+class FullScreenActivity : FragmentActivity(),
+        AmbientModeSupport.AmbientCallbackProvider {
+    private val ambientCallback: AmbientModeSupport.AmbientCallback =
+            object : AmbientModeSupport.AmbientCallback() {
+                override fun onEnterAmbient(ambientDetails: Bundle?) {
+                    finish()
+                }
+            }
 
     private lateinit var panView: PanView
     private lateinit var loadingIndicatorView: View
-    private lateinit var scrimView: View
-    private lateinit var metadataContainerView: View
-    private lateinit var titleView: TextView
-    private lateinit var bylineView: TextView
-    @Suppress("DEPRECATION")
-    private lateinit var dismissOverlay: android.support.wearable.view.DismissOverlayView
-    private lateinit var detector: GestureDetector
-    private var blurAnimator: Animator? = null
-
-    private var metadataVisible = false
 
     private var showLoadingIndicator: Job? = null
 
     public override fun onCreate(savedState: Bundle?) {
         super.onCreate(savedState)
+        AmbientModeSupport.attach(this)
         setContentView(R.layout.full_screen_activity)
         FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
         panView = findViewById(R.id.pan_view)
 
-        scrimView = findViewById(R.id.scrim)
         loadingIndicatorView = findViewById(R.id.loading_indicator)
         showLoadingIndicator = launch(UI) {
             delay(500)
             loadingIndicatorView.isVisible = true
         }
 
-        metadataContainerView = findViewById(R.id.metadata_container)
-        titleView = findViewById(R.id.title)
-        bylineView = findViewById(R.id.byline)
-
-        dismissOverlay = findViewById(R.id.dismiss_overlay)
-        // Only show the dismiss overlay on Wear 1.0 devices
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            dismissOverlay.setIntroText(R.string.dismiss_overlay_intro)
-            dismissOverlay.showIntroIfNecessary()
-        }
-        detector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
-            override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-                if (dismissOverlay.isVisible) {
-                    return false
-                }
-
-                if (metadataVisible) {
-                    setMetadataVisible(false)
-                } else {
-                    setMetadataVisible(true)
-                }
-                return true
-            }
-
-            override fun onLongPress(ev: MotionEvent) {
-                if (dismissOverlay.isVisible) {
-                    return
-                }
-                // Only show the dismiss overlay on Wear 1.0 devices
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-                    dismissOverlay.show()
-                }
-            }
-        })
         MuzeiDatabase.getInstance(this).artworkDao()
                 .currentArtwork.observeNonNull(this) { artwork ->
             launch(UI) {
@@ -112,31 +69,11 @@ class FullScreenActivity : FragmentActivity() {
                 loadingIndicatorView.isVisible = false
                 panView.isVisible = true
                 panView.setImage(image)
-                titleView.text = artwork.title
-                bylineView.text = artwork.byline
             }
         }
     }
 
-    private fun setMetadataVisible(metadataVisible: Boolean) {
-        this.metadataVisible = metadataVisible
-        blurAnimator?.cancel()
-
-        val set = AnimatorSet().apply {
-            duration = resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
-        }
-        set
-                .play(ObjectAnimator.ofFloat(panView, "blurAmount", if (metadataVisible) 1f else 0f))
-                .with(ObjectAnimator.ofFloat(scrimView, View.ALPHA, if (metadataVisible) 1f else 0f))
-                .with(ObjectAnimator.ofFloat(metadataContainerView, View.ALPHA,
-                        if (metadataVisible) 1f else 0f))
-
-        blurAnimator = set.also {
-            it.start()
-        }
-    }
-
-    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-        return detector.onTouchEvent(ev) || super.dispatchTouchEvent(ev)
+    override fun getAmbientCallback(): AmbientModeSupport.AmbientCallback {
+        return ambientCallback
     }
 }

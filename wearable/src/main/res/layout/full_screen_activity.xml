@@ -14,9 +14,8 @@
   limitations under the License.
   -->
 
-<android.support.wear.widget.BoxInsetLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -37,59 +36,4 @@
         android:layout_height="match_parent"
         android:visibility="invisible"/>
 
-    <View
-        android:id="@+id/scrim"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#4000"
-        android:alpha="0"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="bottom"
-        android:id="@+id/metadata_container"
-        android:alpha="0"
-        app:boxedEdges="all">
-
-        <com.google.android.apps.muzei.util.ShadowDipsTextView
-            android:id="@+id/title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/art_detail_title_byline_margin"
-            android:paddingBottom="@dimen/art_detail_title_bottom_padding"
-            android:paddingEnd="@dimen/art_detail_metadata_margin"
-            android:paddingStart="@dimen/art_detail_metadata_margin"
-            android:paddingTop="@dimen/art_detail_metadata_margin"
-            android:fontFamily="@font/alegreya"
-            android:textStyle="bold|italic"
-            android:textColor="#fff"
-            android:textSize="@dimen/art_detail_title_text_size"
-            app:shadowColor="#8000"
-            app:shadowDx="0dp"
-            app:shadowDy="1dp"
-            app:shadowRadius="3dp"/>
-
-        <com.google.android.apps.muzei.util.ShadowDipsTextView
-            android:id="@+id/byline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingBottom="@dimen/art_detail_metadata_margin_bottom"
-            android:paddingEnd="@dimen/art_detail_metadata_margin"
-            android:paddingStart="@dimen/art_detail_metadata_margin"
-            android:fontFamily="@font/alegreya"
-            android:textStyle="italic"
-            android:textColor="#fff"
-            android:textSize="@dimen/art_detail_byline_text_size"
-            app:shadowColor="#8000"
-            app:shadowDx="0dp"
-            app:shadowDy="1dp"
-            app:shadowRadius="3dp"/>
-    </LinearLayout>
-
-    <android.support.wearable.view.DismissOverlayView
-        android:id="@+id/dismiss_overlay"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-</android.support.wear.widget.BoxInsetLayout>
+</FrameLayout>

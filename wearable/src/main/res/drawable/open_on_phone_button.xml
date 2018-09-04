@@ -1,5 +1,5 @@
 <!--
-  Copyright 2014 Google Inc.
+  Copyright 2018 Google Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,7 +14,10 @@
   limitations under the License.
   -->
 
-<resources>
-    <string name="activate_title">Limited functionality</string>
-    <string name="activate_enable_muzei">Sync your background by activating Muzei on %s.</string>
-</resources>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:drawable="@drawable/common_full_open_on_phone"
+        android:height="@dimen/art_detail_open_on_phone_size"
+        android:width="@dimen/art_detail_open_on_phone_size"
+        android:gravity="center"/>
+</layer-list>

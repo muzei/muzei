@@ -37,14 +37,23 @@
         tools:ignore="GoogleAppIndexingWarning">
 
         <activity
-            android:name="com.google.android.apps.muzei.FullScreenActivity"
-            android:enabled="false"
-            android:theme="@style/FullScreenTheme">
+            android:name="com.google.android.apps.muzei.MuzeiActivity"
+            android:theme="@style/MuzeiTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="com.google.android.apps.muzei.FullScreenActivity"
+            android:theme="@style/FullScreenTheme"
+            android:parentActivityName="com.google.android.apps.muzei.MuzeiActivity"/>
+
+        <activity
+            android:name="com.google.android.apps.muzei.ChooseProviderActivity"
+            android:theme="@style/MuzeiTheme"
+            android:parentActivityName="com.google.android.apps.muzei.MuzeiActivity"/>
 
         <service
             android:name="com.google.android.apps.muzei.datalayer.ArtworkChangedListenerService"
@@ -61,6 +70,7 @@
         <provider
             android:name="com.google.android.apps.muzei.datalayer.DataLayerArtProvider"
             android:authorities="com.google.android.apps.muzei.datalayer"
+            android:icon="@drawable/datalayer_ic_launcher"
             android:label="@string/datalayer_source_title"
             android:description="@string/datalayer_source_description"
             android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER">
@@ -73,7 +83,6 @@
             android:name="com.google.android.apps.muzei.complications.ArtworkComplicationProviderService"
             android:icon="@drawable/ic_complication"
             android:label="@string/complication_artwork_label"
-            android:enabled="false"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
             <intent-filter>
                 <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
@@ -123,10 +132,20 @@
 
         <service android:name="com.google.android.apps.muzei.datalayer.ActivateMuzeiIntentService"/>
 
+        <service
+            android:name="com.google.android.apps.muzei.datalayer.CapabilityListenerService"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.CAPABILITY_CHANGED" />
+                <data android:host="*" android:scheme="wear"
+                      android:path="/activate_muzei"/>
+            </intent-filter>
+        </service>
+
         <activity android:name="android.support.wearable.activity.ConfirmationActivity"/>
 
         <meta-data
             android:name="com.google.android.wearable.standalone"
-            android:value="false"/>
+            android:value="true"/>
     </application>
 </manifest>

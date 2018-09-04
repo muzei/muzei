@@ -16,12 +16,12 @@
 
 package com.google.android.apps.muzei.complications
 
-import android.app.PendingIntent
 import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.preference.PreferenceManager
 import android.support.annotation.RequiresApi
+import android.support.v4.app.TaskStackBuilder
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.ComplicationManager
 import android.support.wearable.complications.ComplicationProviderService
@@ -30,7 +30,10 @@ import android.util.Log
 import androidx.core.content.edit
 import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.FullScreenActivity
+import com.google.android.apps.muzei.datalayer.ActivateMuzeiIntentService
+import com.google.android.apps.muzei.featuredart.FeaturedArtProvider
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.room.select
 import com.google.android.apps.muzei.sync.ProviderChangedWorker
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.experimental.launch
@@ -110,9 +113,19 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
         }
         val applicationContext = applicationContext
         launch {
-            val artwork = MuzeiDatabase.getInstance(this@ArtworkComplicationProviderService)
-                    .artworkDao()
-                    .getCurrentArtwork()
+            val database = MuzeiDatabase.getInstance(applicationContext)
+            val provider = database.providerDao().getCurrentProvider()
+            if (provider == null) {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "Update no provider for $complicationId")
+                }
+                FeaturedArtProvider::class.select(applicationContext)
+                ActivateMuzeiIntentService.checkForPhoneApp(applicationContext)
+                complicationManager.updateComplicationData(complicationId,
+                        ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build())
+                return@launch
+            }
+            val artwork = database.artworkDao().getCurrentArtwork()
             if (artwork == null) {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "Update no artwork for $complicationId")
@@ -123,7 +136,9 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
             }
             val builder = ComplicationData.Builder(type).apply {
                 val intent = Intent(applicationContext, FullScreenActivity::class.java)
-                val tapAction = PendingIntent.getActivity(applicationContext, 0, intent, 0)
+                val taskStackBuilder = TaskStackBuilder.create(applicationContext)
+                        .addNextIntentWithParentStack(intent)
+                val tapAction = taskStackBuilder.getPendingIntent(0, 0)
                 when (type) {
                     ComplicationData.TYPE_LONG_TEXT -> {
                         val title = artwork.title

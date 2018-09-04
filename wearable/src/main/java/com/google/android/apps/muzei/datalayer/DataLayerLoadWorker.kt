@@ -16,30 +16,21 @@
 
 package com.google.android.apps.muzei.datalayer
 
-import android.content.ComponentName
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.Log
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
-import androidx.work.workDataOf
-import com.google.android.apps.muzei.FullScreenActivity
 import com.google.android.apps.muzei.api.provider.ProviderContract
-import com.google.android.apps.muzei.complications.ArtworkComplicationProviderService
-import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.room.select
 import com.google.android.apps.muzei.wearable.toArtwork
 import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.DataClient
 import com.google.android.gms.wearable.DataMapItem
 import com.google.android.gms.wearable.Wearable
-import kotlinx.coroutines.experimental.runBlocking
 import net.nurik.roman.muzei.BuildConfig
 import java.io.FileOutputStream
 import java.io.IOException
 import java.util.concurrent.ExecutionException
-import kotlin.reflect.KClass
 
 /**
  * Load artwork from the Wear Data Layer, writing it into [DataLayerArtProvider].
@@ -48,33 +39,21 @@ class DataLayerLoadWorker : Worker() {
 
     companion object {
         private const val TAG = "DataLayerLoadJobService"
-        private const val SHOW_ACTIVATE_NOTIFICATION_EXTRA = "SHOW_ACTIVATE_NOTIFICATION"
 
         /**
          * Load artwork from the Data Layer
-         *
-         * @param showNotification Show a notification to activate Muzei if the artwork is not found
          */
-        fun enqueueLoad(showNotification: Boolean = false) {
+        fun enqueueLoad() {
             val workManager = WorkManager.getInstance()
-            workManager.enqueue(OneTimeWorkRequestBuilder<DataLayerLoadWorker>().apply{
-                if (showNotification) {
-                    setInputData(workDataOf(SHOW_ACTIVATE_NOTIFICATION_EXTRA to true))
-                }
-            }.build())
+            workManager.enqueue(OneTimeWorkRequestBuilder<DataLayerLoadWorker>().build())
         }
     }
 
-    override fun doWork(): Result = runBlocking {
-        loadFromDataLayer()
-    }
+    override fun doWork(): Result = loadFromDataLayer()
 
-    private suspend fun loadFromDataLayer(): Result {
-        val showActivateNotification = inputData.getBoolean(SHOW_ACTIVATE_NOTIFICATION_EXTRA,
-                false)
+    private fun loadFromDataLayer(): Result {
         if (BuildConfig.DEBUG) {
-            Log.d(TAG, "Loading artwork from the DataLayer" +
-                    if (showActivateNotification) ", activating" else "")
+            Log.d(TAG, "Loading artwork from the DataLayer")
         }
         val dataClient = Wearable.getDataClient(applicationContext)
         try {
@@ -83,9 +62,6 @@ class DataLayerLoadWorker : Worker() {
             if (!dataItemBuffer.status.isSuccess) {
                 if (BuildConfig.DEBUG) {
                     Log.i(TAG, "Error getting artwork DataItem")
-                }
-                if (showActivateNotification) {
-                    ActivateMuzeiIntentService.maybeShowActivateMuzeiNotification(applicationContext)
                 }
                 return Result.FAILURE
             }
@@ -97,19 +73,7 @@ class DataLayerLoadWorker : Worker() {
                 if (BuildConfig.DEBUG) {
                     Log.w(TAG, "No artwork datamap found.")
                 }
-                if (showActivateNotification) {
-                    ActivateMuzeiIntentService.maybeShowActivateMuzeiNotification(applicationContext)
-                }
                 return Result.FAILURE
-            }
-            val selectedProvider = MuzeiDatabase.getInstance(applicationContext).providerDao()
-                    .getCurrentProvider()
-            val dataLayerProvider = ComponentName(applicationContext, DataLayerArtProvider::class.java)
-            if (selectedProvider == null || dataLayerProvider != selectedProvider.componentName) {
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "Switching to DataLayerProvider")
-                }
-                DataLayerArtProvider::class.select(applicationContext)
             }
             val result = Tasks.await<DataClient.GetFdForAssetResponse>(
                     dataClient.getFdForAsset(dataMap.getAsset("image")))
@@ -132,10 +96,6 @@ class DataLayerLoadWorker : Worker() {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "Successfully wrote artwork to $artworkUri")
                 }
-                enableComponents(
-                        FullScreenActivity::class,
-                        ArtworkComplicationProviderService::class)
-                ActivateMuzeiIntentService.clearNotifications(applicationContext)
             }
             return Result.SUCCESS
         } catch (e: ExecutionException) {
@@ -145,15 +105,5 @@ class DataLayerLoadWorker : Worker() {
             Log.w(TAG, "Error getting artwork from Wear Data Layer", e)
             return Result.FAILURE
         }
-    }
-
-    private fun enableComponents(vararg components: KClass<*>) {
-        components
-                .map { ComponentName(applicationContext, it.java) }
-                .forEach {
-                    applicationContext.packageManager.setComponentEnabledSetting(it,
-                            PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-                            PackageManager.DONT_KILL_APP)
-                }
     }
 }

@@ -1,5 +1,5 @@
 <!--
-  Copyright 2014 Google Inc.
+  Copyright 2018 Google Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,17 +14,12 @@
   limitations under the License.
   -->
 
-<resources>
-
-    <style name="MuzeiTheme" parent="android:Theme.DeviceDefault">
-        <item name="android:windowBackground">@android:color/black</item>
-        <item name="android:colorControlActivated">#3c6caf</item>
-    </style>
-
-    <style name="FullScreenTheme" parent="MuzeiTheme">
-        <item name="android:colorEdgeEffect">#fff</item>
-        <item name="android:progressBarStyleLarge">
-            @android:style/Widget.Material.ProgressBar.Large
-        </item>
-    </style>
-</resources>
+<gradient
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:endColor="#F000"
+    android:endX="90"
+    android:endY="90"
+    android:startColor="#F000"
+    android:startX="60"
+    android:startY="60"
+    android:type="linear"/>

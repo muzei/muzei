@@ -15,20 +15,11 @@
   -->
 
 <resources>
-    <string name="datalayer_source_title">From Phone</string>
-    <string name="datalayer_source_description">Sync the background between your phone and watch</string>
     <string name="complication_artwork_label">Artwork</string>
-    <string name="dismiss_overlay_intro">Long press anywhere to exit</string>
-    <string name="activate_channel_name">Activate Muzei</string>
-    <string name="activate_title">@string/app_name</string>
-    <string name="activate_no_play_store">Muzei will only show a static background
-        if you cannot install the Muzei Android app on your connected device.</string>
-    <string name="activate_install_muzei">Sync your background by installing Muzei on your connected device.</string>
-    <string name="activate_install_action">Open Play Store on your phone</string>
-    <string name="activate_install_failed">Unable to find your phone to install Muzei</string>
-    <string name="activate_enable_muzei">Activate Muzei sync on %s</string>
-    <string name="activate_action">Activate on %s</string>
-    <string name="activate_failed">Unable to find your phone to activate Muzei</string>
+    <string name="next_artwork">Next artwork</string>
+    <string name="provider_title">Current Source</string>
+    <string name="provider_settings">Source Settings</string>
+
     <string name="config_show_date_title">Date</string>
     <string name="config_top_complication_title">Top Complication</string>
     <string name="config_bottom_complication_title">Bottom Complication</string>

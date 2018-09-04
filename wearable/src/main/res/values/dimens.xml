@@ -21,11 +21,15 @@
     <dimen name="date_text_size">18sp</dimen>
     <dimen name="date_min_available_margin">32dp</dimen>
 
-    <dimen name="art_detail_metadata_margin">12dp</dimen>
-    <dimen name="art_detail_metadata_margin_bottom">@dimen/art_detail_metadata_margin</dimen>
-    <dimen name="art_detail_title_text_size">20sp</dimen>
-    <dimen name="art_detail_title_bottom_padding">4sp</dimen>
-    <dimen name="art_detail_title_byline_margin">-4sp</dimen>
-    <dimen name="art_detail_byline_text_size">16sp</dimen>
+    <dimen name="art_detail_image_size">64dp</dimen>
+    <dimen name="art_detail_image_radius">32dp</dimen>
 
+    <dimen name="art_detail_title_text_size">20sp</dimen>
+    <dimen name="art_detail_byline_text_size">16sp</dimen>
+    <dimen name="art_detail_attribution_text_size">16sp</dimen>
+
+    <dimen name="art_detail_open_on_phone_size">32dp</dimen>
+    <dimen name="art_detail_open_on_phone_radius">24dp</dimen>
+
+    <dimen name="choose_provider_image_size">48dp</dimen>
 </resources>
