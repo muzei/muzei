@@ -16,10 +16,10 @@
 
 <gradient
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:endColor="#F000"
-    android:endX="90"
-    android:endY="90"
+    android:endColor="#0000"
+    android:endX="48"
+    android:endY="48"
     android:startColor="#F000"
-    android:startX="60"
-    android:startY="60"
+    android:startX="12"
+    android:startY="12"
     android:type="linear"/>
