@@ -34,6 +34,7 @@ import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.getDescription
 import kotlinx.coroutines.experimental.runBlocking
+import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.FileNotFoundException
 
 /**
@@ -261,8 +262,10 @@ class MuzeiProvider : ContentProvider() {
         try {
             return context.contentResolver.openFileDescriptor(artwork.imageUri, mode)
         } catch (e: FileNotFoundException) {
-            Log.w(TAG, "Artwork ${artwork.imageUri} with id ${artwork.id} from request for $uri " +
-                    "is no longer valid, deleting", e)
+            if (BuildConfig.DEBUG) {
+                Log.w(TAG, "Artwork ${artwork.imageUri} with id ${artwork.id} from request for $uri " +
+                        "is no longer valid, deleting: ${e.message}")
+            }
             ensureBackground {
                 artworkDao.deleteById(artwork.id)
             }

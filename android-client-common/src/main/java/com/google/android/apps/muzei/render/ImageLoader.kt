@@ -27,6 +27,7 @@ import android.support.media.ExifInterface
 import android.util.Log
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.withContext
+import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
@@ -77,7 +78,9 @@ sealed class ImageLoader {
             val height = if (rotation == 90 || rotation == 270) originalWidth else originalHeight
             return width to height
         } catch (e: Exception) {
-            Log.w(TAG, "Error decoding ${toString()}", e)
+            if (BuildConfig.DEBUG) {
+                Log.w(TAG, "Error decoding ${toString()}: ${e.message}")
+            }
             0 to 0
         }
     }
@@ -126,7 +129,9 @@ sealed class ImageLoader {
                 }
             }
         } catch (e: Exception) {
-            Log.w(TAG, "Error decoding ${toString()}", e)
+            if (BuildConfig.DEBUG) {
+                Log.w(TAG, "Error decoding ${toString()}: ${e.message}")
+            }
             null
         }
     }
