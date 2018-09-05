@@ -23,7 +23,7 @@ buildscript {
         coroutinesVersion = "0.25.3"
         ktxVersion = "0.3"
         supportLibraryVersion = "28.0.0-rc01"
-        constraintLayoutVersion = "1.1.2"
+        constraintLayoutVersion = "1.1.3"
         lifecycleVersion = "1.1.1"
         roomVersion = "1.1.1"
         pagingVersion = "1.0.1"
