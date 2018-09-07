@@ -72,6 +72,7 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_R
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_COMMANDS;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_DESCRIPTION;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_LOAD_INFO;
+import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_MARK_ARTWORK_INVALID;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_MARK_ARTWORK_LOADED;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_OPEN_ARTWORK_INFO;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_REQUEST_LOAD;
@@ -346,6 +347,14 @@ public abstract class MuzeiArtProvider extends ContentProvider {
                         onLoadRequested(data == null || data.getCount() == 0);
                     }
                     break;
+                case METHOD_MARK_ARTWORK_INVALID:
+                    try (Cursor data = context.getContentResolver().query(Uri.parse(arg),
+                            null, null, null, null)) {
+                        if (data != null && data.moveToNext()) {
+                            onInvalidArtwork(Artwork.fromCursor(data));
+                        }
+                    }
+                    break;
                 case METHOD_MARK_ARTWORK_LOADED:
                     try (Cursor data = query(contentUri,
                             null, null, null, null)) {
@@ -452,6 +461,21 @@ public abstract class MuzeiArtProvider extends ContentProvider {
      *                the initial load of this MuzeiArtProvider.
      */
     protected abstract void onLoadRequested(boolean initial);
+
+    /**
+     * Called when Muzei failed to load the given artwork, usually due to an incompatibility
+     * in supported image format. The default behavior is to delete the artwork.
+     * <p>
+     * If you only support a single artwork, you should use this callback as an opportunity
+     * to provide an alternate version of the artwork or a backup image to avoid repeatedly
+     * loading the same artwork, just to mark it as invalid and be left with no valid artwork.
+     *
+     * @param artwork Artwork that Muzei has failed to load
+     */
+    protected void onInvalidArtwork(@NonNull Artwork artwork) {
+        Uri artworkUri = ContentUris.withAppendedId(contentUri, artwork.getId());
+        delete(artworkUri, null, null);
+    }
 
     /**
      * Gets the longer description for the current state of this MuzeiArtProvider. For example,

@@ -265,7 +265,15 @@ class ProviderChangedWorker : Worker() {
         val artworkUri = ContentUris.withAppendedId(contentUri, providerArtwork.id)
         try {
             client.openInputStream(artworkUri)?.use { inputStream ->
-                return inputStream.isValidImage()
+                if (inputStream.isValidImage()) {
+                    return true
+                } else {
+                    if (BuildConfig.DEBUG) {
+                        Log.w(TAG, "Artwork $artworkUri is not a valid image")
+                    }
+                    // Tell the client that the artwork is invalid
+                    client.call(ProtocolConstants.METHOD_MARK_ARTWORK_INVALID, artworkUri.toString())
+                }
             }
         } catch (e: IOException) {
             Log.w(TAG, "Unable to preload artwork $artworkUri", e)

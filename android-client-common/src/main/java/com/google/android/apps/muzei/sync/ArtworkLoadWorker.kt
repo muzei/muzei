@@ -31,6 +31,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
+import com.google.android.apps.muzei.api.internal.ProtocolConstants
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_MAX_LOADED_ARTWORK_ID
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_RECENT_ARTWORK_IDS
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_LOAD_INFO
@@ -230,6 +231,12 @@ class ArtworkLoadWorker : Worker() {
                         byline = providerArtwork.byline
                         attribution = providerArtwork.attribution
                     }
+                } else {
+                    if (BuildConfig.DEBUG) {
+                        Log.w(TAG, "Artwork $artworkUri is not a valid image")
+                    }
+                    // Tell the client that the artwork is invalid
+                    client.call(ProtocolConstants.METHOD_MARK_ARTWORK_INVALID, artworkUri.toString())
                 }
             }
         } catch (e: IOException) {
