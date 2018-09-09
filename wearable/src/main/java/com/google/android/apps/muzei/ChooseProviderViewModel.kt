@@ -20,7 +20,6 @@ import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.Observer
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
@@ -30,9 +29,6 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.datalayer.DataLayerArtProvider
-import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.room.Provider
-import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.newSingleThreadContext
 
@@ -40,31 +36,23 @@ data class ProviderInfo(
         val componentName: ComponentName,
         val title: String,
         val icon: Drawable,
-        val setupActivity: ComponentName?,
-        val settingsActivity: ComponentName?,
-        val selected: Boolean
+        val setupActivity: ComponentName?
 ) {
     constructor(
             packageManager: PackageManager,
-            providerInfo: android.content.pm.ProviderInfo,
-            selected: Boolean
+            providerInfo: android.content.pm.ProviderInfo
     ) : this(
             ComponentName(providerInfo.packageName, providerInfo.name),
             providerInfo.loadLabel(packageManager).toString(),
             providerInfo.loadIcon(packageManager),
             providerInfo.metaData?.getString("setupActivity")?.run {
                 ComponentName(providerInfo.packageName, this)
-            },
-            providerInfo.metaData?.getString("settingsActivity")?.run {
-                ComponentName(providerInfo.packageName, this)
-            },
-            selected)
+            })
 }
 
 class ChooseProviderViewModel(application: Application) : AndroidViewModel(application) {
 
     private val currentProviders = HashMap<ComponentName, ProviderInfo>()
-    private var activeProvider : Provider? = null
 
     private val singleThreadContext = newSingleThreadContext("ChooseProvider")
 
@@ -126,8 +114,7 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
                         ri.providerInfo.name)
                 existingProviders.removeAll { it.componentName == componentName }
                 if (ri.providerInfo.enabled) {
-                    val selected = componentName == activeProvider?.componentName
-                    newProviders[componentName] = ProviderInfo(pm, ri.providerInfo, selected)
+                    newProviders[componentName] = ProviderInfo(pm, ri.providerInfo)
                 } else {
                     newProviders.remove(componentName)
                 }
@@ -143,20 +130,6 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
     }
 
     private val mutableProviders : MutableLiveData<List<ProviderInfo>> = object : MutableLiveData<List<ProviderInfo>>() {
-        val currentProviderLiveData = MuzeiDatabase.getInstance(application).providerDao()
-                .currentProvider
-        val currentProviderObserver = Observer<Provider?> { provider ->
-            activeProvider = provider
-            if (provider != null) {
-                currentProviders.forEach {
-                    val newlySelected = it.key == provider.componentName
-                    if (it.value.selected != newlySelected) {
-                        currentProviders[it.key] = it.value.copy(selected = newlySelected)
-                    }
-                }
-                value = currentProviders.values.sortedWith(comparator)
-            }
-        }
 
         override fun onActive() {
             // Register for package change events
@@ -170,18 +143,10 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
             application.registerReceiver(packageChangeReceiver, packageChangeFilter)
             launch(singleThreadContext) {
                 updateProviders()
-                launch(UI) {
-                    if (isActive) {
-                        currentProviderLiveData.observeForever(currentProviderObserver)
-                    }
-                }
             }
         }
 
         override fun onInactive() {
-            if (currentProviderLiveData.hasObservers()) {
-                currentProviderLiveData.removeObserver(currentProviderObserver)
-            }
             application.unregisterReceiver(packageChangeReceiver)
         }
     }
