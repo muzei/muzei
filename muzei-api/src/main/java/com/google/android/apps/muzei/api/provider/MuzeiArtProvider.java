@@ -19,11 +19,14 @@ import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.ContentProvider;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
@@ -314,12 +317,21 @@ public abstract class MuzeiArtProvider extends ContentProvider {
      */
     @Nullable
     protected final Uri setArtwork(@NonNull Artwork artwork) {
-        Uri artworkUri = insert(contentUri, artwork.toContentValues());
-        if (artworkUri != null) {
-            delete(contentUri, BaseColumns._ID + " != ?",
-                    new String[]{Long.toString(ContentUris.parseId(artworkUri))});
+        ArrayList<ContentProviderOperation> operations = new ArrayList<>();
+        operations.add(ContentProviderOperation.newInsert(contentUri)
+                .withValues(artwork.toContentValues())
+                .build());
+        operations.add(ContentProviderOperation.newDelete(contentUri)
+                .withSelection(BaseColumns._ID + " != ?", new String[1])
+                .withSelectionBackReference(0, 0)
+                .build());
+        try {
+            ContentProviderResult[] results = applyBatch(operations);
+            return results[0].uri;
+        } catch (OperationApplicationException e) {
+            Log.e(TAG, "setArtwork failed", e);
+            return null;
         }
-        return artworkUri;
     }
 
     @CallSuper
