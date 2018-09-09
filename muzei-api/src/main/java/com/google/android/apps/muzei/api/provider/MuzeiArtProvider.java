@@ -650,7 +650,8 @@ public abstract class MuzeiArtProvider extends ContentProvider {
                                         ProviderContract.Artwork.WEB_URI)) &&
                                 TextUtils.equals(metadata, values.getAsString(
                                         ProviderContract.Artwork.METADATA));
-                        long id = existingData.getLong(0);
+                        long id = existingData.getLong(existingData.getColumnIndex(
+                                BaseColumns._ID));
                         Uri updateUri = ContentUris.withAppendedId(contentUri, id);
                         if (noChange) {
                             // Just update the DATE_MODIFIED and don't send a notifyChange()
