@@ -19,18 +19,12 @@ package com.google.android.apps.muzei
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
-import android.content.BroadcastReceiver
+import android.arch.lifecycle.Transformations
 import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
-import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.datalayer.DataLayerArtProvider
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.newSingleThreadContext
+import com.google.android.apps.muzei.room.InstalledProvidersLiveData
 
 data class ProviderInfo(
         val componentName: ComponentName,
@@ -51,10 +45,6 @@ data class ProviderInfo(
 }
 
 class ChooseProviderViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val currentProviders = HashMap<ComponentName, ProviderInfo>()
-
-    private val singleThreadContext = newSingleThreadContext("ChooseProvider")
 
     private val dataLayerArtProvider = ComponentName(application, DataLayerArtProvider::class.java)
 
@@ -79,77 +69,12 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
         p1.title.compareTo(p2.title)
     }
 
-    private val packageChangeReceiver : BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent?) {
-            if (intent?.data == null) {
-                return
-            }
-            launch(singleThreadContext) {
-                updateProviders(intent.data?.schemeSpecificPart)
-            }
-        }
-    }
+    private val mutableProviders = InstalledProvidersLiveData(application)
 
-    private fun updateProviders(packageName: String? = null) {
-        val queryIntent = Intent(MuzeiArtProvider.ACTION_MUZEI_ART_PROVIDER)
-        if (packageName != null) {
-            queryIntent.`package` = packageName
-        }
-        val context = getApplication<Application>()
-        val pm = context.packageManager
-        val resolveInfos = pm.queryIntentContentProviders(queryIntent,
-                PackageManager.GET_META_DATA)
-        if (resolveInfos != null) {
-            val newProviders = HashMap<ComponentName, ProviderInfo>().apply {
-                putAll(currentProviders)
+    val providers : LiveData<List<ProviderInfo>?> = Transformations
+            .map(mutableProviders) { providerInfos ->
+                providerInfos.map { providerInfo ->
+                    ProviderInfo(application.packageManager, providerInfo)
+                }.sortedWith(comparator)
             }
-            val existingProviders = HashSet(currentProviders.values)
-            if (packageName != null) {
-                existingProviders.removeAll {
-                    it.componentName.packageName != packageName
-                }
-            }
-            for (ri in resolveInfos) {
-                val componentName = ComponentName(ri.providerInfo.packageName,
-                        ri.providerInfo.name)
-                existingProviders.removeAll { it.componentName == componentName }
-                if (ri.providerInfo.enabled) {
-                    newProviders[componentName] = ProviderInfo(pm, ri.providerInfo)
-                } else {
-                    newProviders.remove(componentName)
-                }
-            }
-            // Remove providers that weren't found in the resolveInfos
-            existingProviders.forEach {
-                newProviders.remove(it.componentName)
-            }
-            currentProviders.clear()
-            currentProviders.putAll(newProviders)
-            mutableProviders.postValue(currentProviders.values.sortedWith(comparator))
-        }
-    }
-
-    private val mutableProviders : MutableLiveData<List<ProviderInfo>> = object : MutableLiveData<List<ProviderInfo>>() {
-
-        override fun onActive() {
-            // Register for package change events
-            val packageChangeFilter = IntentFilter().apply {
-                addDataScheme("package")
-                addAction(Intent.ACTION_PACKAGE_ADDED)
-                addAction(Intent.ACTION_PACKAGE_CHANGED)
-                addAction(Intent.ACTION_PACKAGE_REPLACED)
-                addAction(Intent.ACTION_PACKAGE_REMOVED)
-            }
-            application.registerReceiver(packageChangeReceiver, packageChangeFilter)
-            launch(singleThreadContext) {
-                updateProviders()
-            }
-        }
-
-        override fun onInactive() {
-            application.unregisterReceiver(packageChangeReceiver)
-        }
-    }
-
-    val providers : LiveData<List<ProviderInfo>?> = mutableProviders
 }

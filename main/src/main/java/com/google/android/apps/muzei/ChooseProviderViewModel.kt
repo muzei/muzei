@@ -22,17 +22,15 @@ import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
-import android.content.BroadcastReceiver
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
+import com.google.android.apps.muzei.room.InstalledProvidersLiveData
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
+import com.google.android.apps.muzei.room.getComponentName
 import com.google.android.apps.muzei.room.getProviderDescription
 import com.google.android.apps.muzei.sources.SourceArtProvider
 import kotlinx.coroutines.experimental.android.UI
@@ -122,78 +120,60 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
         p1.title.compareTo(p2.title)
     }
 
-    private val packageChangeReceiver : BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent?) {
-            if (intent?.data == null) {
-                return
-            }
-            launch(singleThreadContext) {
-                updateProviders(intent.data?.schemeSpecificPart)
-            }
-        }
-    }
-
-    private suspend fun updateProviders(packageName: String? = null) {
-        val queryIntent = Intent(MuzeiArtProvider.ACTION_MUZEI_ART_PROVIDER)
-        if (packageName != null) {
-            queryIntent.`package` = packageName
-        }
+    private suspend fun updateProviders(providerInfos: List<android.content.pm.ProviderInfo>) {
         val context = getApplication<Application>()
         val pm = context.packageManager
-        val resolveInfos = pm.queryIntentContentProviders(queryIntent,
-                PackageManager.GET_META_DATA)
-        if (resolveInfos != null) {
-            val newProviders = HashMap<ComponentName, ProviderInfo>().apply {
-                putAll(currentProviders)
-            }
-            val existingProviders = HashSet(currentProviders.values)
-            if (packageName != null) {
-                existingProviders.removeAll {
-                    it.componentName.packageName != packageName
-                }
-            }
-            existingProviders.removeAll {
-                it.componentName == playStoreComponentName
-            }
-            for (ri in resolveInfos) {
-                val componentName = ComponentName(ri.providerInfo.packageName,
-                        ri.providerInfo.name)
-                existingProviders.removeAll { it.componentName == componentName }
-                if (ri.providerInfo.enabled) {
-                    val selected = componentName == activeProvider?.componentName
-                    val description = componentName.getProviderDescription(context)
-                    val currentArtwork = MuzeiDatabase.getInstance(context).artworkDao()
-                            .getCurrentArtworkForProvider(componentName)
-                    newProviders[componentName] = ProviderInfo(pm, ri.providerInfo,
-                            description, currentArtwork?.imageUri, selected)
-                } else {
-                    newProviders.remove(componentName)
-                }
-            }
-            // Remove providers that weren't found in the resolveInfos
-            existingProviders.forEach {
-                newProviders.remove(it.componentName)
-            }
-            if (playStoreComponentName != null &&
-                    newProviders[playStoreComponentName] == null) {
-                newProviders[playStoreComponentName] = ProviderInfo(
-                        playStoreComponentName,
-                        context.getString(R.string.get_more_sources),
-                        context.getString(R.string.get_more_sources_description),
-                        null,
-                        pm.getActivityLogo(playStoreIntent)
-                                ?: pm.getApplicationIcon(PLAY_STORE_PACKAGE_NAME),
-                        null,
-                        null,
-                        false)
-            }
-            currentProviders.clear()
-            currentProviders.putAll(newProviders)
-            mutableProviders.postValue(currentProviders.values.sortedWith(comparator))
+        val newProviders = HashMap<ComponentName, ProviderInfo>().apply {
+            putAll(currentProviders)
         }
+        val existingProviders = HashSet(currentProviders.values)
+        existingProviders.removeAll {
+            it.componentName == playStoreComponentName
+        }
+        for (providerInfo in providerInfos) {
+            val componentName = providerInfo.getComponentName()
+            existingProviders.removeAll { it.componentName == componentName }
+            val selected = componentName == activeProvider?.componentName
+            val description = componentName.getProviderDescription(context)
+            val currentArtwork = MuzeiDatabase.getInstance(context).artworkDao()
+                    .getCurrentArtworkForProvider(componentName)
+            newProviders[componentName] = ProviderInfo(pm, providerInfo,
+                    description, currentArtwork?.imageUri, selected)
+        }
+        // Remove providers that weren't found in the providerInfos
+        existingProviders.forEach {
+            newProviders.remove(it.componentName)
+        }
+        if (playStoreComponentName != null &&
+                newProviders[playStoreComponentName] == null) {
+            newProviders[playStoreComponentName] = ProviderInfo(
+                    playStoreComponentName,
+                    context.getString(R.string.get_more_sources),
+                    context.getString(R.string.get_more_sources_description),
+                    null,
+                    pm.getActivityLogo(playStoreIntent)
+                            ?: pm.getApplicationIcon(PLAY_STORE_PACKAGE_NAME),
+                    null,
+                    null,
+                    false)
+        }
+        currentProviders.clear()
+        currentProviders.putAll(newProviders)
+        mutableProviders.postValue(currentProviders.values.sortedWith(comparator))
     }
 
     private val mutableProviders : MutableLiveData<List<ProviderInfo>> = object : MutableLiveData<List<ProviderInfo>>() {
+        val allProvidersLiveData = InstalledProvidersLiveData(application)
+        val allProvidersObserver = Observer<List<android.content.pm.ProviderInfo>> { providerInfos ->
+            if (providerInfos != null) {
+                launch(singleThreadContext) {
+                    updateProviders(providerInfos)
+                    launch(UI) {
+                        startObserving()
+                    }
+                }
+            }
+        }
         val currentProviderLiveData = MuzeiDatabase.getInstance(application).providerDao()
                 .currentProvider
         val currentProviderObserver = Observer<Provider?> { provider ->
@@ -224,23 +204,13 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
         }
 
         override fun onActive() {
-            // Register for package change events
-            val packageChangeFilter = IntentFilter().apply {
-                addDataScheme("package")
-                addAction(Intent.ACTION_PACKAGE_ADDED)
-                addAction(Intent.ACTION_PACKAGE_CHANGED)
-                addAction(Intent.ACTION_PACKAGE_REPLACED)
-                addAction(Intent.ACTION_PACKAGE_REMOVED)
-            }
-            application.registerReceiver(packageChangeReceiver, packageChangeFilter)
-            launch(singleThreadContext) {
-                updateProviders()
-                launch(UI) {
-                    if (isActive) {
-                        currentProviderLiveData.observeForever(currentProviderObserver)
-                        currentArtworkByProviderLiveData.observeForever(currentArtworkByProviderObserver)
-                    }
-                }
+            allProvidersLiveData.observeForever(allProvidersObserver)
+        }
+
+        fun startObserving() {
+            if (hasActiveObservers() && !currentArtworkByProviderLiveData.hasObservers()) {
+                currentProviderLiveData.observeForever(currentProviderObserver)
+                currentArtworkByProviderLiveData.observeForever(currentArtworkByProviderObserver)
             }
         }
 
@@ -249,7 +219,7 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
                 currentArtworkByProviderLiveData.removeObserver(currentArtworkByProviderObserver)
                 currentProviderLiveData.removeObserver(currentProviderObserver)
             }
-            application.unregisterReceiver(packageChangeReceiver)
+            allProvidersLiveData.removeObserver(allProvidersObserver)
         }
     }
 
