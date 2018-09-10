@@ -19,11 +19,14 @@ import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.ContentProvider;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
@@ -60,7 +63,9 @@ import java.net.URL;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_COMMAND;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_COMMANDS;
@@ -259,6 +264,25 @@ public abstract class MuzeiArtProvider extends ContentProvider {
     private String authority;
     private Uri contentUri;
 
+    private final ThreadLocal<Boolean> applyingBatch = new ThreadLocal<>();
+    private final ThreadLocal<Set<Uri>> changedUris = new ThreadLocal<>();
+
+    private boolean applyingBatch() {
+        return applyingBatch.get() != null && applyingBatch.get();
+    }
+
+    private void onOperationComplete() {
+        Context context = getContext();
+        if (context == null) {
+            return;
+        }
+        ContentResolver contentResolver = context.getContentResolver();
+        for (Uri uri : changedUris.get()) {
+            Log.d(TAG, "Notified for batch change on " + uri);
+            contentResolver.notifyChange(uri, null);
+        }
+    }
+
     /**
      * Retrieve the content URI for this {@link MuzeiArtProvider}, allowing you to build
      * custom queries, inserts, updates, and deletes using a {@link ContentResolver}.
@@ -314,12 +338,21 @@ public abstract class MuzeiArtProvider extends ContentProvider {
      */
     @Nullable
     protected final Uri setArtwork(@NonNull Artwork artwork) {
-        Uri artworkUri = insert(contentUri, artwork.toContentValues());
-        if (artworkUri != null) {
-            delete(contentUri, BaseColumns._ID + " != ?",
-                    new String[]{Long.toString(ContentUris.parseId(artworkUri))});
+        ArrayList<ContentProviderOperation> operations = new ArrayList<>();
+        operations.add(ContentProviderOperation.newInsert(contentUri)
+                .withValues(artwork.toContentValues())
+                .build());
+        operations.add(ContentProviderOperation.newDelete(contentUri)
+                .withSelection(BaseColumns._ID + " != ?", new String[1])
+                .withSelectionBackReference(0, 0)
+                .build());
+        try {
+            ContentProviderResult[] results = applyBatch(operations);
+            return results[0].uri;
+        } catch (OperationApplicationException e) {
+            Log.e(TAG, "setArtwork failed", e);
+            return null;
         }
-        return artworkUri;
     }
 
     @CallSuper
@@ -597,6 +630,45 @@ public abstract class MuzeiArtProvider extends ContentProvider {
         }
     }
 
+    @NonNull
+    @Override
+    public final ContentProviderResult[] applyBatch(
+            @NonNull final ArrayList<ContentProviderOperation> operations
+    ) throws OperationApplicationException {
+        changedUris.set(new HashSet<Uri>());
+        final SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        ContentProviderResult[] results;
+        db.beginTransaction();
+        try {
+            applyingBatch.set(true);
+            results = super.applyBatch(operations);
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+            applyingBatch.set(false);
+            onOperationComplete();
+        }
+        return results;
+    }
+
+    @Override
+    public final int bulkInsert(@NonNull final Uri uri, @NonNull final ContentValues[] values) {
+        changedUris.set(new HashSet<Uri>());
+        final SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        int numberInserted;
+        db.beginTransaction();
+        try {
+            applyingBatch.set(true);
+            numberInserted = super.bulkInsert(uri, values);
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+            applyingBatch.set(false);
+            onOperationComplete();
+        }
+        return numberInserted;
+    }
+
     @Nullable
     @Override
     public final Uri insert(@NonNull final Uri uri, @Nullable ContentValues values) {
@@ -701,8 +773,12 @@ public abstract class MuzeiArtProvider extends ContentProvider {
         db.endTransaction();
         // Creates a URI with the artwork ID pattern and the new row ID appended to it.
         final Uri artworkUri = ContentUris.withAppendedId(contentUri, rowId);
-        Log.d(TAG, "Notified for insert on " + artworkUri);
-        context.getContentResolver().notifyChange(artworkUri, null);
+        if (applyingBatch()) {
+            changedUris.get().add(artworkUri);
+        } else {
+            Log.d(TAG, "Notified for insert on " + artworkUri);
+            context.getContentResolver().notifyChange(artworkUri, null);
+        }
         return artworkUri;
     }
 
@@ -738,8 +814,12 @@ public abstract class MuzeiArtProvider extends ContentProvider {
         // Then delete the rows themselves
         count = db.delete(TABLE_NAME, finalWhere, selectionArgs);
         if (count > 0 && getContext() != null) {
-            Log.d(TAG, "Notified for delete on " + uri);
-            getContext().getContentResolver().notifyChange(uri, null);
+            if (applyingBatch()) {
+                changedUris.get().add(uri);
+            } else {
+                Log.d(TAG, "Notified for delete on " + uri);
+                getContext().getContentResolver().notifyChange(uri, null);
+            }
         }
         return count;
     }
@@ -772,8 +852,12 @@ public abstract class MuzeiArtProvider extends ContentProvider {
         values.put(ProviderContract.Artwork.DATE_MODIFIED, System.currentTimeMillis());
         count = db.update(TABLE_NAME, values, finalWhere, selectionArgs);
         if (count > 0 && getContext() != null) {
-            Log.d(TAG, "Notified for update on " + uri);
-            getContext().getContentResolver().notifyChange(uri, null);
+            if (applyingBatch()) {
+                changedUris.get().add(uri);
+            } else {
+                Log.d(TAG, "Notified for update on " + uri);
+                getContext().getContentResolver().notifyChange(uri, null);
+            }
         }
         return count;
     }

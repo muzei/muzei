@@ -17,18 +17,24 @@ package com.google.android.apps.muzei.api.provider;
 
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.Context;
+import android.content.OperationApplicationException;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.os.RemoteException;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+
+import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * Contract between Muzei and Muzei Art Providers, containing the definitions for all supported
@@ -270,12 +276,22 @@ public class ProviderContract {
                 @NonNull com.google.android.apps.muzei.api.provider.Artwork artwork) {
             ContentResolver contentResolver = context.getContentResolver();
             Uri contentUri = getContentUri(context, provider);
-            Uri artworkUri = contentResolver.insert(contentUri, artwork.toContentValues());
-            if (artworkUri != null) {
-                contentResolver.delete(contentUri, BaseColumns._ID + " != ?",
-                        new String[]{Long.toString(ContentUris.parseId(artworkUri))});
+            ArrayList<ContentProviderOperation> operations = new ArrayList<>();
+            operations.add(ContentProviderOperation.newInsert(contentUri)
+                    .withValues(artwork.toContentValues())
+                    .build());
+            operations.add(ContentProviderOperation.newDelete(contentUri)
+                    .withSelection(BaseColumns._ID + " != ?", new String[1])
+                    .withSelectionBackReference(0, 0)
+                    .build());
+            try {
+                ContentProviderResult[] results = contentResolver.applyBatch(
+                        Objects.requireNonNull(contentUri.getAuthority()),
+                        operations);
+                return results[0].uri;
+            } catch (OperationApplicationException|RemoteException e) {
+                return null;
             }
-            return artworkUri;
         }
     }
 }
