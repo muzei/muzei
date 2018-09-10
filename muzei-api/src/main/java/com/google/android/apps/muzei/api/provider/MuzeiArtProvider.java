@@ -63,7 +63,9 @@ import java.net.URL;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_COMMAND;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_COMMANDS;
@@ -261,6 +263,25 @@ public abstract class MuzeiArtProvider extends ContentProvider {
     private DatabaseHelper databaseHelper;
     private String authority;
     private Uri contentUri;
+
+    private final ThreadLocal<Boolean> applyingBatch = new ThreadLocal<>();
+    private final ThreadLocal<Set<Uri>> changedUris = new ThreadLocal<>();
+
+    private boolean applyingBatch() {
+        return applyingBatch.get() != null && applyingBatch.get();
+    }
+
+    private void onOperationComplete() {
+        Context context = getContext();
+        if (context == null) {
+            return;
+        }
+        ContentResolver contentResolver = context.getContentResolver();
+        for (Uri uri : changedUris.get()) {
+            Log.d(TAG, "Notified for batch change on " + uri);
+            contentResolver.notifyChange(uri, null);
+        }
+    }
 
     /**
      * Retrieve the content URI for this {@link MuzeiArtProvider}, allowing you to build
@@ -609,6 +630,24 @@ public abstract class MuzeiArtProvider extends ContentProvider {
         }
     }
 
+    @Override
+    public final int bulkInsert(@NonNull final Uri uri, @NonNull final ContentValues[] values) {
+        changedUris.set(new HashSet<Uri>());
+        final SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        int numberInserted;
+        db.beginTransaction();
+        try {
+            applyingBatch.set(true);
+            numberInserted = super.bulkInsert(uri, values);
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+            applyingBatch.set(false);
+            onOperationComplete();
+        }
+        return numberInserted;
+    }
+
     @Nullable
     @Override
     public final Uri insert(@NonNull final Uri uri, @Nullable ContentValues values) {
@@ -713,8 +752,12 @@ public abstract class MuzeiArtProvider extends ContentProvider {
         db.endTransaction();
         // Creates a URI with the artwork ID pattern and the new row ID appended to it.
         final Uri artworkUri = ContentUris.withAppendedId(contentUri, rowId);
-        Log.d(TAG, "Notified for insert on " + artworkUri);
-        context.getContentResolver().notifyChange(artworkUri, null);
+        if (applyingBatch()) {
+            changedUris.get().add(artworkUri);
+        } else {
+            Log.d(TAG, "Notified for insert on " + artworkUri);
+            context.getContentResolver().notifyChange(artworkUri, null);
+        }
         return artworkUri;
     }
 
@@ -750,8 +793,12 @@ public abstract class MuzeiArtProvider extends ContentProvider {
         // Then delete the rows themselves
         count = db.delete(TABLE_NAME, finalWhere, selectionArgs);
         if (count > 0 && getContext() != null) {
-            Log.d(TAG, "Notified for delete on " + uri);
-            getContext().getContentResolver().notifyChange(uri, null);
+            if (applyingBatch()) {
+                changedUris.get().add(uri);
+            } else {
+                Log.d(TAG, "Notified for delete on " + uri);
+                getContext().getContentResolver().notifyChange(uri, null);
+            }
         }
         return count;
     }
@@ -784,8 +831,12 @@ public abstract class MuzeiArtProvider extends ContentProvider {
         values.put(ProviderContract.Artwork.DATE_MODIFIED, System.currentTimeMillis());
         count = db.update(TABLE_NAME, values, finalWhere, selectionArgs);
         if (count > 0 && getContext() != null) {
-            Log.d(TAG, "Notified for update on " + uri);
-            getContext().getContentResolver().notifyChange(uri, null);
+            if (applyingBatch()) {
+                changedUris.get().add(uri);
+            } else {
+                Log.d(TAG, "Notified for update on " + uri);
+                getContext().getContentResolver().notifyChange(uri, null);
+            }
         }
         return count;
     }
