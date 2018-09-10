@@ -630,6 +630,27 @@ public abstract class MuzeiArtProvider extends ContentProvider {
         }
     }
 
+    @NonNull
+    @Override
+    public final ContentProviderResult[] applyBatch(
+            @NonNull final ArrayList<ContentProviderOperation> operations
+    ) throws OperationApplicationException {
+        changedUris.set(new HashSet<Uri>());
+        final SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        ContentProviderResult[] results;
+        db.beginTransaction();
+        try {
+            applyingBatch.set(true);
+            results = super.applyBatch(operations);
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+            applyingBatch.set(false);
+            onOperationComplete();
+        }
+        return results;
+    }
+
     @Override
     public final int bulkInsert(@NonNull final Uri uri, @NonNull final ContentValues[] values) {
         changedUris.set(new HashSet<Uri>());
