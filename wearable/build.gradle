@@ -36,6 +36,10 @@ android {
         versionName versionProps['name']
         versionCode versionProps['codeWear'].toInteger()
 
+        def datalayerAuthorityValue = "com.google.android.apps.muzei.datalayer"
+        manifestPlaceholders = [datalayerAuthority: datalayerAuthorityValue]
+        buildConfigField "String", "DATA_LAYER_AUTHORITY", "\"${datalayerAuthorityValue}\""
+
         buildConfigField "String", "DEVICE_TYPE", "\"wear\""
     }
 

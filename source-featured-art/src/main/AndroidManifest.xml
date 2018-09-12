@@ -25,7 +25,7 @@
     <application>
         <provider
             android:name="com.google.android.apps.muzei.featuredart.FeaturedArtProvider"
-            android:authorities="com.google.android.apps.muzei.featuredart"
+            android:authorities="${featuredArtAuthority}"
             android:description="@string/featuredart_source_description"
             android:label="@string/featuredart_source_title"
             android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER">

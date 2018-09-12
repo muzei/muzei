@@ -41,6 +41,10 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion rootProject.ext.targetSdkVersion
+
+        def featuredArtAuthorityValue = "com.google.android.apps.muzei.featuredart"
+        manifestPlaceholders = [featuredArtAuthority: featuredArtAuthorityValue]
+        buildConfigField "String", "FEATURED_ART_AUTHORITY", "\"${featuredArtAuthorityValue}\""
     }
 
     buildTypes {

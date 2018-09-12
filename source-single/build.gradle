@@ -38,6 +38,10 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion rootProject.ext.targetSdkVersion
+
+        def singleAuthorityValue = "com.google.android.apps.muzei.single"
+        manifestPlaceholders = [singleAuthority: singleAuthorityValue]
+        buildConfigField "String", "SINGLE_AUTHORITY", "\"${singleAuthorityValue}\""
     }
 
     buildTypes {

@@ -69,7 +69,7 @@
 
         <provider
             android:name="com.google.android.apps.muzei.datalayer.DataLayerArtProvider"
-            android:authorities="com.google.android.apps.muzei.datalayer"
+            android:authorities="${datalayerAuthority}"
             android:icon="@drawable/datalayer_ic_launcher"
             android:label="@string/datalayer_source_title"
             android:description="@string/datalayer_source_description"

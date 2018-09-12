@@ -23,7 +23,7 @@
 
         <provider
             android:name="com.google.android.apps.muzei.single.SingleArtProvider"
-            android:authorities="com.google.android.apps.muzei.single"
+            android:authorities="${singleAuthority}"
             android:description="@string/single_description"
             android:icon="@drawable/single_ic_launcher"
             android:label="@string/single_title"

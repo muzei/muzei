@@ -40,6 +40,11 @@ android {
         versionCode versionProps['code'].toInteger()
 
         wearAppUnbundled true
+
+        def sourcesAuthorityValue = "com.google.android.apps.muzei.sources"
+        manifestPlaceholders = [sourcesAuthority: sourcesAuthorityValue]
+        buildConfigField "String", "SOURCES_AUTHORITY", "\"${sourcesAuthorityValue}\""
+
         buildConfigField "String", "DEVICE_TYPE", "\"android\""
     }
 
