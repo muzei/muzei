@@ -30,7 +30,7 @@ import android.net.Uri
 import com.google.android.apps.muzei.room.InstalledProvidersLiveData
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
-import com.google.android.apps.muzei.room.getProviderDescription
+import com.google.android.apps.muzei.sync.ProviderManager
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.newSingleThreadContext
@@ -134,7 +134,7 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
             val authority = providerInfo.authority
             existingProviders.removeAll { it.authority == authority }
             val selected = authority == activeProvider?.authority
-            val description = authority.getProviderDescription(context)
+            val description = ProviderManager.getDescription(context, authority)
             val currentArtwork = MuzeiDatabase.getInstance(context).artworkDao()
                     .getCurrentArtworkForProvider(authority)
             newProviders[authority] = ProviderInfo(pm, providerInfo,
@@ -228,7 +228,7 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
 
     internal fun refreshDescription(authority: String) {
         launch {
-            val updatedDescription = authority.getProviderDescription(getApplication())
+            val updatedDescription = ProviderManager.getDescription(getApplication(), authority)
             currentProviders[authority]?.let { providerInfo ->
                 if (providerInfo.description != updatedDescription) {
                     currentProviders[authority] =

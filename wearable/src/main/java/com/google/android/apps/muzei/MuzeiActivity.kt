@@ -25,7 +25,6 @@ import com.google.android.apps.muzei.datalayer.DataLayerArtProvider
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.room.getProviderDescription
 import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.observe
@@ -215,7 +214,7 @@ class MuzeiActivity : FragmentActivity(),
                 providerView.text = providerInfo.loadLabel(pm)
                 val authority = providerInfo.authority
                 launch(UI) {
-                    val description = authority.getProviderDescription(this@MuzeiActivity)
+                    val description = ProviderManager.getDescription(this@MuzeiActivity, authority)
                     providerDescriptionView.isGone = description.isBlank()
                     providerDescriptionView.text = description
                 }

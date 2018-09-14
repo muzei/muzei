@@ -33,7 +33,7 @@ import android.util.Log
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.getComponentName
-import com.google.android.apps.muzei.room.getDescription
+import com.google.android.apps.muzei.sync.ProviderManager
 import kotlinx.coroutines.experimental.runBlocking
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.FileNotFoundException
@@ -210,7 +210,7 @@ class MuzeiProvider : ContentProvider() {
                 add(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, componentName)
                 add(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, true)
                 add(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION, runBlocking {
-                    provider.getDescription(context)
+                    ProviderManager.getDescription(context, provider.authority)
                 })
                 add(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE, false)
                 add(MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,

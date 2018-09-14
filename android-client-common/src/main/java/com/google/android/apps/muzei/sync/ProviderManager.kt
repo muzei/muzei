@@ -29,13 +29,16 @@ import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.RemoteException
 import android.preference.PreferenceManager
 import android.util.Log
 import androidx.core.content.edit
+import com.google.android.apps.muzei.api.internal.ProtocolConstants
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
+import com.google.android.apps.muzei.util.ContentProviderClientCompat
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.delay
@@ -81,6 +84,19 @@ class ProviderManager private constructor(private val context: Context)
             database.providerDao().insert(Provider(authority))
             database.setTransactionSuccessful()
             database.endTransaction()
+        }
+
+        suspend fun getDescription(context: Context, authority: String): String {
+            val contentUri = Uri.Builder().authority(authority).build()
+            return ContentProviderClientCompat.getClient(context, contentUri)?.use { client ->
+                return try {
+                    val result = client.call(ProtocolConstants.METHOD_GET_DESCRIPTION)
+                    result?.getString(ProtocolConstants.KEY_DESCRIPTION, "") ?: ""
+                } catch (e: RemoteException) {
+                    Log.i(TAG, "Provider ${this} crashed while retrieving description", e)
+                    ""
+                }
+            } ?: ""
         }
     }
 
