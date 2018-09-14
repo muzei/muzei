@@ -116,7 +116,8 @@ public class ProviderContract {
          * Retrieve the content URI for the given {@link MuzeiArtProvider}, allowing you to build
          * custom queries, inserts, updates, and deletes using a {@link ContentResolver}.
          * <p>
-         * This will throw an {@link IllegalArgumentException} if the provider is not valid.
+         * This will throw an {@link IllegalArgumentException} if the provider is not valid or the
+         * provider is disabled.
          *
          * @param context  Context used to retrieve the content URI.
          * @param provider The {@link MuzeiArtProvider} you need a content URI for
@@ -133,11 +134,11 @@ public class ProviderContract {
             String authority;
             try {
                 @SuppressLint("InlinedApi")
-                ProviderInfo info = pm.getProviderInfo(componentName,
-                        PackageManager.MATCH_DISABLED_COMPONENTS);
+                ProviderInfo info = pm.getProviderInfo(componentName, 0);
                 authority = info.authority;
             } catch (PackageManager.NameNotFoundException e) {
-                throw new IllegalArgumentException("Invalid MuzeiArtProvider: " + componentName, e);
+                throw new IllegalArgumentException("Invalid MuzeiArtProvider: " + componentName
+                        + ", is your provider disabled?", e);
             }
             return getContentUri(authority);
         }
