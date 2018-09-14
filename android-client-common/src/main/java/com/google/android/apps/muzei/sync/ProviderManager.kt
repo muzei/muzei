@@ -198,15 +198,15 @@ class ProviderManager private constructor(private val context: Context)
 
     private fun runIfValid(provider: Provider?, block: (provider: Provider) -> Unit) {
         if (provider != null) {
-            try {
-                ProviderContract.Artwork.getContentUri(context, provider.authority)
-                // getContentUri succeeded, so it is a valid ContentProvider
+            val pm = context.packageManager
+            if (pm.resolveContentProvider(provider.authority, 0) != null) {
+                // resolveContentProvider succeeded, so it is a valid ContentProvider
                 block(provider)
-            } catch (e: IllegalArgumentException) {
+            } else {
                 // Invalid ContentProvider, remove it from the ProviderDao
                 launch {
                     if (BuildConfig.DEBUG) {
-                        Log.w(TAG, "Invalid provider ${provider.authority}", e)
+                        Log.w(TAG, "Invalid provider ${provider.authority}")
                     }
                     MuzeiDatabase.getInstance(context).providerDao().delete(provider)
                 }
@@ -221,7 +221,7 @@ class ProviderManager private constructor(private val context: Context)
                     Log.d(TAG, "Starting artwork load")
                 }
                 // Listen for MuzeiArtProvider changes
-                val contentUri = ProviderContract.Artwork.getContentUri(context, currentSource.authority)
+                val contentUri = ProviderContract.Artwork.getContentUri(currentSource.authority)
                 context.contentResolver.registerContentObserver(
                         contentUri, true, contentObserver)
                 ProviderChangedWorker.enqueueSelected()

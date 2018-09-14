@@ -132,7 +132,7 @@ class ProviderChangedWorker : Worker() {
                                 // Make sure we're still not actively listening
                                 if (!providerManager.hasActiveObservers()) {
                                     val contentUri = ProviderContract.Artwork.getContentUri(
-                                            context, provider.authority)
+                                            provider.authority)
                                     scheduleObserver(contentUri)
                                 }
                             }
@@ -181,7 +181,7 @@ class ProviderChangedWorker : Worker() {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Provider Change ($tag) for ${provider.authority}")
         }
-        val contentUri = ProviderContract.Artwork.getContentUri(applicationContext, provider.authority)
+        val contentUri = ProviderContract.Artwork.getContentUri(provider.authority)
         try {
             ContentProviderClientCompat.getClient(applicationContext, contentUri)?.use { client ->
                 val result = client.call(METHOD_GET_LOAD_INFO)
@@ -248,7 +248,7 @@ class ProviderChangedWorker : Worker() {
         MuzeiDatabase.getInstance(applicationContext).artworkDao()
                 .getCurrentArtworkForProvider(provider.authority)?.let { artwork ->
                     client.query(artwork.imageUri)?.use { cursor ->
-                        val contentUri = ProviderContract.Artwork.getContentUri(applicationContext, provider.authority)
+                        val contentUri = ProviderContract.Artwork.getContentUri(provider.authority)
                         return cursor.moveToNext() && isValidArtwork(client, contentUri, cursor)
                     }
                 }

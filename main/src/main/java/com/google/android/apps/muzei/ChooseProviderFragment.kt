@@ -304,9 +304,7 @@ class ChooseProviderFragment : Fragment() {
             providerBrowse.setOnClickListener {
                 findNavController().navigate(
                         ChooseProviderFragmentDirections.browse(
-                                ProviderContract.Artwork.getContentUri(
-                                        requireContext(),
-                                        authority)))
+                                ProviderContract.Artwork.getContentUri(authority)))
             }
         }
 

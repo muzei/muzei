@@ -107,7 +107,7 @@ class ArtworkLoadWorker : Worker() {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Artwork Load for $authority")
         }
-        val contentUri = ProviderContract.Artwork.getContentUri(applicationContext, authority)
+        val contentUri = ProviderContract.Artwork.getContentUri(authority)
         try {
             ContentProviderClientCompat.getClient(applicationContext, contentUri)?.use { client ->
                 val result = client.call(METHOD_GET_LOAD_INFO)

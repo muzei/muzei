@@ -146,27 +146,16 @@ public class ProviderContract {
          * Retrieve the content URI for the given {@link MuzeiArtProvider}, allowing you to build
          * custom queries, inserts, updates, and deletes using a {@link ContentResolver}.
          * <p>
-         * This will throw an {@link IllegalArgumentException} if the provider is not valid.
+         * This <strong>does not</strong> check for the validity of the MuzeiArtProvider. You can
+         * use {@link PackageManager#resolveContentProvider(String, int)} passing in the
+         * authority if you need to confirm the authority is valid.
          *
-         * @param context  Context used to retrieve the content URI.
          * @param authority The {@link MuzeiArtProvider} you need a content URI for
          * @return The content URI for the {@link MuzeiArtProvider}
          * @see MuzeiArtProvider#getContentUri()
          */
         @NonNull
-        public static Uri getContentUri(@NonNull Context context, @NonNull String authority) {
-            PackageManager pm = context.getPackageManager();
-            @SuppressLint("InlinedApi")
-            ProviderInfo info = pm.resolveContentProvider(authority,
-                    PackageManager.MATCH_DISABLED_COMPONENTS);
-            if (info == null) {
-                throw new IllegalArgumentException("Invalid MuzeiArtProvider: " + authority);
-            }
-            return getContentUri(authority);
-        }
-
-        @NonNull
-        private static Uri getContentUri(@NonNull String authority) {
+        public static Uri getContentUri(@NonNull String authority) {
             return new Uri.Builder()
                     .scheme(ContentResolver.SCHEME_CONTENT)
                     .authority(authority)
@@ -204,7 +193,7 @@ public class ProviderContract {
                 @NonNull Context context,
                 @NonNull String authority
         ) {
-            return getLastAddedArtwork(context, getContentUri(context, authority));
+            return getLastAddedArtwork(context, getContentUri(authority));
         }
 
         @RequiresApi(Build.VERSION_CODES.KITKAT)
@@ -258,7 +247,7 @@ public class ProviderContract {
                 @NonNull String authority,
                 @NonNull com.google.android.apps.muzei.api.provider.Artwork artwork
         ) {
-            return addArtwork(context, getContentUri(context, authority), artwork);
+            return addArtwork(context, getContentUri(authority), artwork);
         }
 
         @RequiresApi(Build.VERSION_CODES.KITKAT)
@@ -315,7 +304,7 @@ public class ProviderContract {
                 @NonNull String authority,
                 @NonNull com.google.android.apps.muzei.api.provider.Artwork artwork
         ) {
-            return setArtwork(context, getContentUri(context, authority), artwork);
+            return setArtwork(context, getContentUri(authority), artwork);
         }
 
         @RequiresApi(Build.VERSION_CODES.KITKAT)
