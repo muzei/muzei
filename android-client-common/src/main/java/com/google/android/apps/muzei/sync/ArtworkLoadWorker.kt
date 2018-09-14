@@ -102,12 +102,12 @@ class ArtworkLoadWorker : Worker() {
 
     private suspend fun loadArtwork(): Result {
         val database = MuzeiDatabase.getInstance(applicationContext)
-        val (componentName) = database.providerDao()
+        val (authority) = database.providerDao()
                 .getCurrentProvider() ?: return Result.FAILURE
         if (BuildConfig.DEBUG) {
-            Log.d(TAG, "Artwork Load for $componentName")
+            Log.d(TAG, "Artwork Load for $authority")
         }
-        val contentUri = ProviderContract.Artwork.getContentUri(applicationContext, componentName)
+        val contentUri = ProviderContract.Artwork.getContentUri(authority)
         try {
             ContentProviderClientCompat.getClient(applicationContext, contentUri)?.use { client ->
                 val result = client.call(METHOD_GET_LOAD_INFO)
@@ -126,7 +126,7 @@ class ArtworkLoadWorker : Worker() {
                         while (newArtwork.moveToNext()) {
                             val validArtwork = checkForValidArtwork(client, contentUri, newArtwork)
                             if (validArtwork != null) {
-                                validArtwork.providerComponentName = componentName
+                                validArtwork.providerAuthority = authority
                                 val artworkId = database.artworkDao().insert(validArtwork)
                                 if (BuildConfig.DEBUG) {
                                     Log.d(TAG, "Loaded ${validArtwork.imageUri} into id $artworkId")
@@ -136,7 +136,7 @@ class ArtworkLoadWorker : Worker() {
                                 // in preparation for the next load
                                 if (!newArtwork.moveToNext()) {
                                     if (BuildConfig.DEBUG) {
-                                        Log.d(TAG, "Out of new artwork, requesting load from $componentName")
+                                        Log.d(TAG, "Out of new artwork, requesting load from $authority")
                                     }
                                     client.call(METHOD_REQUEST_LOAD)
                                 }
@@ -144,13 +144,13 @@ class ArtworkLoadWorker : Worker() {
                             }
                         }
                         if (BuildConfig.DEBUG) {
-                            Log.d(TAG, "Could not find any new artwork, requesting load from $componentName")
+                            Log.d(TAG, "Could not find any new artwork, requesting load from $authority")
                         }
                         // No new artwork, request that they load another in preparation for the next load
                         client.call(METHOD_REQUEST_LOAD)
                         // Is there any artwork at all?
                         if (allArtwork.count == 0) {
-                            Log.w(TAG, "Unable to find any artwork for $componentName")
+                            Log.w(TAG, "Unable to find any artwork for $authority")
                             return Result.FAILURE
                         }
                         // Okay so there's at least some artwork.
@@ -161,7 +161,7 @@ class ArtworkLoadWorker : Worker() {
                             val currentArtwork = database.artworkDao().getCurrentArtwork()
                             if (artworkUri == currentArtwork?.imageUri) {
                                 if (BuildConfig.DEBUG) {
-                                    Log.i(TAG, "Provider $componentName only has one artwork")
+                                    Log.i(TAG, "Provider $authority only has one artwork")
                                 }
                                 return Result.FAILURE
                             }
@@ -192,7 +192,7 @@ class ArtworkLoadWorker : Worker() {
                                     continue
                                 }
                                 checkForValidArtwork(client, contentUri, allArtwork)?.apply {
-                                    providerComponentName = componentName
+                                    providerAuthority = authority
                                     artworkId = database.artworkDao().insert(this)
                                     if (BuildConfig.DEBUG) {
                                         Log.d(TAG, "Loaded $imageUri into id $artworkId")
@@ -203,14 +203,14 @@ class ArtworkLoadWorker : Worker() {
                             }
                         }
                         if (BuildConfig.DEBUG) {
-                            Log.i(TAG, "Unable to find any other valid artwork for $componentName")
+                            Log.i(TAG, "Unable to find any other valid artwork for $authority")
                         }
                     }
                 }
             }
             return Result.FAILURE
         } catch (e: RemoteException) {
-            Log.i(TAG, "Provider $componentName crashed while retrieving artwork", e)
+            Log.i(TAG, "Provider $authority crashed while retrieving artwork", e)
             return Result.FAILURE
         }
     }

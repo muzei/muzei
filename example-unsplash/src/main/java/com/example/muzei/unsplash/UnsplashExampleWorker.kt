@@ -23,6 +23,7 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
+import com.example.muzei.unsplash.BuildConfig.UNSPLASH_AUTHORITY
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import java.io.IOException
@@ -68,7 +69,7 @@ class UnsplashExampleWorker : Worker() {
             }
         }.forEach { artwork ->
             ProviderContract.Artwork.addArtwork(applicationContext,
-                    UnsplashExampleArtProvider::class.java,
+                    UNSPLASH_AUTHORITY,
                     artwork)
         }
         return Result.SUCCESS

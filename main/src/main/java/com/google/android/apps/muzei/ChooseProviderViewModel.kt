@@ -30,16 +30,16 @@ import android.net.Uri
 import com.google.android.apps.muzei.room.InstalledProvidersLiveData
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
-import com.google.android.apps.muzei.room.getComponentName
-import com.google.android.apps.muzei.room.getProviderDescription
-import com.google.android.apps.muzei.sources.SourceArtProvider
+import com.google.android.apps.muzei.sync.ProviderManager
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.newSingleThreadContext
+import net.nurik.roman.muzei.BuildConfig.SOURCES_AUTHORITY
 import net.nurik.roman.muzei.R
 
 data class ProviderInfo(
-        val componentName: ComponentName,
+        val authority: String,
+        val packageName: String,
         val title: String,
         val description: String?,
         val currentArtworkUri: Uri?,
@@ -55,7 +55,8 @@ data class ProviderInfo(
             currentArtworkUri: Uri?,
             selected: Boolean
     ) : this(
-                ComponentName(providerInfo.packageName, providerInfo.name),
+                providerInfo.authority,
+                providerInfo.packageName,
                 providerInfo.loadLabel(packageManager).toString(),
                 description,
                 currentArtworkUri,
@@ -75,7 +76,7 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
         private const val PLAY_STORE_PACKAGE_NAME = "com.android.vending"
     }
 
-    private val currentProviders = HashMap<ComponentName, ProviderInfo>()
+    private val currentProviders = HashMap<String, ProviderInfo>()
     private var activeProvider : Provider? = null
 
     private val singleThreadContext = newSingleThreadContext("ChooseProvider")
@@ -88,27 +89,26 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
                     "%26utm_campaign%3Dget_more_sources"))
             .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
             .setPackage(PLAY_STORE_PACKAGE_NAME)
-    val playStoreComponentName: ComponentName? = playStoreIntent.resolveActivity(
+    private val playStoreComponentName: ComponentName? = playStoreIntent.resolveActivity(
             application.packageManager)
-
-    private val sourceArtProvider = ComponentName(application, SourceArtProvider::class.java)
+    val playStoreAuthority: String? = if (playStoreComponentName != null) "play_store" else null
 
     private val comparator = Comparator<ProviderInfo> { p1, p2 ->
         // Get More Sources should always be at the end of the list
-        if (p1.componentName == playStoreComponentName) {
+        if (p1.authority == playStoreAuthority) {
             return@Comparator 1
-        } else if (p2.componentName == playStoreComponentName) {
+        } else if (p2.authority == playStoreAuthority) {
             return@Comparator -1
         }
         // The SourceArtProvider should always the last provider listed
-        if (p1.componentName == sourceArtProvider) {
+        if (p1.authority == SOURCES_AUTHORITY) {
             return@Comparator 1
-        } else if (p2.componentName == sourceArtProvider) {
+        } else if (p2.authority == SOURCES_AUTHORITY) {
             return@Comparator -1
         }
         // Then put providers from Muzei on top
-        val pn1 = p1.componentName.packageName
-        val pn2 = p2.componentName.packageName
+        val pn1 = p1.packageName
+        val pn2 = p2.packageName
         if (pn1 != pn2) {
             if (application.packageName == pn1) {
                 return@Comparator -1
@@ -123,31 +123,32 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
     private suspend fun updateProviders(providerInfos: List<android.content.pm.ProviderInfo>) {
         val context = getApplication<Application>()
         val pm = context.packageManager
-        val newProviders = HashMap<ComponentName, ProviderInfo>().apply {
+        val newProviders = HashMap<String, ProviderInfo>().apply {
             putAll(currentProviders)
         }
         val existingProviders = HashSet(currentProviders.values)
         existingProviders.removeAll {
-            it.componentName == playStoreComponentName
+            it.authority == playStoreAuthority
         }
         for (providerInfo in providerInfos) {
-            val componentName = providerInfo.getComponentName()
-            existingProviders.removeAll { it.componentName == componentName }
-            val selected = componentName == activeProvider?.componentName
-            val description = componentName.getProviderDescription(context)
+            val authority = providerInfo.authority
+            existingProviders.removeAll { it.authority == authority }
+            val selected = authority == activeProvider?.authority
+            val description = ProviderManager.getDescription(context, authority)
             val currentArtwork = MuzeiDatabase.getInstance(context).artworkDao()
-                    .getCurrentArtworkForProvider(componentName)
-            newProviders[componentName] = ProviderInfo(pm, providerInfo,
+                    .getCurrentArtworkForProvider(authority)
+            newProviders[authority] = ProviderInfo(pm, providerInfo,
                     description, currentArtwork?.imageUri, selected)
         }
         // Remove providers that weren't found in the providerInfos
         existingProviders.forEach {
-            newProviders.remove(it.componentName)
+            newProviders.remove(it.authority)
         }
-        if (playStoreComponentName != null &&
-                newProviders[playStoreComponentName] == null) {
-            newProviders[playStoreComponentName] = ProviderInfo(
-                    playStoreComponentName,
+        if (playStoreComponentName != null && playStoreAuthority != null &&
+                newProviders[playStoreAuthority] == null) {
+            newProviders[playStoreAuthority] = ProviderInfo(
+                    playStoreAuthority,
+                    playStoreComponentName.packageName,
                     context.getString(R.string.get_more_sources),
                     context.getString(R.string.get_more_sources_description),
                     null,
@@ -180,7 +181,7 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
             activeProvider = provider
             if (provider != null) {
                 currentProviders.forEach {
-                    val newlySelected = it.key == provider.componentName
+                    val newlySelected = it.key == provider.authority
                     if (it.value.selected != newlySelected) {
                         currentProviders[it.key] = it.value.copy(selected = newlySelected)
                     }
@@ -192,9 +193,9 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
                 .currentArtworkByProvider
         val currentArtworkByProviderObserver = Observer<List<com.google.android.apps.muzei.room.Artwork>> { artworkByProvider ->
             if (artworkByProvider != null) {
-                val artworkMap = HashMap<ComponentName, Uri>()
+                val artworkMap = HashMap<String, Uri>()
                 artworkByProvider.forEach { artwork ->
-                    artworkMap[artwork.providerComponentName] = artwork.imageUri
+                    artworkMap[artwork.providerAuthority] = artwork.imageUri
                 }
                 currentProviders.forEach {
                     currentProviders[it.key] = it.value.copy(currentArtworkUri = artworkMap[it.key])
@@ -225,12 +226,12 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
 
     val providers : LiveData<List<ProviderInfo>> = mutableProviders
 
-    internal fun refreshDescription(componentName: ComponentName) {
+    internal fun refreshDescription(authority: String) {
         launch {
-            val updatedDescription = componentName.getProviderDescription(getApplication())
-            currentProviders[componentName]?.let { providerInfo ->
+            val updatedDescription = ProviderManager.getDescription(getApplication(), authority)
+            currentProviders[authority]?.let { providerInfo ->
                 if (providerInfo.description != updatedDescription) {
-                    currentProviders[componentName] =
+                    currentProviders[authority] =
                             providerInfo.copy(description = updatedDescription)
                     mutableProviders.postValue(currentProviders.values.sortedWith(comparator))
                 }

@@ -28,6 +28,7 @@ import com.google.android.gms.wearable.DataClient
 import com.google.android.gms.wearable.DataMapItem
 import com.google.android.gms.wearable.Wearable
 import net.nurik.roman.muzei.BuildConfig
+import net.nurik.roman.muzei.BuildConfig.DATA_LAYER_AUTHORITY
 import java.io.FileOutputStream
 import java.io.IOException
 import java.util.concurrent.ExecutionException
@@ -91,7 +92,7 @@ class DataLayerLoadWorker : Worker() {
             }
             val artwork = dataMap.getDataMap("artwork").toArtwork()
             val artworkUri = ProviderContract.Artwork.setArtwork(applicationContext,
-                    DataLayerArtProvider::class.java, artwork)
+                    DATA_LAYER_AUTHORITY, artwork)
             if (artworkUri != null) {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "Successfully wrote artwork to $artworkUri")

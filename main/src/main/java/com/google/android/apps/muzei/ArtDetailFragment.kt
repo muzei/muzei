@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
-import android.content.ComponentName
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -55,7 +54,6 @@ import com.google.android.apps.muzei.room.getCommands
 import com.google.android.apps.muzei.room.openArtworkInfo
 import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.settings.AboutActivity
-import com.google.android.apps.muzei.sources.SourceArtProvider
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.AnimatedMuzeiLoadingSpinnerView
 import com.google.android.apps.muzei.util.PanScaleProxyView
@@ -67,6 +65,7 @@ import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
+import net.nurik.roman.muzei.BuildConfig.SOURCES_AUTHORITY
 import net.nurik.roman.muzei.R
 
 object ArtDetailOpenLiveData : MutableLiveData<Boolean>()
@@ -126,9 +125,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         launch(UI) {
             val commands = context?.run {
                 currentArtwork?.getCommands(this) ?: run {
-                    if (currentProviderLiveData.value?.componentName?.equals(
-                            ComponentName(this, SourceArtProvider::class.java)
-                    ) == true) {
+                    if (currentProviderLiveData.value?.authority == SOURCES_AUTHORITY) {
                         listOf(UserCommand(
                                 MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK,
                                         getString(R.string.action_next_artwork)))
@@ -147,9 +144,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
                 val menuItem = overflowMenu.menu.add(0, SOURCE_ACTION_IDS[i],
                         0, action.title)
                 if (action.id == MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK &&
-                        currentProviderLiveData.value?.componentName?.equals(
-                                ComponentName(activity, SourceArtProvider::class.java)
-                        ) == true) {
+                        currentProviderLiveData.value?.authority == SOURCES_AUTHORITY) {
                     menuItem.setIcon(R.drawable.ic_skip)
                     menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
                 }

@@ -36,7 +36,7 @@ import java.io.File
 /**
  * Room Database for Muzei
  */
-@Database(entities = [(Artwork::class), (Source::class), (Provider::class)], version = 7)
+@Database(entities = [(Artwork::class), (Source::class), (Provider::class)], version = 8)
 abstract class MuzeiDatabase : RoomDatabase() {
 
     abstract fun sourceDao(): SourceDao
@@ -60,7 +60,8 @@ abstract class MuzeiDatabase : RoomDatabase() {
                                 MIGRATION_3_4,
                                 MIGRATION_4_5,
                                 MIGRATION_5_6,
-                                Migration6to7(applicationContext))
+                                Migration6to8(applicationContext),
+                                Migration7to8(applicationContext))
                         .build().also { database ->
                             database.invalidationTracker.addObserver(
                                     object : InvalidationTracker.Observer("artwork") {
@@ -218,7 +219,11 @@ abstract class MuzeiDatabase : RoomDatabase() {
             }
         }
 
-        private class Migration6to7 internal constructor(private val context: Context) : Migration(6, 7) {
+        /**
+         * Skip directly from version 6 to 8, avoiding the intermediate database version
+         * 7 which used the provider's ComponentName as the key.
+         */
+        private class Migration6to8 internal constructor(private val context: Context) : Migration(6, 8) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 // Handle Provider
                 database.execSQL("CREATE TABLE provider ("
@@ -237,10 +242,17 @@ abstract class MuzeiDatabase : RoomDatabase() {
                             if (metadata != null) {
                                 val replacement = metadata.getString("replacement")
                                 if (replacement != null && replacement.isNotEmpty()) {
-                                    ComponentName.unflattenFromString(
-                                            "${info.packageName}/$replacement")?.run {
+                                    val providerInfo = context.packageManager
+                                            .resolveContentProvider(replacement, 0) ?: run {
+                                        ComponentName.unflattenFromString(
+                                                "${info.packageName}/$replacement")?.run {
+                                            context.packageManager
+                                                    .getProviderInfo(this, 0)
+                                        }
+                                    }
+                                    if (providerInfo != null) {
                                         database.execSQL("INSERT INTO provider (componentName) "
-                                                + "VALUES (${flattenToShortString()})")
+                                                + "VALUES (?)", arrayOf(providerInfo.authority))
                                     }
                                 }
                             }
@@ -254,18 +266,95 @@ abstract class MuzeiDatabase : RoomDatabase() {
                 database.execSQL("DROP TABLE artwork")
                 database.execSQL("CREATE TABLE artwork ("
                         + "_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
-                        + "providerComponentName TEXT NOT NULL,"
+                        + "providerAuthority TEXT NOT NULL,"
                         + "imageUri TEXT NOT NULL,"
                         + "title TEXT,"
                         + "byline TEXT,"
                         + "attribution TEXT,"
                         + "metaFont TEXT NOT NULL,"
                         + "date_added INTEGER NOT NULL)")
-                database.execSQL("CREATE INDEX index_Artwork_providerComponentName " + "ON artwork (providerComponentName)")
+                database.execSQL("CREATE INDEX index_Artwork_providerAuthority " + "ON artwork (providerAuthority)")
 
                 // Delete previously cached artwork - providers now cache their own artwork
                 val artworkDirectory = File(context.filesDir, "artwork")
                 artworkDirectory.delete()
+            }
+        }
+
+        /**
+         * Handle the migration from the intermediate database version 7, which
+         * used the ComponentName of the provider as the unique key
+         */
+        private class Migration7to8 internal constructor(private val context: Context) :
+                Migration(7, 8) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Handle Provider
+                database.execSQL("CREATE TABLE provider2 ("
+                        + "authority TEXT PRIMARY KEY NOT NULL,"
+                        + "supportsNextArtwork INTEGER NOT NULL)")
+                try {
+                    database.query("SELECT componentName, supportsNextArtwork FROM provider")?.use {
+                        selectedProvider ->
+                        if (selectedProvider.moveToFirst()) {
+                            val componentName = ComponentName.unflattenFromString(
+                                    selectedProvider.getString(0))
+                            val supportsNextArtwork = selectedProvider.getInt(1)
+                            val info = context.packageManager.getProviderInfo(componentName, 0)
+                            if (info != null) {
+                                database.execSQL("INSERT INTO provider2 " +
+                                        "(authority, supportsNextArtwork) "
+                                        + "VALUES (?, ?)",
+                                        arrayOf(info.authority, supportsNextArtwork))
+                            }
+                        }
+                    }
+                } catch (e: PackageManager.NameNotFoundException) {
+                    // Couldn't find the selected provider, so there's nothing more to do
+                }
+                database.execSQL("DROP TABLE provider")
+                database.execSQL("ALTER TABLE provider2 RENAME TO provider")
+
+                // Handle Artwork
+                database.execSQL("CREATE TABLE artwork2 ("
+                        + "_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
+                        + "providerAuthority TEXT NOT NULL,"
+                        + "imageUri TEXT NOT NULL,"
+                        + "title TEXT,"
+                        + "byline TEXT,"
+                        + "attribution TEXT,"
+                        + "metaFont TEXT NOT NULL,"
+                        + "date_added INTEGER NOT NULL)")
+                database.query("SELECT _id, providerComponentName, imageUri, " +
+                        "title, byline, attribution, metaFont, date_added FROM artwork")?.use{ artwork ->
+                    while (artwork.moveToNext()) {
+                        val id = artwork.getLong(0)
+                        val componentName = ComponentName.unflattenFromString(
+                                artwork.getString(1))
+                        val imageUri = artwork.getString(2)
+                        val title = artwork.getString(3)
+                        val byline = artwork.getString(4)
+                        val attribution = artwork.getString(5)
+                        val metaFont = artwork.getString(6)
+                        val dateAdded = artwork.getLong(7)
+
+                        try {
+                            val info = context.packageManager.getProviderInfo(componentName, 0)
+                            if (info != null) {
+                                database.execSQL("INSERT INTO artwork2 " +
+                                        "(_id, providerAuthority, imageUri, " +
+                                        "title, byline, attribution, metaFont, date_added) "
+                                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                                        arrayOf(id, info.authority, imageUri, title,
+                                                byline, attribution, metaFont, dateAdded))
+                            }
+                        } catch (e: PackageManager.NameNotFoundException) {
+                            // Couldn't find the provider, so there's nothing more to do
+                        }
+                    }
+                }
+                database.execSQL("DROP TABLE artwork")
+                database.execSQL("ALTER TABLE artwork2 RENAME TO artwork")
+                database.execSQL("CREATE INDEX index_Artwork_providerAuthority " + "ON artwork (providerAuthority)")
             }
         }
     }

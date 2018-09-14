@@ -22,11 +22,9 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import com.google.android.apps.muzei.datalayer.ActivateMuzeiIntentService
 import com.google.android.apps.muzei.datalayer.DataLayerArtProvider
-import com.google.android.apps.muzei.featuredart.FeaturedArtProvider
+import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.room.getProviderDescription
-import com.google.android.apps.muzei.room.select
 import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.observe
@@ -35,6 +33,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.BuildConfig
+import net.nurik.roman.muzei.BuildConfig.DATA_LAYER_AUTHORITY
 import net.nurik.roman.muzei.R
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -190,8 +189,7 @@ class MuzeiActivity : FragmentActivity(),
                                 DataLayerArtProvider.OPEN_ON_PHONE_ACTION)
                     }
                 }
-                openOnPhone.isVisible = artwork.providerComponentName ==
-                        ComponentName(this@MuzeiActivity, DataLayerArtProvider::class.java)
+                openOnPhone.isVisible = artwork.providerAuthority == DATA_LAYER_AUTHORITY
             }
         }
 
@@ -199,28 +197,24 @@ class MuzeiActivity : FragmentActivity(),
             if (provider == null) {
                 val context = this@MuzeiActivity
                 launch {
-                    FeaturedArtProvider::class.select(context)
+                    ProviderManager.select(context, FEATURED_ART_AUTHORITY)
                     ActivateMuzeiIntentService.checkForPhoneApp(context)
                 }
                 return@observe
             }
             nextArtwork.isVisible = provider.supportsNextArtwork
             val pm = packageManager
-            val intent = Intent().apply {
-                component = provider.componentName
-            }
-            val resolveInfos = pm.queryIntentContentProviders(intent, 0)
-            resolveInfos?.firstOrNull()?.providerInfo?.let { providerInfo ->
+            val providerInfo = pm.resolveContentProvider(provider.authority, 0)
+            if (providerInfo != null) {
                 val size = resources.getDimensionPixelSize(R.dimen.choose_provider_image_size)
                 val icon = providerInfo.loadIcon(pm)
                 icon.bounds = Rect(0, 0, size, size)
                 providerView.setCompoundDrawablesRelative(icon,
                         null, null, null)
                 providerView.text = providerInfo.loadLabel(pm)
-                val componentName = ComponentName(providerInfo.packageName,
-                        providerInfo.name)
+                val authority = providerInfo.authority
                 launch(UI) {
-                    val description = componentName.getProviderDescription(this@MuzeiActivity)
+                    val description = ProviderManager.getDescription(this@MuzeiActivity, authority)
                     providerDescriptionView.isGone = description.isBlank()
                     providerDescriptionView.text = description
                 }

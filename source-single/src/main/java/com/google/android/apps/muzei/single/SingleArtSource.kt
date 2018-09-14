@@ -22,6 +22,7 @@ import android.content.Intent
 import com.google.android.apps.muzei.api.Artwork
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.provider.ProviderContract
+import com.google.android.apps.muzei.single.BuildConfig.SINGLE_AUTHORITY
 
 /**
  * [MuzeiArtSource] that displays just a single image
@@ -42,7 +43,7 @@ class SingleArtSource : MuzeiArtSource("SingleArtSource") {
         if (intent?.action == ACTION_MIGRATE) {
             currentArtwork?.let { currentArtwork ->
                 ProviderContract.Artwork.setArtwork(this,
-                        SingleArtProvider::class.java,
+                        SINGLE_AUTHORITY,
                         com.google.android.apps.muzei.api.provider.Artwork().apply {
                             title = currentArtwork.title
                         })
@@ -53,12 +54,12 @@ class SingleArtSource : MuzeiArtSource("SingleArtSource") {
 
     override fun onUpdate(reason: Int) {
         val artwork = ProviderContract.Artwork.getLastAddedArtwork(this,
-                SingleArtProvider::class.java)
+                SINGLE_AUTHORITY)
         if (artwork != null) {
             publishArtwork(Artwork.Builder()
                     .title(artwork.title)
                     .imageUri(ContentUris.withAppendedId(
-                            ProviderContract.Artwork.getContentUri(this, SingleArtProvider::class.java),
+                            ProviderContract.Artwork.getContentUri(SINGLE_AUTHORITY),
                             artwork.id))
                     .build())
         }

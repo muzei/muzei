@@ -132,7 +132,7 @@ class ProviderChangedWorker : Worker() {
                                 // Make sure we're still not actively listening
                                 if (!providerManager.hasActiveObservers()) {
                                     val contentUri = ProviderContract.Artwork.getContentUri(
-                                            context, provider.componentName)
+                                            provider.authority)
                                     scheduleObserver(contentUri)
                                 }
                             }
@@ -179,9 +179,9 @@ class ProviderChangedWorker : Worker() {
         val provider = database.providerDao()
                 .getCurrentProvider() ?: return Result.FAILURE
         if (BuildConfig.DEBUG) {
-            Log.d(TAG, "Provider Change ($tag) for ${provider.componentName}")
+            Log.d(TAG, "Provider Change ($tag) for ${provider.authority}")
         }
-        val contentUri = ProviderContract.Artwork.getContentUri(applicationContext, provider.componentName)
+        val contentUri = ProviderContract.Artwork.getContentUri(provider.authority)
         try {
             ContentProviderClientCompat.getClient(applicationContext, contentUri)?.use { client ->
                 val result = client.call(METHOD_GET_LOAD_INFO)
@@ -236,7 +236,7 @@ class ProviderChangedWorker : Worker() {
                 }
             }
         } catch (e: RemoteException) {
-            Log.i(TAG, "Provider ${provider.componentName} crashed while retrieving artwork", e)
+            Log.i(TAG, "Provider ${provider.authority} crashed while retrieving artwork", e)
         }
         return Result.RETRY
     }
@@ -246,9 +246,9 @@ class ProviderChangedWorker : Worker() {
             provider: Provider
     ): Boolean {
         MuzeiDatabase.getInstance(applicationContext).artworkDao()
-                .getCurrentArtworkForProvider(provider.componentName)?.let { artwork ->
+                .getCurrentArtworkForProvider(provider.authority)?.let { artwork ->
                     client.query(artwork.imageUri)?.use { cursor ->
-                        val contentUri = ProviderContract.Artwork.getContentUri(applicationContext, provider.componentName)
+                        val contentUri = ProviderContract.Artwork.getContentUri(provider.authority)
                         return cursor.moveToNext() && isValidArtwork(client, contentUri, cursor)
                     }
                 }

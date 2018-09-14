@@ -30,6 +30,7 @@ import androidx.work.WorkManager
 import androidx.work.Worker
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.ProviderContract
+import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONException
@@ -113,7 +114,7 @@ class FeaturedArtWorker : Worker() {
                 Log.d(TAG, "Adding new artwork: $imageUri")
             }
             ProviderContract.Artwork.addArtwork(applicationContext,
-                    FeaturedArtProvider::class.java,
+                    FEATURED_ART_AUTHORITY,
                     artwork)
         } catch (e: JSONException) {
             Log.e(TAG, "Error reading JSON", e)
