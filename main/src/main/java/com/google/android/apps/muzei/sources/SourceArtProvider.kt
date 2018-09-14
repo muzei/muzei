@@ -30,7 +30,7 @@ import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.room.select
+import com.google.android.apps.muzei.sync.ProviderManager
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.BuildConfig
@@ -102,19 +102,19 @@ class SourceArtProvider : MuzeiArtProvider() {
                 launch(UI) {
                     context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
                 }
-                FEATURED_ART_AUTHORITY.select(context)
+                ProviderManager.select(context, FEATURED_ART_AUTHORITY)
             } catch (e: IllegalStateException) {
                 Log.i(TAG, "Sending action $id to $this failed; switching to default.", e)
                 launch(UI) {
                     context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
                 }
-                FEATURED_ART_AUTHORITY.select(context)
+                ProviderManager.select(context, FEATURED_ART_AUTHORITY)
             } catch (e: SecurityException) {
                 Log.i(TAG, "Sending action $id to $this failed; switching to default.", e)
                 launch(UI) {
                     context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
                 }
-                FEATURED_ART_AUTHORITY.select(context)
+                ProviderManager.select(context, FEATURED_ART_AUTHORITY)
             }
         }
     }

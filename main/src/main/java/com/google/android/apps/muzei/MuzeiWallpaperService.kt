@@ -47,7 +47,6 @@ import com.google.android.apps.muzei.render.RenderController
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.openArtworkInfo
-import com.google.android.apps.muzei.room.select
 import com.google.android.apps.muzei.settings.EffectsLockScreenOpenLiveData
 import com.google.android.apps.muzei.settings.Prefs
 import com.google.android.apps.muzei.shortcuts.ArtworkInfoShortcutController
@@ -96,7 +95,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         ProviderManager.getInstance(this).observe(this) { provider ->
             if (provider == null) {
                 launch {
-                    FEATURED_ART_AUTHORITY.select(this@MuzeiWallpaperService)
+                    ProviderManager.select(this@MuzeiWallpaperService, FEATURED_ART_AUTHORITY)
                 }
             }
         }

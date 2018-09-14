@@ -34,7 +34,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
-import com.google.android.apps.muzei.room.select
+import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.observeNonNull
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.experimental.launch
@@ -103,7 +103,7 @@ class ChooseProviderActivity : FragmentActivity() {
                             FirebaseAnalytics.Param.ITEM_ID to provider,
                             FirebaseAnalytics.Param.CONTENT_TYPE to "providers"))
                     launch {
-                        provider.select(this@ChooseProviderActivity)
+                        ProviderManager.select(this@ChooseProviderActivity, provider)
                         finish()
                     }
                 }
@@ -126,7 +126,7 @@ class ChooseProviderActivity : FragmentActivity() {
                     launchProviderSetup(providerInfo)
                 } else {
                     launch {
-                        providerInfo.authority.select(this@ChooseProviderActivity)
+                        ProviderManager.select(this@ChooseProviderActivity, providerInfo.authority)
                         finish()
                     }
                 }

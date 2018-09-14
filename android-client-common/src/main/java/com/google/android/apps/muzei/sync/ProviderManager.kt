@@ -36,10 +36,12 @@ import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
+import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.newSingleThreadContext
+import kotlinx.coroutines.experimental.withContext
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 
 /**
@@ -71,6 +73,15 @@ class ProviderManager private constructor(private val context: Context)
                     instance ?: ProviderManager(context.applicationContext)
                             .also { instance = it }
                 }
+
+        suspend fun select(context: Context, authority: String) = withContext(CommonPool) {
+            val database = MuzeiDatabase.getInstance(context)
+            database.beginTransaction()
+            database.providerDao().deleteAll()
+            database.providerDao().insert(Provider(authority))
+            database.setTransactionSuccessful()
+            database.endTransaction()
+        }
     }
 
     private val packageChangeReceiver : BroadcastReceiver = object : BroadcastReceiver() {

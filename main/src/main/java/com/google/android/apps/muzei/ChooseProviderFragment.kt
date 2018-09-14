@@ -51,7 +51,7 @@ import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.room.select
+import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.observe
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.squareup.picasso.Callback
@@ -213,7 +213,7 @@ class ChooseProviderFragment : Fragment() {
                             FirebaseAnalytics.Param.CONTENT_TYPE to "providers"))
                     val context = requireContext()
                     launch {
-                        provider.select(context)
+                        ProviderManager.select(context, provider)
                     }
                 }
                 startActivityProvider = null
@@ -271,7 +271,7 @@ class ChooseProviderFragment : Fragment() {
                             FirebaseAnalytics.Param.CONTENT_TYPE to "providers"))
                     val context = requireContext()
                     launch {
-                        authority.select(context)
+                        ProviderManager.select(context, authority)
                     }
                 }
             }

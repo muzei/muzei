@@ -43,7 +43,6 @@ import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHOR
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.room.Source
-import com.google.android.apps.muzei.room.select
 import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.observe
@@ -156,7 +155,7 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                             context.packageManager.getServiceInfo(source.componentName, 0)
                         } catch (e: PackageManager.NameNotFoundException) {
                             Log.i(TAG, "Selected source ${source.componentName} is no longer available")
-                            FEATURED_ART_AUTHORITY.select(context)
+                            ProviderManager.select(context, FEATURED_ART_AUTHORITY)
                             return@launch
                         }
 
@@ -301,7 +300,7 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                                 }
                         if (providerInfo != null) {
                             launch {
-                                providerInfo.authority.select(context)
+                                ProviderManager.select(context, providerInfo.authority)
                             }
                         }
                     }
@@ -420,19 +419,19 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
             launch(UI) {
                 context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
             }
-            FEATURED_ART_AUTHORITY.select(context)
+            ProviderManager.select(context, FEATURED_ART_AUTHORITY)
         } catch (e: IllegalStateException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
             launch(UI) {
                 context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
             }
-            FEATURED_ART_AUTHORITY.select(context)
+            ProviderManager.select(context, FEATURED_ART_AUTHORITY)
         } catch (e: SecurityException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
             launch(UI) {
                 context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
             }
-            FEATURED_ART_AUTHORITY.select(context)
+            ProviderManager.select(context, FEATURED_ART_AUTHORITY)
         }
     }
 

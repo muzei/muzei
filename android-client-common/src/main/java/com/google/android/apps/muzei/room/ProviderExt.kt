@@ -17,31 +17,20 @@
 package com.google.android.apps.muzei.room
 
 import android.content.Context
+import android.net.Uri
 import android.os.RemoteException
 import android.util.Log
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_DESCRIPTION
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_DESCRIPTION
-import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.withContext
 
 private const val TAG = "Provider"
-
-suspend fun String.select(context: Context) = withContext(CommonPool) {
-    val database = MuzeiDatabase.getInstance(context)
-    database.beginTransaction()
-    database.providerDao().deleteAll()
-    database.providerDao().insert(Provider(this))
-    database.setTransactionSuccessful()
-    database.endTransaction()
-}
 
 suspend fun Provider.getDescription(context: Context) =
         authority.getProviderDescription(context)
 
 suspend fun String.getProviderDescription(context: Context): String {
-    val contentUri = ProviderContract.Artwork.getContentUri(context, this)
+    val contentUri = Uri.Builder().authority(this).build()
     return ContentProviderClientCompat.getClient(context, contentUri)?.use { client ->
         return try {
             val result = client.call(METHOD_GET_DESCRIPTION)

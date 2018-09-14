@@ -26,7 +26,6 @@ import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHOR
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.getProviderDescription
-import com.google.android.apps.muzei.room.select
 import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.observe
@@ -199,7 +198,7 @@ class MuzeiActivity : FragmentActivity(),
             if (provider == null) {
                 val context = this@MuzeiActivity
                 launch {
-                    FEATURED_ART_AUTHORITY.select(context)
+                    ProviderManager.select(context, FEATURED_ART_AUTHORITY)
                     ActivateMuzeiIntentService.checkForPhoneApp(context)
                 }
                 return@observe
