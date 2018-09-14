@@ -296,7 +296,7 @@ public abstract class MuzeiArtProvider extends ContentProvider {
             throw new IllegalStateException("getContentUri() should not be called before onCreate()");
         }
         if (contentUri == null) {
-            contentUri = ProviderContract.Artwork.getContentUri(authority);
+            contentUri = ProviderContract.Artwork.getContentUri(getContext(), getClass());
         }
         return contentUri;
     }
