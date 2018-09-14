@@ -16,26 +16,19 @@
 
 package com.google.android.apps.muzei.room
 
-import android.content.ComponentName
 import android.content.Context
 import android.os.RemoteException
 import android.util.Log
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_DESCRIPTION
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_DESCRIPTION
-import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.withContext
-import kotlin.reflect.KClass
 
 private const val TAG = "Provider"
 
-suspend fun KClass<out MuzeiArtProvider>.select(context: Context) {
-    ComponentName(context, this.java).select(context)
-}
-
-suspend fun ComponentName.select(context: Context) = withContext(CommonPool) {
+suspend fun String.select(context: Context) = withContext(CommonPool) {
     val database = MuzeiDatabase.getInstance(context)
     database.beginTransaction()
     database.providerDao().deleteAll()
@@ -45,9 +38,9 @@ suspend fun ComponentName.select(context: Context) = withContext(CommonPool) {
 }
 
 suspend fun Provider.getDescription(context: Context) =
-        componentName.getProviderDescription(context)
+        authority.getProviderDescription(context)
 
-suspend fun ComponentName.getProviderDescription(context: Context): String {
+suspend fun String.getProviderDescription(context: Context): String {
     val contentUri = ProviderContract.Artwork.getContentUri(context, this)
     return ContentProviderClientCompat.getClient(context, contentUri)?.use { client ->
         return try {

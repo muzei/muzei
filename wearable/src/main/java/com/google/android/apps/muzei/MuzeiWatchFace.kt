@@ -52,7 +52,7 @@ import android.view.SurfaceHolder
 import androidx.core.content.edit
 import com.google.android.apps.muzei.complications.ArtworkComplicationProviderService
 import com.google.android.apps.muzei.datalayer.ActivateMuzeiIntentService
-import com.google.android.apps.muzei.featuredart.FeaturedArtProvider
+import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
@@ -111,7 +111,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
             if (provider == null) {
                 val context = this@MuzeiWatchFace
                 launch {
-                    FeaturedArtProvider::class.select(context)
+                    FEATURED_ART_AUTHORITY.select(context)
                     ActivateMuzeiIntentService.checkForPhoneApp(context)
                 }
             }

@@ -22,6 +22,7 @@ import com.google.android.apps.muzei.room.select
 import com.google.android.gms.wearable.CapabilityInfo
 import com.google.android.gms.wearable.WearableListenerService
 import kotlinx.coroutines.experimental.launch
+import net.nurik.roman.muzei.BuildConfig.DATA_LAYER_AUTHORITY
 
 /**
  * WearableListenerService responsible for listening for the availability of Muzei's phone app
@@ -45,7 +46,7 @@ class CapabilityListenerService : WearableListenerService() {
             if (ActivateMuzeiIntentService.hasPendingInstall(this)) {
                 val context = this
                 launch {
-                    DataLayerArtProvider::class.select(context)
+                    DATA_LAYER_AUTHORITY.select(context)
                     ActivateMuzeiIntentService.resetPendingInstall(context)
                 }
             }

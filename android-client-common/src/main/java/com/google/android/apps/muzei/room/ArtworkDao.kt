@@ -20,9 +20,6 @@ import android.arch.lifecycle.LiveData
 import android.arch.persistence.room.Dao
 import android.arch.persistence.room.Insert
 import android.arch.persistence.room.Query
-import android.arch.persistence.room.TypeConverters
-import android.content.ComponentName
-import com.google.android.apps.muzei.room.converter.ComponentNameTypeConverter
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.withContext
 
@@ -40,12 +37,12 @@ abstract class ArtworkDao {
     }
 
     @get:Query("SELECT artwork.* FROM artwork " +
-            "inner join provider on providerComponentName = componentName " +
+            "inner join provider on providerAuthority = authority " +
             "ORDER BY date_added DESC")
     abstract val currentArtwork: LiveData<Artwork?>
 
     @get:Query("SELECT artwork.* FROM artwork " +
-            "inner join provider on providerComponentName = componentName " +
+            "inner join provider on providerAuthority = authority " +
             "ORDER BY date_added DESC")
     internal abstract val currentArtworkBlocking: Artwork?
 
@@ -56,16 +53,15 @@ abstract class ArtworkDao {
     @Insert
     abstract fun insert(artwork: Artwork): Long
 
-    @TypeConverters(ComponentNameTypeConverter::class)
-    @Query("SELECT * FROM artwork WHERE providerComponentName = :providerComponentName ORDER BY date_added DESC")
+    @Query("SELECT * FROM artwork WHERE providerAuthority = :providerAuthority ORDER BY date_added DESC")
     internal abstract fun getCurrentArtworkForProviderBlocking(
-            providerComponentName: ComponentName
+            providerAuthority: String
     ): Artwork?
 
     suspend fun getCurrentArtworkForProvider(
-            providerComponentName: ComponentName
+            providerAuthority: String
     ) = withContext(CommonPool) {
-        getCurrentArtworkForProviderBlocking(providerComponentName)
+        getCurrentArtworkForProviderBlocking(providerAuthority)
     }
 
     @get:Query("SELECT * FROM artwork art1 WHERE _id IN (" +

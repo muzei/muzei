@@ -38,7 +38,7 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.ViewConfiguration
-import com.google.android.apps.muzei.featuredart.FeaturedArtProvider
+import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
 import com.google.android.apps.muzei.notifications.NotificationUpdater
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer
@@ -96,7 +96,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         ProviderManager.getInstance(this).observe(this) { provider ->
             if (provider == null) {
                 launch {
-                    FeaturedArtProvider::class.select(this@MuzeiWallpaperService)
+                    FEATURED_ART_AUTHORITY.select(this@MuzeiWallpaperService)
                 }
             }
         }

@@ -19,7 +19,6 @@ package com.google.android.apps.muzei
 import android.app.Activity
 import android.arch.lifecycle.ViewModelProvider
 import android.content.ActivityNotFoundException
-import android.content.ComponentName
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
@@ -59,11 +58,11 @@ class ChooseProviderActivity : FragmentActivity() {
 
     private val adapter = ProviderAdapter()
 
-    private var startActivityProvider: ComponentName? = null
+    private var startActivityProvider: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        startActivityProvider = savedInstanceState?.getParcelable(START_ACTIVITY_PROVIDER)
+        startActivityProvider = savedInstanceState?.getString(START_ACTIVITY_PROVIDER)
         setContentView(R.layout.choose_provider_activity)
         val providerList = findViewById<WearableRecyclerView>(R.id.provider_list)
         providerList.isEdgeItemsCenteringEnabled = true
@@ -77,12 +76,12 @@ class ChooseProviderActivity : FragmentActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putParcelable(START_ACTIVITY_PROVIDER, startActivityProvider)
+        outState.putString(START_ACTIVITY_PROVIDER, startActivityProvider)
     }
 
     private fun launchProviderSetup(provider: ProviderInfo) {
         try {
-            startActivityProvider = provider.componentName
+            startActivityProvider = provider.authority
             val setupIntent = Intent()
                     .setComponent(provider.setupActivity)
                     .putExtra(MuzeiArtProvider.EXTRA_FROM_MUZEI, true)
@@ -101,7 +100,7 @@ class ChooseProviderActivity : FragmentActivity() {
                 if (resultCode == Activity.RESULT_OK && provider != null) {
                     FirebaseAnalytics.getInstance(this).logEvent(
                             FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                            FirebaseAnalytics.Param.ITEM_ID to provider.flattenToShortString(),
+                            FirebaseAnalytics.Param.ITEM_ID to provider,
                             FirebaseAnalytics.Param.CONTENT_TYPE to "providers"))
                     launch {
                         provider.select(this@ChooseProviderActivity)
@@ -127,7 +126,7 @@ class ChooseProviderActivity : FragmentActivity() {
                     launchProviderSetup(providerInfo)
                 } else {
                     launch {
-                        providerInfo.componentName.select(this@ChooseProviderActivity)
+                        providerInfo.authority.select(this@ChooseProviderActivity)
                         finish()
                     }
                 }
@@ -138,7 +137,7 @@ class ChooseProviderActivity : FragmentActivity() {
     inner class ProviderAdapter : ListAdapter<ProviderInfo, ProviderViewHolder>(
             object : DiffUtil.ItemCallback<ProviderInfo>() {
                 override fun areItemsTheSame(provider1: ProviderInfo, provider2: ProviderInfo) =
-                        provider1.componentName == provider2.componentName
+                        provider1.authority == provider2.authority
 
                 override fun areContentsTheSame(provider1: ProviderInfo, provider2: ProviderInfo) =
                         false

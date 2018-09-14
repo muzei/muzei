@@ -19,7 +19,6 @@ package com.google.android.apps.muzei
 import android.app.Activity
 import android.arch.lifecycle.ViewModelProvider
 import android.content.ActivityNotFoundException
-import android.content.ComponentName
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Rect
@@ -53,14 +52,13 @@ import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.select
-import com.google.android.apps.muzei.sources.SourceArtProvider
 import com.google.android.apps.muzei.util.observe
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.experimental.launch
+import net.nurik.roman.muzei.BuildConfig.SOURCES_AUTHORITY
 import net.nurik.roman.muzei.R
-import java.lang.Exception
 
 class ChooseProviderFragment : Fragment() {
     companion object {
@@ -90,11 +88,11 @@ class ChooseProviderFragment : Fragment() {
     private lateinit var toolbar: Toolbar
     private lateinit var drawerLayout: DrawerLayout
 
-    private var startActivityProvider: ComponentName? = null
+    private var startActivityProvider: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        startActivityProvider = savedInstanceState?.getParcelable(START_ACTIVITY_PROVIDER)
+        startActivityProvider = savedInstanceState?.getString(START_ACTIVITY_PROVIDER)
     }
 
     override fun onCreateView(
@@ -141,9 +139,7 @@ class ChooseProviderFragment : Fragment() {
         drawerLayout.setStatusBarBackgroundColor(Color.TRANSPARENT)
         drawerLayout.setScrimColor(Color.argb(68, 0, 0, 0))
         currentProviderLiveData.observe(this) { provider ->
-            val sourceArtProvider = ComponentName(requireContext(),
-                    SourceArtProvider::class.java)
-            val legacySelected = provider?.componentName == sourceArtProvider
+            val legacySelected = provider?.authority == SOURCES_AUTHORITY
             toolbar.menu.findItem(R.id.auto_advance_settings).isVisible = !legacySelected
             toolbar.menu.findItem(R.id.auto_advance_disabled).isVisible = legacySelected
             if (legacySelected) {
@@ -175,12 +171,12 @@ class ChooseProviderFragment : Fragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putParcelable(START_ACTIVITY_PROVIDER, startActivityProvider)
+        outState.putString(START_ACTIVITY_PROVIDER, startActivityProvider)
     }
 
     private fun launchProviderSetup(provider: ProviderInfo) {
         try {
-            startActivityProvider = provider.componentName
+            startActivityProvider = provider.authority
             val setupIntent = Intent()
                     .setComponent(provider.setupActivity)
                     .putExtra(MuzeiArtProvider.EXTRA_FROM_MUZEI, true)
@@ -194,7 +190,7 @@ class ChooseProviderFragment : Fragment() {
 
     private fun launchProviderSettings(provider: ProviderInfo) {
         try {
-            startActivityProvider = provider.componentName
+            startActivityProvider = provider.authority
             val settingsIntent = Intent()
                     .setComponent(provider.settingsActivity)
                     .putExtra(MuzeiArtProvider.EXTRA_FROM_MUZEI, true)
@@ -213,7 +209,7 @@ class ChooseProviderFragment : Fragment() {
                 if (resultCode == Activity.RESULT_OK && provider != null) {
                     FirebaseAnalytics.getInstance(requireContext()).logEvent(
                             FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                            FirebaseAnalytics.Param.ITEM_ID to provider.flattenToShortString(),
+                            FirebaseAnalytics.Param.ITEM_ID to provider,
                             FirebaseAnalytics.Param.CONTENT_TYPE to "providers"))
                     val context = requireContext()
                     launch {
@@ -223,8 +219,8 @@ class ChooseProviderFragment : Fragment() {
                 startActivityProvider = null
             }
             REQUEST_EXTENSION_SETTINGS -> {
-                startActivityProvider?.let { componentName ->
-                    viewModel.refreshDescription(componentName)
+                startActivityProvider?.let { authority ->
+                    viewModel.refreshDescription(authority)
                 }
             }
             else -> super.onActivityResult(requestCode, resultCode, data)
@@ -255,11 +251,11 @@ class ChooseProviderFragment : Fragment() {
                 } else if (setupActivity != null) {
                     FirebaseAnalytics.getInstance(requireContext()).logEvent(
                             FirebaseAnalytics.Event.VIEW_ITEM, bundleOf(
-                            FirebaseAnalytics.Param.ITEM_ID to componentName.flattenToShortString(),
+                            FirebaseAnalytics.Param.ITEM_ID to authority,
                             FirebaseAnalytics.Param.ITEM_NAME to title,
                             FirebaseAnalytics.Param.ITEM_CATEGORY to "providers"))
                     launchProviderSetup(this)
-                } else if (providerInfo.componentName == viewModel.playStoreComponentName) {
+                } else if (providerInfo.authority == viewModel.playStoreAuthority) {
                     FirebaseAnalytics.getInstance(requireContext()).logEvent("more_sources_open", null)
                     try {
                         startActivity(viewModel.playStoreIntent)
@@ -271,24 +267,23 @@ class ChooseProviderFragment : Fragment() {
                 } else {
                     FirebaseAnalytics.getInstance(requireContext()).logEvent(
                             FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                            FirebaseAnalytics.Param.ITEM_ID to componentName.flattenToShortString(),
+                            FirebaseAnalytics.Param.ITEM_ID to authority,
                             FirebaseAnalytics.Param.CONTENT_TYPE to "providers"))
                     val context = requireContext()
                     launch {
-                        componentName.select(context)
+                        authority.select(context)
                     }
                 }
             }
             itemView.setOnLongClickListener {
-                val pkg = componentName.packageName
-                if (TextUtils.equals(pkg, requireContext().packageName)) {
+                if (TextUtils.equals(packageName, requireContext().packageName)) {
                     // Don't open Muzei's app info
                     return@setOnLongClickListener false
                 }
                 // Otherwise open third party extensions
                 try {
                     startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                            Uri.fromParts("package", pkg, null)))
+                            Uri.fromParts("package", packageName, null)))
                 } catch (e: ActivityNotFoundException) {
                     return@setOnLongClickListener false
                 }
@@ -311,7 +306,7 @@ class ChooseProviderFragment : Fragment() {
                         ChooseProviderFragmentDirections.browse(
                                 ProviderContract.Artwork.getContentUri(
                                         requireContext(),
-                                        componentName)))
+                                        authority)))
             }
         }
 
@@ -352,7 +347,7 @@ class ChooseProviderFragment : Fragment() {
                 override fun areItemsTheSame(
                         providerInfo1: ProviderInfo,
                         providerInfo2: ProviderInfo
-                ) = providerInfo1.componentName == providerInfo2.componentName
+                ) = providerInfo1.authority == providerInfo2.authority
 
                 override fun areContentsTheSame(
                         providerInfo1: ProviderInfo,

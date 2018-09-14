@@ -24,6 +24,7 @@ import android.util.Log
 import androidx.core.os.bundleOf
 import androidx.core.widget.toast
 import com.google.android.apps.muzei.room.select
+import com.google.android.apps.muzei.single.BuildConfig.SINGLE_AUTHORITY
 import com.google.android.apps.muzei.single.SingleArtProvider
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.experimental.android.UI
@@ -58,7 +59,7 @@ class PhotoSetAsTargetActivity : Activity() {
                         FirebaseAnalytics.Param.CONTENT_TYPE to "providers")
                 FirebaseAnalytics.getInstance(context).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
                 launch {
-                    SingleArtProvider::class.select(context)
+                    SINGLE_AUTHORITY.select(context)
                     startActivity(Intent.makeMainActivity(ComponentName(
                             context, MuzeiActivity::class.java))
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))

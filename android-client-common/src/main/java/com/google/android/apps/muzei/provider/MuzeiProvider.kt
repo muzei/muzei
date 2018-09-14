@@ -32,6 +32,7 @@ import android.support.v4.os.UserManagerCompat
 import android.util.Log
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.room.getComponentName
 import com.google.android.apps.muzei.room.getDescription
 import kotlinx.coroutines.experimental.runBlocking
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
@@ -177,7 +178,7 @@ class MuzeiProvider : ContentProvider() {
         }
         var finalSelection = provider?.run {
             DatabaseUtils.concatenateWhere(selection,
-                    "providerComponentName = \"${provider.componentName.flattenToShortString()}\"")
+                    "providerAuthority = \"${provider.authority}\"")
         } ?: selection
         if (MuzeiProvider.uriMatcher.match(uri) == ARTWORK_ID) {
             // If the incoming URI is for a single artwork identified by its ID, appends "_ID = <artworkId>"
@@ -204,7 +205,9 @@ class MuzeiProvider : ContentProvider() {
         currentProvider?.let { provider ->
             c.newRow().apply {
                 add(BaseColumns._ID, 0L)
-                add(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, provider.componentName)
+                val componentName = context.packageManager.resolveContentProvider(provider
+                        .authority, 0)?.getComponentName()?.flattenToShortString()
+                add(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, componentName)
                 add(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, true)
                 add(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION, runBlocking {
                     provider.getDescription(context)

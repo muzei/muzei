@@ -161,6 +161,32 @@ public class ProviderContract {
         }
 
         /**
+         * Retrieve the content URI for the given {@link MuzeiArtProvider}, allowing you to build
+         * custom queries, inserts, updates, and deletes using a {@link ContentResolver}.
+         * <p>
+         * This will throw an {@link IllegalArgumentException} if the provider is not valid.
+         *
+         * @param context  Context used to retrieve the content URI.
+         * @param authority The {@link MuzeiArtProvider} you need a content URI for
+         * @return The content URI for the {@link MuzeiArtProvider}
+         * @see MuzeiArtProvider#getContentUri()
+         */
+        @NonNull
+        public static Uri getContentUri(@NonNull Context context, @NonNull String authority) {
+            PackageManager pm = context.getPackageManager();
+            @SuppressLint("InlinedApi")
+            ProviderInfo info = pm.resolveContentProvider(authority,
+                    PackageManager.MATCH_DISABLED_COMPONENTS);
+            if (info == null) {
+                throw new IllegalArgumentException("Invalid MuzeiArtProvider: " + authority);
+            }
+            return new Uri.Builder()
+                    .scheme(ContentResolver.SCHEME_CONTENT)
+                    .authority(authority)
+                    .build();
+        }
+
+        /**
          * Retrieve the last added artwork for the given {@link MuzeiArtProvider}.
          *
          * @param context  Context used to retrieve the artwork

@@ -39,7 +39,7 @@ import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_SUBSCRIBE
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_SUBSCRIBER_COMPONENT
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_TOKEN
-import com.google.android.apps.muzei.featuredart.FeaturedArtProvider
+import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.room.Source
@@ -54,6 +54,7 @@ import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.withContext
 import net.nurik.roman.muzei.BuildConfig
+import net.nurik.roman.muzei.BuildConfig.SOURCES_AUTHORITY
 import net.nurik.roman.muzei.R
 import java.util.HashSet
 import java.util.concurrent.Executors
@@ -62,7 +63,7 @@ suspend fun Provider?.allowsNextArtwork(context: Context): Boolean {
     return when {
         this == null -> false
         supportsNextArtwork -> true
-        componentName != ComponentName(context, SourceArtProvider::class.java) -> false
+        authority != SOURCES_AUTHORITY -> false
         else -> MuzeiDatabase.getInstance(context).sourceDao()
                 .getCurrentSource()?.supportsNextArtwork == true
     }
@@ -120,8 +121,7 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
         fun nextArtwork(context: Context) = launch {
             val provider = MuzeiDatabase.getInstance(context)
                     .providerDao().getCurrentProvider()
-            if (provider?.componentName ==
-                    ComponentName(context, SourceArtProvider::class.java)) {
+            if (provider?.authority == SOURCES_AUTHORITY) {
                 val source = MuzeiDatabase.getInstance(context)
                         .sourceDao().getCurrentSource()
                 if (source?.supportsNextArtwork == true) {
@@ -156,7 +156,7 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                             context.packageManager.getServiceInfo(source.componentName, 0)
                         } catch (e: PackageManager.NameNotFoundException) {
                             Log.i(TAG, "Selected source ${source.componentName} is no longer available")
-                            FeaturedArtProvider::class.select(context)
+                            FEATURED_ART_AUTHORITY.select(context)
                             return@launch
                         }
 
@@ -256,7 +256,7 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
     override fun onCreate(owner: LifecycleOwner) {
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
         MuzeiDatabase.getInstance(context).providerDao().currentProvider.observe(owner) { provider ->
-            if (provider?.componentName == ComponentName(context, SourceArtProvider::class.java)) {
+            if (provider?.authority == SOURCES_AUTHORITY) {
                 lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
             } else {
                 lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
@@ -291,9 +291,18 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                     // If this is the selected source, switch Muzei to the new MuzeiArtProvider
                     // rather than continue to use the legacy MuzeiArtSource
                     metaData.getString("replacement").takeUnless { it.isNullOrEmpty() }?.run {
-                        val replacement = ComponentName(context.packageName, this)
-                        launch {
-                            replacement.select(context)
+                        val providerInfo = pm.resolveContentProvider(this, 0)
+                                ?: try {
+                                    val replacement = ComponentName(context.packageName, this)
+                                    pm.getProviderInfo(replacement, 0)
+                                } catch (e: PackageManager.NameNotFoundException) {
+                                    // Invalid
+                                    null
+                                }
+                        if (providerInfo != null) {
+                            launch {
+                                providerInfo.authority.select(context)
+                            }
                         }
                     }
                 }
@@ -411,19 +420,19 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
             launch(UI) {
                 context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
             }
-            FeaturedArtProvider::class.select(context)
+            FEATURED_ART_AUTHORITY.select(context)
         } catch (e: IllegalStateException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
             launch(UI) {
                 context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
             }
-            FeaturedArtProvider::class.select(context)
+            FEATURED_ART_AUTHORITY.select(context)
         } catch (e: SecurityException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
             launch(UI) {
                 context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
             }
-            FeaturedArtProvider::class.select(context)
+            FEATURED_ART_AUTHORITY.select(context)
         }
     }
 

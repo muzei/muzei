@@ -21,7 +21,6 @@ import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
-import android.content.ComponentName
 import android.content.ContentUris
 import android.content.Context
 import android.database.ContentObserver
@@ -36,10 +35,8 @@ class ProviderArtworkLiveData(
         val context: Context,
         val contentUri: Uri
 ): MutableLiveData<List<Artwork>>() {
-    private val componentName: ComponentName = context.packageManager
-            .resolveContentProvider(contentUri.authority, 0).run {
-        ComponentName(applicationInfo.packageName, name)
-    }
+    private val authority: String = contentUri.authority
+            ?: throw IllegalArgumentException("Invalid contentUri $contentUri")
     private val singleThreadContext by lazy {
         newSingleThreadContext("ProviderArtworkLiveData")
     }
@@ -82,7 +79,7 @@ class ProviderArtworkLiveData(
                         title = providerArtwork.title
                         byline = providerArtwork.byline
                         attribution = providerArtwork.attribution
-                        providerComponentName = componentName
+                        providerAuthority = authority
                     })
                 }
             }

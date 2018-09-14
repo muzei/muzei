@@ -23,11 +23,12 @@ import android.arch.lifecycle.Transformations
 import android.content.ComponentName
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
-import com.google.android.apps.muzei.datalayer.DataLayerArtProvider
 import com.google.android.apps.muzei.room.InstalledProvidersLiveData
+import net.nurik.roman.muzei.BuildConfig.DATA_LAYER_AUTHORITY
 
 data class ProviderInfo(
-        val componentName: ComponentName,
+        val authority: String,
+        val packageName: String,
         val title: String,
         val icon: Drawable,
         val setupActivity: ComponentName?
@@ -36,7 +37,8 @@ data class ProviderInfo(
             packageManager: PackageManager,
             providerInfo: android.content.pm.ProviderInfo
     ) : this(
-            ComponentName(providerInfo.packageName, providerInfo.name),
+            providerInfo.authority,
+            providerInfo.packageName,
             providerInfo.loadLabel(packageManager).toString(),
             providerInfo.loadIcon(packageManager),
             providerInfo.metaData?.getString("setupActivity")?.run {
@@ -46,18 +48,16 @@ data class ProviderInfo(
 
 class ChooseProviderViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val dataLayerArtProvider = ComponentName(application, DataLayerArtProvider::class.java)
-
     private val comparator = Comparator<ProviderInfo> { p1, p2 ->
         // The DataLayerArtProvider should always the first provider listed
-        if (p1.componentName == dataLayerArtProvider) {
+        if (p1.authority == DATA_LAYER_AUTHORITY) {
             return@Comparator -1
-        } else if (p2.componentName == dataLayerArtProvider) {
+        } else if (p2.authority == DATA_LAYER_AUTHORITY) {
             return@Comparator 1
         }
         // Then put providers from Muzei on top
-        val pn1 = p1.componentName.packageName
-        val pn2 = p2.componentName.packageName
+        val pn1 = p1.packageName
+        val pn2 = p2.packageName
         if (pn1 != pn2) {
             if (application.packageName == pn1) {
                 return@Comparator -1
