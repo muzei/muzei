@@ -28,6 +28,7 @@ import androidx.core.database.getStringOrNull
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.api.provider.ProviderContract
+import com.google.android.apps.muzei.single.BuildConfig.SINGLE_AUTHORITY
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.withContext
 import java.io.File
@@ -52,7 +53,7 @@ class SingleArtProvider : MuzeiArtProvider() {
         suspend fun setArtwork(context: Context, artworkUri: Uri): Boolean {
             val tempFile = writeUriToFile(context, artworkUri, getArtworkFile(context))
             if (tempFile != null) {
-                ProviderContract.Artwork.setArtwork(context, SingleArtProvider::class.java,
+                ProviderContract.Artwork.setArtwork(context, SINGLE_AUTHORITY,
                         Artwork().apply {
                             title = getDisplayName(context, artworkUri)
                                     ?: context.getString(R.string.single_default_artwork_title)
