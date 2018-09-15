@@ -45,7 +45,7 @@
                 android:value="@color/colorPrimary"/>
             <meta-data
                 android:name="replacement"
-                android:value="com.example.muzei.unsplash.UnsplashExampleArtProvider"/>
+                android:value="${unsplashAuthority}"/>
         </service>
 
         <provider

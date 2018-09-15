@@ -47,7 +47,7 @@
                 android:value="@color/featuredart_color"/>
             <meta-data
                 android:name="replacement"
-                android:value="com.google.android.apps.muzei.featuredart.FeaturedArtProvider"/>
+                android:value="${featuredArtAuthority}"/>
         </service>
     </application>
 </manifest>

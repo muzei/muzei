@@ -67,7 +67,7 @@
                 android:value="#4db6ac"/>
             <meta-data
                 android:name="replacement"
-                android:value="com.google.android.apps.muzei.gallery.GalleryArtProvider" />
+                android:value="com.google.android.apps.muzei.gallery.art" />
         </service>
 
         <activity

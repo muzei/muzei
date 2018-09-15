@@ -60,7 +60,7 @@
                 android:value="#9e9e9e"/>
             <meta-data
                 android:name="replacement"
-                android:value="com.google.android.apps.muzei.single.SingleArtProvider"/>
+                android:value="${singleAuthority}"/>
         </service>
 
         <activity
