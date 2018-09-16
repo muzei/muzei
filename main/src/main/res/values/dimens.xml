@@ -37,6 +37,8 @@
     <dimen name="settings_text_size_large">20sp</dimen>
     <dimen name="settings_text_size_normal">16sp</dimen>
 
+    <dimen name="tasker_action_icon_size">48dp</dimen>
+
     <dimen name="widget_small_height_breakpoint">110dp</dimen>
     <dimen name="widget_min_size">48dp</dimen>
     <dimen name="widget_min_height">110dp</dimen>
