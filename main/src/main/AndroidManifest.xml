@@ -183,7 +183,7 @@
         <!-- Activity and receiver which allows Tasker to trigger the 'Next Artwork' action -->
         <activity
             android:name="com.google.android.apps.muzei.tasker.TaskerSettingActivity"
-            android:theme="@android:style/Theme.NoDisplay">
+            android:theme="@style/Theme.Muzei.Dialog">
             <intent-filter>
                 <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING"/>
             </intent-filter>
