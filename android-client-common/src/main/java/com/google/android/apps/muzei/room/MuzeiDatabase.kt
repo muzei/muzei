@@ -227,7 +227,7 @@ abstract class MuzeiDatabase : RoomDatabase() {
             override fun migrate(database: SupportSQLiteDatabase) {
                 // Handle Provider
                 database.execSQL("CREATE TABLE provider ("
-                        + "componentName TEXT PRIMARY KEY NOT NULL,"
+                        + "authority TEXT PRIMARY KEY NOT NULL,"
                         + "supportsNextArtwork INTEGER NOT NULL)")
                 // Try to populate the provider table with an initial provider
                 // by seeing if the current source has a replacement provider available
@@ -251,8 +251,10 @@ abstract class MuzeiDatabase : RoomDatabase() {
                                         }
                                     }
                                     if (providerInfo != null) {
-                                        database.execSQL("INSERT INTO provider (componentName) "
-                                                + "VALUES (?)", arrayOf(providerInfo.authority))
+                                        database.execSQL("INSERT INTO provider " +
+                                                "(authority, supportsNextArtwork) "
+                                                + "VALUES (?, ?)",
+                                                arrayOf(providerInfo.authority, false))
                                     }
                                 }
                             }
