@@ -23,9 +23,7 @@ import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.LifecycleRegistry
 import android.arch.lifecycle.Observer
 import android.content.ContentUris
-import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.net.Uri
@@ -57,8 +55,6 @@ class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
         private const val TAG = "GalleryArtSource"
         private const val SOURCE_NAME = "GalleryArtSource"
 
-        internal const val PREF_ROTATE_INTERVAL_MIN = "rotate_interval_min"
-
         internal const val DEFAULT_ROTATE_INTERVAL_MIN = 60 * 6
 
         internal const val ACTION_BIND_GALLERY = "com.google.android.apps.muzei.gallery.BIND_GALLERY"
@@ -72,10 +68,6 @@ class GalleryArtSource : MuzeiArtSource(SOURCE_NAME), LifecycleOwner {
         private val EXIF_DATE_FORMAT = SimpleDateFormat("yyyy:MM:dd HH:mm:ss")
 
         private val OMIT_COUNTRY_CODES = hashSetOf("US")
-
-        internal fun getSharedPreferences(context: Context): SharedPreferences {
-            return MuzeiArtSource.getSharedPreferences(context, SOURCE_NAME)
-        }
     }
 
     private val lifecycle = LifecycleRegistry(this)

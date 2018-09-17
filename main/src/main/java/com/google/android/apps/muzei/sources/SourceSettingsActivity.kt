@@ -122,7 +122,7 @@ class SourceSettingsActivity : AppCompatActivity() {
                     setResult(RESULT_OK)
                 }
                 val pm = packageManager
-                val sourcesViews = sources.filterNot { source ->
+                val sourcesViews = sources.asSequence().filterNot { source ->
                     source.label.isNullOrEmpty()
                 }.mapNotNull { source ->
                     try {
@@ -164,7 +164,7 @@ class SourceSettingsActivity : AppCompatActivity() {
                     val label2 = s2.label
                             ?: throw IllegalStateException("Found null label for ${s2.componentName}")
                     label1.compareTo(label2)
-                })
+                }).toList()
                 adapter.clear()
                 adapter.addAll(sourcesViews)
                 if (!dialog.isShowing) {

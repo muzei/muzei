@@ -50,7 +50,6 @@ import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.Toolbar
-import android.util.SparseIntArray
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem

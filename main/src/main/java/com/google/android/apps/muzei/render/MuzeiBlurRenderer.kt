@@ -99,9 +99,9 @@ class MuzeiBlurRenderer(
 
     var isBlurred = true
         private set
-    var blurPreferenceName = Prefs.PREF_BLUR_AMOUNT
-    var dimPreferenceName = Prefs.PREF_DIM_AMOUNT
-    var greyPreferenceName = Prefs.PREF_GREY_AMOUNT
+    private var blurPreferenceName = Prefs.PREF_BLUR_AMOUNT
+    private var dimPreferenceName = Prefs.PREF_DIM_AMOUNT
+    private var greyPreferenceName = Prefs.PREF_GREY_AMOUNT
     private var blurRelatedToArtDetailMode = false
     private val blurInterpolator = AccelerateDecelerateInterpolator()
     private val blurAnimator = TickingFloatAnimator(BLUR_ANIMATION_DURATION * if (demoMode) 5 else 1)

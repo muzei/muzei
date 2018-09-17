@@ -72,7 +72,7 @@ class GallerySettingsViewModel(application: Application) : AndroidViewModel(appl
                 }
                 val packageManager = getApplication<Application>().packageManager
                 val packageName = getApplication<Application>().packageName
-                value = packageManager.queryIntentActivities(intent, 0)?.map {
+                value = packageManager.queryIntentActivities(intent, 0)?.asSequence()?.map {
                     it.activityInfo
                 }?.filter {
                     // Filter out the default system UI
@@ -85,7 +85,7 @@ class GallerySettingsViewModel(application: Application) : AndroidViewModel(appl
                     it.permission?.isEmpty() != false ||
                             packageManager.checkPermission(it.permission, packageName) ==
                             PackageManager.PERMISSION_GRANTED
-                }
+                }?.toList()
             }
         }
     }

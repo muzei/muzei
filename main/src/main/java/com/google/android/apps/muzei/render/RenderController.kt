@@ -28,7 +28,7 @@ import kotlinx.coroutines.experimental.launch
 abstract class RenderController(
         protected var context: Context,
         protected var renderer: MuzeiBlurRenderer,
-        protected var callbacks: Callbacks
+        private var callbacks: Callbacks
 ) : DefaultLifecycleObserver {
 
     var visible: Boolean = false

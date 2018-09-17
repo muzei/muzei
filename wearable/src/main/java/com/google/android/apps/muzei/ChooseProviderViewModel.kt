@@ -73,8 +73,8 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
 
     val providers : LiveData<List<ProviderInfo>?> = Transformations
             .map(mutableProviders) { providerInfos ->
-                providerInfos.map { providerInfo ->
+                providerInfos.asSequence().map { providerInfo ->
                     ProviderInfo(application.packageManager, providerInfo)
-                }.sortedWith(comparator)
+                }.sortedWith(comparator).toList()
             }
 }
