@@ -16,21 +16,21 @@
 
 package com.google.android.apps.muzei
 
+import android.app.Activity
 import android.os.Bundle
-import android.support.v4.app.FragmentActivity
 import com.google.android.apps.muzei.sources.SourceManager
-import com.google.android.apps.muzei.util.coroutineScope
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 
 /**
  * Simple activity that just triggers the 'Next Artwork' action and finishes
  */
-class NextArtworkActivity : FragmentActivity() {
+class NextArtworkActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        coroutineScope.launch {
+        GlobalScope.launch {
             SourceManager.nextArtwork(this@NextArtworkActivity)
-            finish()
         }
+        finish()
     }
 }
