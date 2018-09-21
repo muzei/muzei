@@ -17,6 +17,7 @@
 package com.google.android.apps.muzei.sync
 
 import android.content.ContentUris
+import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.os.RemoteException
@@ -31,6 +32,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
+import androidx.work.WorkerParameters
 import com.google.android.apps.muzei.api.internal.ProtocolConstants
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_MAX_LOADED_ARTWORK_ID
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_RECENT_ARTWORK_IDS
@@ -55,7 +57,10 @@ import java.util.concurrent.TimeUnit
  * Worker responsible for loading artwork from a [MuzeiArtProvider] and inserting it into
  * the [MuzeiDatabase].
  */
-class ArtworkLoadWorker : Worker() {
+class ArtworkLoadWorker(
+        context: Context,
+        workerParams: WorkerParameters
+) : Worker(context, workerParams) {
 
     companion object {
         private const val TAG = "ArtworkLoad"

@@ -32,6 +32,7 @@ import androidx.work.Constraints
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
+import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.google.android.apps.muzei.api.internal.ProtocolConstants
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_LAST_LOADED_TIME
@@ -53,7 +54,10 @@ import java.util.concurrent.TimeUnit
  * kicking off an immediate load if the current artwork is invalid or we're overdue for loading
  * artwork.
  */
-class ProviderChangedWorker : Worker() {
+class ProviderChangedWorker(
+        context: Context,
+        workerParams: WorkerParameters
+) : Worker(context, workerParams) {
 
     companion object {
         private const val TAG = "ProviderChanged"

@@ -18,6 +18,7 @@ package com.google.android.apps.muzei.gallery
 
 import android.annotation.SuppressLint
 import android.content.ContentUris
+import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.net.Uri
@@ -34,6 +35,7 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
+import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.ProviderContract
@@ -45,7 +47,10 @@ import java.text.SimpleDateFormat
 import java.util.LinkedList
 import java.util.Random
 
-class GalleryScanWorker : Worker() {
+class GalleryScanWorker(
+        context: Context,
+        workerParams: WorkerParameters
+) : Worker(context, workerParams) {
     companion object {
         private const val TAG = "GalleryScanWorker"
         private const val INITIAL_SCAN_TAG = "initialScan"

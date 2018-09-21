@@ -16,11 +16,13 @@
 
 package com.google.android.apps.muzei.datalayer
 
+import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
+import androidx.work.WorkerParameters
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.wearable.toArtwork
 import com.google.android.gms.tasks.Tasks
@@ -36,7 +38,10 @@ import java.util.concurrent.ExecutionException
 /**
  * Load artwork from the Wear Data Layer, writing it into [DataLayerArtProvider].
  */
-class DataLayerLoadWorker : Worker() {
+class DataLayerLoadWorker(
+        context: Context,
+        workerParams: WorkerParameters
+) : Worker(context, workerParams) {
 
     companion object {
         private const val TAG = "DataLayerLoadJobService"

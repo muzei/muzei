@@ -92,6 +92,11 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    // Workaround for WorkManager alpha09: https://developer.android.com/jetpack/docs/release-notes#september_19_2018
+    packagingOptions {
+        exclude 'META-INF/proguard/androidx-annotations.pro'
+    }
 }
 
 kotlin.experimental.coroutines "enable"

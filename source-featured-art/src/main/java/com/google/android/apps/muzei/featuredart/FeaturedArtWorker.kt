@@ -28,6 +28,7 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
+import androidx.work.WorkerParameters
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
@@ -45,7 +46,10 @@ import java.util.Random
 import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 
-class FeaturedArtWorker : Worker() {
+class FeaturedArtWorker(
+        context: Context,
+        workerParams: WorkerParameters
+) : Worker(context, workerParams) {
 
     companion object {
         private const val TAG = "FeaturedArtWorker"

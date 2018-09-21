@@ -17,6 +17,7 @@
 package com.google.android.apps.muzei.complications
 
 import android.content.ComponentName
+import android.content.Context
 import android.os.Build
 import android.preference.PreferenceManager
 import android.support.annotation.RequiresApi
@@ -27,6 +28,7 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
+import androidx.work.WorkerParameters
 import com.google.android.apps.muzei.api.MuzeiContract
 import net.nurik.roman.muzei.BuildConfig
 import java.util.TreeSet
@@ -35,7 +37,10 @@ import java.util.TreeSet
  * Worker which listens for artwork change events and updates the Artwork Complication
  */
 @RequiresApi(Build.VERSION_CODES.N)
-class ArtworkComplicationWorker : Worker() {
+class ArtworkComplicationWorker(
+        context: Context,
+        workerParams: WorkerParameters
+) : Worker(context, workerParams) {
 
     companion object {
         private const val TAG = "ArtworkComplication"

@@ -39,4 +39,9 @@ android {
         manifestPlaceholders = [unsplashAuthority: unsplashAuthorityValue]
         buildConfigField "String", "UNSPLASH_AUTHORITY", "\"${unsplashAuthorityValue}\""
     }
+
+    // Workaround for WorkManager alpha09: https://developer.android.com/jetpack/docs/release-notes#september_19_2018
+    packagingOptions {
+        exclude 'META-INF/proguard/androidx-annotations.pro'
+    }
 }
