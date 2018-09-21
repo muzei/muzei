@@ -24,10 +24,12 @@ import androidx.core.view.isVisible
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.PanView
+import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.observeNonNull
 import com.google.firebase.analytics.FirebaseAnalytics
+import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.android.Main
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.BuildConfig
@@ -55,14 +57,14 @@ class FullScreenActivity : FragmentActivity(),
         panView = findViewById(R.id.pan_view)
 
         loadingIndicatorView = findViewById(R.id.loading_indicator)
-        showLoadingIndicator = launch(UI) {
+        showLoadingIndicator = coroutineScope.launch(Dispatchers.Main) {
             delay(500)
             loadingIndicatorView.isVisible = true
         }
 
         MuzeiDatabase.getInstance(this).artworkDao()
                 .currentArtwork.observeNonNull(this) { artwork ->
-            launch(UI) {
+            coroutineScope.launch(Dispatchers.Main) {
                 val image = ImageLoader.decode(
                         contentResolver, artwork.contentUri)
                 showLoadingIndicator?.cancel()

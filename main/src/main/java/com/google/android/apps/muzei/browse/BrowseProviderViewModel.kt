@@ -17,7 +17,6 @@
 package com.google.android.apps.muzei.browse
 
 import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
@@ -28,11 +27,14 @@ import android.net.Uri
 import android.os.Handler
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
+import com.google.android.apps.muzei.util.ScopedAndroidViewModel
+import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.newSingleThreadContext
 
 class ProviderArtworkLiveData(
         val context: Context,
+        val coroutineScope: CoroutineScope,
         val contentUri: Uri
 ): MutableLiveData<List<Artwork>>() {
     private val authority: String = contentUri.authority
@@ -68,7 +70,7 @@ class ProviderArtworkLiveData(
     }
 
     private fun refreshArt() {
-        launch(singleThreadContext) {
+        coroutineScope.launch(singleThreadContext) {
             val list = mutableListOf<Artwork>()
             contentProviderClient.query(contentUri)?.use { data ->
                 while(data.moveToNext()) {
@@ -90,7 +92,7 @@ class ProviderArtworkLiveData(
 
 class BrowseProviderViewModel(
         application: Application
-): AndroidViewModel(application) {
+): ScopedAndroidViewModel(application) {
     private val contentUriLiveData = MutableLiveData<Uri>()
 
     fun setContentUri(contentUri: Uri) {
@@ -99,6 +101,6 @@ class BrowseProviderViewModel(
 
     val artLiveData: LiveData<List<Artwork>> = Transformations
             .switchMap(contentUriLiveData) { contentUri ->
-                ProviderArtworkLiveData(application, contentUri)
+                ProviderArtworkLiveData(application, this, contentUri)
             }
 }

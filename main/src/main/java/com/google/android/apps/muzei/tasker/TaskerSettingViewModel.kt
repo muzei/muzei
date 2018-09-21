@@ -17,7 +17,6 @@
 package com.google.android.apps.muzei.tasker
 
 import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
@@ -25,6 +24,7 @@ import android.content.pm.ProviderInfo
 import android.graphics.drawable.Drawable
 import android.support.v4.content.ContextCompat
 import com.google.android.apps.muzei.room.InstalledProvidersLiveData
+import com.google.android.apps.muzei.util.ScopedAndroidViewModel
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
 
@@ -34,7 +34,9 @@ internal data class Action(
         val action: TaskerAction,
         val packageName: String? = null)
 
-internal class TaskerSettingViewModel(application: Application) : AndroidViewModel(application) {
+internal class TaskerSettingViewModel(
+        application: Application
+) : ScopedAndroidViewModel(application) {
 
     private val imageSize = application.resources.getDimensionPixelSize(
             R.dimen.tasker_action_icon_size)
@@ -76,7 +78,8 @@ internal class TaskerSettingViewModel(application: Application) : AndroidViewMod
                 application.getString(R.string.action_next_artwork),
                 NextArtworkAction)
 
-        val installedProvidersLiveData = InstalledProvidersLiveData(application)
+        val installedProvidersLiveData = InstalledProvidersLiveData(application,
+                this@TaskerSettingViewModel)
         val installedProvidersObserver = Observer<List<ProviderInfo>> { providers ->
             val pm = application.packageManager
             val actionsList = mutableListOf(nextArtworkAction)

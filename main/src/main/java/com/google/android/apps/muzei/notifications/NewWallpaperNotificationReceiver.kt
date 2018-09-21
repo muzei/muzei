@@ -41,7 +41,7 @@ import com.google.android.apps.muzei.room.getCommands
 import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.sources.SourceManager
 import com.google.android.apps.muzei.sources.allowsNextArtwork
-import kotlinx.coroutines.experimental.launch
+import com.google.android.apps.muzei.util.goAsync
 import net.nurik.roman.muzei.R
 
 class NewWallpaperNotificationReceiver : BroadcastReceiver() {
@@ -61,7 +61,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
 
         private const val EXTRA_USER_COMMAND = "com.google.android.apps.muzei.extra.USER_COMMAND"
 
-        fun markNotificationRead(context: Context) = launch {
+        suspend fun markNotificationRead(context: Context) {
             val lastArtwork = MuzeiDatabase.getInstance(context).artworkDao()
                     .getCurrentArtwork()
             if (lastArtwork != null) {
@@ -301,19 +301,19 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context, intent: Intent?) {
-        when (intent?.action) {
-            ACTION_MARK_NOTIFICATION_READ -> markNotificationRead(context)
-            ACTION_NEXT_ARTWORK -> SourceManager.nextArtwork(context)
-            ACTION_USER_COMMAND -> triggerUserCommandFromRemoteInput(context, intent)
+        goAsync {
+            when (intent?.action) {
+                ACTION_MARK_NOTIFICATION_READ -> markNotificationRead(context)
+                ACTION_NEXT_ARTWORK -> SourceManager.nextArtwork(context)
+                ACTION_USER_COMMAND -> triggerUserCommandFromRemoteInput(context, intent)
+            }
         }
     }
 
-    private fun triggerUserCommandFromRemoteInput(context: Context, intent: Intent) {
+    private suspend fun triggerUserCommandFromRemoteInput(context: Context, intent: Intent) {
         val selectedCommand = RemoteInput.getResultsFromIntent(intent)
                 ?.getCharSequence(EXTRA_USER_COMMAND)?.toString()
                 ?: return
-        val pendingResult = goAsync()
-        launch {
             val artwork = MuzeiDatabase.getInstance(context).artworkDao()
                     .getCurrentArtwork()
             if (artwork != null) {
@@ -322,7 +322,5 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                     artwork.sendAction(context, id)
                 }
             }
-            pendingResult.finish()
-        }
     }
 }

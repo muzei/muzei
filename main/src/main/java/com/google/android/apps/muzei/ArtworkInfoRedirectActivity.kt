@@ -16,18 +16,19 @@
 
 package com.google.android.apps.muzei
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.support.v4.app.FragmentActivity
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.openArtworkInfo
+import com.google.android.apps.muzei.util.coroutineScope
 import kotlinx.coroutines.experimental.launch
 
 /**
  * Open the Artwork Info associated with the current artwork
  */
-class ArtworkInfoRedirectActivity : Activity() {
+class ArtworkInfoRedirectActivity : FragmentActivity() {
     companion object {
         fun getIntent(context: Context): Intent =
                 Intent(context, ArtworkInfoRedirectActivity::class.java).apply {
@@ -37,7 +38,7 @@ class ArtworkInfoRedirectActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        launch {
+        coroutineScope.launch {
             val artwork = MuzeiDatabase.getInstance(this@ArtworkInfoRedirectActivity)
                     .artworkDao()
                     .getCurrentArtwork()

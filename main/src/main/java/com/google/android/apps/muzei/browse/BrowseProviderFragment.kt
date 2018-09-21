@@ -35,10 +35,12 @@ import androidx.core.widget.toast
 import androidx.navigation.fragment.findNavController
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.observe
 import com.squareup.picasso.Picasso
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.CoroutineScope
+import kotlinx.coroutines.experimental.Dispatchers
+import kotlinx.coroutines.experimental.android.Main
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.withContext
 import net.nurik.roman.muzei.R
@@ -103,7 +105,10 @@ class BrowseProviderFragment: Fragment() {
         }
     }
 
-    class ArtViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+    class ArtViewHolder(
+            private val coroutineScope: CoroutineScope,
+            itemView: View
+    ): RecyclerView.ViewHolder(itemView) {
         private val imageView = itemView.findViewById<ImageView>(R.id.browse_image)
 
         fun bind(artwork: Artwork) {
@@ -115,8 +120,8 @@ class BrowseProviderFragment: Fragment() {
                     .into(imageView)
             itemView.setOnClickListener {
                 val context = it.context
-                launch(UI) {
-                    withContext(CommonPool) {
+                coroutineScope.launch(Dispatchers.Main) {
+                    withContext(Dispatchers.Default) {
                         MuzeiDatabase.getInstance(context).artworkDao()
                                 .insert(artwork)
                     }
@@ -127,7 +132,6 @@ class BrowseProviderFragment: Fragment() {
                                 artwork.title)
                     })
                 }
-
             }
         }
     }
@@ -142,8 +146,8 @@ class BrowseProviderFragment: Fragment() {
             }
     ) {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-                ArtViewHolder(layoutInflater.inflate(
-                        R.layout.browse_provider_item, parent, false))
+                ArtViewHolder(viewLifecycleOwner.coroutineScope,
+                        layoutInflater.inflate(R.layout.browse_provider_item, parent, false))
 
         override fun onBindViewHolder(holder: ArtViewHolder, position: Int) {
             holder.bind(getItem(position))

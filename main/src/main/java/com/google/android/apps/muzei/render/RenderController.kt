@@ -22,7 +22,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Handler
 import com.google.android.apps.muzei.settings.Prefs
-import kotlinx.coroutines.experimental.android.UI
+import com.google.android.apps.muzei.util.coroutineScope
+import kotlinx.coroutines.experimental.CoroutineScope
+import kotlinx.coroutines.experimental.Dispatchers
+import kotlinx.coroutines.experimental.android.Main
 import kotlinx.coroutines.experimental.launch
 
 abstract class RenderController(
@@ -58,6 +61,7 @@ abstract class RenderController(
                 reloadCurrentArtwork()
             }
         }
+    private lateinit var coroutineScope: CoroutineScope
     private var destroyed = false
     private var queuedImageLoader: ImageLoader? = null
     private val sharedPreferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
@@ -102,6 +106,7 @@ abstract class RenderController(
     }
 
     override fun onCreate(owner: LifecycleOwner) {
+        coroutineScope = owner.coroutineScope
         Prefs.getSharedPreferences(context)
                 .registerOnSharedPreferenceChangeListener(sharedPreferenceChangeListener)
     }
@@ -125,7 +130,7 @@ abstract class RenderController(
             // Don't reload artwork for destroyed RenderControllers
             return
         }
-        launch(UI) {
+        coroutineScope.launch(Dispatchers.Main) {
             val imageLoader = openDownloadedCurrentArtwork()
 
             callbacks.queueEventOnGlThread {

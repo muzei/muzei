@@ -52,12 +52,14 @@ import com.google.android.apps.muzei.settings.Prefs
 import com.google.android.apps.muzei.shortcuts.ArtworkInfoShortcutController
 import com.google.android.apps.muzei.sources.SourceManager
 import com.google.android.apps.muzei.sync.ProviderManager
+import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.util.observeNonNull
 import com.google.android.apps.muzei.wallpaper.LockscreenObserver
 import com.google.android.apps.muzei.wallpaper.WallpaperAnalytics
 import com.google.android.apps.muzei.wearable.WearableController
 import com.google.android.apps.muzei.widget.WidgetUpdater
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
@@ -94,7 +96,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         }
         ProviderManager.getInstance(this).observe(this) { provider ->
             if (provider == null) {
-                launch {
+                GlobalScope.launch {
                     ProviderManager.select(this@MuzeiWallpaperService, FEATURED_ART_AUTHORITY)
                 }
             }
@@ -161,7 +163,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
 
                 doubleTapTimeout?.cancel()
                 val timeout = ViewConfiguration.getDoubleTapTimeout().toLong()
-                doubleTapTimeout = launch {
+                doubleTapTimeout = coroutineScope.launch {
                     delay(timeout)
                     queueEvent {
                         validDoubleTap = false
@@ -196,7 +198,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                 MuzeiDatabase.getInstance(this@MuzeiWallpaperService)
                         .artworkDao().currentArtwork
                         .observeNonNull(this) { artwork ->
-                            launch {
+                            coroutineScope.launch {
                                 updateCurrentArtwork(artwork)
                             }
                         }
@@ -256,8 +258,6 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                 lifecycle.removeObserver(this)
             }
             engineLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-            doubleTapTimeout?.cancel()
-            cancelDelayedBlur()
             queueEvent {
                 renderer.destroy()
             }
@@ -322,10 +322,12 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                     }
                 }
                 Prefs.PREF_TAP_ACTION_NEXT -> {
-                    SourceManager.nextArtwork(this@MuzeiWallpaperService)
+                    GlobalScope.launch {
+                        SourceManager.nextArtwork(this@MuzeiWallpaperService)
+                    }
                 }
                 Prefs.PREF_TAP_ACTION_VIEW_DETAILS -> {
-                    launch {
+                    GlobalScope.launch {
                         val artwork = MuzeiDatabase
                                 .getInstance(this@MuzeiWallpaperService)
                                 .artworkDao()
@@ -365,7 +367,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             }
 
             cancelDelayedBlur()
-            delayedBlur = launch {
+            delayedBlur = coroutineScope.launch {
                 delay(TEMPORARY_FOCUS_DURATION_MILLIS)
                 queueEvent {
                     renderer.setIsBlurred(true, false)

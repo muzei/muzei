@@ -28,6 +28,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.os.ResultReceiver
 import android.preference.PreferenceManager
 import android.support.annotation.RequiresApi
@@ -46,8 +47,6 @@ import com.google.android.gms.wearable.Wearable
 import com.google.android.wearable.intent.RemoteIntent
 import com.google.android.wearable.playstore.PlayStoreAvailability
 import com.google.firebase.analytics.FirebaseAnalytics
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.R
 import java.util.TreeSet
 import java.util.concurrent.ExecutionException
@@ -201,15 +200,13 @@ class ActivateMuzeiIntentService : IntentService(TAG) {
                 val remoteIntent = Intent(Intent.ACTION_VIEW)
                         .addCategory(Intent.CATEGORY_BROWSABLE)
                         .setData(Uri.parse("market://details?id=$packageName"))
-                RemoteIntent.startRemoteActivity(this, remoteIntent, object : ResultReceiver(Handler()) {
+                RemoteIntent.startRemoteActivity(this, remoteIntent, object : ResultReceiver(Handler(Looper.getMainLooper())) {
                     override fun onReceiveResult(resultCode: Int, resultData: Bundle) {
                         if (resultCode == RemoteIntent.RESULT_OK) {
                             FirebaseAnalytics.getInstance(this@ActivateMuzeiIntentService)
                                     .logEvent("activate_notif_install_sent", null)
                         } else {
-                            launch(UI) {
-                                toast(R.string.datalayer_install_failed)
-                            }
+                            toast(R.string.datalayer_install_failed)
                         }
                     }
                 })

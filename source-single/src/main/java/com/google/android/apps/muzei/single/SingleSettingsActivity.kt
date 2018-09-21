@@ -20,6 +20,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.core.widget.toast
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 
 /**
@@ -50,7 +51,7 @@ class SingleSettingsActivity : Activity() {
         data?.data?.takeIf {
             requestCode == REQUEST_PHOTO && resultCode == RESULT_OK
         }?.also { uri ->
-            launch {
+            GlobalScope.launch {
                 val success = SingleArtProvider.setArtwork(
                         this@SingleSettingsActivity, uri)
                 setResult(if (success == true) Activity.RESULT_OK else Activity.RESULT_CANCELED)

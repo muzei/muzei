@@ -36,6 +36,7 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.sources.allowsNextArtwork
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
+import kotlinx.coroutines.experimental.currentScope
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.R
 
@@ -45,23 +46,23 @@ private const val TAG = "updateAppWidget"
  * Provide a preview for pinning the widget
  */
 @RequiresApi(Build.VERSION_CODES.O)
-fun showWidgetPreview(context: Context) = launch {
+suspend fun showWidgetPreview(context: Context) {
     val widget = ComponentName(context, MuzeiAppWidgetProvider::class.java)
     val appWidgetManager = AppWidgetManager.getInstance(context)
     if (!appWidgetManager.isRequestPinAppWidgetSupported) {
         // No preview to show
-        return@launch
+        return
     }
     val provider = MuzeiDatabase.getInstance(context).providerDao().getCurrentProvider()
     val artwork = MuzeiDatabase.getInstance(context).artworkDao().getCurrentArtwork()
     if (provider == null || artwork == null) {
         Log.w(TAG, "No current artwork found")
-        return@launch
+        return
     }
     val remoteViews = createRemoteViews(context, provider, artwork,
             context.resources.getDimensionPixelSize(R.dimen.widget_min_width),
             context.resources.getDimensionPixelSize(R.dimen.widget_min_height))
-            ?: return@launch
+            ?: return
     val extras = bundleOf(AppWidgetManager.EXTRA_APPWIDGET_PREVIEW to remoteViews)
     try {
         appWidgetManager.requestPinAppWidget(widget, extras, null)
@@ -73,7 +74,7 @@ fun showWidgetPreview(context: Context) = launch {
 /**
  * Async operation used to update the widget or provide a preview for pinning the widget.
  */
-suspend fun updateAppWidget(context: Context) {
+suspend fun updateAppWidget(context: Context) = currentScope {
     val widget = ComponentName(context, MuzeiAppWidgetProvider::class.java)
     val appWidgetManager = AppWidgetManager.getInstance(context) ?: return
     val appWidgetIds = appWidgetManager.getAppWidgetIds(widget)

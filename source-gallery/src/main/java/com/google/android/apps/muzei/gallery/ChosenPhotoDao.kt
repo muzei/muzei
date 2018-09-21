@@ -33,9 +33,10 @@ import android.provider.DocumentsContract
 import android.util.Log
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.gallery.converter.UriTypeConverter
-import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.awaitAll
+import kotlinx.coroutines.experimental.currentScope
 import kotlinx.coroutines.experimental.withContext
 import java.io.File
 import java.io.FileOutputStream
@@ -61,7 +62,7 @@ internal abstract class ChosenPhotoDao {
     @get:Query("SELECT * FROM chosen_photos ORDER BY _id DESC")
     internal abstract val chosenPhotosBlocking: List<ChosenPhoto>
 
-    private suspend fun getChosenPhotos() = withContext(CommonPool) {
+    private suspend fun getChosenPhotos() = withContext(Dispatchers.Default) {
         chosenPhotosBlocking
     }
 
@@ -72,7 +73,7 @@ internal abstract class ChosenPhotoDao {
             context: Context,
             chosenPhoto: ChosenPhoto,
             callingApplication: String?
-    ): Long = withContext(CommonPool) {
+    ): Long = withContext(Dispatchers.Default) {
         if (persistUriAccess(context, chosenPhoto)) {
             val id = insertInternal(chosenPhoto)
             if (id != 0L && callingApplication != null) {
@@ -192,28 +193,30 @@ internal abstract class ChosenPhotoDao {
     @Query("SELECT * FROM chosen_photos WHERE _id = :id")
     internal abstract fun chosenPhotoBlocking(id: Long): ChosenPhoto?
 
+    suspend fun getChosenPhoto(id: Long) = withContext(Dispatchers.Default) {
+        chosenPhotoBlocking(id)
+    }
+
     @Query("SELECT * FROM chosen_photos WHERE _id IN (:ids)")
     internal abstract fun chosenPhotoBlocking(ids: List<Long>): List<ChosenPhoto>
 
-    private suspend fun getChosenPhotos(ids: List<Long>) = withContext(CommonPool) {
+    private suspend fun getChosenPhotos(ids: List<Long>) = withContext(Dispatchers.Default) {
         chosenPhotoBlocking(ids)
     }
 
     @Query("DELETE FROM chosen_photos WHERE _id IN (:ids)")
     internal abstract fun deleteInternal(ids: List<Long>)
 
-    suspend fun delete(context: Context, ids: List<Long>) {
+    suspend fun delete(context: Context, ids: List<Long>) = withContext(Dispatchers.Default) {
         deleteBackingPhotos(context, getChosenPhotos(ids))
-        withContext(CommonPool) {
-            deleteInternal(ids)
-        }
+        deleteInternal(ids)
     }
 
     @TypeConverters(UriTypeConverter::class)
     @Query("SELECT * FROM chosen_photos WHERE uri=:uri")
     internal abstract fun chosenPhotoBlocking(uri: Uri): List<ChosenPhoto>
 
-    private suspend fun getChosenPhotos(uri: Uri) = withContext(CommonPool) {
+    private suspend fun getChosenPhotos(uri: Uri) = withContext(Dispatchers.Default) {
         chosenPhotoBlocking(uri)
     }
 
@@ -221,21 +224,17 @@ internal abstract class ChosenPhotoDao {
     @Query("DELETE FROM chosen_photos WHERE uri=:uri")
     internal abstract fun deleteInternal(uri: Uri)
 
-    suspend fun delete(context: Context, uri: Uri) {
+    suspend fun delete(context: Context, uri: Uri) = withContext(Dispatchers.Default) {
         deleteBackingPhotos(context, getChosenPhotos(uri))
-        withContext(CommonPool) {
-            deleteInternal(uri)
-        }
+        deleteInternal(uri)
     }
 
     @Query("DELETE FROM chosen_photos")
     internal abstract fun deleteAllInternal()
 
-    suspend fun deleteAll(context: Context) {
+    suspend fun deleteAll(context: Context) = withContext(Dispatchers.Default) {
         deleteBackingPhotos(context, getChosenPhotos())
-        withContext(CommonPool) {
-            deleteAllInternal()
-        }
+        deleteAllInternal()
     }
 
     /**
@@ -246,41 +245,43 @@ internal abstract class ChosenPhotoDao {
     private suspend fun deleteBackingPhotos(
             context: Context,
             chosenPhotos: List<ChosenPhoto>
-    ) = chosenPhotos.map { chosenPhoto ->
-        async {
-            val contentUri = ProviderContract.Artwork.getContentUri(
-                    context, GalleryArtProvider::class.java)
-            context.contentResolver.delete(contentUri,
-                    "${ProviderContract.Artwork.METADATA}=?",
-                    arrayOf(chosenPhoto.uri.toString()))
-            val file = GalleryProvider.getCacheFileForUri(context, chosenPhoto.uri)
-            if (file?.exists() == true) {
-                if (!file.delete()) {
-                    Log.w(TAG, "Unable to delete $file")
-                }
-            } else {
-                val uriToRelease = chosenPhoto.uri
-                val contentResolver = context.contentResolver
-                val haveUriPermission = context.checkUriPermission(uriToRelease,
-                        Binder.getCallingPid(), Binder.getCallingUid(),
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION) == PackageManager.PERMISSION_GRANTED
-                if (haveUriPermission) {
-                    // Try to release any persisted URI permission for the imageUri
-                    val persistedUriPermissions = contentResolver.persistedUriPermissions
-                    for (persistedUriPermission in persistedUriPermissions) {
-                        if (persistedUriPermission.uri == uriToRelease) {
-                            try {
-                                contentResolver.releasePersistableUriPermission(
-                                        uriToRelease, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                            } catch (e: SecurityException) {
-                                // Thrown if we don't have permission...despite in being in
-                                // the getPersistedUriPermissions(). Alright then.
+    ) = currentScope {
+        chosenPhotos.map { chosenPhoto ->
+            async {
+                val contentUri = ProviderContract.Artwork.getContentUri(
+                        context, GalleryArtProvider::class.java)
+                context.contentResolver.delete(contentUri,
+                        "${ProviderContract.Artwork.METADATA}=?",
+                        arrayOf(chosenPhoto.uri.toString()))
+                val file = GalleryProvider.getCacheFileForUri(context, chosenPhoto.uri)
+                if (file?.exists() == true) {
+                    if (!file.delete()) {
+                        Log.w(TAG, "Unable to delete $file")
+                    }
+                } else {
+                    val uriToRelease = chosenPhoto.uri
+                    val contentResolver = context.contentResolver
+                    val haveUriPermission = context.checkUriPermission(uriToRelease,
+                            Binder.getCallingPid(), Binder.getCallingUid(),
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION) == PackageManager.PERMISSION_GRANTED
+                    if (haveUriPermission) {
+                        // Try to release any persisted URI permission for the imageUri
+                        val persistedUriPermissions = contentResolver.persistedUriPermissions
+                        for (persistedUriPermission in persistedUriPermissions) {
+                            if (persistedUriPermission.uri == uriToRelease) {
+                                try {
+                                    contentResolver.releasePersistableUriPermission(
+                                            uriToRelease, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                } catch (e: SecurityException) {
+                                    // Thrown if we don't have permission...despite in being in
+                                    // the getPersistedUriPermissions(). Alright then.
+                                }
+                                break
                             }
-                            break
                         }
                     }
                 }
             }
-        }
-    }.awaitAll()
+        }.awaitAll()
+    }
 }

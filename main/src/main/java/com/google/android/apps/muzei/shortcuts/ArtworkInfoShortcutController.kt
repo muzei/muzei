@@ -28,7 +28,6 @@ import com.google.android.apps.muzei.ArtworkInfoRedirectActivity
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.observe
-import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.R
 
 /**
@@ -47,9 +46,7 @@ class ArtworkInfoShortcutController(
     override fun onCreate(owner: LifecycleOwner) {
         MuzeiDatabase.getInstance(context).artworkDao()
                 .currentArtwork.observe(lifecycleOwner) { artwork ->
-            launch {
-                updateShortcut(artwork)
-            }
+            updateShortcut(artwork)
         }
     }
 

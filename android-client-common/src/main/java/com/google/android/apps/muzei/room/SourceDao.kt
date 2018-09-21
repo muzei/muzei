@@ -24,9 +24,8 @@ import android.arch.persistence.room.Query
 import android.arch.persistence.room.TypeConverters
 import android.arch.persistence.room.Update
 import android.content.ComponentName
-
 import com.google.android.apps.muzei.room.converter.ComponentNameTypeConverter
-import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.withContext
 
 /**
@@ -41,7 +40,7 @@ abstract class SourceDao {
     @get:Query("SELECT * FROM sources")
     abstract val sourcesBlocking: List<Source>
 
-    suspend fun getSources() = withContext(CommonPool) {
+    suspend fun getSources() = withContext(Dispatchers.Default) {
         sourcesBlocking
     }
 
@@ -55,14 +54,14 @@ abstract class SourceDao {
     @get:Query("SELECT * FROM sources WHERE selected=1 ORDER BY component_name")
     abstract val currentSourceBlocking: Source?
 
-    suspend fun getCurrentSource() = withContext(CommonPool) {
+    suspend fun getCurrentSource() = withContext(Dispatchers.Default) {
         currentSourceBlocking
     }
 
     @get:Query("SELECT * FROM sources WHERE selected=1 AND wantsNetworkAvailable=1")
     internal abstract val currentSourcesThatWantNetworkBlocking: List<Source>
 
-    suspend fun getCurrentSourcesThatWantNetwork() = withContext(CommonPool) {
+    suspend fun getCurrentSourcesThatWantNetwork() = withContext(Dispatchers.Default) {
         currentSourcesThatWantNetworkBlocking
     }
 
@@ -79,7 +78,7 @@ abstract class SourceDao {
 
     suspend fun getSourceByComponentName(
             componentName: ComponentName
-    ) = withContext(CommonPool) {
+    ) = withContext(Dispatchers.Default) {
         getSourceByComponentNameBlocking(componentName)
     }
     @Update

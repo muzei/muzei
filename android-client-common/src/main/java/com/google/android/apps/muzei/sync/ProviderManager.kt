@@ -39,7 +39,8 @@ import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
-import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.Dispatchers
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
@@ -77,7 +78,7 @@ class ProviderManager private constructor(private val context: Context)
                             .also { instance = it }
                 }
 
-        suspend fun select(context: Context, authority: String) = withContext(CommonPool) {
+        suspend fun select(context: Context, authority: String) = withContext(Dispatchers.Default) {
             val database = MuzeiDatabase.getInstance(context)
             database.beginTransaction()
             database.providerDao().deleteAll()
@@ -127,7 +128,7 @@ class ProviderManager private constructor(private val context: Context)
             // Can't have no artwork at all,
             // try loading the next artwork with a slight delay
             nextArtworkJob?.cancel()
-            nextArtworkJob = launch {
+            nextArtworkJob = GlobalScope.launch {
                 delay(1000)
                 if (nextArtworkJob?.isCancelled == false) {
                     nextArtwork()
@@ -204,7 +205,7 @@ class ProviderManager private constructor(private val context: Context)
                 block(provider)
             } else {
                 // Invalid ContentProvider, remove it from the ProviderDao
-                launch {
+                GlobalScope.launch {
                     if (BuildConfig.DEBUG) {
                         Log.w(TAG, "Invalid provider ${provider.authority}")
                     }

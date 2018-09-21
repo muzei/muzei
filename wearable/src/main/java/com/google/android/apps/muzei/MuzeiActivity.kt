@@ -27,10 +27,13 @@ import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.sync.ProviderManager
+import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.util.observeNonNull
 import com.google.firebase.analytics.FirebaseAnalytics
-import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.Dispatchers
+import kotlinx.coroutines.experimental.GlobalScope
+import kotlinx.coroutines.experimental.android.Main
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.BuildConfig.DATA_LAYER_AUTHORITY
@@ -163,7 +166,7 @@ class MuzeiActivity : FragmentActivity(),
         }, null, null, null)
 
         viewModel.artworkLiveData.observeNonNull(this) { artwork ->
-            launch(UI) {
+            coroutineScope.launch(Dispatchers.Main) {
                 val image = ImageLoader.decode(
                         contentResolver, artwork.contentUri)
                 if (image != null) {
@@ -196,7 +199,7 @@ class MuzeiActivity : FragmentActivity(),
         ProviderManager.getInstance(this).observe(this) { provider ->
             if (provider == null) {
                 val context = this@MuzeiActivity
-                launch {
+                GlobalScope.launch {
                     ProviderManager.select(context, FEATURED_ART_AUTHORITY)
                     ActivateMuzeiIntentService.checkForPhoneApp(context)
                 }
@@ -213,7 +216,7 @@ class MuzeiActivity : FragmentActivity(),
                         null, null, null)
                 providerView.text = providerInfo.loadLabel(pm)
                 val authority = providerInfo.authority
-                launch(UI) {
+                coroutineScope.launch(Dispatchers.Main) {
                     val description = ProviderManager.getDescription(this@MuzeiActivity, authority)
                     providerDescriptionView.isGone = description.isBlank()
                     providerDescriptionView.text = description

@@ -24,7 +24,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.ParcelFileDescriptor
 import android.os.RemoteException
-import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.withContext
 
 import java.io.FileNotFoundException
@@ -49,7 +49,7 @@ class ContentProviderClientCompat private constructor(
             method: String,
             arg: String? = null,
             extras: Bundle? = null
-    ): Bundle? = withContext(CommonPool) {
+    ): Bundle? = withContext(Dispatchers.Default) {
         mContentProviderClient.call(method, arg, extras)
     }
 
@@ -60,7 +60,7 @@ class ContentProviderClientCompat private constructor(
             selection: String? = null,
             selectionArgs: Array<String>? = null,
             sortOrder: String? = null
-    ): Cursor? = withContext(CommonPool) {
+    ): Cursor? = withContext(Dispatchers.Default) {
         return@withContext mContentProviderClient.query(
                 url, projection, selection, selectionArgs, sortOrder)
     }
@@ -68,7 +68,7 @@ class ContentProviderClientCompat private constructor(
     @Throws(FileNotFoundException::class, RemoteException::class)
     suspend fun openInputStream(
             url: Uri
-    ): InputStream? = withContext(CommonPool) {
+    ): InputStream? = withContext(Dispatchers.Default) {
         mContentProviderClient.openFile(url, "r")?.run {
             ParcelFileDescriptor.AutoCloseInputStream(this)
         }

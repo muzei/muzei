@@ -20,7 +20,7 @@ import android.arch.lifecycle.LiveData
 import android.arch.persistence.room.Dao
 import android.arch.persistence.room.Insert
 import android.arch.persistence.room.Query
-import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.withContext
 
 /**
@@ -32,7 +32,7 @@ abstract class ArtworkDao {
     @get:Query("SELECT * FROM artwork ORDER BY date_added DESC LIMIT 100")
     internal abstract val artworkBlocking: List<Artwork>
 
-    suspend fun getArtwork() = withContext(CommonPool) {
+    suspend fun getArtwork() = withContext(Dispatchers.Default) {
         artworkBlocking
     }
 
@@ -46,7 +46,7 @@ abstract class ArtworkDao {
             "ORDER BY date_added DESC")
     internal abstract val currentArtworkBlocking: Artwork?
 
-    suspend fun getCurrentArtwork() = withContext(CommonPool) {
+    suspend fun getCurrentArtwork() = withContext(Dispatchers.Default) {
         currentArtworkBlocking
     }
 
@@ -60,7 +60,7 @@ abstract class ArtworkDao {
 
     suspend fun getCurrentArtworkForProvider(
             providerAuthority: String
-    ) = withContext(CommonPool) {
+    ) = withContext(Dispatchers.Default) {
         getCurrentArtworkForProviderBlocking(providerAuthority)
     }
 
@@ -72,14 +72,14 @@ abstract class ArtworkDao {
     @Query("SELECT * FROM artwork WHERE _id=:id")
     internal abstract fun getArtworkByIdBlocking(id: Long): Artwork?
 
-    suspend fun getArtworkById(id: Long) = withContext(CommonPool) {
+    suspend fun getArtworkById(id: Long) = withContext(Dispatchers.Default) {
         getArtworkByIdBlocking(id)
     }
 
     @Query("SELECT * FROM artwork WHERE title LIKE :query OR byline LIKE :query OR attribution LIKE :query")
     internal abstract fun searchArtworkBlocking(query: String): List<Artwork>
 
-    suspend fun searchArtwork(query: String) = withContext(CommonPool) {
+    suspend fun searchArtwork(query: String) = withContext(Dispatchers.Default) {
         searchArtworkBlocking(query)
     }
 

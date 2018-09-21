@@ -24,6 +24,7 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.ParcelFileDescriptor
 import android.util.Log
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import java.io.File
 import java.io.FileNotFoundException
@@ -120,28 +121,28 @@ class GalleryProvider : ContentProvider() {
                 return context.contentResolver.openFileDescriptor(chosenPhoto.uri, mode)
             } catch (e: SecurityException) {
                 Log.d(TAG, "Unable to load $uri, deleting the row", e)
-                launch {
+                GlobalScope.launch {
                     GalleryDatabase.getInstance(context).chosenPhotoDao()
                             .delete(context, listOf(chosenPhoto.id))
                 }
                 throw FileNotFoundException("No permission to load $uri")
             } catch (e: IllegalArgumentException) {
                 Log.d(TAG, "Unable to load $uri, deleting the row", e)
-                launch {
+                GlobalScope.launch {
                     GalleryDatabase.getInstance(context).chosenPhotoDao()
                             .delete(context, listOf(chosenPhoto.id))
                 }
                 throw FileNotFoundException("No permission to load $uri")
             } catch (e: UnsupportedOperationException) {
                 Log.d(TAG, "Unable to load $uri, deleting the row", e)
-                launch {
+                GlobalScope.launch {
                     GalleryDatabase.getInstance(context).chosenPhotoDao()
                             .delete(context, listOf(chosenPhoto.id))
                 }
                 throw FileNotFoundException("No permission to load $uri")
             } catch (e: NullPointerException) {
                 Log.d(TAG, "Unable to load $uri, deleting the row", e)
-                launch {
+                GlobalScope.launch {
                     GalleryDatabase.getInstance(context).chosenPhotoDao()
                             .delete(context, listOf(chosenPhoto.id))
                 }

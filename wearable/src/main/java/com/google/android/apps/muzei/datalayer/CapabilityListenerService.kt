@@ -21,6 +21,7 @@ import android.content.pm.PackageManager
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.gms.wearable.CapabilityInfo
 import com.google.android.gms.wearable.WearableListenerService
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.BuildConfig.DATA_LAYER_AUTHORITY
 
@@ -45,7 +46,7 @@ class CapabilityListenerService : WearableListenerService() {
                     PackageManager.DONT_KILL_APP)
             if (ActivateMuzeiIntentService.hasPendingInstall(this)) {
                 val context = this
-                launch {
+                GlobalScope.launch {
                     ProviderManager.select(context, DATA_LAYER_AUTHORITY)
                     ActivateMuzeiIntentService.resetPendingInstall(context)
                 }

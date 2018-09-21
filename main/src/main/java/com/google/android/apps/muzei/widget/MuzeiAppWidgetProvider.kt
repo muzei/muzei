@@ -22,7 +22,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import com.google.android.apps.muzei.sources.SourceManager
-import kotlinx.coroutines.experimental.launch
+import com.google.android.apps.muzei.util.goAsync
 
 /**
  * AppWidgetProvider for Muzei. The actual updating is done asynchronously in
@@ -37,7 +37,9 @@ class MuzeiAppWidgetProvider : AppWidgetProvider() {
     override fun onReceive(context: Context, intent: Intent?) {
         super.onReceive(context, intent)
         if (intent?.action == ACTION_NEXT_ARTWORK) {
-            SourceManager.nextArtwork(context)
+            goAsync {
+                SourceManager.nextArtwork(context)
+            }
         }
     }
 
@@ -55,10 +57,8 @@ class MuzeiAppWidgetProvider : AppWidgetProvider() {
     }
 
     private fun updateWidgets(context: Context) {
-        val result = goAsync()
-        launch {
+        goAsync {
             updateAppWidget(context)
-            result.finish()
         }
     }
 }

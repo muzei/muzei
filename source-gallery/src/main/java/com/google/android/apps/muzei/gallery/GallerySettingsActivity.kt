@@ -69,12 +69,13 @@ import androidx.core.content.edit
 import androidx.core.database.getStringOrNull
 import androidx.core.widget.toast
 import com.google.android.apps.muzei.util.MultiSelectionController
+import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.observe
 import com.squareup.picasso.Picasso
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.Dispatchers
+import kotlinx.coroutines.experimental.GlobalScope
+import kotlinx.coroutines.experimental.android.Main
 import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.withContext
 import java.util.ArrayList
 import java.util.HashSet
 import java.util.LinkedList
@@ -354,7 +355,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             }
             R.id.action_clear_photos -> {
                 val context = this
-                launch {
+                GlobalScope.launch {
                     GalleryDatabase.getInstance(context)
                             .chosenPhotoDao().deleteAll(context)
                 }
@@ -384,7 +385,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                     val removePhotos = ArrayList(
                             multiSelectionController.selection)
 
-                    launch {
+                    GlobalScope.launch {
                         // Remove chosen URIs
                         GalleryDatabase.getInstance(this@GallerySettingsActivity)
                                 .chosenPhotoDao()
@@ -531,12 +532,10 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             if (selectedCount == 1) {
                 // If they've selected a tree URI, show the DISPLAY_NAME instead of just '1'
                 val selectedId = multiSelectionController.selection.iterator().next()
-                launch(UI) {
-                    val chosenPhoto = withContext(CommonPool) {
-                        GalleryDatabase.getInstance(this@GallerySettingsActivity)
-                                .chosenPhotoDao()
-                                .chosenPhotoBlocking(selectedId)
-                    }
+                coroutineScope.launch(Dispatchers.Main) {
+                    val chosenPhoto = GalleryDatabase.getInstance(this@GallerySettingsActivity)
+                            .chosenPhotoDao()
+                            .getChosenPhoto(selectedId)
                     if (chosenPhoto?.isTreeUri == true && selectionToolbar.isAttachedToWindow) {
                         getDisplayNameForTreeUri(chosenPhoto.uri)?.takeUnless { it.isEmpty() }?.run {
                             selectionToolbar.title = this
@@ -810,7 +809,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             return
         }
         // Update chosen URIs
-        launch {
+        GlobalScope.launch {
             GalleryDatabase.getInstance(this@GallerySettingsActivity)
                     .chosenPhotoDao()
                     .insertAll(this@GallerySettingsActivity, uris)

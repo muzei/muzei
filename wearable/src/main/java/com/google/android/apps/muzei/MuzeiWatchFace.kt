@@ -59,8 +59,10 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.ImageBlurrer
 import com.google.android.apps.muzei.util.blur
+import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.observe
 import com.google.firebase.analytics.FirebaseAnalytics
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
@@ -109,7 +111,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
         ProviderManager.getInstance(this).observe(this) { provider ->
             if (provider == null) {
                 val context = this@MuzeiWatchFace
-                launch {
+                GlobalScope.launch {
                     ProviderManager.select(context, FEATURED_ART_AUTHORITY)
                     ActivateMuzeiIntentService.checkForPhoneApp(context)
                 }
@@ -223,7 +225,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "Artwork = ${artwork?.contentUri}")
                 }
-                launch {
+                coroutineScope.launch {
                     val bitmap: Bitmap? = try {
                         artwork?.run {
                             ImageLoader.decode(contentResolver, contentUri)

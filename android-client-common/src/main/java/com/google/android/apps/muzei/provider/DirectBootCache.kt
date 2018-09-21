@@ -21,6 +21,7 @@ import android.os.Build
 import android.support.v4.content.ContextCompat
 import android.util.Log
 import com.google.android.apps.muzei.api.MuzeiContract
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
@@ -48,7 +49,7 @@ object DirectBootCache {
             return
         }
         cacheJob?.cancel()
-        cacheJob = launch {
+        cacheJob = GlobalScope.launch {
             delay(DIRECT_BOOT_CACHE_DELAY_MILLIS)
             if (cacheJob?.isCancelled == true) {
                 return@launch

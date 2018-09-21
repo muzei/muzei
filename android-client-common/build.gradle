@@ -24,6 +24,7 @@ dependencies {
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
     implementation "androidx.core:core-ktx:$rootProject.ext.ktxVersion"
     implementation project(':muzei-api')
+    implementation project(':extensions')
     implementation "com.android.support:support-compat:$supportLibraryVersion"
     implementation "com.android.support:exifinterface:$supportLibraryVersion"
     api "android.arch.lifecycle:livedata:$lifecycleVersion"

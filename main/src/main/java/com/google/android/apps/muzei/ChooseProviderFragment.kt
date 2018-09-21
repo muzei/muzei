@@ -56,6 +56,7 @@ import com.google.android.apps.muzei.util.observe
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.BuildConfig.SOURCES_AUTHORITY
 import net.nurik.roman.muzei.R
@@ -212,7 +213,7 @@ class ChooseProviderFragment : Fragment() {
                             FirebaseAnalytics.Param.ITEM_ID to provider,
                             FirebaseAnalytics.Param.CONTENT_TYPE to "providers"))
                     val context = requireContext()
-                    launch {
+                    GlobalScope.launch {
                         ProviderManager.select(context, provider)
                     }
                 }
@@ -270,7 +271,7 @@ class ChooseProviderFragment : Fragment() {
                             FirebaseAnalytics.Param.ITEM_ID to authority,
                             FirebaseAnalytics.Param.CONTENT_TYPE to "providers"))
                     val context = requireContext()
-                    launch {
+                    GlobalScope.launch {
                         ProviderManager.select(context, authority)
                     }
                 }

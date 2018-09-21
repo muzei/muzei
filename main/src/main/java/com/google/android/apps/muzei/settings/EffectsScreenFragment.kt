@@ -26,6 +26,7 @@ import android.widget.SeekBar
 import androidx.core.content.edit
 import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer
+import com.google.android.apps.muzei.util.coroutineScope
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
@@ -96,7 +97,7 @@ class EffectsScreenFragment : Fragment() {
             override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
                 if (fromUser) {
                     updateBlur?.cancel()
-                    updateBlur = launch {
+                    updateBlur = coroutineScope.launch {
                         delay(750)
                         prefs.edit {
                             putInt(blurPref, blurSeekBar.progress)
@@ -121,7 +122,7 @@ class EffectsScreenFragment : Fragment() {
             override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
                 if (fromUser) {
                     updateDim?.cancel()
-                    updateDim = launch {
+                    updateDim = coroutineScope.launch {
                         delay(750)
                         prefs.edit {
                             putInt(dimPref, dimSeekBar.progress)
@@ -146,7 +147,7 @@ class EffectsScreenFragment : Fragment() {
             override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
                 if (fromUser) {
                     updateGrey?.cancel()
-                    updateGrey = launch {
+                    updateGrey = coroutineScope.launch {
                         delay(750)
                         prefs.edit {
                             putInt(greyPref, greySeekBar.progress)
@@ -168,9 +169,6 @@ class EffectsScreenFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        updateBlur?.cancel()
-        updateDim?.cancel()
-        updateGrey?.cancel()
         val prefs = Prefs.getSharedPreferences(requireContext())
         prefs.unregisterOnSharedPreferenceChangeListener(
                 blurOnPreferenceChangeListener)

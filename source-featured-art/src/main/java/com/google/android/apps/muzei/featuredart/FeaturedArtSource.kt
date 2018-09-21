@@ -22,13 +22,11 @@ import android.support.customtabs.CustomTabsIntent
 import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.widget.Toast
-import androidx.core.widget.toast
 import com.google.android.apps.muzei.api.Artwork
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.api.RemoteMuzeiArtSource
 import com.google.android.apps.muzei.api.UserCommand
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
+import com.google.android.apps.muzei.util.toastFromBackground
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONException
@@ -143,9 +141,7 @@ class FeaturedArtSource : RemoteMuzeiArtSource(SOURCE_NAME) {
                     }
                 } ?: run {
                     Log.w(TAG, "No current artwork, can't share.")
-                    launch(UI) {
-                        toast(R.string.featuredart_source_error_no_artwork_to_share)
-                    }
+                    toastFromBackground(R.string.featuredart_source_error_no_artwork_to_share)
                 }
             }
             COMMAND_ID_VIEW_ARCHIVE == id -> {
@@ -174,9 +170,7 @@ class FeaturedArtSource : RemoteMuzeiArtSource(SOURCE_NAME) {
                     "None"
                 }
 
-                launch(UI) {
-                    toast("Next update time: $nextUpdateTime", Toast.LENGTH_LONG)
-                }
+                toastFromBackground("Next update time: $nextUpdateTime", Toast.LENGTH_LONG)
             }
         }
     }

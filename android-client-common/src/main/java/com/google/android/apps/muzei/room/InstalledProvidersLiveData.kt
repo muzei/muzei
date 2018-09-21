@@ -25,6 +25,7 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.pm.ProviderInfo
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
+import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.newSingleThreadContext
 
@@ -34,7 +35,8 @@ fun ProviderInfo.getComponentName() = ComponentName(packageName, name)
  * LiveData that returns the list of currently installed [MuzeiArtProvider] instances.
  */
 class InstalledProvidersLiveData(
-        private val context: Context
+        private val context: Context,
+        private val coroutineScope: CoroutineScope
 ) : MutableLiveData<List<ProviderInfo>>() {
 
     private val currentProviders = HashMap<ComponentName, ProviderInfo>()
@@ -47,7 +49,7 @@ class InstalledProvidersLiveData(
             if (intent?.data == null) {
                 return
             }
-            launch(singleThreadContext) {
+            coroutineScope.launch(singleThreadContext) {
                 updateProviders(intent.data?.schemeSpecificPart)
             }
         }
@@ -100,7 +102,7 @@ class InstalledProvidersLiveData(
             addAction(Intent.ACTION_PACKAGE_REMOVED)
         }
         context.registerReceiver(packageChangeReceiver, packageChangeFilter)
-        launch(singleThreadContext) {
+        coroutineScope.launch(singleThreadContext) {
             updateProviders()
         }
     }

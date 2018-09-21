@@ -54,6 +54,7 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Source
 import com.google.android.apps.muzei.util.observe
 import com.google.firebase.analytics.FirebaseAnalytics
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.R
 
@@ -213,7 +214,7 @@ class SourceSettingsActivity : AppCompatActivity() {
             FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
                     FirebaseAnalytics.Param.ITEM_ID to source.componentName.flattenToShortString(),
                     FirebaseAnalytics.Param.CONTENT_TYPE to "sources"))
-            launch {
+            GlobalScope.launch {
                 SourceManager.selectSource(this@SourceSettingsActivity, source.componentName)
             }
         }
@@ -252,7 +253,7 @@ class SourceSettingsActivity : AppCompatActivity() {
                 FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
                         FirebaseAnalytics.Param.ITEM_ID to setupSource.flattenToShortString(),
                         FirebaseAnalytics.Param.CONTENT_TYPE to "sources"))
-                launch {
+                GlobalScope.launch {
                     SourceManager.selectSource(this@SourceSettingsActivity, setupSource)
                 }
             }

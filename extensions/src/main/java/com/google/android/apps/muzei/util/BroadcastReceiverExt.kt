@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Google Inc.
+ * Copyright 2018 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei
+package com.google.android.apps.muzei.util
 
-import android.os.Bundle
-import android.support.v4.app.FragmentActivity
-import com.google.android.apps.muzei.sources.SourceManager
-import com.google.android.apps.muzei.util.coroutineScope
+import android.content.BroadcastReceiver
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 
-/**
- * Simple activity that just triggers the 'Next Artwork' action and finishes
- */
-class NextArtworkActivity : FragmentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        coroutineScope.launch {
-            SourceManager.nextArtwork(this@NextArtworkActivity)
-            finish()
-        }
+fun BroadcastReceiver.goAsync(block: suspend () -> Unit) {
+    val result = goAsync()
+    GlobalScope.launch {
+        block()
+        result.finish()
     }
 }

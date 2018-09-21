@@ -25,7 +25,7 @@ import android.net.Uri
 import android.os.Build
 import android.support.media.ExifInterface
 import android.util.Log
-import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.withContext
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.FileNotFoundException
@@ -58,7 +58,7 @@ sealed class ImageLoader {
                 uri: Uri,
                 targetWidth: Int = 0,
                 targetHeight: Int = targetWidth
-        ) = withContext(CommonPool) {
+        ) = withContext(Dispatchers.Default) {
             ContentUriImageLoader(contentResolver, uri)
                     .decode(targetWidth, targetHeight)
         }

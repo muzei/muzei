@@ -21,12 +21,14 @@ import android.animation.ObjectAnimator
 import android.arch.lifecycle.LifecycleOwner
 import android.content.Context
 import androidx.core.animation.doOnEnd
-import kotlinx.coroutines.experimental.Job
+import com.google.android.apps.muzei.util.coroutineScope
+import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 
 class DemoRenderController(
-        context: Context, renderer: MuzeiBlurRenderer,
+        context: Context,
+        renderer: MuzeiBlurRenderer,
         callbacks: RenderController.Callbacks,
         private val allowFocus: Boolean
 ) : RenderController(context, renderer, callbacks) {
@@ -37,14 +39,10 @@ class DemoRenderController(
         private const val FOCUS_TIME_MILLIS = 6000
     }
 
-    private var focusSwap: Job? = null
+    private lateinit var coroutineScope: CoroutineScope
 
     private var currentScrollAnimator: Animator? = null
     private var reverseDirection = false
-
-    init {
-        runAnimation()
-    }
 
     private fun runAnimation() {
         currentScrollAnimator?.cancel()
@@ -61,7 +59,7 @@ class DemoRenderController(
                     start()
                 }
         if (allowFocus) {
-            focusSwap = launch {
+            coroutineScope.launch {
                 delay(FOCUS_DELAY_TIME_MILLIS)
                 renderer.setIsBlurred(false, false)
                 delay(FOCUS_TIME_MILLIS)
@@ -70,11 +68,16 @@ class DemoRenderController(
         }
     }
 
+    override fun onCreate(owner: LifecycleOwner) {
+        super.onCreate(owner)
+        coroutineScope = owner.coroutineScope
+        runAnimation()
+    }
+
     override fun onDestroy(owner: LifecycleOwner) {
         super.onDestroy(owner)
         currentScrollAnimator?.cancel()
         currentScrollAnimator?.removeAllListeners()
-        focusSwap?.cancel()
     }
 
     override suspend fun openDownloadedCurrentArtwork() =

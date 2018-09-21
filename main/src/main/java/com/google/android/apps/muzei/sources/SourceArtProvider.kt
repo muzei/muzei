@@ -31,7 +31,9 @@ import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.sync.ProviderManager
-import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.Dispatchers
+import kotlinx.coroutines.experimental.GlobalScope
+import kotlinx.coroutines.experimental.android.Main
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
@@ -86,7 +88,7 @@ class SourceArtProvider : MuzeiArtProvider() {
         sendAction(id)
     }
 
-    private fun sendAction(id: Int) = launch {
+    private fun sendAction(id: Int) = GlobalScope.launch(Dispatchers.Main) {
         val context = context ?: return@launch
         MuzeiDatabase.getInstance(context).sourceDao().getCurrentSource()?.componentName?.run {
             try {
@@ -100,21 +102,15 @@ class SourceArtProvider : MuzeiArtProvider() {
                         .putExtra(EXTRA_COMMAND_ID, id))
             } catch (e: PackageManager.NameNotFoundException) {
                 Log.i(TAG, "Sending action $id to $this failed; switching to default.", e)
-                launch(UI) {
-                    context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
-                }
+                context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
                 ProviderManager.select(context, FEATURED_ART_AUTHORITY)
             } catch (e: IllegalStateException) {
                 Log.i(TAG, "Sending action $id to $this failed; switching to default.", e)
-                launch(UI) {
-                    context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
-                }
+                context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
                 ProviderManager.select(context, FEATURED_ART_AUTHORITY)
             } catch (e: SecurityException) {
                 Log.i(TAG, "Sending action $id to $this failed; switching to default.", e)
-                launch(UI) {
-                    context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
-                }
+                context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
                 ProviderManager.select(context, FEATURED_ART_AUTHORITY)
             }
         }

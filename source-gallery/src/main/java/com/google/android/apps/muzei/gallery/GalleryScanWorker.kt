@@ -37,6 +37,7 @@ import androidx.work.Worker
 import androidx.work.workDataOf
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.ProviderContract
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import java.io.IOException
 import java.text.ParseException
@@ -142,7 +143,7 @@ class GalleryScanWorker : Worker() {
             }
         } catch (e: SecurityException) {
             Log.w(TAG, "Unable to load images from $treeUri, deleting row", e)
-            launch {
+            GlobalScope.launch {
                 GalleryDatabase.getInstance(applicationContext)
                         .chosenPhotoDao()
                         .delete(applicationContext, listOf(chosenPhoto.id))

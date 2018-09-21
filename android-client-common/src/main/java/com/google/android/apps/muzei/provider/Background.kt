@@ -1,7 +1,7 @@
 package com.google.android.apps.muzei.provider
 
 import android.os.Looper
-import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.runBlocking
 import kotlinx.coroutines.experimental.withContext
 
@@ -12,13 +12,13 @@ import kotlinx.coroutines.experimental.withContext
  * - You were already on a background thread and [block]
  * is run directly.
  * - The main thread is blocked until [block] completes on
- * the [CommonPool] coroutine context.
+ * the [Dispatchers.Default] coroutine context.
  */
 internal fun <T> ensureBackground(
         block: () -> T
 ) : T = if (Looper.getMainLooper() == Looper.myLooper()) {
         runBlocking {
-            withContext(CommonPool) {
+            withContext(Dispatchers.Default) {
                 block()
             }
         }

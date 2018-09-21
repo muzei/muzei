@@ -21,6 +21,7 @@ import android.util.Log
 import androidx.core.net.toUri
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -61,7 +62,7 @@ class GalleryArtProvider: MuzeiArtProvider() {
         } catch (e: Exception) {
             Log.i(TAG, "Unable to load $metadata, deleting the row", e)
             context?.let { context ->
-                launch {
+                GlobalScope.launch {
                     GalleryDatabase.getInstance(context).chosenPhotoDao().delete(
                             context, metadata)
                 }

@@ -39,6 +39,8 @@ import com.google.android.apps.muzei.sources.allowsNextArtwork
 import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import com.google.firebase.analytics.FirebaseAnalytics
+import kotlinx.coroutines.experimental.GlobalScope
+import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
 import net.nurik.roman.muzei.R
 
@@ -108,7 +110,9 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
                 Tile.STATE_ACTIVE -> { // Active means we send the 'Next Artwork' command
                     FirebaseAnalytics.getInstance(context).logEvent(
                             "tile_next_artwork_click", null)
-                    SourceManager.nextArtwork(context)
+                    GlobalScope.launch {
+                        SourceManager.nextArtwork(context)
+                    }
                 }
                 else -> unlockAndRun {
                     // Inactive means we attempt to activate Muzei

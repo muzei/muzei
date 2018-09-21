@@ -16,22 +16,24 @@
 
 package com.google.android.apps.muzei
 
-import android.app.Activity
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
+import android.support.v4.app.FragmentActivity
 import android.util.Log
 import androidx.core.os.bundleOf
 import androidx.core.widget.toast
 import com.google.android.apps.muzei.single.BuildConfig.SINGLE_AUTHORITY
 import com.google.android.apps.muzei.single.SingleArtProvider
 import com.google.android.apps.muzei.sync.ProviderManager
+import com.google.android.apps.muzei.util.coroutineScope
 import com.google.firebase.analytics.FirebaseAnalytics
-import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.Dispatchers
+import kotlinx.coroutines.experimental.android.Main
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.R
 
-class PhotoSetAsTargetActivity : Activity() {
+class PhotoSetAsTargetActivity : FragmentActivity() {
 
     companion object {
         private const val TAG = "PhotoSetAsTarget"
@@ -41,14 +43,12 @@ class PhotoSetAsTargetActivity : Activity() {
         super.onCreate(savedInstanceState)
 
         intent?.data?.also { uri ->
-            launch {
+            coroutineScope.launch(Dispatchers.Main) {
                 val context = this@PhotoSetAsTargetActivity
                 val success = SingleArtProvider.setArtwork(context, uri)
                 if (success == false) {
                     Log.e(TAG, "Unable to insert artwork for $uri")
-                    launch(UI) {
-                        toast(R.string.set_as_wallpaper_failed)
-                    }
+                    toast(R.string.set_as_wallpaper_failed)
                     finish()
                     return@launch
                 }
@@ -58,13 +58,11 @@ class PhotoSetAsTargetActivity : Activity() {
                         ComponentName(context, SingleArtProvider::class.java).flattenToShortString(),
                         FirebaseAnalytics.Param.CONTENT_TYPE to "providers")
                 FirebaseAnalytics.getInstance(context).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
-                launch {
-                    ProviderManager.select(context, SINGLE_AUTHORITY)
-                    startActivity(Intent.makeMainActivity(ComponentName(
-                            context, MuzeiActivity::class.java))
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-                    finish()
-                }
+                ProviderManager.select(context, SINGLE_AUTHORITY)
+                startActivity(Intent.makeMainActivity(ComponentName(
+                        context, MuzeiActivity::class.java))
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                finish()
             }
         } ?: finish()
     }

@@ -36,6 +36,7 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.sync.ProviderChangedWorker
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.firebase.analytics.FirebaseAnalytics
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.BuildConfig
 import java.util.TreeSet
@@ -98,7 +99,11 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
         }
     }
 
-    override fun onComplicationUpdate(complicationId: Int, type: Int, complicationManager: ComplicationManager) {
+    override fun onComplicationUpdate(
+            complicationId: Int,
+            type: Int,
+            complicationManager: ComplicationManager
+    ) {
         // Make sure that the complicationId is really in our set of added complications
         // This fixes corner cases like Muzei being uninstalled and reinstalled
         // (which wipes out our SharedPreferences but keeps any complications activated)
@@ -112,7 +117,7 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
             addComplication(complicationId)
         }
         val applicationContext = applicationContext
-        launch {
+        GlobalScope.launch {
             val database = MuzeiDatabase.getInstance(applicationContext)
             val provider = database.providerDao().getCurrentProvider()
             if (provider == null) {

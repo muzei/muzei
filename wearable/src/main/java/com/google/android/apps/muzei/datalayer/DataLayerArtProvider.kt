@@ -20,17 +20,15 @@ import android.content.Context
 import android.content.Intent
 import android.support.wearable.activity.ConfirmationActivity
 import android.util.Log
-import androidx.core.widget.toast
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
+import com.google.android.apps.muzei.util.toastFromBackground
 import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.CapabilityClient
 import com.google.android.gms.wearable.CapabilityInfo
 import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.Wearable
 import com.google.firebase.analytics.FirebaseAnalytics
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.R
 import java.io.File
 import java.io.FileInputStream
@@ -78,9 +76,7 @@ class DataLayerArtProvider : MuzeiArtProvider() {
                 }
 
                 if (nodes.isEmpty()) {
-                    launch(UI) {
-                        context.toast(R.string.datalayer_open_failed)
-                    }
+                    context.toastFromBackground(R.string.datalayer_open_failed)
                 } else {
                     FirebaseAnalytics.getInstance(context).logEvent("data_layer_open_on_phone", null)
                     // Show the open on phone animation

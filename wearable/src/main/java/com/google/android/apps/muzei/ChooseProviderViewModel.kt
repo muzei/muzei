@@ -17,13 +17,13 @@
 package com.google.android.apps.muzei
 
 import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Transformations
 import android.content.ComponentName
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import com.google.android.apps.muzei.room.InstalledProvidersLiveData
+import com.google.android.apps.muzei.util.ScopedAndroidViewModel
 import net.nurik.roman.muzei.BuildConfig.DATA_LAYER_AUTHORITY
 
 data class ProviderInfo(
@@ -46,7 +46,7 @@ data class ProviderInfo(
             })
 }
 
-class ChooseProviderViewModel(application: Application) : AndroidViewModel(application) {
+class ChooseProviderViewModel(application: Application) : ScopedAndroidViewModel(application) {
 
     private val comparator = Comparator<ProviderInfo> { p1, p2 ->
         // The DataLayerArtProvider should always the first provider listed
@@ -69,7 +69,7 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
         p1.title.compareTo(p2.title)
     }
 
-    private val mutableProviders = InstalledProvidersLiveData(application)
+    private val mutableProviders = InstalledProvidersLiveData(application, this)
 
     val providers : LiveData<List<ProviderInfo>?> = Transformations
             .map(mutableProviders) { providerInfos ->

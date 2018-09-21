@@ -22,7 +22,7 @@ import android.arch.persistence.room.Delete
 import android.arch.persistence.room.Insert
 import android.arch.persistence.room.Query
 import android.arch.persistence.room.Update
-import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.withContext
 
 /**
@@ -36,7 +36,7 @@ abstract class ProviderDao {
     @get:Query("SELECT * FROM provider")
     internal abstract val currentProviderBlocking: Provider?
 
-    suspend fun getCurrentProvider() = withContext(CommonPool) {
+    suspend fun getCurrentProvider() = withContext(Dispatchers.Default) {
         currentProviderBlocking
     }
 

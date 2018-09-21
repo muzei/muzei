@@ -20,7 +20,6 @@ import android.content.Context
 import android.os.Bundle
 import android.os.RemoteException
 import android.util.Log
-import androidx.core.widget.toast
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.api.UserCommand
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_COMMAND
@@ -30,31 +29,25 @@ import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_C
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_OPEN_ARTWORK_INFO
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_TRIGGER_COMMAND
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
+import com.google.android.apps.muzei.util.toastFromBackground
 import net.nurik.roman.muzei.androidclientcommon.R
 import java.util.ArrayList
 
 private const val TAG = "Artwork"
 
-fun Artwork.openArtworkInfo(context: Context) {
-    val applicationContext = context.applicationContext
-    launch {
-        val success = ContentProviderClientCompat.getClient(
-                applicationContext, imageUri)?.use { client ->
-            try {
-                val result = client.call(METHOD_OPEN_ARTWORK_INFO, imageUri.toString())
-                result?.getBoolean(KEY_OPEN_ARTWORK_INFO_SUCCESS)
-            } catch (e: RemoteException) {
-                Log.i(TAG, "Provider for $imageUri crashed while opening artwork info", e)
-                false
-            }
-        } ?: false
-        if (!success) {
-            launch(UI) {
-                applicationContext.toast(R.string.error_view_details)
-            }
+suspend fun Artwork.openArtworkInfo(context: Context) {
+    val success = ContentProviderClientCompat.getClient(
+            context, imageUri)?.use { client ->
+        try {
+            val result = client.call(METHOD_OPEN_ARTWORK_INFO, imageUri.toString())
+            result?.getBoolean(KEY_OPEN_ARTWORK_INFO_SUCCESS)
+        } catch (e: RemoteException) {
+            Log.i(TAG, "Provider for $imageUri crashed while opening artwork info", e)
+            false
         }
+    } ?: false
+    if (!success) {
+        context.toastFromBackground(R.string.error_view_details)
     }
 }
 

@@ -29,7 +29,7 @@ import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.single.BuildConfig.SINGLE_AUTHORITY
-import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.withContext
 import java.io.File
 import java.io.FileInputStream
@@ -83,7 +83,7 @@ class SingleArtProvider : MuzeiArtProvider() {
         private suspend fun writeUriToFile(
                 context: Context, uri:
                 Uri, destFile: File
-        ): File? = withContext(CommonPool) {
+        ): File? = withContext(Dispatchers.Default) {
             try {
                 context.contentResolver.openInputStream(uri)?.use { input ->
                     FileOutputStream(destFile).use { out ->

@@ -17,9 +17,15 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
+kotlin.experimental.coroutines "enable"
+
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
+    implementation "android.arch.lifecycle:common-java8:$lifecycleVersion"
     api "android.arch.lifecycle:livedata-core:$lifecycleVersion"
+    api "android.arch.lifecycle:viewmodel:$lifecycleVersion"
 }
 
 android {
@@ -33,5 +39,10 @@ android {
     buildTypes {
         publicBeta
         publicDebug
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }

@@ -33,6 +33,7 @@ import com.google.android.gms.wearable.Asset
 import com.google.android.gms.wearable.DataItem
 import com.google.android.gms.wearable.PutDataMapRequest
 import com.google.android.gms.wearable.Wearable
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.ExecutionException
@@ -52,7 +53,7 @@ class WearableController(private val context: Context) : DefaultLifecycleObserve
         // Update Android Wear whenever the artwork changes
         MuzeiDatabase.getInstance(context).artworkDao().currentArtwork
                 .observeNonNull(owner) { artwork ->
-                    launch {
+                    GlobalScope.launch {
                         updateArtwork(artwork)
                     }
                 }

@@ -18,7 +18,6 @@ package com.google.android.apps.muzei
 
 import android.annotation.SuppressLint
 import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
@@ -31,9 +30,12 @@ import com.google.android.apps.muzei.room.InstalledProvidersLiveData
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.sync.ProviderManager
-import kotlinx.coroutines.experimental.android.UI
+import com.google.android.apps.muzei.util.ScopedAndroidViewModel
+import kotlinx.coroutines.experimental.Dispatchers
+import kotlinx.coroutines.experimental.android.Main
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.newSingleThreadContext
+import kotlinx.coroutines.experimental.withContext
 import net.nurik.roman.muzei.BuildConfig.SOURCES_AUTHORITY
 import net.nurik.roman.muzei.R
 
@@ -70,7 +72,7 @@ data class ProviderInfo(
                 selected)
 }
 
-class ChooseProviderViewModel(application: Application) : AndroidViewModel(application) {
+class ChooseProviderViewModel(application: Application) : ScopedAndroidViewModel(application) {
 
     companion object {
         private const val PLAY_STORE_PACKAGE_NAME = "com.android.vending"
@@ -164,12 +166,13 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
     }
 
     private val mutableProviders : MutableLiveData<List<ProviderInfo>> = object : MutableLiveData<List<ProviderInfo>>() {
-        val allProvidersLiveData = InstalledProvidersLiveData(application)
+        val allProvidersLiveData = InstalledProvidersLiveData(application,
+                this@ChooseProviderViewModel)
         val allProvidersObserver = Observer<List<android.content.pm.ProviderInfo>> { providerInfos ->
             if (providerInfos != null) {
                 launch(singleThreadContext) {
                     updateProviders(providerInfos)
-                    launch(UI) {
+                    withContext(Dispatchers.Main) {
                         startObserving()
                     }
                 }

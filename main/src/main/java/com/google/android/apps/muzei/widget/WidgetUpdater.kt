@@ -21,6 +21,7 @@ import android.arch.lifecycle.LifecycleOwner
 import android.content.Context
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.observe
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 
 /**
@@ -45,7 +46,7 @@ class WidgetUpdater(private val context: Context) : DefaultLifecycleObserver {
     }
 
     private fun updateAppWidget() {
-        launch {
+        GlobalScope.launch {
             updateAppWidget(context.applicationContext)
         }
     }

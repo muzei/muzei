@@ -31,15 +31,12 @@ class RealRenderController(
     private val artworkLiveData = MuzeiDatabase.getInstance(context)
             .artworkDao().currentArtwork
 
-    init {
-        reloadCurrentArtwork()
-    }
-
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
         artworkLiveData.observeNonNull(owner) {
             reloadCurrentArtwork()
         }
+        reloadCurrentArtwork()
     }
 
     /**

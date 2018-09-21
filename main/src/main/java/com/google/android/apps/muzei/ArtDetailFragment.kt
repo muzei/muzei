@@ -57,12 +57,15 @@ import com.google.android.apps.muzei.settings.AboutActivity
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.AnimatedMuzeiLoadingSpinnerView
 import com.google.android.apps.muzei.util.PanScaleProxyView
+import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.makeCubicGradientScrimDrawable
 import com.google.android.apps.muzei.util.observeNonNull
 import com.google.android.apps.muzei.widget.showWidgetPreview
 import com.google.firebase.analytics.FirebaseAnalytics
+import kotlinx.coroutines.experimental.Dispatchers
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.android.Main
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.BuildConfig.SOURCES_AUTHORITY
@@ -119,10 +122,12 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         }
 
         metadataView.setOnClickListener {
-            currentArtworkLiveData.value?.openArtworkInfo(requireContext())
+            coroutineScope.launch {
+                currentArtworkLiveData.value?.openArtworkInfo(requireContext())
+            }
         }
 
-        launch(UI) {
+        coroutineScope.launch(Dispatchers.Main) {
             val commands = context?.run {
                 currentArtwork?.getCommands(this) ?: run {
                     if (currentProviderLiveData.value?.authority == SOURCES_AUTHORITY) {
@@ -247,7 +252,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             val id = overflowSourceActionMap.get(menuItem.itemId)
             if (id > 0) {
                 currentArtworkLiveData.value?.run {
-                    launch {
+                    GlobalScope.launch {
                         sendAction(context, id)
                     }
                 }
@@ -294,7 +299,9 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 onLongPress = {
-                    showWidgetPreview(requireContext().applicationContext)
+                    coroutineScope.launch {
+                        showWidgetPreview(requireContext().applicationContext)
+                    }
                 }
             }
         }
@@ -338,13 +345,13 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
 
     override fun onResume() {
         super.onResume()
-        NewWallpaperNotificationReceiver.markNotificationRead(requireContext())
+        coroutineScope.launch {
+            NewWallpaperNotificationReceiver.markNotificationRead(requireContext())
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        unsetNextFakeLoading?.cancel()
-        showLoadingSpinner?.cancel()
         ArtDetailViewport.removeObserver(this)
         currentProviderLiveData.removeObserver(providerObserver)
         currentArtworkLiveData.removeObserver(artworkObserver)
@@ -397,7 +404,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         // the loading spinner will go away.
         updateLoadingSpinnerVisibility()
         unsetNextFakeLoading?.cancel()
-        unsetNextFakeLoading = launch(UI) {
+        unsetNextFakeLoading = coroutineScope.launch(Dispatchers.Main) {
             delay(10000)
             showFakeLoading = false
             updateLoadingSpinnerVisibility()
@@ -412,7 +419,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
                 showLoadingSpinner = null
             }
             if (showFakeLoading) {
-                this.showLoadingSpinner = launch(UI) {
+                this.showLoadingSpinner = coroutineScope.launch(Dispatchers.Main) {
                     delay(700)
                     loadingIndicatorView.start()
                     loadingContainerView.isVisible = true
