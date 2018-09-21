@@ -76,7 +76,7 @@ class FeaturedArtWorker : Worker() {
             val delay = if (nextUpdateMillis == 0L) {
                 0
             } else {
-                nextUpdateMillis - System.currentTimeMillis()
+                maxOf(nextUpdateMillis - System.currentTimeMillis(), 0)
             }
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Enqueuing next artwork with delay of " +
