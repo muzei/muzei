@@ -37,3 +37,9 @@
 -keep class * extends android.arch.lifecycle.AndroidViewModel {
     <init>(android.app.Application);
 }
+
+# WorkManager
+
+-keepclassmembers class * extends androidx.work.Worker {
+	public <init>(android.content.Context,androidx.work.WorkerParameters);
+}
