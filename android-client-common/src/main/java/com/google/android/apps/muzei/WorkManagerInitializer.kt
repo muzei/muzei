@@ -19,7 +19,7 @@ class WorkManagerInitializer : ContentProvider() {
     companion object {
         private const val TAG = "WorkManagerInitializer"
         private const val KEY_RESET_VERSION_CODE = "RESET_REQUIRED_VERSION_CODE"
-        private const val RESET_REQUIRED_VERSION_CODE = 300015L
+        private const val RESET_REQUIRED_VERSION_CODE = 300017L
     }
 
     override fun onCreate(): Boolean {
