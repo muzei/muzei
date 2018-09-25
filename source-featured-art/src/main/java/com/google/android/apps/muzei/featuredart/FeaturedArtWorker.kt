@@ -32,6 +32,8 @@ import androidx.work.WorkerParameters
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
+import kotlinx.coroutines.experimental.newSingleThreadContext
+import kotlinx.coroutines.experimental.runBlocking
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONException
@@ -70,6 +72,10 @@ class FeaturedArtWorker(
         private val DATE_FORMAT_TZ = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US)
         private val DATE_FORMAT_LOCAL = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
 
+        private val SINGLE_THREAD_CONTEXT by lazy {
+            newSingleThreadContext("FeaturedArt")
+        }
+
         init {
             DATE_FORMAT_TZ.timeZone = TimeZone.getTimeZone("UTC")
         }
@@ -89,7 +95,7 @@ class FeaturedArtWorker(
             val workManager = WorkManager.getInstance()
             workManager.beginUniqueWork(
                     TAG,
-                    ExistingWorkPolicy.KEEP,
+                    ExistingWorkPolicy.REPLACE,
                     OneTimeWorkRequestBuilder<FeaturedArtWorker>()
                             .setInitialDelay(delay, TimeUnit.MILLISECONDS)
                             .setConstraints(Constraints.Builder()
@@ -100,7 +106,11 @@ class FeaturedArtWorker(
         }
     }
 
-    override fun doWork(): Result {
+    override fun doWork(): Result = runBlocking(SINGLE_THREAD_CONTEXT) {
+        loadFeaturedArt()
+    }
+
+    private fun loadFeaturedArt(): Result {
         val jsonObject: JSONObject?
         try {
             jsonObject = fetchJsonObject(QUERY_URL)
