@@ -16,6 +16,7 @@
 
 package com.example.muzei.unsplash
 
+import android.content.Context
 import android.util.Log
 import androidx.core.net.toUri
 import androidx.work.Constraints
@@ -23,12 +24,16 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
+import androidx.work.WorkerParameters
 import com.example.muzei.unsplash.BuildConfig.UNSPLASH_AUTHORITY
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import java.io.IOException
 
-class UnsplashExampleWorker : Worker() {
+class UnsplashExampleWorker(
+        context: Context,
+        workerParams: WorkerParameters
+) : Worker(context, workerParams) {
 
     companion object {
         private const val TAG = "UnsplashExample"
