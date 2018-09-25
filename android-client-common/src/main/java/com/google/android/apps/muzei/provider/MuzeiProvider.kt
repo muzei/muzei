@@ -32,7 +32,6 @@ import android.support.v4.os.UserManagerCompat
 import android.util.Log
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.room.getComponentName
 import com.google.android.apps.muzei.sync.ProviderManager
 import kotlinx.coroutines.experimental.runBlocking
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
@@ -83,7 +82,7 @@ class MuzeiProvider : ContentProvider() {
             BaseColumns._ID to "artwork._id",
             "${MuzeiContract.Artwork.TABLE_NAME}.${BaseColumns._ID}" to "artwork._id",
             MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME to
-                    "providerComponentName AS sourceComponentName",
+                    "providerAuthority AS sourceComponentName",
             MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI to "imageUri",
             MuzeiContract.Artwork.COLUMN_NAME_TITLE to "title",
             MuzeiContract.Artwork.COLUMN_NAME_BYLINE to "byline",
@@ -95,7 +94,7 @@ class MuzeiProvider : ContentProvider() {
             "${MuzeiContract.Sources.TABLE_NAME}.${BaseColumns._ID}" to
                     "0 AS \"sources._id\"",
             MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME to
-                    "providerComponentName AS component_name",
+                    "providerAuthority AS component_name",
             MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED to "1 AS selected",
             MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION to "\"\" AS description",
             MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE to "0 AS network",
@@ -205,9 +204,7 @@ class MuzeiProvider : ContentProvider() {
         currentProvider?.let { provider ->
             c.newRow().apply {
                 add(BaseColumns._ID, 0L)
-                val componentName = context.packageManager.resolveContentProvider(provider
-                        .authority, 0)?.getComponentName()?.flattenToShortString()
-                add(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, componentName)
+                add(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, provider.authority)
                 add(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, true)
                 add(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION, runBlocking {
                     ProviderManager.getDescription(context, provider.authority)

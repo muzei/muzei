@@ -16,7 +16,6 @@
 
 package com.google.android.apps.muzei.api;
 
-import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -134,9 +133,8 @@ public class MuzeiContract {
          */
         public static final String META_FONT_TYPE_ELEGANT = "elegant";
         /**
-         * Column name for the flattened {@link ComponentName} of the source that is providing
-         * this wallpaper
-         * <p>Type: TEXT in the format of {@link ComponentName#flattenToShortString()}
+         * Column name for the authority of the provider for this artwork.
+         * <p>Type: TEXT
          */
         public static final String COLUMN_NAME_SOURCE_COMPONENT_NAME = "sourceComponentName";
         /**
@@ -279,8 +277,8 @@ public class MuzeiContract {
      */
     public static final class Sources implements BaseColumns {
         /**
-         * Column name for the flattened {@link ComponentName} of this source
-         * <p>Type: TEXT in the format of {@link ComponentName#flattenToShortString()}
+         * Column name for the authority of the provider.
+         * <p>Type: TEXT
          */
         public static final String COLUMN_NAME_COMPONENT_NAME = "component_name";
         /**
