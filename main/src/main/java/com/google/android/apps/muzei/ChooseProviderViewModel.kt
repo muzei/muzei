@@ -183,27 +183,32 @@ class ChooseProviderViewModel(application: Application) : ScopedAndroidViewModel
         val currentProviderObserver = Observer<Provider?> { provider ->
             activeProvider = provider
             if (provider != null) {
-                currentProviders.forEach {
-                    val newlySelected = it.key == provider.authority
-                    if (it.value.selected != newlySelected) {
-                        currentProviders[it.key] = it.value.copy(selected = newlySelected)
+                launch(singleThreadContext) {
+                    currentProviders.forEach {
+                        val newlySelected = it.key == provider.authority
+                        if (it.value.selected != newlySelected) {
+                            currentProviders[it.key] = it.value.copy(selected = newlySelected)
+                        }
                     }
+                    postValue(currentProviders.values.sortedWith(comparator))
                 }
-                value = currentProviders.values.sortedWith(comparator)
+
             }
         }
         val currentArtworkByProviderLiveData = MuzeiDatabase.getInstance(application).artworkDao()
                 .currentArtworkByProvider
         val currentArtworkByProviderObserver = Observer<List<com.google.android.apps.muzei.room.Artwork>> { artworkByProvider ->
             if (artworkByProvider != null) {
-                val artworkMap = HashMap<String, Uri>()
-                artworkByProvider.forEach { artwork ->
-                    artworkMap[artwork.providerAuthority] = artwork.imageUri
+                launch(singleThreadContext) {
+                    val artworkMap = HashMap<String, Uri>()
+                    artworkByProvider.forEach { artwork ->
+                        artworkMap[artwork.providerAuthority] = artwork.imageUri
+                    }
+                    currentProviders.forEach {
+                        currentProviders[it.key] = it.value.copy(currentArtworkUri = artworkMap[it.key])
+                    }
+                    postValue(currentProviders.values.sortedWith(comparator))
                 }
-                currentProviders.forEach {
-                    currentProviders[it.key] = it.value.copy(currentArtworkUri = artworkMap[it.key])
-                }
-                value = currentProviders.values.sortedWith(comparator)
             }
         }
 
