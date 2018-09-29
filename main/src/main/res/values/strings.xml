@@ -27,6 +27,8 @@
     <string name="notification_new_wallpaper">New wallpaper</string>
     <string name="notification_new_wallpaper_channel_name">New wallpapers</string>
     <string name="notification_settings">Notification Settings</string>
+    <string name="notification_settings_failed">Opening notification settings failed,
+        please adjust Muzei\'s notification settings from the Settings app.</string>
     <string name="notification_settings_done">Done</string>
     <string name="notification_settings_moved_title">Notification settings have moved</string>
     <string name="notification_settings_moved_text">Review your notification settings</string>

@@ -26,7 +26,9 @@ import android.provider.Settings
 import android.support.v4.app.DialogFragment
 import android.support.v4.app.FragmentManager
 import android.support.v7.app.AlertDialog
+import android.widget.Toast
 import androidx.core.content.edit
+import androidx.core.widget.toast
 import net.nurik.roman.muzei.R
 
 class NotificationSettingsDialogFragment : DialogFragment() {
@@ -45,7 +47,11 @@ class NotificationSettingsDialogFragment : DialogFragment() {
                 // Open the specific channel since we only have one notification channel
                 intent.putExtra(Settings.EXTRA_CHANNEL_ID,
                         NewWallpaperNotificationReceiver.NOTIFICATION_CHANNEL)
-                context.startActivity(intent)
+                if (intent.resolveActivity(context.packageManager) != null) {
+                    context.startActivity(intent)
+                } else {
+                    context.toast(R.string.notification_settings_failed, Toast.LENGTH_LONG)
+                }
             } else {
                 NotificationSettingsDialogFragment().show(
                         fragmentManager, "notifications")
