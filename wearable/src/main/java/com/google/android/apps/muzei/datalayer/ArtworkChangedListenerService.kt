@@ -16,6 +16,8 @@
 
 package com.google.android.apps.muzei.datalayer
 
+import android.content.ComponentName
+import android.content.pm.PackageManager
 import com.google.android.gms.wearable.DataEventBuffer
 import com.google.android.gms.wearable.WearableListenerService
 
@@ -24,7 +26,14 @@ import com.google.android.gms.wearable.WearableListenerService
  */
 class ArtworkChangedListenerService : WearableListenerService() {
     override fun onDataChanged(dataEvents: DataEventBuffer) {
-        // Only artwork changes trigger this WearableListenerService
+        // While CapabilityListenerService should be enabling the
+        // DataLayerArtProvider on install, there's no strict ordering
+        // between the two so we enable it here as well
+        packageManager.setComponentEnabledSetting(
+                ComponentName(this, DataLayerArtProvider::class.java),
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                PackageManager.DONT_KILL_APP)
+
         DataLayerLoadWorker.enqueueLoad()
     }
 }
