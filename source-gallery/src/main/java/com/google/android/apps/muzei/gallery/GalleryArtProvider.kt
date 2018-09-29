@@ -17,7 +17,6 @@
 package com.google.android.apps.muzei.gallery
 
 import android.annotation.SuppressLint
-import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.util.Log
 import androidx.core.net.toUri
@@ -57,7 +56,7 @@ class GalleryArtProvider: MuzeiArtProvider() {
 
     override fun openArtworkInfo(artwork: Artwork): Boolean {
         val context = context ?: return false
-        val uri = artwork.persistentUri
+        val uri = artwork.webUri ?: artwork.persistentUri ?: return false
         return try {
             context.startActivity(Intent(Intent.ACTION_VIEW).apply {
                 setDataAndType(uri, "image/*")
@@ -65,7 +64,7 @@ class GalleryArtProvider: MuzeiArtProvider() {
                         Intent.FLAG_GRANT_READ_URI_PERMISSION)
             })
             true
-        } catch (e: ActivityNotFoundException) {
+        } catch (e: Exception) {
             Log.w(TAG, "Could not open artwork info for $uri", e)
             false
         }

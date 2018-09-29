@@ -128,9 +128,9 @@ class GalleryScanWorker(
             val cachedFile = GalleryProvider.getCacheFileForUri(
                     applicationContext, chosenPhoto.uri)
             if (cachedFile != null && cachedFile.exists()) {
-                addUri(chosenPhoto.uri, Uri.fromFile(cachedFile))
+                addUri(chosenPhoto.uri, Uri.fromFile(cachedFile), chosenPhoto.contentUri)
             } else {
-                addUri(chosenPhoto.uri, chosenPhoto.uri)
+                addUri(chosenPhoto.uri)
             }
         }
     }
@@ -239,12 +239,13 @@ class GalleryScanWorker(
         }
     }
 
-    private fun addUri(baseUri: Uri, imageUri: Uri) {
+    private fun addUri(baseUri: Uri, imageUri: Uri = baseUri, publicWebUri: Uri = imageUri) {
         val imageMetadata = ensureMetadataExists(imageUri)
 
         val artwork = Artwork().apply {
             token = imageUri.toString()
             persistentUri = imageUri
+            webUri = publicWebUri
             metadata = baseUri.toString()
             val date = imageMetadata.date
             title = if (date != null) {
