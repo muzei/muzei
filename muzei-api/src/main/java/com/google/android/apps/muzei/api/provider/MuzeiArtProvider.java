@@ -961,8 +961,14 @@ public abstract class MuzeiArtProvider extends ContentProvider {
                 || ContentResolver.SCHEME_ANDROID_RESOURCE.equals(scheme)) {
             try {
                 in = context.getContentResolver().openInputStream(persistentUri);
+            } catch (IOException e) {
+                // Rethrow IOExceptions to retry later
+                throw e;
             } catch (SecurityException e) {
-                throw new FileNotFoundException("No access to " + persistentUri + ": " + e.toString());
+                throw new SecurityException("No access to " + persistentUri + ": " + e.toString());
+            } catch (Exception e) {
+                throw new SecurityException("Unknown error accessing " + persistentUri + ": " +
+                        e.toString());
             }
         } else if (ContentResolver.SCHEME_FILE.equals(scheme)) {
             List<String> segments = persistentUri.getPathSegments();
