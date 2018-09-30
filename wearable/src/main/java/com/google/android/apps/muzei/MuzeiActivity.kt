@@ -18,6 +18,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.os.bundleOf
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import com.google.android.apps.muzei.datalayer.ActivateMuzeiIntentService
@@ -188,6 +189,12 @@ class MuzeiActivity : FragmentActivity(),
                 attributionView.isVisible = !artwork.attribution.isNullOrBlank()
                 openOnPhone.setOnClickListener {
                     launch {
+                        FirebaseAnalytics.getInstance(this@MuzeiActivity).logEvent(
+                                FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
+                                FirebaseAnalytics.Param.ITEM_ID to DataLayerArtProvider.OPEN_ON_PHONE_ACTION,
+                                FirebaseAnalytics.Param.ITEM_NAME to getString(R.string.common_open_on_phone),
+                                FirebaseAnalytics.Param.ITEM_CATEGORY to "actions",
+                                FirebaseAnalytics.Param.CONTENT_TYPE to "wear_activity"))
                         artwork.sendAction(this@MuzeiActivity,
                                 DataLayerArtProvider.OPEN_ON_PHONE_ACTION)
                     }

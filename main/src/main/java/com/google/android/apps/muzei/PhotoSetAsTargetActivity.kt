@@ -54,10 +54,11 @@ class PhotoSetAsTargetActivity : FragmentActivity() {
                 }
 
                 // If adding the artwork succeeded, select the single artwork provider
-                val bundle = bundleOf(FirebaseAnalytics.Param.ITEM_ID to
-                        ComponentName(context, SingleArtProvider::class.java).flattenToShortString(),
-                        FirebaseAnalytics.Param.CONTENT_TYPE to "providers")
-                FirebaseAnalytics.getInstance(context).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
+                FirebaseAnalytics.getInstance(context).logEvent(
+                        FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
+                        FirebaseAnalytics.Param.ITEM_ID to SINGLE_AUTHORITY,
+                        FirebaseAnalytics.Param.ITEM_CATEGORY to "providers",
+                        FirebaseAnalytics.Param.CONTENT_TYPE to "set_as"))
                 ProviderManager.select(context, SINGLE_AUTHORITY)
                 startActivity(Intent.makeMainActivity(ComponentName(
                         context, MuzeiActivity::class.java))

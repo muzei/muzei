@@ -18,7 +18,9 @@ package com.google.android.apps.muzei
 
 import android.app.Activity
 import android.os.Bundle
+import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.sources.SourceManager
+import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 
@@ -29,6 +31,9 @@ class NextArtworkActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         GlobalScope.launch {
+            FirebaseAnalytics.getInstance(this@NextArtworkActivity).logEvent(
+                    "next_artwork", bundleOf(
+                    FirebaseAnalytics.Param.CONTENT_TYPE to "activity_shortcut"))
             SourceManager.nextArtwork(this@NextArtworkActivity)
         }
         finish()

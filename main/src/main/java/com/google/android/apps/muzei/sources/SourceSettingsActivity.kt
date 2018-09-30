@@ -213,7 +213,9 @@ class SourceSettingsActivity : AppCompatActivity() {
         } else {
             FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
                     FirebaseAnalytics.Param.ITEM_ID to source.componentName.flattenToShortString(),
-                    FirebaseAnalytics.Param.CONTENT_TYPE to "sources"))
+                    FirebaseAnalytics.Param.ITEM_NAME to source.label,
+                    FirebaseAnalytics.Param.ITEM_CATEGORY to "sources",
+                    FirebaseAnalytics.Param.CONTENT_TYPE to "choose"))
             GlobalScope.launch {
                 SourceManager.selectSource(this@SourceSettingsActivity, source.componentName)
             }
@@ -252,7 +254,8 @@ class SourceSettingsActivity : AppCompatActivity() {
             if (resultCode == Activity.RESULT_OK && setupSource != null) {
                 FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
                         FirebaseAnalytics.Param.ITEM_ID to setupSource.flattenToShortString(),
-                        FirebaseAnalytics.Param.CONTENT_TYPE to "sources"))
+                        FirebaseAnalytics.Param.CONTENT_TYPE to "sources",
+                        FirebaseAnalytics.Param.CONTENT_TYPE to "after_setup"))
                 GlobalScope.launch {
                     SourceManager.selectSource(this@SourceSettingsActivity, setupSource)
                 }

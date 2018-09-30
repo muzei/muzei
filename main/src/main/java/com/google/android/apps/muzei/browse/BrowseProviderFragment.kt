@@ -31,12 +31,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.core.os.bundleOf
 import androidx.core.widget.toast
 import androidx.navigation.fragment.findNavController
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.observe
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.Dispatchers
@@ -122,6 +124,12 @@ class BrowseProviderFragment: Fragment() {
                 val context = it.context
                 coroutineScope.launch(Dispatchers.Main) {
                     withContext(Dispatchers.Default) {
+                        FirebaseAnalytics.getInstance(context).logEvent(
+                                FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
+                                FirebaseAnalytics.Param.ITEM_ID to artwork.id,
+                                FirebaseAnalytics.Param.ITEM_NAME to artwork.title,
+                                FirebaseAnalytics.Param.ITEM_CATEGORY to "artwork",
+                                FirebaseAnalytics.Param.CONTENT_TYPE to "browse"))
                         MuzeiDatabase.getInstance(context).artworkDao()
                                 .insert(artwork)
                     }

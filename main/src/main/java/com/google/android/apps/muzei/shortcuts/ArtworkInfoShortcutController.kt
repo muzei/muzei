@@ -71,7 +71,7 @@ class ArtworkInfoShortcutController(
                     .setIcon(Icon.createWithResource(context,
                             R.drawable.ic_shortcut_artwork_info))
                     .setShortLabel(context.getString(R.string.action_artwork_info))
-                    .setIntent(ArtworkInfoRedirectActivity.getIntent(context))
+                    .setIntent(ArtworkInfoRedirectActivity.getIntent(context, "shortcut"))
                     .build()
             shortcutManager.addDynamicShortcuts(
                     listOf(shortcutInfo))

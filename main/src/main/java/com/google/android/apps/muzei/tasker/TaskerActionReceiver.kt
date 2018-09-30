@@ -19,9 +19,11 @@ package com.google.android.apps.muzei.tasker
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.sources.SourceManager
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.goAsync
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.twofortyfouram.locale.api.Intent.ACTION_FIRE_SETTING
 import com.twofortyfouram.locale.api.Intent.EXTRA_BUNDLE
 
@@ -40,10 +42,20 @@ class TaskerActionReceiver : BroadcastReceiver() {
                 is SelectProviderAction -> {
                     val authority = selectedAction.authority
                     if (context.packageManager.resolveContentProvider(authority, 0) != null) {
+                        FirebaseAnalytics.getInstance(context).logEvent(
+                                FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
+                                FirebaseAnalytics.Param.ITEM_ID to authority,
+                                FirebaseAnalytics.Param.ITEM_CATEGORY to "providers",
+                                FirebaseAnalytics.Param.CONTENT_TYPE to "tasker"))
                         ProviderManager.select(context, authority)
                     }
                 }
-                is NextArtworkAction -> SourceManager.nextArtwork(context)
+                is NextArtworkAction -> {
+                    FirebaseAnalytics.getInstance(context).logEvent(
+                            "next_artwork", bundleOf(
+                            FirebaseAnalytics.Param.CONTENT_TYPE to "tasker"))
+                    SourceManager.nextArtwork(context)
+                }
             }
         }
     }

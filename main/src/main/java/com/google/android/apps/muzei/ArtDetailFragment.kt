@@ -36,6 +36,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.os.bundleOf
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
@@ -122,8 +123,11 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         }
 
         metadataView.setOnClickListener {
+            val context = requireContext()
             coroutineScope.launch {
-                currentArtworkLiveData.value?.openArtworkInfo(requireContext())
+                FirebaseAnalytics.getInstance(context).logEvent("artwork_info_open", bundleOf(
+                        FirebaseAnalytics.Param.CONTENT_TYPE to "art_detail"))
+                currentArtworkLiveData.value?.openArtworkInfo(context)
             }
         }
 
@@ -253,6 +257,17 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             if (id > 0) {
                 currentArtworkLiveData.value?.run {
                     GlobalScope.launch {
+                        if (id == MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK) {
+                            FirebaseAnalytics.getInstance(context).logEvent("next_artwork", bundleOf(
+                                    FirebaseAnalytics.Param.CONTENT_TYPE to "art_detail"))
+                        } else {
+                            FirebaseAnalytics.getInstance(context).logEvent(
+                                    FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
+                                    FirebaseAnalytics.Param.ITEM_ID to id,
+                                    FirebaseAnalytics.Param.ITEM_NAME to menuItem.title,
+                                    FirebaseAnalytics.Param.ITEM_CATEGORY to "actions",
+                                    FirebaseAnalytics.Param.CONTENT_TYPE to "art_detail"))
+                        }
                         sendAction(context, id)
                     }
                 }
@@ -276,6 +291,8 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
 
         nextButton = view.findViewById(R.id.next_button)
         nextButton.setOnClickListener {
+            FirebaseAnalytics.getInstance(requireContext()).logEvent("next_artwork", bundleOf(
+                    FirebaseAnalytics.Param.CONTENT_TYPE to "art_detail"))
             ProviderManager.getInstance(requireContext()).nextArtwork()
             showFakeLoading()
         }

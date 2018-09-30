@@ -33,6 +33,7 @@ import android.support.v4.app.RemoteInput
 import android.support.v4.content.ContextCompat
 import android.util.Log
 import androidx.core.content.edit
+import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.ArtDetailOpenLiveData
 import com.google.android.apps.muzei.ArtworkInfoRedirectActivity
 import com.google.android.apps.muzei.render.ContentUriImageLoader
@@ -42,6 +43,7 @@ import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.sources.SourceManager
 import com.google.android.apps.muzei.sources.allowsNextArtwork
 import com.google.android.apps.muzei.util.goAsync
+import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
 
 class NewWallpaperNotificationReceiver : BroadcastReceiver() {
@@ -205,7 +207,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                         .build())
             }
             val viewPendingIntent = PendingIntent.getActivity(context, 0,
-                    ArtworkInfoRedirectActivity.getIntent(context),
+                    ArtworkInfoRedirectActivity.getIntent(context, "notification"),
                     PendingIntent.FLAG_UPDATE_CURRENT)
             val viewAction = NotificationCompat.Action.Builder(
                     R.drawable.ic_notif_info,
@@ -304,7 +306,12 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
         goAsync {
             when (intent?.action) {
                 ACTION_MARK_NOTIFICATION_READ -> markNotificationRead(context)
-                ACTION_NEXT_ARTWORK -> SourceManager.nextArtwork(context)
+                ACTION_NEXT_ARTWORK -> {
+                    FirebaseAnalytics.getInstance(context).logEvent(
+                            "next_artwork", bundleOf(
+                            FirebaseAnalytics.Param.CONTENT_TYPE to "notification"))
+                    SourceManager.nextArtwork(context)
+                }
                 ACTION_USER_COMMAND -> triggerUserCommandFromRemoteInput(context, intent)
             }
         }
@@ -319,6 +326,12 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
             if (artwork != null) {
                 val commands = artwork.getCommands(context)
                 commands.find { selectedCommand == it.title }?.run {
+                    FirebaseAnalytics.getInstance(context).logEvent(
+                            FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
+                            FirebaseAnalytics.Param.ITEM_ID to id,
+                            FirebaseAnalytics.Param.ITEM_NAME to title,
+                            FirebaseAnalytics.Param.ITEM_CATEGORY to "actions",
+                            FirebaseAnalytics.Param.CONTENT_TYPE to "notification"))
                     artwork.sendAction(context, id)
                 }
             }

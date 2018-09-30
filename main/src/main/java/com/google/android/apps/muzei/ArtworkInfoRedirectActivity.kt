@@ -20,9 +20,11 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
+import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.openArtworkInfo
 import com.google.android.apps.muzei.util.coroutineScope
+import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.experimental.launch
 
 /**
@@ -30,9 +32,12 @@ import kotlinx.coroutines.experimental.launch
  */
 class ArtworkInfoRedirectActivity : FragmentActivity() {
     companion object {
-        fun getIntent(context: Context): Intent =
+        private const val EXTRA_FROM = "from"
+
+        fun getIntent(context: Context, from: String): Intent =
                 Intent(context, ArtworkInfoRedirectActivity::class.java).apply {
                     action = "com.google.android.apps.muzei.OPEN_ARTWORK_INFO"
+                    putExtra(EXTRA_FROM, from)
                 }
     }
 
@@ -42,7 +47,13 @@ class ArtworkInfoRedirectActivity : FragmentActivity() {
             val artwork = MuzeiDatabase.getInstance(this@ArtworkInfoRedirectActivity)
                     .artworkDao()
                     .getCurrentArtwork()
-            artwork?.openArtworkInfo(this@ArtworkInfoRedirectActivity)
+            artwork?.run {
+                val from = intent?.getStringExtra(EXTRA_FROM) ?: "activity_shortcut"
+                FirebaseAnalytics.getInstance(this@ArtworkInfoRedirectActivity).logEvent(
+                        "artwork_info_open", bundleOf(
+                        FirebaseAnalytics.Param.CONTENT_TYPE to from))
+                openArtworkInfo(this@ArtworkInfoRedirectActivity)
+            }
             finish()
         }
     }

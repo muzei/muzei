@@ -38,6 +38,7 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.ViewConfiguration
+import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
 import com.google.android.apps.muzei.notifications.NotificationUpdater
 import com.google.android.apps.muzei.render.ImageLoader
@@ -59,6 +60,7 @@ import com.google.android.apps.muzei.wallpaper.LockscreenObserver
 import com.google.android.apps.muzei.wallpaper.WallpaperAnalytics
 import com.google.android.apps.muzei.wearable.WearableController
 import com.google.android.apps.muzei.widget.WidgetUpdater
+import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.delay
@@ -304,16 +306,19 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                 val prefs = Prefs.getSharedPreferences(this@MuzeiWallpaperService)
                 val doubleTapValue = prefs.getString(Prefs.PREF_DOUBLE_TAP,
                         null) ?: Prefs.PREF_TAP_ACTION_TEMP
-                triggerTapAction(doubleTapValue)
+                triggerTapAction(doubleTapValue, "gesture_double_tap")
                 // Reset the flag
                 validDoubleTap = false
             }
             return super.onCommand(action, x, y, z, extras, resultRequested)
         }
 
-        private fun triggerTapAction(action: String) {
+        private fun triggerTapAction(action: String, type: String) {
             when (action) {
                 Prefs.PREF_TAP_ACTION_TEMP -> {
+                    FirebaseAnalytics.getInstance(this@MuzeiWallpaperService).logEvent(
+                            "temp_disable_effects", bundleOf(
+                            FirebaseAnalytics.Param.CONTENT_TYPE to type))
                     // Temporarily toggle focused/blurred
                     queueEvent {
                         renderer.setIsBlurred(!renderer.isBlurred, false)
@@ -323,6 +328,9 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                 }
                 Prefs.PREF_TAP_ACTION_NEXT -> {
                     GlobalScope.launch {
+                        FirebaseAnalytics.getInstance(this@MuzeiWallpaperService).logEvent(
+                                "next_artwork", bundleOf(
+                                FirebaseAnalytics.Param.CONTENT_TYPE to type))
                         SourceManager.nextArtwork(this@MuzeiWallpaperService)
                     }
                 }
@@ -332,7 +340,12 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                                 .getInstance(this@MuzeiWallpaperService)
                                 .artworkDao()
                                 .getCurrentArtwork()
-                        artwork?.openArtworkInfo(this@MuzeiWallpaperService)
+                        artwork?.run {
+                            FirebaseAnalytics.getInstance(this@MuzeiWallpaperService).logEvent(
+                                    "artwork_info_open", bundleOf(
+                                    FirebaseAnalytics.Param.CONTENT_TYPE to type))
+                            openArtworkInfo(this@MuzeiWallpaperService)
+                        }
                     }
                 }
             }
@@ -353,7 +366,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                 val threeFingerTapValue = prefs.getString(Prefs.PREF_THREE_FINGER_TAP,
                         null) ?: Prefs.PREF_TAP_ACTION_NONE
 
-                triggerTapAction(threeFingerTapValue)
+                triggerTapAction(threeFingerTapValue, "gesture_three_finger")
             }
         }
 

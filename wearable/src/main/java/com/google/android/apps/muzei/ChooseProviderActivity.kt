@@ -102,7 +102,8 @@ class ChooseProviderActivity : FragmentActivity() {
                     FirebaseAnalytics.getInstance(this).logEvent(
                             FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
                             FirebaseAnalytics.Param.ITEM_ID to provider,
-                            FirebaseAnalytics.Param.CONTENT_TYPE to "providers"))
+                            FirebaseAnalytics.Param.CONTENT_TYPE to "providers",
+                            FirebaseAnalytics.Param.CONTENT_TYPE to "after_setup"))
                     GlobalScope.launch {
                         ProviderManager.select(this@ChooseProviderActivity, provider)
                         finish()
@@ -126,6 +127,11 @@ class ChooseProviderActivity : FragmentActivity() {
                 if (providerInfo.setupActivity != null) {
                     launchProviderSetup(providerInfo)
                 } else {
+                    FirebaseAnalytics.getInstance(this@ChooseProviderActivity).logEvent(
+                            FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
+                            FirebaseAnalytics.Param.ITEM_ID to providerInfo.authority,
+                            FirebaseAnalytics.Param.CONTENT_TYPE to "providers",
+                            FirebaseAnalytics.Param.CONTENT_TYPE to "choose"))
                     GlobalScope.launch {
                         ProviderManager.select(this@ChooseProviderActivity, providerInfo.authority)
                         finish()

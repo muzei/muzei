@@ -208,12 +208,13 @@ class ChooseProviderFragment : Fragment() {
             REQUEST_EXTENSION_SETUP -> {
                 val provider = startActivityProvider
                 if (resultCode == Activity.RESULT_OK && provider != null) {
-                    FirebaseAnalytics.getInstance(requireContext()).logEvent(
-                            FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                            FirebaseAnalytics.Param.ITEM_ID to provider,
-                            FirebaseAnalytics.Param.CONTENT_TYPE to "providers"))
                     val context = requireContext()
                     GlobalScope.launch {
+                        FirebaseAnalytics.getInstance(context).logEvent(
+                                FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
+                                FirebaseAnalytics.Param.ITEM_ID to provider,
+                                FirebaseAnalytics.Param.ITEM_CATEGORY to "providers",
+                                FirebaseAnalytics.Param.CONTENT_TYPE to "after_setup"))
                         ProviderManager.select(context, provider)
                     }
                 }
@@ -269,7 +270,9 @@ class ChooseProviderFragment : Fragment() {
                     FirebaseAnalytics.getInstance(requireContext()).logEvent(
                             FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
                             FirebaseAnalytics.Param.ITEM_ID to authority,
-                            FirebaseAnalytics.Param.CONTENT_TYPE to "providers"))
+                            FirebaseAnalytics.Param.ITEM_NAME to title,
+                            FirebaseAnalytics.Param.ITEM_CATEGORY to "providers",
+                            FirebaseAnalytics.Param.CONTENT_TYPE to "choose"))
                     val context = requireContext()
                     GlobalScope.launch {
                         ProviderManager.select(context, authority)

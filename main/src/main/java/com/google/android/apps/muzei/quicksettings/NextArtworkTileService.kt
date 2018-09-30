@@ -30,6 +30,7 @@ import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.support.annotation.RequiresApi
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.core.widget.toast
 import com.google.android.apps.muzei.MuzeiWallpaperService
 import com.google.android.apps.muzei.room.MuzeiDatabase
@@ -108,9 +109,10 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
         qsTile?.run {
             when (state) {
                 Tile.STATE_ACTIVE -> { // Active means we send the 'Next Artwork' command
-                    FirebaseAnalytics.getInstance(context).logEvent(
-                            "tile_next_artwork_click", null)
                     GlobalScope.launch {
+                        FirebaseAnalytics.getInstance(context).logEvent(
+                                "next_artwork", bundleOf(
+                                FirebaseAnalytics.Param.CONTENT_TYPE to "tile"))
                         SourceManager.nextArtwork(context)
                     }
                 }
