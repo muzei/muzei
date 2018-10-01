@@ -251,10 +251,14 @@ class ChooseProviderFragment : Fragment() {
             itemView.setOnClickListener {
                 if (isSelected) {
                     val context = context
-                    val parentFragment = parentFragment
+                    val parentFragment = parentFragment?.parentFragment
                     if (context is Callbacks) {
+                        FirebaseAnalytics.getInstance(requireContext()).logEvent(
+                                "choose_provider_reselected", null)
                         context.onRequestCloseActivity()
                     } else if (parentFragment is Callbacks) {
+                        FirebaseAnalytics.getInstance(requireContext()).logEvent(
+                                "choose_provider_reselected", null)
                         parentFragment.onRequestCloseActivity()
                     }
                 } else if (setupActivity != null) {
@@ -295,6 +299,10 @@ class ChooseProviderFragment : Fragment() {
                 try {
                     startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                             Uri.fromParts("package", packageName, null)))
+                    FirebaseAnalytics.getInstance(requireContext()).logEvent(
+                            "app_settings_open", bundleOf(
+                            FirebaseAnalytics.Param.ITEM_ID to authority,
+                            FirebaseAnalytics.Param.ITEM_NAME to title))
                 } catch (e: ActivityNotFoundException) {
                     return@setOnLongClickListener false
                 }
@@ -311,8 +319,18 @@ class ChooseProviderFragment : Fragment() {
             setImage(providerInfo)
 
             setSelected(providerInfo)
-            providerSettings.setOnClickListener { launchProviderSettings(this) }
+            providerSettings.setOnClickListener {
+                FirebaseAnalytics.getInstance(requireContext()).logEvent(
+                        "provider_settings_open", bundleOf(
+                        FirebaseAnalytics.Param.ITEM_ID to authority,
+                        FirebaseAnalytics.Param.ITEM_NAME to title))
+                launchProviderSettings(this)
+            }
             providerBrowse.setOnClickListener {
+                FirebaseAnalytics.getInstance(requireContext()).logEvent(
+                        "provider_browse_open", bundleOf(
+                        FirebaseAnalytics.Param.ITEM_ID to authority,
+                        FirebaseAnalytics.Param.ITEM_NAME to title))
                 findNavController().navigate(
                         ChooseProviderFragmentDirections.browse(
                                 ProviderContract.Artwork.getContentUri(authority)))
