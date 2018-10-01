@@ -30,6 +30,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
 import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
@@ -102,6 +103,9 @@ class MuzeiActivity : AppCompatActivity() {
                     .commitAllowingStateLoss()
         }
         if (intent?.hasCategory(Notification.INTENT_CATEGORY_NOTIFICATION_PREFERENCES) == true) {
+            FirebaseAnalytics.getInstance(this).logEvent(
+                    "notification_settings_open", bundleOf(
+                    FirebaseAnalytics.Param.CONTENT_TYPE to "intent"))
             NotificationSettingsDialogFragment.showSettings(this,
                     supportFragmentManager)
         }

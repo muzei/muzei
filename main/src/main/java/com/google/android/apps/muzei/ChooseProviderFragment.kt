@@ -132,6 +132,9 @@ class ChooseProviderFragment : Fragment() {
                     true
                 }
                 R.id.action_notification_settings -> {
+                    FirebaseAnalytics.getInstance(requireContext()).logEvent(
+                            "notification_settings_open", bundleOf(
+                            FirebaseAnalytics.Param.CONTENT_TYPE to "overflow"))
                     NotificationSettingsDialogFragment.showSettings(requireContext(),
                             childFragmentManager)
                     true
