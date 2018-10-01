@@ -56,7 +56,8 @@ class MissingResourcesDialogFragment : DialogFragment() {
                 .setPositiveButton(R.string.missing_resources_open) { _: DialogInterface, _: Int ->
                     try {
                         val playStoreIntent = Intent(Intent.ACTION_VIEW,
-                                Uri.parse("https://play.google.com/store/apps/details?id=" + requireContext().packageName))
+                                Uri.parse("https://play.google.com/store/apps/details?id=" +
+                                        requireContext().packageName))
                         startActivity(playStoreIntent)
                     } catch (e: ActivityNotFoundException) {
                         requireContext().toast(R.string.play_store_not_found, Toast.LENGTH_LONG)
