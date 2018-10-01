@@ -118,11 +118,15 @@ class ChooseProviderFragment : Fragment() {
                     if (drawerLayout.isDrawerOpen(Gravity.END)) {
                         drawerLayout.closeDrawer(Gravity.END)
                     } else {
+                        FirebaseAnalytics.getInstance(requireContext()).logEvent(
+                                "auto_advance_open", null)
                         drawerLayout.openDrawer(Gravity.END)
                     }
                     true
                 }
                 R.id.auto_advance_disabled -> {
+                    FirebaseAnalytics.getInstance(requireContext()).logEvent(
+                            "auto_advance_disabled", null)
                     requireContext().toast(R.string.auto_advance_disabled_description,
                             Toast.LENGTH_LONG)
                     true
