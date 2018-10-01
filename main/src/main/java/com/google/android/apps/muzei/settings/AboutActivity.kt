@@ -20,9 +20,9 @@ import android.content.ActivityNotFoundException
 import android.os.Bundle
 import android.support.customtabs.CustomTabsIntent
 import android.support.v4.content.ContextCompat
+import android.support.v4.text.HtmlCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
-import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.view.View
 import android.view.ViewPropertyAnimator
@@ -59,8 +59,7 @@ class AboutActivity : AppCompatActivity() {
         }
 
         findViewById<TextView>(R.id.about_body).apply {
-            @Suppress("DEPRECATION")
-            text = Html.fromHtml(getString(R.string.about_body))
+            text = HtmlCompat.fromHtml(getString(R.string.about_body), 0)
             movementMethod = LinkMovementMethod()
         }
 
