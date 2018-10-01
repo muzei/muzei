@@ -24,6 +24,7 @@ import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentStatePagerAdapter
+import android.support.v4.view.ViewCompat
 import android.support.v4.view.ViewPager
 import android.support.v7.widget.Toolbar
 import android.view.LayoutInflater
@@ -130,8 +131,7 @@ class EffectsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         // Ensure we have the latest insets
-        @Suppress("DEPRECATION")
-        view.requestFitSystemWindows()
+        ViewCompat.requestApplyInsets(view)
 
         toolbar = view.findViewById(R.id.toolbar)
         if (requireActivity() is SettingsActivity) {

@@ -26,6 +26,7 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v4.content.res.ResourcesCompat
+import android.support.v4.view.ViewCompat
 import android.support.v7.widget.ActionMenuView
 import android.support.v7.widget.TooltipCompat
 import android.util.SparseIntArray
@@ -205,8 +206,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         // Ensure we have the latest insets
-        @Suppress("DEPRECATION")
-        view.requestFitSystemWindows()
+        ViewCompat.requestApplyInsets(view)
 
         val scrim = view.findViewById<View>(R.id.art_detail_scrim)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

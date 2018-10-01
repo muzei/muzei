@@ -26,6 +26,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.support.v4.app.Fragment
+import android.support.v4.view.ViewCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.recyclerview.extensions.ListAdapter
 import android.support.v7.util.DiffUtil
@@ -106,8 +107,7 @@ class ChooseProviderFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         // Ensure we have the latest insets
-        @Suppress("DEPRECATION")
-        view.requestFitSystemWindows()
+        ViewCompat.requestApplyInsets(view)
 
         toolbar = view.findViewById(R.id.toolbar)
         requireActivity().menuInflater.inflate(R.menu.choose_provider_fragment,

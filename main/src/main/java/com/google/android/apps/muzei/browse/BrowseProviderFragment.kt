@@ -22,6 +22,7 @@ import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
+import android.support.v4.view.ViewCompat
 import android.support.v7.graphics.drawable.DrawerArrowDrawable
 import android.support.v7.recyclerview.extensions.ListAdapter
 import android.support.v7.util.DiffUtil
@@ -67,8 +68,7 @@ class BrowseProviderFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         // Ensure we have the latest insets
-        @Suppress("DEPRECATION")
-        view.requestFitSystemWindows()
+        ViewCompat.requestApplyInsets(view)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             requireActivity().window.statusBarColor = ContextCompat.getColor(

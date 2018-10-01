@@ -24,6 +24,7 @@ import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.v4.app.Fragment
 import android.support.v4.content.res.ResourcesCompat
+import android.support.v4.view.ViewCompat
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -53,8 +54,7 @@ class TutorialFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         // Ensure we have the latest insets
-        @Suppress("DEPRECATION")
-        view.requestFitSystemWindows()
+        ViewCompat.requestApplyInsets(view)
         view.findViewById<View>(R.id.tutorial_icon_affordance).setOnClickListener {
             FirebaseAnalytics.getInstance(requireContext())
                     .logEvent(FirebaseAnalytics.Event.TUTORIAL_COMPLETE, null)
