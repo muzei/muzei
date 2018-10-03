@@ -604,6 +604,7 @@ public abstract class MuzeiArtProvider extends ContentProvider {
         final SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(TABLE_NAME);
         qb.setProjectionMap(allArtworkColumnProjectionMap);
+        qb.setStrict(true);
         final SQLiteDatabase db = databaseHelper.getReadableDatabase();
         if (!uri.equals(contentUri)) {
             // Appends "_ID = <id>" to the where clause, so that it selects the single artwork
