@@ -24,7 +24,14 @@ import android.content.Context
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.BuildConfig
 
-object WallpaperActiveState : MutableLiveData<Boolean>()
+object WallpaperActiveState : MutableLiveData<Boolean>() {
+    fun initState(context: Context) {
+        if (value == null) {
+            val wallpaperManager = WallpaperManager.getInstance(context)
+            value = wallpaperManager.wallpaperInfo?.packageName == context.packageName
+        }
+    }
+}
 
 /**
  * LifecycleObserver responsible for sending analytics callbacks based on the state of the wallpaper
@@ -32,9 +39,7 @@ object WallpaperActiveState : MutableLiveData<Boolean>()
 class WallpaperAnalytics(private val context: Context) : DefaultLifecycleObserver {
 
     init {
-        val wallpaperManager = WallpaperManager.getInstance(context)
-        WallpaperActiveState.value =
-                wallpaperManager.wallpaperInfo?.packageName == context.packageName
+        WallpaperActiveState.initState(context)
     }
 
     override fun onCreate(owner: LifecycleOwner) {
