@@ -50,8 +50,11 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
 
         def galleryAuthorityValue = "com.google.android.apps.muzei.gallery"
-        manifestPlaceholders = [galleryAuthority: galleryAuthorityValue]
+        def galleryArtAuthorityValue = "com.google.android.apps.muzei.gallery.art"
+        manifestPlaceholders = [galleryAuthority: galleryAuthorityValue,
+                                galleryArtAuthority: galleryArtAuthorityValue]
         buildConfigField "String", "GALLERY_AUTHORITY", "\"${galleryAuthorityValue}\""
+        buildConfigField "String", "GALLERY_ART_AUTHORITY", "\"${galleryArtAuthorityValue}\""
 
         javaCompileOptions {
             annotationProcessorOptions {

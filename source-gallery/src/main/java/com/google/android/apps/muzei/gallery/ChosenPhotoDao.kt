@@ -32,6 +32,7 @@ import android.os.Build
 import android.provider.DocumentsContract
 import android.util.Log
 import com.google.android.apps.muzei.api.provider.ProviderContract
+import com.google.android.apps.muzei.gallery.BuildConfig.GALLERY_ART_AUTHORITY
 import com.google.android.apps.muzei.gallery.converter.UriTypeConverter
 import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.async
@@ -248,8 +249,7 @@ internal abstract class ChosenPhotoDao {
     ) = currentScope {
         chosenPhotos.map { chosenPhoto ->
             async {
-                val contentUri = ProviderContract.Artwork.getContentUri(
-                        context, GalleryArtProvider::class.java)
+                val contentUri = ProviderContract.Artwork.getContentUri(GALLERY_ART_AUTHORITY)
                 context.contentResolver.delete(contentUri,
                         "${ProviderContract.Artwork.METADATA}=?",
                         arrayOf(chosenPhoto.uri.toString()))

@@ -39,6 +39,7 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.ProviderContract
+import com.google.android.apps.muzei.gallery.BuildConfig.GALLERY_ART_AUTHORITY
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import java.io.IOException
@@ -113,9 +114,7 @@ class GalleryScanWorker(
     }
 
     private fun deleteMediaUris() {
-        val contentUri = ProviderContract.Artwork.getContentUri(
-                applicationContext,
-                GalleryArtProvider::class.java)
+        val contentUri = ProviderContract.Artwork.getContentUri(GALLERY_ART_AUTHORITY)
         applicationContext.contentResolver.delete(contentUri,
                 "${ProviderContract.Artwork.METADATA}=?",
                 arrayOf(MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString()))
@@ -210,7 +209,7 @@ class GalleryScanWorker(
                 return Result.FAILURE
             }
             val lastToken = ProviderContract.Artwork.getLastAddedArtwork(
-                    applicationContext, GalleryArtProvider::class.java)?.token
+                    applicationContext, GALLERY_ART_AUTHORITY)?.token
 
             val random = Random()
             val randomSequence = generateSequence {
@@ -263,7 +262,7 @@ class GalleryScanWorker(
         }
 
         ProviderContract.Artwork.addArtwork(applicationContext,
-                GalleryArtProvider::class.java, artwork)
+                GALLERY_ART_AUTHORITY, artwork)
     }
 
     private fun ensureMetadataExists(imageUri: Uri): Metadata {
