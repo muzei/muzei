@@ -25,6 +25,8 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static com.google.android.apps.muzei.api.provider.ProviderContract.Artwork.ATTRIBUTION;
@@ -56,6 +58,15 @@ import static com.google.android.apps.muzei.api.provider.ProviderContract.Artwor
  * a row retrieved from a {@link MuzeiArtProvider} into Artwork instance.
  */
 public class Artwork {
+    private static DateFormat DATE_FORMAT;
+
+    private static DateFormat getDateFormat() {
+        if (DATE_FORMAT == null) {
+            DATE_FORMAT = SimpleDateFormat.getDateTimeInstance();
+        }
+        return DATE_FORMAT;
+    }
+
     private long id;
     private String token;
     private String title;
@@ -323,6 +334,72 @@ public class Artwork {
 
     void setDateModified(@NonNull Date dateModified) {
         this.dateModified = dateModified;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Artwork #");
+        sb.append(id);
+
+        if (token != null && !token.isEmpty() && (persistentUri == null ||
+                !persistentUri.toString().equals(token))) {
+            sb.append("+");
+            sb.append(token);
+        }
+        sb.append(" (");
+        sb.append(persistentUri);
+        if (persistentUri != null && !persistentUri.equals(webUri)) {
+            sb.append(", ");
+            sb.append(webUri);
+        }
+        sb.append(")");
+        sb.append(": ");
+        boolean appended = false;
+        if (title != null && !title.isEmpty()) {
+            sb.append(title);
+            appended = true;
+        }
+        if (byline != null && !byline.isEmpty()) {
+            if (appended) {
+                sb.append(" by ");
+            }
+            sb.append(byline);
+            appended = true;
+        }
+        if (attribution != null && !attribution.isEmpty()) {
+            if (appended) {
+                sb.append(", ");
+            }
+            sb.append(attribution);
+            appended = true;
+        }
+        if (metadata != null) {
+            if (appended) {
+                sb.append("; ");
+            }
+            sb.append("Metadata=");
+            sb.append(metadata);
+            appended = true;
+        }
+        if (dateAdded != null) {
+            if (appended) {
+                sb.append(", ");
+            }
+            sb.append("Added on ");
+            sb.append(getDateFormat().format(dateAdded));
+            appended = true;
+        }
+        if (dateModified != null && !dateModified.equals(dateAdded)) {
+            if (appended) {
+                sb.append(", ");
+            }
+            sb.append("Last modified on ");
+            sb.append(getDateFormat().format(dateModified));
+        }
+
+        return sb.toString();
     }
 
     /**
