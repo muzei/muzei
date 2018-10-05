@@ -877,10 +877,16 @@ public abstract class MuzeiArtProvider extends ContentProvider {
             }
             artwork = Artwork.fromCursor(data);
         }
-        //noinspection ConstantConditions
         if (!artwork.getData().exists() && mode.equals("r")) {
             // Download the image from the persistent URI for read-only operations
             // rather than throw a FileNotFoundException
+            File directory = artwork.getData().getParentFile();
+            // Ensure that the parent directory of the artwork exists
+            // as otherwise FileOutputStream will fail
+            if (!directory.exists() && !directory.mkdirs()) {
+                throw new FileNotFoundException("Unable to create directory " +
+                        directory + " for " + artwork);
+            }
             try (InputStream in = openFile(artwork);
                  FileOutputStream out = new FileOutputStream(artwork.getData())) {
                 byte[] buffer = new byte[1024];
