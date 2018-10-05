@@ -91,8 +91,8 @@ class GalleryScanWorker(
                     .chosenPhotoDao()
                     .chosenPhotoBlocking(id)
             return if (chosenPhoto != null) {
-                deleteMediaUris()
                 scanChosenPhoto(chosenPhoto)
+                deleteMediaUris()
                 Result.SUCCESS
             } else {
                 Result.FAILURE
@@ -103,11 +103,10 @@ class GalleryScanWorker(
                 .chosenPhotosBlocking
         val numChosenUris = chosenPhotos.size
         if (numChosenUris > 0) {
-            deleteMediaUris()
-            // Now add all of the chosen photos
             for (chosenPhoto in chosenPhotos) {
                 scanChosenPhoto(chosenPhoto)
             }
+            deleteMediaUris()
             return Result.SUCCESS
         }
         return addMediaUri()
