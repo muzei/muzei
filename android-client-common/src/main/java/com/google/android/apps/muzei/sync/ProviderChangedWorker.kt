@@ -240,7 +240,7 @@ class ProviderChangedWorker(
                 }
             }
         } catch (e: RemoteException) {
-            Log.i(TAG, "Provider ${provider.authority} crashed while retrieving artwork", e)
+            Log.i(TAG, "Provider ${provider.authority} crashed while retrieving artwork: ${e.message}")
         }
         return Result.RETRY
     }
@@ -259,7 +259,6 @@ class ProviderChangedWorker(
         return false
     }
 
-    @Throws(RemoteException::class)
     private suspend fun isValidArtwork(
             client: ContentProviderClientCompat,
             contentUri: Uri,
@@ -280,7 +279,10 @@ class ProviderChangedWorker(
                 }
             }
         } catch (e: IOException) {
-            Log.w(TAG, "Unable to preload artwork $artworkUri", e)
+            Log.w(TAG, "Unable to preload artwork $artworkUri: ${e.message}")
+        } catch (e: RemoteException) {
+            Log.w(TAG, "Provider ${contentUri.authority} crashed preloading artwork " +
+                    "$artworkUri: ${e.message}")
         }
 
         return false
