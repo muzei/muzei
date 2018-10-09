@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.util
 
+import android.annotation.SuppressLint
 import android.content.ContentProviderClient
 import android.content.Context
 import android.database.Cursor
@@ -26,7 +27,6 @@ import android.os.ParcelFileDescriptor
 import android.os.RemoteException
 import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.withContext
-
 import java.io.FileNotFoundException
 import java.io.InputStream
 
@@ -50,9 +50,18 @@ class ContentProviderClientCompat private constructor(
             arg: String? = null,
             extras: Bundle? = null
     ): Bundle? = withContext(Dispatchers.Default) {
-        mContentProviderClient.call(method, arg, extras)
+        try {
+            mContentProviderClient.call(method, arg, extras)
+        } catch (e: Exception) {
+            if (e is RemoteException) {
+                throw e
+            } else {
+                throw RemoteException(e.message)
+            }
+        }
     }
 
+    @SuppressLint("Recycle")
     @Throws(RemoteException::class)
     suspend fun query(
             url: Uri,
@@ -61,16 +70,32 @@ class ContentProviderClientCompat private constructor(
             selectionArgs: Array<String>? = null,
             sortOrder: String? = null
     ): Cursor? = withContext(Dispatchers.Default) {
-        return@withContext mContentProviderClient.query(
-                url, projection, selection, selectionArgs, sortOrder)
+        try {
+            mContentProviderClient.query(
+                    url, projection, selection, selectionArgs, sortOrder)
+        } catch (e: Exception) {
+            if (e is RemoteException) {
+                throw e
+            } else {
+                throw RemoteException(e.message)
+            }
+        }
     }
 
     @Throws(FileNotFoundException::class, RemoteException::class)
     suspend fun openInputStream(
             url: Uri
     ): InputStream? = withContext(Dispatchers.Default) {
-        mContentProviderClient.openFile(url, "r")?.run {
-            ParcelFileDescriptor.AutoCloseInputStream(this)
+        try {
+            mContentProviderClient.openFile(url, "r")?.run {
+                ParcelFileDescriptor.AutoCloseInputStream(this)
+            }
+        } catch (e: Exception) {
+            if (e is FileNotFoundException || e is RemoteException) {
+                throw e
+            } else {
+                throw RemoteException(e.message)
+            }
         }
     }
 
