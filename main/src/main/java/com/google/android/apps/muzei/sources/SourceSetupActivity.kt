@@ -105,4 +105,11 @@ class SourceWarningDialogFragment : DialogFragment() {
                 }
                 .create()
     }
+
+    override fun onStop() {
+        if (!dialog.isShowing) {
+            requireActivity().finish()
+        }
+        super.onStop()
+    }
 }
