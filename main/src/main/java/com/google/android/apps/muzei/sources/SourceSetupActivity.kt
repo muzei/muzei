@@ -19,6 +19,7 @@ package com.google.android.apps.muzei.sources
 import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.support.v4.app.Fragment
@@ -62,6 +63,11 @@ class SourceSetupActivity : AppCompatActivity() {
                     }
                 }
             }
+            fragment.neutralListener = {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(
+                        "https://medium.com/@ianhlake/muzei-3-0-and-legacy-sources-8261979e2264"))
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            }
             fragment.negativeListener = {
                 finish()
             }
@@ -81,6 +87,7 @@ class SourceSetupActivity : AppCompatActivity() {
 
 class SourceWarningDialogFragment : DialogFragment() {
     var positiveListener : () -> Unit = {}
+    var neutralListener : () -> Unit = {}
     var negativeListener : () -> Unit = {}
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -89,6 +96,9 @@ class SourceWarningDialogFragment : DialogFragment() {
                 .setMessage(R.string.source_warning_message)
                 .setPositiveButton(R.string.source_warning_positive) { _, _ ->
                     positiveListener()
+                }
+                .setNeutralButton(R.string.source_warning_learn_more) { _, _ ->
+                    neutralListener()
                 }
                 .setNegativeButton(R.string.source_warning_negative) { _, _ ->
                     negativeListener()
