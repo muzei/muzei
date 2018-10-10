@@ -191,7 +191,8 @@ class SourceSettingsActivity : AppCompatActivity() {
                     .setMessage(getString(R.string.action_source_target_too_high_message, source.label))
                     .setNegativeButton(R.string.action_source_target_too_high_learn_more) { _, _ ->
                         startActivity(Intent(Intent.ACTION_VIEW,
-                                Uri.parse("https://medium.com/@ianhlake/the-muzei-plugin-api-and-androids-evolution-9b9979265cfb")))
+                                Uri.parse("https://medium.com/@ianhlake/the-muzei-plugin-api-and-androids-evolution-9b9979265cfb"))
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                     }
                     .setPositiveButton(R.string.action_source_target_too_high_dismiss, null)
             val sendFeedbackIntent = Intent(Intent.ACTION_VIEW,
