@@ -14,7 +14,8 @@
   limitations under the License.
   -->
 
-<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+<appwidget-provider
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:initialKeyguardLayout="@layout/widget"
     android:initialLayout="@layout/widget"
     android:minHeight="@dimen/widget_min_height"
@@ -24,4 +25,4 @@
     android:previewImage="@drawable/preview"
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="0"
-    android:widgetCategory="home_screen|keyguard" />
+    android:widgetCategory="home_screen|keyguard"/>

@@ -15,8 +15,8 @@
   -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_enabled="false" android:drawable="@drawable/scrubber_control_disabled" />
-    <item android:state_pressed="true" android:drawable="@drawable/scrubber_control_pressed" />
-    <item android:state_selected="true" android:drawable="@drawable/scrubber_control_focused" />
-    <item android:drawable="@drawable/scrubber_control_normal" />
+    <item android:state_enabled="false" android:drawable="@drawable/scrubber_control_disabled"/>
+    <item android:state_pressed="true" android:drawable="@drawable/scrubber_control_pressed"/>
+    <item android:state_selected="true" android:drawable="@drawable/scrubber_control_focused"/>
+    <item android:drawable="@drawable/scrubber_control_normal"/>
 </selector>

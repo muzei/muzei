@@ -14,11 +14,17 @@
   limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_gestures"
+        android:title="@string/actions_gestures"
+        android:menuCategory="secondary"
+        app:showAsAction="never"/>
     <item
         android:id="@+id/action_about"
         android:title="@string/about_title"
         android:menuCategory="secondary"
-        app:showAsAction="never" />
+        app:showAsAction="never"/>
 </menu>

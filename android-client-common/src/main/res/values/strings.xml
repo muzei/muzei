@@ -16,6 +16,5 @@
 
 <resources>
     <string name="app_name">Muzei</string>
-    <string name="document_by_date_display_name">By Date</string>
-    <string name="document_by_source_display_name">By Source</string>
+    <string name="error_view_details">Couldn\'t view artwork details.</string>
 </resources>

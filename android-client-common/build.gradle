@@ -15,20 +15,31 @@
  */
 
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 dependencies {
-    implementation project(':api')
-    implementation "com.android.support:support-compat:$rootProject.ext.supportLibraryVersion"
-    api "android.arch.lifecycle:extensions:$rootProject.ext.lifecycleVersion"
-    annotationProcessor "android.arch.lifecycle:compiler:$rootProject.ext.lifecycleVersion"
-    implementation "com.android.support:support-core-ui:$rootProject.ext.supportLibraryVersion"
-    implementation "com.android.support:support-fragment:$rootProject.ext.supportLibraryVersion"
-    api "android.arch.persistence.room:runtime:$rootProject.ext.roomVersion"
-    annotationProcessor "android.arch.persistence.room:compiler:$rootProject.ext.roomVersion"
-    api ("com.google.android.gms:play-services-wearable:$rootProject.ext.googlePlayServicesVersion") {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
+    implementation "androidx.core:core-ktx:$rootProject.ext.ktxVersion"
+    implementation project(':muzei-api')
+    implementation project(':extensions')
+    implementation "com.android.support:support-compat:$supportLibraryVersion"
+    implementation "com.android.support:exifinterface:$supportLibraryVersion"
+    api "android.arch.lifecycle:livedata:$lifecycleVersion"
+    kapt "android.arch.lifecycle:compiler:$lifecycleVersion"
+    implementation "android.arch.work:work-runtime-ktx:$workManagerVersion"
+    implementation "com.android.support:support-core-ui:$supportLibraryVersion"
+    implementation "com.android.support:support-fragment:$supportLibraryVersion"
+    api "android.arch.persistence.room:runtime:$roomVersion"
+    kapt "android.arch.persistence.room:compiler:$roomVersion"
+    api("com.google.android.gms:play-services-wearable:$playServicesWearableVersion") {
         exclude module: 'support-v4'
     }
 }
+
+kotlin.experimental.coroutines "enable"
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -38,11 +49,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
 
         def documentsAuthorityValue = "com.google.android.apps.muzei.documents"
-        manifestPlaceholders =
-                [documentsAuthority: documentsAuthorityValue]
-        buildConfigField("String",
-                "DOCUMENTS_AUTHORITY",
-                "\"${documentsAuthorityValue}\"")
+        manifestPlaceholders = [documentsAuthority: documentsAuthorityValue]
+        buildConfigField "String", "DOCUMENTS_AUTHORITY", "\"${documentsAuthorityValue}\""
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -58,7 +66,7 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }

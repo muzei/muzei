@@ -14,11 +14,23 @@
   limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="net.nurik.roman.muzei.androidclientcommon">
 
-    <permission android:name="com.google.android.apps.muzei.WRITE_PROVIDER"
-        android:protectionLevel="signature" />
+    <!-- Used to restart jobs listening for MuzeiArtProvider changes on boot -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
+    <permission
+        android:name="com.google.android.apps.muzei.api.ACCESS_PROVIDER"
+        android:protectionLevel="signature"/>
+    <uses-permission android:name="com.google.android.apps.muzei.api.ACCESS_PROVIDER"/>
+
+    <permission
+        android:name="com.google.android.apps.muzei.WRITE_PROVIDER"
+        android:protectionLevel="signature"/>
+    <uses-permission android:name="com.google.android.apps.muzei.WRITE_PROVIDER"/>
 
     <application>
         <provider
@@ -27,11 +39,8 @@
             android:directBootAware="true"
             android:exported="true"
             android:grantUriPermissions="true"
-            android:writePermission="com.google.android.apps.muzei.WRITE_PROVIDER" />
-        <service
-            android:name="com.google.android.apps.muzei.provider.DirectBootCacheJobService"
-            android:exported="true"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
+            android:writePermission="com.google.android.apps.muzei.WRITE_PROVIDER"
+            tools:targetApi="n"/>
         <provider
             android:name="com.google.android.apps.muzei.provider.MuzeiDocumentsProvider"
             android:authorities="${documentsAuthority}"
@@ -39,8 +48,25 @@
             android:exported="true"
             android:permission="android.permission.MANAGE_DOCUMENTS">
             <intent-filter>
-                <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
+                <action android:name="android.content.action.DOCUMENTS_PROVIDER"/>
             </intent-filter>
         </provider>
+
+        <!-- Disable the default WOrkManagerInitializer and create our own -->
+        <provider
+            android:name="androidx.work.impl.WorkManagerInitializer"
+            android:authorities="${applicationId}.workmanager-init"
+            android:exported="false"
+            android:multiprocess="true"
+            android:directBootAware="false"
+            tools:targetApi="n"
+            tools:node="remove"/>
+        <provider
+            android:authorities="${applicationId}.work-init"
+            android:name="com.google.android.apps.muzei.WorkManagerInitializer"
+            android:exported="false"
+            android:multiprocess="true"
+            android:directBootAware="false"
+            tools:targetApi="n"/>
     </application>
 </manifest>

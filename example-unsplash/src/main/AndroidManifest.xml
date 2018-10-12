@@ -1,0 +1,65 @@
+<!--
+  Copyright 2018 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.muzei.unsplash">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <!-- Required by RemoteMuzeiArtSource -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+
+    <application
+        android:allowBackup="true"
+        android:label="@string/app_name"
+        android:icon="@mipmap/source_ic_launcher"
+        tools:ignore="GoogleAppIndexingWarning">
+
+        <service
+            android:name="com.example.muzei.unsplash.UnsplashExampleArtSource"
+            android:label="@string/name"
+            android:description="@string/description"
+            android:icon="@drawable/ic_source"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="com.google.android.apps.muzei.api.MuzeiArtSource"/>
+            </intent-filter>
+            <meta-data
+                android:name="color"
+                android:value="@color/colorPrimary"/>
+            <meta-data
+                android:name="replacement"
+                android:value="${unsplashAuthority}"/>
+        </service>
+
+        <provider
+            android:name="com.example.muzei.unsplash.UnsplashExampleArtProvider"
+            android:authorities="${unsplashAuthority}"
+            android:label="@string/name"
+            android:description="@string/description"
+            android:exported="true"
+            android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER">
+            <intent-filter>
+                <action android:name="com.google.android.apps.muzei.api.MuzeiArtProvider"/>
+            </intent-filter>
+        </provider>
+
+    </application>
+
+</manifest>

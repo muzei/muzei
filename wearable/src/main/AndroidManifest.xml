@@ -13,108 +13,141 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="net.nurik.roman.muzei">
 
-    <uses-feature android:name="android.hardware.type.watch" />
+    <uses-feature android:name="android.hardware.type.watch"/>
 
     <!-- Used by Firebase Analytics -->
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <!-- Required to act as a custom watch face. -->
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA"/>
 
     <!-- Used to restart jobs listening for MuzeiProvider changes on boot -->
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <application
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name">
+        android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
+        tools:ignore="GoogleAppIndexingWarning"
+        tools:targetApi="n">
 
         <activity
-            android:name="com.google.android.apps.muzei.FullScreenActivity"
-            android:enabled="false"
-            android:theme="@style/FullScreenTheme">
+            android:name="com.google.android.apps.muzei.MuzeiActivity"
+            android:theme="@style/MuzeiTheme">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
-        <service android:name="com.google.android.apps.muzei.datalayer.ArtworkChangedListenerService"
-                 tools:ignore="ExportedService">
+        <activity
+            android:name="com.google.android.apps.muzei.FullScreenActivity"
+            android:theme="@style/FullScreenTheme"
+            android:parentActivityName="com.google.android.apps.muzei.MuzeiActivity"/>
+
+        <activity
+            android:name="com.google.android.apps.muzei.ChooseProviderActivity"
+            android:theme="@style/MuzeiTheme"
+            android:parentActivityName="com.google.android.apps.muzei.MuzeiActivity"/>
+
+        <service
+            android:name="com.google.android.apps.muzei.datalayer.ArtworkChangedListenerService"
+            tools:ignore="ExportedService">
             <intent-filter>
-                <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
-                <data android:scheme="wear" android:host="*" android:pathPrefix="/artwork" />
+                <action android:name="com.google.android.gms.wearable.DATA_CHANGED"/>
+                <data
+                    android:scheme="wear"
+                    android:host="*"
+                    android:pathPrefix="/artwork"/>
             </intent-filter>
         </service>
 
-        <service android:name="com.google.android.apps.muzei.datalayer.ArtworkCacheIntentService" />
-
-        <service android:name="com.google.android.apps.muzei.datalayer.DataLayerArtSource"
+        <provider
+            android:name="com.google.android.apps.muzei.datalayer.DataLayerArtProvider"
+            android:authorities="${datalayerAuthority}"
+            android:icon="@drawable/datalayer_ic_launcher"
             android:label="@string/datalayer_source_title"
             android:description="@string/datalayer_source_description"
-            android:icon="@drawable/datalayer_ic_source">
+            android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER">
             <intent-filter>
-                <action android:name="com.google.android.apps.muzei.api.MuzeiArtSource" />
+                <action android:name="com.google.android.apps.muzei.api.MuzeiArtProvider"/>
             </intent-filter>
-            <meta-data android:name="color" android:value="@color/theme_primary" />
-        </service>
+        </provider>
 
         <service
             android:name="com.google.android.apps.muzei.complications.ArtworkComplicationProviderService"
             android:icon="@drawable/ic_complication"
             android:label="@string/complication_artwork_label"
-            android:enabled="false"
-            tools:ignore="ExportedService">
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
             <intent-filter>
-                <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST" />
+                <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
             </intent-filter>
 
             <meta-data
                 android:name="android.support.wearable.complications.SUPPORTED_TYPES"
-                android:value="LONG_TEXT,SMALL_IMAGE,LARGE_IMAGE" />
+                android:value="LONG_TEXT,SMALL_IMAGE,LARGE_IMAGE"/>
             <meta-data
                 android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
-                android:value="0" />
+                android:value="0"/>
         </service>
-        <service
-            android:name="com.google.android.apps.muzei.complications.ArtworkComplicationJobService"
-            android:exported="true"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
-        <receiver
-            android:name="com.google.android.apps.muzei.complications.ArtworkComplicationBootReceiver"
-            android:enabled="false">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
 
         <service
             android:name="com.google.android.apps.muzei.MuzeiWatchFace"
-            android:permission="android.permission.BIND_WALLPAPER" >
+            android:permission="android.permission.BIND_WALLPAPER">
             <meta-data
                 android:name="android.service.wallpaper"
-                android:resource="@xml/watch_face" />
+                android:resource="@xml/watch_face"/>
             <meta-data
                 android:name="com.google.android.wearable.watchface.preview"
-                android:resource="@drawable/preview" />
+                android:resource="@drawable/preview"/>
             <meta-data
                 android:name="com.google.android.wearable.watchface.preview_circular"
-                android:resource="@drawable/preview_circular" />
+                android:resource="@drawable/preview_circular"/>
+            <meta-data
+                android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
+                android:value="com.google.android.apps.muzei.CONFIG_WATCH_FACE"/>
+
             <intent-filter>
-                <action android:name="android.service.wallpaper.WallpaperService" />
-                <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE" />
+                <action android:name="android.service.wallpaper.WallpaperService"/>
+                <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE"/>
             </intent-filter>
         </service>
 
-        <service android:name="com.google.android.apps.muzei.datalayer.ActivateMuzeiIntentService" />
-        <activity android:name="android.support.wearable.activity.ConfirmationActivity" />
+        <activity
+            android:name="com.google.android.apps.muzei.ConfigActivity"
+            android:theme="@style/MuzeiTheme">
+            <intent-filter>
+                <action android:name="com.google.android.apps.muzei.CONFIG_WATCH_FACE"/>
+
+                <category android:name="com.google.android.wearable.watchface.category.WEARABLE_CONFIGURATION"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:name="android.support.wearable.complications.ComplicationHelperActivity"/>
+
+        <service android:name="com.google.android.apps.muzei.datalayer.ActivateMuzeiIntentService"/>
+
+        <service
+            android:name="com.google.android.apps.muzei.datalayer.CapabilityListenerService"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.CAPABILITY_CHANGED" />
+                <data android:host="*" android:scheme="wear"
+                      android:path="/activate_muzei"/>
+            </intent-filter>
+        </service>
+
+        <activity android:name="android.support.wearable.activity.ConfirmationActivity"/>
 
         <meta-data
             android:name="com.google.android.wearable.standalone"
-            android:value="false" />
+            android:value="true"/>
     </application>
 </manifest>

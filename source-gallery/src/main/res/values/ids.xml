@@ -15,5 +15,6 @@
   -->
 
 <resources>
-    <item type="id" name="gallery_viewtag_position" />
+    <item type="id" name="gallery_viewtag_previously_visible"/>
+    <item type="id" name="gallery_viewtag_position"/>
 </resources>

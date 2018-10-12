@@ -15,6 +15,29 @@
  */
 
 buildscript {
+    ext {
+        compileSdkVersion = 28
+        targetSdkVersion = 25
+
+        kotlinVersion = "1.2.71"
+        coroutinesVersion = "0.26.1"
+        ktxVersion = "0.3"
+        supportLibraryVersion = "28.0.0"
+        constraintLayoutVersion = "1.1.3"
+        lifecycleVersion = "1.1.1"
+        roomVersion = "1.1.1"
+        pagingVersion = "1.0.1"
+        navigationVersion = "1.0.0-alpha06"
+        workManagerVersion = "1.0.0-alpha10"
+        playServicesWearableVersion = "16.0.1"
+        firebaseCoreVersion = "16.0.4"
+        firebasePerfVersion = "16.1.2"
+        crashlyticsVersion = "2.9.5"
+        wearableVersion = "2.3.0"
+        okhttpVersion = "3.10.0"
+        picassoVersion = "2.71828"
+    }
+
     repositories {
         jcenter()
         google()
@@ -23,10 +46,12 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.1'
-        classpath 'com.google.gms:google-services:3.1.0'
-        classpath 'io.fabric.tools:gradle:1.24.4'
-        classpath 'com.google.firebase:firebase-plugins:1.1.1'
+        classpath 'com.android.tools.build:gradle:3.2.1'
+        classpath "com.google.gms:google-services:4.0.2"
+        classpath "io.fabric.tools:gradle:1.25.4"
+        classpath "com.google.firebase:firebase-plugins:1.1.5"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath "android.arch.navigation:navigation-safe-args-gradle-plugin:$navigationVersion"
     }
 }
 
@@ -35,20 +60,4 @@ allprojects {
         jcenter()
         google()
     }
-}
-
-ext {
-    compileSdkVersion = 27
-    targetSdkVersion = 25
-
-    supportLibraryVersion = "27.0.2"
-    constraintLayoutVersion = "1.0.2"
-    lifecycleVersion = "1.0.0"
-    roomVersion = "1.0.0"
-    pagingVersion = "1.0.0-alpha4-1"
-    googlePlayServicesVersion = "11.8.0"
-    crashlyticsVersion = "2.8.0"
-    wearableVersion = "2.1.0"
-    okhttpVersion = "3.9.1"
-    picassoVersion = "2.5.2"
 }

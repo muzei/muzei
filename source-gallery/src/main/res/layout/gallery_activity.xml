@@ -13,14 +13,16 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <android.support.v7.widget.RecyclerView android:id="@+id/photo_grid"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/photo_grid"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
@@ -32,7 +34,7 @@
         android:drawSelectorOnTop="true"
         android:horizontalSpacing="@dimen/gallery_chosen_photo_grid_spacing"
         android:verticalSpacing="@dimen/gallery_chosen_photo_grid_spacing"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -44,22 +46,25 @@
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
             app:title="@string/gallery_title"
-            app:layout_scrollFlags="scroll|enterAlways" />
+            app:layout_scrollFlags="scroll|enterAlways"/>
 
     </android.support.design.widget.AppBarLayout>
 
-    <FrameLayout android:id="@android:id/empty"
+    <FrameLayout
+        android:id="@android:id/empty"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="32dp"
             android:layout_gravity="center"
             android:gravity="center">
 
-            <ViewAnimator android:id="@+id/empty_animator"
+            <ViewAnimator
+                android:id="@+id/empty_animator"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -67,7 +72,7 @@
 
                 <com.google.android.apps.muzei.gallery.GalleryEmptyStateGraphicView
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"/>
 
                 <Button
                     android:id="@+id/gallery_enable_random"
@@ -84,7 +89,8 @@
                     style="@style/Widget.AppCompat.Button.Colored"/>
             </ViewAnimator>
 
-            <TextView android:id="@+id/empty_description"
+            <TextView
+                android:id="@+id/empty_description"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -99,7 +105,8 @@
                 tools:targetApi="M"/>
         </LinearLayout>
 
-        <TextView android:layout_width="wrap_content"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center_horizontal"
             android:layout_marginBottom="88dp"
@@ -107,7 +114,7 @@
             android:fontFamily="sans-serif-condensed"
             android:textStyle="italic"
             android:textColor="@color/gallery_theme_dark"
-            android:text="@string/gallery_empty_subtitle" />
+            android:text="@string/gallery_empty_subtitle"/>
 
     </FrameLayout>
 
@@ -165,7 +172,7 @@
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
             app:title="@string/gallery_title"
-            app:navigationIcon="?attr/homeAsUpIndicator" />
+            app:navigationIcon="?attr/homeAsUpIndicator"/>
 
     </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>

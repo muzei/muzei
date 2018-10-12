@@ -19,6 +19,6 @@
     <foreground>
         <inset
             android:drawable="@drawable/ic_shortcut_artwork_info_foreground"
-            android:inset="9.26%" /> <!-- 10dp padding on each side of 108dp asset -->
+            android:inset="9.26%"/> <!-- 10dp padding on each side of 108dp asset -->
     </foreground>
 </adaptive-icon>

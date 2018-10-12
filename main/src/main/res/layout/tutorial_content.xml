@@ -14,14 +14,16 @@
   limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center">
 
-    <RelativeLayout android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:layout_marginTop="@dimen/tutorial_content_margin">
@@ -30,7 +32,7 @@
             android:id="@+id/tutorial_icon_emanate"
             android:layout_width="144dp"
             android:layout_height="144dp"
-            android:layout_centerInParent="true" />
+            android:layout_centerInParent="true"/>
 
         <FrameLayout
             android:id="@+id/tutorial_icon_affordance"
@@ -44,14 +46,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/app_name"
-                android:src="@drawable/tutorial_icon" />
+                android:src="@drawable/tutorial_icon"/>
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:duplicateParentState="true"
                 android:stateListAnimator="@animator/tutorial_icon_overlay_state_list"
-                android:src="@drawable/tutorial_icon_on_overlay" />
+                android:src="@drawable/tutorial_icon_on_overlay"/>
         </FrameLayout>
 
         <com.google.android.apps.muzei.util.ShadowDipsTextView
@@ -70,7 +72,7 @@
             app:shadowDx="0dp"
             app:shadowDy="1dp"
             app:shadowRadius="3dp"
-            android:text="@string/app_name" />
+            android:text="@string/app_name"/>
 
     </RelativeLayout>
 
@@ -89,7 +91,7 @@
         app:shadowDx="0dp"
         app:shadowDy="1dp"
         app:shadowRadius="3dp"
-        android:text="@string/tutorial_main" />
+        android:text="@string/tutorial_main"/>
 
     <com.google.android.apps.muzei.util.ShadowDipsTextView
         android:id="@+id/tutorial_sub_text"
@@ -105,6 +107,6 @@
         app:shadowDx="0dp"
         app:shadowDy="1dp"
         app:shadowRadius="3dp"
-        android:text="@string/tutorial_subtitle" />
+        android:text="@string/tutorial_subtitle"/>
 
 </LinearLayout>

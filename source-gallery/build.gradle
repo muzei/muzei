@@ -15,22 +15,32 @@
  */
 
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 dependencies {
-    implementation project(':api')
-    implementation "com.squareup.okhttp3:okhttp:$rootProject.ext.okhttpVersion"
-    implementation "com.squareup.picasso:picasso:$rootProject.ext.picassoVersion"
-    implementation "com.android.support:appcompat-v7:$rootProject.ext.supportLibraryVersion"
-    implementation "com.android.support:design:$rootProject.ext.supportLibraryVersion"
-    implementation "com.android.support:recyclerview-v7:$rootProject.ext.supportLibraryVersion"
-    implementation "com.android.support.constraint:constraint-layout:$rootProject.ext.constraintLayoutVersion"
-    implementation "com.android.support:exifinterface:$rootProject.ext.supportLibraryVersion"
-    api "android.arch.lifecycle:extensions:$rootProject.ext.lifecycleVersion"
-    annotationProcessor "android.arch.lifecycle:compiler:$rootProject.ext.lifecycleVersion"
-    api "android.arch.persistence.room:runtime:$rootProject.ext.roomVersion"
-    annotationProcessor "android.arch.persistence.room:compiler:$rootProject.ext.roomVersion"
-    implementation "android.arch.paging:runtime:$rootProject.ext.pagingVersion"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
+    implementation "androidx.core:core-ktx:$rootProject.ext.ktxVersion"
+    implementation project(':muzei-api')
+    implementation project(':extensions')
+    implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
+    implementation "com.squareup.picasso:picasso:$picassoVersion"
+    implementation "com.android.support:appcompat-v7:$supportLibraryVersion"
+    implementation "com.android.support:design:$supportLibraryVersion"
+    implementation "com.android.support:recyclerview-v7:$supportLibraryVersion"
+    implementation "com.android.support.constraint:constraint-layout:$constraintLayoutVersion"
+    implementation "com.android.support:exifinterface:$supportLibraryVersion"
+    implementation "android.arch.lifecycle:livedata:$lifecycleVersion"
+    implementation "android.arch.lifecycle:viewmodel:$lifecycleVersion"
+    implementation "android.arch.persistence.room:runtime:$roomVersion"
+    implementation "android.arch.work:work-runtime-ktx:$workManagerVersion"
+    kapt "android.arch.persistence.room:compiler:$roomVersion"
+    implementation "android.arch.paging:runtime:$pagingVersion"
 }
+
+kotlin.experimental.coroutines "enable"
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -40,8 +50,11 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
 
         def galleryAuthorityValue = "com.google.android.apps.muzei.gallery"
-        manifestPlaceholders = [galleryAuthority : galleryAuthorityValue]
+        def galleryArtAuthorityValue = "com.google.android.apps.muzei.gallery.art"
+        manifestPlaceholders = [galleryAuthority: galleryAuthorityValue,
+                                galleryArtAuthority: galleryArtAuthorityValue]
         buildConfigField "String", "GALLERY_AUTHORITY", "\"${galleryAuthorityValue}\""
+        buildConfigField "String", "GALLERY_ART_AUTHORITY", "\"${galleryArtAuthorityValue}\""
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -57,7 +70,7 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }

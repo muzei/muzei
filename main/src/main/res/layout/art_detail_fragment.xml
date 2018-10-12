@@ -20,16 +20,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <View
+        android:id="@+id/art_detail_scrim"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"/>
+
     <com.google.android.apps.muzei.util.PanScaleProxyView
         android:id="@+id/pan_scale_proxy"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"/>
 
-    <FrameLayout android:layout_width="match_parent"
+    <FrameLayout
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/image_loading_container"
         android:clickable="true"
-        android:background="@drawable/art_detail_gradient_background"
+        android:background="@color/art_detail_loading_background"
         android:visibility="gone"
         android:alpha="0">
 
@@ -37,52 +43,12 @@
             android:id="@+id/image_loading_indicator"
             android:layout_width="132dp"
             android:layout_height="88dp"
-            android:layout_gravity="center" />
+            android:layout_gravity="center"/>
 
     </FrameLayout>
 
-    <FrameLayout android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/image_error_container"
-        android:clickable="true"
-        android:orientation="vertical"
-        android:background="@drawable/art_detail_gradient_background"
-        android:visibility="gone"
-        android:alpha="0">
-
-        <TextView android:id="@+id/error_easter_egg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|center_horizontal"
-            android:fontFamily="sans-serif-condensed"
-            android:textStyle="italic"
-            android:textSize="16sp"
-            android:layout_marginTop="32dp"
-            android:layout_marginStart="48dp"
-            android:layout_marginEnd="48dp"
-            android:textColor="#cfff"
-            android:text="@string/error_easter_egg"/>
-
-        <Button android:id="@+id/image_error_retry_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="?selectableItemBackground"
-            android:paddingTop="24dp"
-            android:paddingStart="24dp"
-            android:paddingEnd="24dp"
-            android:paddingBottom="16dp"
-            android:drawableTop="@drawable/grumpy_mcpuzzles"
-            android:text="@string/retry"
-            android:drawablePadding="8dp"
-            android:textSize="22sp"
-            android:fontFamily="sans-serif-condensed"
-            android:textStyle="italic"
-            android:textColor="#fff" />
-
-    </FrameLayout>
-
-    <LinearLayout android:id="@+id/chrome_container"
+    <LinearLayout
+        android:id="@+id/chrome_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="bottom"
@@ -90,12 +56,14 @@
         android:orientation="horizontal"
         android:fitsSystemWindows="true">
 
-        <FrameLayout android:layout_width="0dp"
+        <FrameLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:paddingTop="64dp"> <!-- extend gradient -->
 
-            <LinearLayout android:id="@+id/metadata"
+            <LinearLayout
+                android:id="@+id/metadata"
                 android:clickable="true"
                 android:focusable="true"
                 android:background="?selectableItemBackground"
@@ -117,7 +85,7 @@
                     android:paddingStart="@dimen/art_detail_metadata_margin"
                     android:layout_marginBottom="@dimen/art_detail_attribution_title_margin"
                     android:paddingTop="@dimen/art_detail_metadata_margin"
-                    android:paddingEnd="@dimen/art_detail_metadata_margin" />
+                    android:paddingEnd="@dimen/art_detail_metadata_margin"/>
 
                 <com.google.android.apps.muzei.util.ShadowDipsTextView
                     android:id="@+id/title"
@@ -133,7 +101,7 @@
                     android:layout_marginBottom="@dimen/art_detail_title_byline_margin"
                     android:paddingTop="@dimen/art_detail_metadata_margin"
                     android:paddingStart="@dimen/art_detail_metadata_margin"
-                    android:paddingEnd="@dimen/art_detail_metadata_margin" />
+                    android:paddingEnd="@dimen/art_detail_metadata_margin"/>
 
                 <com.google.android.apps.muzei.util.ShadowDipsTextView
                     android:id="@+id/byline"
@@ -147,27 +115,25 @@
                     app:shadowRadius="3dp"
                     android:paddingStart="@dimen/art_detail_metadata_margin"
                     android:paddingBottom="@dimen/art_detail_metadata_margin_bottom"
-                    android:paddingEnd="@dimen/art_detail_metadata_margin" />
+                    android:paddingEnd="@dimen/art_detail_metadata_margin"/>
 
             </LinearLayout>
         </FrameLayout>
 
-        <ImageButton android:id="@+id/next_button"
+        <ImageButton
+            android:id="@+id/next_button"
             android:layout_width="@dimen/art_detail_button_width"
             android:layout_height="@dimen/art_detail_button_height"
             android:background="?selectableItemBackgroundBorderless"
             android:src="@drawable/ic_skip"
             android:scaleType="center"
             android:contentDescription="@string/action_next_artwork"
-            android:visibility="gone" />
+            android:visibility="gone"/>
 
-        <ImageButton android:id="@+id/overflow_button"
-            android:layout_width="@dimen/art_detail_button_width"
-            android:layout_height="@dimen/art_detail_button_height"
-            android:background="?selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_overflow"
-            android:scaleType="center"
-            android:contentDescription="@string/contentdesc_overflow" />
+        <android.support.v7.widget.ActionMenuView
+            android:id="@+id/overflow_menu_view"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/art_detail_button_height"/>
 
     </LinearLayout>
 

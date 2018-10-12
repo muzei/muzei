@@ -15,14 +15,14 @@
   -->
 
 <resources>
-    <item type="id" name="source_action_1" />
-    <item type="id" name="source_action_2" />
-    <item type="id" name="source_action_3" />
-    <item type="id" name="source_action_4" />
-    <item type="id" name="source_action_5" />
-    <item type="id" name="source_action_6" />
-    <item type="id" name="source_action_7" />
-    <item type="id" name="source_action_8" />
-    <item type="id" name="source_action_9" />
-    <item type="id" name="source_action_10" />
+    <item type="id" name="source_action_1"/>
+    <item type="id" name="source_action_2"/>
+    <item type="id" name="source_action_3"/>
+    <item type="id" name="source_action_4"/>
+    <item type="id" name="source_action_5"/>
+    <item type="id" name="source_action_6"/>
+    <item type="id" name="source_action_7"/>
+    <item type="id" name="source_action_8"/>
+    <item type="id" name="source_action_9"/>
+    <item type="id" name="source_action_10"/>
 </resources>

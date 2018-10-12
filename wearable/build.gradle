@@ -15,6 +15,8 @@
  */
 
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'io.fabric'
 
@@ -29,10 +31,14 @@ android {
     defaultConfig {
         applicationId "net.nurik.roman.muzei"
         minSdkVersion 23
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        targetSdkVersion 28
 
         versionName versionProps['name']
         versionCode versionProps['codeWear'].toInteger()
+
+        def datalayerAuthorityValue = "com.google.android.apps.muzei.datalayer"
+        manifestPlaceholders = [datalayerAuthority: datalayerAuthorityValue]
+        buildConfigField "String", "DATA_LAYER_AUTHORITY", "\"${datalayerAuthorityValue}\""
 
         buildConfigField "String", "DEVICE_TYPE", "\"wear\""
     }
@@ -71,27 +77,37 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
+kotlin.experimental.coroutines "enable"
+
 dependencies {
-    implementation "com.android.support:support-compat:$rootProject.ext.supportLibraryVersion"
-    implementation "com.android.support:exifinterface:$rootProject.ext.supportLibraryVersion"
-    implementation "com.android.support:wear:$rootProject.ext.supportLibraryVersion"
-    compileOnly "com.google.android.wearable:wearable:$rootProject.ext.wearableVersion"
-    implementation "com.google.android.support:wearable:$rootProject.ext.wearableVersion"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
+    implementation "androidx.core:core-ktx:$rootProject.ext.ktxVersion"
+    implementation "android.arch.work:work-runtime-ktx:$workManagerVersion"
+    implementation "com.android.support:support-compat:$supportLibraryVersion"
+    implementation "com.android.support:exifinterface:$supportLibraryVersion"
+    implementation "com.android.support:wear:$supportLibraryVersion"
+    compileOnly "com.google.android.wearable:wearable:$wearableVersion"
+    implementation "com.google.android.support:wearable:$wearableVersion"
     // Only used because other dependencies depend on an old version of the Support Library
-    implementation "com.android.support:support-v4:$rootProject.ext.supportLibraryVersion"
+    implementation "com.android.support:support-v4:$supportLibraryVersion"
+    implementation "com.android.support:percent:$supportLibraryVersion"
 
-    implementation "com.google.android.gms:play-services-wearable:$rootProject.ext.googlePlayServicesVersion"
-    implementation "com.google.firebase:firebase-core:$rootProject.ext.googlePlayServicesVersion"
-    implementation "com.google.firebase:firebase-perf:$rootProject.ext.googlePlayServicesVersion"
-    implementation "com.crashlytics.sdk.android:crashlytics:$rootProject.ext.crashlyticsVersion"
+    implementation "com.google.android.gms:play-services-wearable:$playServicesWearableVersion"
+    implementation "com.google.firebase:firebase-core:$firebaseCoreVersion"
+    implementation "com.google.firebase:firebase-perf:$firebasePerfVersion"
+    implementation "com.crashlytics.sdk.android:crashlytics:$crashlyticsVersion"
 
-    implementation project(':api')
+    implementation project(':muzei-api')
+    implementation project(':extensions')
     implementation project(':android-client-common')
+    implementation project(':source-featured-art')
 }
 
 apply plugin: 'com.google.gms.google-services'

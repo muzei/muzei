@@ -23,7 +23,7 @@
         android:repeatMode="restart"
         android:valueFrom="0.4"
         android:valueTo="0"
-        android:valueType="floatType" />
+        android:valueType="floatType"/>
     <objectAnimator
         android:duration="@integer/tutorial_icon_emanate_duration"
         android:interpolator="@anim/tutorial_icon_emanate_interpolator"
@@ -32,5 +32,5 @@
         android:repeatMode="restart"
         android:valueFrom="15"
         android:valueTo="0"
-        android:valueType="floatType" />
+        android:valueType="floatType"/>
 </set>

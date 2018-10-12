@@ -14,7 +14,8 @@
   limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -25,13 +26,13 @@
         android:layout_height="match_parent"
         android:background="@android:color/black"
         android:scaleType="centerCrop"
-        tools:ignore="ContentDescription" />
+        tools:ignore="ContentDescription"/>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/widget_scrim_height"
         android:layout_gravity="bottom"
-        android:background="@drawable/widget_scrim" />
+        android:background="@drawable/widget_scrim"/>
 
     <ImageButton
         android:id="@+id/widget_next_artwork"
@@ -41,5 +42,5 @@
         android:background="@drawable/white_selectable_item_background"
         android:contentDescription="@string/action_next_artwork"
         android:padding="@dimen/widget_padding"
-        android:src="@drawable/ic_skip" />
+        android:src="@drawable/ic_skip"/>
 </FrameLayout>

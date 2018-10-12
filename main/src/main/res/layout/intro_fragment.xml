@@ -14,27 +14,31 @@
   limitations under the License.
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/intro_container"
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
-    <fragment android:name="com.google.android.apps.muzei.render.MuzeiRendererFragment"
+    <fragment
+        android:name="com.google.android.apps.muzei.render.MuzeiRendererFragment"
         android:id="@+id/demo_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"/>
 
-    <View android:layout_height="match_parent"
+    <View
+        android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:background="@drawable/intro_background_protection" />
+        android:background="@drawable/intro_background_protection"/>
 
     <FrameLayout
         android:id="@+id/animated_logo_fragment"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:layout_centerInParent="true" />
+        android:layout_centerInParent="true"/>
 
-    <Button android:background="@drawable/white_circle_button"
+    <Button
+        android:background="@drawable/white_circle_button"
         android:layout_height="@dimen/intro_activate_button_size"
         android:layout_width="@dimen/intro_activate_button_size"
         android:layout_below="@id/animated_logo_fragment"
@@ -46,7 +50,7 @@
         android:textStyle="bold"
         android:textSize="18sp"
         android:textColor="#333"
-        android:id="@+id/activate_muzei_button" />
+        android:id="@+id/activate_muzei_button"/>
 
 </RelativeLayout>
 

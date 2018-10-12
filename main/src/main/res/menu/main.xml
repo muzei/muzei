@@ -20,7 +20,7 @@
         android:title="@string/app_name"
         android:icon="@drawable/ic_stat_muzei"/>
     <item
-        android:id="@+id/main_choose_source"
+        android:id="@+id/main_choose_provider"
         android:title="@string/section_choose_source"
         android:icon="@drawable/ic_main_choose_source"/>
     <item

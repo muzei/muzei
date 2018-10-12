@@ -14,41 +14,15 @@
   limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:title="@string/gallery_action_rotate_interval"
-        android:icon="@drawable/gallery_ic_action_rotate_interval"
-        app:showAsAction="ifRoom">
-        <menu>
-            <group android:checkableBehavior="single">
-                <item
-                    android:id="@+id/action_rotate_interval_none"
-                    android:title="@string/gallery_action_rotate_interval_none" />
-                <item
-                    android:id="@+id/action_rotate_interval_1h"
-                    android:title="@string/gallery_action_rotate_interval_1h" />
-                <item
-                    android:id="@+id/action_rotate_interval_3h"
-                    android:title="@string/gallery_action_rotate_interval_3h" />
-                <item
-                    android:id="@+id/action_rotate_interval_6h"
-                    android:title="@string/gallery_action_rotate_interval_6h" />
-                <item
-                    android:id="@+id/action_rotate_interval_24h"
-                    android:title="@string/gallery_action_rotate_interval_24h" />
-                <item
-                    android:id="@+id/action_rotate_interval_72h"
-                    android:title="@string/gallery_action_rotate_interval_72h" />
-            </group>
-        </menu>
-    </item>
-    <item
         android:id="@+id/action_import_photos"
-        android:title="@string/gallery_action_import_photos" />
+        android:title="@string/gallery_action_import_photos"/>
     <item
         android:id="@+id/action_clear_photos"
         android:title="@string/gallery_action_clear_photos"
         android:orderInCategory="10000"
-        app:showAsAction="never" />
+        app:showAsAction="never"/>
 </menu>

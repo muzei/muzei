@@ -1,0 +1,67 @@
+<!--
+  Copyright 2018 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@id/main_art_details">
+
+    <fragment
+        android:id="@+id/main_art_details"
+        android:name="com.google.android.apps.muzei.ArtDetailFragment"
+        android:label="ArtDetailFragment"
+        tools:layout="@layout/art_detail_fragment">
+        <action
+            android:id="@+id/gestures"
+            app:destination="@+id/gestures_fragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+    </fragment>
+    <fragment
+        android:id="@+id/gestures_fragment"
+        android:name="com.google.android.apps.muzei.settings.GesturesFragment"
+        android:label="@string/gestures_title"
+        tools:layout="@layout/gestures_fragment"/>
+    <fragment
+        android:id="@+id/main_choose_provider"
+        android:name="com.google.android.apps.muzei.ChooseProviderFragment"
+        android:label="@string/section_choose_source"
+        tools:layout="@layout/choose_provider_fragment">
+        <action
+            android:id="@+id/browse"
+            app:destination="@+id/browse_provider"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+    </fragment>
+    <fragment
+        android:id="@+id/browse_provider"
+        android:name="com.google.android.apps.muzei.browse.BrowseProviderFragment"
+        tools:layout="@layout/browse_provider_fragment">
+        <argument
+            android:name="contentUri"
+            app:argType="android.net.Uri"/>
+    </fragment>
+    <fragment
+        android:id="@+id/main_effects"
+        android:name="com.google.android.apps.muzei.settings.EffectsFragment"
+        android:label="@string/section_effects"
+        tools:layout="@layout/effects_fragment"/>
+</navigation>

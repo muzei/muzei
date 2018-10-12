@@ -15,12 +15,24 @@
  */
 
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 dependencies {
-    implementation project(':api')
-    implementation "com.squareup.okhttp3:okhttp:$rootProject.ext.okhttpVersion"
-    implementation "com.android.support:customtabs:$rootProject.ext.supportLibraryVersion"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
+    implementation "androidx.core:core-ktx:$rootProject.ext.ktxVersion"
+    implementation ("android.arch.work:work-runtime-ktx:$workManagerVersion") {
+        exclude module: 'support-fragment'
+    }
+    implementation project(':muzei-api')
+    implementation project(':extensions')
+    implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
+    implementation "com.android.support:customtabs:$supportLibraryVersion"
 }
+
+kotlin.experimental.coroutines "enable"
 
 android {
     resourcePrefix 'featuredart_'
@@ -28,8 +40,12 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     defaultConfig {
-        minSdkVersion 18
+        minSdkVersion 19
         targetSdkVersion rootProject.ext.targetSdkVersion
+
+        def featuredArtAuthorityValue = "com.google.android.apps.muzei.featuredart"
+        manifestPlaceholders = [featuredArtAuthority: featuredArtAuthorityValue]
+        buildConfigField "String", "FEATURED_ART_AUTHORITY", "\"${featuredArtAuthorityValue}\""
     }
 
     buildTypes {
@@ -38,7 +54,7 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
