@@ -16,7 +16,9 @@
 
 package com.google.android.apps.muzei.datalayer
 
+import android.content.ComponentName
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.Log
 import androidx.work.OneTimeWorkRequestBuilder
@@ -95,6 +97,13 @@ class DataLayerLoadWorker(
             } finally {
                 result.release()
             }
+            // While CapabilityListenerService should be enabling the
+            // DataLayerArtProvider on install, there's no strict ordering
+            // between the two so we enable it here as well
+            applicationContext.packageManager.setComponentEnabledSetting(
+                    ComponentName(applicationContext, DataLayerArtProvider::class.java),
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                    PackageManager.DONT_KILL_APP)
             val artwork = dataMap.getDataMap("artwork").toArtwork()
             val artworkUri = ProviderContract.Artwork.setArtwork(applicationContext,
                     DATA_LAYER_AUTHORITY, artwork)
