@@ -57,7 +57,7 @@ class FeaturedArtWorker(
         private const val TAG = "FeaturedArtWorker"
         private const val PREF_NEXT_UPDATE_MILLIS = "next_update_millis"
 
-        private const val QUERY_URL = "http://muzeiapi.appspot.com/featured?cachebust=1"
+        private const val QUERY_URL = "https://muzeiapi.appspot.com/featured?cachebust=1"
 
         private const val KEY_IMAGE_URI = "imageUri"
         private const val KEY_TITLE = "title"
