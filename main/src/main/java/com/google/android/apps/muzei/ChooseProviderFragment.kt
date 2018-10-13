@@ -26,6 +26,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.support.v4.app.Fragment
+import android.support.v4.view.GravityCompat
 import android.support.v4.view.ViewCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.recyclerview.extensions.ListAdapter
@@ -34,7 +35,6 @@ import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.Toolbar
 import android.text.TextUtils
 import android.util.Log
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -115,12 +115,12 @@ class ChooseProviderFragment : Fragment() {
         toolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.auto_advance_settings -> {
-                    if (drawerLayout.isDrawerOpen(Gravity.END)) {
-                        drawerLayout.closeDrawer(Gravity.END)
+                    if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
+                        drawerLayout.closeDrawer(GravityCompat.END)
                     } else {
                         FirebaseAnalytics.getInstance(requireContext()).logEvent(
                                 "auto_advance_open", null)
-                        drawerLayout.openDrawer(Gravity.END)
+                        drawerLayout.openDrawer(GravityCompat.END)
                     }
                     true
                 }
@@ -152,10 +152,10 @@ class ChooseProviderFragment : Fragment() {
             toolbar.menu.findItem(R.id.auto_advance_disabled).isVisible = legacySelected
             if (legacySelected) {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
-                        Gravity.END)
+                        GravityCompat.END)
             } else {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED,
-                        Gravity.END)
+                        GravityCompat.END)
             }
         }
 
