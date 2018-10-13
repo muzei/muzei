@@ -37,8 +37,8 @@ import android.support.v4.app.TaskStackBuilder
 import android.support.v4.content.ContextCompat
 import android.util.Log
 import androidx.core.content.edit
-import androidx.core.widget.toast
 import com.google.android.apps.muzei.ChooseProviderActivity
+import com.google.android.apps.muzei.util.toast
 import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.CapabilityClient
 import com.google.android.gms.wearable.CapabilityInfo
@@ -47,7 +47,6 @@ import com.google.android.gms.wearable.Wearable
 import com.google.android.wearable.intent.RemoteIntent
 import com.google.android.wearable.playstore.PlayStoreAvailability
 import com.google.firebase.analytics.FirebaseAnalytics
-import net.nurik.roman.muzei.R
 import java.util.TreeSet
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit

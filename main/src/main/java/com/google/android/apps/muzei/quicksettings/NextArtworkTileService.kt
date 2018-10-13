@@ -31,13 +31,13 @@ import android.service.quicksettings.TileService
 import android.support.annotation.RequiresApi
 import android.widget.Toast
 import androidx.core.os.bundleOf
-import androidx.core.widget.toast
 import com.google.android.apps.muzei.MuzeiWallpaperService
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.sources.SourceManager
 import com.google.android.apps.muzei.sources.allowsNextArtwork
 import com.google.android.apps.muzei.util.observe
+import com.google.android.apps.muzei.util.toast
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.experimental.GlobalScope

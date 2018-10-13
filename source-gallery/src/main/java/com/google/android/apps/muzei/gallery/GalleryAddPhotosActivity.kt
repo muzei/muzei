@@ -6,8 +6,8 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.app.FragmentActivity
 import android.support.v4.app.ShareCompat
 import android.util.Log
-import androidx.core.widget.toast
 import com.google.android.apps.muzei.util.coroutineScope
+import com.google.android.apps.muzei.util.toast
 import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.android.Main
 import kotlinx.coroutines.experimental.launch

@@ -22,11 +22,11 @@ import android.os.Bundle
 import android.support.v4.app.FragmentActivity
 import android.util.Log
 import androidx.core.os.bundleOf
-import androidx.core.widget.toast
 import com.google.android.apps.muzei.single.BuildConfig.SINGLE_AUTHORITY
 import com.google.android.apps.muzei.single.SingleArtProvider
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.coroutineScope
+import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.android.Main

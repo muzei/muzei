@@ -34,7 +34,6 @@ import android.os.Build
 import android.text.TextUtils
 import android.util.Log
 import android.widget.Toast
-import androidx.core.widget.toast
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_SUBSCRIBE
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_SUBSCRIBER_COMPONENT
@@ -49,6 +48,7 @@ import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.goAsync
 import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.util.observeNonNull
+import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.GlobalScope

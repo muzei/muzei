@@ -21,7 +21,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.util.Log
 import android.widget.Toast
-import androidx.core.widget.toast
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.UserCommand
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_HANDLE_COMMAND
@@ -31,6 +30,7 @@ import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.sync.ProviderManager
+import com.google.android.apps.muzei.util.toast
 import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.android.Main

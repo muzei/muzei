@@ -46,7 +46,6 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
-import androidx.core.widget.toast
 import androidx.navigation.fragment.findNavController
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.api.provider.ProviderContract
@@ -54,6 +53,7 @@ import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFra
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.observe
+import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso

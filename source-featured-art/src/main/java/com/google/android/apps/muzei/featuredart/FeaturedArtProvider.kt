@@ -23,10 +23,10 @@ import android.provider.BaseColumns
 import android.support.customtabs.CustomTabsIntent
 import android.support.v4.content.ContextCompat
 import android.util.Log
-import androidx.core.database.getString
 import com.google.android.apps.muzei.api.UserCommand
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
+import com.google.android.apps.muzei.util.getString
 
 class FeaturedArtProvider : MuzeiArtProvider() {
 

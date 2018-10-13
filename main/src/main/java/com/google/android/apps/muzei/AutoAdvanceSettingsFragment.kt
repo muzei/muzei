@@ -35,8 +35,8 @@ import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.core.text.set
 import androidx.core.text.toSpannable
-import androidx.core.widget.toast
 import com.google.android.apps.muzei.sync.ProviderManager
+import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
 

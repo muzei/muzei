@@ -66,11 +66,12 @@ import android.widget.TextView
 import android.widget.Toast
 import android.widget.ViewAnimator
 import androidx.core.content.edit
-import androidx.core.database.getStringOrNull
-import androidx.core.widget.toast
 import com.google.android.apps.muzei.util.MultiSelectionController
 import com.google.android.apps.muzei.util.coroutineScope
+import com.google.android.apps.muzei.util.getString
+import com.google.android.apps.muzei.util.getStringOrNull
 import com.google.android.apps.muzei.util.observe
+import com.google.android.apps.muzei.util.toast
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.GlobalScope
@@ -739,12 +740,12 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                         null, null, null)?.use { children ->
                     while (children.moveToNext()) {
                         val documentId = children.getString(
-                                children.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID))
+                                DocumentsContract.Document.COLUMN_DOCUMENT_ID)
                         val mimeType = children.getString(
-                                children.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE))
+                                DocumentsContract.Document.COLUMN_MIME_TYPE)
                         if (DocumentsContract.Document.MIME_TYPE_DIR == mimeType) {
                             directories.add(documentId)
-                        } else if (mimeType != null && mimeType.startsWith("image/")) {
+                        } else if (mimeType.startsWith("image/")) {
                             // Add images to the list
                             images.add(DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId))
                         }

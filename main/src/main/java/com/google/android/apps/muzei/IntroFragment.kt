@@ -26,9 +26,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.widget.toast
 
 import com.google.android.apps.muzei.util.AnimatedMuzeiLogoFragment
+import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
 
 import net.nurik.roman.muzei.R

@@ -38,10 +38,10 @@ import android.support.v4.content.ContextCompat
 import android.text.TextUtils
 import android.text.format.DateUtils
 import android.util.Log
-import androidx.core.database.getString
 import androidx.core.net.toUri
 import com.google.android.apps.muzei.api.Artwork
 import com.google.android.apps.muzei.api.MuzeiArtSource
+import com.google.android.apps.muzei.util.getString
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import java.io.IOException

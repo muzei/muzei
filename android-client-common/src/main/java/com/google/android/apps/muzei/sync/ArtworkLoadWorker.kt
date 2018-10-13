@@ -23,7 +23,6 @@ import android.net.Uri
 import android.os.RemoteException
 import android.provider.BaseColumns
 import android.util.Log
-import androidx.core.database.getLong
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
@@ -46,6 +45,7 @@ import com.google.android.apps.muzei.render.isValidImage
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
+import com.google.android.apps.muzei.util.getLong
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.runBlocking
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig

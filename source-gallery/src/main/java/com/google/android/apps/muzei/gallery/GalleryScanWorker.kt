@@ -40,6 +40,7 @@ import androidx.work.workDataOf
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.gallery.BuildConfig.GALLERY_ART_AUTHORITY
+import com.google.android.apps.muzei.util.getString
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import java.io.IOException
@@ -172,12 +173,12 @@ class GalleryScanWorker(
                         null, null, null)?.use { children ->
                     while (children.moveToNext()) {
                         val documentId = children.getString(
-                                children.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID))
+                                DocumentsContract.Document.COLUMN_DOCUMENT_ID)
                         val mimeType = children.getString(
-                                children.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE))
+                                DocumentsContract.Document.COLUMN_MIME_TYPE)
                         if (DocumentsContract.Document.MIME_TYPE_DIR == mimeType) {
                             directories.add(documentId)
-                        } else if (mimeType != null && mimeType.startsWith("image/")) {
+                        } else if (mimeType.startsWith("image/")) {
                             // Add images to the list
                             images.add(DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId))
                         }

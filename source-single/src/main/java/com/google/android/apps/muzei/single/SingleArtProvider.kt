@@ -24,11 +24,11 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.util.Log
-import androidx.core.database.getStringOrNull
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.single.BuildConfig.SINGLE_AUTHORITY
+import com.google.android.apps.muzei.util.getStringOrNull
 import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.withContext
 import java.io.File

@@ -28,7 +28,7 @@ import android.support.v4.app.FragmentManager
 import android.support.v7.app.AlertDialog
 import android.widget.Toast
 import androidx.core.content.edit
-import androidx.core.widget.toast
+import com.google.android.apps.muzei.util.toast
 import net.nurik.roman.muzei.R
 
 class NotificationSettingsDialogFragment : DialogFragment() {
