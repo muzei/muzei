@@ -47,6 +47,7 @@ import com.google.android.gms.wearable.Wearable
 import com.google.android.wearable.intent.RemoteIntent
 import com.google.android.wearable.playstore.PlayStoreAvailability
 import com.google.firebase.analytics.FirebaseAnalytics
+import net.nurik.roman.muzei.R
 import java.util.TreeSet
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
