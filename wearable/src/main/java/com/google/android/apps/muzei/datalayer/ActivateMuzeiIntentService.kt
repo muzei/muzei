@@ -201,7 +201,7 @@ class ActivateMuzeiIntentService : IntentService(TAG) {
                         .addCategory(Intent.CATEGORY_BROWSABLE)
                         .setData(Uri.parse("market://details?id=$packageName"))
                 RemoteIntent.startRemoteActivity(this, remoteIntent, object : ResultReceiver(Handler(Looper.getMainLooper())) {
-                    override fun onReceiveResult(resultCode: Int, resultData: Bundle) {
+                    override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
                         if (resultCode == RemoteIntent.RESULT_OK) {
                             FirebaseAnalytics.getInstance(this@ActivateMuzeiIntentService)
                                     .logEvent("activate_notif_install_sent", null)
