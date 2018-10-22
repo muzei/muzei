@@ -144,6 +144,7 @@ class GalleryScanWorker(
             addAllImagesFromTree(allImages, treeUri)
             // Shuffle all the images to give a random initial load order
             allImages.shuffle()
+            val currentTime = System.currentTimeMillis()
             val addedArtwork = allImages.map { uri ->
                 addUri(treeUri, uri)
             }
@@ -152,8 +153,9 @@ class GalleryScanWorker(
             applicationContext.contentResolver.query(
                     contentUri,
                     arrayOf(BaseColumns._ID),
-                    "${ProviderContract.Artwork.METADATA}=?",
-                    arrayOf(treeUri.toString()),
+                    "${ProviderContract.Artwork.METADATA}=? AND " +
+                            "${ProviderContract.Artwork.DATE_MODIFIED}<?",
+                    arrayOf(treeUri.toString(), currentTime.toString()),
                     null)?.use { data ->
                 while (data.moveToNext()) {
                     val artworkUri = ContentUris.withAppendedId(contentUri,
