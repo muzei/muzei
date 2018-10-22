@@ -48,7 +48,7 @@ import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.goAsync
 import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.util.observeNonNull
-import com.google.android.apps.muzei.util.toast
+import com.google.android.apps.muzei.util.toastFromBackground
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.GlobalScope
@@ -416,15 +416,15 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                     .putExtra(EXTRA_TOKEN, selectedSource.flattenToShortString()))
         } catch (e: PackageManager.NameNotFoundException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
-            context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
+            context.toastFromBackground(R.string.source_unavailable, Toast.LENGTH_LONG)
             ProviderManager.select(context, FEATURED_ART_AUTHORITY)
         } catch (e: IllegalStateException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
-            context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
+            context.toastFromBackground(R.string.source_unavailable, Toast.LENGTH_LONG)
             ProviderManager.select(context, FEATURED_ART_AUTHORITY)
         } catch (e: SecurityException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
-            context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
+            context.toastFromBackground(R.string.source_unavailable, Toast.LENGTH_LONG)
             ProviderManager.select(context, FEATURED_ART_AUTHORITY)
         }
     }
