@@ -76,7 +76,13 @@ class GalleryArtProvider: MuzeiArtProvider() {
                 ?: throw FileNotFoundException("All Gallery artwork should have a metadata Uri")
         try {
             return super.openFile(artwork)
-        } catch (e: Exception) {
+        } catch(e: FileNotFoundException) {
+            // If the source image was deleted, we won't be able to access it again
+            throw SecurityException("Source image was deleted: ${e.message}")
+        } catch (e: IOException) {
+            // Just rethrow IOExceptions, assuming they are temporary errors
+            throw e
+        } catch (e: SecurityException) {
             Log.i(TAG, "Unable to load $metadata, deleting the row", e)
             context?.let { context ->
                 GlobalScope.launch {
@@ -85,6 +91,11 @@ class GalleryArtProvider: MuzeiArtProvider() {
                 }
             }
             throw SecurityException("No permission to load $metadata")
+        } catch (e: Exception) {
+            // ContentProviders can throw a lot of crazy errors
+            // We'll mark this as an unrecoverable error, but not delete
+            // our ChosenPhoto record in a hope that it recovers at some point
+            throw SecurityException("Unknown error reading image: ${e.message}")
         }
     }
 }
