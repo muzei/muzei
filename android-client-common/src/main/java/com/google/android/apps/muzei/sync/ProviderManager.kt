@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
 import android.content.BroadcastReceiver
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -88,7 +89,10 @@ class ProviderManager private constructor(private val context: Context)
         }
 
         suspend fun getDescription(context: Context, authority: String): String {
-            val contentUri = Uri.Builder().authority(authority).build()
+            val contentUri = Uri.Builder()
+                    .scheme(ContentResolver.SCHEME_CONTENT)
+                    .authority(authority)
+                    .build()
             return ContentProviderClientCompat.getClient(context, contentUri)?.use { client ->
                 return try {
                     val result = client.call(ProtocolConstants.METHOD_GET_DESCRIPTION)
