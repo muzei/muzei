@@ -17,12 +17,14 @@
 package com.google.android.apps.muzei.gallery
 
 import android.annotation.SuppressLint
+import android.content.ContentProviderOperation
 import android.content.ContentUris
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.net.Uri
 import android.os.Build
+import android.provider.BaseColumns
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.support.annotation.RequiresApi
@@ -142,8 +144,34 @@ class GalleryScanWorker(
             addAllImagesFromTree(allImages, treeUri)
             // Shuffle all the images to give a random initial load order
             allImages.shuffle()
-            for (uri in allImages) {
+            val addedArtwork = allImages.map { uri ->
                 addUri(treeUri, uri)
+            }
+            val contentUri = ProviderContract.Artwork.getContentUri(GALLERY_ART_AUTHORITY)
+            val deleteOperations = ArrayList<ContentProviderOperation>()
+            applicationContext.contentResolver.query(
+                    contentUri,
+                    arrayOf(BaseColumns._ID),
+                    "${ProviderContract.Artwork.METADATA}=?",
+                    arrayOf(treeUri.toString()),
+                    null)?.use { data ->
+                while (data.moveToNext()) {
+                    val artworkUri = ContentUris.withAppendedId(contentUri,
+                            data.getLong(0))
+                    if (!addedArtwork.contains(artworkUri)) {
+                        deleteOperations += ContentProviderOperation
+                                .newDelete(artworkUri)
+                                .build()
+                    }
+                }
+            }
+            if (deleteOperations.isNotEmpty()) {
+                try {
+                    applicationContext.contentResolver.applyBatch(GALLERY_ART_AUTHORITY,
+                            deleteOperations)
+                } catch(e: Exception) {
+                    Log.i(TAG, "Error removing deleted artwork", e)
+                }
             }
         } catch (e: SecurityException) {
             Log.w(TAG, "Unable to load images from $treeUri, deleting row", e)
@@ -238,7 +266,7 @@ class GalleryScanWorker(
         }
     }
 
-    private fun addUri(baseUri: Uri, imageUri: Uri = baseUri, publicWebUri: Uri = imageUri) {
+    private fun addUri(baseUri: Uri, imageUri: Uri = baseUri, publicWebUri: Uri = imageUri): Uri? {
         val imageMetadata = ensureMetadataExists(imageUri)
 
         val artwork = Artwork().apply {
@@ -261,7 +289,7 @@ class GalleryScanWorker(
             }
         }
 
-        ProviderContract.Artwork.addArtwork(applicationContext,
+        return ProviderContract.Artwork.addArtwork(applicationContext,
                 GALLERY_ART_AUTHORITY, artwork)
     }
 
