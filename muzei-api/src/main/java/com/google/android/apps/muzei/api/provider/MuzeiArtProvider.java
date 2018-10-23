@@ -877,6 +877,9 @@ public abstract class MuzeiArtProvider extends ContentProvider {
             }
             artwork = Artwork.fromCursor(data);
         }
+        if (!isArtworkValid(artwork)) {
+            throw new SecurityException("Artwork was marked as invalid by the MuzeiArtProvider");
+        }
         if (!artwork.getData().exists() && mode.equals("r")) {
             // Download the image from the persistent URI for read-only operations
             // rather than throw a FileNotFoundException
@@ -924,6 +927,22 @@ public abstract class MuzeiArtProvider extends ContentProvider {
                 artwork.getData().delete();
             }
         }
+    }
+
+    /**
+     * Called every time an image is loaded (even if there is a cached
+     * image available). This gives you an opportunity to circumvent the
+     * typical loading process and remove previously cached artwork on
+     * demand. The default implementation always returns <code>true</code>.
+     * <p>
+     * In most cases, you should proactively delete Artwork that you know
+     * is not valid rather than wait for this callback since at this point
+     * the user is specifically waiting for the image to appear.
+     * @param artwork The Artwork to confirm
+     * @return Whether the Artwork is valid and should be loaded
+     */
+    public boolean isArtworkValid(@NonNull Artwork artwork) {
+        return true;
     }
 
     /**
