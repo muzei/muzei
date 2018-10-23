@@ -70,6 +70,37 @@ class GalleryArtProvider: MuzeiArtProvider() {
         }
     }
 
+    override fun isArtworkValid(artwork: Artwork): Boolean {
+        val context = context ?: return false
+        val imageUri = artwork.persistentUri ?: return false
+        val cachedFile = GalleryProvider.getCacheFileForUri(
+                context, imageUri)
+        if (cachedFile?.exists() == true) {
+            return true
+        }
+        // It is a URI we have persistent access to.
+        // Check to see if that's still the case
+        return try {
+            context.contentResolver.query(imageUri,
+                    null, null, null, null).use { data ->
+                // Assume if we can access the row, we can access the image itself
+                data?.moveToFirst() == true
+            }
+        } catch (e: SecurityException) {
+            // No access to the underlying image anymore == invalid
+            false
+        } catch (e: Exception) {
+            // Other Exceptions could mean a lot of things.
+            // Delete any cached image and defer to openFile
+            artwork.data.run {
+                if (exists()) {
+                    delete()
+                }
+            }
+            true
+        }
+    }
+
     @Throws(IOException::class)
     override fun openFile(artwork: Artwork): InputStream {
         val metadata = artwork.metadata?.toUri()
