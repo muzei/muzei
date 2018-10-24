@@ -878,6 +878,7 @@ public abstract class MuzeiArtProvider extends ContentProvider {
             artwork = Artwork.fromCursor(data);
         }
         if (!isArtworkValid(artwork)) {
+            onInvalidArtwork(artwork);
             throw new SecurityException("Artwork was marked as invalid by the MuzeiArtProvider");
         }
         if (!artwork.getData().exists() && mode.equals("r")) {
@@ -938,6 +939,10 @@ public abstract class MuzeiArtProvider extends ContentProvider {
      * In most cases, you should proactively delete Artwork that you know
      * is not valid rather than wait for this callback since at this point
      * the user is specifically waiting for the image to appear.
+     * <p>
+     * The MuzeiArtProvider will call {@link #onInvalidArtwork(Artwork)} for you
+     * if you return <code>false</code>false - there is no need to call this
+     * manually from within this method.
      * @param artwork The Artwork to confirm
      * @return Whether the Artwork is valid and should be loaded
      */
