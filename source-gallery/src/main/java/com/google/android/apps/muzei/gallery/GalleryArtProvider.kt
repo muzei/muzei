@@ -86,11 +86,8 @@ class GalleryArtProvider: MuzeiArtProvider() {
                 // Assume if we can access the row, we can access the image itself
                 data?.moveToFirst() == true
             }
-        } catch (e: SecurityException) {
-            // No access to the underlying image anymore == invalid
-            false
         } catch (e: Exception) {
-            // Other Exceptions could mean a lot of things.
+            // An exception could mean a lot of things.
             // Delete any cached image and defer to openFile
             artwork.data.run {
                 if (exists()) {
@@ -110,23 +107,15 @@ class GalleryArtProvider: MuzeiArtProvider() {
         } catch(e: FileNotFoundException) {
             // If the source image was deleted, we won't be able to access it again
             throw SecurityException("Source image was deleted: ${e.message}")
-        } catch (e: IOException) {
-            // Just rethrow IOExceptions, assuming they are temporary errors
-            throw e
         } catch (e: SecurityException) {
-            Log.i(TAG, "Unable to load $metadata, deleting the row", e)
+            Log.i(TAG, "Unable to load artwork, deleting $metadata", e)
             context?.let { context ->
                 GlobalScope.launch {
                     GalleryDatabase.getInstance(context).chosenPhotoDao().delete(
                             context, metadata)
                 }
             }
-            throw SecurityException("No permission to load $metadata")
-        } catch (e: Exception) {
-            // ContentProviders can throw a lot of crazy errors
-            // We'll mark this as an unrecoverable error, but not delete
-            // our ChosenPhoto record in a hope that it recovers at some point
-            throw SecurityException("Unknown error reading image: ${e.message}")
+            throw e
         }
     }
 }

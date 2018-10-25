@@ -879,7 +879,7 @@ public abstract class MuzeiArtProvider extends ContentProvider {
         }
         if (!isArtworkValid(artwork)) {
             onInvalidArtwork(artwork);
-            throw new SecurityException("Artwork was marked as invalid by the MuzeiArtProvider");
+            throw new SecurityException("Artwork " + artwork + " was marked as invalid");
         }
         if (!artwork.getData().exists() && mode.equals("r")) {
             // Download the image from the persistent URI for read-only operations
@@ -899,17 +899,17 @@ public abstract class MuzeiArtProvider extends ContentProvider {
                     out.write(buffer, 0, bytesRead);
                 }
                 out.flush();
-            } catch (IOException | SecurityException e) {
-                Log.e(TAG, "Unable to open artwork " + artwork + " for " + uri, e);
-                if (e instanceof SecurityException) {
-                    delete(uri, null, null);
+            } catch (Exception e) {
+                if (!(e instanceof IOException)) {
+                    Log.e(TAG, "Unable to open artwork " + artwork + " for " + uri, e);
+                    onInvalidArtwork(artwork);
                 }
                 // Delete the file in cases of an error so that we will try again from scratch next time.
                 if (artwork.getData().exists() && !artwork.getData().delete()) {
                     Log.w(TAG, "Error deleting partially downloaded file after error", e);
                 }
                 throw new FileNotFoundException("Could not download artwork " + artwork
-                        + " for " + uri);
+                        + " for " + uri + ": " + e.getMessage());
             }
         }
         return ParcelFileDescriptor.open(artwork.getData(), ParcelFileDescriptor.parseMode(mode));
@@ -962,8 +962,8 @@ public abstract class MuzeiArtProvider extends ContentProvider {
      * <li><code>file:///android_asset/...</code>.</li>
      * <li><code>http://...</code> or <code>https://...</code>.</li>
      * </ul>
-     * Throw a {@link SecurityException} if there is a permanent error that causes the artwork to be
-     * no longer accessible.
+     * Throwing any exception other than an {@link IOException} will be considered a permanent
+     * error that will result in a call to {@link #onInvalidArtwork(Artwork)}.
      *
      * @param artwork The Artwork to open
      * @return A valid {@link InputStream} for the artwork's image
@@ -990,17 +990,7 @@ public abstract class MuzeiArtProvider extends ContentProvider {
         InputStream in = null;
         if (ContentResolver.SCHEME_CONTENT.equals(scheme)
                 || ContentResolver.SCHEME_ANDROID_RESOURCE.equals(scheme)) {
-            try {
-                in = context.getContentResolver().openInputStream(persistentUri);
-            } catch (IOException e) {
-                // Rethrow IOExceptions to retry later
-                throw e;
-            } catch (SecurityException e) {
-                throw new SecurityException("No access to " + persistentUri + ": " + e.toString());
-            } catch (Exception e) {
-                throw new SecurityException("Unknown error accessing " + persistentUri + ": " +
-                        e.toString());
-            }
+            in = context.getContentResolver().openInputStream(persistentUri);
         } else if (ContentResolver.SCHEME_FILE.equals(scheme)) {
             List<String> segments = persistentUri.getPathSegments();
             if (segments != null && segments.size() > 1
