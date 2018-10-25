@@ -19,11 +19,8 @@ package com.google.android.apps.muzei.gallery
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.util.Log
-import androidx.core.net.toUri
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.launch
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
@@ -100,22 +97,11 @@ class GalleryArtProvider: MuzeiArtProvider() {
 
     @Throws(IOException::class)
     override fun openFile(artwork: Artwork): InputStream {
-        val metadata = artwork.metadata?.toUri()
-                ?: throw FileNotFoundException("All Gallery artwork should have a metadata Uri")
         try {
             return super.openFile(artwork)
         } catch(e: FileNotFoundException) {
             // If the source image was deleted, we won't be able to access it again
             throw SecurityException("Source image was deleted: ${e.message}")
-        } catch (e: SecurityException) {
-            Log.i(TAG, "Unable to load artwork, deleting $metadata", e)
-            context?.let { context ->
-                GlobalScope.launch {
-                    GalleryDatabase.getInstance(context).chosenPhotoDao().delete(
-                            context, metadata)
-                }
-            }
-            throw e
         }
     }
 }
