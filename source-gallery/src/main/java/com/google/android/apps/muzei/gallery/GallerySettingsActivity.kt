@@ -66,13 +66,14 @@ import android.widget.TextView
 import android.widget.Toast
 import android.widget.ViewAnimator
 import androidx.core.content.edit
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.apps.muzei.util.MultiSelectionController
 import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.getString
 import com.google.android.apps.muzei.util.getStringOrNull
 import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.util.toast
-import com.squareup.picasso.Picasso
 import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.android.Main
@@ -656,11 +657,11 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             for (h in 0 until numImages) {
                 val thumbView = vh.thumbViews[h]
                 thumbView.visibility = View.VISIBLE
-                Picasso.get()
+                Glide.with(this@GallerySettingsActivity)
                         .load(images[h])
-                        .resize(targetSize, targetSize)
-                        .centerCrop()
-                        .placeholder(placeholderDrawable)
+                        .apply(RequestOptions()
+                                .override(targetSize)
+                                .placeholder(placeholderDrawable))
                         .into(thumbView)
             }
             for (h in numImages until maxImages) {

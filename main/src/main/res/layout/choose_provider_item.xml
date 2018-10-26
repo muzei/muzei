@@ -20,6 +20,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:importantForAccessibility="no"
+            android:scaleType="centerCrop"
             app:layout_constraintBottom_toTopOf="@+id/provider_artwork"
             app:layout_constraintEnd_toStartOf="@+id/provider_title"
             app:layout_constraintHorizontal_chainStyle="spread_inside"

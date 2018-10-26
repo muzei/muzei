@@ -26,7 +26,7 @@ dependencies {
     implementation project(':muzei-api')
     implementation project(':extensions')
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
-    implementation "com.squareup.picasso:picasso:$picassoVersion"
+    implementation "com.github.bumptech.glide:glide:$glideVersion"
     implementation "com.android.support:appcompat-v7:$supportLibraryVersion"
     implementation "com.android.support:design:$supportLibraryVersion"
     implementation "com.android.support:recyclerview-v7:$supportLibraryVersion"

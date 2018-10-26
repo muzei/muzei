@@ -34,13 +34,13 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.os.bundleOf
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.squareup.picasso.Picasso
 import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.android.Main
@@ -115,10 +115,8 @@ class BrowseProviderFragment: Fragment() {
 
         fun bind(artwork: Artwork) {
             imageView.contentDescription = artwork.title
-            Picasso.get()
+            Glide.with(imageView)
                     .load(artwork.imageUri)
-                    .centerCrop()
-                    .fit()
                     .into(imageView)
             itemView.setOnClickListener {
                 val context = it.context

@@ -21,7 +21,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.drawable.Drawable
 import android.opengl.GLSurfaceView
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -30,15 +29,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.os.bundleOf
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
+import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.apps.muzei.settings.EffectsLockScreenOpenLiveData
-
 import com.google.android.apps.muzei.util.ImageBlurrer
 import com.google.android.apps.muzei.util.blur
 import com.google.android.apps.muzei.util.observeNonNull
 import com.google.android.apps.muzei.util.roundMult4
-import com.squareup.picasso.Picasso
-import com.squareup.picasso.Target
-import java.lang.Exception
+import java.security.MessageDigest
 
 class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurRenderer.Callbacks {
 
@@ -46,6 +47,9 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
 
         private const val ARG_DEMO_MODE = "demo_mode"
         private const val ARG_DEMO_FOCUS = "demo_focus"
+
+        private const val TRANSFORMATION_ID = "simpleDemoModeTransformation"
+        private val TRANSFORMATION_BYTES = TRANSFORMATION_ID.toByteArray()
 
         fun createInstance(demoMode: Boolean, demoFocus: Boolean = false): MuzeiRendererFragment {
             return MuzeiRendererFragment().apply {
@@ -61,24 +65,30 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
     private var demoMode: Boolean = false
     private var demoFocus: Boolean = false
 
-    private val simpleDemoModeLoadedTarget = object : Target {
-
-        override fun onBitmapLoaded(bitmap: Bitmap?, loadedFrom: Picasso.LoadedFrom?) {
-            simpleDemoModeImageView.setImageBitmap(if (!demoFocus) {
-                bitmap.blur(requireContext())?.apply {
-                    // Dim
-                    val c = Canvas(this)
-                    c.drawColor(Color.argb(255 - MuzeiBlurRenderer.DEFAULT_MAX_DIM,
-                            0, 0, 0))
-                }
-            } else {
-                bitmap
-            })
+    private val simpleDemoModeTransformation = object : BitmapTransformation() {
+        override fun transform(
+                pool: BitmapPool,
+                bitmap: Bitmap,
+                outWidth: Int,
+                outHeight: Int
+        ) = if (!demoFocus) {
+            bitmap.blur(requireContext())?.apply {
+                // Dim
+                val c = Canvas(this)
+                c.drawColor(Color.argb(255 - MuzeiBlurRenderer.DEFAULT_MAX_DIM,
+                        0, 0, 0))
+            }
+        } else {
+            bitmap
         }
-        override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
-        }
 
-        override fun onPrepareLoad(drawable: Drawable?) {}
+        override fun equals(other: Any?) = other == this
+
+        override fun hashCode() = TRANSFORMATION_ID.hashCode()
+
+        override fun updateDiskCacheKey(messageDigest: MessageDigest) {
+            messageDigest.update(TRANSFORMATION_BYTES)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -107,11 +117,12 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
             simpleDemoModeImageView = ImageView(context).apply {
                 scaleType = ImageView.ScaleType.CENTER_CROP
             }
-            Picasso.get()
+            Glide.with(this)
                     .load("file:///android_asset/starrynight.jpg")
-                    .resize(targetWidth, targetHeight)
-                    .centerCrop()
-                    .into(simpleDemoModeLoadedTarget)
+                    .apply(RequestOptions()
+                            .override(targetWidth, targetHeight)
+                            .transforms(CenterCrop(), simpleDemoModeTransformation))
+                    .into(simpleDemoModeImageView)
             return simpleDemoModeImageView
         } else {
             muzeiView = MuzeiView(requireContext())
@@ -126,7 +137,6 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
 
     override fun onDestroyView() {
         super.onDestroyView()
-        Picasso.get().cancelRequest(simpleDemoModeLoadedTarget)
         muzeiView = null
     }
 

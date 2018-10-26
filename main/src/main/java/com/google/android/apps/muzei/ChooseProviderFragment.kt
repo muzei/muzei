@@ -22,6 +22,7 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Rect
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
@@ -47,6 +48,11 @@ import androidx.core.view.isGone
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
@@ -55,8 +61,6 @@ import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.squareup.picasso.Callback
-import com.squareup.picasso.Picasso
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.BuildConfig.SOURCES_AUTHORITY
@@ -236,7 +240,7 @@ class ChooseProviderFragment : Fragment() {
         }
     }
 
-    inner class ProviderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), Callback {
+    inner class ProviderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), RequestListener<Drawable> {
         private val providerIcon: ImageView = itemView.findViewById(R.id.provider_icon)
         private val providerTitle: TextView = itemView.findViewById(R.id.provider_title)
         private val providerSelected: ImageView = itemView.findViewById(R.id.provider_selected)
@@ -337,12 +341,24 @@ class ChooseProviderFragment : Fragment() {
             }
         }
 
-        override fun onSuccess() {
+        override fun onResourceReady(
+                resource: Drawable?,
+                model: Any?,
+                target: Target<Drawable>?,
+                dataSource: DataSource?,
+                isFirstResource: Boolean
+        ): Boolean {
             providerArtwork.isVisible = true
+            return false
         }
 
-        override fun onError(e: Exception?) {
+        override fun onLoadFailed(e: GlideException?,
+                model: Any?,
+                target: Target<Drawable>?,
+                isFirstResource: Boolean
+        ): Boolean {
             providerArtwork.isVisible = false
+            return false
         }
 
         fun setDescription(providerInfo: ProviderInfo) = providerInfo.run {
@@ -353,11 +369,10 @@ class ChooseProviderFragment : Fragment() {
         fun setImage(providerInfo: ProviderInfo) = providerInfo.run {
             providerArtwork.isVisible = currentArtworkUri != null
             if (currentArtworkUri != null) {
-                Picasso.get()
+                Glide.with(this@ChooseProviderFragment)
                         .load(currentArtworkUri)
-                        .centerCrop()
-                        .fit()
-                        .into(providerArtwork, this@ProviderViewHolder)
+                        .addListener(this@ProviderViewHolder)
+                        .into(providerArtwork)
             }
         }
 

@@ -39,6 +39,7 @@ android {
         versionName versionProps['name']
         versionCode versionProps['code'].toInteger()
 
+        multiDexEnabled true
         wearAppUnbundled true
 
         def sourcesAuthorityValue = "com.google.android.apps.muzei.sources"
@@ -101,8 +102,9 @@ dependencies {
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
     implementation "androidx.core:core-ktx:$rootProject.ext.ktxVersion"
+    implementation "com.android.support:multidex:$multidexVersion"
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
-    implementation "com.squareup.picasso:picasso:$picassoVersion"
+    implementation "com.github.bumptech.glide:glide:$glideVersion"
     implementation "com.google.android.gms:play-services-wearable:$playServicesWearableVersion"
     implementation "com.google.firebase:firebase-core:$firebaseCoreVersion"
     implementation "com.google.firebase:firebase-perf:$firebasePerfVersion"
