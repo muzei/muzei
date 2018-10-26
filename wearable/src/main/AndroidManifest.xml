@@ -40,6 +40,7 @@
 
         <activity
             android:name="com.google.android.apps.muzei.MuzeiActivity"
+            android:taskAffinity=":main"
             android:theme="@style/MuzeiTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -49,11 +50,13 @@
 
         <activity
             android:name="com.google.android.apps.muzei.FullScreenActivity"
+            android:taskAffinity=":main"
             android:theme="@style/FullScreenTheme"
             android:parentActivityName="com.google.android.apps.muzei.MuzeiActivity"/>
 
         <activity
             android:name="com.google.android.apps.muzei.ChooseProviderActivity"
+            android:taskAffinity=":main"
             android:theme="@style/MuzeiTheme"
             android:parentActivityName="com.google.android.apps.muzei.MuzeiActivity"/>
 
