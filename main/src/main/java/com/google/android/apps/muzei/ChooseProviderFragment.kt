@@ -116,30 +116,31 @@ class ChooseProviderFragment : Fragment() {
         toolbar = view.findViewById(R.id.toolbar)
         requireActivity().menuInflater.inflate(R.menu.choose_provider_fragment,
                 toolbar.menu)
+        val context = requireContext()
         toolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.auto_advance_settings -> {
                     if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
                         drawerLayout.closeDrawer(GravityCompat.END)
                     } else {
-                        FirebaseAnalytics.getInstance(requireContext()).logEvent(
+                        FirebaseAnalytics.getInstance(context).logEvent(
                                 "auto_advance_open", null)
                         drawerLayout.openDrawer(GravityCompat.END)
                     }
                     true
                 }
                 R.id.auto_advance_disabled -> {
-                    FirebaseAnalytics.getInstance(requireContext()).logEvent(
+                    FirebaseAnalytics.getInstance(context).logEvent(
                             "auto_advance_disabled", null)
-                    requireContext().toast(R.string.auto_advance_disabled_description,
+                    context.toast(R.string.auto_advance_disabled_description,
                             Toast.LENGTH_LONG)
                     true
                 }
                 R.id.action_notification_settings -> {
-                    FirebaseAnalytics.getInstance(requireContext()).logEvent(
+                    FirebaseAnalytics.getInstance(context).logEvent(
                             "notification_settings_open", bundleOf(
                             FirebaseAnalytics.Param.CONTENT_TYPE to "overflow"))
-                    NotificationSettingsDialogFragment.showSettings(requireContext(),
+                    NotificationSettingsDialogFragment.showSettings(context,
                             childFragmentManager)
                     true
                 }
