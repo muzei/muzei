@@ -32,7 +32,7 @@ buildscript {
         workManagerVersion = "1.0.0-alpha10"
         playServicesWearableVersion = "16.0.1"
         firebaseCoreVersion = "16.0.4"
-        firebasePerfVersion = "16.1.2"
+        firebasePerfVersion = "16.2.0"
         crashlyticsVersion = "2.9.5"
         wearableVersion = "2.3.0"
         okhttpVersion = "3.10.0"
