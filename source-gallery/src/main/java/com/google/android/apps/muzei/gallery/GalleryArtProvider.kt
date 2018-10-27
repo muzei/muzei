@@ -19,6 +19,7 @@ package com.google.android.apps.muzei.gallery
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.util.Log
+import androidx.core.net.toUri
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import java.io.FileNotFoundException
@@ -69,14 +70,15 @@ class GalleryArtProvider: MuzeiArtProvider() {
 
     override fun isArtworkValid(artwork: Artwork): Boolean {
         val context = context ?: return false
-        val imageUri = artwork.persistentUri ?: return false
-        val cachedFile = GalleryProvider.getCacheFileForUri(
-                context, imageUri)
+        val metadata = artwork.metadata?.toUri() ?: return false
+        val cachedFile = GalleryProvider.getCacheFileForUri(context, metadata)
         if (cachedFile?.exists() == true) {
+            // We have a local copy of the image
             return true
         }
         // It is a URI we have persistent access to.
         // Check to see if that's still the case
+        val imageUri = artwork.persistentUri ?: return false
         return try {
             context.contentResolver.query(imageUri,
                     null, null, null, null).use { data ->
