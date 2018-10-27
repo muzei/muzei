@@ -20,7 +20,6 @@ import android.content.ContentUris
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
-import android.os.RemoteException
 import android.provider.BaseColumns
 import android.util.Log
 import androidx.work.Constraints
@@ -32,7 +31,6 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.crashlytics.android.Crashlytics
 import com.google.android.apps.muzei.api.internal.ProtocolConstants
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_MAX_LOADED_ARTWORK_ID
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_RECENT_ARTWORK_IDS
@@ -216,8 +214,6 @@ class ArtworkLoadWorker(
             }
         } catch (e: Exception) {
             Log.i(TAG, "Provider $authority crashed while retrieving artwork: ${e.message}")
-            Crashlytics.setString("provider", authority)
-            Crashlytics.logException(e)
         }
         return Result.RETRY
     }
@@ -246,9 +242,9 @@ class ArtworkLoadWorker(
                 }
             }
         } catch (e: IOException) {
-            Log.w(TAG, "Unable to preload artwork $artworkUri: ${e.message}")
-        } catch (e: RemoteException) {
-            Log.w(TAG, "Provider ${contentUri.authority} crashed preloading artwork " +
+            Log.i(TAG, "Unable to preload artwork $artworkUri: ${e.message}")
+        } catch (e: Exception) {
+            Log.i(TAG, "Provider ${contentUri.authority} crashed preloading artwork " +
                     "$artworkUri: ${e.message}")
         }
 
