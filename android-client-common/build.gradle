@@ -34,6 +34,13 @@ dependencies {
     implementation "com.android.support:support-fragment:$supportLibraryVersion"
     api "android.arch.persistence.room:runtime:$roomVersion"
     kapt "android.arch.persistence.room:compiler:$roomVersion"
+    api("com.google.firebase:firebase-core:$firebaseCoreVersion") {
+        exclude module: 'support-v4'
+    }
+    api("com.google.firebase:firebase-perf:$firebasePerfVersion") {
+        exclude module: 'support-v4'
+    }
+    api "com.crashlytics.sdk.android:crashlytics:$crashlyticsVersion"
     api("com.google.android.gms:play-services-wearable:$playServicesWearableVersion") {
         exclude module: 'support-v4'
     }

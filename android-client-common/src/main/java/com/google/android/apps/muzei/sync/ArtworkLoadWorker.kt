@@ -32,6 +32,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import com.crashlytics.android.Crashlytics
 import com.google.android.apps.muzei.api.internal.ProtocolConstants
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_MAX_LOADED_ARTWORK_ID
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_RECENT_ARTWORK_IDS
@@ -213,8 +214,10 @@ class ArtworkLoadWorker(
                     }
                 }
             }
-        } catch (e: RemoteException) {
+        } catch (e: Exception) {
             Log.i(TAG, "Provider $authority crashed while retrieving artwork: ${e.message}")
+            Crashlytics.setString("provider", authority)
+            Crashlytics.logException(e)
         }
         return Result.RETRY
     }

@@ -34,6 +34,7 @@ import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import com.crashlytics.android.Crashlytics
 import com.google.android.apps.muzei.api.internal.ProtocolConstants
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_LAST_LOADED_TIME
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_LOAD_INFO
@@ -239,8 +240,10 @@ class ProviderChangedWorker(
                     return Result.SUCCESS
                 }
             }
-        } catch (e: RemoteException) {
+        } catch (e: Exception) {
             Log.i(TAG, "Provider ${provider.authority} crashed while retrieving artwork: ${e.message}")
+            Crashlytics.setString("provider", provider.authority)
+            Crashlytics.logException(e)
         }
         return Result.RETRY
     }
