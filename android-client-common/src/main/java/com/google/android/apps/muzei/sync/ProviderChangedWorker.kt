@@ -28,6 +28,7 @@ import android.util.Log
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
@@ -63,9 +64,12 @@ class ProviderChangedWorker(
         private const val PERSISTENT_CHANGED_TAG = "persistent_changed"
         private const val EXTRA_CONTENT_URI = "content_uri"
         private const val PREF_PERSISTENT_LISTENERS = "persistentListeners"
+        private const val PROVIDER_CHANGED_THROTTLE = 250L // quarter second
 
         internal fun enqueueSelected() {
             val workManager = WorkManager.getInstance()
+            // Cancel changed work for the old provider
+            workManager.cancelUniqueWork("changed")
             workManager.enqueue(OneTimeWorkRequestBuilder<ProviderChangedWorker>()
                     .setInputData(workDataOf(TAG to "selected"))
                     .build())
@@ -73,9 +77,12 @@ class ProviderChangedWorker(
 
         internal fun enqueueChanged() {
             val workManager = WorkManager.getInstance()
-            workManager.enqueue(OneTimeWorkRequestBuilder<ProviderChangedWorker>()
-                    .setInputData(workDataOf(TAG to "changed"))
-                    .build())
+            workManager.beginUniqueWork("changed", ExistingWorkPolicy.REPLACE,
+                    OneTimeWorkRequestBuilder<ProviderChangedWorker>()
+                            .setInitialDelay(PROVIDER_CHANGED_THROTTLE, TimeUnit.MILLISECONDS)
+                            .setInputData(workDataOf(TAG to "changed"))
+                            .build())
+                    .enqueue()
         }
 
         @RequiresApi(Build.VERSION_CODES.N)
@@ -193,24 +200,27 @@ class ProviderChangedWorker(
                 client.query(contentUri)?.use { allArtwork ->
                     val providerManager = ProviderManager.getInstance(applicationContext)
                     val loadFrequencySeconds = providerManager.loadFrequencySeconds
-                    val shouldSchedule = loadFrequencySeconds > 0
-                    val overDue = shouldSchedule &&
-                            System.currentTimeMillis() - lastLoadedTime >= TimeUnit.SECONDS.toMillis(loadFrequencySeconds)
-                    val enqueueNext = overDue || !isCurrentArtworkValid(client, provider)
-                    if (enqueueNext) {
-                        // Schedule an immediate load
-                        if (BuildConfig.DEBUG) {
-                            Log.d(TAG, "Scheduling an immediate load")
+                    var enqueued = false
+                    if (tag == "changed" || tag == PERSISTENT_CHANGED_TAG) {
+                        val overDue = loadFrequencySeconds > 0 &&
+                                System.currentTimeMillis() - lastLoadedTime >= TimeUnit.SECONDS.toMillis(loadFrequencySeconds)
+                        val enqueueNext = overDue || !isCurrentArtworkValid(client, provider)
+                        if (enqueueNext) {
+                            // Schedule an immediate load
+                            if (BuildConfig.DEBUG) {
+                                Log.d(TAG, "Scheduling an immediate load")
+                            }
+                            ArtworkLoadWorker.enqueueNext()
+                            enqueued = true
                         }
-                        ArtworkLoadWorker.enqueueNext()
-                    }
-                    if (shouldSchedule) {
+                    } else if (loadFrequencySeconds > 0) {
                         // Schedule the periodic work
+                        if (BuildConfig.DEBUG) {
+                            Log.d(TAG, "Scheduling periodic load")
+                        }
                         ArtworkLoadWorker.enqueuePeriodic(loadFrequencySeconds,
                                 providerManager.loadOnWifi)
-                    } else {
-                        // Clear any existing recurring work as it isn't needed anymore
-                        ArtworkLoadWorker.cancelPeriodic()
+                        enqueued = true
                     }
                     // Update whether the provider supports the 'Next Artwork' button
                     var validArtworkCount = 0
@@ -227,12 +237,12 @@ class ProviderChangedWorker(
                         Log.d(TAG, "Found at least $validArtworkCount artwork for $provider")
                     }
                     database.providerDao().update(provider)
-                    if (validArtworkCount <= 1 && !enqueueNext) {
+                    if (validArtworkCount <= 1 && !enqueued) {
                         if (BuildConfig.DEBUG) {
                             Log.d(TAG, "Requesting a load from $provider")
                         }
                         // Request a load if we don't have any more artwork
-                        // and haven't just called enqueueNext
+                        // and haven't just called enqueueNext / enqueuePeriodic
                         client.call(ProtocolConstants.METHOD_REQUEST_LOAD)
                     }
                     return Result.SUCCESS
