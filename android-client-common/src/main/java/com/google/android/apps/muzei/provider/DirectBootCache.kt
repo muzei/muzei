@@ -28,7 +28,6 @@ import kotlinx.coroutines.experimental.launch
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 object DirectBootCache {
@@ -67,7 +66,7 @@ object DirectBootCache {
                     }
                 }
                 Log.w(TAG, "Could not open the current artwork")
-            } catch (e: IOException) {
+            } catch (e: Exception) {
                 Log.e(TAG, "Unable to write artwork to direct boot storage", e)
             }
         }
