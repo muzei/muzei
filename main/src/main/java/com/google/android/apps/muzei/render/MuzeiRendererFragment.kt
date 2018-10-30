@@ -82,7 +82,7 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
             bitmap
         }
 
-        override fun equals(other: Any?) = other == this
+        override fun equals(other: Any?) = other === this
 
         override fun hashCode() = TRANSFORMATION_ID.hashCode()
 
