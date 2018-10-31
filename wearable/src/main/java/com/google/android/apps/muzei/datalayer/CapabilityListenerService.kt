@@ -32,13 +32,7 @@ class CapabilityListenerService : WearableListenerService() {
 
     override fun onCapabilityChanged(capabilityInfo: CapabilityInfo?) {
         val removed = capabilityInfo?.nodes?.isEmpty() ?: false
-        if (removed) {
-            // Muzei's phone app isn't installed, disallow use of the DataLayerArtProvider
-            packageManager.setComponentEnabledSetting(
-                    ComponentName(this, DataLayerArtProvider::class.java),
-                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                    PackageManager.DONT_KILL_APP)
-        } else {
+        if (!removed) {
             // Muzei's phone app is installed, allow use of the DataLayerArtProvider
             packageManager.setComponentEnabledSetting(
                     ComponentName(this, DataLayerArtProvider::class.java),
