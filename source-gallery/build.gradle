@@ -40,8 +40,6 @@ dependencies {
     implementation "android.arch.paging:runtime:$pagingVersion"
 }
 
-kotlin.experimental.coroutines "enable"
-
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 

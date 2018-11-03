@@ -36,8 +36,8 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.sync.ProviderChangedWorker
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.firebase.analytics.FirebaseAnalytics
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig
 import java.util.TreeSet
 

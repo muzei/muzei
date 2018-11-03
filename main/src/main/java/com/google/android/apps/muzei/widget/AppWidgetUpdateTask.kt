@@ -36,8 +36,8 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.sources.allowsNextArtwork
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
-import kotlinx.coroutines.experimental.currentScope
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
 
 private const val TAG = "updateAppWidget"
@@ -74,19 +74,19 @@ suspend fun showWidgetPreview(context: Context) {
 /**
  * Async operation used to update the widget or provide a preview for pinning the widget.
  */
-suspend fun updateAppWidget(context: Context) = currentScope {
+suspend fun updateAppWidget(context: Context) = coroutineScope {
     val widget = ComponentName(context, MuzeiAppWidgetProvider::class.java)
-    val appWidgetManager = AppWidgetManager.getInstance(context) ?: return
+    val appWidgetManager = AppWidgetManager.getInstance(context) ?: return@coroutineScope
     val appWidgetIds = appWidgetManager.getAppWidgetIds(widget)
     if (appWidgetIds.isEmpty()) {
         // No app widgets, nothing to do
-        return
+        return@coroutineScope
     }
     val provider = MuzeiDatabase.getInstance(context).providerDao().getCurrentProvider()
     val artwork = MuzeiDatabase.getInstance(context).artworkDao().getCurrentArtwork()
     if (provider == null || artwork == null) {
         Log.w(TAG, "No current artwork found")
-        return
+        return@coroutineScope
     }
     val displayMetrics = context.resources.displayMetrics
     val minWidgetSize = context.resources.getDimensionPixelSize(

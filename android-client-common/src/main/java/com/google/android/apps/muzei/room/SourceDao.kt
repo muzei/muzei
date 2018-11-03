@@ -25,8 +25,8 @@ import android.arch.persistence.room.TypeConverters
 import android.arch.persistence.room.Update
 import android.content.ComponentName
 import com.google.android.apps.muzei.room.converter.ComponentNameTypeConverter
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.withContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * Dao for Sources

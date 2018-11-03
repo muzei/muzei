@@ -28,9 +28,10 @@ import android.os.Handler
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
 import com.google.android.apps.muzei.util.ScopedAndroidViewModel
-import kotlinx.coroutines.experimental.CoroutineScope
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.newSingleThreadContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.launch
+import java.util.concurrent.Executors
 
 class ProviderArtworkLiveData(
         val context: Context,
@@ -40,7 +41,9 @@ class ProviderArtworkLiveData(
     private val authority: String = contentUri.authority
             ?: throw IllegalArgumentException("Invalid contentUri $contentUri")
     private val singleThreadContext by lazy {
-        newSingleThreadContext("ProviderArtworkLiveData")
+        Executors.newSingleThreadExecutor { target ->
+            Thread(target, "ProviderArtworkLiveData")
+        }.asCoroutineDispatcher()
     }
     private val contentObserver = object : ContentObserver(Handler()) {
         override fun onChange(selfChange: Boolean, uri: Uri?) {

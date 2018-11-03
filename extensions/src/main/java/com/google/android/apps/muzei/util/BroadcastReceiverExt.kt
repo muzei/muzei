@@ -17,8 +17,8 @@
 package com.google.android.apps.muzei.util
 
 import android.content.BroadcastReceiver
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 fun BroadcastReceiver.goAsync(block: suspend () -> Unit) {
     val result = goAsync()

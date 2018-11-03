@@ -21,8 +21,8 @@ import android.arch.lifecycle.LifecycleOwner
 import android.content.Context
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.observe
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 /**
  * LifecycleObserver which updates the widget when the artwork changes

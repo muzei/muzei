@@ -32,8 +32,8 @@ import androidx.work.WorkerParameters
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
-import kotlinx.coroutines.experimental.newSingleThreadContext
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONException
@@ -46,6 +46,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.Random
 import java.util.TimeZone
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 class FeaturedArtWorker(
@@ -73,7 +74,9 @@ class FeaturedArtWorker(
         private val DATE_FORMAT_LOCAL = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
 
         private val SINGLE_THREAD_CONTEXT by lazy {
-            newSingleThreadContext("FeaturedArt")
+            Executors.newSingleThreadExecutor { target ->
+                Thread(target, "FeaturedArt")
+            }.asCoroutineDispatcher()
         }
 
         init {

@@ -25,9 +25,10 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.pm.ProviderInfo
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
-import kotlinx.coroutines.experimental.CoroutineScope
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.newSingleThreadContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.launch
+import java.util.concurrent.Executors
 
 fun ProviderInfo.getComponentName() = ComponentName(packageName, name)
 
@@ -41,8 +42,9 @@ class InstalledProvidersLiveData(
 
     private val currentProviders = HashMap<ComponentName, ProviderInfo>()
 
-    private val singleThreadContext = newSingleThreadContext("ChooseProvider")
-
+    private val singleThreadContext = Executors.newSingleThreadExecutor { target ->
+        Thread(target, "ChooseProvider")
+    }.asCoroutineDispatcher()
 
     private val packageChangeReceiver : BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {

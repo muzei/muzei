@@ -50,11 +50,10 @@ import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.util.observeNonNull
 import com.google.android.apps.muzei.util.toastFromBackground
 import com.google.firebase.analytics.FirebaseAnalytics
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.android.Main
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.withContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.BuildConfig.SOURCES_AUTHORITY
 import net.nurik.roman.muzei.R

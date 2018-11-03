@@ -40,20 +40,23 @@ import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.newSingleThreadContext
-import kotlinx.coroutines.experimental.withContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
+import java.util.concurrent.Executors
 
 /**
  * Single threaded coroutine context used for all sync operations
  */
 internal val syncSingleThreadContext by lazy {
-    newSingleThreadContext("ProviderSync")
+    Executors.newSingleThreadExecutor { target ->
+        Thread(target, "ProviderSync")
+    }.asCoroutineDispatcher()
 }
 
 /**

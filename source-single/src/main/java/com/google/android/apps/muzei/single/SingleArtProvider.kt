@@ -29,8 +29,8 @@ import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.single.BuildConfig.SINGLE_AUTHORITY
 import com.google.android.apps.muzei.util.getStringOrNull
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.withContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException

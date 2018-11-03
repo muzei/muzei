@@ -32,10 +32,9 @@ import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.util.observeNonNull
 import com.google.firebase.analytics.FirebaseAnalytics
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.android.Main
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.BuildConfig.DATA_LAYER_AUTHORITY
 import net.nurik.roman.muzei.R

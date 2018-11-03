@@ -61,10 +61,10 @@ import com.google.android.apps.muzei.wallpaper.WallpaperAnalytics
 import com.google.android.apps.muzei.wearable.WearableController
 import com.google.android.apps.muzei.widget.WidgetUpdater
 import com.google.firebase.analytics.FirebaseAnalytics
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import net.rbgrn.android.glwallpaperservice.GLWallpaperService
 
 data class WallpaperSize(val width: Int, val height: Int)

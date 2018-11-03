@@ -45,8 +45,8 @@ import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
 import com.google.android.apps.muzei.util.getLong
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.IOException
 import java.util.Random
@@ -64,7 +64,7 @@ class ArtworkLoadWorker(
     companion object {
         private const val TAG = "ArtworkLoad"
         private const val PERIODIC_TAG = "ArtworkLoadPeriodic"
-        private const val ARTWORK_LOAD_THROTTLE = 250 // quarter second
+        private const val ARTWORK_LOAD_THROTTLE = 250L // quarter second
 
         internal fun enqueueNext() {
             val workManager = WorkManager.getInstance()

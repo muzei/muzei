@@ -28,9 +28,8 @@ import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.android.Main
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
 
 class PhotoSetAsTargetActivity : FragmentActivity() {

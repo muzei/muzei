@@ -22,9 +22,9 @@ import android.arch.lifecycle.LifecycleOwner
 import android.content.Context
 import androidx.core.animation.doOnEnd
 import com.google.android.apps.muzei.util.coroutineScope
-import kotlinx.coroutines.experimental.CoroutineScope
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class DemoRenderController(
         context: Context,
@@ -35,8 +35,8 @@ class DemoRenderController(
 
     companion object {
         private const val ANIMATION_CYCLE_TIME_MILLIS = 35000L
-        private const val FOCUS_DELAY_TIME_MILLIS = 2000
-        private const val FOCUS_TIME_MILLIS = 6000
+        private const val FOCUS_DELAY_TIME_MILLIS = 2000L
+        private const val FOCUS_TIME_MILLIS = 6000L
     }
 
     private lateinit var coroutineScope: CoroutineScope

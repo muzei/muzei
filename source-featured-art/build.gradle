@@ -32,8 +32,6 @@ dependencies {
     implementation "com.android.support:customtabs:$supportLibraryVersion"
 }
 
-kotlin.experimental.coroutines "enable"
-
 android {
     resourcePrefix 'featuredart_'
 

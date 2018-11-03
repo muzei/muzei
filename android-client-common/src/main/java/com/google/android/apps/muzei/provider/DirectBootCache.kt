@@ -21,10 +21,10 @@ import android.os.Build
 import android.support.v4.content.ContextCompat
 import android.util.Log
 import com.google.android.apps.muzei.api.MuzeiContract
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.File
 import java.io.FileOutputStream

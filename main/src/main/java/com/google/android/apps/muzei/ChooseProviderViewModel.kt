@@ -31,13 +31,13 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.ScopedAndroidViewModel
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.android.Main
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.newSingleThreadContext
-import kotlinx.coroutines.experimental.withContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.BuildConfig.SOURCES_AUTHORITY
 import net.nurik.roman.muzei.R
+import java.util.concurrent.Executors
 
 data class ProviderInfo(
         val authority: String,
@@ -81,7 +81,14 @@ class ChooseProviderViewModel(application: Application) : ScopedAndroidViewModel
     private val currentProviders = HashMap<String, ProviderInfo>()
     private var activeProvider : Provider? = null
 
-    private val singleThreadContext = newSingleThreadContext("ChooseProvider")
+    private val singleThreadContext = Executors.newSingleThreadExecutor { target ->
+        Thread(target, "ChooseProvider")
+    }.asCoroutineDispatcher()
+
+    override fun onCleared() {
+        singleThreadContext.close()
+        super.onCleared()
+    }
 
     @SuppressLint("InlinedApi")
     val playStoreIntent: Intent = Intent(Intent.ACTION_VIEW,

@@ -20,8 +20,8 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import com.google.android.apps.muzei.util.toast
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 /**
  * Settings Activity which allows users to select a new photo

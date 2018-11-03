@@ -1,9 +1,9 @@
 package com.google.android.apps.muzei.provider
 
 import android.os.Looper
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.runBlocking
-import kotlinx.coroutines.experimental.withContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 /**
  * Ensures that [block] is not run on the main thread.

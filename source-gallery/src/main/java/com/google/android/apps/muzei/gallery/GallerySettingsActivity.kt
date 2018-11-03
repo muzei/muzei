@@ -74,10 +74,9 @@ import com.google.android.apps.muzei.util.getString
 import com.google.android.apps.muzei.util.getStringOrNull
 import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.util.toast
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.android.Main
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.util.ArrayList
 import java.util.HashSet
 import java.util.LinkedList

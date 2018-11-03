@@ -46,8 +46,6 @@ dependencies {
     }
 }
 
-kotlin.experimental.coroutines "enable"
-
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 

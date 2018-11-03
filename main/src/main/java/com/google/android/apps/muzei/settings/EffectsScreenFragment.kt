@@ -27,9 +27,9 @@ import androidx.core.content.edit
 import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer
 import com.google.android.apps.muzei.util.coroutineScope
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
 
 /**

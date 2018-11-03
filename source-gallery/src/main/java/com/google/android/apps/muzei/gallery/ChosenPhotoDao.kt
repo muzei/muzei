@@ -34,11 +34,11 @@ import android.util.Log
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.gallery.BuildConfig.GALLERY_ART_AUTHORITY
 import com.google.android.apps.muzei.gallery.converter.UriTypeConverter
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.awaitAll
-import kotlinx.coroutines.experimental.currentScope
-import kotlinx.coroutines.experimental.withContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -246,7 +246,7 @@ internal abstract class ChosenPhotoDao {
     private suspend fun deleteBackingPhotos(
             context: Context,
             chosenPhotos: List<ChosenPhoto>
-    ) = currentScope {
+    ) = coroutineScope  {
         chosenPhotos.map { chosenPhoto ->
             async {
                 val contentUri = ProviderContract.Artwork.getContentUri(GALLERY_ART_AUTHORITY)

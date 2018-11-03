@@ -25,7 +25,7 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.openArtworkInfo
 import com.google.android.apps.muzei.util.coroutineScope
 import com.google.firebase.analytics.FirebaseAnalytics
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.launch
 
 /**
  * Open the Artwork Info associated with the current artwork

@@ -32,7 +32,7 @@ import android.util.Log
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import net.nurik.roman.muzei.androidclientcommon.R
 import java.io.File

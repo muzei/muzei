@@ -21,8 +21,8 @@ import android.os.Bundle
 import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.sources.SourceManager
 import com.google.firebase.analytics.FirebaseAnalytics
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 /**
  * Simple activity that just triggers the 'Next Artwork' action and finishes

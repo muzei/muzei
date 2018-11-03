@@ -62,8 +62,8 @@ import com.google.android.apps.muzei.util.blur
 import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.observe
 import com.google.firebase.analytics.FirebaseAnalytics
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
 import java.io.FileNotFoundException

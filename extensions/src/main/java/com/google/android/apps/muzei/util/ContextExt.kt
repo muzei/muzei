@@ -19,10 +19,9 @@ package com.google.android.apps.muzei.util
 import android.content.Context
 import android.support.annotation.StringRes
 import android.widget.Toast
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.android.Main
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 /**
  * Creates and shows a [Toast] with the given [text]

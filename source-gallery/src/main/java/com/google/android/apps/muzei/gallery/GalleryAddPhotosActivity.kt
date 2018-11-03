@@ -8,9 +8,8 @@ import android.support.v4.app.ShareCompat
 import android.util.Log
 import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.toast
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.android.Main
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * Activity which responds to [android.content.Intent.ACTION_SEND] and

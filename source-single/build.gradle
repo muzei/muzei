@@ -28,8 +28,6 @@ dependencies {
     api "android.arch.lifecycle:livedata:$lifecycleVersion"
 }
 
-kotlin.experimental.coroutines "enable"
-
 android {
     resourcePrefix 'single_'
 
