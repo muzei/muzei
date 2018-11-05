@@ -17,7 +17,7 @@
 <manifest
     package="com.google.android.apps.muzei.featuredart"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    >
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
@@ -35,16 +35,10 @@
         </provider>
         <service
             android:name="com.google.android.apps.muzei.featuredart.FeaturedArtSource"
-            android:description="@string/featuredart_source_description"
-            android:icon="@drawable/featuredart_ic_source"
-            android:label="@string/featuredart_source_title"
-            tools:ignore="ExportedService">
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.apps.muzei.api.MuzeiArtSource"/>
             </intent-filter>
-            <meta-data
-                android:name="color"
-                android:value="@color/featuredart_color"/>
             <meta-data
                 android:name="replacement"
                 android:value="${featuredArtAuthority}"/>
