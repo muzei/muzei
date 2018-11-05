@@ -130,9 +130,10 @@ class SingleArtProvider : MuzeiArtProvider() {
     override fun onLoadRequested(initial: Boolean) {
         val context = context ?: return
         if (initial) {
-            // Check if there's artwork from the SingleArtSource to import
             if (getArtworkFile(context).exists()) {
-                SingleArtSource.migrateToProvider(context)
+                setArtwork(Artwork().apply {
+                    title = context.getString(R.string.single_default_artwork_title)
+                })
             }
         }
         // There's always only one artwork for this provider,

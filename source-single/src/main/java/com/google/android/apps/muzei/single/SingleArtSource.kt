@@ -16,52 +16,13 @@
 
 package com.google.android.apps.muzei.single
 
-import android.content.ContentUris
-import android.content.Context
+import android.app.Service
 import android.content.Intent
-import com.google.android.apps.muzei.api.Artwork
-import com.google.android.apps.muzei.api.MuzeiArtSource
-import com.google.android.apps.muzei.api.provider.ProviderContract
-import com.google.android.apps.muzei.single.BuildConfig.SINGLE_AUTHORITY
 
 /**
- * [MuzeiArtSource] that displays just a single image
+ * This class is kept only to serve as a tombstone to Muzei to know to replace it
+ * with [SingleArtProvider].
  */
-class SingleArtSource : MuzeiArtSource("SingleArtSource") {
-
-    companion object {
-        private const val ACTION_MIGRATE = "migrate"
-
-        fun migrateToProvider(context: Context) {
-            context.startService(Intent(context, SingleArtSource::class.java).apply {
-                action = ACTION_MIGRATE
-            })
-        }
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == ACTION_MIGRATE) {
-            currentArtwork?.let { currentArtwork ->
-                ProviderContract.Artwork.setArtwork(this,
-                        SINGLE_AUTHORITY,
-                        com.google.android.apps.muzei.api.provider.Artwork().apply {
-                            title = currentArtwork.title
-                        })
-            }
-        }
-        return super.onStartCommand(intent, flags, startId)
-    }
-
-    override fun onUpdate(reason: Int) {
-        val artwork = ProviderContract.Artwork.getLastAddedArtwork(this,
-                SINGLE_AUTHORITY)
-        if (artwork != null) {
-            publishArtwork(Artwork.Builder()
-                    .title(artwork.title)
-                    .imageUri(ContentUris.withAppendedId(
-                            ProviderContract.Artwork.getContentUri(SINGLE_AUTHORITY),
-                            artwork.id))
-                    .build())
-        }
-    }
+class SingleArtSource : Service() {
+    override fun onBind(intent: Intent?) = null
 }
