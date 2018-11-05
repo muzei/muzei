@@ -16,7 +16,6 @@
 
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="com.google.android.apps.muzei.gallery">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
@@ -48,23 +47,10 @@
         </provider>
         <service
             android:name="com.google.android.apps.muzei.gallery.GalleryArtSource"
-            android:label="@string/gallery_title"
-            android:description="@string/gallery_description"
-            android:icon="@drawable/gallery_ic_source"
-            tools:ignore="ExportedService">
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.apps.muzei.api.MuzeiArtSource"/>
             </intent-filter>
-
-            <meta-data
-                android:name="settingsActivity"
-                android:value="com.google.android.apps.muzei.gallery.GallerySettingsActivity"/>
-            <meta-data
-                android:name="setupActivity"
-                android:value="com.google.android.apps.muzei.gallery.GallerySetupActivity"/>
-            <meta-data
-                android:name="color"
-                android:value="#4db6ac"/>
             <meta-data
                 android:name="replacement"
                 android:value="com.google.android.apps.muzei.gallery.art" />

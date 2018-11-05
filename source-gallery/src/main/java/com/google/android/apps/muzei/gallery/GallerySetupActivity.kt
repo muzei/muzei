@@ -23,7 +23,7 @@ import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
-import com.google.android.apps.muzei.api.MuzeiArtSource
+import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.util.observe
 
 class GallerySetupActivity : FragmentActivity() {
@@ -69,8 +69,8 @@ class GallerySetupActivity : FragmentActivity() {
             // Push the user to the GallerySettingsActivity to see inline rationale or just
             // select individual photos
             startActivityForResult(Intent(this, GallerySettingsActivity::class.java).apply {
-                if (intent.getBooleanExtra(MuzeiArtSource.EXTRA_FROM_MUZEI_SETTINGS, false)) {
-                    putExtra(MuzeiArtSource.EXTRA_FROM_MUZEI_SETTINGS, true)
+                if (intent.getBooleanExtra(MuzeiArtProvider.EXTRA_FROM_MUZEI, false)) {
+                    putExtra(MuzeiArtProvider.EXTRA_FROM_MUZEI, true)
                 }
             }, REQUEST_CHOOSE_IMAGES)
         }

@@ -162,10 +162,6 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         setContentView(R.layout.gallery_activity)
         setSupportActionBar(findViewById(R.id.app_bar))
 
-        bindService(Intent(this, GalleryArtSource::class.java)
-                .setAction(GalleryArtSource.ACTION_BIND_GALLERY),
-                serviceConnection, Context.BIND_AUTO_CREATE)
-
         setupMultiSelect()
 
         val gridLayoutManager = GridLayoutManager(this, 1)
