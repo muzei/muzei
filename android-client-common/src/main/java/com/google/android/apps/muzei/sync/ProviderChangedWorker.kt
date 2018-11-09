@@ -28,10 +28,10 @@ import android.util.Log
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.work.Constraints
+import androidx.work.CoroutineWorker
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import androidx.work.Worker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.google.android.apps.muzei.api.internal.ProtocolConstants
@@ -43,7 +43,6 @@ import com.google.android.apps.muzei.render.isValidImage
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
-import kotlinx.coroutines.runBlocking
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.IOException
 import java.util.HashSet
@@ -57,7 +56,7 @@ import java.util.concurrent.TimeUnit
 class ProviderChangedWorker(
         context: Context,
         workerParams: WorkerParameters
-) : Worker(context, workerParams) {
+) : CoroutineWorker(context, workerParams) {
 
     companion object {
         private const val TAG = "ProviderChanged"
@@ -169,7 +168,9 @@ class ProviderChangedWorker(
         }
     }
 
-    override fun doWork() = runBlocking(syncSingleThreadContext) {
+    override val coroutineContext = syncSingleThreadContext
+
+    override suspend fun doWork(): Payload {
         val tag = inputData.getString(TAG) ?: ""
         // First schedule the observer to pick up any changes fired
         // by the work done in handleProviderChange
@@ -180,7 +181,7 @@ class ProviderChangedWorker(
             }
         }
         // Now actually handle the provider change
-        handleProviderChange(tag)
+        return Payload(handleProviderChange(tag))
     }
 
     private suspend fun handleProviderChange(tag: String): Result {

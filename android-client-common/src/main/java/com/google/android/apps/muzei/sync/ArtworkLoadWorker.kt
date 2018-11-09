@@ -23,13 +23,13 @@ import android.net.Uri
 import android.provider.BaseColumns
 import android.util.Log
 import androidx.work.Constraints
+import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.google.android.apps.muzei.api.internal.ProtocolConstants
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_MAX_LOADED_ARTWORK_ID
@@ -46,7 +46,6 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
 import com.google.android.apps.muzei.util.getLong
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.IOException
 import java.util.Random
@@ -59,7 +58,7 @@ import java.util.concurrent.TimeUnit
 class ArtworkLoadWorker(
         context: Context,
         workerParams: WorkerParameters
-) : Worker(context, workerParams) {
+) : CoroutineWorker(context, workerParams) {
 
     companion object {
         private const val TAG = "ArtworkLoad"
@@ -97,10 +96,12 @@ class ArtworkLoadWorker(
         }
     }
 
-    override fun doWork() = runBlocking(syncSingleThreadContext) {
+    override val coroutineContext = syncSingleThreadContext
+
+    override suspend fun doWork(): Payload {
         // Throttle artwork loads
         delay(ARTWORK_LOAD_THROTTLE)
-        loadArtwork()
+        return Payload(loadArtwork())
     }
 
     private suspend fun loadArtwork(): Result {

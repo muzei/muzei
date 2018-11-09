@@ -23,17 +23,16 @@ import android.util.Log
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.work.Constraints
+import androidx.work.CoroutineWorker
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
 import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONException
@@ -52,7 +51,7 @@ import java.util.concurrent.TimeUnit
 class FeaturedArtWorker(
         context: Context,
         workerParams: WorkerParameters
-) : Worker(context, workerParams) {
+) : CoroutineWorker(context, workerParams) {
 
     companion object {
         private const val TAG = "FeaturedArtWorker"
@@ -108,9 +107,9 @@ class FeaturedArtWorker(
         }
     }
 
-    override fun doWork(): Result = runBlocking(SINGLE_THREAD_CONTEXT) {
-        loadFeaturedArt()
-    }
+    override val coroutineContext = SINGLE_THREAD_CONTEXT
+
+    override suspend fun doWork(): Payload = Payload(loadFeaturedArt())
 
     private fun loadFeaturedArt(): Result {
         val jsonObject: JSONObject?
