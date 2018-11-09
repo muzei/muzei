@@ -77,12 +77,11 @@ class ProviderChangedWorker(
 
         internal fun enqueueChanged() {
             val workManager = WorkManager.getInstance()
-            workManager.beginUniqueWork("changed", ExistingWorkPolicy.REPLACE,
+            workManager.enqueueUniqueWork("changed", ExistingWorkPolicy.REPLACE,
                     OneTimeWorkRequestBuilder<ProviderChangedWorker>()
                             .setInitialDelay(PROVIDER_CHANGED_THROTTLE, TimeUnit.MILLISECONDS)
                             .setInputData(workDataOf(TAG to "changed"))
                             .build())
-                    .enqueue()
         }
 
         @RequiresApi(Build.VERSION_CODES.N)

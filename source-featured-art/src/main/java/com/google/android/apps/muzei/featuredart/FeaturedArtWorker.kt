@@ -96,7 +96,7 @@ class FeaturedArtWorker(
                     DateUtils.formatElapsedTime(TimeUnit.MILLISECONDS.toSeconds(delay)))
             }
             val workManager = WorkManager.getInstance()
-            workManager.beginUniqueWork(
+            workManager.enqueueUniqueWork(
                     TAG,
                     ExistingWorkPolicy.REPLACE,
                     OneTimeWorkRequestBuilder<FeaturedArtWorker>()
@@ -104,8 +104,7 @@ class FeaturedArtWorker(
                             .setConstraints(Constraints.Builder()
                                     .setRequiredNetworkType(NetworkType.CONNECTED)
                                     .build())
-                            .build()
-            ).enqueue()
+                            .build())
         }
     }
 

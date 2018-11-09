@@ -76,10 +76,10 @@ class GalleryScanWorker(
 
         fun enqueueRescan() {
             val workManager = WorkManager.getInstance()
-            workManager.beginUniqueWork("rescan",
+            workManager.enqueueUniqueWork("rescan",
                     ExistingWorkPolicy.REPLACE,
                     OneTimeWorkRequestBuilder<GalleryScanWorker>()
-                            .build()).enqueue()
+                            .build())
         }
     }
 

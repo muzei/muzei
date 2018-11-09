@@ -47,13 +47,12 @@ class ArtworkComplicationWorker(
 
         internal fun scheduleComplicationUpdate() {
             val workManager = WorkManager.getInstance()
-            workManager.beginUniqueWork(TAG, ExistingWorkPolicy.REPLACE,
+            workManager.enqueueUniqueWork(TAG, ExistingWorkPolicy.REPLACE,
                     OneTimeWorkRequestBuilder<ArtworkComplicationWorker>()
                             .setConstraints(Constraints.Builder()
                                     .addContentUriTrigger(MuzeiContract.Artwork.CONTENT_URI, true)
                                     .build())
-                            .build()
-            ).enqueue()
+                            .build())
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Work scheduled")
             }

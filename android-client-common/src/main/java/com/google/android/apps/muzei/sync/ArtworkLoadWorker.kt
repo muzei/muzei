@@ -68,9 +68,8 @@ class ArtworkLoadWorker(
 
         internal fun enqueueNext() {
             val workManager = WorkManager.getInstance()
-            workManager.beginUniqueWork(TAG, ExistingWorkPolicy.REPLACE,
+            workManager.enqueueUniqueWork(TAG, ExistingWorkPolicy.REPLACE,
                     OneTimeWorkRequestBuilder<ArtworkLoadWorker>().build())
-                    .enqueue()
         }
 
         internal fun enqueuePeriodic(
