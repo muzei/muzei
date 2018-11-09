@@ -25,10 +25,8 @@ import android.arch.lifecycle.ViewModelProvider
 import android.arch.paging.PagedList
 import android.arch.paging.PagedListAdapter
 import android.content.ActivityNotFoundException
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.ColorDrawable
@@ -36,7 +34,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.os.IBinder
 import android.provider.DocumentsContract
 import android.provider.Settings
 import android.support.annotation.RequiresApi
@@ -103,12 +100,6 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                 return true
             }
         }
-    }
-
-    private val serviceConnection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName, service: IBinder) {}
-
-        override fun onServiceDisconnected(name: ComponentName) {}
     }
 
     private val viewModel: GallerySettingsViewModel by lazy {
@@ -298,7 +289,6 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
 
     override fun onDestroy() {
         super.onDestroy()
-        unbindService(serviceConnection)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
