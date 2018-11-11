@@ -338,7 +338,7 @@ class ChooseProviderFragment : Fragment() {
                         FirebaseAnalytics.Param.ITEM_NAME to title))
                 findNavController().navigate(
                         ChooseProviderFragmentDirections.browse(
-                                ProviderContract.Artwork.getContentUri(authority)))
+                                ProviderContract.getContentUri(authority)))
             }
         }
 

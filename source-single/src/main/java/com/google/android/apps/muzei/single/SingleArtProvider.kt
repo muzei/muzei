@@ -53,7 +53,7 @@ class SingleArtProvider : MuzeiArtProvider() {
         suspend fun setArtwork(context: Context, artworkUri: Uri): Boolean {
             val tempFile = writeUriToFile(context, artworkUri, getArtworkFile(context))
             if (tempFile != null) {
-                ProviderContract.Artwork.setArtwork(context, SINGLE_AUTHORITY,
+                ProviderContract.getProviderClient(context, SINGLE_AUTHORITY).setArtwork(
                         Artwork().apply {
                             title = getDisplayName(context, artworkUri)
                                     ?: context.getString(R.string.single_default_artwork_title)

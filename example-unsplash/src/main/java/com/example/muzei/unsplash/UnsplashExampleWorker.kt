@@ -61,6 +61,8 @@ class UnsplashExampleWorker(
             return Result.FAILURE
         }
 
+        val providerClient = ProviderContract.getProviderClient(
+                applicationContext, UNSPLASH_AUTHORITY)
         val attributionString = applicationContext.getString(R.string.attribution)
         photos.map { photo ->
             Artwork().apply {
@@ -73,9 +75,7 @@ class UnsplashExampleWorker(
                 metadata = photo.user.links.webUri.toString()
             }
         }.forEach { artwork ->
-            ProviderContract.Artwork.addArtwork(applicationContext,
-                    UNSPLASH_AUTHORITY,
-                    artwork)
+            providerClient.addArtwork(artwork)
         }
         return Result.SUCCESS
     }

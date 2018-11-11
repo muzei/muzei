@@ -88,8 +88,8 @@ class SourceSubscriberService : IntentService("SourceSubscriberService") {
                 webUri = currentArtwork.viewIntent?.toUri(Intent.URI_INTENT_SCHEME)?.toUri()
             }
 
-            val artworkUri = ProviderContract.Artwork.setArtwork(this,
-                    SOURCES_AUTHORITY, newArtwork)
+            val artworkUri = ProviderContract.getProviderClient(this,
+                    SOURCES_AUTHORITY).setArtwork(newArtwork)
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Set artwork to: $artworkUri")
             }

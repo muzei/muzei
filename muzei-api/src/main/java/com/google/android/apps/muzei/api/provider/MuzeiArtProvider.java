@@ -166,9 +166,8 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHO
  * As onLoadRequested can be called at any time (including when offline), it is
  * strongly recommended to use the callback of onLoadRequested to kick off
  * a load operation using WorkManager, JobScheduler, or a comparable API. These
- * other components can then use
- * {@link ProviderContract.Artwork#addArtwork(Context, Class, Artwork)} to add
- * Artwork to the MuzeiArtProvider.
+ * other components can then use a {@link ProviderClient} and
+ * {@link ProviderClient#addArtwork(Artwork)} to add Artwork to the MuzeiArtProvider.
  * <h3>Additional notes</h3>
  * Providers can also expose additional user-facing commands (such as 'Share artwork') by
  * returning one or more {@link UserCommand commands} from {@link #getCommands(Artwork)}. To handle
@@ -188,7 +187,7 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHO
  * artwork, you can also write it directly via {@link ContentResolver#openOutputStream(Uri)}.
  */
 @RequiresApi(Build.VERSION_CODES.KITKAT)
-public abstract class MuzeiArtProvider extends ContentProvider {
+public abstract class MuzeiArtProvider extends ContentProvider implements ProviderClient {
     private static final String TAG = "MuzeiArtProvider";
     private static final boolean DEBUG = false;
     private static final int MAX_RECENT_ARTWORK = 100;
@@ -283,61 +282,37 @@ public abstract class MuzeiArtProvider extends ContentProvider {
         }
     }
 
-    /**
-     * Retrieve the content URI for this {@link MuzeiArtProvider}, allowing you to build
-     * custom queries, inserts, updates, and deletes using a {@link ContentResolver}.
-     *
-     * @return The content URI for this {@link MuzeiArtProvider}
-     * @see ProviderContract.Artwork#getContentUri(Context, Class)
-     */
+    @Override
     @NonNull
-    protected final Uri getContentUri() {
-        if (getContext() == null) {
+    public final Uri getContentUri() {
+        Context context = getContext();
+        if (context == null) {
             throw new IllegalStateException("getContentUri() should not be called before onCreate()");
         }
         if (contentUri == null) {
-            contentUri = ProviderContract.Artwork.getContentUri(getContext(), getClass());
+            contentUri = ProviderContract.getProviderClient(context, getClass()).getContentUri();
         }
         return contentUri;
     }
 
-    /**
-     * Retrieve the last added artwork for this {@link MuzeiArtProvider}.
-     *
-     * @return The last added Artwork, or null if no artwork has been added
-     * @see ProviderContract.Artwork#getLastAddedArtwork(Context, Class)
-     */
+    @Override
     @Nullable
-    protected final Artwork getLastAddedArtwork() {
+    public final Artwork getLastAddedArtwork() {
         try (Cursor data = query(contentUri, null, null, null,
                 BaseColumns._ID + " DESC")) {
             return data.moveToFirst() ? Artwork.fromCursor(data) : null;
         }
     }
 
-    /**
-     * Add a new piece of artwork to this {@link MuzeiArtProvider}.
-     *
-     * @param artwork The artwork to add
-     * @return The URI of the newly added artwork or null if the insert failed
-     * @see ProviderContract.Artwork#addArtwork(Context, Class, Artwork)
-     */
+    @Override
     @Nullable
-    protected final Uri addArtwork(@NonNull Artwork artwork) {
+    public final Uri addArtwork(@NonNull Artwork artwork) {
         return insert(contentUri, artwork.toContentValues());
     }
 
-    /**
-     * Set this {@link MuzeiArtProvider} to only show the given artwork, deleting any other
-     * artwork previously added. Only in the cases where the artwork is successfully inserted
-     * will the other artwork be removed.
-     *
-     * @param artwork The artwork to set
-     * @return The URI of the newly set artwork or null if the insert failed
-     * @see ProviderContract.Artwork#setArtwork(Context, Class, Artwork)
-     */
+    @Override
     @Nullable
-    protected final Uri setArtwork(@NonNull Artwork artwork) {
+    public final Uri setArtwork(@NonNull Artwork artwork) {
         ArrayList<ContentProviderOperation> operations = new ArrayList<>();
         operations.add(ContentProviderOperation.newInsert(contentUri)
                 .withValues(artwork.toContentValues())

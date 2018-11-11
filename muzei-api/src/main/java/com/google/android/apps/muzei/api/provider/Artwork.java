@@ -49,9 +49,8 @@ import static com.google.android.apps.muzei.api.provider.ProviderContract.Artwor
  * <p>
  * Artwork can then be added to a {@link MuzeiArtProvider} by calling
  * {@link MuzeiArtProvider#addArtwork(Artwork) addArtwork(Artwork)} directly
- * from within a MuzeiArtProvider or by calling
- * {@link ProviderContract.Artwork#addArtwork(Context, Class, Artwork)}
- * from anywhere in your application.
+ * from within a MuzeiArtProvider or by creating a {@link ProviderClient} and calling
+ * {@link ProviderClient#addArtwork(Artwork)} from anywhere in your application.
  * </p>
  * <p>
  * The static {@link Artwork#fromCursor(Cursor)} method allows you to convert
