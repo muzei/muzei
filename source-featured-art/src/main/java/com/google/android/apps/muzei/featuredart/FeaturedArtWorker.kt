@@ -128,9 +128,8 @@ class FeaturedArtWorker(
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Adding new artwork: $imageUri")
             }
-            ProviderContract.Artwork.addArtwork(applicationContext,
-                    FEATURED_ART_AUTHORITY,
-                    artwork)
+            ProviderContract.getProviderClient(applicationContext, FEATURED_ART_AUTHORITY)
+                    .addArtwork(artwork)
         } catch (e: JSONException) {
             Log.e(TAG, "Error reading JSON", e)
             return Result.RETRY

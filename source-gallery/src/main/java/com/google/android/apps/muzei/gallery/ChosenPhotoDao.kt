@@ -249,7 +249,7 @@ internal abstract class ChosenPhotoDao {
     ) = coroutineScope  {
         chosenPhotos.map { chosenPhoto ->
             async {
-                val contentUri = ProviderContract.Artwork.getContentUri(GALLERY_ART_AUTHORITY)
+                val contentUri = ProviderContract.getContentUri(GALLERY_ART_AUTHORITY)
                 context.contentResolver.delete(contentUri,
                         "${ProviderContract.Artwork.METADATA}=?",
                         arrayOf(chosenPhoto.uri.toString()))

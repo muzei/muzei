@@ -229,7 +229,7 @@ class ProviderManager private constructor(private val context: Context)
                     Log.d(TAG, "Starting artwork load")
                 }
                 // Listen for MuzeiArtProvider changes
-                val contentUri = ProviderContract.Artwork.getContentUri(currentSource.authority)
+                val contentUri = ProviderContract.getContentUri(currentSource.authority)
                 context.contentResolver.registerContentObserver(
                         contentUri, true, contentObserver)
                 ProviderChangedWorker.enqueueSelected()

@@ -105,8 +105,8 @@ class DataLayerLoadWorker(
                     PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
                     PackageManager.DONT_KILL_APP)
             val artwork = dataMap.getDataMap("artwork").toArtwork()
-            val artworkUri = ProviderContract.Artwork.setArtwork(applicationContext,
-                    DATA_LAYER_AUTHORITY, artwork)
+            val artworkUri = ProviderContract.getProviderClient(applicationContext,
+                    DATA_LAYER_AUTHORITY).setArtwork(artwork)
             if (artworkUri != null) {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "Successfully wrote artwork to $artworkUri")
