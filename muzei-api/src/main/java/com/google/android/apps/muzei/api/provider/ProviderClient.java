@@ -21,6 +21,8 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.util.List;
+
 /**
  * Interface for interacting with a {@link MuzeiArtProvider}. Methods of this interface can
  * be used directly within a MuzeiArtProvider or you can get an instance via
@@ -53,6 +55,15 @@ public interface ProviderClient {
      */
     @Nullable
     Uri addArtwork(@NonNull Artwork artwork);
+
+    /**
+     * Add multiple artwork as a batch operation to the {@link MuzeiArtProvider}.
+     *
+     * @param artwork The artwork to add
+     * @return The URIs of the newly added artwork or an empty List if the insert failed.
+     */
+    @NonNull
+    List<Uri> addArtwork(@NonNull Iterable<Artwork> artwork);
 
     /**
      * Set the {@link MuzeiArtProvider} to only show the given artwork, deleting any other

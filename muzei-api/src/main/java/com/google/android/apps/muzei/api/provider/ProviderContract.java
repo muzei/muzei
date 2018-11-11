@@ -34,7 +34,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 
 import java.util.ArrayList;
-import java.util.Objects;
+import java.util.List;
 
 /**
  * Contract between Muzei and Muzei Art Providers, containing the definitions for all supported
@@ -132,6 +132,28 @@ public class ProviderContract {
                 return contentResolver.insert(contentUri, artwork.toContentValues());
             }
 
+            @NonNull
+            @Override
+            public List<Uri> addArtwork(@NonNull final Iterable<com.google.android.apps.muzei.api.provider.Artwork> artwork) {
+                ContentResolver contentResolver = context.getContentResolver();
+                ArrayList<ContentProviderOperation> operations = new ArrayList<>();
+                for (com.google.android.apps.muzei.api.provider.Artwork art : artwork) {
+                    operations.add(ContentProviderOperation.newInsert(contentUri)
+                            .withValues(art.toContentValues())
+                            .build());
+                }
+                ArrayList<Uri> resultUris = new ArrayList<>(operations.size());
+                try {
+                    ContentProviderResult[] results = contentResolver.applyBatch(
+                            authority, operations);
+                    for (ContentProviderResult result : results) {
+                        resultUris.add(result.uri);
+                    }
+                } catch (OperationApplicationException|RemoteException ignored) {
+                }
+                return resultUris;
+            }
+
             @Nullable
             @Override
             public Uri setArtwork(@NonNull final com.google.android.apps.muzei.api.provider.Artwork artwork) {
@@ -146,8 +168,7 @@ public class ProviderContract {
                         .build());
                 try {
                     ContentProviderResult[] results = contentResolver.applyBatch(
-                            Objects.requireNonNull(contentUri.getAuthority()),
-                            operations);
+                            authority, operations);
                     return results[0].uri;
                 } catch (OperationApplicationException|RemoteException e) {
                     return null;
