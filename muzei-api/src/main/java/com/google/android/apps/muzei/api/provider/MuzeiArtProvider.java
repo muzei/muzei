@@ -311,6 +311,26 @@ public abstract class MuzeiArtProvider extends ContentProvider implements Provid
     }
 
     @Override
+    @NonNull
+    public List<Uri> addArtwork(@NonNull final Iterable<Artwork> artwork) {
+        ArrayList<ContentProviderOperation> operations = new ArrayList<>();
+        for (com.google.android.apps.muzei.api.provider.Artwork art : artwork) {
+            operations.add(ContentProviderOperation.newInsert(contentUri)
+                    .withValues(art.toContentValues())
+                    .build());
+        }
+        ArrayList<Uri> resultUris = new ArrayList<>(operations.size());
+        try {
+            ContentProviderResult[] results = applyBatch(operations);
+            for (ContentProviderResult result : results) {
+                resultUris.add(result.uri);
+            }
+        } catch (OperationApplicationException ignored) {
+        }
+        return resultUris;
+    }
+
+    @Override
     @Nullable
     public final Uri setArtwork(@NonNull Artwork artwork) {
         ArrayList<ContentProviderOperation> operations = new ArrayList<>();

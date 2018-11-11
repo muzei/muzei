@@ -131,12 +131,12 @@ class GalleryScanWorker(
             val cachedFile = GalleryProvider.getCacheFileForUri(
                     applicationContext, chosenPhoto.uri)
             if (cachedFile != null && cachedFile.exists()) {
-                addUri(providerClient,
+                providerClient.addArtwork(createArtwork(
                         chosenPhoto.uri,
                         Uri.fromFile(cachedFile),
-                        chosenPhoto.contentUri)
+                        chosenPhoto.contentUri))
             } else {
-                addUri(providerClient, chosenPhoto.uri)
+                providerClient.addArtwork(createArtwork(chosenPhoto.uri))
             }
         }
     }
@@ -150,9 +150,9 @@ class GalleryScanWorker(
             // Shuffle all the images to give a random initial load order
             allImages.shuffle()
             val currentTime = System.currentTimeMillis()
-            val addedArtwork = allImages.map { uri ->
-                addUri(providerClient, treeUri, uri)
-            }
+            val addedArtwork = providerClient.addArtwork(allImages.map { uri ->
+                createArtwork(treeUri, uri)
+            })
             val deleteOperations = ArrayList<ContentProviderOperation>()
             applicationContext.contentResolver.query(
                     providerClient.contentUri,
@@ -256,9 +256,9 @@ class GalleryScanWorker(
                             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                             data.getLong(0))
                     if (imageUri.toString() != lastToken) {
-                        addUri(providerClient,
+                        providerClient.addArtwork(createArtwork(
                                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                                imageUri)
+                                imageUri))
                         return Result.SUCCESS
                     }
                 }
@@ -273,15 +273,14 @@ class GalleryScanWorker(
         }
     }
 
-    private fun addUri(
-            providerClient: ProviderClient,
+    private fun createArtwork(
             baseUri: Uri,
             imageUri: Uri = baseUri,
             publicWebUri: Uri = imageUri
-    ): Uri? {
+    ): Artwork {
         val imageMetadata = ensureMetadataExists(imageUri)
 
-        val artwork = Artwork().apply {
+        return Artwork().apply {
             token = imageUri.toString()
             persistentUri = imageUri
             webUri = publicWebUri
@@ -300,8 +299,6 @@ class GalleryScanWorker(
                 imageMetadata.location
             }
         }
-
-        return providerClient.addArtwork(artwork)
     }
 
     private fun ensureMetadataExists(imageUri: Uri): Metadata {
