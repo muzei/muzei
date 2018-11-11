@@ -20,6 +20,7 @@ import android.content.ComponentName;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.content.pm.PackageManager;
@@ -173,6 +174,49 @@ public class ProviderContract {
                 } catch (OperationApplicationException|RemoteException e) {
                     return null;
                 }
+            }
+
+            @NonNull
+            @Override
+            public List<Uri> setArtwork(@NonNull final Iterable<com.google.android.apps.muzei.api.provider.Artwork> artwork) {
+                ContentResolver contentResolver = context.getContentResolver();
+                ArrayList<ContentProviderOperation> operations = new ArrayList<>();
+                for (com.google.android.apps.muzei.api.provider.Artwork art : artwork) {
+                    operations.add(ContentProviderOperation.newInsert(contentUri)
+                            .withValues(art.toContentValues())
+                            .build());
+                }
+                long currentTime = System.currentTimeMillis();
+                ArrayList<Uri> resultUris = new ArrayList<>(operations.size());
+                try {
+                    ContentProviderResult[] results = contentResolver.applyBatch(
+                            authority, operations);
+                    for (ContentProviderResult result : results) {
+                        resultUris.add(result.uri);
+                    }
+                    ArrayList<ContentProviderOperation> deleteOperations = new ArrayList<>();
+                    try (Cursor data = context.getContentResolver().query(
+                            contentUri,
+                            new String[] { BaseColumns._ID },
+                            Artwork.DATE_MODIFIED + "<?",
+                            new String[] { Long.toString(currentTime)},
+                            null)) {
+                        while (data != null && data.moveToNext()) {
+                            Uri artworkUri = ContentUris.withAppendedId(contentUri,
+                                    data.getLong(0));
+                            if (!resultUris.contains(artworkUri)) {
+                                deleteOperations.add(ContentProviderOperation
+                                        .newDelete(artworkUri)
+                                        .build());
+                            }
+                        }
+                    }
+                    if (!deleteOperations.isEmpty()) {
+                        contentResolver.applyBatch(authority, deleteOperations);
+                    }
+                } catch (OperationApplicationException|RemoteException ignored) {
+                }
+                return resultUris;
             }
         };
     }

@@ -75,4 +75,15 @@ public interface ProviderClient {
      */
     @Nullable
     Uri setArtwork(@NonNull Artwork artwork);
+
+    /**
+     * Set the {@link MuzeiArtProvider} to only show the given artwork, deleting any other
+     * artwork previously added. Only in the cases where the artwork is successfully inserted
+     * will the other artwork be removed.
+     *
+     * @param artwork The artwork to set
+     * @return The URIs of the newly set artwork or an empty List if the inserts failed.
+     */
+    @NonNull
+    List<Uri> setArtwork(@NonNull Iterable<Artwork> artwork);
 }

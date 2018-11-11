@@ -314,7 +314,7 @@ public abstract class MuzeiArtProvider extends ContentProvider implements Provid
     @NonNull
     public List<Uri> addArtwork(@NonNull final Iterable<Artwork> artwork) {
         ArrayList<ContentProviderOperation> operations = new ArrayList<>();
-        for (com.google.android.apps.muzei.api.provider.Artwork art : artwork) {
+        for (Artwork art : artwork) {
             operations.add(ContentProviderOperation.newInsert(contentUri)
                     .withValues(art.toContentValues())
                     .build());
@@ -348,6 +348,47 @@ public abstract class MuzeiArtProvider extends ContentProvider implements Provid
             Log.e(TAG, "setArtwork failed", e);
             return null;
         }
+    }
+
+    @Override
+    @NonNull
+    public List<Uri> setArtwork(@NonNull final Iterable<Artwork> artwork) {
+        ArrayList<ContentProviderOperation> operations = new ArrayList<>();
+        for (Artwork art : artwork) {
+            operations.add(ContentProviderOperation.newInsert(contentUri)
+                    .withValues(art.toContentValues())
+                    .build());
+        }
+        long currentTime = System.currentTimeMillis();
+        ArrayList<Uri> resultUris = new ArrayList<>(operations.size());
+        try {
+            ContentProviderResult[] results = applyBatch(operations);
+            for (ContentProviderResult result : results) {
+                resultUris.add(result.uri);
+            }
+            ArrayList<ContentProviderOperation> deleteOperations = new ArrayList<>();
+            try (Cursor data = query(
+                    contentUri,
+                    new String[] { BaseColumns._ID },
+                    ProviderContract.Artwork.DATE_MODIFIED + "<?",
+                    new String[] { Long.toString(currentTime)},
+                    null)) {
+                while (data.moveToNext()) {
+                    Uri artworkUri = ContentUris.withAppendedId(contentUri,
+                            data.getLong(0));
+                    if (!resultUris.contains(artworkUri)) {
+                        deleteOperations.add(ContentProviderOperation
+                                .newDelete(artworkUri)
+                                .build());
+                    }
+                }
+            }
+            if (!deleteOperations.isEmpty()) {
+                applyBatch(deleteOperations);
+            }
+        } catch (OperationApplicationException ignored) {
+        }
+        return resultUris;
     }
 
     @CallSuper
