@@ -5,6 +5,7 @@ import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.ViewModelProvider
 import android.content.ComponentName
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
@@ -213,7 +214,8 @@ class MuzeiActivity : FragmentActivity(),
             }
             nextArtwork.isVisible = provider.supportsNextArtwork
             val pm = packageManager
-            val providerInfo = pm.resolveContentProvider(provider.authority, 0)
+            val providerInfo = pm.resolveContentProvider(provider.authority,
+                    PackageManager.GET_META_DATA)
             if (providerInfo != null) {
                 val size = resources.getDimensionPixelSize(R.dimen.choose_provider_image_size)
                 val icon = providerInfo.loadIcon(pm)
