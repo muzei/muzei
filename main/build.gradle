@@ -104,6 +104,7 @@ dependencies {
     implementation "com.github.bumptech.glide:glide:$glideVersion"
     implementation "com.google.android.gms:play-services-wearable:$playServicesWearableVersion"
     implementation "com.twofortyfouram:android-plugin-api-for-locale:1.0.4"
+    implementation "androidx.core:core-ktx:$coreVersion"
     implementation "androidx.appcompat:appcompat:$appCompatVersion"
     implementation "androidx.recyclerview:recyclerview:$recyclerViewVersion"
     implementation "com.google.android.material:material:$materialVersion"
