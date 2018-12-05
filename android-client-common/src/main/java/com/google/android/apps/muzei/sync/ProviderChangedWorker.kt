@@ -16,17 +16,17 @@
 
 package com.google.android.apps.muzei.sync
 
-import android.arch.lifecycle.Observer
 import android.content.ContentUris
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.preference.PreferenceManager
-import android.support.annotation.RequiresApi
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.core.content.edit
 import androidx.core.net.toUri
+import androidx.lifecycle.Observer
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingWorkPolicy

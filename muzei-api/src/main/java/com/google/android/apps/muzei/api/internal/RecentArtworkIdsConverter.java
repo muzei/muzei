@@ -15,10 +15,11 @@
  */
 package com.google.android.apps.muzei.api.internal;
 
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import java.util.ArrayDeque;
+
+import androidx.annotation.NonNull;
 
 /**
  * Converts a ArrayDeque of {@link Long}s into and from a persisted value

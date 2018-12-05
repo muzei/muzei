@@ -16,8 +16,8 @@
 
 package com.google.android.apps.muzei.render
 
-import android.arch.lifecycle.LifecycleOwner
 import android.content.Context
+import androidx.lifecycle.LifecycleOwner
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.observeNonNull

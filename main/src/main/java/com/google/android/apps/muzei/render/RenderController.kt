@@ -16,11 +16,11 @@
 
 package com.google.android.apps.muzei.render
 
-import android.arch.lifecycle.DefaultLifecycleObserver
-import android.arch.lifecycle.LifecycleOwner
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Handler
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import com.google.android.apps.muzei.settings.Prefs
 import com.google.android.apps.muzei.util.coroutineScope
 import kotlinx.coroutines.CoroutineScope

@@ -16,7 +16,6 @@
 package com.google.android.apps.muzei.sources;
 
 import android.os.Build;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.security.KeyStore;
@@ -29,6 +28,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
+import androidx.annotation.NonNull;
 import okhttp3.ConnectionSpec;
 import okhttp3.OkHttpClient;
 import okhttp3.TlsVersion;

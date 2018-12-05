@@ -16,9 +16,9 @@
 
 package com.google.android.apps.muzei.util
 
-import android.arch.lifecycle.LifecycleOwner
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.Observer
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 
 fun <T> LiveData<T>.observe(owner: LifecycleOwner, callback: (T?) -> Unit) {
     observe(owner, Observer<T?> { value ->

@@ -19,8 +19,8 @@ package com.google.android.apps.muzei
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.app.FragmentActivity
 import androidx.core.os.bundleOf
+import androidx.fragment.app.FragmentActivity
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.openArtworkInfo
 import com.google.android.apps.muzei.util.coroutineScope

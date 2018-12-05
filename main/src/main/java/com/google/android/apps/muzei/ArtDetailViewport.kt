@@ -16,8 +16,8 @@
 
 package com.google.android.apps.muzei
 
-import android.arch.lifecycle.MutableLiveData
 import android.graphics.RectF
+import androidx.lifecycle.MutableLiveData
 
 // Singleton that can be observed
 object ArtDetailViewport {

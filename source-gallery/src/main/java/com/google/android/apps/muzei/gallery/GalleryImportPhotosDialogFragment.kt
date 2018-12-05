@@ -1,17 +1,17 @@
 package com.google.android.apps.muzei.gallery
 
 import android.app.Dialog
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.ViewModelProvider
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.os.Bundle
-import android.support.annotation.LayoutRes
-import android.support.v4.app.DialogFragment
-import android.support.v4.app.FragmentManager
-import android.support.v7.app.AlertDialog
 import android.widget.ArrayAdapter
+import androidx.annotation.LayoutRes
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.withStyledAttributes
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.apps.muzei.util.observe
 
 class GalleryImportPhotosDialogFragment : DialogFragment() {

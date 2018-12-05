@@ -18,13 +18,13 @@ package com.google.android.apps.muzei.settings
 
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.core.content.edit
 import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer
 import com.google.android.apps.muzei.util.coroutineScope
 import kotlinx.coroutines.Job

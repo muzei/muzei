@@ -130,7 +130,7 @@
             android:contentDescription="@string/action_next_artwork"
             android:visibility="gone"/>
 
-        <android.support.v7.widget.ActionMenuView
+        <androidx.appcompat.widget.ActionMenuView
             android:id="@+id/overflow_menu_view"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/art_detail_button_height"/>

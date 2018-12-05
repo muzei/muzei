@@ -31,11 +31,11 @@ import android.os.Handler
 import android.os.Looper
 import android.os.ResultReceiver
 import android.preference.PreferenceManager
-import android.support.annotation.RequiresApi
-import android.support.v4.app.NotificationCompat
-import android.support.v4.app.TaskStackBuilder
-import android.support.v4.content.ContextCompat
 import android.util.Log
+import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationCompat
+import androidx.core.app.TaskStackBuilder
+import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import com.google.android.apps.muzei.ChooseProviderActivity
 import com.google.android.apps.muzei.util.toast

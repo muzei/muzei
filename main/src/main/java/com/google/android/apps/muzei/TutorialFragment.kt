@@ -22,9 +22,6 @@ import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.support.v4.app.Fragment
-import android.support.v4.content.res.ResourcesCompat
-import android.support.v4.view.ViewCompat
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -33,6 +30,9 @@ import android.view.animation.OvershootInterpolator
 import android.widget.ImageView
 import androidx.core.animation.doOnEnd
 import androidx.core.content.edit
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.ViewCompat
+import androidx.fragment.app.Fragment
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
 

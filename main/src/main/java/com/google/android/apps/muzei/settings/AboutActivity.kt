@@ -18,16 +18,16 @@ package com.google.android.apps.muzei.settings
 
 import android.content.ActivityNotFoundException
 import android.os.Bundle
-import android.support.customtabs.CustomTabsIntent
-import android.support.v4.content.ContextCompat
-import android.support.v4.text.HtmlCompat
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.Toolbar
 import android.text.method.LinkMovementMethod
 import android.view.View
 import android.view.ViewPropertyAnimator
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.browser.customtabs.CustomTabsIntent
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.core.text.HtmlCompat
 import com.google.android.apps.muzei.render.MuzeiRendererFragment
 import com.google.android.apps.muzei.util.AnimatedMuzeiLogoFragment
 import net.nurik.roman.muzei.BuildConfig

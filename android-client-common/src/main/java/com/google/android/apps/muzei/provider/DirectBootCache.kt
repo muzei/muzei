@@ -18,8 +18,8 @@ package com.google.android.apps.muzei.provider
 
 import android.content.Context
 import android.os.Build
-import android.support.v4.content.ContextCompat
 import android.util.Log
+import androidx.core.content.ContextCompat
 import com.google.android.apps.muzei.api.MuzeiContract
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job

@@ -17,10 +17,10 @@
 package com.google.android.apps.muzei
 
 import android.os.Bundle
-import android.support.v4.app.FragmentActivity
-import android.support.wear.ambient.AmbientModeSupport
 import android.view.View
 import androidx.core.view.isVisible
+import androidx.fragment.app.FragmentActivity
+import androidx.wear.ambient.AmbientModeSupport
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.PanView

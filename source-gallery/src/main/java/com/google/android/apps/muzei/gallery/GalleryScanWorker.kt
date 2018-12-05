@@ -27,12 +27,12 @@ import android.os.Build
 import android.provider.BaseColumns
 import android.provider.DocumentsContract
 import android.provider.MediaStore
-import android.support.annotation.RequiresApi
-import android.support.media.ExifInterface
-import android.support.v4.content.ContextCompat
 import android.text.TextUtils
 import android.text.format.DateUtils
 import android.util.Log
+import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
+import androidx.exifinterface.media.ExifInterface
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager

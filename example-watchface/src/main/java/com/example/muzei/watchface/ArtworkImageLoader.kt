@@ -17,12 +17,12 @@
 package com.example.muzei.watchface
 
 import android.annotation.SuppressLint
-import android.arch.lifecycle.MutableLiveData
 import android.content.Context
 import android.database.ContentObserver
 import android.graphics.Bitmap
 import android.util.Log
 import android.util.Size
+import androidx.lifecycle.MutableLiveData
 import com.google.android.apps.muzei.api.MuzeiContract
 import java.io.FileNotFoundException
 import java.util.concurrent.ExecutorService

@@ -19,12 +19,12 @@ package com.google.android.apps.muzei.util
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.OvershootInterpolator
+import androidx.fragment.app.Fragment
 import net.nurik.roman.muzei.R
 
 class AnimatedMuzeiLogoFragment : Fragment() {

@@ -20,14 +20,15 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import static com.google.android.apps.muzei.api.provider.ProviderContract.Artwork.ATTRIBUTION;
 import static com.google.android.apps.muzei.api.provider.ProviderContract.Artwork.BYLINE;

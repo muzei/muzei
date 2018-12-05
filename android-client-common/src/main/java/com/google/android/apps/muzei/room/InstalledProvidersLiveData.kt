@@ -16,7 +16,6 @@
 
 package com.google.android.apps.muzei.room
 
-import android.arch.lifecycle.MutableLiveData
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
@@ -24,6 +23,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.pm.ProviderInfo
+import androidx.lifecycle.MutableLiveData
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher

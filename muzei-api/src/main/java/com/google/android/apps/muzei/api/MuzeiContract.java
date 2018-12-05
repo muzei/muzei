@@ -24,10 +24,6 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Looper;
 import android.provider.BaseColumns;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresPermission;
-import android.support.annotation.StringDef;
-import android.support.annotation.WorkerThread;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -38,6 +34,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresPermission;
+import androidx.annotation.StringDef;
+import androidx.annotation.WorkerThread;
 
 /**
  * Contract between Muzei and applications, containing the definitions for all supported URIs and

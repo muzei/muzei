@@ -17,14 +17,14 @@
 package com.google.android.apps.muzei.browse
 
 import android.app.Application
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.Transformations
 import android.content.ContentUris
 import android.content.Context
 import android.database.ContentObserver
 import android.net.Uri
 import android.os.Handler
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
 import com.google.android.apps.muzei.util.ScopedAndroidViewModel

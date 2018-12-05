@@ -16,9 +16,9 @@
 
 package com.google.android.apps.muzei.gallery.converter
 
-import android.arch.persistence.room.TypeConverter
 import android.net.Uri
 import androidx.core.net.toUri
+import androidx.room.TypeConverter
 
 /**
  * Converts a [Uri] into and from a persisted value

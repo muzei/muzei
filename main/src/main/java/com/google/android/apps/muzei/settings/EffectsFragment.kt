@@ -17,21 +17,21 @@
 package com.google.android.apps.muzei.settings
 
 import android.app.Activity
-import android.arch.lifecycle.MutableLiveData
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.support.design.widget.TabLayout
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentStatePagerAdapter
-import android.support.v4.view.ViewCompat
-import android.support.v4.view.ViewPager
-import android.support.v7.widget.Toolbar
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.Toolbar
 import androidx.core.content.edit
+import androidx.core.view.ViewCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.lifecycle.MutableLiveData
+import androidx.viewpager.widget.ViewPager
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer
+import com.google.android.material.tabs.TabLayout
 import net.nurik.roman.muzei.R
 
 object EffectsLockScreenOpenLiveData : MutableLiveData<Boolean>()

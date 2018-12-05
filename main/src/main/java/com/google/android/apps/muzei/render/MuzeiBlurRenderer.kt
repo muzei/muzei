@@ -17,7 +17,6 @@
 package com.google.android.apps.muzei.render
 
 import android.app.ActivityManager
-import android.arch.lifecycle.MutableLiveData
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -25,9 +24,10 @@ import android.graphics.RectF
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
-import android.support.annotation.Keep
 import android.util.Log
 import android.view.animation.AccelerateDecelerateInterpolator
+import androidx.annotation.Keep
+import androidx.lifecycle.MutableLiveData
 import com.google.android.apps.muzei.ArtDetailViewport
 import com.google.android.apps.muzei.settings.Prefs
 import com.google.android.apps.muzei.util.ImageBlurrer

@@ -17,12 +17,12 @@
 package com.google.android.apps.muzei.tasker
 
 import android.app.Application
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.Observer
 import android.content.pm.ProviderInfo
 import android.graphics.drawable.Drawable
-import android.support.v4.content.ContextCompat
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.google.android.apps.muzei.room.InstalledProvidersLiveData
 import com.google.android.apps.muzei.util.ScopedAndroidViewModel
 import net.nurik.roman.muzei.BuildConfig

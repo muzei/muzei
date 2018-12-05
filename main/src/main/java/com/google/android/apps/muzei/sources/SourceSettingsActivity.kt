@@ -17,7 +17,6 @@
 package com.google.android.apps.muzei.sources
 
 import android.app.Activity
-import android.arch.lifecycle.LiveData
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Context
@@ -36,19 +35,20 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.content.res.ResourcesCompat
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewPropertyAnimator
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import androidx.core.view.isVisible
+import androidx.lifecycle.LiveData
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Source

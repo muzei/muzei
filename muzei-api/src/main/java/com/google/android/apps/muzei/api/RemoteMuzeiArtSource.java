@@ -22,10 +22,11 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.PowerManager;
-import android.support.annotation.CallSuper;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresPermission;
 import android.util.Log;
+
+import androidx.annotation.CallSuper;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresPermission;
 
 /**
  * A convenience subclass of {@link MuzeiArtSource} that's specifically designed for use by

@@ -20,13 +20,13 @@ import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.preference.PreferenceManager
-import android.support.annotation.RequiresApi
-import android.support.v4.app.TaskStackBuilder
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.ComplicationManager
 import android.support.wearable.complications.ComplicationProviderService
 import android.support.wearable.complications.ComplicationText
 import android.util.Log
+import androidx.annotation.RequiresApi
+import androidx.core.app.TaskStackBuilder
 import androidx.core.content.edit
 import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.FullScreenActivity

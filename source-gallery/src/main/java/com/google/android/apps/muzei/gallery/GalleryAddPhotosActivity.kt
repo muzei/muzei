@@ -2,10 +2,10 @@ package com.google.android.apps.muzei.gallery
 
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.support.v4.app.ActivityCompat
-import android.support.v4.app.FragmentActivity
-import android.support.v4.app.ShareCompat
 import android.util.Log
+import androidx.core.app.ActivityCompat
+import androidx.core.app.ShareCompat
+import androidx.fragment.app.FragmentActivity
 import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.toast
 import kotlinx.coroutines.Dispatchers

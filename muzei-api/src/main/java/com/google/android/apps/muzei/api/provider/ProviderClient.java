@@ -18,10 +18,11 @@ package com.google.android.apps.muzei.api.provider;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Interface for interacting with a {@link MuzeiArtProvider}. Methods of this interface can

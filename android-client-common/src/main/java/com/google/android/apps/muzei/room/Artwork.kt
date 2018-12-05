@@ -16,15 +16,15 @@
 
 package com.google.android.apps.muzei.room
 
-import android.arch.persistence.room.ColumnInfo
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.Index
-import android.arch.persistence.room.PrimaryKey
-import android.arch.persistence.room.TypeConverters
 import android.content.ContentResolver
 import android.content.ContentUris
 import android.net.Uri
 import android.provider.BaseColumns
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.room.converter.DateTypeConverter
 import com.google.android.apps.muzei.room.converter.UriTypeConverter

@@ -16,8 +16,8 @@
 
 package com.google.android.apps.muzei.room.converter
 
-import android.arch.persistence.room.TypeConverter
 import android.util.Log
+import androidx.room.TypeConverter
 import com.google.android.apps.muzei.api.UserCommand
 import org.json.JSONArray
 import org.json.JSONException

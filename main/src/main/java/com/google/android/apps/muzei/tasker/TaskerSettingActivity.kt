@@ -16,17 +16,17 @@
 
 package com.google.android.apps.muzei.tasker
 
-import android.arch.lifecycle.ViewModelProvider
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.apps.muzei.util.observeNonNull
 import com.twofortyfouram.locale.api.Intent.EXTRA_BUNDLE
 import com.twofortyfouram.locale.api.Intent.EXTRA_STRING_BLURB

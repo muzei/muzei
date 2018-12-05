@@ -16,13 +16,6 @@
 
 package com.google.android.apps.muzei.gallery
 
-import android.arch.lifecycle.LiveData
-import android.arch.paging.DataSource
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Insert
-import android.arch.persistence.room.OnConflictStrategy
-import android.arch.persistence.room.Query
-import android.arch.persistence.room.TypeConverters
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -31,6 +24,13 @@ import android.os.Binder
 import android.os.Build
 import android.provider.DocumentsContract
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.paging.DataSource
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.TypeConverters
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.gallery.BuildConfig.GALLERY_ART_AUTHORITY
 import com.google.android.apps.muzei.gallery.converter.UriTypeConverter

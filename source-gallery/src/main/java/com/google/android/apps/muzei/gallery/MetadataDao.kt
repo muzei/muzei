@@ -16,13 +16,12 @@
 
 package com.google.android.apps.muzei.gallery
 
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Insert
-import android.arch.persistence.room.OnConflictStrategy
-import android.arch.persistence.room.Query
-import android.arch.persistence.room.TypeConverters
 import android.net.Uri
-
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.TypeConverters
 import com.google.android.apps.muzei.gallery.converter.UriTypeConverter
 
 /**

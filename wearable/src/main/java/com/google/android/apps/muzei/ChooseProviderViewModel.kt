@@ -17,11 +17,11 @@
 package com.google.android.apps.muzei
 
 import android.app.Application
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.Transformations
 import android.content.ComponentName
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
 import com.google.android.apps.muzei.room.InstalledProvidersLiveData
 import com.google.android.apps.muzei.util.ScopedAndroidViewModel
 import net.nurik.roman.muzei.BuildConfig.DATA_LAYER_AUTHORITY

@@ -16,7 +16,6 @@
 
 package com.google.android.apps.muzei.provider
 
-import android.arch.persistence.db.SupportSQLiteQueryBuilder
 import android.content.ContentProvider
 import android.content.ContentUris
 import android.content.ContentValues
@@ -28,8 +27,9 @@ import android.net.Uri
 import android.os.Binder
 import android.os.ParcelFileDescriptor
 import android.provider.BaseColumns
-import android.support.v4.os.UserManagerCompat
 import android.util.Log
+import androidx.core.os.UserManagerCompat
+import androidx.sqlite.db.SupportSQLiteQueryBuilder
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.sync.ProviderManager

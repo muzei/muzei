@@ -17,13 +17,13 @@
 package com.google.android.apps.muzei.wallpaper
 
 import android.app.KeyguardManager
-import android.arch.lifecycle.DefaultLifecycleObserver
-import android.arch.lifecycle.LifecycleOwner
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.support.v4.os.UserManagerCompat
+import androidx.core.os.UserManagerCompat
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import com.google.android.apps.muzei.MuzeiWallpaperService
 
 /**

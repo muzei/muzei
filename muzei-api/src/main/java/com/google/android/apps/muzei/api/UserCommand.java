@@ -16,8 +16,9 @@
 
 package com.google.android.apps.muzei.api;
 
-import android.support.annotation.IntRange;
 import android.text.TextUtils;
+
+import androidx.annotation.IntRange;
 
 /**
  * Data class representing a user-visible command.

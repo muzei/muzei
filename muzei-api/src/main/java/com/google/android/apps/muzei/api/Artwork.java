@@ -23,7 +23,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import org.json.JSONException;
@@ -31,6 +30,8 @@ import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 import java.util.Date;
+
+import androidx.annotation.NonNull;
 
 /**
  * A serializable object representing a single artwork produced by a {@link MuzeiArtSource}. An

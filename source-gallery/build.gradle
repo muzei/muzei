@@ -27,17 +27,17 @@ dependencies {
     implementation project(':extensions')
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
     implementation "com.github.bumptech.glide:glide:$glideVersion"
-    implementation "com.android.support:appcompat-v7:$supportLibraryVersion"
-    implementation "com.android.support:design:$supportLibraryVersion"
-    implementation "com.android.support:recyclerview-v7:$supportLibraryVersion"
-    implementation "com.android.support.constraint:constraint-layout:$constraintLayoutVersion"
-    implementation "com.android.support:exifinterface:$supportLibraryVersion"
-    implementation "android.arch.lifecycle:livedata:$lifecycleVersion"
-    implementation "android.arch.lifecycle:viewmodel:$lifecycleVersion"
-    implementation "android.arch.persistence.room:runtime:$roomVersion"
+    implementation "androidx.appcompat:appcompat:$supportLibraryVersion"
+    implementation "com.google.android.material:material:$supportLibraryVersion"
+    implementation "androidx.recyclerview:recyclerview:$supportLibraryVersion"
+    implementation "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
+    implementation "androidx.exifinterface:exifinterface:$supportLibraryVersion"
+    implementation "androidx.lifecycle:lifecycle-livedata:$lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-viewmodel:$lifecycleVersion"
+    implementation "androidx.room:room-runtime:$roomVersion"
     implementation "android.arch.work:work-runtime-ktx:$workManagerVersion"
-    kapt "android.arch.persistence.room:compiler:$roomVersion"
-    implementation "android.arch.paging:runtime:$pagingVersion"
+    kapt "androidx.room:room-compiler:$roomVersion"
+    implementation "androidx.paging:paging-runtime:$pagingVersion"
 }
 
 android {

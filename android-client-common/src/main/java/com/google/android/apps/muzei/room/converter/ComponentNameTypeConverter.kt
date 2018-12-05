@@ -16,8 +16,8 @@
 
 package com.google.android.apps.muzei.room.converter
 
-import android.arch.persistence.room.TypeConverter
 import android.content.ComponentName
+import androidx.room.TypeConverter
 
 /**
  * Converts a [ComponentName] into and from a persisted value

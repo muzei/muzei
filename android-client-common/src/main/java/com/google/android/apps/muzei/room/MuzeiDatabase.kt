@@ -16,22 +16,20 @@
 
 package com.google.android.apps.muzei.room
 
-import android.arch.persistence.db.SupportSQLiteDatabase
-import android.arch.persistence.room.Database
-import android.arch.persistence.room.InvalidationTracker
-import android.arch.persistence.room.Room
-import android.arch.persistence.room.RoomDatabase
-import android.arch.persistence.room.migration.Migration
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.sqlite.SQLiteConstraintException
+import androidx.room.Database
+import androidx.room.InvalidationTracker
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.provider.DirectBootCache
 import java.io.File
-
-
 
 /**
  * Room Database for Muzei

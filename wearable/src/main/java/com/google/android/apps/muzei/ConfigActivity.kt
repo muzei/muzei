@@ -24,12 +24,12 @@ import android.os.Bundle
 import android.preference.Preference
 import android.preference.PreferenceActivity
 import android.preference.PreferenceManager
-import android.support.v4.content.ContextCompat
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.ComplicationHelperActivity
 import android.support.wearable.complications.ComplicationProviderInfo
 import android.support.wearable.complications.ProviderChooserIntent
 import android.support.wearable.complications.ProviderInfoRetriever
+import androidx.core.content.ContextCompat
 import net.nurik.roman.muzei.R
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors

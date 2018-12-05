@@ -23,13 +23,13 @@ import android.graphics.PointF
 import android.graphics.RectF
 import android.os.Parcel
 import android.os.Parcelable
-import android.support.v4.view.GestureDetectorCompat
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
 import android.widget.OverScroller
+import androidx.core.view.GestureDetectorCompat
 
 class PanScaleProxyView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0)
     : View(context, attrs, defStyle) {

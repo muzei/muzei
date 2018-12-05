@@ -17,7 +17,6 @@
 package com.google.android.apps.muzei
 
 import android.app.Activity
-import android.arch.lifecycle.ViewModelProvider
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.graphics.Color
@@ -26,14 +25,6 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
-import android.support.v4.app.Fragment
-import android.support.v4.view.GravityCompat
-import android.support.v4.view.ViewCompat
-import android.support.v4.widget.DrawerLayout
-import android.support.v7.recyclerview.extensions.ListAdapter
-import android.support.v7.util.DiffUtil
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.Toolbar
 import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
@@ -43,11 +34,20 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
+import androidx.core.view.GravityCompat
+import androidx.core.view.ViewCompat
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
@@ -241,7 +241,7 @@ class ChooseProviderFragment : Fragment() {
         }
     }
 
-    inner class ProviderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), RequestListener<Drawable> {
+    inner class ProviderViewHolder(itemView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView), RequestListener<Drawable> {
         private val providerIcon: ImageView = itemView.findViewById(R.id.provider_icon)
         private val providerTitle: TextView = itemView.findViewById(R.id.provider_title)
         private val providerSelected: ImageView = itemView.findViewById(R.id.provider_selected)

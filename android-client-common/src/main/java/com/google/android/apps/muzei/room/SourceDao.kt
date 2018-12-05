@@ -16,14 +16,14 @@
 
 package com.google.android.apps.muzei.room
 
-import android.arch.lifecycle.LiveData
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Delete
-import android.arch.persistence.room.Insert
-import android.arch.persistence.room.Query
-import android.arch.persistence.room.TypeConverters
-import android.arch.persistence.room.Update
 import android.content.ComponentName
+import androidx.lifecycle.LiveData
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.Query
+import androidx.room.TypeConverters
+import androidx.room.Update
 import com.google.android.apps.muzei.room.converter.ComponentNameTypeConverter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

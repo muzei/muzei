@@ -18,9 +18,9 @@ package com.google.android.apps.muzei.render
 
 import android.animation.Animator
 import android.animation.ObjectAnimator
-import android.arch.lifecycle.LifecycleOwner
 import android.content.Context
 import androidx.core.animation.doOnEnd
+import androidx.lifecycle.LifecycleOwner
 import com.google.android.apps.muzei.util.coroutineScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay

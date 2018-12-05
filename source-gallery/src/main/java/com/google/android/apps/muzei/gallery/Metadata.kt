@@ -16,16 +16,14 @@
 
 package com.google.android.apps.muzei.gallery
 
-import android.arch.persistence.room.ColumnInfo
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.Index
-import android.arch.persistence.room.PrimaryKey
-import android.arch.persistence.room.TypeConverters
 import android.net.Uri
-
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
 import com.google.android.apps.muzei.gallery.converter.DateTypeConverter
 import com.google.android.apps.muzei.gallery.converter.UriTypeConverter
-
 import java.util.Date
 
 /**

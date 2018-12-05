@@ -23,12 +23,12 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
-import android.support.annotation.LayoutRes
-import android.support.annotation.RequiresApi
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
+import androidx.annotation.LayoutRes
+import androidx.annotation.RequiresApi
 import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.Artwork

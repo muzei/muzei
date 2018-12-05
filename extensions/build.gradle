@@ -21,9 +21,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
-    implementation "android.arch.lifecycle:common-java8:$lifecycleVersion"
-    api "android.arch.lifecycle:livedata-core:$lifecycleVersion"
-    api "android.arch.lifecycle:viewmodel:$lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion"
+    api "androidx.lifecycle:lifecycle-livedata-core:$lifecycleVersion"
+    api "androidx.lifecycle:lifecycle-viewmodel:$lifecycleVersion"
 }
 
 android {
