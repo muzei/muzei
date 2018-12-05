@@ -22,7 +22,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
-    implementation "androidx.core:core-ktx:$rootProject.ext.ktxVersion"
+    implementation "androidx.core:core-ktx:$coreVersion"
     implementation ("android.arch.work:work-runtime-ktx:$workManagerVersion") {
         exclude module: 'support-fragment'
     }
