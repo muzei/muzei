@@ -26,6 +26,7 @@ dependencies {
     implementation project(':extensions')
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
     implementation "com.github.bumptech.glide:glide:$glideVersion"
+    implementation "androidx.core:core-ktx:$coreVersion"
     implementation "androidx.appcompat:appcompat:$appCompatVersion"
     implementation "com.google.android.material:material:$materialVersion"
     implementation "androidx.recyclerview:recyclerview:$recyclerViewVersion"
