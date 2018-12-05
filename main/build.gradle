@@ -105,14 +105,11 @@ dependencies {
     implementation "com.github.bumptech.glide:glide:$glideVersion"
     implementation "com.google.android.gms:play-services-wearable:$playServicesWearableVersion"
     implementation "com.twofortyfouram:android-plugin-api-for-locale:1.0.4"
-    implementation ("androidx.legacy:legacy-support-v4:$supportLibraryVersion") {
-        exclude module: 'support-media-compat'
-    }
-    implementation "androidx.appcompat:appcompat:$supportLibraryVersion"
-    implementation "androidx.recyclerview:recyclerview:$supportLibraryVersion"
-    implementation "com.google.android.material:material:$supportLibraryVersion"
-    implementation "androidx.browser:browser:$supportLibraryVersion"
-    implementation "androidx.exifinterface:exifinterface:$supportLibraryVersion"
+    implementation "androidx.appcompat:appcompat:$appCompatVersion"
+    implementation "androidx.recyclerview:recyclerview:$recyclerViewVersion"
+    implementation "com.google.android.material:material:$materialVersion"
+    implementation "androidx.browser:browser:$browserVersion"
+    implementation "androidx.exifinterface:exifinterface:$exifInterfaceVersion"
     implementation "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
     implementation "androidx.lifecycle:lifecycle-livedata:$lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion"

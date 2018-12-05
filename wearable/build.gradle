@@ -88,9 +88,9 @@ dependencies {
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
     implementation "androidx.core:core-ktx:$rootProject.ext.ktxVersion"
     implementation "android.arch.work:work-runtime-ktx:$workManagerVersion"
-    implementation "androidx.core:core:$supportLibraryVersion"
-    implementation "androidx.exifinterface:exifinterface:$supportLibraryVersion"
-    implementation "androidx.wear:wear:$supportLibraryVersion"
+    implementation "androidx.core:core:$coreVersion"
+    implementation "androidx.exifinterface:exifinterface:$exifInterfaceVersion"
+    implementation "androidx.wear:wear:$wearVersion"
     compileOnly "com.google.android.wearable:wearable:$wearableVersion"
     implementation ("com.google.android.support:wearable:$wearableVersion") {
         exclude module: 'support-v4'

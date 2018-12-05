@@ -25,13 +25,12 @@ dependencies {
     implementation "androidx.core:core-ktx:$rootProject.ext.ktxVersion"
     implementation project(':muzei-api')
     implementation project(':extensions')
-    implementation "androidx.core:core:$supportLibraryVersion"
-    implementation "androidx.exifinterface:exifinterface:$supportLibraryVersion"
+    implementation "androidx.core:core:$coreVersion"
+    implementation "androidx.exifinterface:exifinterface:$exifInterfaceVersion"
     api "androidx.lifecycle:lifecycle-livedata:$lifecycleVersion"
     kapt "androidx.lifecycle:lifecycle-compiler:$lifecycleVersion"
     implementation "android.arch.work:work-runtime-ktx:$workManagerVersion"
-    implementation "androidx.legacy:legacy-support-core-ui:$supportLibraryVersion"
-    implementation "androidx.fragment:fragment:$supportLibraryVersion"
+    implementation "androidx.fragment:fragment:$fragmentVersion"
     api "androidx.room:room-runtime:$roomVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
     api("com.google.firebase:firebase-core:$firebaseCoreVersion") {

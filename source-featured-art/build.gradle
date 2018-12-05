@@ -29,7 +29,7 @@ dependencies {
     implementation project(':muzei-api')
     implementation project(':extensions')
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
-    implementation "androidx.browser:browser:$supportLibraryVersion"
+    implementation "androidx.browser:browser:$browserVersion"
 }
 
 android {
