@@ -27,6 +27,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.Result
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.google.android.apps.muzei.api.provider.Artwork
@@ -109,13 +110,11 @@ class FeaturedArtWorker(
 
     override val coroutineContext = SINGLE_THREAD_CONTEXT
 
-    override suspend fun doWork(): Payload = Payload(loadFeaturedArt())
-
-    private fun loadFeaturedArt(): Result {
+    override suspend fun doWork(): Result {
         val jsonObject: JSONObject?
         try {
             jsonObject = fetchJsonObject(QUERY_URL)
-            val imageUri = jsonObject.optString(KEY_IMAGE_URI) ?: return Result.SUCCESS
+            val imageUri = jsonObject.optString(KEY_IMAGE_URI) ?: return Result.success()
             val artwork = Artwork().apply {
                 persistentUri = imageUri.toUri()
                 token = jsonObject.optString(KEY_TOKEN).takeUnless { it.isEmpty() } ?: imageUri
@@ -132,10 +131,10 @@ class FeaturedArtWorker(
                     .addArtwork(artwork)
         } catch (e: JSONException) {
             Log.e(TAG, "Error reading JSON", e)
-            return Result.RETRY
+            return Result.retry()
         } catch (e: IOException) {
             Log.e(TAG, "Error reading JSON", e)
-            return Result.RETRY
+            return Result.retry()
         }
 
         val nextTime: Date? = jsonObject.optString("nextTime")?.takeUnless {
@@ -170,7 +169,7 @@ class FeaturedArtWorker(
         sp.edit {
             putLong(PREF_NEXT_UPDATE_MILLIS, nextUpdateMillis)
         }
-        return Result.SUCCESS
+        return Result.success()
     }
 
     @Throws(IOException::class, JSONException::class)

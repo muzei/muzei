@@ -35,6 +35,7 @@ import androidx.core.content.ContextCompat
 import androidx.exifinterface.media.ExifInterface
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.Result
 import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
@@ -99,9 +100,9 @@ class GalleryScanWorker(
             return if (chosenPhoto != null) {
                 scanChosenPhoto(providerClient, chosenPhoto)
                 deleteMediaUris(providerClient)
-                Result.SUCCESS
+                Result.success()
             } else {
-                Result.FAILURE
+                Result.failure()
             }
         }
         val chosenPhotos = GalleryDatabase.getInstance(applicationContext)
@@ -113,7 +114,7 @@ class GalleryScanWorker(
                 scanChosenPhoto(providerClient, chosenPhoto)
             }
             deleteMediaUris(providerClient)
-            return Result.SUCCESS
+            return Result.success()
         }
         return addMediaUri(providerClient)
     }
@@ -230,7 +231,7 @@ class GalleryScanWorker(
         if (ContextCompat.checkSelfPermission(applicationContext,
                         android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             Log.w(TAG, "Missing read external storage permission.")
-            return Result.FAILURE
+            return Result.failure()
         }
         applicationContext.contentResolver.query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -240,7 +241,7 @@ class GalleryScanWorker(
             val count = data.count
             if (count == 0) {
                 Log.d(TAG, "No photos in the gallery.")
-                return Result.FAILURE
+                return Result.failure()
             }
             val lastToken = providerClient.lastAddedArtwork?.token
 
@@ -259,17 +260,17 @@ class GalleryScanWorker(
                         providerClient.addArtwork(createArtwork(
                                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                                 imageUri))
-                        return Result.SUCCESS
+                        return Result.success()
                     }
                 }
             }
             if (BuildConfig.DEBUG) {
                 Log.i(TAG, "Unable to find any other valid photos in the gallery")
             }
-            return Result.FAILURE
+            return Result.failure()
         } ?: run {
             Log.w(TAG, "Empty cursor.")
-            return Result.FAILURE
+            return Result.failure()
         }
     }
 

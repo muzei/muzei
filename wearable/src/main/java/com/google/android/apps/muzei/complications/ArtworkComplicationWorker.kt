@@ -26,6 +26,7 @@ import androidx.annotation.RequiresApi
 import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.Result
 import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
@@ -78,6 +79,6 @@ class ArtworkComplicationWorker(
         }
         // Reschedule the job to listen for the next change
         scheduleComplicationUpdate()
-        return Result.SUCCESS
+        return Result.success()
     }
 }

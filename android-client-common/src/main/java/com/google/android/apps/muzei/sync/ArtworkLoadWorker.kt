@@ -29,6 +29,7 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.Result
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.google.android.apps.muzei.api.internal.ProtocolConstants
@@ -98,16 +99,13 @@ class ArtworkLoadWorker(
 
     override val coroutineContext = syncSingleThreadContext
 
-    override suspend fun doWork(): Payload {
+    override suspend fun doWork(): Result {
         // Throttle artwork loads
         delay(ARTWORK_LOAD_THROTTLE)
-        return Payload(loadArtwork())
-    }
-
-    private suspend fun loadArtwork(): Result {
+        // Now actually load the artwork
         val database = MuzeiDatabase.getInstance(applicationContext)
         val (authority) = database.providerDao()
-                .getCurrentProvider() ?: return Result.FAILURE
+                .getCurrentProvider() ?: return Result.failure()
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Artwork Load for $authority")
         }
@@ -115,7 +113,7 @@ class ArtworkLoadWorker(
         try {
             ContentProviderClientCompat.getClient(applicationContext, contentUri)?.use { client ->
                 val result = client.call(METHOD_GET_LOAD_INFO)
-                        ?: return Result.FAILURE
+                        ?: return Result.failure()
                 val maxLoadedArtworkId = result.getLong(KEY_MAX_LOADED_ARTWORK_ID, 0L)
                 val recentArtworkIds = RecentArtworkIdsConverter.fromString(
                         result.getString(KEY_RECENT_ARTWORK_IDS, ""))
@@ -144,7 +142,7 @@ class ArtworkLoadWorker(
                                     }
                                     client.call(METHOD_REQUEST_LOAD)
                                 }
-                                return Result.SUCCESS
+                                return Result.success()
                             }
                         }
                         if (BuildConfig.DEBUG) {
@@ -155,7 +153,7 @@ class ArtworkLoadWorker(
                         // Is there any artwork at all?
                         if (allArtwork.count == 0) {
                             Log.w(TAG, "Unable to find any artwork for $authority")
-                            return Result.FAILURE
+                            return Result.failure()
                         }
                         // Okay so there's at least some artwork.
                         // Is it just the one artwork we're already showing?
@@ -167,7 +165,7 @@ class ArtworkLoadWorker(
                                 if (BuildConfig.DEBUG) {
                                     Log.i(TAG, "Provider $authority only has one artwork")
                                 }
-                                return Result.FAILURE
+                                return Result.failure()
                             }
                         }
                         // At this point, we know there must be some artwork that isn't the current
@@ -202,7 +200,7 @@ class ArtworkLoadWorker(
                                         Log.d(TAG, "Loaded $imageUri into id $artworkId")
                                     }
                                     client.call(METHOD_MARK_ARTWORK_LOADED, imageUri.toString())
-                                    return Result.SUCCESS
+                                    return Result.success()
                                 }
                             }
                         }
@@ -215,7 +213,7 @@ class ArtworkLoadWorker(
         } catch (e: Exception) {
             Log.i(TAG, "Provider $authority crashed while retrieving artwork: ${e.message}")
         }
-        return Result.RETRY
+        return Result.retry()
     }
 
     private suspend fun checkForValidArtwork(
