@@ -97,10 +97,10 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
         val context = context ?: return result
 
         val likeAnyPositionQuery = "%$query%"
-        includeAllArtwork(result, runBlocking {
-            MuzeiDatabase.getInstance(context).artworkDao()
-                    .searchArtwork(likeAnyPositionQuery)
-        })
+        runBlocking {
+            includeAllArtwork(result, MuzeiDatabase.getInstance(context).artworkDao()
+                    .searchArtwork(likeAnyPositionQuery))
+        }
         return result
     }
 
@@ -121,10 +121,10 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
         val result = MatrixCursor(projection ?: DEFAULT_DOCUMENT_PROJECTION)
         val context = context ?: return result
         if (ROOT_DOCUMENT_ID == parentDocumentId) {
-            includeAllArtwork(result, runBlocking {
-                MuzeiDatabase.getInstance(context).artworkDao()
-                        .getArtwork()
-            })
+            runBlocking {
+                includeAllArtwork(result, MuzeiDatabase.getInstance(context).artworkDao()
+                        .getArtwork())
+            }
             result.setNotificationUri(context.contentResolver,
                     DocumentsContract.buildDocumentUri(BuildConfig.DOCUMENTS_AUTHORITY,
                             ROOT_DOCUMENT_ID))
@@ -132,12 +132,10 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
         return result
     }
 
-    private fun includeAllArtwork(result: MatrixCursor, artworkList: List<Artwork>) {
+    private suspend fun includeAllArtwork(result: MatrixCursor, artworkList: List<Artwork>) {
         val context = context ?: return
-        val currentArtworkId = ensureBackground {
-            MuzeiDatabase.getInstance(context).artworkDao()
-                    .currentArtworkBlocking?.id
-        } ?: -1
+        val currentArtworkId = MuzeiDatabase.getInstance(context).artworkDao()
+                .getCurrentArtwork()?.id ?: -1
         for (artwork in artworkList) {
             result.newRow().apply {
                 add(DocumentsContract.Document.COLUMN_DOCUMENT_ID,
@@ -174,18 +172,18 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
                 // so just return an empty result
                 return result
             }
-            val artwork = runBlocking {
-                MuzeiDatabase.getInstance(context).artworkDao()
+            runBlocking {
+                val artwork = MuzeiDatabase.getInstance(context).artworkDao()
                         .getArtworkById(artworkId)
-            }
-            if (artwork != null) {
-                includeAllArtwork(result, listOf(artwork))
-            } else {
-                // The artwork isn't there anymore. Delete it to
-                // revoke any document permissions attached to it
-                DocumentsContract.deleteDocument(context.contentResolver,
-                        DocumentsContract.buildDocumentUri(BuildConfig.DOCUMENTS_AUTHORITY,
-                                documentId))
+                if (artwork != null) {
+                    includeAllArtwork(result, listOf(artwork))
+                } else {
+                    // The artwork isn't there anymore. Delete it to
+                    // revoke any document permissions attached to it
+                    DocumentsContract.deleteDocument(context.contentResolver,
+                            DocumentsContract.buildDocumentUri(BuildConfig.DOCUMENTS_AUTHORITY,
+                                    documentId))
+                }
             }
         }
         return result
