@@ -54,7 +54,7 @@ class MainFragment : Fragment(), ChooseProviderFragment.Callbacks {
         // Set up the bottom nav
         bottomNavigationView = view.findViewById(R.id.bottom_nav)
         bottomNavigationView.setupWithNavController(navController)
-        navController.addOnNavigatedListener { _, destination ->
+        navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
                 R.id.main_art_details -> {
                     FirebaseAnalytics.getInstance(requireContext())
