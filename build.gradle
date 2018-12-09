@@ -19,7 +19,7 @@ buildscript {
         compileSdkVersion = 28
         targetSdkVersion = 25
 
-        kotlinVersion = "1.3.0"
+        kotlinVersion = "1.3.11"
         coroutinesVersion = "1.0.0"
         multidexVersion = "2.0.0"
         appCompatVersion = "1.0.2"
