@@ -16,9 +16,11 @@
 
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="net.nurik.roman.muzei">
 
-    <application>
+    <application
+        tools:ignore="AllowBackup,GoogleAppIndexingWarning">
         <meta-data
             android:name="firebase_analytics_collection_deactivated"
             android:value="true"/>

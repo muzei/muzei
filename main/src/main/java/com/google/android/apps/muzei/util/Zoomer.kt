@@ -78,16 +78,6 @@ internal class Zoomer(context: Context) {
     }
 
     /**
-     * Aborts the animation, setting the current zoom value to the ending value.
-     *
-     * @see android.widget.Scroller.abortAnimation
-     */
-    fun abortAnimation() {
-        finished = true
-        currZoom = endZoom
-    }
-
-    /**
      * Starts a zoom from startZoom to endZoom. That is, to zoom from 100% to 125%, endZoom should
      * by 0.25f.
      *

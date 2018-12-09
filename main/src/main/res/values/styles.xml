@@ -116,11 +116,4 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="Widget.Muzei.CheckBox.SettingsAdvanced" parent="">
-        <item name="android:textSize">@dimen/settings_text_size_normal</item>
-        <item name="android:textColor">#fff</item>
-        <item name="android:paddingStart">4dp</item>
-        <item name="android:paddingEnd">0dp</item>
-    </style>
-
 </resources>

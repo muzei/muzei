@@ -45,8 +45,4 @@
     <dimen name="widget_min_width">180dp</dimen>
     <dimen name="widget_padding">16dp</dimen>
     <dimen name="widget_scrim_height">160dp</dimen>
-
-    <dimen name="settings_advanced_checkbox_margin_start">0dp</dimen>
-    <integer name="settings_advanced_checkbox_column">0</integer>
-    <integer name="settings_advanced_checkbox_column_span">3</integer>
 </resources>

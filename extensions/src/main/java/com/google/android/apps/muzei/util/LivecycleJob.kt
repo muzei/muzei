@@ -38,7 +38,7 @@ val Lifecycle.coroutineScope: CoroutineScope
     get() = lifecycleCoroutineScopes[this] ?: createJob().let { job ->
         val newScope = CoroutineScope(job + Dispatchers.Main)
         lifecycleCoroutineScopes[this] = newScope
-        job.invokeOnCompletion { _ -> lifecycleCoroutineScopes -= this }
+        job.invokeOnCompletion { lifecycleCoroutineScopes -= this }
         newScope
     }
 

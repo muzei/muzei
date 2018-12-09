@@ -30,10 +30,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.TypeConverters
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.gallery.BuildConfig.GALLERY_ART_AUTHORITY
-import com.google.android.apps.muzei.gallery.converter.UriTypeConverter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -211,23 +209,6 @@ internal abstract class ChosenPhotoDao {
     suspend fun delete(context: Context, ids: List<Long>) = withContext(Dispatchers.Default) {
         deleteBackingPhotos(context, getChosenPhotos(ids))
         deleteInternal(ids)
-    }
-
-    @TypeConverters(UriTypeConverter::class)
-    @Query("SELECT * FROM chosen_photos WHERE uri=:uri")
-    internal abstract fun chosenPhotoBlocking(uri: Uri): List<ChosenPhoto>
-
-    private suspend fun getChosenPhotos(uri: Uri) = withContext(Dispatchers.Default) {
-        chosenPhotoBlocking(uri)
-    }
-
-    @TypeConverters(UriTypeConverter::class)
-    @Query("DELETE FROM chosen_photos WHERE uri=:uri")
-    internal abstract fun deleteInternal(uri: Uri)
-
-    suspend fun delete(context: Context, uri: Uri) = withContext(Dispatchers.Default) {
-        deleteBackingPhotos(context, getChosenPhotos(uri))
-        deleteInternal(uri)
     }
 
     @Query("DELETE FROM chosen_photos")

@@ -70,8 +70,7 @@ public class OkHttpClientFactory {
      * @return True if enabling TLS is needed on current device (SDK version &gt;= 16 and &lt; 22)
      */
     private static boolean isTLSEnableNeeded() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN &&
-                Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP;
+        return Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP;
     }
 
     /**

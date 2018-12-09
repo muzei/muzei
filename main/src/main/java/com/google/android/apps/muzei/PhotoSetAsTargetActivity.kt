@@ -45,7 +45,7 @@ class PhotoSetAsTargetActivity : FragmentActivity() {
             coroutineScope.launch(Dispatchers.Main) {
                 val context = this@PhotoSetAsTargetActivity
                 val success = SingleArtProvider.setArtwork(context, uri)
-                if (success == false) {
+                if (!success) {
                     Log.e(TAG, "Unable to insert artwork for $uri")
                     toast(R.string.set_as_wallpaper_failed)
                     finish()

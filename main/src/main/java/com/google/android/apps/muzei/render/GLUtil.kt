@@ -102,7 +102,7 @@ object GLUtil {
     }
 
     fun checkGlError(glOperation: String) {
-        var error = 0
+        var error: Int
         while (GLES20.glGetError().also { error = it } != GLES20.GL_NO_ERROR) {
             Log.e(TAG, "$glOperation: glError $error")
             if (BuildConfig.DEBUG) {

@@ -43,15 +43,6 @@ fun Context.toast(@StringRes resId: Int, duration: Int = Toast.LENGTH_SHORT) {
 }
 
 fun Context.toastFromBackground(
-        text: CharSequence,
-        duration: Int = Toast.LENGTH_SHORT
-) {
-    GlobalScope.launch(Dispatchers.Main) {
-        Toast.makeText(this@toastFromBackground, text, duration).apply { show() }
-    }
-}
-
-fun Context.toastFromBackground(
         @StringRes resId: Int,
         duration: Int = Toast.LENGTH_SHORT
 ) {
