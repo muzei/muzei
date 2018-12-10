@@ -33,11 +33,11 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.exifinterface.media.ExifInterface
+import androidx.work.CoroutineWorker
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.Result
 import androidx.work.WorkManager
-import androidx.work.Worker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.google.android.apps.muzei.api.provider.Artwork
@@ -56,7 +56,7 @@ import java.util.Random
 class GalleryScanWorker(
         context: Context,
         workerParams: WorkerParameters
-) : Worker(context, workerParams) {
+) : CoroutineWorker(context, workerParams) {
     companion object {
         private const val TAG = "GalleryScanWorker"
         private const val INITIAL_SCAN_TAG = "initialScan"
@@ -89,14 +89,14 @@ class GalleryScanWorker(
         Geocoder(applicationContext)
     }
 
-    override fun doWork(): Result {
+    override suspend fun doWork(): Result {
         val providerClient = ProviderContract.getProviderClient(
                 applicationContext, GALLERY_ART_AUTHORITY)
         val id = inputData.getLong(INITIAL_SCAN_ID, -1L)
         if (id != -1L) {
             val chosenPhoto = GalleryDatabase.getInstance(applicationContext)
                     .chosenPhotoDao()
-                    .chosenPhotoBlocking(id)
+                    .getChosenPhoto(id)
             return if (chosenPhoto != null) {
                 scanChosenPhoto(providerClient, chosenPhoto)
                 deleteMediaUris(providerClient)

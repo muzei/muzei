@@ -34,7 +34,7 @@ dependencies {
     implementation "androidx.exifinterface:exifinterface:$exifInterfaceVersion"
     implementation "androidx.lifecycle:lifecycle-livedata:$lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-viewmodel:$lifecycleVersion"
-    implementation "androidx.room:room-runtime:$roomVersion"
+    implementation "androidx.room:room-coroutines:$roomVersion"
     implementation "android.arch.work:work-runtime-ktx:$workManagerVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
     implementation "androidx.paging:paging-runtime:$pagingVersion"

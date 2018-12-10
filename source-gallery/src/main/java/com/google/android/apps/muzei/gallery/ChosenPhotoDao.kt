@@ -66,7 +66,7 @@ internal abstract class ChosenPhotoDao {
     }
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    internal abstract fun insertInternal(chosenPhoto: ChosenPhoto): Long
+    internal abstract suspend fun insertInternal(chosenPhoto: ChosenPhoto): Long
 
     suspend fun insert(
             context: Context,
@@ -197,11 +197,7 @@ internal abstract class ChosenPhotoDao {
     }
 
     @Query("SELECT * FROM chosen_photos WHERE _id IN (:ids)")
-    internal abstract fun chosenPhotoBlocking(ids: List<Long>): List<ChosenPhoto>
-
-    private suspend fun getChosenPhotos(ids: List<Long>) = withContext(Dispatchers.Default) {
-        chosenPhotoBlocking(ids)
-    }
+    abstract suspend fun getChosenPhotos(ids: List<Long>): List<ChosenPhoto>
 
     @Query("DELETE FROM chosen_photos WHERE _id IN (:ids)")
     internal abstract fun deleteInternal(ids: List<Long>)
