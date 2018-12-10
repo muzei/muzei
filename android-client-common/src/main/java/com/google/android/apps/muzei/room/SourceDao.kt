@@ -37,12 +37,8 @@ abstract class SourceDao {
     @get:Query("SELECT * FROM sources")
     abstract val sources: LiveData<List<Source>>
 
-    @get:Query("SELECT * FROM sources")
-    abstract val sourcesBlocking: List<Source>
-
-    suspend fun getSources() = withContext(Dispatchers.Default) {
-        sourcesBlocking
-    }
+    @Query("SELECT * FROM sources")
+    abstract suspend fun getSources(): List<Source>
 
     @get:TypeConverters(ComponentNameTypeConverter::class)
     @get:Query("SELECT component_name FROM sources")
@@ -58,12 +54,8 @@ abstract class SourceDao {
         currentSourceBlocking
     }
 
-    @get:Query("SELECT * FROM sources WHERE selected=1 AND wantsNetworkAvailable=1")
-    internal abstract val currentSourcesThatWantNetworkBlocking: List<Source>
-
-    suspend fun getCurrentSourcesThatWantNetwork() = withContext(Dispatchers.Default) {
-        currentSourcesThatWantNetworkBlocking
-    }
+    @Query("SELECT * FROM sources WHERE selected=1 AND wantsNetworkAvailable=1")
+    abstract suspend fun getCurrentSourcesThatWantNetwork(): List<Source>
 
     @Insert
     abstract fun insert(source: Source)

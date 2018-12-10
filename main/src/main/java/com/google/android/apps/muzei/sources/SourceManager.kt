@@ -204,7 +204,7 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
 
         // Enable or disable the SourceArtProvider based on whether
         // there are any available sources
-        val sources = database.sourceDao().sourcesBlocking
+        val sources = database.sourceDao().getSources()
         val legacyComponentName = ComponentName(context, SourceArtProvider::class.java)
         val currentState = pm.getComponentEnabledSetting(legacyComponentName)
         val newState = if (sources.isEmpty()) {
