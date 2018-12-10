@@ -125,7 +125,7 @@ class GalleryScanWorker(
                 arrayOf(MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString()))
     }
 
-    private fun scanChosenPhoto(providerClient: ProviderClient, chosenPhoto: ChosenPhoto) {
+    private suspend fun scanChosenPhoto(providerClient: ProviderClient, chosenPhoto: ChosenPhoto) {
         if (chosenPhoto.isTreeUri && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             addTreeUri(providerClient, chosenPhoto)
         } else {
@@ -143,7 +143,7 @@ class GalleryScanWorker(
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun addTreeUri(providerClient: ProviderClient, chosenPhoto: ChosenPhoto) {
+    private suspend fun addTreeUri(providerClient: ProviderClient, chosenPhoto: ChosenPhoto) {
         val treeUri = chosenPhoto.uri
         val allImages = mutableListOf<Uri>()
         try {
@@ -227,7 +227,7 @@ class GalleryScanWorker(
     }
 
     @SuppressLint("Recycle")
-    private fun addMediaUri(providerClient: ProviderClient): Result {
+    private suspend fun addMediaUri(providerClient: ProviderClient): Result {
         if (ContextCompat.checkSelfPermission(applicationContext,
                         android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             Log.w(TAG, "Missing read external storage permission.")
@@ -274,7 +274,7 @@ class GalleryScanWorker(
         }
     }
 
-    private fun createArtwork(
+    private suspend fun createArtwork(
             baseUri: Uri,
             imageUri: Uri = baseUri,
             publicWebUri: Uri = imageUri
@@ -302,7 +302,7 @@ class GalleryScanWorker(
         }
     }
 
-    private fun ensureMetadataExists(imageUri: Uri): Metadata {
+    private suspend fun ensureMetadataExists(imageUri: Uri): Metadata {
         val metadataDao = GalleryDatabase.getInstance(applicationContext)
                 .metadataDao()
         val existingMetadata = metadataDao.metadataForUri(imageUri)

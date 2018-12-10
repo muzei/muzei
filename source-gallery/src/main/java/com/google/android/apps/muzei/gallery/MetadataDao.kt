@@ -30,9 +30,9 @@ import com.google.android.apps.muzei.gallery.converter.UriTypeConverter
 @Dao
 internal interface MetadataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(metadata: Metadata)
+    suspend fun insert(metadata: Metadata)
 
     @TypeConverters(UriTypeConverter::class)
     @Query("SELECT * FROM metadata_cache WHERE uri = :uri")
-    fun metadataForUri(uri: Uri): Metadata?
+    suspend fun metadataForUri(uri: Uri): Metadata?
 }
