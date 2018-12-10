@@ -32,7 +32,7 @@ buildscript {
         materialVersion = "1.0.0"
         constraintLayoutVersion = "2.0.0-alpha2"
         lifecycleVersion = "2.0.0"
-        roomVersion = "2.0.0"
+        roomVersion = "2.1.0-alpha03"
         pagingVersion = "2.0.0"
         navigationVersion = "1.0.0-alpha08"
         workManagerVersion = "1.0.0-alpha12"
