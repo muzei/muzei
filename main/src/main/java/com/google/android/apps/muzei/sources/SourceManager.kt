@@ -52,6 +52,7 @@ import com.google.android.apps.muzei.util.toastFromBackground
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.BuildConfig
@@ -136,7 +137,11 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
         }
     }
 
-    private val executor = Executors.newSingleThreadExecutor()
+    private val singleThreadContext by lazy {
+        Executors.newSingleThreadExecutor { target ->
+            Thread(target, "FeaturedArt")
+        }.asCoroutineDispatcher()
+    }
 
     private val sourcePackageChangeReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
@@ -145,7 +150,9 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
             }
             val packageName = intent.data?.schemeSpecificPart
             // Update the sources from the changed package
-            executor.execute(UpdateSourcesRunnable(packageName))
+            GlobalScope.launch(singleThreadContext) {
+                updateSources(packageName)
+            }
             if (lifecycleRegistry.currentState.isAtLeast(Lifecycle.State.STARTED)) {
                 goAsync {
                     val source = MuzeiDatabase.getInstance(context)
@@ -169,50 +176,46 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
     }
     private val lifecycleRegistry: LifecycleRegistry = LifecycleRegistry(this)
 
-    private inner class UpdateSourcesRunnable internal constructor(private val packageName: String? = null)
-        : Runnable {
+    private suspend fun updateSources(packageName: String? = null) {
+        val queryIntent = Intent(MuzeiArtSource.ACTION_MUZEI_ART_SOURCE)
+        if (packageName != null) {
+            queryIntent.`package` = packageName
+        }
+        val pm = context.packageManager
+        val database = MuzeiDatabase.getInstance(context)
+        database.beginTransaction()
+        val existingSources = HashSet(if (packageName != null)
+            database.sourceDao().getSourcesComponentNamesByPackageNameBlocking(packageName)
+        else
+            database.sourceDao().sourceComponentNamesBlocking)
+        val resolveInfos = pm.queryIntentServices(queryIntent,
+                PackageManager.GET_META_DATA)
+        if (resolveInfos != null) {
+            for (ri in resolveInfos) {
+                existingSources.remove(ComponentName(ri.serviceInfo.packageName,
+                        ri.serviceInfo.name))
+                updateSourceFromServiceInfo(ri.serviceInfo)
+            }
+        }
+        // Delete sources in the database that have since been removed
+        database.sourceDao().deleteAll(existingSources.toTypedArray())
+        database.setTransactionSuccessful()
+        database.endTransaction()
 
-        override fun run() {
-            val queryIntent = Intent(MuzeiArtSource.ACTION_MUZEI_ART_SOURCE)
-            if (packageName != null) {
-                queryIntent.`package` = packageName
-            }
-            val pm = context.packageManager
-            val database = MuzeiDatabase.getInstance(context)
-            database.beginTransaction()
-            val existingSources = HashSet(if (packageName != null)
-                database.sourceDao().getSourcesComponentNamesByPackageNameBlocking(packageName)
-            else
-                database.sourceDao().sourceComponentNamesBlocking)
-            val resolveInfos = pm.queryIntentServices(queryIntent,
-                    PackageManager.GET_META_DATA)
-            if (resolveInfos != null) {
-                for (ri in resolveInfos) {
-                    existingSources.remove(ComponentName(ri.serviceInfo.packageName,
-                            ri.serviceInfo.name))
-                    updateSourceFromServiceInfo(ri.serviceInfo)
-                }
-            }
-            // Delete sources in the database that have since been removed
-            database.sourceDao().deleteAll(existingSources.toTypedArray())
-            database.setTransactionSuccessful()
-            database.endTransaction()
-
-            // Enable or disable the SourceArtProvider based on whether
-            // there are any available sources
-            val sources = database.sourceDao().sourcesBlocking
-            val legacyComponentName = ComponentName(context, SourceArtProvider::class.java)
-            val currentState = pm.getComponentEnabledSetting(legacyComponentName)
-            val newState = if (sources.isEmpty()) {
-                PackageManager.COMPONENT_ENABLED_STATE_DISABLED
-            } else {
-                PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-            }
-            if (currentState != newState) {
-                pm.setComponentEnabledSetting(legacyComponentName,
-                        newState,
-                        PackageManager.DONT_KILL_APP)
-            }
+        // Enable or disable the SourceArtProvider based on whether
+        // there are any available sources
+        val sources = database.sourceDao().sourcesBlocking
+        val legacyComponentName = ComponentName(context, SourceArtProvider::class.java)
+        val currentState = pm.getComponentEnabledSetting(legacyComponentName)
+        val newState = if (sources.isEmpty()) {
+            PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+        } else {
+            PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+        }
+        if (currentState != newState) {
+            pm.setComponentEnabledSetting(legacyComponentName,
+                    newState,
+                    PackageManager.DONT_KILL_APP)
         }
     }
 
@@ -273,10 +276,12 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
         }
         context.registerReceiver(sourcePackageChangeReceiver, packageChangeFilter)
         // Update the available sources in case we missed anything while Muzei was disabled
-        executor.execute(UpdateSourcesRunnable())
+        GlobalScope.launch(singleThreadContext) {
+            updateSources()
+        }
     }
 
-    private fun updateSourceFromServiceInfo(info: ServiceInfo) {
+    private suspend fun updateSourceFromServiceInfo(info: ServiceInfo) {
         val pm = context.packageManager
         val metaData = info.metaData
         val componentName = ComponentName(info.packageName, info.name)
@@ -298,9 +303,7 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                                     null
                                 }
                         if (providerInfo != null) {
-                            GlobalScope.launch {
-                                ProviderManager.select(context, providerInfo.authority)
-                            }
+                            ProviderManager.select(context, providerInfo.authority)
                         }
                     }
                 }
