@@ -44,10 +44,10 @@ abstract class ProviderDao {
     abstract fun insert(provider: Provider)
 
     @Update
-    abstract fun update(provider: Provider)
+    abstract suspend fun update(provider: Provider)
 
     @Delete
-    abstract fun delete(provider: Provider)
+    abstract suspend fun delete(provider: Provider)
 
     @Query("DELETE FROM provider")
     abstract fun deleteAll()
