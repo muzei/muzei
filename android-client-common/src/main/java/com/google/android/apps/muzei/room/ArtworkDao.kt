@@ -29,12 +29,8 @@ import kotlinx.coroutines.withContext
 @Dao
 abstract class ArtworkDao {
 
-    @get:Query("SELECT * FROM artwork ORDER BY date_added DESC LIMIT 100")
-    internal abstract val artworkBlocking: List<Artwork>
-
-    suspend fun getArtwork() = withContext(Dispatchers.Default) {
-        artworkBlocking
-    }
+    @Query("SELECT * FROM artwork ORDER BY date_added DESC LIMIT 100")
+    abstract suspend fun getArtwork(): List<Artwork>
 
     @get:Query("SELECT artwork.* FROM artwork " +
             "inner join provider on providerAuthority = authority " +
@@ -51,18 +47,10 @@ abstract class ArtworkDao {
     }
 
     @Insert
-    abstract fun insert(artwork: Artwork): Long
+    abstract suspend fun insert(artwork: Artwork): Long
 
     @Query("SELECT * FROM artwork WHERE providerAuthority = :providerAuthority ORDER BY date_added DESC")
-    internal abstract fun getCurrentArtworkForProviderBlocking(
-            providerAuthority: String
-    ): Artwork?
-
-    suspend fun getCurrentArtworkForProvider(
-            providerAuthority: String
-    ) = withContext(Dispatchers.Default) {
-        getCurrentArtworkForProviderBlocking(providerAuthority)
-    }
+    abstract suspend fun getCurrentArtworkForProvider(providerAuthority: String): Artwork?
 
     @get:Query("SELECT * FROM artwork art1 WHERE _id IN (" +
             "SELECT _id FROM artwork art2 WHERE art1._id=art2._id " +
@@ -77,11 +65,7 @@ abstract class ArtworkDao {
     }
 
     @Query("SELECT * FROM artwork WHERE title LIKE :query OR byline LIKE :query OR attribution LIKE :query")
-    internal abstract fun searchArtworkBlocking(query: String): List<Artwork>
-
-    suspend fun searchArtwork(query: String) = withContext(Dispatchers.Default) {
-        searchArtworkBlocking(query)
-    }
+    abstract suspend fun searchArtwork(query: String): List<Artwork>
 
     @Query("DELETE FROM artwork WHERE _id=:id")
     abstract fun deleteById(id: Long)

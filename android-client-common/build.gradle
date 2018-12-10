@@ -30,7 +30,7 @@ dependencies {
     kapt "androidx.lifecycle:lifecycle-compiler:$lifecycleVersion"
     implementation "android.arch.work:work-runtime-ktx:$workManagerVersion"
     implementation "androidx.fragment:fragment:$fragmentVersion"
-    api "androidx.room:room-runtime:$roomVersion"
+    api "androidx.room:room-coroutines:$roomVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
     api("com.google.firebase:firebase-core:$firebaseCoreVersion") {
         exclude module: 'support-v4'
