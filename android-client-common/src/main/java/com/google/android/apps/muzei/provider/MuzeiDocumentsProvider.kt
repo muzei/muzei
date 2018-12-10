@@ -24,6 +24,7 @@ import android.database.MatrixCursor
 import android.graphics.Bitmap
 import android.graphics.Point
 import android.net.Uri
+import android.os.Binder
 import android.os.CancellationSignal
 import android.os.ParcelFileDescriptor
 import android.provider.DocumentsContract
@@ -173,16 +174,21 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
                 return result
             }
             runBlocking {
-                val artwork = MuzeiDatabase.getInstance(context).artworkDao()
-                        .getArtworkById(artworkId)
-                if (artwork != null) {
-                    includeAllArtwork(result, listOf(artwork))
-                } else {
-                    // The artwork isn't there anymore. Delete it to
-                    // revoke any document permissions attached to it
-                    DocumentsContract.deleteDocument(context.contentResolver,
-                            DocumentsContract.buildDocumentUri(BuildConfig.DOCUMENTS_AUTHORITY,
-                                    documentId))
+                val token = Binder.clearCallingIdentity()
+                try {
+                    val artwork = MuzeiDatabase.getInstance(context).artworkDao()
+                            .getArtworkById(artworkId)
+                    if (artwork != null) {
+                        includeAllArtwork(result, listOf(artwork))
+                    } else {
+                            // The artwork isn't there anymore. Delete it to
+                            // revoke any document permissions attached to it
+                            DocumentsContract.deleteDocument(context.contentResolver,
+                                    DocumentsContract.buildDocumentUri(BuildConfig.DOCUMENTS_AUTHORITY,
+                                            documentId))
+                    }
+                } finally {
+                    Binder.restoreCallingIdentity(token)
                 }
             }
         }
@@ -193,6 +199,7 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
     override fun openDocument(documentId: String, mode: String, signal: CancellationSignal?): ParcelFileDescriptor? {
         val contentResolver = context?.contentResolver ?: return null
         val artworkId = documentId.toLong()
+        val token = Binder.clearCallingIdentity()
         try {
             return contentResolver.openFileDescriptor(Artwork.getContentUri(artworkId), mode, signal)
         } catch (e: FileNotFoundException) {
@@ -201,6 +208,8 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
             DocumentsContract.deleteDocument(contentResolver,
                     DocumentsContract.buildDocumentUri(BuildConfig.DOCUMENTS_AUTHORITY, documentId))
             throw e
+        } finally {
+            Binder.restoreCallingIdentity(token)
         }
     }
 
@@ -212,7 +221,12 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
     ): AssetFileDescriptor? {
         val artworkId = documentId.toLong()
         return runBlocking {
-            openArtworkThumbnail(Artwork.getContentUri(artworkId), sizeHint)
+            val token = Binder.clearCallingIdentity()
+            try {
+                openArtworkThumbnail(Artwork.getContentUri(artworkId), sizeHint)
+            } finally {
+                Binder.restoreCallingIdentity(token)
+            }
         }
     }
 
