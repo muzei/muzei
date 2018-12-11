@@ -43,7 +43,7 @@ class SourceSetupActivity : AppCompatActivity() {
         }
     }
 
-    override fun onAttachFragment(fragment: Fragment?) {
+    override fun onAttachFragment(fragment: Fragment) {
         if (fragment is SourceWarningDialogFragment) {
             fragment.positiveListener = {
                 MuzeiDatabase.getInstance(this).sourceDao().currentSource.observe(this) { source ->
@@ -107,7 +107,7 @@ class SourceWarningDialogFragment : DialogFragment() {
     }
 
     override fun onStop() {
-        if (!dialog.isShowing) {
+        if (!requireDialog().isShowing) {
             requireActivity().finish()
         }
         super.onStop()
