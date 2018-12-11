@@ -85,10 +85,13 @@ class ProviderManager private constructor(private val context: Context)
         suspend fun select(context: Context, authority: String) = withContext(Dispatchers.Default) {
             val database = MuzeiDatabase.getInstance(context)
             database.beginTransaction()
-            database.providerDao().deleteAll()
-            database.providerDao().insert(Provider(authority))
-            database.setTransactionSuccessful()
-            database.endTransaction()
+            try {
+                database.providerDao().deleteAll()
+                database.providerDao().insert(Provider(authority))
+                database.setTransactionSuccessful()
+            } finally {
+                database.endTransaction()
+            }
         }
 
         suspend fun getDescription(context: Context, authority: String): String {

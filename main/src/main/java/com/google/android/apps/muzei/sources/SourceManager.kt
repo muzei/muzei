@@ -98,25 +98,28 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
 
             return withContext(Dispatchers.Default) {
                 database.beginTransaction()
-                if (selectedSource != null) {
-                    // Unselect the old source
-                    selectedSource.selected = false
-                    database.sourceDao().update(selectedSource)
+                try {
+                    if (selectedSource != null) {
+                        // Unselect the old source
+                        selectedSource.selected = false
+                        database.sourceDao().update(selectedSource)
+                    }
+
+                    // Select the new source
+                    val newSource = database.sourceDao().getSourceByComponentName(source)?.apply {
+                        selected = true
+                        database.sourceDao().update(this)
+                    } ?: Source(source).apply {
+                        selected = true
+                        database.sourceDao().insert(this)
+                    }
+
+                    database.setTransactionSuccessful()
+
+                    newSource
+                } finally {
+                    database.endTransaction()
                 }
-
-                // Select the new source
-                val newSource = database.sourceDao().getSourceByComponentName(source)?.apply {
-                    selected = true
-                    database.sourceDao().update(this)
-                } ?: Source(source).apply {
-                    selected = true
-                    database.sourceDao().insert(this)
-                }
-
-                database.setTransactionSuccessful()
-                database.endTransaction()
-
-                newSource
             }
         }
 
@@ -184,23 +187,26 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
         val pm = context.packageManager
         val database = MuzeiDatabase.getInstance(context)
         database.beginTransaction()
-        val existingSources = HashSet(if (packageName != null)
-            database.sourceDao().getSourcesComponentNamesByPackageNameBlocking(packageName)
-        else
-            database.sourceDao().sourceComponentNamesBlocking)
-        val resolveInfos = pm.queryIntentServices(queryIntent,
-                PackageManager.GET_META_DATA)
-        if (resolveInfos != null) {
-            for (ri in resolveInfos) {
-                existingSources.remove(ComponentName(ri.serviceInfo.packageName,
-                        ri.serviceInfo.name))
-                updateSourceFromServiceInfo(ri.serviceInfo)
+        try {
+            val existingSources = HashSet(if (packageName != null)
+                database.sourceDao().getSourcesComponentNamesByPackageNameBlocking(packageName)
+            else
+                database.sourceDao().sourceComponentNamesBlocking)
+            val resolveInfos = pm.queryIntentServices(queryIntent,
+                    PackageManager.GET_META_DATA)
+            if (resolveInfos != null) {
+                for (ri in resolveInfos) {
+                    existingSources.remove(ComponentName(ri.serviceInfo.packageName,
+                            ri.serviceInfo.name))
+                    updateSourceFromServiceInfo(ri.serviceInfo)
+                }
             }
+            // Delete sources in the database that have since been removed
+            database.sourceDao().deleteAll(existingSources.toTypedArray())
+            database.setTransactionSuccessful()
+        } finally {
+            database.endTransaction()
         }
-        // Delete sources in the database that have since been removed
-        database.sourceDao().deleteAll(existingSources.toTypedArray())
-        database.setTransactionSuccessful()
-        database.endTransaction()
 
         // Enable or disable the SourceArtProvider based on whether
         // there are any available sources
