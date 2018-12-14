@@ -137,8 +137,27 @@ class GalleryScanWorker(
                         Uri.fromFile(cachedFile),
                         chosenPhoto.contentUri))
             } else {
-                providerClient.addArtwork(createArtwork(chosenPhoto.uri))
+                addUri(providerClient, chosenPhoto)
             }
+        }
+    }
+
+    private suspend fun addUri(providerClient: ProviderClient, chosenPhoto: ChosenPhoto) {
+        val imageUri = chosenPhoto.uri
+        try {
+            applicationContext.contentResolver.query(imageUri,
+                    arrayOf(DocumentsContract.Document.COLUMN_DOCUMENT_ID),
+                    null, null, null)?.use { data ->
+                if (data.moveToFirst()) {
+                    providerClient.addArtwork(createArtwork(chosenPhoto.uri))
+                } else {
+                    Log.w(TAG, "Unable to load image from $imageUri, deleting row")
+                    deleteChosenPhoto(chosenPhoto)
+                }
+            }
+        } catch (e: SecurityException) {
+            Log.w(TAG, "Unable to access image from $imageUri, deleting row", e)
+            deleteChosenPhoto(chosenPhoto)
         }
     }
 
@@ -182,11 +201,15 @@ class GalleryScanWorker(
             }
         } catch (e: SecurityException) {
             Log.w(TAG, "Unable to load images from $treeUri, deleting row", e)
-            GlobalScope.launch {
-                GalleryDatabase.getInstance(applicationContext)
-                        .chosenPhotoDao()
-                        .delete(applicationContext, listOf(chosenPhoto.id))
-            }
+            deleteChosenPhoto(chosenPhoto)
+        }
+    }
+
+    private fun deleteChosenPhoto(chosenPhoto: ChosenPhoto) {
+        GlobalScope.launch {
+            GalleryDatabase.getInstance(applicationContext)
+                    .chosenPhotoDao()
+                    .delete(applicationContext, listOf(chosenPhoto.id))
         }
     }
 
