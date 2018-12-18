@@ -22,12 +22,13 @@ import android.content.Context
 import android.database.ContentObserver
 import android.net.Uri
 import android.os.Handler
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import androidx.lifecycle.viewModelScope
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
-import com.google.android.apps.muzei.util.ScopedAndroidViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
@@ -95,7 +96,7 @@ class ProviderArtworkLiveData(
 
 class BrowseProviderViewModel(
         application: Application
-): ScopedAndroidViewModel(application) {
+): AndroidViewModel(application) {
     private val contentUriLiveData = MutableLiveData<Uri>()
 
     fun setContentUri(contentUri: Uri) {
@@ -104,6 +105,6 @@ class BrowseProviderViewModel(
 
     val artLiveData: LiveData<List<Artwork>> = Transformations
             .switchMap(contentUriLiveData) { contentUri ->
-                ProviderArtworkLiveData(application, this, contentUri)
+                ProviderArtworkLiveData(application, viewModelScope, contentUri)
             }
 }

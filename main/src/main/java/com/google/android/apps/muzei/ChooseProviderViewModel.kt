@@ -23,14 +23,15 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.lifecycle.viewModelScope
 import com.google.android.apps.muzei.room.InstalledProvidersLiveData
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.sync.ProviderManager
-import com.google.android.apps.muzei.util.ScopedAndroidViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
@@ -72,7 +73,7 @@ data class ProviderInfo(
                 selected)
 }
 
-class ChooseProviderViewModel(application: Application) : ScopedAndroidViewModel(application) {
+class ChooseProviderViewModel(application: Application) : AndroidViewModel(application) {
 
     companion object {
         private const val PLAY_STORE_PACKAGE_NAME = "com.android.vending"
@@ -174,10 +175,10 @@ class ChooseProviderViewModel(application: Application) : ScopedAndroidViewModel
 
     private val mutableProviders : MutableLiveData<List<ProviderInfo>> = object : MutableLiveData<List<ProviderInfo>>() {
         val allProvidersLiveData = InstalledProvidersLiveData(application,
-                this@ChooseProviderViewModel)
+                viewModelScope)
         val allProvidersObserver = Observer<List<android.content.pm.ProviderInfo>> { providerInfos ->
             if (providerInfos != null) {
-                launch(singleThreadContext) {
+                viewModelScope.launch(singleThreadContext) {
                     updateProviders(providerInfos)
                     withContext(Dispatchers.Main) {
                         startObserving()
@@ -190,7 +191,7 @@ class ChooseProviderViewModel(application: Application) : ScopedAndroidViewModel
         val currentProviderObserver = Observer<Provider?> { provider ->
             activeProvider = provider
             if (provider != null) {
-                launch(singleThreadContext) {
+                viewModelScope.launch(singleThreadContext) {
                     currentProviders.forEach {
                         val newlySelected = it.key == provider.authority
                         if (it.value.selected != newlySelected) {
@@ -206,7 +207,7 @@ class ChooseProviderViewModel(application: Application) : ScopedAndroidViewModel
                 .currentArtworkByProvider
         val currentArtworkByProviderObserver = Observer<List<com.google.android.apps.muzei.room.Artwork>> { artworkByProvider ->
             if (artworkByProvider != null) {
-                launch(singleThreadContext) {
+                viewModelScope.launch(singleThreadContext) {
                     val artworkMap = HashMap<String, Uri>()
                     artworkByProvider.forEach { artwork ->
                         artworkMap[artwork.providerAuthority] = artwork.imageUri
@@ -242,7 +243,7 @@ class ChooseProviderViewModel(application: Application) : ScopedAndroidViewModel
     val providers : LiveData<List<ProviderInfo>> = mutableProviders
 
     internal fun refreshDescription(authority: String) {
-        launch {
+        viewModelScope.launch {
             val updatedDescription = ProviderManager.getDescription(getApplication(), authority)
             currentProviders[authority]?.let { providerInfo ->
                 if (providerInfo.description != updatedDescription) {
