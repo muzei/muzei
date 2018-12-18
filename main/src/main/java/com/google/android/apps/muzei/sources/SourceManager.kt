@@ -34,6 +34,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.observe
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_SUBSCRIBE
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_SUBSCRIBER_COMPONENT
@@ -46,7 +47,6 @@ import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.goAsync
-import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.util.observeNonNull
 import com.google.android.apps.muzei.util.toastFromBackground
 import com.google.firebase.analytics.FirebaseAnalytics

@@ -25,7 +25,7 @@ dependencies {
     implementation "androidx.core:core-ktx:$coreVersion"
     api project(':muzei-api')
     implementation project(':extensions')
-    api "androidx.lifecycle:lifecycle-livedata:$lifecycleVersion"
+    api "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
 }
 
 android {

@@ -19,8 +19,8 @@ package com.google.android.apps.muzei.widget
 import android.content.Context
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.observe
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.util.observe
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 

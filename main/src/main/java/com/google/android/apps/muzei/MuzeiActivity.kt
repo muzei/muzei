@@ -31,8 +31,8 @@ import androidx.fragment.app.commit
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.observe
 import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
-import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.BuildConfig

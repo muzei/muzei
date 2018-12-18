@@ -25,9 +25,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.observe
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.util.observe
 import net.nurik.roman.muzei.R
 
 class SourceSetupActivity : AppCompatActivity() {

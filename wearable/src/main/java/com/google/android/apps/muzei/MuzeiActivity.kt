@@ -20,6 +20,7 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.observe
 import androidx.wear.ambient.AmbientModeSupport
 import androidx.wear.widget.RoundedDrawable
 import com.google.android.apps.muzei.datalayer.ActivateMuzeiIntentService
@@ -30,7 +31,6 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.coroutineScope
-import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.util.observeNonNull
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.Dispatchers
@@ -40,7 +40,7 @@ import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.BuildConfig.DATA_LAYER_AUTHORITY
 import net.nurik.roman.muzei.R
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
 
 class MuzeiViewModel(application: Application) : AndroidViewModel(application) {
 

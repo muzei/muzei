@@ -12,7 +12,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.LiveData
-import com.google.android.apps.muzei.util.observe
+import androidx.lifecycle.observe
 
 class GalleryImportPhotosDialogFragment : DialogFragment() {
 
@@ -54,7 +54,7 @@ class GalleryImportPhotosDialogFragment : DialogFragment() {
         listener = context as? OnRequestContentListener ?: throw IllegalArgumentException(
                 "${context.javaClass.simpleName} must implement OnRequestContentListener")
         getContentActivitiesLiveData.observe(this) { getContentActivities ->
-            if (getContentActivities?.isEmpty() != false) {
+            if (getContentActivities.isEmpty()) {
                 dismiss()
             } else {
                 updateAdapter(getContentActivities)

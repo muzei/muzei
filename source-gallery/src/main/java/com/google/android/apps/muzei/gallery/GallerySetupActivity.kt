@@ -23,8 +23,8 @@ import android.os.Bundle
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.observe
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
-import com.google.android.apps.muzei.util.observe
 
 class GallerySetupActivity : FragmentActivity() {
 
@@ -37,7 +37,7 @@ class GallerySetupActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         GalleryDatabase.getInstance(this).chosenPhotoDao()
                 .chosenPhotos.observe(this) { chosenUris ->
-            val numChosenUris = chosenUris?.size ?: 0
+            val numChosenUris = chosenUris.size
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED || numChosenUris > 0) {
                 // If we have permission or have any previously selected images

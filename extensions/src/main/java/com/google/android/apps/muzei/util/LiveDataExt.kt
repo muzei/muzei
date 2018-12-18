@@ -20,12 +20,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 
-fun <T> LiveData<T>.observe(owner: LifecycleOwner, callback: (T?) -> Unit) {
-    observe(owner, Observer<T?> { value ->
-        callback(value)
-    })
-}
-
 fun <T> LiveData<T?>.observeNonNull(owner: LifecycleOwner, callback: (T) -> Unit) {
     observe(owner, Observer { value ->
         if (value != null) {
