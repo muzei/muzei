@@ -34,6 +34,7 @@ import android.preference.PreferenceManager
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
@@ -167,11 +168,11 @@ class ActivateMuzeiIntentService : IntentService(TAG) {
 
         @RequiresApi(Build.VERSION_CODES.O)
         private fun createNotificationChannel(context: Context) {
-            val notificationManager = context.getSystemService(NotificationManager::class.java)
+            val notificationManager = NotificationManagerCompat.from(context)
             val channel = NotificationChannel(NOTIFICATION_CHANNEL,
                     context.getString(R.string.datalayer_activate_channel_name),
                     NotificationManager.IMPORTANCE_DEFAULT)
-            notificationManager?.createNotificationChannel(channel)
+            notificationManager.createNotificationChannel(channel)
         }
 
         @Throws(TimeoutException::class)
