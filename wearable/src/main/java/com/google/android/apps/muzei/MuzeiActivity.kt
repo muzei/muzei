@@ -13,13 +13,13 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.wear.ambient.AmbientModeSupport
 import androidx.wear.widget.RoundedDrawable
 import com.google.android.apps.muzei.datalayer.ActivateMuzeiIntentService
@@ -40,7 +40,7 @@ import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.BuildConfig.DATA_LAYER_AUTHORITY
 import net.nurik.roman.muzei.R
 import java.text.SimpleDateFormat
-import java.util.Locale
+import java.util.*
 
 class MuzeiViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -97,13 +97,7 @@ class MuzeiActivity : FragmentActivity(),
     private lateinit var providerDescriptionView: TextView
     private lateinit var providerSettingsView: Button
 
-    private val viewModelProvider by lazy {
-        ViewModelProvider(this,
-                ViewModelProvider.AndroidViewModelFactory.getInstance(application))
-    }
-    private val viewModel by lazy {
-        viewModelProvider[MuzeiViewModel::class.java]
-    }
+    private val viewModel: MuzeiViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

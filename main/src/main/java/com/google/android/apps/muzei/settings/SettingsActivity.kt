@@ -19,6 +19,7 @@ package com.google.android.apps.muzei.settings
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.commit
 import com.google.android.apps.muzei.MissingResourcesDialogFragment
 import com.google.android.apps.muzei.render.MuzeiRendererFragment
 import com.google.android.apps.muzei.util.observeNonNull
@@ -61,17 +62,17 @@ class SettingsActivity : AppCompatActivity() {
         val localRenderFragment = fm.findFragmentById(R.id.local_render_container)
         if (renderLocally) {
             if (localRenderFragment == null) {
-                fm.beginTransaction()
-                        .add(R.id.local_render_container,
-                                MuzeiRendererFragment.createInstance(false))
-                        .commit()
+                fm.commit {
+                    add(R.id.local_render_container,
+                            MuzeiRendererFragment.createInstance(false))
+                }
             }
             uiContainer.setBackgroundColor(0x00000000) // for ripple touch feedback
         } else {
             if (localRenderFragment != null) {
-                fm.beginTransaction()
-                        .remove(localRenderFragment)
-                        .commit()
+                fm.commit {
+                    remove(localRenderFragment)
+                }
             }
             uiContainer.background = null
         }

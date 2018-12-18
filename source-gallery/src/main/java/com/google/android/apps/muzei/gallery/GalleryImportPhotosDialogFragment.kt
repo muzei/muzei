@@ -10,8 +10,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.withStyledAttributes
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModelProvider
 import com.google.android.apps.muzei.util.observe
 
 class GalleryImportPhotosDialogFragment : DialogFragment() {
@@ -24,11 +24,9 @@ class GalleryImportPhotosDialogFragment : DialogFragment() {
         }
     }
 
+    private val viewModel: GallerySettingsViewModel by viewModels()
     private val getContentActivitiesLiveData: LiveData<List<ActivityInfo>> by lazy {
-        ViewModelProvider(this,
-                ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application))
-                .get(GallerySettingsViewModel::class.java)
-                .getContentActivityInfoList
+        viewModel.getContentActivityInfoList
     }
     private var listener: OnRequestContentListener? = null
     private lateinit var adapter: ArrayAdapter<CharSequence>

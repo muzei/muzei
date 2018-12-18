@@ -28,6 +28,7 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.text.HtmlCompat
+import androidx.fragment.app.commit
 import com.google.android.apps.muzei.render.MuzeiRendererFragment
 import com.google.android.apps.muzei.util.AnimatedMuzeiLogoFragment
 import net.nurik.roman.muzei.BuildConfig
@@ -47,10 +48,10 @@ class AboutActivity : AppCompatActivity() {
         (findViewById<View>(R.id.app_bar) as Toolbar).setNavigationOnClickListener { onNavigateUp() }
 
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                    .add(R.id.demo_view_container,
-                            MuzeiRendererFragment.createInstance(true))
-                    .commit()
+            supportFragmentManager.commit {
+                add(R.id.demo_view_container,
+                        MuzeiRendererFragment.createInstance(true))
+            }
         }
 
         // Build the about body view and append the link to see OSS licenses

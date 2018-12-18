@@ -43,7 +43,7 @@ import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -82,13 +82,7 @@ class ChooseProviderFragment : Fragment() {
         MuzeiDatabase.getInstance(requireContext()).providerDao()
                 .currentProvider
     }
-    private val viewModelProvider by lazy {
-        ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory
-                .getInstance(requireActivity().application))
-    }
-    private val viewModel by lazy {
-        viewModelProvider[ChooseProviderViewModel::class.java]
-    }
+    private val viewModel: ChooseProviderViewModel by viewModels()
     private val adapter = ProviderListAdapter()
 
     private lateinit var toolbar: Toolbar

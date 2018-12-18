@@ -22,14 +22,15 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.view.View
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.commit
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModelProvider
 import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
 import com.google.android.apps.muzei.util.observe
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
@@ -39,11 +40,7 @@ import net.nurik.roman.muzei.R
 
 class MuzeiActivity : AppCompatActivity() {
     private var fadeIn = false
-    private val viewModel : MuzeiActivityViewModel by lazy {
-        val viewModelProvider = ViewModelProvider(this,
-                ViewModelProvider.AndroidViewModelFactory.getInstance(application))
-        viewModelProvider[MuzeiActivityViewModel::class.java]
-    }
+    private val viewModel : MuzeiActivityViewModel by viewModels()
 
     private val currentFragment: Fragment
         get() {
@@ -94,13 +91,14 @@ class MuzeiActivity : AppCompatActivity() {
             val oldFragment = supportFragmentManager.findFragmentById(R.id.container)
             if (!fragment::class.java.isInstance(oldFragment)) {
                 // Only replace the Fragment if there was a change
-                supportFragmentManager.beginTransaction()
-                        .replace(R.id.container, fragment)
-                        .setPrimaryNavigationFragment(fragment).apply {
-                            if (oldFragment != null) {
-                                setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                            }
-                        }.commit()
+                supportFragmentManager.commit {
+                    replace(R.id.container, fragment)
+                    setPrimaryNavigationFragment(fragment).apply {
+                        if (oldFragment != null) {
+                            setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                        }
+                    }
+                }
             }
         }
 
@@ -109,11 +107,11 @@ class MuzeiActivity : AppCompatActivity() {
             if (!fragment::class.java.isInstance(
                             supportFragmentManager.findFragmentById(R.id.container))) {
                 // Only replace the Fragment if there was a change
-                supportFragmentManager.beginTransaction()
-                        .replace(R.id.container, fragment)
-                        .setPrimaryNavigationFragment(fragment)
-                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                        .commitAllowingStateLoss()
+                supportFragmentManager.commit(allowStateLoss = true) {
+                    replace(R.id.container, fragment)
+                    setPrimaryNavigationFragment(fragment)
+                    setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                }
             }
         }
         if (intent?.hasCategory(Notification.INTENT_CATEGORY_NOTIFICATION_PREFERENCES) == true) {

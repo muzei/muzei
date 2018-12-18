@@ -26,6 +26,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commitNow
 import com.google.android.apps.muzei.util.AnimatedMuzeiLogoFragment
 import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -76,9 +77,9 @@ class IntroFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         if (savedInstanceState == null) {
             val logoFragment = AnimatedMuzeiLogoFragment()
-            childFragmentManager.beginTransaction()
-                    .add(R.id.animated_logo_fragment, logoFragment)
-                    .commitNow()
+            childFragmentManager.commitNow {
+                add(R.id.animated_logo_fragment, logoFragment)
+            }
 
             activateButton.alpha = 0f
             logoFragment.onFillStarted = {

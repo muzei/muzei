@@ -24,9 +24,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import com.google.android.apps.muzei.util.observeNonNull
 import com.twofortyfouram.locale.api.Intent.EXTRA_BUNDLE
 import com.twofortyfouram.locale.api.Intent.EXTRA_STRING_BLURB
@@ -38,13 +38,7 @@ import net.nurik.roman.muzei.R
  */
 class TaskerSettingActivity : AppCompatActivity() {
 
-    private val viewModelProvider by lazy {
-        ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory
-                .getInstance(application))
-    }
-    private val viewModel by lazy {
-        viewModelProvider[TaskerSettingViewModel::class.java]
-    }
+    private val viewModel: TaskerSettingViewModel by viewModels()
 
     private val adapter by lazy {
         ActionAdapter(this)

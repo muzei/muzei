@@ -29,7 +29,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -48,13 +48,8 @@ import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.R
 
 class BrowseProviderFragment: Fragment() {
-    private val viewModelProvider by lazy {
-        ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory
-                .getInstance(requireActivity().application))
-    }
-    private val viewModel by lazy {
-        viewModelProvider[BrowseProviderViewModel::class.java]
-    }
+
+    private val viewModel: BrowseProviderViewModel by viewModels()
     private val adapter = Adapter()
 
     override fun onCreateView(

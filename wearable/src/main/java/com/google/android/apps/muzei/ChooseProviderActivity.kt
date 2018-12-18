@@ -25,9 +25,9 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.activity.viewModels
 import androidx.core.os.bundleOf
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -49,13 +49,7 @@ class ChooseProviderActivity : FragmentActivity() {
         private const val START_ACTIVITY_PROVIDER = "startActivityProvider"
     }
 
-    private val viewModelProvider by lazy {
-        ViewModelProvider(this,
-                ViewModelProvider.AndroidViewModelFactory.getInstance(application))
-    }
-    private val viewModel by lazy {
-        viewModelProvider[ChooseProviderViewModel::class.java]
-    }
+    private val viewModel: ChooseProviderViewModel by viewModels()
 
     private val adapter = ProviderAdapter()
 
