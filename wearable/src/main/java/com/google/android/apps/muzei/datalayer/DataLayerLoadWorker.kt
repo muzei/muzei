@@ -22,7 +22,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.Log
 import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.Result
 import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters

@@ -27,7 +27,6 @@ import androidx.work.CoroutineWorker
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.Result
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.google.android.apps.muzei.api.provider.Artwork
