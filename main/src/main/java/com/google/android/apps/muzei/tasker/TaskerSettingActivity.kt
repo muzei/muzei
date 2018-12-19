@@ -27,7 +27,7 @@ import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.apps.muzei.util.observeNonNull
+import androidx.lifecycle.observe
 import com.twofortyfouram.locale.api.Intent.EXTRA_BUNDLE
 import com.twofortyfouram.locale.api.Intent.EXTRA_STRING_BLURB
 import net.nurik.roman.muzei.R
@@ -65,7 +65,7 @@ class TaskerSettingActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.actions.observeNonNull(this) { actions ->
+        viewModel.actions.observe(this) { actions ->
             adapter.clear()
             adapter.addAll(actions)
             if (!dialog.isShowing) {

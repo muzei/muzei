@@ -47,7 +47,6 @@ import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.goAsync
-import com.google.android.apps.muzei.util.observeNonNull
 import com.google.android.apps.muzei.util.toastFromBackground
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.Dispatchers
@@ -269,7 +268,7 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                 lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
             }
         }
-        SubscriberLiveData().observeNonNull(this) { source ->
+        SubscriberLiveData().observe(this) { source ->
             sendSelectedSourceAnalytics(source.componentName)
         }
         // Register for package change events

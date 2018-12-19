@@ -210,10 +210,10 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             wallpaperLifecycle.addObserver(this)
             setTouchEventsEnabled(true)
             setOffsetNotificationsEnabled(true)
-            EffectsLockScreenOpenLiveData.observeNonNull(this) { isEffectsLockScreenOpen ->
+            EffectsLockScreenOpenLiveData.observe(this) { isEffectsLockScreenOpen ->
                 renderController.onLockScreen = isEffectsLockScreenOpen
             }
-            ArtDetailOpenLiveData.observeNonNull(this) { isArtDetailOpened ->
+            ArtDetailOpenLiveData.observe(this) { isArtDetailOpened ->
                 cancelDelayedBlur()
                 queueEvent { renderer.setIsBlurred(!isArtDetailOpened, true) }
             }

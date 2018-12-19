@@ -40,6 +40,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.MuzeiContract
@@ -61,7 +62,6 @@ import com.google.android.apps.muzei.util.AnimatedMuzeiLoadingSpinnerView
 import com.google.android.apps.muzei.util.PanScaleProxyView
 import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.makeCubicGradientScrimDrawable
-import com.google.android.apps.muzei.util.observeNonNull
 import com.google.android.apps.muzei.widget.showWidgetPreview
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.Dispatchers
@@ -325,7 +325,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         loadingContainerView = view.findViewById(R.id.image_loading_container)
         loadingIndicatorView = view.findViewById(R.id.image_loading_indicator)
 
-        WallpaperSizeLiveData.observeNonNull(this) { size ->
+        WallpaperSizeLiveData.observe(this) { size ->
             wallpaperAspectRatio = if (size.height > 0) {
                 size.width * 1f / size.height
             } else {
@@ -334,14 +334,14 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             resetProxyViewport()
         }
 
-        ArtworkSizeLiveData.observeNonNull(this) { size ->
+        ArtworkSizeLiveData.observe(this) { size ->
             artworkAspectRatio = size.width * 1f / size.height
             resetProxyViewport()
         }
 
         ArtDetailViewport.addObserver(this)
 
-        SwitchingPhotosLiveData.observeNonNull(this) { switchingPhotos ->
+        SwitchingPhotosLiveData.observe(this) { switchingPhotos ->
             currentViewportId = switchingPhotos.viewportId
             panScaleProxyView.panScaleEnabled = switchingPhotos is SwitchingPhotosDone
             // Process deferred artwork size change when done switching

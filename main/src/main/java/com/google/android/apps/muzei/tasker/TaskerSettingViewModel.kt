@@ -71,7 +71,7 @@ internal class TaskerSettingViewModel(
         a1.text.compareTo(a2.text)
     }
 
-    val actions : LiveData<List<Action>?> = object : MutableLiveData<List<Action>?>() {
+    val actions : LiveData<List<Action>> = object : MutableLiveData<List<Action>>() {
         val nextArtworkAction = Action(
                 ContextCompat.getDrawable(application, R.drawable.ic_next_artwork)!!.apply {
                     setBounds(0, 0, imageSize, imageSize)

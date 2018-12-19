@@ -20,9 +20,9 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
+import androidx.lifecycle.observe
 import com.google.android.apps.muzei.MissingResourcesDialogFragment
 import com.google.android.apps.muzei.render.MuzeiRendererFragment
-import com.google.android.apps.muzei.util.observeNonNull
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import net.nurik.roman.muzei.R
 
@@ -44,7 +44,7 @@ class SettingsActivity : AppCompatActivity() {
                 or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
         setContentView(R.layout.settings_activity)
 
-        WallpaperActiveState.observeNonNull(this) { isActive ->
+        WallpaperActiveState.observe(this) { isActive ->
             updateRenderLocally(!isActive)
         }
     }

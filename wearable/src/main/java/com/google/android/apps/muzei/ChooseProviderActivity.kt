@@ -28,6 +28,7 @@ import android.widget.Button
 import androidx.activity.viewModels
 import androidx.core.os.bundleOf
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -35,7 +36,6 @@ import androidx.wear.widget.WearableLinearLayoutManager
 import androidx.wear.widget.WearableRecyclerView
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.sync.ProviderManager
-import com.google.android.apps.muzei.util.observeNonNull
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -64,7 +64,7 @@ class ChooseProviderActivity : FragmentActivity() {
         providerList.layoutManager = WearableLinearLayoutManager(this)
         providerList.adapter = adapter
 
-        viewModel.providers.observeNonNull(this) { providers ->
+        viewModel.providers.observe(this) { providers ->
             adapter.submitList(providers)
         }
     }
