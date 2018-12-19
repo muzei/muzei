@@ -17,12 +17,14 @@
 package com.google.android.apps.muzei.util
 
 import android.os.Bundle
+import androidx.core.os.bundleOf
+import androidx.savedstate.SavedStateRegistry
 import java.util.HashSet
 
 /**
  * Utilities for storing multiple selection information in collection views.
  */
-class MultiSelectionController(private val stateKey: String) {
+class MultiSelectionController(private val stateKey: String) : SavedStateRegistry.SavedStateProvider<Bundle> {
 
     val selection = HashSet<Long>()
     var callbacks: Callbacks? = null
@@ -44,9 +46,7 @@ class MultiSelectionController(private val stateKey: String) {
         callbacks?.onSelectionChanged(true, false)
     }
 
-    fun saveInstanceState(outBundle: Bundle) {
-        outBundle.putLongArray(stateKey, selection.toLongArray())
-    }
+    override fun saveState() = bundleOf(stateKey to selection.toLongArray())
 
     fun toggle(item: Long, fromUser: Boolean) {
         if (selection.contains(item)) {

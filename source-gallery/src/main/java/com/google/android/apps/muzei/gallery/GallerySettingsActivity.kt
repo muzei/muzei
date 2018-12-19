@@ -125,6 +125,10 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
 
     private val chosenPhotosAdapter = GalleryAdapter()
 
+    init {
+        bundleSavedStateRegistry.registerSavedStateProvider(STATE_SELECTION, multiSelectionController)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.gallery_activity)
@@ -563,7 +567,8 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        multiSelectionController.restoreInstanceState(savedInstanceState)
+        multiSelectionController.restoreInstanceState(
+                bundleSavedStateRegistry.consumeRestoredStateForKey(STATE_SELECTION))
     }
 
     internal class PhotoViewHolder(val rootView: View) : RecyclerView.ViewHolder(rootView) {
@@ -779,10 +784,5 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
     override fun onChanged(chosenPhotos: PagedList<ChosenPhoto>?) {
         chosenPhotosAdapter.submitList(chosenPhotos)
         onDataSetChanged()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        multiSelectionController.saveInstanceState(outState)
     }
 }
