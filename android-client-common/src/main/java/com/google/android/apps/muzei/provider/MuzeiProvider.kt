@@ -146,6 +146,7 @@ class MuzeiProvider : ContentProvider() {
             selectionArgs: Array<String>?,
             sortOrder: String?
     ): Cursor? {
+        val context = context ?: return null
         if (!UserManagerCompat.isUserUnlocked(context)) {
             Log.w(TAG, "Queries are not supported until the user is unlocked")
             return null
