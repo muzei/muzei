@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns="http://www.w3.org/2000/svg"
+   viewBox="0 0 537.46399 350"
+   height="1752.35728"
+   width="2149.85596"
+   xml:space="preserve"
+   id="svg2"
+   version="1.1">
+   <defs
+     id="defs6"><clipPath
+       id="clipPath40"
+       clipPathUnits="userSpaceOnUse">
+		 <path
+         id="path38"
+         d="M 0,328.567 H 403.098 V 0 H 0 Z" /></clipPath></defs>
+		 <text
+       id="text16"
+       style="font-variant:normal;font-weight:normal;font-stretch:normal;font-size:40px;font-family:Helvetica;-inkscape-font-specification:Helvetica"
+       ><tspan
+         id="tspan14" x="275" y="285" text-anchor="middle">(example)</tspan></text>
+		 <g
+     transform="matrix(1.3333333,0,0,-1.3333333,0,438.08933)"
+     id="g10">
+
+	 <g
+       id="g34"><g
+         clip-path="url(#clipPath40)"
+         id="g36"><path
+           id="path42"
+           style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           d="m 226.403,266.795 h -43.62 v -32.869 h 43.62 z m 37.141,-52.146 H 226.403 V 181.78 h -43.62 v 32.869 H 145.641 V 148.911 H 263.544 Z" /></g></g></g></svg>
