@@ -21,6 +21,7 @@ import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.create
 import retrofit2.http.GET
 import retrofit2.http.Path
 import java.io.IOException
@@ -46,7 +47,7 @@ internal interface UnsplashService {
                     .addConverterFactory(MoshiConverterFactory.create())
                     .build()
 
-            return retrofit.create<UnsplashService>(UnsplashService::class.java)
+            return retrofit.create()
         }
 
         @Throws(IOException::class)
