@@ -69,7 +69,8 @@ class BrowseProviderFragment: Fragment() {
                     requireContext(), R.color.theme_primary_dark)
         }
 
-        val args = BrowseProviderFragmentArgs.fromBundle(arguments)
+        val args = BrowseProviderFragmentArgs.fromBundle(arguments
+                ?: throw IllegalArgumentException("BrowseProviderFragment received null arguments"))
         val pm = requireContext().packageManager
         val providerInfo = pm.resolveContentProvider(args.contentUri.authority, 0)
                 ?: run {
