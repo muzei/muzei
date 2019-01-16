@@ -39,7 +39,7 @@ buildscript {
         playServicesWearableVersion = "16.0.1"
         firebaseCoreVersion = "16.0.6"
         firebasePerfVersion = "16.2.2"
-        crashlyticsVersion = "2.9.7"
+        crashlyticsVersion = "2.9.8"
         wearableVersion = "2.4.0"
         okhttpVersion = "3.10.0"
         glideVersion = "4.8.0"
