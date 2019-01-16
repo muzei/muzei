@@ -30,7 +30,7 @@ buildscript {
         recyclerViewVersion = "1.1.0-alpha01"
         wearVersion = "1.0.0"
         materialVersion = "1.0.0"
-        constraintLayoutVersion = "2.0.0-alpha2"
+        constraintLayoutVersion = "2.0.0-alpha3"
         lifecycleVersion = "2.1.0-alpha01"
         roomVersion = "2.1.0-alpha03"
         pagingVersion = "2.1.0-rc01"
