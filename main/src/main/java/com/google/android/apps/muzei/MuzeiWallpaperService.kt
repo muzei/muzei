@@ -89,6 +89,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
     @SuppressLint("InlinedApi")
     override fun onCreate() {
         super.onCreate()
+        wallpaperLifecycle.addObserver(WorkManagerInitializer.initializeObserver(this))
         wallpaperLifecycle.addObserver(SourceManager(this))
         wallpaperLifecycle.addObserver(NotificationUpdater(this))
         wallpaperLifecycle.addObserver(WearableController(this))
