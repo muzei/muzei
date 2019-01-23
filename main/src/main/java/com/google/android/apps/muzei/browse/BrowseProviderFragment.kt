@@ -32,6 +32,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -50,6 +51,7 @@ import net.nurik.roman.muzei.R
 class BrowseProviderFragment: Fragment() {
 
     private val viewModel: BrowseProviderViewModel by viewModels()
+    private val args: BrowseProviderFragmentArgs by navArgs()
     private val adapter = Adapter()
 
     override fun onCreateView(
@@ -69,8 +71,6 @@ class BrowseProviderFragment: Fragment() {
                     requireContext(), R.color.theme_primary_dark)
         }
 
-        val args = BrowseProviderFragmentArgs.fromBundle(arguments
-                ?: throw IllegalArgumentException("BrowseProviderFragment received null arguments"))
         val pm = requireContext().packageManager
         val providerInfo = pm.resolveContentProvider(args.contentUri.authority, 0)
                 ?: run {
