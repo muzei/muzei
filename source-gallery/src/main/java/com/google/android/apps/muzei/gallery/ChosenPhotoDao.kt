@@ -200,13 +200,14 @@ internal abstract class ChosenPhotoDao {
     abstract suspend fun getChosenPhotos(ids: List<Long>): List<ChosenPhoto>
 
     @Query("DELETE FROM chosen_photos WHERE _id IN (:ids)")
-    internal abstract fun deleteInternal(ids: List<Long>)
+    internal abstract suspend fun deleteInternal(ids: List<Long>)
 
     suspend fun delete(context: Context, ids: List<Long>) = withContext(Dispatchers.Default) {
         deleteBackingPhotos(context, getChosenPhotos(ids))
         deleteInternal(ids)
     }
 
+    // Can't be suspend due to https://issuetracker.google.com/issues/123466702
     @Query("DELETE FROM chosen_photos")
     internal abstract fun deleteAllInternal()
 
