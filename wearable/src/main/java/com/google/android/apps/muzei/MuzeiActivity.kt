@@ -182,7 +182,7 @@ class MuzeiActivity : FragmentActivity(),
                 attributionView.text = artwork.attribution
                 attributionView.isVisible = !artwork.attribution.isNullOrBlank()
                 openOnPhone.setOnClickListener {
-                    launch {
+                    coroutineScope.launch {
                         FirebaseAnalytics.getInstance(this@MuzeiActivity).logEvent(
                                 FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
                                 FirebaseAnalytics.Param.ITEM_ID to DataLayerArtProvider.OPEN_ON_PHONE_ACTION,
