@@ -23,12 +23,12 @@ import android.util.Log
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.util.toastFromBackground
-import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.CapabilityClient
-import com.google.android.gms.wearable.CapabilityInfo
 import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.Wearable
 import com.google.firebase.analytics.FirebaseAnalytics
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import net.nurik.roman.muzei.R
 import java.io.File
 import java.io.FileInputStream
@@ -59,14 +59,14 @@ class DataLayerArtProvider : MuzeiArtProvider() {
     override fun onCommand(artwork: Artwork, id: Int) {
         val context = context ?: return
         when(id) {
-            OPEN_ON_PHONE_ACTION -> {
+            OPEN_ON_PHONE_ACTION -> runBlocking {
                 // Open on Phone action
                 val capabilityClient = Wearable.getCapabilityClient(context)
                 val nodes: Set<Node> = try {
                     // We use activate_muzei for compatibility with
                     // older versions of Muzei's phone app
-                    Tasks.await<CapabilityInfo>(capabilityClient.getCapability(
-                            "activate_muzei", CapabilityClient.FILTER_REACHABLE)).nodes
+                    capabilityClient.getCapability("activate_muzei",
+                            CapabilityClient.FILTER_REACHABLE).await().nodes
                 } catch (e: ExecutionException) {
                     Log.e(TAG, "Error getting reachable capability info", e)
                     TreeSet()
@@ -92,8 +92,8 @@ class DataLayerArtProvider : MuzeiArtProvider() {
                         try {
                             // We use notification/open for compatibility with
                             // older versions of Muzei's phone app
-                            Tasks.await(messageClient.sendMessage(node.id,
-                                    "notification/open", null))
+                            messageClient.sendMessage(node.id,
+                                    "notification/open", null).await()
                         } catch (e: ExecutionException) {
                             Log.w(TAG, "Unable to send Open on phone message to ${node.id}", e)
                         } catch (e: InterruptedException) {

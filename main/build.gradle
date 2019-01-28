@@ -99,6 +99,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$coroutinesVersion"
     implementation "androidx.multidex:multidex:$multidexVersion"
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
     implementation "com.github.bumptech.glide:glide:$glideVersion"

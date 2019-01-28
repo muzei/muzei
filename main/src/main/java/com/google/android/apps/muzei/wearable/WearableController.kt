@@ -28,16 +28,14 @@ import com.google.android.apps.muzei.util.observeNonNull
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.api.AvailabilityException
-import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.Asset
-import com.google.android.gms.wearable.DataItem
 import com.google.android.gms.wearable.PutDataMapRequest
 import com.google.android.gms.wearable.Wearable
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.ExecutionException
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
 /**
@@ -65,8 +63,7 @@ class WearableController(private val context: Context) : DefaultLifecycleObserve
         }
         val dataClient = Wearable.getDataClient(context)
         try {
-            Tasks.await(GoogleApiAvailability.getInstance()
-                    .checkApiAvailability(dataClient), 5, TimeUnit.SECONDS)
+            GoogleApiAvailability.getInstance().checkApiAvailability(dataClient).await()
         } catch (e: ExecutionException) {
             if (e.cause is AvailabilityException) {
                 val connectionResult = (e.cause as AvailabilityException)
@@ -98,7 +95,7 @@ class WearableController(private val context: Context) : DefaultLifecycleObserve
             dataMap.putAsset("image", asset)
         }
         try {
-            Tasks.await<DataItem>(dataClient.putDataItem(dataMapRequest.asPutDataRequest().setUrgent()))
+            dataClient.putDataItem(dataMapRequest.asPutDataRequest().setUrgent()).await()
         } catch (e: ExecutionException) {
             Log.w(TAG, "Error uploading artwork to Wear", e)
         } catch (e: InterruptedException) {

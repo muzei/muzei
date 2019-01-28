@@ -21,16 +21,15 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.Log
+import androidx.work.CoroutineWorker
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.wearable.toArtwork
-import com.google.android.gms.tasks.Tasks
-import com.google.android.gms.wearable.DataClient
 import com.google.android.gms.wearable.DataMapItem
 import com.google.android.gms.wearable.Wearable
+import kotlinx.coroutines.tasks.await
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.BuildConfig.DATA_LAYER_AUTHORITY
 import java.io.FileOutputStream
@@ -43,7 +42,7 @@ import java.util.concurrent.ExecutionException
 class DataLayerLoadWorker(
         context: Context,
         workerParams: WorkerParameters
-) : Worker(context, workerParams) {
+) : CoroutineWorker(context, workerParams) {
 
     companion object {
         private const val TAG = "DataLayerLoadJobService"
@@ -57,14 +56,14 @@ class DataLayerLoadWorker(
         }
     }
 
-    override fun doWork(): Result {
+    override suspend fun doWork(): Result {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Loading artwork from the DataLayer")
         }
         val dataClient = Wearable.getDataClient(applicationContext)
         try {
-            val dataItemBuffer = Tasks.await(dataClient.getDataItems(
-                    Uri.parse("wear://*/artwork")))
+            val dataItemBuffer = dataClient.getDataItems(
+                    Uri.parse("wear://*/artwork")).await()
             if (!dataItemBuffer.status.isSuccess) {
                 if (BuildConfig.DEBUG) {
                     Log.i(TAG, "Error getting artwork DataItem")
@@ -81,8 +80,8 @@ class DataLayerLoadWorker(
                 }
                 return Result.failure()
             }
-            val result = Tasks.await<DataClient.GetFdForAssetResponse>(
-                    dataClient.getFdForAsset(dataMap.getAsset("image")))
+            val result = dataClient.getFdForAsset(
+                    dataMap.getAsset("image")).await()
             try {
                 result.inputStream.use { input ->
                     FileOutputStream(DataLayerArtProvider.getAssetFile(applicationContext)).use { out ->

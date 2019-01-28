@@ -40,18 +40,16 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import com.google.android.apps.muzei.ChooseProviderActivity
 import com.google.android.apps.muzei.util.toast
-import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.CapabilityClient
-import com.google.android.gms.wearable.CapabilityInfo
 import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.Wearable
 import com.google.android.wearable.intent.RemoteIntent
 import com.google.android.wearable.playstore.PlayStoreAvailability
 import com.google.firebase.analytics.FirebaseAnalytics
+import kotlinx.coroutines.tasks.await
 import net.nurik.roman.muzei.R
 import java.util.TreeSet
 import java.util.concurrent.ExecutionException
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
 class ActivateMuzeiIntentService : IntentService(TAG) {
@@ -75,7 +73,7 @@ class ActivateMuzeiIntentService : IntentService(TAG) {
             }
         }
 
-        fun checkForPhoneApp(context: Context) {
+        suspend fun checkForPhoneApp(context: Context) {
             val node: Node?
             try {
                 node = getNode(context, CapabilityClient.FILTER_ALL)
@@ -176,11 +174,10 @@ class ActivateMuzeiIntentService : IntentService(TAG) {
         }
 
         @Throws(TimeoutException::class)
-        private fun getNode(context: Context, capability: Int): Node? {
+        private suspend fun getNode(context: Context, capability: Int): Node? {
             val capabilityClient = Wearable.getCapabilityClient(context)
             val nodes: Set<Node> = try {
-                Tasks.await<CapabilityInfo>(capabilityClient.getCapability(
-                        "activate_muzei", capability), 1, TimeUnit.SECONDS).nodes
+                capabilityClient.getCapability("activate_muzei", capability).await().nodes
             } catch (e: ExecutionException) {
                 Log.e(TAG, "Error getting all capability info", e)
                 TreeSet()
