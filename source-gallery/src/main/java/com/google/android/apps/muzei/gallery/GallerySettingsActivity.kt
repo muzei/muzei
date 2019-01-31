@@ -68,7 +68,6 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         private const val REQUEST_CHOOSE_PHOTOS = 1
         private const val REQUEST_CHOOSE_FOLDER = 2
         private const val REQUEST_STORAGE_PERMISSION = 3
-        private const val STATE_SELECTION = "selection"
 
         internal val CHOSEN_PHOTO_DIFF_CALLBACK: DiffUtil.ItemCallback<ChosenPhoto> = object : DiffUtil.ItemCallback<ChosenPhoto>() {
             override fun areItemsTheSame(oldItem: ChosenPhoto, newItem: ChosenPhoto): Boolean {
@@ -102,7 +101,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
     }
     private var itemSize = 10
 
-    private val multiSelectionController = MultiSelectionController(STATE_SELECTION)
+    private val multiSelectionController = MultiSelectionController(lifecycle, bundleSavedStateRegistry)
 
     private val placeholderDrawable: ColorDrawable by lazy {
         ColorDrawable(ContextCompat.getColor(this,
@@ -124,10 +123,6 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
     private var lastTouchY: Int = 0
 
     private val chosenPhotosAdapter = GalleryAdapter()
-
-    init {
-        bundleSavedStateRegistry.registerSavedStateProvider(STATE_SELECTION, multiSelectionController)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -563,12 +558,6 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                 }
             }
         }
-    }
-
-    override fun onPostCreate(savedInstanceState: Bundle?) {
-        super.onPostCreate(savedInstanceState)
-        multiSelectionController.restoreInstanceState(
-                bundleSavedStateRegistry.consumeRestoredStateForKey(STATE_SELECTION))
     }
 
     internal class PhotoViewHolder(val rootView: View) : RecyclerView.ViewHolder(rootView) {
