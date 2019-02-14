@@ -64,16 +64,14 @@ class WearableController(private val context: Context) : DefaultLifecycleObserve
         val dataClient = Wearable.getDataClient(context)
         try {
             GoogleApiAvailability.getInstance().checkApiAvailability(dataClient).await()
-        } catch (e: ExecutionException) {
-            if (e.cause is AvailabilityException) {
-                val connectionResult = (e.cause as AvailabilityException)
-                        .getConnectionResult(dataClient)
-                if (connectionResult.errorCode != ConnectionResult.API_UNAVAILABLE) {
-                    Log.w(TAG, "onConnectionFailed: $connectionResult", e.cause)
-                }
-            } else {
-                Log.w(TAG, "Unable to check for Wear API availability", e)
+        } catch (e: AvailabilityException) {
+            val connectionResult = e.getConnectionResult(dataClient)
+            if (connectionResult.errorCode != ConnectionResult.API_UNAVAILABLE) {
+                Log.w(TAG, "onConnectionFailed: $connectionResult", e.cause)
             }
+            return
+        } catch (e: ExecutionException) {
+            Log.w(TAG, "Unable to check for Wear API availability", e)
             return
         } catch (e: InterruptedException) {
             Log.w(TAG, "Unable to check for Wear API availability", e)
