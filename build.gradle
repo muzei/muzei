@@ -34,7 +34,7 @@ buildscript {
         lifecycleVersion = "2.1.0-alpha01"
         roomVersion = "2.1.0-alpha04"
         pagingVersion = "2.1.0"
-        navigationVersion = "1.0.0-alpha11"
+        navigationVersion = "1.0.0-beta02"
         workManagerVersion = "1.0.0-rc01"
         playServicesWearableVersion = "16.0.1"
         firebaseCoreVersion = "16.0.6"
