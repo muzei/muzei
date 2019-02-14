@@ -23,7 +23,7 @@ buildscript {
         coroutinesVersion = "1.0.0"
         multidexVersion = "2.0.1"
         appCompatVersion = "1.0.2"
-        coreVersion = "1.1.0-alpha03"
+        coreVersion = "1.1.0-alpha04"
         browserVersion = "1.0.0"
         exifInterfaceVersion = "1.0.0"
         fragmentVersion = "1.1.0-alpha03"
