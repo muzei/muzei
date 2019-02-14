@@ -26,7 +26,7 @@ buildscript {
         coreVersion = "1.1.0-alpha04"
         browserVersion = "1.0.0"
         exifInterfaceVersion = "1.0.0"
-        fragmentVersion = "1.1.0-alpha03"
+        fragmentVersion = "1.1.0-alpha04"
         recyclerViewVersion = "1.1.0-alpha02"
         wearVersion = "1.0.0"
         materialVersion = "1.0.0"

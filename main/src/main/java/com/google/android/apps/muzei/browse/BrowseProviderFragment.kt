@@ -19,10 +19,10 @@ package com.google.android.apps.muzei.browse
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.annotation.ContentView
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
@@ -48,19 +48,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.R
 
+@ContentView(R.layout.browse_provider_fragment)
 class BrowseProviderFragment: Fragment() {
 
     private val viewModel: BrowseProviderViewModel by viewModels()
     private val args: BrowseProviderFragmentArgs by navArgs()
     private val adapter = Adapter()
-
-    override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.browse_provider_fragment, container, false)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         // Ensure we have the latest insets

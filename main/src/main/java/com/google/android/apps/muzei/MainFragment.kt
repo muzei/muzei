@@ -17,9 +17,8 @@
 package com.google.android.apps.muzei
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
+import androidx.annotation.ContentView
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
@@ -34,17 +33,10 @@ import net.nurik.roman.muzei.R
  * Fragment which controls the main view of the Muzei app and handles the bottom navigation
  * between various screens.
  */
+@ContentView(R.layout.main_fragment)
 class MainFragment : Fragment(), ChooseProviderFragment.Callbacks {
 
     private lateinit var bottomNavigationView: BottomNavigationView
-
-    override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.main_fragment, container, false)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         // Set up the container for the child fragments

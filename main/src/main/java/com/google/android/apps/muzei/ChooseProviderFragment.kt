@@ -34,6 +34,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.ContentView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
@@ -66,6 +67,7 @@ import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig.SOURCES_AUTHORITY
 import net.nurik.roman.muzei.R
 
+@ContentView(R.layout.choose_provider_fragment)
 class ChooseProviderFragment : Fragment() {
     companion object {
         private const val TAG = "ChooseProviderFragment"
@@ -93,14 +95,6 @@ class ChooseProviderFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         startActivityProvider = savedInstanceState?.getString(START_ACTIVITY_PROVIDER)
-    }
-
-    override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.choose_provider_fragment, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

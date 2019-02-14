@@ -24,13 +24,12 @@ import android.os.Bundle
 import android.text.style.UnderlineSpan
 import android.util.SparseIntArray
 import android.util.SparseLongArray
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.ContentView
 import androidx.core.os.bundleOf
 import androidx.core.text.set
 import androidx.core.text.toSpannable
@@ -40,6 +39,7 @@ import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
 
+@ContentView(R.layout.auto_advance_settings_fragment)
 class AutoAdvanceSettingsFragment : Fragment() {
     companion object {
         private const val TASKER_PACKAGE_NAME = "net.dinglisch.android.taskerm"
@@ -63,13 +63,6 @@ class AutoAdvanceSettingsFragment : Fragment() {
                         INTERVAL_RADIO_BUTTON_IDS_BY_TIME.keyAt(i).toLong())
             }
         }
-    }
-    override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.auto_advance_settings_fragment, container, false)
     }
 
     @SuppressLint("InlinedApi")

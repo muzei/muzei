@@ -18,10 +18,9 @@ package com.google.android.apps.muzei.settings
 
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.SeekBar
+import androidx.annotation.ContentView
 import androidx.core.content.edit
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
@@ -35,6 +34,7 @@ import net.nurik.roman.muzei.R
 /**
  * Fragment for allowing the user to configure advanced settings.
  */
+@ContentView(R.layout.effects_screen_fragment)
 class EffectsScreenFragment : Fragment() {
 
     companion object {
@@ -73,20 +73,12 @@ class EffectsScreenFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        blurPref = arguments?.getString(PREF_BLUR)
+        blurPref = requireArguments().getString(PREF_BLUR)
                 ?: throw IllegalArgumentException("Missing required argument $PREF_BLUR")
-        dimPref = arguments?.getString(PREF_DIM)
+        dimPref = requireArguments().getString(PREF_DIM)
                 ?: throw IllegalArgumentException("Missing required argument $PREF_DIM")
-        greyPref = arguments?.getString(PREF_GREY)
+        greyPref = requireArguments().getString(PREF_GREY)
                 ?: throw IllegalArgumentException("Missing required argument $PREF_GREY")
-    }
-
-    override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.effects_screen_fragment, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

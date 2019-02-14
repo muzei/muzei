@@ -25,6 +25,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.annotation.ContentView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commitNow
 import com.google.android.apps.muzei.util.AnimatedMuzeiLogoFragment
@@ -32,6 +33,7 @@ import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
 
+@ContentView(R.layout.intro_fragment)
 class IntroFragment : Fragment() {
 
     private lateinit var activateButton: View
@@ -42,14 +44,6 @@ class IntroFragment : Fragment() {
         if (savedInstanceState == null) {
             FirebaseAnalytics.getInstance(requireContext()).logEvent(FirebaseAnalytics.Event.TUTORIAL_BEGIN, null)
         }
-    }
-
-    override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.intro_fragment, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

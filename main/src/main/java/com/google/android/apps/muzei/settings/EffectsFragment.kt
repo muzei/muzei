@@ -19,9 +19,8 @@ package com.google.android.apps.muzei.settings
 import android.app.Activity
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
+import androidx.annotation.ContentView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.edit
 import androidx.core.view.ViewCompat
@@ -39,6 +38,7 @@ object EffectsLockScreenOpenLiveData : MutableLiveData<Boolean>()
 /**
  * Fragment for allowing the user to configure advanced settings.
  */
+@ContentView(R.layout.effects_fragment)
 class EffectsFragment : Fragment() {
 
     private lateinit var toolbar: Toolbar
@@ -119,14 +119,6 @@ class EffectsFragment : Fragment() {
                 }
             }
         }
-    }
-
-    override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.effects_fragment, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

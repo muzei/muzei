@@ -23,11 +23,10 @@ import android.os.Build
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.util.TypedValue
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.animation.OvershootInterpolator
 import android.widget.ImageView
+import androidx.annotation.ContentView
 import androidx.core.animation.doOnEnd
 import androidx.core.content.edit
 import androidx.core.content.res.ResourcesCompat
@@ -36,6 +35,7 @@ import androidx.fragment.app.Fragment
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
 
+@ContentView(R.layout.tutorial_fragment)
 class TutorialFragment : Fragment() {
 
     companion object {
@@ -43,14 +43,6 @@ class TutorialFragment : Fragment() {
     }
 
     private val runningAnimators = mutableListOf<AnimatorSet>()
-
-    override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.tutorial_fragment, container, false)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         // Ensure we have the latest insets
