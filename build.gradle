@@ -31,7 +31,7 @@ buildscript {
         wearVersion = "1.0.0"
         materialVersion = "1.0.0"
         constraintLayoutVersion = "2.0.0-alpha3"
-        lifecycleVersion = "2.1.0-alpha01"
+        lifecycleVersion = "2.1.0-alpha02"
         roomVersion = "2.1.0-alpha04"
         pagingVersion = "2.1.0"
         navigationVersion = "1.0.0-beta02"
