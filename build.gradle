@@ -42,7 +42,7 @@ buildscript {
         roomVersion = "2.1.0-alpha04"
         wearableVersion = "2.4.0"
         wearVersion = "1.0.0"
-        workManagerVersion = "1.0.0-rc02"
+        workManagerVersion = "1.0.0"
     }
 
     repositories {
