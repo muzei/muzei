@@ -31,8 +31,21 @@ import android.os.Bundle
 import android.os.Handler
 import android.provider.DocumentsContract
 import android.provider.Settings
-import android.view.*
-import android.widget.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewAnimationUtils
+import android.view.ViewGroup
+import android.view.ViewTreeObserver
+import android.widget.Button
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
+import android.widget.ViewAnimator
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -51,13 +64,18 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
-import com.google.android.apps.muzei.util.*
+import com.google.android.apps.muzei.util.MultiSelectionController
+import com.google.android.apps.muzei.util.coroutineScope
+import com.google.android.apps.muzei.util.getString
+import com.google.android.apps.muzei.util.getStringOrNull
+import com.google.android.apps.muzei.util.toast
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.ArrayList
+import java.util.HashSet
+import java.util.LinkedList
 
 class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPhoto>>,
         GalleryImportPhotosDialogFragment.OnRequestContentListener, MultiSelectionController.Callbacks {
@@ -611,9 +629,8 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                 thumbView.visibility = View.VISIBLE
                 Glide.with(this@GallerySettingsActivity)
                         .load(images[h])
-                        .apply(RequestOptions()
-                                .override(targetSize)
-                                .placeholder(placeholderDrawable))
+                        .override(targetSize)
+                        .placeholder(placeholderDrawable)
                         .into(thumbView)
             }
             for (h in numImages until maxImages) {

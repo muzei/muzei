@@ -34,7 +34,6 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
-import com.bumptech.glide.request.RequestOptions
 import com.google.android.apps.muzei.settings.EffectsLockScreenOpenLiveData
 import com.google.android.apps.muzei.util.ImageBlurrer
 import com.google.android.apps.muzei.util.blur
@@ -119,9 +118,8 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
             }
             Glide.with(this)
                     .load("file:///android_asset/starrynight.jpg")
-                    .apply(RequestOptions()
-                            .override(targetWidth, targetHeight)
-                            .transforms(CenterCrop(), simpleDemoModeTransformation))
+                    .override(targetWidth, targetHeight)
+                    .transform(CenterCrop(), simpleDemoModeTransformation)
                     .into(simpleDemoModeImageView)
             return simpleDemoModeImageView
         } else {
