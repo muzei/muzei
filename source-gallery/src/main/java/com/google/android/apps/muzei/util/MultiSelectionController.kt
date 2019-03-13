@@ -16,25 +16,26 @@
 
 package com.google.android.apps.muzei.util
 
-import android.os.Bundle
 import androidx.core.os.bundleOf
 import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistryOwner
 import java.util.HashSet
 
 /**
  * Utilities for storing multiple selection information in collection views.
  */
 class MultiSelectionController(
-        lifecycle: Lifecycle,
-        private val bundleSavedStateRegistry: SavedStateRegistry<Bundle>
-) : DefaultLifecycleObserver, SavedStateRegistry.SavedStateProvider<Bundle> {
+        savedStateRegistryOwner: SavedStateRegistryOwner
+) : DefaultLifecycleObserver, SavedStateRegistry.SavedStateProvider {
 
     companion object {
         private const val STATE_SELECTION = "selection"
     }
+
+    private val lifecycle = savedStateRegistryOwner.lifecycle
+    private val savedStateRegistry = savedStateRegistryOwner.savedStateRegistry
 
     val selection = HashSet<Long>()
     var callbacks: Callbacks? = null
@@ -44,11 +45,11 @@ class MultiSelectionController(
 
     init {
         lifecycle.addObserver(this)
-        bundleSavedStateRegistry.registerSavedStateProvider(STATE_SELECTION, this)
+        savedStateRegistry.registerSavedStateProvider(STATE_SELECTION, this)
     }
 
     override fun onCreate(owner: LifecycleOwner) {
-        bundleSavedStateRegistry.consumeRestoredStateForKey(STATE_SELECTION)?.run {
+        savedStateRegistry.consumeRestoredStateForKey(STATE_SELECTION)?.run {
             selection.clear()
             val savedSelection = getLongArray(STATE_SELECTION)
             if (savedSelection?.isNotEmpty() == true) {

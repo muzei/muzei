@@ -119,7 +119,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
     }
     private var itemSize = 10
 
-    private val multiSelectionController = MultiSelectionController(lifecycle, bundleSavedStateRegistry)
+    private val multiSelectionController = MultiSelectionController(this)
 
     private val placeholderDrawable: ColorDrawable by lazy {
         ColorDrawable(ContextCompat.getColor(this,
