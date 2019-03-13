@@ -41,7 +41,7 @@ abstract class ProviderDao {
     }
 
     @Insert
-    abstract fun insert(provider: Provider)
+    abstract suspend fun insert(provider: Provider)
 
     @Update
     abstract suspend fun update(provider: Provider)
@@ -50,5 +50,5 @@ abstract class ProviderDao {
     abstract suspend fun delete(provider: Provider)
 
     @Query("DELETE FROM provider")
-    abstract fun deleteAll()
+    abstract suspend fun deleteAll()
 }

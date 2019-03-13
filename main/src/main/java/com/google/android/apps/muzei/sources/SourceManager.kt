@@ -35,6 +35,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.observe
+import androidx.room.withTransaction
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_SUBSCRIBE
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_SUBSCRIBER_COMPONENT
@@ -53,7 +54,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.BuildConfig.SOURCES_AUTHORITY
 import net.nurik.roman.muzei.R
@@ -95,30 +95,22 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                 Log.d(TAG, "Source $source selected.")
             }
 
-            return withContext(Dispatchers.Default) {
-                database.beginTransaction()
-                try {
-                    if (selectedSource != null) {
-                        // Unselect the old source
-                        selectedSource.selected = false
-                        database.sourceDao().update(selectedSource)
-                    }
-
-                    // Select the new source
-                    val newSource = database.sourceDao().getSourceByComponentName(source)?.apply {
-                        selected = true
-                        database.sourceDao().update(this)
-                    } ?: Source(source).apply {
-                        selected = true
-                        database.sourceDao().insert(this)
-                    }
-
-                    database.setTransactionSuccessful()
-
-                    newSource
-                } finally {
-                    database.endTransaction()
+            return database.withTransaction {
+                if (selectedSource != null) {
+                    // Unselect the old source
+                    selectedSource.selected = false
+                    database.sourceDao().update(selectedSource)
                 }
+
+                // Select the new source
+                val newSource = database.sourceDao().getSourceByComponentName(source)?.apply {
+                    selected = true
+                    database.sourceDao().update(this)
+                } ?: Source(source).apply {
+                    selected = true
+                    database.sourceDao().insert(this)
+                }
+                newSource
             }
         }
 
@@ -185,12 +177,11 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
         }
         val pm = context.packageManager
         val database = MuzeiDatabase.getInstance(context)
-        database.beginTransaction()
-        try {
+        database.withTransaction {
             val existingSources = HashSet(if (packageName != null)
-                database.sourceDao().getSourcesComponentNamesByPackageNameBlocking(packageName)
+                database.sourceDao().getSourcesComponentNamesByPackageName(packageName)
             else
-                database.sourceDao().sourceComponentNamesBlocking)
+                database.sourceDao().getSourceComponentNames())
             val resolveInfos = pm.queryIntentServices(queryIntent,
                     PackageManager.GET_META_DATA)
             if (resolveInfos != null) {
@@ -202,9 +193,6 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
             }
             // Delete sources in the database that have since been removed
             database.sourceDao().deleteAll(existingSources.toTypedArray())
-            database.setTransactionSuccessful()
-        } finally {
-            database.endTransaction()
         }
 
         // Enable or disable the SourceArtProvider based on whether
@@ -291,7 +279,7 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
         val metaData = info.metaData
         val componentName = ComponentName(info.packageName, info.name)
         val sourceDao = MuzeiDatabase.getInstance(context).sourceDao()
-        val existingSource = sourceDao.getSourceByComponentNameBlocking(componentName)
+        val existingSource = sourceDao.getSourceByComponentName(componentName)
         if (metaData != null && metaData.containsKey("replacement")) {
             // Skip sources having a replacement MuzeiArtProvider that should be used instead
             if (existingSource != null) {

@@ -34,19 +34,18 @@ import android.util.Log
 import androidx.core.content.edit
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.room.withTransaction
 import com.google.android.apps.muzei.api.internal.ProtocolConstants
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.util.concurrent.Executors
 
@@ -82,15 +81,11 @@ class ProviderManager private constructor(private val context: Context)
                             .also { instance = it }
                 }
 
-        suspend fun select(context: Context, authority: String) = withContext(Dispatchers.Default) {
+        suspend fun select(context: Context, authority: String) {
             val database = MuzeiDatabase.getInstance(context)
-            database.beginTransaction()
-            try {
+            database.withTransaction {
                 database.providerDao().deleteAll()
                 database.providerDao().insert(Provider(authority))
-                database.setTransactionSuccessful()
-            } finally {
-                database.endTransaction()
             }
         }
 

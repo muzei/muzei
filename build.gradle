@@ -39,7 +39,7 @@ buildscript {
         pagingVersion = "2.1.0"
         playServicesWearableVersion = "16.0.1"
         recyclerViewVersion = "1.1.0-alpha02"
-        roomVersion = "2.1.0-alpha04"
+        roomVersion = "2.1.0-alpha05"
         wearableVersion = "2.4.0"
         wearVersion = "1.0.0"
         workManagerVersion = "1.0.0"
@@ -66,5 +66,7 @@ allprojects {
     repositories {
         google()
         jcenter()
+        // Required for Room 2.1.0-alpha05 due to https://youtrack.jetbrains.com/issue/KT-27991
+        maven { url "https://kotlin.bintray.com/kotlinx/" }
     }
 }

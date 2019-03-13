@@ -40,9 +40,9 @@ abstract class SourceDao {
     @Query("SELECT * FROM sources")
     abstract suspend fun getSources(): List<Source>
 
-    @get:TypeConverters(ComponentNameTypeConverter::class)
-    @get:Query("SELECT component_name FROM sources")
-    abstract val sourceComponentNamesBlocking: List<ComponentName>
+    @TypeConverters(ComponentNameTypeConverter::class)
+    @Query("SELECT component_name FROM sources")
+    abstract suspend fun getSourceComponentNames(): List<ComponentName>
 
     @get:Query("SELECT * FROM sources WHERE selected=1 ORDER BY component_name")
     abstract val currentSource: LiveData<Source?>
@@ -58,28 +58,23 @@ abstract class SourceDao {
     abstract suspend fun getCurrentSourcesThatWantNetwork(): List<Source>
 
     @Insert
-    abstract fun insert(source: Source)
+    abstract suspend fun insert(source: Source)
 
     @TypeConverters(ComponentNameTypeConverter::class)
     @Query("SELECT component_name FROM sources WHERE component_name LIKE :packageName || '%'")
-    abstract fun getSourcesComponentNamesByPackageNameBlocking(packageName: String): List<ComponentName>
+    abstract suspend fun getSourcesComponentNamesByPackageName(packageName: String): List<ComponentName>
 
     @TypeConverters(ComponentNameTypeConverter::class)
     @Query("SELECT * FROM sources WHERE component_name = :componentName")
-    abstract fun getSourceByComponentNameBlocking(componentName: ComponentName): Source?
+    abstract suspend fun getSourceByComponentName(componentName: ComponentName): Source?
 
-    suspend fun getSourceByComponentName(
-            componentName: ComponentName
-    ) = withContext(Dispatchers.Default) {
-        getSourceByComponentNameBlocking(componentName)
-    }
     @Update
-    abstract fun update(source: Source)
+    abstract suspend fun update(source: Source)
 
     @Delete
-    abstract fun delete(source: Source)
+    abstract suspend fun delete(source: Source)
 
     @TypeConverters(ComponentNameTypeConverter::class)
     @Query("DELETE FROM sources WHERE component_name IN (:componentNames)")
-    abstract fun deleteAll(componentNames: Array<ComponentName>)
+    abstract suspend fun deleteAll(componentNames: Array<ComponentName>)
 }

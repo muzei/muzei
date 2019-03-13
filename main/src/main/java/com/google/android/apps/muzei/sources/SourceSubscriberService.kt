@@ -20,6 +20,7 @@ import android.app.IntentService
 import android.content.Intent
 import android.util.Log
 import androidx.core.net.toUri
+import androidx.room.withTransaction
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_PUBLISH_STATE
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_STATE
@@ -28,6 +29,8 @@ import com.google.android.apps.muzei.api.internal.SourceState
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.room.SourceDao
+import kotlinx.coroutines.runBlocking
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.BuildConfig.SOURCES_AUTHORITY
 import java.util.ArrayList
@@ -48,12 +51,16 @@ class SourceSubscriberService : IntentService("SourceSubscriberService") {
             SourceState.fromBundle(this)
         } ?: return // If there's no state, there's nothing to change
 
-        update(token, state)
+        val database = MuzeiDatabase.getInstance(this)
+        runBlocking {
+            database.withTransaction {
+                update(database.sourceDao(), token, state)
+            }
+        }
     }
 
-    private fun update(sourceToken: String, state: SourceState)  {
-        val sourceDao = MuzeiDatabase.getInstance(this).sourceDao()
-        val source = sourceDao.currentSourceBlocking
+    private suspend fun update(sourceDao: SourceDao, sourceToken: String, state: SourceState)  {
+        val source = sourceDao.getCurrentSource()
         if (source == null || sourceToken != source.componentName.flattenToShortString()) {
             Log.w(TAG, "Dropping update from non-selected source, token=$sourceToken " +
                     "does not match token for ${source?.componentName}")
