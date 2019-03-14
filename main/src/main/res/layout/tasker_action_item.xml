@@ -26,5 +26,5 @@
     android:paddingEnd="24dp"
     android:paddingStart="24dp"
     android:paddingTop="8dp"
-    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+    android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
     android:textColor="#b3ffffff"/>

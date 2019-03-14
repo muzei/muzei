@@ -39,7 +39,7 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/app_bar"
@@ -78,15 +78,13 @@
                     android:id="@+id/gallery_enable_random"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/gallery_enable_random"
-                    style="@style/Widget.AppCompat.Button.Colored"/>
+                    android:text="@string/gallery_enable_random"/>
 
                 <Button
                     android:id="@+id/gallery_edit_permission_settings"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/gallery_edit_settings"
-                    style="@style/Widget.AppCompat.Button.Colored"/>
+                    android:text="@string/gallery_edit_settings"/>
             </ViewAnimator>
 
             <TextView
@@ -163,7 +161,7 @@
         android:orientation="vertical"
         android:visibility="invisible"
         android:elevation="@dimen/gallery_header_elevation"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
         tools:targetApi="LOLLIPOP">
 
         <androidx.appcompat.widget.Toolbar

@@ -42,19 +42,14 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"/>
 
-        <Button
+        <com.google.android.apps.muzei.IntroButton
+            android:id="@+id/activate_muzei_button"
+            style="@style/Widget.Muzei.IntroButton"
             android:background="@drawable/white_circle_button"
             android:layout_height="@dimen/intro_activate_button_size"
             android:layout_width="@dimen/intro_activate_button_size"
             android:layout_marginStart="48dp"
-            android:text="@string/action_activate"
-            android:textAllCaps="true"
-            android:fontFamily="sans-serif-condensed"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:textColor="#333"
-            android:id="@+id/activate_muzei_button"/>
+            android:text="@string/action_activate"/>
 
     </LinearLayout>
 </FrameLayout>
-

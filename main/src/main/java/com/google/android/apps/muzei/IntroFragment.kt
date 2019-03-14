@@ -19,11 +19,12 @@ package com.google.android.apps.muzei
 import android.app.WallpaperManager
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
+import android.util.AttributeSet
 import android.view.View
-import android.view.ViewGroup
+import android.widget.Button
 import android.widget.Toast
 import androidx.annotation.ContentView
 import androidx.fragment.app.Fragment
@@ -86,4 +87,10 @@ class IntroFragment : Fragment() {
             }, 1000)
         }
     }
+}
+
+class IntroButton : Button {
+    constructor(context: Context) : super(context)
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
+    constructor(context: Context, attrs: AttributeSet?, attributeSetId: Int) : super(context, attrs, attributeSetId)
 }

@@ -21,7 +21,7 @@
     android:background="@color/theme_primary"
     android:fillViewport="true"
     android:fitsSystemWindows="true"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark">
+    android:theme="@style/ThemeOverlay.MaterialComponents.Dark">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -33,7 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/auto_advance_title"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -52,7 +52,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/auto_advance_interval"
-            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"/>
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"/>
 
         <RadioGroup
             android:id="@+id/auto_advance_interval"
@@ -63,24 +63,18 @@
                 android:id="@+id/auto_advance_interval_15m"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="8dp"
-                android:paddingTop="8dp"
                 android:text="@string/auto_advance_interval_15m"/>
 
             <RadioButton
                 android:id="@+id/auto_advance_interval_30m"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="8dp"
-                android:paddingTop="8dp"
                 android:text="@string/auto_advance_interval_30m"/>
 
             <RadioButton
                 android:id="@+id/auto_advance_interval_1h"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="8dp"
-                android:paddingTop="8dp"
                 android:text="@string/auto_advance_interval_1h"/>
 
             <RadioButton
@@ -93,32 +87,24 @@
                 android:id="@+id/auto_advance_interval_6h"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="8dp"
-                android:paddingTop="8dp"
                 android:text="@string/auto_advance_interval_6h"/>
 
             <RadioButton
                 android:id="@+id/auto_advance_interval_24h"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="8dp"
-                android:paddingTop="8dp"
                 android:text="@string/auto_advance_interval_24h"/>
 
             <RadioButton
                 android:id="@+id/auto_advance_interval_72h"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="8dp"
-                android:paddingTop="8dp"
                 android:text="@string/auto_advance_interval_72h"/>
 
             <RadioButton
                 android:id="@+id/auto_advance_interval_never"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="8dp"
-                android:paddingTop="8dp"
                 android:text="@string/auto_advance_interval_never"/>
         </RadioGroup>
 

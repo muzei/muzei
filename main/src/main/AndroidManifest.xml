@@ -107,7 +107,7 @@
         <activity
             android:name="com.google.android.apps.muzei.settings.SettingsActivity"
             android:label="@string/settings_title"
-            android:theme="@style/Theme.Muzei.Settings"
+            android:theme="@style/Theme.Muzei.Wallpaper"
             android:exported="true"
             android:parentActivityName="com.google.android.apps.muzei.MuzeiActivity">
         </activity>

@@ -16,7 +16,7 @@
 
 <resources>
 
-    <style name="Theme.Gallery.Base" parent="Theme.AppCompat.NoActionBar">
+    <style name="Theme.Gallery.Base" parent="Theme.MaterialComponents.NoActionBar">
         <item name="android:windowBackground">@color/gallery_window_background</item>
         <item name="android:windowContentOverlay">@null</item>
 
