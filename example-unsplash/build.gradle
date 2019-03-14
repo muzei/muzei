@@ -20,7 +20,7 @@ apply plugin: 'kotlin-android'
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     implementation "androidx.core:core-ktx:$coreVersion"
-    implementation "android.arch.work:work-runtime-ktx:$workManagerVersion"
+    implementation "androidx.work:work-runtime-ktx:$workManagerVersion"
     implementation "com.squareup.retrofit2:retrofit:2.5.0"
     implementation "com.squareup.retrofit2:converter-moshi:2.5.0"
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"

@@ -29,7 +29,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion"
     api "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
     kapt "androidx.lifecycle:lifecycle-compiler:$lifecycleVersion"
-    implementation "android.arch.work:work-runtime-ktx:$workManagerVersion"
+    implementation "androidx.work:work-runtime-ktx:$workManagerVersion"
     api "androidx.room:room-ktx:$roomVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
     api("com.google.firebase:firebase-core:$firebaseCoreVersion") {
