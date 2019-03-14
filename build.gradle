@@ -22,7 +22,7 @@ buildscript {
         appCompatVersion = "1.0.2"
         browserVersion = "1.0.0"
         constraintLayoutVersion = "2.0.0-alpha3"
-        coreVersion = "1.1.0-alpha04"
+        coreVersion = "1.1.0-alpha05"
         coroutinesVersion = "1.1.1"
         crashlyticsVersion = "2.9.9"
         exifInterfaceVersion = "1.1.0-alpha01"
