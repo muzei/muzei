@@ -34,7 +34,7 @@ buildscript {
         lifecycleVersion = "2.1.0-alpha02"
         materialVersion = "1.0.0"
         multidexVersion = "2.0.1"
-        navigationVersion = "1.0.0-rc02"
+        navigationVersion = "2.0.0-rc02"
         okhttpVersion = "3.12.1"
         pagingVersion = "2.1.0"
         playServicesWearableVersion = "16.0.1"
@@ -58,7 +58,7 @@ buildscript {
         classpath "io.fabric.tools:gradle:1.26.1"
         classpath "com.google.firebase:firebase-plugins:1.1.5"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-        classpath "android.arch.navigation:navigation-safe-args-gradle-plugin:$navigationVersion"
+        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$navigationVersion"
     }
 }
 
