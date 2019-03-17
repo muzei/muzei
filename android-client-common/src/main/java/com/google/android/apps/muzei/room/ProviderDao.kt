@@ -42,7 +42,7 @@ abstract class ProviderDao {
     }
 
     @Transaction
-    suspend fun select(authority: String) {
+    open suspend fun select(authority: String) {
         deleteAll()
         insert(Provider(authority))
     }
