@@ -21,6 +21,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -40,8 +41,14 @@ abstract class ProviderDao {
         currentProviderBlocking
     }
 
+    @Transaction
+    suspend fun select(authority: String) {
+        deleteAll()
+        insert(Provider(authority))
+    }
+
     @Insert
-    abstract suspend fun insert(provider: Provider)
+    internal abstract suspend fun insert(provider: Provider)
 
     @Update
     abstract suspend fun update(provider: Provider)
@@ -50,5 +57,5 @@ abstract class ProviderDao {
     abstract suspend fun delete(provider: Provider)
 
     @Query("DELETE FROM provider")
-    abstract suspend fun deleteAll()
+    internal abstract suspend fun deleteAll()
 }

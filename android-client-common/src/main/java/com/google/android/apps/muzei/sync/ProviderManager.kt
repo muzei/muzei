@@ -34,7 +34,6 @@ import android.util.Log
 import androidx.core.content.edit
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import androidx.room.withTransaction
 import com.google.android.apps.muzei.api.internal.ProtocolConstants
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.room.Artwork
@@ -82,11 +81,7 @@ class ProviderManager private constructor(private val context: Context)
                 }
 
         suspend fun select(context: Context, authority: String) {
-            val database = MuzeiDatabase.getInstance(context)
-            database.withTransaction {
-                database.providerDao().deleteAll()
-                database.providerDao().insert(Provider(authority))
-            }
+            MuzeiDatabase.getInstance(context).providerDao().select(authority)
         }
 
         suspend fun getDescription(context: Context, authority: String): String {
