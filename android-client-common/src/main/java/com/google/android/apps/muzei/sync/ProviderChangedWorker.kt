@@ -95,6 +95,13 @@ class ProviderChangedWorker(
             startListening(context)
         }
 
+        fun hasPersistentListeners(context: Context): Boolean {
+            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+            val persistentListeners = preferences.getStringSet(PREF_PERSISTENT_LISTENERS,
+                    null) ?: HashSet()
+            return persistentListeners.isNotEmpty()
+        }
+
         @RequiresApi(Build.VERSION_CODES.N)
         fun removePersistentListener(context: Context, name: String) {
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)

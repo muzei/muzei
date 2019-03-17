@@ -44,6 +44,8 @@ abstract class MuzeiDatabase : RoomDatabase() {
     abstract fun artworkDao(): ArtworkDao
 
     companion object {
+        const val ACTION_PROVIDER_CHANGED = "com.google.android.apps.muzei.ACTION_PROVIDER_CHANGED"
+
         @Volatile
         private var instance: MuzeiDatabase? = null
 
@@ -79,6 +81,15 @@ abstract class MuzeiDatabase : RoomDatabase() {
                                                     .notifyChange(MuzeiContract.Sources.CONTENT_URI, null)
                                             applicationContext.sendBroadcast(
                                                     Intent(MuzeiContract.Sources.ACTION_SOURCE_CHANGED))
+                                        }
+                                    }
+                            )
+                            database.invalidationTracker.addObserver(
+                                    object : InvalidationTracker.Observer("provider") {
+                                        override fun onInvalidated(tables: Set<String>) {
+                                            applicationContext.sendBroadcast(
+                                                    Intent(ACTION_PROVIDER_CHANGED)
+                                                            .setPackage(applicationContext.packageName))
                                         }
                                     }
                             )

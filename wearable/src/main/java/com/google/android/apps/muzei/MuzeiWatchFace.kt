@@ -117,6 +117,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                 }
             }
         }
+        ProviderChangedReceiver.observeForVisibility(this, this)
     }
 
     override fun onCreateEngine(): CanvasWatchFaceService.Engine {

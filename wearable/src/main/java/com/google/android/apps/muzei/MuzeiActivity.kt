@@ -236,6 +236,7 @@ class MuzeiActivity : FragmentActivity(),
                 }
             }
         }
+        ProviderChangedReceiver.observeForVisibility(this, this)
     }
 
     override fun getAmbientCallback(): AmbientModeSupport.AmbientCallback {
