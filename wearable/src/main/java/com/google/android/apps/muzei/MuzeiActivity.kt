@@ -105,6 +105,7 @@ class MuzeiActivity : FragmentActivity(),
         FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
 
         setContentView(R.layout.muzei_activity)
+        findViewById<View>(R.id.scroll_view).requestFocus()
         content = findViewById(R.id.content)
         timeView = findViewById(R.id.time)
         imageView = findViewById(R.id.image)
