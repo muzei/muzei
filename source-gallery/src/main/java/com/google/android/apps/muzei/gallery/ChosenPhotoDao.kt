@@ -30,13 +30,12 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.gallery.BuildConfig.GALLERY_ART_AUTHORITY
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -61,30 +60,25 @@ internal abstract class ChosenPhotoDao {
     @get:Query("SELECT * FROM chosen_photos ORDER BY _id DESC")
     internal abstract val chosenPhotosBlocking: List<ChosenPhoto>
 
-    private suspend fun getChosenPhotos() = withContext(Dispatchers.Default) {
-        chosenPhotosBlocking
-    }
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     internal abstract suspend fun insertInternal(chosenPhoto: ChosenPhoto): Long
 
-    suspend fun insert(
+    @Transaction
+    open suspend fun insert(
             context: Context,
             chosenPhoto: ChosenPhoto,
             callingApplication: String?
-    ): Long = withContext(Dispatchers.Default) {
-        if (persistUriAccess(context, chosenPhoto)) {
-            val id = insertInternal(chosenPhoto)
-            if (id != 0L && callingApplication != null) {
-                val metadata = Metadata(ChosenPhoto.getContentUri(id), Date(),
-                        context.getString(R.string.gallery_shared_from, callingApplication))
-                GalleryDatabase.getInstance(context).metadataDao().insert(metadata)
-            }
-            GalleryScanWorker.enqueueInitialScan(listOf(id))
-            id
-        } else {
-            0L
+    ): Long = if (persistUriAccess(context, chosenPhoto)) {
+        val id = insertInternal(chosenPhoto)
+        if (id != 0L && callingApplication != null) {
+            val metadata = Metadata(ChosenPhoto.getContentUri(id), Date(),
+                    context.getString(R.string.gallery_shared_from, callingApplication))
+            GalleryDatabase.getInstance(context).metadataDao().insert(metadata)
         }
+        GalleryScanWorker.enqueueInitialScan(listOf(id))
+        id
+    } else {
+        0L
     }
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -192,9 +186,8 @@ internal abstract class ChosenPhotoDao {
     @Query("SELECT * FROM chosen_photos WHERE _id = :id")
     internal abstract fun chosenPhotoBlocking(id: Long): ChosenPhoto?
 
-    suspend fun getChosenPhoto(id: Long) = withContext(Dispatchers.Default) {
-        chosenPhotoBlocking(id)
-    }
+    @Query("SELECT * FROM chosen_photos WHERE _id = :id")
+    abstract suspend fun getChosenPhoto(id: Long): ChosenPhoto?
 
     @Query("SELECT * FROM chosen_photos WHERE _id IN (:ids)")
     abstract suspend fun getChosenPhotos(ids: List<Long>): List<ChosenPhoto>
@@ -202,17 +195,18 @@ internal abstract class ChosenPhotoDao {
     @Query("DELETE FROM chosen_photos WHERE _id IN (:ids)")
     internal abstract suspend fun deleteInternal(ids: List<Long>)
 
-    suspend fun delete(context: Context, ids: List<Long>) = withContext(Dispatchers.Default) {
+    @Transaction
+    open suspend fun delete(context: Context, ids: List<Long>) {
         deleteBackingPhotos(context, getChosenPhotos(ids))
         deleteInternal(ids)
     }
 
-    // Can't be suspend due to https://issuetracker.google.com/issues/123466702
     @Query("DELETE FROM chosen_photos")
-    internal abstract fun deleteAllInternal()
+    internal abstract suspend fun deleteAllInternal()
 
-    suspend fun deleteAll(context: Context) = withContext(Dispatchers.Default) {
-        deleteBackingPhotos(context, getChosenPhotos())
+    @Transaction
+    open suspend fun deleteAll(context: Context) {
+        deleteBackingPhotos(context, chosenPhotosBlocking)
         deleteAllInternal()
     }
 

@@ -23,8 +23,6 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 /**
  * Dao for Providers
@@ -37,9 +35,8 @@ abstract class ProviderDao {
     @get:Query("SELECT * FROM provider")
     internal abstract val currentProviderBlocking: Provider?
 
-    suspend fun getCurrentProvider() = withContext(Dispatchers.Default) {
-        currentProviderBlocking
-    }
+    @Query("SELECT * FROM provider")
+    abstract suspend fun getCurrentProvider(): Provider?
 
     @Transaction
     open suspend fun select(authority: String) {

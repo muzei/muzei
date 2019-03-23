@@ -20,8 +20,6 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 /**
  * Dao for Artwork
@@ -42,9 +40,10 @@ abstract class ArtworkDao {
             "ORDER BY date_added DESC")
     internal abstract val currentArtworkBlocking: Artwork?
 
-    suspend fun getCurrentArtwork() = withContext(Dispatchers.Default) {
-        currentArtworkBlocking
-    }
+    @Query("SELECT artwork.* FROM artwork " +
+            "inner join provider on providerAuthority = authority " +
+            "ORDER BY date_added DESC")
+    abstract suspend fun getCurrentArtwork(): Artwork?
 
     @Insert
     abstract suspend fun insert(artwork: Artwork): Long
@@ -60,9 +59,8 @@ abstract class ArtworkDao {
     @Query("SELECT * FROM artwork WHERE _id=:id")
     internal abstract fun getArtworkByIdBlocking(id: Long): Artwork?
 
-    suspend fun getArtworkById(id: Long) = withContext(Dispatchers.Default) {
-        getArtworkByIdBlocking(id)
-    }
+    @Query("SELECT * FROM artwork WHERE _id=:id")
+    abstract suspend fun getArtworkById(id: Long): Artwork?
 
     @Query("SELECT * FROM artwork WHERE title LIKE :query OR byline LIKE :query OR attribution LIKE :query")
     abstract suspend fun searchArtwork(query: String): List<Artwork>

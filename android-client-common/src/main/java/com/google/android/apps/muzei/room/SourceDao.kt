@@ -25,8 +25,6 @@ import androidx.room.Query
 import androidx.room.TypeConverters
 import androidx.room.Update
 import com.google.android.apps.muzei.room.converter.ComponentNameTypeConverter
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 /**
  * Dao for Sources
@@ -50,9 +48,8 @@ abstract class SourceDao {
     @get:Query("SELECT * FROM sources WHERE selected=1 ORDER BY component_name")
     abstract val currentSourceBlocking: Source?
 
-    suspend fun getCurrentSource() = withContext(Dispatchers.Default) {
-        currentSourceBlocking
-    }
+    @Query("SELECT * FROM sources WHERE selected=1 ORDER BY component_name")
+    abstract suspend fun getCurrentSource(): Source?
 
     @Query("SELECT * FROM sources WHERE selected=1 AND wantsNetworkAvailable=1")
     abstract suspend fun getCurrentSourcesThatWantNetwork(): List<Source>
