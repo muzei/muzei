@@ -45,7 +45,6 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.R
 
 @ContentView(R.layout.browse_provider_fragment)
@@ -109,16 +108,14 @@ class BrowseProviderFragment: Fragment() {
             itemView.setOnClickListener {
                 val context = it.context
                 coroutineScope.launch(Dispatchers.Main) {
-                    withContext(Dispatchers.Default) {
-                        FirebaseAnalytics.getInstance(context).logEvent(
-                                FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                                FirebaseAnalytics.Param.ITEM_ID to artwork.id,
-                                FirebaseAnalytics.Param.ITEM_NAME to artwork.title,
-                                FirebaseAnalytics.Param.ITEM_CATEGORY to "artwork",
-                                FirebaseAnalytics.Param.CONTENT_TYPE to "browse"))
-                        MuzeiDatabase.getInstance(context).artworkDao()
-                                .insert(artwork)
-                    }
+                    FirebaseAnalytics.getInstance(context).logEvent(
+                            FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
+                            FirebaseAnalytics.Param.ITEM_ID to artwork.id,
+                            FirebaseAnalytics.Param.ITEM_NAME to artwork.title,
+                            FirebaseAnalytics.Param.ITEM_CATEGORY to "artwork",
+                            FirebaseAnalytics.Param.CONTENT_TYPE to "browse"))
+                    MuzeiDatabase.getInstance(context).artworkDao()
+                            .insert(artwork)
                     context.toast(if (artwork.title.isNullOrBlank()) {
                         context.getString(R.string.browse_set_wallpaper)
                     } else {
