@@ -36,7 +36,7 @@
         style="@style/Widget.Design.BottomNavigationView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/black"
+        android:background="@color/bottom_nav_background"
         android:fitsSystemWindows="true"
         app:menu="@menu/main"/>
 </com.google.android.apps.muzei.util.SmartInsetLinearLayout>

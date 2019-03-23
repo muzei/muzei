@@ -212,7 +212,9 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             scrim.background = makeCubicGradientScrimDrawable(Gravity.TOP, 0x44)
         }
 
-        chromeContainerView.background = makeCubicGradientScrimDrawable(Gravity.BOTTOM, 0xAA)
+        val scrimColor = resources.getInteger(R.integer.scrim_channel_color)
+        chromeContainerView.background = makeCubicGradientScrimDrawable(Gravity.BOTTOM, 0xAA,
+                scrimColor, scrimColor, scrimColor)
 
         metadataView = view.findViewById(R.id.metadata)
 
@@ -374,16 +376,20 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
     }
 
     private fun showHideChrome(show: Boolean) {
-        var flags = if (show) 0 else View.SYSTEM_UI_FLAG_LOW_PROFILE
-        flags = flags or (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
-        if (!show) {
-            flags = flags or (View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_IMMERSIVE)
+        requireActivity().window.decorView.apply {
+            var flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR else 0
+            flags = flags or if (show) 0 else View.SYSTEM_UI_FLAG_LOW_PROFILE
+            flags = flags or (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
+            if (!show) {
+                flags = flags or (View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        or View.SYSTEM_UI_FLAG_FULLSCREEN
+                        or View.SYSTEM_UI_FLAG_IMMERSIVE)
+            }
+            systemUiVisibility = flags
         }
-        requireActivity().window.decorView.systemUiVisibility = flags
     }
 
     private fun resetProxyViewport() {

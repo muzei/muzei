@@ -16,10 +16,13 @@
 
 package com.google.android.apps.muzei
 
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.ContentView
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
@@ -110,7 +113,34 @@ class MainFragment : Fragment(), ChooseProviderFragment.Callbacks {
                         if (!visible) {
                             bottomNavigationView.visibility = View.GONE
                         }
+                        updateNavigationBarColor()
                     }
+        }
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        updateNavigationBarColor()
+    }
+
+    private fun updateNavigationBarColor() {
+        activity?.window?.apply {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                val bottomNavBackground = ContextCompat.getColor(requireContext(),
+                        R.color.navigation_bar_color)
+                navigationBarColor = if (bottomNavigationView.isVisible) bottomNavBackground else
+                    ContextCompat.getColor(requireContext(), android.R.color.transparent)
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val lightNavigationBar = resources.getBoolean(R.bool.light_navigation_bar)
+                if (lightNavigationBar) {
+                    decorView.systemUiVisibility = decorView.systemUiVisibility or
+                            View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                } else {
+                    decorView.systemUiVisibility = decorView.systemUiVisibility xor
+                            View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                }
+            }
         }
     }
 

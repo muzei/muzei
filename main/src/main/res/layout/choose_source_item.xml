@@ -37,7 +37,7 @@
         android:maxLines="3"
         android:paddingBottom="8dp"
         android:paddingTop="8dp"
-        android:textColor="#b3ffffff"/>
+        android:textColor="?attr/colorOnSurface"/>
 
     <ImageView
         android:id="@+id/choose_source_settings"
@@ -45,5 +45,6 @@
         android:layout_height="24dp"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/action_source_settings"
-        android:src="@drawable/ic_source_settings"/>
+        android:src="@drawable/ic_source_settings"
+        android:tint="?attr/colorOnSurface"/>
 </LinearLayout>

@@ -35,8 +35,7 @@
         style="@style/Widget.MaterialComponents.BottomNavigationView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/black"
+        android:background="@color/bottom_nav_background"
         android:fitsSystemWindows="true"
-        android:theme="@style/ThemeOverlay.MaterialComponents.Dark"
         app:menu="@menu/main"/>
 </LinearLayout>

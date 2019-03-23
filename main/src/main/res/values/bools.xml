@@ -16,4 +16,5 @@
 
 <resources>
     <bool name="enable_notification_settings">true</bool>
+    <bool name="light_navigation_bar">false</bool>
 </resources>

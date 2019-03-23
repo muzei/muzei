@@ -55,6 +55,7 @@
             app:layout_constraintStart_toEndOf="@+id/provider_title"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_source_selected"
+            android:tint="?attr/colorOnSurface"
             android:visibility="invisible"/>
 
         <ImageView
