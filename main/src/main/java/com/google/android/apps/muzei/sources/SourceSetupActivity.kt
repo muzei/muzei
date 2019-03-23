@@ -91,7 +91,7 @@ class SourceWarningDialogFragment : DialogFragment() {
     var negativeListener : () -> Unit = {}
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return AlertDialog.Builder(requireContext())
+        return AlertDialog.Builder(requireContext(), R.style.Theme_Muzei_Dialog)
                 .setTitle(R.string.source_warning_title)
                 .setMessage(R.string.source_warning_message)
                 .setPositiveButton(R.string.source_warning_positive) { _, _ ->
