@@ -22,7 +22,6 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.annotation.ContentView
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
@@ -47,8 +46,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
 
-@ContentView(R.layout.browse_provider_fragment)
-class BrowseProviderFragment: Fragment() {
+class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
 
     private val viewModel: BrowseProviderViewModel by viewModels()
     private val args: BrowseProviderFragmentArgs by navArgs()

@@ -20,7 +20,6 @@ import android.app.Activity
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
-import androidx.annotation.ContentView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.edit
 import androidx.core.view.ViewCompat
@@ -38,8 +37,7 @@ object EffectsLockScreenOpenLiveData : MutableLiveData<Boolean>()
 /**
  * Fragment for allowing the user to configure advanced settings.
  */
-@ContentView(R.layout.effects_fragment)
-class EffectsFragment : Fragment() {
+class EffectsFragment : Fragment(R.layout.effects_fragment) {
 
     private lateinit var toolbar: Toolbar
     private lateinit var viewPager: ViewPager

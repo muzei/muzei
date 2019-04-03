@@ -26,7 +26,6 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
-import androidx.annotation.ContentView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commitNow
 import com.google.android.apps.muzei.util.AnimatedMuzeiLogoFragment
@@ -34,8 +33,7 @@ import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
 
-@ContentView(R.layout.intro_fragment)
-class IntroFragment : Fragment() {
+class IntroFragment : Fragment(R.layout.intro_fragment) {
 
     private lateinit var activateButton: View
 

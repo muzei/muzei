@@ -19,7 +19,6 @@ package com.google.android.apps.muzei
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import androidx.annotation.ContentView
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
@@ -36,8 +35,7 @@ import net.nurik.roman.muzei.R
  * Fragment which controls the main view of the Muzei app and handles the bottom navigation
  * between various screens.
  */
-@ContentView(R.layout.main_fragment)
-class MainFragment : Fragment(), ChooseProviderFragment.Callbacks {
+class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Callbacks {
 
     private lateinit var bottomNavigationView: BottomNavigationView
 
