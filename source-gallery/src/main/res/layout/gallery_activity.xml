@@ -47,7 +47,7 @@
             android:layout_height="?actionBarSize"
             app:title="@string/gallery_title"
             app:layout_scrollFlags="scroll|enterAlways"
-            app:popupTheme="@style/ThemeOverlay.MaterialComponents.DayNight"/>
+            app:popupTheme="@style/ThemeOverlay.AppCompat.DayNight"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -172,7 +172,7 @@
             android:layout_height="?actionBarSize"
             app:title="@string/gallery_title"
             app:navigationIcon="?attr/homeAsUpIndicator"
-            app:popupTheme="@style/ThemeOverlay.MaterialComponents.DayNight"/>
+            app:popupTheme="@style/ThemeOverlay.AppCompat.DayNight"/>
 
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

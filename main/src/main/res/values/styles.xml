@@ -16,8 +16,6 @@
 
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="ThemeOverlay.MaterialComponents.DayNight" parent="ThemeOverlay.MaterialComponents.Light"/>
-
     <!-- Muzei activity -->
 
     <style name="Theme.MuzeiActivity" parent="Theme.Muzei.Wallpaper">
@@ -95,7 +93,7 @@
         <item name="android:background">@color/theme_primary</item>
     </style>
 
-    <style name="ThemeOverlay.Muzei.Gesture" parent="ThemeOverlay.MaterialComponents.DayNight">
+    <style name="ThemeOverlay.Muzei.Gesture" parent="ThemeOverlay.AppCompat.DayNight">
         <item name="colorAccent">@color/theme_primary</item>
     </style>
 

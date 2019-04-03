@@ -16,8 +16,6 @@
 
 <resources>
 
-    <style name="ThemeOverlay.MaterialComponents.DayNight" parent="ThemeOverlay.MaterialComponents.Light"/>
-
     <style name="Theme.Gallery.Base" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:windowBackground">@color/gallery_window_background</item>
         <item name="android:windowContentOverlay">@null</item>

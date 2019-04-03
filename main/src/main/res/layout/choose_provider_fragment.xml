@@ -38,7 +38,7 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:popupTheme="@style/ThemeOverlay.MaterialComponents.DayNight"/>
+                app:popupTheme="@style/ThemeOverlay.AppCompat.DayNight"/>
         </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.recyclerview.widget.RecyclerView
