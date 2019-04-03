@@ -21,7 +21,6 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.RadioGroup
-import androidx.annotation.ContentView
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
@@ -31,8 +30,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import net.nurik.roman.muzei.R
 
-@ContentView(R.layout.gestures_fragment)
-class GesturesFragment: Fragment() {
+class GesturesFragment: Fragment(R.layout.gestures_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         // Ensure we have the latest insets
         ViewCompat.requestApplyInsets(view)

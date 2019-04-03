@@ -29,7 +29,6 @@ import android.widget.CheckBox
 import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.ContentView
 import androidx.core.os.bundleOf
 import androidx.core.text.set
 import androidx.core.text.toSpannable
@@ -39,8 +38,7 @@ import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
 
-@ContentView(R.layout.auto_advance_settings_fragment)
-class AutoAdvanceSettingsFragment : Fragment() {
+class AutoAdvanceSettingsFragment : Fragment(R.layout.auto_advance_settings_fragment) {
     companion object {
         private const val TASKER_PACKAGE_NAME = "net.dinglisch.android.taskerm"
 

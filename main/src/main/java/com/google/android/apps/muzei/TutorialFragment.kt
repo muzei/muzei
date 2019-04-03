@@ -26,7 +26,6 @@ import android.util.TypedValue
 import android.view.View
 import android.view.animation.OvershootInterpolator
 import android.widget.ImageView
-import androidx.annotation.ContentView
 import androidx.core.animation.doOnEnd
 import androidx.core.content.edit
 import androidx.core.content.res.ResourcesCompat
@@ -35,8 +34,7 @@ import androidx.fragment.app.Fragment
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
 
-@ContentView(R.layout.tutorial_fragment)
-class TutorialFragment : Fragment() {
+class TutorialFragment : Fragment(R.layout.tutorial_fragment) {
 
     companion object {
         const val PREF_SEEN_TUTORIAL = "seen_tutorial"

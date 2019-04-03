@@ -22,12 +22,10 @@ import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
 import android.view.animation.OvershootInterpolator
-import androidx.annotation.ContentView
 import androidx.fragment.app.Fragment
 import net.nurik.roman.muzei.R
 
-@ContentView(R.layout.animated_logo_fragment)
-class AnimatedMuzeiLogoFragment : Fragment() {
+class AnimatedMuzeiLogoFragment : Fragment(R.layout.animated_logo_fragment) {
     private lateinit var subtitleView: View
     private lateinit var logoView: AnimatedMuzeiLogoView
     private val initialLogoOffset: Float by lazy {

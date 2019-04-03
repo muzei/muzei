@@ -20,7 +20,6 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import android.widget.SeekBar
-import androidx.annotation.ContentView
 import androidx.core.content.edit
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
@@ -34,8 +33,7 @@ import net.nurik.roman.muzei.R
 /**
  * Fragment for allowing the user to configure advanced settings.
  */
-@ContentView(R.layout.effects_screen_fragment)
-class EffectsScreenFragment : Fragment() {
+class EffectsScreenFragment : Fragment(R.layout.effects_screen_fragment) {
 
     companion object {
         private const val PREF_BLUR = "pref_blur"

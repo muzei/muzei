@@ -33,7 +33,6 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.ContentView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
@@ -66,8 +65,7 @@ import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig.SOURCES_AUTHORITY
 import net.nurik.roman.muzei.R
 
-@ContentView(R.layout.choose_provider_fragment)
-class ChooseProviderFragment : Fragment() {
+class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
     companion object {
         private const val TAG = "ChooseProviderFragment"
         private const val REQUEST_EXTENSION_SETUP = 1
