@@ -28,6 +28,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.observe
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.twofortyfouram.locale.api.Intent.EXTRA_BUNDLE
 import com.twofortyfouram.locale.api.Intent.EXTRA_STRING_BLURB
 import net.nurik.roman.muzei.R
@@ -45,7 +46,7 @@ class TaskerSettingActivity : AppCompatActivity() {
     }
 
     private val dialog: AlertDialog by lazy {
-        AlertDialog.Builder(this, R.style.Theme_Muzei_Dialog)
+        MaterialAlertDialogBuilder(this, R.style.Theme_Muzei_Dialog)
                 .setTitle(R.string.tasker_setting_dialog_title)
                 .setSingleChoiceItems(adapter, -1) { _: DialogInterface, which: Int ->
                     val action = adapter.getItem(which) ?: return@setSingleChoiceItems

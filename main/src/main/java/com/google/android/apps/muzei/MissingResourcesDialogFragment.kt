@@ -24,11 +24,11 @@ import android.content.res.Resources
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
 import com.google.android.apps.muzei.util.toast
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import net.nurik.roman.muzei.R
 
 class MissingResourcesDialogFragment : DialogFragment() {
@@ -50,7 +50,7 @@ class MissingResourcesDialogFragment : DialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return AlertDialog.Builder(requireContext())
+        return MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.missing_resources_title)
                 .setMessage(R.string.missing_resources_message)
                 .setPositiveButton(R.string.missing_resources_open) { _: DialogInterface, _: Int ->

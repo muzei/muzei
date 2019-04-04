@@ -21,13 +21,13 @@ import android.app.Dialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import net.nurik.roman.muzei.R
 
 class SourceSetupActivity : AppCompatActivity() {
@@ -91,7 +91,7 @@ class SourceWarningDialogFragment : DialogFragment() {
     var negativeListener : () -> Unit = {}
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return AlertDialog.Builder(requireContext(), R.style.Theme_Muzei_Dialog)
+        return MaterialAlertDialogBuilder(requireContext(), R.style.Theme_Muzei_Dialog)
                 .setTitle(R.string.source_warning_title)
                 .setMessage(R.string.source_warning_message)
                 .setPositiveButton(R.string.source_warning_positive) { _, _ ->

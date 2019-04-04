@@ -24,11 +24,11 @@ import android.os.Bundle
 import android.preference.PreferenceManager
 import android.provider.Settings
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.edit
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import com.google.android.apps.muzei.util.toast
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import net.nurik.roman.muzei.R
 
 class NotificationSettingsDialogFragment : DialogFragment() {
@@ -65,7 +65,7 @@ class NotificationSettingsDialogFragment : DialogFragment() {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         val checkedItems = booleanArrayOf(sharedPreferences
                 .getBoolean(NewWallpaperNotificationReceiver.PREF_ENABLED, true))
-        return AlertDialog.Builder(context)
+        return MaterialAlertDialogBuilder(context)
                 .setTitle(R.string.notification_settings)
                 .setMultiChoiceItems(items, checkedItems) { _, _, isChecked ->
                     sharedPreferences.edit {

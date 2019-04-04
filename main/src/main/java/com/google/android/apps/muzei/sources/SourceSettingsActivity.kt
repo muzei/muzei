@@ -41,7 +41,6 @@ import android.view.ViewGroup
 import android.view.ViewPropertyAnimator
 import android.widget.ArrayAdapter
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
@@ -53,6 +52,7 @@ import androidx.lifecycle.observe
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Source
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -105,7 +105,7 @@ class SourceSettingsActivity : AppCompatActivity() {
         if (savedInstanceState != null) {
             currentInitialSetupSource = savedInstanceState.getParcelable(CURRENT_INITIAL_SETUP_SOURCE)
         }
-        val dialog = AlertDialog.Builder(this, R.style.Theme_Muzei_Dialog)
+        val dialog = MaterialAlertDialogBuilder(this, R.style.Theme_Muzei_Dialog)
                 .setTitle(R.string.source_provider_name)
                 .setSingleChoiceItems(adapter, -1) { dialog: DialogInterface, which: Int ->
                     adapter.getItem(which)?.source?.let { source ->
@@ -184,7 +184,7 @@ class SourceSettingsActivity : AppCompatActivity() {
         if (source.selected) {
             dialog.dismiss()
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && source.targetSdkVersion >= Build.VERSION_CODES.O) {
-            val builder = AlertDialog.Builder(this)
+            val builder = MaterialAlertDialogBuilder(this)
                     .setTitle(R.string.action_source_target_too_high_title)
                     .setMessage(getString(R.string.action_source_target_too_high_message, source.label))
                     .setNegativeButton(R.string.action_source_target_too_high_learn_more) { _, _ ->

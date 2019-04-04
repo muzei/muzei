@@ -6,13 +6,13 @@ import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import androidx.annotation.LayoutRes
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.withStyledAttributes
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.observe
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class GalleryImportPhotosDialogFragment : DialogFragment() {
 
@@ -40,7 +40,8 @@ class GalleryImportPhotosDialogFragment : DialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return AlertDialog.Builder(requireContext())
+        return MaterialAlertDialogBuilder(requireContext(),
+                R.style.Theme_MaterialComponents_DayNight_Dialog_Alert)
                 .setTitle(R.string.gallery_import_dialog_title)
                 .setAdapter(adapter) { _, which ->
                     getContentActivitiesLiveData.value?.run {
