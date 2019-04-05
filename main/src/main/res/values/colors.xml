@@ -17,7 +17,6 @@
 <resources>
     <color name="shortcut_background">#F5F5F5</color>
     <color name="bottom_nav_background">#FFF</color>
-    <color name="navigation_bar_color">#01FFFFFF</color>
     <color name="art_detail_loading_background">#c000</color>
     <color name="browse_provider_background">#DDD</color>
 </resources>

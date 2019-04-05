@@ -19,9 +19,7 @@ package com.google.android.apps.muzei
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
@@ -123,12 +121,6 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
 
     private fun updateNavigationBarColor() {
         activity?.window?.apply {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                val bottomNavBackground = ContextCompat.getColor(requireContext(),
-                        R.color.navigation_bar_color)
-                navigationBarColor = if (bottomNavigationView.isVisible) bottomNavBackground else
-                    ContextCompat.getColor(requireContext(), android.R.color.transparent)
-            }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val lightNavigationBar = resources.getBoolean(R.bool.light_navigation_bar)
                 if (lightNavigationBar) {
