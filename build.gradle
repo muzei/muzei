@@ -28,7 +28,7 @@ buildscript {
         exifInterfaceVersion = "1.1.0-alpha01"
         firebaseCoreVersion = "16.0.8"
         firebasePerfVersion = "16.2.4"
-        fragmentVersion = "1.1.0-alpha06"
+        fragmentVersion = "1.1.0-alpha07"
         glideVersion = "4.9.0"
         kotlinVersion = "1.3.21"
         lifecycleVersion = "2.1.0-alpha04"

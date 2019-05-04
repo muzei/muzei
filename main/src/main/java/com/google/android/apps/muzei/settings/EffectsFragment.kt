@@ -208,7 +208,7 @@ class EffectsFragment : Fragment(R.layout.effects_fragment) {
 
     private inner class Adapter(
             fragmentManager: FragmentManager
-    ) : FragmentStatePagerAdapter(fragmentManager) {
+    ) : FragmentStatePagerAdapter(fragmentManager, RESUME_ONLY_CURRENT_FRAGMENT) {
         override fun getCount() = 2
 
         override fun getPageTitle(position: Int) = when(position) {
