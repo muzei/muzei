@@ -55,7 +55,7 @@ import com.google.android.apps.muzei.shortcuts.ArtworkInfoShortcutController
 import com.google.android.apps.muzei.sources.SourceManager
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.coroutineScope
-import com.google.android.apps.muzei.util.observeNonNull
+import com.google.android.apps.muzei.util.filterNotNull
 import com.google.android.apps.muzei.wallpaper.LockscreenObserver
 import com.google.android.apps.muzei.wallpaper.WallpaperAnalytics
 import com.google.android.apps.muzei.wearable.WearableController
@@ -200,7 +200,8 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
                 MuzeiDatabase.getInstance(this@MuzeiWallpaperService)
                         .artworkDao().currentArtwork
-                        .observeNonNull(this) { artwork ->
+                        .filterNotNull()
+                        .observe(this) { artwork ->
                             coroutineScope.launch {
                                 updateCurrentArtwork(artwork)
                             }

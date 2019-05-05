@@ -31,7 +31,7 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.coroutineScope
-import com.google.android.apps.muzei.util.observeNonNull
+import com.google.android.apps.muzei.util.filterNotNull
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -161,7 +161,7 @@ class MuzeiActivity : FragmentActivity(),
             bounds = Rect(0, 0, radius * 2, radius * 2)
         }, null, null, null)
 
-        viewModel.artworkLiveData.observeNonNull(this) { artwork ->
+        viewModel.artworkLiveData.filterNotNull().observe(this) { artwork ->
             coroutineScope.launch(Dispatchers.Main) {
                 val image = ImageLoader.decode(
                         contentResolver, artwork.contentUri)

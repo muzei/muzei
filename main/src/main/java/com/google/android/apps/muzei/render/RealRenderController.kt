@@ -18,9 +18,10 @@ package com.google.android.apps.muzei.render
 
 import android.content.Context
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.observe
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.util.observeNonNull
+import com.google.android.apps.muzei.util.filterNotNull
 
 class RealRenderController(
         context: Context,
@@ -33,7 +34,7 @@ class RealRenderController(
 
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
-        artworkLiveData.observeNonNull(owner) {
+        artworkLiveData.filterNotNull().observe(owner) {
             reloadCurrentArtwork()
         }
         reloadCurrentArtwork()

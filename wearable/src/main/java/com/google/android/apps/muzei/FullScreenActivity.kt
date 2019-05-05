@@ -20,12 +20,13 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.observe
 import androidx.wear.ambient.AmbientModeSupport
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.PanView
 import com.google.android.apps.muzei.util.coroutineScope
-import com.google.android.apps.muzei.util.observeNonNull
+import com.google.android.apps.muzei.util.filterNotNull
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -62,7 +63,7 @@ class FullScreenActivity : FragmentActivity(),
         }
 
         MuzeiDatabase.getInstance(this).artworkDao()
-                .currentArtwork.observeNonNull(this) { artwork ->
+                .currentArtwork.filterNotNull().observe(this) { artwork ->
             coroutineScope.launch(Dispatchers.Main) {
                 val image = ImageLoader.decode(
                         contentResolver, artwork.contentUri)
