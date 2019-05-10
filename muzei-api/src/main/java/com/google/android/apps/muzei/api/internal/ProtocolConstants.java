@@ -37,6 +37,8 @@ public class ProtocolConstants {
 
     // MuzeiArtProvider
     private static final String PREFIX = "com.google.android.apps.muzei.api.";
+    public static final String METHOD_GET_VERSION = PREFIX + "GET_VERSION";
+    public static final String KEY_VERSION = PREFIX + "VERSION";
     public static final String METHOD_REQUEST_LOAD = PREFIX + "REQUEST_LOAD";
     public static final String METHOD_MARK_ARTWORK_INVALID = PREFIX + "MARK_ARTWORK_INVALID";
     public static final String METHOD_MARK_ARTWORK_LOADED = PREFIX + "MARK_ARTWORK_LOADED";

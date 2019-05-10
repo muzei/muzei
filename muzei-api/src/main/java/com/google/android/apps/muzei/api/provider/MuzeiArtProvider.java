@@ -43,6 +43,7 @@ import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.android.apps.muzei.api.BuildConfig;
 import com.google.android.apps.muzei.api.UserCommand;
 import com.google.android.apps.muzei.api.internal.RecentArtworkIdsConverter;
 
@@ -75,9 +76,11 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_L
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_MAX_LOADED_ARTWORK_ID;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_OPEN_ARTWORK_INFO_SUCCESS;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_RECENT_ARTWORK_IDS;
+import static com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_VERSION;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_COMMANDS;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_DESCRIPTION;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_LOAD_INFO;
+import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_VERSION;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_MARK_ARTWORK_INVALID;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_MARK_ARTWORK_LOADED;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_OPEN_ARTWORK_INFO;
@@ -410,6 +413,11 @@ public abstract class MuzeiArtProvider extends ContentProvider implements Provid
         }
         try {
             switch (method) {
+                case METHOD_GET_VERSION: {
+                    Bundle bundle = new Bundle();
+                    bundle.putInt(KEY_VERSION, BuildConfig.API_VERSION);
+                    return bundle;
+                }
                 case METHOD_REQUEST_LOAD:
                     try (Cursor data = databaseHelper.getReadableDatabase().query(TABLE_NAME,
                             null, null, null, null, null, null,

@@ -42,7 +42,9 @@ android {
         minSdkVersion 14
         targetSdkVersion rootProject.ext.targetSdkVersion
 
-        manifestPlaceholders = [api_version: versionProps['apiCode'].toInteger()]
+        def apiVersion = versionProps['apiCode'].toInteger()
+        manifestPlaceholders = [api_version: apiVersion]
+        buildConfigField "int", "API_VERSION", "${apiVersion}"
     }
 
     buildTypes {
