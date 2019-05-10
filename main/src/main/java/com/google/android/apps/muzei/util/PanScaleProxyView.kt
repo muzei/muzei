@@ -428,7 +428,7 @@ class PanScaleProxyView @JvmOverloads constructor(context: Context, attrs: Attri
     /**
      * Persistent state that is saved by PanScaleProxyView.
      */
-    internal class SavedState : View.BaseSavedState {
+    internal class SavedState : BaseSavedState {
 
         companion object {
             @Suppress("unused")

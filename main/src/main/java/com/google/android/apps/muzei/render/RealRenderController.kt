@@ -26,7 +26,7 @@ import com.google.android.apps.muzei.util.filterNotNull
 class RealRenderController(
         context: Context,
         renderer: MuzeiBlurRenderer,
-        callbacks: RenderController.Callbacks
+        callbacks: Callbacks
 ) : RenderController(context, renderer, callbacks) {
 
     private val artworkLiveData = MuzeiDatabase.getInstance(context)

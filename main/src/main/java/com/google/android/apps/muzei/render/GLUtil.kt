@@ -50,7 +50,7 @@ object GLUtil {
             attributes: Array<String>?
     ): Int {
         val programHandle = GLES20.glCreateProgram()
-        GLUtil.checkGlError("glCreateProgram")
+        checkGlError("glCreateProgram")
         GLES20.glAttachShader(programHandle, vertexShaderHandle)
         GLES20.glAttachShader(programHandle, fragShaderHandle)
         if (attributes != null) {
@@ -60,7 +60,7 @@ object GLUtil {
             }
         }
         GLES20.glLinkProgram(programHandle)
-        GLUtil.checkGlError("glLinkProgram")
+        checkGlError("glLinkProgram")
         GLES20.glDeleteShader(vertexShaderHandle)
         GLES20.glDeleteShader(fragShaderHandle)
         return programHandle
@@ -70,7 +70,7 @@ object GLUtil {
         val textureHandle = IntArray(1)
 
         GLES20.glGenTextures(1, textureHandle, 0)
-        GLUtil.checkGlError("glGenTextures")
+        checkGlError("glGenTextures")
 
         if (textureHandle[0] != 0) {
             // Bind to the texture in OpenGL
@@ -88,7 +88,7 @@ object GLUtil {
 
             // Load the bitmap into the bound texture.
             GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0)
-            GLUtil.checkGlError("texImage2D")
+            checkGlError("texImage2D")
         }
 
         if (textureHandle[0] == 0) {

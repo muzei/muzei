@@ -405,7 +405,7 @@ class PanView @JvmOverloads constructor(context: Context, attrs: AttributeSet? =
     /**
      * Persistent state that is saved by PanView.
      */
-    class SavedState : View.BaseSavedState {
+    class SavedState : BaseSavedState {
 
         companion object {
             @Suppress("unused")

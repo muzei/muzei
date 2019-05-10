@@ -63,7 +63,7 @@ class AnimatedMuzeiLoadingSpinnerView @JvmOverloads constructor(context: Context
         // instead. Ideally this should be toggled using a heuristic based on the number
         // and or dimensions of paths to render.
         // Note that PathDashPathEffects can lead to clipping issues with hardware rendering.
-        setLayerType(View.LAYER_TYPE_SOFTWARE, null)
+        setLayerType(LAYER_TYPE_SOFTWARE, null)
     }
 
     fun start() {

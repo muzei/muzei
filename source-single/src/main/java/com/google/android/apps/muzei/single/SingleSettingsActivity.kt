@@ -54,7 +54,7 @@ class SingleSettingsActivity : Activity() {
             GlobalScope.launch {
                 val success = SingleArtProvider.setArtwork(
                         this@SingleSettingsActivity, uri)
-                setResult(if (success) Activity.RESULT_OK else Activity.RESULT_CANCELED)
+                setResult(if (success) RESULT_OK else RESULT_CANCELED)
                 finish()
             }
         } ?: run {

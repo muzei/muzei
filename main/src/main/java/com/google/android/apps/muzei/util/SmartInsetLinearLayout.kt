@@ -29,7 +29,7 @@ class SmartInsetLinearLayout @JvmOverloads constructor(context: Context, attrs: 
     : LinearLayout(context, attrs, defStyleAttr) {
 
     init {
-        orientation = LinearLayout.VERTICAL
+        orientation = VERTICAL
     }
 
     @Suppress("OverridingDeprecatedMember")

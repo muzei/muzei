@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
 class DemoRenderController(
         context: Context,
         renderer: MuzeiBlurRenderer,
-        callbacks: RenderController.Callbacks,
+        callbacks: Callbacks,
         private val allowFocus: Boolean
 ) : RenderController(context, renderer, callbacks) {
 

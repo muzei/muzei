@@ -226,7 +226,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
         }
     }
 
-    inner class ProviderViewHolder(itemView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView), RequestListener<Drawable> {
+    inner class ProviderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), RequestListener<Drawable> {
         private val providerIcon: ImageView = itemView.findViewById(R.id.provider_icon)
         private val providerTitle: TextView = itemView.findViewById(R.id.provider_title)
         private val providerSelected: ImageView = itemView.findViewById(R.id.provider_selected)

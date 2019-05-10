@@ -299,7 +299,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                 return false
         // Hide the 'Import photos' action if there are no activities found
         val importPhotosMenuItem = menu.findItem(R.id.action_import_photos)
-        importPhotosMenuItem.isVisible = !getContentActivites.isEmpty()
+        importPhotosMenuItem.isVisible = getContentActivites.isNotEmpty()
         // If there's only one app that supports ACTION_GET_CONTENT, tell the user what that app is
         if (getContentActivites.size == 1) {
             importPhotosMenuItem.title = getString(R.string.gallery_action_import_photos_from,

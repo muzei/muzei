@@ -37,8 +37,8 @@ class TaskerActionReceiver : BroadcastReceiver() {
             return
         }
         goAsync {
-            val selectedAction = TaskerAction.fromBundle(intent.getBundleExtra(EXTRA_BUNDLE))
-            when (selectedAction) {
+            when (val selectedAction = TaskerAction.fromBundle(
+                    intent.getBundleExtra(EXTRA_BUNDLE))) {
                 is SelectProviderAction -> {
                     val authority = selectedAction.authority
                     if (context.packageManager.resolveContentProvider(authority, 0) != null) {

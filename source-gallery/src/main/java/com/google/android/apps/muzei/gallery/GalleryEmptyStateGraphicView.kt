@@ -99,8 +99,8 @@ class GalleryEmptyStateGraphicView
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         setMeasuredDimension(
-                View.resolveSize(COLS * cellSize + (COLS - 1) * cellSpacing, widthMeasureSpec),
-                View.resolveSize(ROWS * cellSize + (ROWS - 1) * cellSpacing, heightMeasureSpec))
+                resolveSize(COLS * cellSize + (COLS - 1) * cellSpacing, widthMeasureSpec),
+                resolveSize(ROWS * cellSize + (ROWS - 1) * cellSpacing, heightMeasureSpec))
     }
 
     override fun onDraw(canvas: Canvas) {

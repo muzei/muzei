@@ -121,7 +121,7 @@ class ProviderChangedWorker(
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val persistentListeners = preferences.getStringSet(PREF_PERSISTENT_LISTENERS,
                     HashSet()) ?: HashSet()
-            if (!persistentListeners.isEmpty()) {
+            if (persistentListeners.isNotEmpty()) {
                 if (listening) {
                     cancelObserver()
                 } else {

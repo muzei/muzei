@@ -65,13 +65,13 @@ class MuzeiProvider : ContentProvider() {
          */
         private val uriMatcher = UriMatcher(UriMatcher.NO_MATCH).apply {
             addURI(MuzeiContract.AUTHORITY, MuzeiContract.Artwork.TABLE_NAME,
-                    MuzeiProvider.ARTWORK)
+                    ARTWORK)
             addURI(MuzeiContract.AUTHORITY, "${MuzeiContract.Artwork.TABLE_NAME}/#",
-                    MuzeiProvider.ARTWORK_ID)
+                    ARTWORK_ID)
             addURI(MuzeiContract.AUTHORITY, MuzeiContract.Sources.TABLE_NAME,
-                    MuzeiProvider.SOURCES)
+                    SOURCES)
             addURI(MuzeiContract.AUTHORITY, "${MuzeiContract.Sources.TABLE_NAME}/#",
-                    MuzeiProvider.SOURCE_ID)
+                    SOURCE_ID)
         }
     }
 
@@ -151,14 +151,12 @@ class MuzeiProvider : ContentProvider() {
             Log.w(TAG, "Queries are not supported until the user is unlocked")
             return null
         }
-        return if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK ||
-                MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK_ID) {
-            queryArtwork(uri, projection, selection, selectionArgs, sortOrder)
-        } else if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCES ||
-                MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.SOURCE_ID) {
-            querySource(uri, projection)
-        } else {
-            throw IllegalArgumentException("Unknown URI $uri")
+        return when(MuzeiProvider.uriMatcher.match(uri)) {
+            ARTWORK -> queryArtwork(uri, projection, selection, selectionArgs, sortOrder)
+            ARTWORK_ID -> queryArtwork(uri, projection, selection, selectionArgs, sortOrder)
+            SOURCES -> querySource(uri, projection)
+            SOURCE_ID -> querySource(uri, projection)
+            else -> throw IllegalArgumentException("Unknown URI $uri")
         }
     }
 
@@ -236,11 +234,10 @@ class MuzeiProvider : ContentProvider() {
 
     @Throws(FileNotFoundException::class)
     override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
-        return if (MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK ||
-                MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK_ID) {
-            openFileArtwork(uri, mode)
-        } else {
-            throw IllegalArgumentException("Unknown URI $uri")
+        return when(MuzeiProvider.uriMatcher.match(uri)) {
+            ARTWORK -> openFileArtwork(uri, mode)
+            ARTWORK_ID -> openFileArtwork(uri, mode)
+            else -> throw IllegalArgumentException("Unknown URI $uri")
         }
     }
 
@@ -254,8 +251,8 @@ class MuzeiProvider : ContentProvider() {
         }
         val artworkDao = MuzeiDatabase.getInstance(context).artworkDao()
         val artwork = ensureBackground {
-            when {
-                MuzeiProvider.uriMatcher.match(uri) == MuzeiProvider.ARTWORK -> artworkDao.currentArtworkBlocking
+            when (MuzeiProvider.uriMatcher.match(uri)) {
+                ARTWORK -> artworkDao.currentArtworkBlocking
                 else -> artworkDao.getArtworkByIdBlocking(ContentUris.parseId(uri))
             }
         } ?: throw FileNotFoundException("Could not get artwork file for $uri")

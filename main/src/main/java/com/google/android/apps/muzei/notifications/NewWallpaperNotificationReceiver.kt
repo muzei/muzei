@@ -188,7 +188,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
             }
             val commands = artwork.getCommands(context)
             // Show custom actions as a selectable list on Android Wear devices
-            if (!commands.isEmpty()) {
+            if (commands.isNotEmpty()) {
                 val actions = commands.map { it.title }.toTypedArray()
                 val userCommandPendingIntent = PendingIntent.getBroadcast(context, 0,
                         Intent(context, NewWallpaperNotificationReceiver::class.java)
@@ -274,8 +274,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                         // Construct an Intent to get to the notification settings screen
                         val settingsIntent = Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
                         settingsIntent.putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
-                        settingsIntent.putExtra(Settings.EXTRA_CHANNEL_ID,
-                                NewWallpaperNotificationReceiver.NOTIFICATION_CHANNEL)
+                        settingsIntent.putExtra(Settings.EXTRA_CHANNEL_ID, NOTIFICATION_CHANNEL)
                         // Build the notification
                         val builder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL)
                                 .setSmallIcon(R.drawable.ic_stat_muzei)
