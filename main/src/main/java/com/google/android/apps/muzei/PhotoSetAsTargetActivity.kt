@@ -18,7 +18,6 @@ package com.google.android.apps.muzei
 
 import android.content.ComponentName
 import android.content.Intent
-import android.os.Bundle
 import android.util.Log
 import androidx.core.os.bundleOf
 import androidx.fragment.app.FragmentActivity
@@ -28,8 +27,6 @@ import com.google.android.apps.muzei.single.SingleArtProvider
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
 
 class PhotoSetAsTargetActivity : FragmentActivity() {
@@ -38,32 +35,32 @@ class PhotoSetAsTargetActivity : FragmentActivity() {
         private const val TAG = "PhotoSetAsTarget"
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        intent?.data?.also { uri ->
-            lifecycleScope.launch(Dispatchers.Main) {
-                val context = this@PhotoSetAsTargetActivity
-                val success = SingleArtProvider.setArtwork(context, uri)
-                if (!success) {
-                    Log.e(TAG, "Unable to insert artwork for $uri")
-                    toast(R.string.set_as_wallpaper_failed)
-                    finish()
-                    return@launch
-                }
-
-                // If adding the artwork succeeded, select the single artwork provider
-                FirebaseAnalytics.getInstance(context).logEvent(
-                        FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                        FirebaseAnalytics.Param.ITEM_ID to SINGLE_AUTHORITY,
-                        FirebaseAnalytics.Param.ITEM_CATEGORY to "providers",
-                        FirebaseAnalytics.Param.CONTENT_TYPE to "set_as"))
-                ProviderManager.select(context, SINGLE_AUTHORITY)
-                startActivity(Intent.makeMainActivity(ComponentName(
-                        context, MuzeiActivity::class.java))
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+    init {
+        lifecycleScope.launchWhenCreated {
+            val uri = intent?.data ?: run {
                 finish()
+                return@launchWhenCreated
             }
-        } ?: finish()
+            val context = this@PhotoSetAsTargetActivity
+            val success = SingleArtProvider.setArtwork(context, uri)
+            if (!success) {
+                Log.e(TAG, "Unable to insert artwork for $uri")
+                toast(R.string.set_as_wallpaper_failed)
+                finish()
+                return@launchWhenCreated
+            }
+
+            // If adding the artwork succeeded, select the single artwork provider
+            FirebaseAnalytics.getInstance(context).logEvent(
+                    FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
+                    FirebaseAnalytics.Param.ITEM_ID to SINGLE_AUTHORITY,
+                    FirebaseAnalytics.Param.ITEM_CATEGORY to "providers",
+                    FirebaseAnalytics.Param.CONTENT_TYPE to "set_as"))
+            ProviderManager.select(context, SINGLE_AUTHORITY)
+            startActivity(Intent.makeMainActivity(ComponentName(
+                    context, MuzeiActivity::class.java))
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            finish()
+        }
     }
 }

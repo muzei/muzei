@@ -190,6 +190,12 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
     private var unsetNextFakeLoading: Job? = null
     private var showLoadingSpinner: Job? = null
 
+    init {
+        lifecycleScope.launchWhenResumed {
+            NewWallpaperNotificationReceiver.markNotificationRead(requireContext())
+        }
+    }
+
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
@@ -359,13 +365,6 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
     override fun onStart() {
         super.onStart()
         ArtDetailOpenLiveData.value = true
-    }
-
-    override fun onResume() {
-        super.onResume()
-        lifecycleScope.launch {
-            NewWallpaperNotificationReceiver.markNotificationRead(requireContext())
-        }
     }
 
     override fun onDestroyView() {
