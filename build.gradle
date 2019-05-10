@@ -19,7 +19,7 @@ buildscript {
         compileSdkVersion = 28
         targetSdkVersion = 25
 
-        appCompatVersion = "1.1.0-alpha04"
+        appCompatVersion = '1.1.0-alpha05'
         browserVersion = "1.0.0"
         constraintLayoutVersion = "2.0.0-alpha5"
         coreVersion = "1.1.0-alpha05"
