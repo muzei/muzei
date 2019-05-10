@@ -39,6 +39,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
 import com.google.android.apps.muzei.notifications.NotificationUpdater
@@ -54,7 +55,6 @@ import com.google.android.apps.muzei.settings.Prefs
 import com.google.android.apps.muzei.shortcuts.ArtworkInfoShortcutController
 import com.google.android.apps.muzei.sources.SourceManager
 import com.google.android.apps.muzei.sync.ProviderManager
-import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.filterNotNull
 import com.google.android.apps.muzei.wallpaper.LockscreenObserver
 import com.google.android.apps.muzei.wallpaper.WallpaperAnalytics
@@ -166,7 +166,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
 
                 doubleTapTimeout?.cancel()
                 val timeout = ViewConfiguration.getDoubleTapTimeout().toLong()
-                doubleTapTimeout = coroutineScope.launch {
+                doubleTapTimeout = lifecycleScope.launch {
                     delay(timeout)
                     queueEvent {
                         validDoubleTap = false
@@ -202,7 +202,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                         .artworkDao().currentArtwork
                         .filterNotNull()
                         .observe(this) { artwork ->
-                            coroutineScope.launch {
+                            lifecycleScope.launch {
                                 updateCurrentArtwork(artwork)
                             }
                         }
@@ -382,7 +382,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             }
 
             cancelDelayedBlur()
-            delayedBlur = coroutineScope.launch {
+            delayedBlur = lifecycleScope.launch {
                 delay(TEMPORARY_FOCUS_DURATION_MILLIS)
                 queueEvent {
                     renderer.setIsBlurred(true, false)

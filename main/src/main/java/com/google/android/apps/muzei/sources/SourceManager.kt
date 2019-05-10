@@ -34,6 +34,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.room.withTransaction
 import com.google.android.apps.muzei.api.MuzeiArtSource
@@ -46,7 +47,6 @@ import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.room.Source
 import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.sync.ProviderManager
-import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.goAsync
 import com.google.android.apps.muzei.util.toastFromBackground
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -222,7 +222,7 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
                     // Don't do anything if it is the same Source
                     return@addSource
                 }
-                coroutineScope.launch(Dispatchers.Main) {
+                lifecycleScope.launch(Dispatchers.Main) {
                     currentSource?.unsubscribe()
                     currentSource = source
                     if (source != null) {

@@ -6,7 +6,7 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ShareCompat
 import androidx.fragment.app.FragmentActivity
-import com.google.android.apps.muzei.util.coroutineScope
+import androidx.lifecycle.lifecycleScope
 import com.google.android.apps.muzei.util.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -43,7 +43,7 @@ class GalleryAddPhotosActivity : FragmentActivity() {
             }
             val chosenPhoto = ChosenPhoto(photoUri)
 
-            coroutineScope.launch(Dispatchers.Main) {
+            lifecycleScope.launch(Dispatchers.Main) {
                 val context = this@GalleryAddPhotosActivity
                 val id = GalleryDatabase.getInstance(context).chosenPhotoDao()
                         .insert(context, chosenPhoto, callingApplication)

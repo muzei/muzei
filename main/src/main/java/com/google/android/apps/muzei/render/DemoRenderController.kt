@@ -21,7 +21,7 @@ import android.animation.ObjectAnimator
 import android.content.Context
 import androidx.core.animation.doOnEnd
 import androidx.lifecycle.LifecycleOwner
-import com.google.android.apps.muzei.util.coroutineScope
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -70,7 +70,7 @@ class DemoRenderController(
 
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
-        coroutineScope = owner.coroutineScope
+        coroutineScope = owner.lifecycleScope
         runAnimation()
     }
 

@@ -20,6 +20,7 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.wear.ambient.AmbientModeSupport
 import androidx.wear.widget.RoundedDrawable
@@ -30,7 +31,6 @@ import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.sync.ProviderManager
-import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.filterNotNull
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.Dispatchers
@@ -162,7 +162,7 @@ class MuzeiActivity : FragmentActivity(),
         }, null, null, null)
 
         viewModel.artworkLiveData.filterNotNull().observe(this) { artwork ->
-            coroutineScope.launch(Dispatchers.Main) {
+            lifecycleScope.launch(Dispatchers.Main) {
                 val image = ImageLoader.decode(
                         contentResolver, artwork.contentUri)
                 if (image != null) {
@@ -183,7 +183,7 @@ class MuzeiActivity : FragmentActivity(),
                 attributionView.text = artwork.attribution
                 attributionView.isVisible = !artwork.attribution.isNullOrBlank()
                 openOnPhone.setOnClickListener {
-                    coroutineScope.launch {
+                    lifecycleScope.launch {
                         FirebaseAnalytics.getInstance(this@MuzeiActivity).logEvent(
                                 FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
                                 FirebaseAnalytics.Param.ITEM_ID to DataLayerArtProvider.OPEN_ON_PHONE_ACTION,
@@ -219,7 +219,7 @@ class MuzeiActivity : FragmentActivity(),
                         null, null, null)
                 providerView.text = providerInfo.loadLabel(pm)
                 val authority = providerInfo.authority
-                coroutineScope.launch(Dispatchers.Main) {
+                lifecycleScope.launch(Dispatchers.Main) {
                     val description = ProviderManager.getDescription(this@MuzeiActivity, authority)
                     providerDescriptionView.isGone = description.isBlank()
                     providerDescriptionView.text = description

@@ -29,6 +29,7 @@ import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -38,7 +39,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.CoroutineScope
@@ -135,7 +135,7 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
             }
     ) {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-                ArtViewHolder(viewLifecycleOwner.coroutineScope,
+                ArtViewHolder(viewLifecycleOwner.lifecycleScope,
                         layoutInflater.inflate(R.layout.browse_provider_item, parent, false))
 
         override fun onBindViewHolder(holder: ArtViewHolder, position: Int) {

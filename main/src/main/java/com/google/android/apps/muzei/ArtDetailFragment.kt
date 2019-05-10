@@ -40,6 +40,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import com.google.android.apps.muzei.api.MuzeiArtSource
@@ -60,7 +61,6 @@ import com.google.android.apps.muzei.settings.AboutActivity
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.AnimatedMuzeiLoadingSpinnerView
 import com.google.android.apps.muzei.util.PanScaleProxyView
-import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.makeCubicGradientScrimDrawable
 import com.google.android.apps.muzei.widget.showWidgetPreview
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -124,14 +124,14 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
 
         metadataView.setOnClickListener {
             val context = requireContext()
-            coroutineScope.launch {
+            lifecycleScope.launch {
                 FirebaseAnalytics.getInstance(context).logEvent("artwork_info_open", bundleOf(
                         FirebaseAnalytics.Param.CONTENT_TYPE to "art_detail"))
                 currentArtworkLiveData.value?.openArtworkInfo(context)
             }
         }
 
-        coroutineScope.launch(Dispatchers.Main) {
+        lifecycleScope.launch(Dispatchers.Main) {
             val commands = context?.run {
                 currentArtwork?.getCommands(this) ?: run {
                     if (currentProviderLiveData.value?.authority == SOURCES_AUTHORITY) {
@@ -317,7 +317,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 onLongPress = {
-                    coroutineScope.launch {
+                    lifecycleScope.launch {
                         showWidgetPreview(requireContext().applicationContext)
                     }
                 }
@@ -363,7 +363,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
 
     override fun onResume() {
         super.onResume()
-        coroutineScope.launch {
+        lifecycleScope.launch {
             NewWallpaperNotificationReceiver.markNotificationRead(requireContext())
         }
     }
@@ -426,7 +426,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         // the loading spinner will go away.
         updateLoadingSpinnerVisibility()
         unsetNextFakeLoading?.cancel()
-        unsetNextFakeLoading = coroutineScope.launch(Dispatchers.Main) {
+        unsetNextFakeLoading = lifecycleScope.launch(Dispatchers.Main) {
             delay(10000)
             showFakeLoading = false
             updateLoadingSpinnerVisibility()
@@ -441,7 +441,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
                 showLoadingSpinner = null
             }
             if (showFakeLoading) {
-                this.showLoadingSpinner = coroutineScope.launch(Dispatchers.Main) {
+                this.showLoadingSpinner = lifecycleScope.launch(Dispatchers.Main) {
                     delay(700)
                     loadingIndicatorView.start()
                     loadingContainerView.isVisible = true

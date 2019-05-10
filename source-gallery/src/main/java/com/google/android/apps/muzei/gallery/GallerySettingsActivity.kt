@@ -56,6 +56,7 @@ import androidx.core.content.edit
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.paging.PagedList
 import androidx.paging.PagedListAdapter
@@ -65,7 +66,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.android.apps.muzei.util.MultiSelectionController
-import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.getString
 import com.google.android.apps.muzei.util.getStringOrNull
 import com.google.android.apps.muzei.util.toast
@@ -509,7 +509,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             if (selectedCount == 1) {
                 // If they've selected a tree URI, show the DISPLAY_NAME instead of just '1'
                 val selectedId = multiSelectionController.selection.iterator().next()
-                coroutineScope.launch(Dispatchers.Main) {
+                lifecycleScope.launch(Dispatchers.Main) {
                     val chosenPhoto = GalleryDatabase.getInstance(this@GallerySettingsActivity)
                             .chosenPhotoDao()
                             .getChosenPhoto(selectedId)

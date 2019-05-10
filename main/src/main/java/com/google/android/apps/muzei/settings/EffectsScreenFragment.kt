@@ -23,8 +23,8 @@ import android.widget.SeekBar
 import androidx.core.content.edit
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer
-import com.google.android.apps.muzei.util.coroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -87,7 +87,7 @@ class EffectsScreenFragment : Fragment(R.layout.effects_screen_fragment) {
             override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
                 if (fromUser) {
                     updateBlur?.cancel()
-                    updateBlur = coroutineScope.launch {
+                    updateBlur = lifecycleScope.launch {
                         delay(750)
                         prefs.edit {
                             putInt(blurPref, blurSeekBar.progress)
@@ -112,7 +112,7 @@ class EffectsScreenFragment : Fragment(R.layout.effects_screen_fragment) {
             override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
                 if (fromUser) {
                     updateDim?.cancel()
-                    updateDim = coroutineScope.launch {
+                    updateDim = lifecycleScope.launch {
                         delay(750)
                         prefs.edit {
                             putInt(dimPref, dimSeekBar.progress)
@@ -137,7 +137,7 @@ class EffectsScreenFragment : Fragment(R.layout.effects_screen_fragment) {
             override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
                 if (fromUser) {
                     updateGrey?.cancel()
-                    updateGrey = coroutineScope.launch {
+                    updateGrey = lifecycleScope.launch {
                         delay(750)
                         prefs.edit {
                             putInt(greyPref, greySeekBar.progress)

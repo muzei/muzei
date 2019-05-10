@@ -22,10 +22,10 @@ import android.os.Bundle
 import android.util.Log
 import androidx.core.os.bundleOf
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.lifecycleScope
 import com.google.android.apps.muzei.single.BuildConfig.SINGLE_AUTHORITY
 import com.google.android.apps.muzei.single.SingleArtProvider
 import com.google.android.apps.muzei.sync.ProviderManager
-import com.google.android.apps.muzei.util.coroutineScope
 import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +42,7 @@ class PhotoSetAsTargetActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
 
         intent?.data?.also { uri ->
-            coroutineScope.launch(Dispatchers.Main) {
+            lifecycleScope.launch(Dispatchers.Main) {
                 val context = this@PhotoSetAsTargetActivity
                 val success = SingleArtProvider.setArtwork(context, uri)
                 if (!success) {

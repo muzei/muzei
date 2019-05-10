@@ -21,8 +21,8 @@ import android.content.SharedPreferences
 import android.os.Handler
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.google.android.apps.muzei.settings.Prefs
-import com.google.android.apps.muzei.util.coroutineScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -105,7 +105,7 @@ abstract class RenderController(
     }
 
     override fun onCreate(owner: LifecycleOwner) {
-        coroutineScope = owner.coroutineScope
+        coroutineScope = owner.lifecycleScope
         Prefs.getSharedPreferences(context)
                 .registerOnSharedPreferenceChangeListener(sharedPreferenceChangeListener)
     }
