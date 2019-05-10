@@ -28,7 +28,6 @@ object ArtDetailViewport {
     private val viewport1 = RectF()
     private val observers = mutableListOf<(isFromUser: Boolean) -> Unit>()
     private val changeLiveData = MutableLiveData<Boolean>().apply {
-        @Suppress("EXPERIMENTAL_API_USAGE")
         GlobalScope.launch(Dispatchers.Main.immediate) {
             // Make sure we trigger observers on the main thread
             observeForever { isFromUser ->
