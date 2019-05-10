@@ -25,7 +25,7 @@ import android.os.Handler
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
@@ -103,8 +103,7 @@ class BrowseProviderViewModel(
         contentUriLiveData.value = contentUri
     }
 
-    val artLiveData: LiveData<List<Artwork>> = Transformations
-            .switchMap(contentUriLiveData) { contentUri ->
-                ProviderArtworkLiveData(application, viewModelScope, contentUri)
-            }
+    val artLiveData: LiveData<List<Artwork>> = contentUriLiveData.switchMap { contentUri ->
+        ProviderArtworkLiveData(application, viewModelScope, contentUri)
+    }
 }

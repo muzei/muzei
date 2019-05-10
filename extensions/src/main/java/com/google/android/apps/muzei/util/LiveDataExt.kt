@@ -18,11 +18,11 @@ package com.google.android.apps.muzei.util
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.switchMap
 
 fun <T> LiveData<T?>.filterNotNull() : LiveData<T> {
     val mutableLiveData = MutableLiveData<T>()
-    return Transformations.switchMap(this) { value ->
+    return switchMap { value ->
         if (value != null) {
             mutableLiveData.value = value
         }
