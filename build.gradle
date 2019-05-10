@@ -28,13 +28,13 @@ buildscript {
         exifInterfaceVersion = "1.1.0-alpha01"
         firebaseCoreVersion = '16.0.9'
         firebasePerfVersion = '17.0.0'
-        fragmentVersion = "1.1.0-alpha07"
+        fragmentVersion = '1.1.0-alpha08'
         glideVersion = "4.9.0"
         kotlinVersion = "1.3.31"
         lifecycleVersion = "2.1.0-alpha04"
         materialVersion = "1.1.0-alpha06"
         multidexVersion = "2.0.1"
-        navigationVersion = "2.1.0-alpha02"
+        navigationVersion = '2.1.0-alpha03'
         okhttpVersion = "3.12.1"
         pagingVersion = "2.1.0"
         playServicesWearableVersion = "16.0.1"
