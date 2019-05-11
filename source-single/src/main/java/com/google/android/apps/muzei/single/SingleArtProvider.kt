@@ -17,7 +17,7 @@
 package com.google.android.apps.muzei.single
 
 import android.annotation.SuppressLint
-import android.content.ActivityNotFoundException
+import android.app.PendingIntent
 import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
@@ -140,20 +140,13 @@ class SingleArtProvider : MuzeiArtProvider() {
         // so there's never any additional artwork to load
     }
 
-    override fun openArtworkInfo(artwork: Artwork): Boolean {
-        val context = context ?: return false
+    override fun getArtworkInfo(artwork: Artwork): PendingIntent? {
+        val context = context ?: return null
         val uri = ContentUris.withAppendedId(contentUri, artwork.id)
-        return try {
-            context.startActivity(Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(uri, "image/*")
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            })
-            true
-        } catch (e: ActivityNotFoundException) {
-            Log.w(TAG, "Could not open artwork info for $uri", e)
-            false
-        }
+        return PendingIntent.getActivity(context, 0, Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uri, "image/*")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }, 0)
     }
 
     override fun openFile(artwork: Artwork) = FileInputStream(getArtworkFile(

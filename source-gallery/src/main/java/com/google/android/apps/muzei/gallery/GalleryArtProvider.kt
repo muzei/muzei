@@ -17,8 +17,8 @@
 package com.google.android.apps.muzei.gallery
 
 import android.annotation.SuppressLint
+import android.app.PendingIntent
 import android.content.Intent
-import android.util.Log
 import androidx.core.net.toUri
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
@@ -27,10 +27,6 @@ import java.io.IOException
 import java.io.InputStream
 
 class GalleryArtProvider: MuzeiArtProvider() {
-    companion object {
-        private const val TAG = "GalleryArtProvider"
-    }
-
     override fun onLoadRequested(initial: Boolean) {
         GalleryScanWorker.enqueueRescan()
     }
@@ -52,20 +48,13 @@ class GalleryArtProvider: MuzeiArtProvider() {
         }
     }
 
-    override fun openArtworkInfo(artwork: Artwork): Boolean {
-        val context = context ?: return false
-        val uri = artwork.webUri ?: artwork.persistentUri ?: return false
-        return try {
-            context.startActivity(Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(uri, "image/*")
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            })
-            true
-        } catch (e: Exception) {
-            Log.w(TAG, "Could not open artwork info for $uri", e)
-            false
-        }
+    override fun getArtworkInfo(artwork: Artwork): PendingIntent? {
+        val context = context ?: return null
+        val uri = artwork.webUri ?: artwork.persistentUri ?: return null
+        return PendingIntent.getActivity(context, 0, Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uri, "image/*")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }, 0)
     }
 
     override fun isArtworkValid(artwork: Artwork): Boolean {
