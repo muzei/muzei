@@ -20,12 +20,14 @@ import android.content.Context
 import android.content.Intent
 import android.support.wearable.activity.ConfirmationActivity
 import android.util.Log
+import androidx.core.net.toUri
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.util.toastFromBackground
 import com.google.android.gms.wearable.CapabilityClient
 import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.Wearable
+import com.google.android.wearable.intent.RemoteIntent
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
@@ -86,19 +88,12 @@ class DataLayerArtProvider : MuzeiArtProvider() {
                                 ConfirmationActivity.OPEN_ON_PHONE_ANIMATION)
                     }
                     context.startActivity(openOnPhoneIntent)
-                    // Send the message to the phone to open Muzei
-                    val messageClient = Wearable.getMessageClient(context)
+                    // Use RemoteIntent.startRemoteActivity to open Muzei on the phone
                     for (node in nodes) {
-                        try {
-                            // We use notification/open for compatibility with
-                            // older versions of Muzei's phone app
-                            messageClient.sendMessage(node.id,
-                                    "notification/open", null).await()
-                        } catch (e: ExecutionException) {
-                            Log.w(TAG, "Unable to send Open on phone message to ${node.id}", e)
-                        } catch (e: InterruptedException) {
-                            Log.w(TAG, "Unable to send Open on phone message to ${node.id}", e)
-                        }
+                        RemoteIntent.startRemoteActivity(context, Intent(Intent.ACTION_VIEW).apply {
+                            data = "android-app://${context.packageName}".toUri()
+                            addCategory(Intent.CATEGORY_BROWSABLE)
+                        }, null, node.id)
                     }
                 }
             }
