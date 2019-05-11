@@ -16,6 +16,7 @@
 package com.google.android.apps.muzei.api.provider;
 
 import android.annotation.SuppressLint;
+import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.ContentProvider;
@@ -72,11 +73,13 @@ import androidx.annotation.RequiresApi;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_COMMAND;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_COMMANDS;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_DESCRIPTION;
+import static com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_GET_ARTWORK_INFO;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_LAST_LOADED_TIME;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_MAX_LOADED_ARTWORK_ID;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_OPEN_ARTWORK_INFO_SUCCESS;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_RECENT_ARTWORK_IDS;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_VERSION;
+import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_ARTWORK_INFO;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_COMMANDS;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_DESCRIPTION;
 import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_LOAD_INFO;
@@ -183,7 +186,7 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.METHO
  * used.
  * <p>
  * All artwork should support opening an Activity to view more details about the artwork.
- * You can provider your own functionality by overriding {@link #openArtworkInfo(Artwork)}.
+ * You can provider your own functionality by overriding {@link #getArtworkInfo(Artwork)}.
  * <p>
  * If custom behavior is needed to retrieve the artwork's binary data (for example,
  * authentication with a remote server), this behavior can be added to
@@ -202,7 +205,7 @@ public abstract class MuzeiArtProvider extends ContentProvider implements Provid
      * This is a signature permission that only Muzei can hold.
      * </p>
      */
-    @SuppressWarnings({"WeakerAccess", "unused"})
+    @SuppressWarnings({"unused"})
     public static final String ACCESS_PERMISSION
             = "com.google.android.apps.muzei.api.ACCESS_PROVIDER";
     /**
@@ -511,10 +514,25 @@ public abstract class MuzeiArtProvider extends ContentProvider implements Provid
                             null, null, null, null)) {
                         if (data != null && data.moveToNext()) {
                             Bundle bundle = new Bundle();
+                            @SuppressWarnings("deprecation")
                             boolean success = openArtworkInfo(Artwork.fromCursor(data));
                             bundle.putBoolean(KEY_OPEN_ARTWORK_INFO_SUCCESS, success);
                             if (DEBUG) {
                                 Log.d(TAG, "For " + METHOD_OPEN_ARTWORK_INFO + " returning " + bundle);
+                            }
+                            return bundle;
+                        }
+                    }
+                    break;
+                case METHOD_GET_ARTWORK_INFO:
+                    try (Cursor data = context.getContentResolver().query(Uri.parse(arg),
+                            null, null, null, null)) {
+                        if (data != null && data.moveToNext()) {
+                            Bundle bundle = new Bundle();
+                            PendingIntent artworkInfo = getArtworkInfo(Artwork.fromCursor(data));
+                            bundle.putParcelable(KEY_GET_ARTWORK_INFO, artworkInfo);
+                            if (DEBUG) {
+                                Log.d(TAG, "For " + METHOD_GET_ARTWORK_INFO + " returning " + bundle);
                             }
                             return bundle;
                         }
@@ -609,7 +627,12 @@ public abstract class MuzeiArtProvider extends ContentProvider implements Provid
      *
      * @param artwork The artwork the user wants to see more information about.
      * @return True if the artwork info was successfully opened.
+     * @deprecated Override {@link #getArtworkInfo(Artwork)} to return a {@link PendingIntent}
+     * that starts your artwork info. This method will still be called on devices that
+     * have an older version of Muzei installed.
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
+    @Deprecated
     protected boolean openArtworkInfo(@NonNull Artwork artwork) {
         if (artwork.getWebUri() != null && getContext() != null) {
             try {
@@ -623,6 +646,24 @@ public abstract class MuzeiArtProvider extends ContentProvider implements Provid
             }
         }
         return false;
+    }
+
+    /**
+     * Callback when the user wishes to see more information about the given artwork. The default
+     * implementation constructs a {@link PendingIntent} to the
+     * {@link ProviderContract.Artwork#WEB_URI web uri} of the artwork.
+     *
+     * @param artwork The artwork the user wants to see more information about.
+     * @return A {@link PendingIntent} generally constructed with
+     * {@link PendingIntent#getActivity(Context, int, Intent, int)}.
+     */
+    @Nullable
+    protected PendingIntent getArtworkInfo(@NonNull Artwork artwork) {
+        if (artwork.getWebUri() != null && getContext() != null) {
+            Intent intent = new Intent(Intent.ACTION_VIEW, artwork.getWebUri());
+            return PendingIntent.getActivity(getContext(), 0, intent, 0);
+        }
+        return null;
     }
 
     @CallSuper

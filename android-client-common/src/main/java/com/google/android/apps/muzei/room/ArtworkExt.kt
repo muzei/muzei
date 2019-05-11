@@ -16,16 +16,23 @@
 
 package com.google.android.apps.muzei.room
 
+import android.app.PendingIntent
 import android.content.Context
 import android.os.Bundle
 import android.os.RemoteException
 import android.util.Log
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.api.UserCommand
+import com.google.android.apps.muzei.api.internal.ProtocolConstants.DEFAULT_VERSION
+import com.google.android.apps.muzei.api.internal.ProtocolConstants.GET_ARTWORK_INFO_MIN_VERSION
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_COMMAND
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_COMMANDS
+import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_GET_ARTWORK_INFO
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_OPEN_ARTWORK_INFO_SUCCESS
+import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_VERSION
+import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_ARTWORK_INFO
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_COMMANDS
+import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_VERSION
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_OPEN_ARTWORK_INFO
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_TRIGGER_COMMAND
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
@@ -39,8 +46,28 @@ suspend fun Artwork.openArtworkInfo(context: Context) {
     val success = ContentProviderClientCompat.getClient(
             context, imageUri)?.use { client ->
         try {
-            val result = client.call(METHOD_OPEN_ARTWORK_INFO, imageUri.toString())
-            result?.getBoolean(KEY_OPEN_ARTWORK_INFO_SUCCESS)
+            val versionResult = client.call(METHOD_GET_VERSION)
+            val version = versionResult?.getInt(KEY_VERSION) ?: DEFAULT_VERSION
+            if (version >= GET_ARTWORK_INFO_MIN_VERSION) {
+                val result = client.call(METHOD_GET_ARTWORK_INFO, imageUri.toString())
+                val artworkInfo = result?.getParcelable<PendingIntent>(KEY_GET_ARTWORK_INFO)
+                try {
+                    artworkInfo?.run {
+                        send()
+                        true
+                    } ?: false
+                } catch (e: PendingIntent.CanceledException) {
+                    Log.w(TAG, "Provider for $imageUri returned a cancelled " +
+                            "PendingIntent: $artworkInfo", e)
+                    false
+                } catch (e: Exception) {
+                    Log.w(TAG, "Failed to send() the PendingIntent $artworkInfo for $imageUri", e)
+                    false
+                }
+            } else {
+                val result = client.call(METHOD_OPEN_ARTWORK_INFO, imageUri.toString())
+                result?.getBoolean(KEY_OPEN_ARTWORK_INFO_SUCCESS)
+            }
         } catch (e: RemoteException) {
             Log.i(TAG, "Provider for $imageUri crashed while opening artwork info", e)
             false

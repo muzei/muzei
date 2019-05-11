@@ -17,6 +17,7 @@
 package com.google.android.apps.muzei.sources
 
 import android.annotation.SuppressLint
+import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.util.Log
@@ -115,31 +116,23 @@ class SourceArtProvider : MuzeiArtProvider() {
         }
     }
 
-    override fun openArtworkInfo(artwork: Artwork): Boolean {
-        val context = context ?: return false
-        val webUri = artwork.webUri ?: return false
+    override fun getArtworkInfo(artwork: Artwork): PendingIntent? {
+        val context = context ?: return null
+        val webUri = artwork.webUri ?: return null
         try {
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Opening artwork info for ${artwork.id}")
             }
             // Try to parse the metadata as an Intent
             Intent.parseUri(webUri.toString(), Intent.URI_INTENT_SCHEME)?.run {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 // Make sure any data URIs granted to Muzei are passed onto the started Activity
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                try {
-                    context.startActivity(this)
-                    return true
-                } catch (e: RuntimeException) {
-                    // Catch ActivityNotFoundException, SecurityException,
-                    // and FileUriExposedException
-                    Log.w(TAG, "Unable to start view Intent ${this}", e)
-                }
+                return PendingIntent.getActivity(context, 0, this, 0)
             }
         } catch (e: URISyntaxException) {
             Log.i(TAG, "Unable to parse viewIntent ${this}", e)
         }
-        return false
+        return null
     }
 
     override fun openFile(artwork: Artwork) =

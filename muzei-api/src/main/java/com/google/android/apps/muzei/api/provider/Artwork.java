@@ -219,7 +219,7 @@ public class Artwork {
 
     /**
      * Returns the artwork's web URI.
-     * This is used by default in {@link MuzeiArtProvider#openArtworkInfo(Artwork)} to
+     * This is used by default in {@link MuzeiArtProvider#getArtworkInfo(Artwork)} to
      * allow the user to view more details about the artwork.
      *
      * @return the artwork's web URI, or null if it doesn't exist
@@ -231,11 +231,11 @@ public class Artwork {
 
     /**
      * Sets the artwork's web URI. This is used by default in
-     * {@link MuzeiArtProvider#openArtworkInfo(Artwork)} to allow the user to view more details
+     * {@link MuzeiArtProvider#getArtworkInfo(Artwork)} to allow the user to view more details
      * about the artwork.
      *
      * @param webUri a Uri to more details about the artwork.
-     * @see MuzeiArtProvider#openArtworkInfo(Artwork)
+     * @see MuzeiArtProvider#getArtworkInfo(Artwork)
      */
     public void setWebUri(@Nullable Uri webUri) {
         this.webUri = webUri;
@@ -550,12 +550,12 @@ public class Artwork {
 
         /**
          * Sets the artwork's web URI. This is used by default in
-         * {@link MuzeiArtProvider#openArtworkInfo(Artwork)}
+         * {@link MuzeiArtProvider#getArtworkInfo(Artwork)}
          * to allow the user to view more details about the artwork.
          *
          * @param webUri a Uri to more details about the artwork.
          * @return this {@link Builder}.
-         * @see MuzeiArtProvider#openArtworkInfo(Artwork)
+         * @see MuzeiArtProvider#getArtworkInfo(Artwork)
          */
         @NonNull
         public Builder webUri(@Nullable Uri webUri) {

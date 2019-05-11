@@ -39,6 +39,7 @@ public class ProtocolConstants {
     private static final String PREFIX = "com.google.android.apps.muzei.api.";
     public static final String METHOD_GET_VERSION = PREFIX + "GET_VERSION";
     public static final String KEY_VERSION = PREFIX + "VERSION";
+    public static final int DEFAULT_VERSION = 310000;
     public static final String METHOD_REQUEST_LOAD = PREFIX + "REQUEST_LOAD";
     public static final String METHOD_MARK_ARTWORK_INVALID = PREFIX + "MARK_ARTWORK_INVALID";
     public static final String METHOD_MARK_ARTWORK_LOADED = PREFIX + "MARK_ARTWORK_LOADED";
@@ -54,6 +55,9 @@ public class ProtocolConstants {
     public static final String KEY_COMMAND = PREFIX + "COMMAND";
     public static final String METHOD_OPEN_ARTWORK_INFO = PREFIX + "OPEN_ARTWORK_INFO";
     public static final String KEY_OPEN_ARTWORK_INFO_SUCCESS = PREFIX + "ARTWORK_INFO_SUCCESS";
+    public static final int GET_ARTWORK_INFO_MIN_VERSION = 320000;
+    public static final String METHOD_GET_ARTWORK_INFO = PREFIX + "GET_ARTWORK_INFO";
+    public static final String KEY_GET_ARTWORK_INFO = PREFIX + "ARTWORK_INFO";
 
     private ProtocolConstants() {
     }
