@@ -25,6 +25,19 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"/>
 
+    <ViewAnimator
+        android:id="@+id/background_image_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:measureAllChildren="true"
+        android:visibility="gone">
+        <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+        <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </ViewAnimator>
     <com.google.android.apps.muzei.util.PanScaleProxyView
         android:id="@+id/pan_scale_proxy"
         android:layout_width="match_parent"

@@ -42,17 +42,10 @@
         android:supportsRtl="true"
         tools:ignore="GoogleAppIndexingWarning">
 
-        <!-- Needed to support long aspect ratio devices as Muzei has resizeableActivity="false" -->
-        <meta-data
-            android:name="android.max_aspect"
-            android:value="2.1"/>
-
         <activity
             android:name="com.google.android.apps.muzei.MuzeiActivity"
             android:theme="@style/Theme.MuzeiActivity"
-            android:launchMode="singleTop"
-            android:resizeableActivity="false"
-            tools:targetApi="n">
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

@@ -136,7 +136,7 @@ sealed class ImageLoader {
         }
     }
 
-    private fun getRotation(): Int = try {
+    fun getRotation(): Int = try {
         openInputStream()?.use { input ->
             val exifInterface = ExifInterface(input)
             when (exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION,

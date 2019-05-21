@@ -28,12 +28,15 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.ViewAnimator
 import androidx.appcompat.widget.ActionMenuView
 import androidx.appcompat.widget.TooltipCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
+import androidx.core.view.children
+import androidx.core.view.get
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -43,11 +46,15 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
+import com.davemorrissey.labs.subscaleview.ImageSource
+import com.davemorrissey.labs.subscaleview.ImageViewState
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.api.UserCommand
 import com.google.android.apps.muzei.notifications.NewWallpaperNotificationReceiver
 import com.google.android.apps.muzei.render.ArtworkSizeLiveData
+import com.google.android.apps.muzei.render.ContentUriImageLoader
 import com.google.android.apps.muzei.render.SwitchingPhotosDone
 import com.google.android.apps.muzei.render.SwitchingPhotosInProgress
 import com.google.android.apps.muzei.render.SwitchingPhotosLiveData
@@ -69,6 +76,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.BuildConfig.SOURCES_AUTHORITY
 import net.nurik.roman.muzei.R
 
@@ -77,6 +85,7 @@ object ArtDetailOpenLiveData : MutableLiveData<Boolean>()
 class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
 
     companion object {
+        private const val KEY_IMAGE_VIEW_STATE = "IMAGE_VIEW_STATE"
         private val SOURCE_ACTION_IDS = intArrayOf(
                 R.id.source_action_1,
                 R.id.source_action_2,
@@ -131,6 +140,25 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             }
         }
 
+        if (backgroundImageContainer.isVisible) {
+            lifecycleScope.launch {
+                val nextId = (backgroundImageContainer.displayedChild + 1) % 2
+                val orientation = withContext(Dispatchers.IO) {
+                    ContentUriImageLoader(requireContext().contentResolver,
+                            MuzeiContract.Artwork.CONTENT_URI).getRotation()
+                }
+                val backgroundImage = backgroundImageContainer[nextId]
+                        as SubsamplingScaleImageView
+                backgroundImage.orientation = orientation
+                backgroundImage.setImage(ImageSource.uri(MuzeiContract.Artwork.CONTENT_URI),
+                        backgroundImageViewState)
+                backgroundImageViewState = null
+                // Set the image to visible since SubsamplingScaleImageView does some of
+                // its processing in onDraw()
+                backgroundImage.isVisible = true
+            }
+        }
+
         lifecycleScope.launch(Dispatchers.Main) {
             val commands = context?.run {
                 currentArtwork?.getCommands(this) ?: run {
@@ -166,9 +194,18 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
     private var guardViewportChangeListener: Boolean = false
     private var deferResetViewport: Boolean = false
 
+    private val showBackgroundImage by lazy {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
+                && requireActivity().isInMultiWindowMode
+    }
+    private val metadataSlideDistance by lazy {
+        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics)
+    }
+
     private lateinit var containerView: View
     private lateinit var overflowMenu: ActionMenuView
     private val overflowSourceActionMap = SparseIntArray()
+    private lateinit var scrimView: View
     private lateinit var chromeContainerView: View
     private lateinit var metadataView: View
     private lateinit var loadingContainerView: View
@@ -177,9 +214,12 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
     private lateinit var titleView: TextView
     private lateinit var bylineView: TextView
     private lateinit var attributionView: TextView
+    private lateinit var backgroundImageContainer: ViewAnimator
     private lateinit var panScaleProxyView: PanScaleProxyView
     private var loadingSpinnerShown = false
     private var showFakeLoading = false
+    private var showChrome = true
+    private var backgroundImageViewState: ImageViewState? = null
     private val currentProviderLiveData: LiveData<Provider?> by lazy {
         MuzeiDatabase.getInstance(requireContext()).providerDao().currentProvider
     }
@@ -213,9 +253,9 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         // Ensure we have the latest insets
         ViewCompat.requestApplyInsets(view)
 
-        val scrim = view.findViewById<View>(R.id.art_detail_scrim)
+        scrimView = view.findViewById<View>(R.id.art_detail_scrim)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            scrim.background = makeCubicGradientScrimDrawable(Gravity.TOP, 0x44)
+            scrimView.background = makeCubicGradientScrimDrawable(Gravity.TOP, 0x44)
         }
 
         val scrimColor = resources.getInteger(R.integer.scrim_channel_color)
@@ -224,31 +264,9 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
 
         metadataView = view.findViewById(R.id.metadata)
 
-        val metadataSlideDistance = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics)
         containerView.setOnSystemUiVisibilityChangeListener { vis ->
             val visible = vis and View.SYSTEM_UI_FLAG_LOW_PROFILE == 0
-
-            scrim.visibility = View.VISIBLE
-            scrim.animate()
-                    .alpha(if (visible) 1f else 0f)
-                    .setDuration(200)
-                    .withEndAction {
-                        if (!visible) {
-                            scrim.visibility = View.GONE
-                        }
-                    }
-
-            chromeContainerView.isVisible = true
-            chromeContainerView.animate()
-                    .alpha(if (visible) 1f else 0f)
-                    .translationY(if (visible) 0f else metadataSlideDistance)
-                    .setDuration(200)
-                    .withEndAction {
-                        if (!visible) {
-                            chromeContainerView.isGone = true
-                        }
-                    }
+            animateChromeVisibility(visible)
         }
 
         titleView = view.findViewById(R.id.title)
@@ -305,8 +323,39 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         }
         TooltipCompat.setTooltipText(nextButton, nextButton.contentDescription)
 
+        backgroundImageViewState = savedInstanceState?.getSerializable(
+                KEY_IMAGE_VIEW_STATE) as ImageViewState?
+        backgroundImageContainer = view.findViewById(R.id.background_image_container)
+        backgroundImageContainer.isVisible = showBackgroundImage
+        backgroundImageContainer.children.forEachIndexed { index, img ->
+            val backgroundImage = img as SubsamplingScaleImageView
+            backgroundImage.apply {
+                setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CENTER_CROP)
+                setOnImageEventListener(object : SubsamplingScaleImageView.DefaultOnImageEventListener() {
+                    override fun onImageLoaded() {
+                        // Only update the displayedChild when the image has finished loading
+                        backgroundImageContainer.displayedChild = index
+                    }
+                })
+                setOnClickListener {
+                    showChrome = !showChrome
+                    animateChromeVisibility(showChrome)
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    setOnLongClickListener {
+                        lifecycleScope.launch {
+                            showWidgetPreview(requireContext().applicationContext)
+                        }
+                        true
+                    }
+                }
+            }
+        }
+
         panScaleProxyView = view.findViewById(R.id.pan_scale_proxy)
         panScaleProxyView.apply {
+            // Don't show the PanScaleProxyView when the background image is visible
+            isVisible = !showBackgroundImage
             setMaxZoom(5)
             onViewportChanged = {
                 if (!guardViewportChangeListener) {
@@ -362,6 +411,16 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         currentArtworkLiveData.observe(this, artworkObserver)
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (view != null) {
+            val backgroundImage =
+                    backgroundImageContainer[backgroundImageContainer.displayedChild]
+                    as SubsamplingScaleImageView
+            outState.putSerializable(KEY_IMAGE_VIEW_STATE, backgroundImage.state)
+        }
+    }
+
     override fun onStart() {
         super.onStart()
         ArtDetailOpenLiveData.value = true
@@ -389,6 +448,29 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             }
             systemUiVisibility = flags
         }
+    }
+
+    private fun animateChromeVisibility(visible: Boolean) {
+        scrimView.visibility = View.VISIBLE
+        scrimView.animate()
+                .alpha(if (visible) 1f else 0f)
+                .setDuration(200)
+                .withEndAction {
+                    if (!visible) {
+                        scrimView.visibility = View.GONE
+                    }
+                }
+
+        chromeContainerView.isVisible = true
+        chromeContainerView.animate()
+                .alpha(if (visible) 1f else 0f)
+                .translationY(if (visible) 0f else metadataSlideDistance)
+                .setDuration(200)
+                .withEndAction {
+                    if (!visible) {
+                        chromeContainerView.isGone = true
+                    }
+                }
     }
 
     private fun resetProxyViewport() {
