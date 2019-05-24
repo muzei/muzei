@@ -24,7 +24,7 @@ buildscript {
         constraintLayoutVersion = '2.0.0-beta1'
         coreVersion = '1.1.0-beta01'
         coroutinesVersion = '1.2.1'
-        crashlyticsVersion = '2.10.0'
+        crashlyticsVersion = '2.10.1'
         exifInterfaceVersion = '1.1.0-alpha01'
         firebaseCoreVersion = '16.0.9'
         firebasePerfVersion = '17.0.0'
