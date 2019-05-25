@@ -133,7 +133,7 @@ class SourceManager(private val context: Context) : DefaultLifecycleObserver, Li
 
     private val singleThreadContext by lazy {
         Executors.newSingleThreadExecutor { target ->
-            Thread(target, "FeaturedArt")
+            Thread(target, "SourceManager")
         }.asCoroutineDispatcher()
     }
 
