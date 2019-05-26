@@ -20,9 +20,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.core.os.bundleOf
-import com.google.android.apps.muzei.sources.SourceManager
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.goAsync
+import com.google.android.apps.muzei.wallpaper.LegacySourceManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.twofortyfouram.locale.api.Intent.ACTION_FIRE_SETTING
 import com.twofortyfouram.locale.api.Intent.EXTRA_BUNDLE
@@ -54,7 +54,7 @@ class TaskerActionReceiver : BroadcastReceiver() {
                     FirebaseAnalytics.getInstance(context).logEvent(
                             "next_artwork", bundleOf(
                             FirebaseAnalytics.Param.CONTENT_TYPE to "tasker"))
-                    SourceManager.nextArtwork(context)
+                    LegacySourceManager.getInstance(context).nextArtwork()
                 }
             }
         }

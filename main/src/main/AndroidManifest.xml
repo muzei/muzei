@@ -83,6 +83,8 @@
                        android:value="com.google.android.apps.muzei.sources.SourceSetupActivity" />
         </provider>
 
+        <service android:name="com.google.android.apps.muzei.sources.LegacySourceService"/>
+
         <service
             android:name="com.google.android.apps.muzei.sources.SourceSubscriberService"
             android:exported="true"

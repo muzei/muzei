@@ -22,8 +22,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.core.os.bundleOf
-import com.google.android.apps.muzei.sources.SourceManager
 import com.google.android.apps.muzei.util.goAsync
+import com.google.android.apps.muzei.wallpaper.LegacySourceManager
 import com.google.firebase.analytics.FirebaseAnalytics
 
 /**
@@ -43,7 +43,7 @@ class MuzeiAppWidgetProvider : AppWidgetProvider() {
                 FirebaseAnalytics.getInstance(context).logEvent(
                         "next_artwork", bundleOf(
                         FirebaseAnalytics.Param.CONTENT_TYPE to "app_widget"))
-                SourceManager.nextArtwork(context)
+                LegacySourceManager.getInstance(context).nextArtwork()
             }
         }
     }

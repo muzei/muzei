@@ -216,7 +216,7 @@ class SourceSettingsActivity : AppCompatActivity() {
                     FirebaseAnalytics.Param.ITEM_CATEGORY to "sources",
                     FirebaseAnalytics.Param.CONTENT_TYPE to "choose"))
             GlobalScope.launch {
-                SourceManager.selectSource(this@SourceSettingsActivity, source.componentName)
+                LegacySourceService.selectSource(this@SourceSettingsActivity, source.componentName)
             }
         }
     }
@@ -256,7 +256,7 @@ class SourceSettingsActivity : AppCompatActivity() {
                         FirebaseAnalytics.Param.CONTENT_TYPE to "sources",
                         FirebaseAnalytics.Param.CONTENT_TYPE to "after_setup"))
                 GlobalScope.launch {
-                    SourceManager.selectSource(this@SourceSettingsActivity, setupSource)
+                    LegacySourceService.selectSource(this@SourceSettingsActivity, setupSource)
                 }
             }
 
