@@ -116,21 +116,18 @@ class LegacySourceService : LifecycleService() {
 
     private val messenger by lazy {
         Messenger(Handler { message ->
-            lifecycleScope.launch(singleThreadContext) {
-                when (message.what) {
-                    LegacySourceServiceProtocol.WHAT_NEXT_ARTWORK -> {
-                        val database = MuzeiDatabase.getInstance(applicationContext)
-                        val source = database.sourceDao().getCurrentSource()
-                        if (source?.supportsNextArtwork == true) {
-                            val artwork = database.artworkDao().getCurrentArtwork()
-                            artwork?.sendAction(applicationContext,
-                                    MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK)
-                        }
+            when (message.what) {
+                LegacySourceServiceProtocol.WHAT_NEXT_ARTWORK -> lifecycleScope.launch(singleThreadContext) {
+                    val database = MuzeiDatabase.getInstance(applicationContext)
+                    val source = database.sourceDao().getCurrentSource()
+                    if (source?.supportsNextArtwork == true) {
+                        val artwork = database.artworkDao().getCurrentArtwork()
+                        artwork?.sendAction(applicationContext,
+                                MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK)
                     }
                 }
             }
             true
-
         })
     }
 
