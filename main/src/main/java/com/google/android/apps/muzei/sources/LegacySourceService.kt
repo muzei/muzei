@@ -28,6 +28,7 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
+import android.os.Message
 import android.os.Messenger
 import android.text.TextUtils
 import android.util.Log
@@ -61,6 +62,7 @@ import java.util.concurrent.Executors
 
 object LegacySourceServiceProtocol {
     const val WHAT_NEXT_ARTWORK = 0
+    const val WHAT_ALLOWS_NEXT_ARTWORK = 1
 }
 
 /**
@@ -124,6 +126,16 @@ class LegacySourceService : LifecycleService() {
                         val artwork = database.artworkDao().getCurrentArtwork()
                         artwork?.sendAction(applicationContext,
                                 MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK)
+                    }
+                }
+                LegacySourceServiceProtocol.WHAT_ALLOWS_NEXT_ARTWORK -> {
+                    val replyMessenger = message.replyTo
+                    lifecycleScope.launch(singleThreadContext) {
+                        val allowsNextArtwork = MuzeiDatabase.getInstance(applicationContext)
+                                .sourceDao().getCurrentSource()?.supportsNextArtwork == true
+                        replyMessenger.send(Message.obtain().apply {
+                            arg1 = if (allowsNextArtwork) 1 else 0
+                        })
                     }
                 }
             }

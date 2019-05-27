@@ -20,7 +20,9 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.os.Message
 import android.os.Messenger
 import android.util.Log
@@ -34,14 +36,15 @@ import com.google.android.apps.muzei.sources.LegacySourceServiceProtocol
 import com.google.android.apps.muzei.sync.ProviderManager
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.BuildConfig.SOURCES_AUTHORITY
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 suspend fun Provider?.allowsNextArtwork(context: Context): Boolean {
     return when {
         this == null -> false
         supportsNextArtwork -> true
         authority != SOURCES_AUTHORITY -> false
-        else -> MuzeiDatabase.getInstance(context).sourceDao()
-                .getCurrentSource()?.supportsNextArtwork == true
+        else -> LegacySourceManager.getInstance(context).allowsNextArtwork()
     }
 }
 
@@ -120,6 +123,21 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
             })
         } else {
             ProviderManager.getInstance(applicationContext).nextArtwork()
+        }
+    }
+
+    suspend fun allowsNextArtwork(): Boolean = suspendCoroutine { cont ->
+        when(val messenger = this.messenger) {
+            null -> cont.resume(false)
+            else -> {
+                messenger.send(Message.obtain().apply {
+                    what = LegacySourceServiceProtocol.WHAT_ALLOWS_NEXT_ARTWORK
+                    replyTo = Messenger(Handler(Looper.getMainLooper()) { message ->
+                        cont.resume(message.arg1 == 1)
+                        true
+                    })
+                })
+            }
         }
     }
 
