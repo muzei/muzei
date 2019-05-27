@@ -61,8 +61,12 @@ import java.util.HashSet
 import java.util.concurrent.Executors
 
 object LegacySourceServiceProtocol {
-    const val WHAT_NEXT_ARTWORK = 0
-    const val WHAT_ALLOWS_NEXT_ARTWORK = 1
+    const val WHAT_REGISTER_REPLY_TO = 0
+    const val WHAT_UNREGISTER_REPLY_TO = 1
+    const val WHAT_NEXT_ARTWORK = 2
+    const val WHAT_ALLOWS_NEXT_ARTWORK = 3
+
+    const val WHAT_REPLY_TO_REPLACEMENT = 0
 }
 
 /**
@@ -116,9 +120,14 @@ class LegacySourceService : LifecycleService() {
         }.asCoroutineDispatcher()
     }
 
+    private var replyToMessenger: Messenger? = null
+
     private val messenger by lazy {
         Messenger(Handler { message ->
             when (message.what) {
+                LegacySourceServiceProtocol.WHAT_REGISTER_REPLY_TO -> {
+                    replyToMessenger = message.replyTo
+                }
                 LegacySourceServiceProtocol.WHAT_NEXT_ARTWORK -> lifecycleScope.launch(singleThreadContext) {
                     val database = MuzeiDatabase.getInstance(applicationContext)
                     val source = database.sourceDao().getCurrentSource()
@@ -137,6 +146,9 @@ class LegacySourceService : LifecycleService() {
                             arg1 = if (allowsNextArtwork) 1 else 0
                         })
                     }
+                }
+                LegacySourceServiceProtocol.WHAT_UNREGISTER_REPLY_TO -> {
+                    replyToMessenger = null
                 }
             }
             true
@@ -296,7 +308,10 @@ class LegacySourceService : LifecycleService() {
                                     null
                                 }
                         if (providerInfo != null) {
-                            ProviderManager.select(this@LegacySourceService, providerInfo.authority)
+                            replyToMessenger?.send(Message.obtain().apply {
+                                what = LegacySourceServiceProtocol.WHAT_REPLY_TO_REPLACEMENT
+                                obj = providerInfo.authority
+                            })
                         }
                     }
                 }

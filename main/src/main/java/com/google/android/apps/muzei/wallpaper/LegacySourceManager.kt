@@ -34,6 +34,8 @@ import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.sources.LegacySourceService
 import com.google.android.apps.muzei.sources.LegacySourceServiceProtocol
 import com.google.android.apps.muzei.sync.ProviderManager
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.BuildConfig.SOURCES_AUTHORITY
 import kotlin.coroutines.resume
@@ -69,11 +71,30 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
         }
     }
 
+    private val replyToMessenger by lazy {
+        Messenger(Handler(Looper.getMainLooper()) { message ->
+            when (message.what) {
+                LegacySourceServiceProtocol.WHAT_REPLY_TO_REPLACEMENT -> {
+                    val authority = message.obj as String
+                    GlobalScope.launch {
+                        ProviderManager.select(applicationContext, authority)
+                    }
+                }
+            }
+            true
+        })
+    }
+
     private var messenger: Messenger? = null
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            messenger = Messenger(service)
+            messenger = Messenger(service).also {
+                it.send(Message.obtain().apply {
+                    what = LegacySourceServiceProtocol.WHAT_REGISTER_REPLY_TO
+                    replyTo = replyToMessenger
+                })
+            }
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Bound to LegacySourceService")
             }
@@ -143,6 +164,9 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
 
     private fun unbindService() {
         if (messenger != null) {
+            messenger?.send(Message.obtain().apply {
+                what = LegacySourceServiceProtocol.WHAT_UNREGISTER_REPLY_TO
+            })
             applicationContext.unbindService(serviceConnection)
             messenger = null
             if (BuildConfig.DEBUG) {
