@@ -112,7 +112,7 @@ class LegacySourceService : LifecycleService() {
 
     private val singleThreadContext by lazy {
         Executors.newSingleThreadExecutor { target ->
-            Thread(target, "SourceManager")
+            Thread(target, "LegacySourceService")
         }.asCoroutineDispatcher()
     }
 
