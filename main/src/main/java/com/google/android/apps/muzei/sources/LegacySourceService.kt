@@ -43,11 +43,9 @@ import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_SUBSCRIBE
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_SUBSCRIBER_COMPONENT
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_TOKEN
-import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Source
 import com.google.android.apps.muzei.room.sendAction
-import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.goAsync
 import com.google.android.apps.muzei.util.toastFromBackground
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -67,6 +65,7 @@ object LegacySourceServiceProtocol {
     const val WHAT_ALLOWS_NEXT_ARTWORK = 3
 
     const val WHAT_REPLY_TO_REPLACEMENT = 0
+    const val WHAT_REPLY_TO_NO_SELECTED_SOURCE = 1
 }
 
 /**
@@ -174,7 +173,7 @@ class LegacySourceService : LifecycleService() {
                             context.packageManager.getServiceInfo(source.componentName, 0)
                         } catch (e: PackageManager.NameNotFoundException) {
                             Log.i(TAG, "Selected source ${source.componentName} is no longer available")
-                            ProviderManager.select(context, FEATURED_ART_AUTHORITY)
+                            MuzeiDatabase.getInstance(context).sourceDao().delete(source)
                             return@goAsync
                         }
 
@@ -270,6 +269,16 @@ class LegacySourceService : LifecycleService() {
         super.onCreate()
         SubscriberLiveData().observe(this) { source ->
             sendSelectedSourceAnalytics(source.componentName)
+        }
+        var currentSource: Source? = null
+        MuzeiDatabase.getInstance(this).sourceDao().currentSource.observe(this) { source ->
+            if (currentSource != null && source == null) {
+                // The selected source has been removed or was otherwise deselected
+                replyToMessenger?.send(Message.obtain().apply {
+                    what = LegacySourceServiceProtocol.WHAT_REPLY_TO_NO_SELECTED_SOURCE
+                })
+            }
+            currentSource = source
         }
         // Register for package change events
         val packageChangeFilter = IntentFilter().apply {
@@ -427,15 +436,17 @@ class LegacySourceService : LifecycleService() {
         } catch (e: PackageManager.NameNotFoundException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
             toastFromBackground(R.string.source_unavailable, Toast.LENGTH_LONG)
-            ProviderManager.select(this@LegacySourceService, FEATURED_ART_AUTHORITY)
+            MuzeiDatabase.getInstance(this@LegacySourceService).sourceDao().delete(this)
         } catch (e: IllegalStateException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
             toastFromBackground(R.string.source_unavailable, Toast.LENGTH_LONG)
-            ProviderManager.select(this@LegacySourceService, FEATURED_ART_AUTHORITY)
+            MuzeiDatabase.getInstance(this@LegacySourceService).sourceDao()
+                    .update(apply { selected = false })
         } catch (e: SecurityException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
             toastFromBackground(R.string.source_unavailable, Toast.LENGTH_LONG)
-            ProviderManager.select(this@LegacySourceService, FEATURED_ART_AUTHORITY)
+            MuzeiDatabase.getInstance(this@LegacySourceService).sourceDao()
+                    .update(apply { selected = false })
         }
     }
 

@@ -28,9 +28,7 @@ import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_HANDL
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_COMMAND_ID
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
-import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -90,28 +88,30 @@ class SourceArtProvider : MuzeiArtProvider() {
 
     private fun sendAction(id: Int) = GlobalScope.launch(Dispatchers.Main) {
         val context = context ?: return@launch
-        MuzeiDatabase.getInstance(context).sourceDao().getCurrentSource()?.componentName?.run {
+        MuzeiDatabase.getInstance(context).sourceDao().getCurrentSource()?.run {
             try {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "Sending command $id to ${this}")
                 }
                 // Ensure that we have a valid service before sending the action
-                context.packageManager.getServiceInfo(this, 0)
+                context.packageManager.getServiceInfo(componentName, 0)
                 context.startService(Intent(ACTION_HANDLE_COMMAND)
-                        .setComponent(this)
+                        .setComponent(componentName)
                         .putExtra(EXTRA_COMMAND_ID, id))
             } catch (e: PackageManager.NameNotFoundException) {
-                Log.i(TAG, "Sending action $id to $this failed; switching to default.", e)
+                Log.i(TAG, "Sending action $id to $componentName failed as it is no longer available", e)
                 context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
-                ProviderManager.select(context, FEATURED_ART_AUTHORITY)
+                MuzeiDatabase.getInstance(context).sourceDao().delete(this)
             } catch (e: IllegalStateException) {
-                Log.i(TAG, "Sending action $id to $this failed; switching to default.", e)
+                Log.i(TAG, "Sending action $id to $componentName failed; unselecting it.", e)
                 context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
-                ProviderManager.select(context, FEATURED_ART_AUTHORITY)
+                MuzeiDatabase.getInstance(context).sourceDao()
+                        .update(apply { selected = false })
             } catch (e: SecurityException) {
-                Log.i(TAG, "Sending action $id to $this failed; switching to default.", e)
+                Log.i(TAG, "Sending action $id to $componentName failed; unselecting it.", e)
                 context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
-                ProviderManager.select(context, FEATURED_ART_AUTHORITY)
+                MuzeiDatabase.getInstance(context).sourceDao()
+                        .update(apply { selected = false })
             }
         }
     }

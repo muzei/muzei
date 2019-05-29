@@ -29,6 +29,7 @@ import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.observe
+import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.sources.LegacySourceService
@@ -79,6 +80,9 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
                     GlobalScope.launch {
                         ProviderManager.select(applicationContext, authority)
                     }
+                }
+                LegacySourceServiceProtocol.WHAT_REPLY_TO_NO_SELECTED_SOURCE -> GlobalScope.launch {
+                    ProviderManager.select(applicationContext, FEATURED_ART_AUTHORITY)
                 }
             }
             true
