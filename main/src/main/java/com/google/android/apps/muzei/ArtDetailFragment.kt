@@ -77,7 +77,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.nurik.roman.muzei.BuildConfig.SOURCES_AUTHORITY
+import net.nurik.roman.muzei.BuildConfig.LEGACY_AUTHORITY
 import net.nurik.roman.muzei.R
 
 object ArtDetailOpenLiveData : MutableLiveData<Boolean>()
@@ -162,7 +162,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         lifecycleScope.launch(Dispatchers.Main) {
             val commands = context?.run {
                 currentArtwork?.getCommands(this) ?: run {
-                    if (currentProviderLiveData.value?.authority == SOURCES_AUTHORITY) {
+                    if (currentProviderLiveData.value?.authority == LEGACY_AUTHORITY) {
                         listOf(UserCommand(
                                 MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK,
                                         getString(R.string.action_next_artwork)))
@@ -181,7 +181,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
                 val menuItem = overflowMenu.menu.add(0, SOURCE_ACTION_IDS[i],
                         0, action.title)
                 if (action.id == MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK &&
-                        currentProviderLiveData.value?.authority == SOURCES_AUTHORITY) {
+                        currentProviderLiveData.value?.authority == LEGACY_AUTHORITY) {
                     menuItem.setIcon(R.drawable.ic_skip)
                     menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
                 }

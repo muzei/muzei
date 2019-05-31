@@ -435,16 +435,16 @@ class LegacySourceService : LifecycleService() {
                     .putExtra(EXTRA_TOKEN, selectedSource.flattenToShortString()))
         } catch (e: PackageManager.NameNotFoundException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
-            toastFromBackground(R.string.source_unavailable, Toast.LENGTH_LONG)
+            toastFromBackground(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
             MuzeiDatabase.getInstance(this@LegacySourceService).sourceDao().delete(this)
         } catch (e: IllegalStateException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
-            toastFromBackground(R.string.source_unavailable, Toast.LENGTH_LONG)
+            toastFromBackground(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
             MuzeiDatabase.getInstance(this@LegacySourceService).sourceDao()
                     .update(apply { selected = false })
         } catch (e: SecurityException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
-            toastFromBackground(R.string.source_unavailable, Toast.LENGTH_LONG)
+            toastFromBackground(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
             MuzeiDatabase.getInstance(this@LegacySourceService).sourceDao()
                     .update(apply { selected = false })
         }

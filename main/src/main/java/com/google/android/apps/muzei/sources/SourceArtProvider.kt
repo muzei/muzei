@@ -72,7 +72,7 @@ class SourceArtProvider : MuzeiArtProvider() {
             mutableListOf<UserCommand>().apply {
                 if (supportsNextArtwork) {
                     add(UserCommand(MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK,
-                            context.getString(R.string.action_next_artwork)))
+                            context.getString(R.string.legacy_action_next_artwork)))
                 }
                 addAll(commands)
             }
@@ -100,16 +100,16 @@ class SourceArtProvider : MuzeiArtProvider() {
                         .putExtra(EXTRA_COMMAND_ID, id))
             } catch (e: PackageManager.NameNotFoundException) {
                 Log.i(TAG, "Sending action $id to $componentName failed as it is no longer available", e)
-                context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
+                context.toast(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
                 MuzeiDatabase.getInstance(context).sourceDao().delete(this)
             } catch (e: IllegalStateException) {
                 Log.i(TAG, "Sending action $id to $componentName failed; unselecting it.", e)
-                context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
+                context.toast(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
                 MuzeiDatabase.getInstance(context).sourceDao()
                         .update(apply { selected = false })
             } catch (e: SecurityException) {
                 Log.i(TAG, "Sending action $id to $componentName failed; unselecting it.", e)
-                context.toast(R.string.source_unavailable, Toast.LENGTH_LONG)
+                context.toast(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
                 MuzeiDatabase.getInstance(context).sourceDao()
                         .update(apply { selected = false })
             }

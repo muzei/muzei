@@ -62,7 +62,7 @@ import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import net.nurik.roman.muzei.BuildConfig.SOURCES_AUTHORITY
+import net.nurik.roman.muzei.BuildConfig.LEGACY_AUTHORITY
 import net.nurik.roman.muzei.R
 
 class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
@@ -137,7 +137,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
         drawerLayout.setStatusBarBackgroundColor(Color.TRANSPARENT)
         drawerLayout.setScrimColor(Color.argb(68, 0, 0, 0))
         currentProviderLiveData.observe(this) { provider ->
-            val legacySelected = provider?.authority == SOURCES_AUTHORITY
+            val legacySelected = provider?.authority == LEGACY_AUTHORITY
             toolbar.menu.findItem(R.id.auto_advance_settings).isVisible = !legacySelected
             toolbar.menu.findItem(R.id.auto_advance_disabled).isVisible = legacySelected
             if (legacySelected) {

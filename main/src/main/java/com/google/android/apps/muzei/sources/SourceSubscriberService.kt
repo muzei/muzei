@@ -32,7 +32,7 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.SourceDao
 import kotlinx.coroutines.runBlocking
 import net.nurik.roman.muzei.BuildConfig
-import net.nurik.roman.muzei.BuildConfig.SOURCES_AUTHORITY
+import net.nurik.roman.muzei.BuildConfig.LEGACY_AUTHORITY
 import java.util.ArrayList
 
 class SourceSubscriberService : IntentService("SourceSubscriberService") {
@@ -96,7 +96,7 @@ class SourceSubscriberService : IntentService("SourceSubscriberService") {
             }
 
             val artworkUri = ProviderContract.getProviderClient(this,
-                    SOURCES_AUTHORITY).setArtwork(newArtwork)
+                    LEGACY_AUTHORITY).setArtwork(newArtwork)
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Set artwork to: $artworkUri")
             }

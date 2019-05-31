@@ -42,9 +42,9 @@ android {
         multiDexEnabled true
         wearAppUnbundled true
 
-        def sourcesAuthorityValue = "com.google.android.apps.muzei.sources"
-        manifestPlaceholders = [sourcesAuthority: sourcesAuthorityValue]
-        buildConfigField "String", "SOURCES_AUTHORITY", "\"${sourcesAuthorityValue}\""
+        def legacyAuthorityValue = "com.google.android.apps.muzei.sources"
+        manifestPlaceholders = [legacyAuthority: legacyAuthorityValue]
+        buildConfigField "String", "LEGACY_AUTHORITY", "\"${legacyAuthorityValue}\""
 
         buildConfigField "String", "DEVICE_TYPE", "\"android\""
     }

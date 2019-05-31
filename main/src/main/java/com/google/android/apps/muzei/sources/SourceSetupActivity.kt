@@ -91,16 +91,16 @@ class SourceWarningDialogFragment : DialogFragment() {
     var negativeListener : () -> Unit = {}
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return MaterialAlertDialogBuilder(requireContext(), R.style.Theme_Muzei_Dialog)
-                .setTitle(R.string.source_warning_title)
-                .setMessage(R.string.source_warning_message)
-                .setPositiveButton(R.string.source_warning_positive) { _, _ ->
+        return MaterialAlertDialogBuilder(requireContext(), R.style.Theme_Legacy_Dialog)
+                .setTitle(R.string.legacy_source_warning_title)
+                .setMessage(R.string.legacy_source_warning_message)
+                .setPositiveButton(R.string.legacy_source_warning_positive) { _, _ ->
                     positiveListener()
                 }
-                .setNeutralButton(R.string.source_warning_learn_more) { _, _ ->
+                .setNeutralButton(R.string.legacy_source_warning_learn_more) { _, _ ->
                     neutralListener()
                 }
-                .setNegativeButton(R.string.source_warning_negative) { _, _ ->
+                .setNegativeButton(R.string.legacy_source_warning_negative) { _, _ ->
                     negativeListener()
                 }
                 .create()

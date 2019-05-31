@@ -82,7 +82,7 @@ class SourceSettingsActivity : AppCompatActivity() {
     }
 
     private val itemImageSize: Int by lazy {
-        resources.getDimensionPixelSize(R.dimen.choose_source_item_image_size)
+        resources.getDimensionPixelSize(R.dimen.legacy_choose_source_item_image_size)
     }
     private val tempRectF = RectF()
     private val imageFillPaint = Paint().apply {
@@ -95,7 +95,7 @@ class SourceSettingsActivity : AppCompatActivity() {
     private val selectedSourceImage: Drawable by lazy {
         BitmapDrawable(resources,
                 generateSourceImage(ResourcesCompat.getDrawable(resources,
-                        R.drawable.ic_source_selected, null)))
+                        R.drawable.legacy_ic_source_selected, null)))
     }
 
     private var currentInitialSetupSource: ComponentName? = null
@@ -105,14 +105,14 @@ class SourceSettingsActivity : AppCompatActivity() {
         if (savedInstanceState != null) {
             currentInitialSetupSource = savedInstanceState.getParcelable(CURRENT_INITIAL_SETUP_SOURCE)
         }
-        val dialog = MaterialAlertDialogBuilder(this, R.style.Theme_Muzei_Dialog)
-                .setTitle(R.string.source_provider_name)
+        val dialog = MaterialAlertDialogBuilder(this, R.style.Theme_Legacy_Dialog)
+                .setTitle(R.string.legacy_source_provider_name)
                 .setSingleChoiceItems(adapter, -1) { dialog: DialogInterface, which: Int ->
                     adapter.getItem(which)?.source?.let { source ->
                         onSourceSelected(dialog, source)
                     }
                 }
-                .setPositiveButton(R.string.action_souce_done, null)
+                .setPositiveButton(R.string.legacy_source_selection_done, null)
                 .setOnDismissListener {
                     finish()
                 }
@@ -185,19 +185,19 @@ class SourceSettingsActivity : AppCompatActivity() {
             dialog.dismiss()
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && source.targetSdkVersion >= Build.VERSION_CODES.O) {
             val builder = MaterialAlertDialogBuilder(this)
-                    .setTitle(R.string.action_source_target_too_high_title)
-                    .setMessage(getString(R.string.action_source_target_too_high_message, source.label))
-                    .setNegativeButton(R.string.action_source_target_too_high_learn_more) { _, _ ->
+                    .setTitle(R.string.legacy_source_target_too_high_title)
+                    .setMessage(getString(R.string.legacy_source_target_too_high_message, source.label))
+                    .setNegativeButton(R.string.legacy_source_target_too_high_learn_more) { _, _ ->
                         startActivity(Intent(Intent.ACTION_VIEW,
                                 Uri.parse("https://medium.com/@ianhlake/the-muzei-plugin-api-and-androids-evolution-9b9979265cfb"))
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                     }
-                    .setPositiveButton(R.string.action_source_target_too_high_dismiss, null)
+                    .setPositiveButton(R.string.legacy_source_target_too_high_dismiss, null)
             val sendFeedbackIntent = Intent(Intent.ACTION_VIEW,
                     Uri.parse("https://play.google.com/store/apps/details?id=${source.componentName.packageName}"))
             if (sendFeedbackIntent.resolveActivity(packageManager) != null) {
                 builder.setNeutralButton(
-                        getString(R.string.action_source_target_too_high_send_feedback, source.label)
+                        getString(R.string.legacy_source_target_too_high_send_feedback, source.label)
                 ) { _, _ -> startActivity(sendFeedbackIntent) }
             }
             builder.show()
@@ -286,12 +286,12 @@ class SourceSettingsActivity : AppCompatActivity() {
 
     internal inner class SourceListAdapter(
             context: Context
-    ) : ArrayAdapter<SourceView>(context, R.layout.choose_source_item, R.id.choose_source_title) {
+    ) : ArrayAdapter<SourceView>(context, R.layout.legacy_choose_source_item, R.id.legacy_choose_source_title) {
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
             val view = super.getView(position, convertView, parent)
             val sourceView = getItem(position) ?: return view
             return view.apply {
-                val textView: TextView = findViewById(R.id.choose_source_title)
+                val textView: TextView = findViewById(R.id.legacy_choose_source_title)
                 textView.text = sourceView.toCharSequence()
                 alpha = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
                         sourceView.source.targetSdkVersion >= Build.VERSION_CODES.O) {
@@ -309,7 +309,7 @@ class SourceSettingsActivity : AppCompatActivity() {
                     textView.setCompoundDrawablesRelativeWithIntrinsicBounds(
                             sourceView.icon,null, null, null)
                 }
-                findViewById<View>(R.id.choose_source_settings).apply {
+                findViewById<View>(R.id.legacy_choose_source_settings).apply {
                     val show = sourceView.source.selected &&
                             sourceView.source.settingsActivity != null
                     val wasVisible = isVisible

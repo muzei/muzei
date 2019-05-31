@@ -70,9 +70,9 @@
 
         <provider
             android:name="com.google.android.apps.muzei.sources.SourceArtProvider"
-            android:label="@string/source_provider_name"
-            android:icon="@drawable/source_ic_launcher"
-            android:authorities="${sourcesAuthority}"
+            android:label="@string/legacy_source_provider_name"
+            android:icon="@drawable/legacy_source_ic_launcher"
+            android:authorities="${legacyAuthority}"
             android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER">
             <intent-filter>
                 <action android:name="com.google.android.apps.muzei.api.MuzeiArtProvider"/>
@@ -91,12 +91,12 @@
             tools:ignore="ExportedService"/>
 
         <activity android:name="com.google.android.apps.muzei.sources.SourceSetupActivity"
-                  android:label="@string/source_provider_name"
-                  android:theme="@style/Theme.Muzei.Transparent"
+                  android:label="@string/legacy_source_provider_name"
+                  android:theme="@style/Theme.Legacy.Transparent"
                   android:exported="true" />
         <activity android:name="com.google.android.apps.muzei.sources.SourceSettingsActivity"
-                  android:label="@string/source_provider_name"
-                  android:theme="@style/Theme.Muzei.Transparent"
+                  android:label="@string/legacy_source_provider_name"
+                  android:theme="@style/Theme.Legacy.Transparent"
                   android:exported="true" />
 
         <activity

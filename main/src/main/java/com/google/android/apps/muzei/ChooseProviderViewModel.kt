@@ -36,7 +36,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.nurik.roman.muzei.BuildConfig.SOURCES_AUTHORITY
+import net.nurik.roman.muzei.BuildConfig.LEGACY_AUTHORITY
 import net.nurik.roman.muzei.R
 import java.util.concurrent.Executors
 
@@ -111,9 +111,9 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
             return@Comparator -1
         }
         // The SourceArtProvider should always the last provider listed
-        if (p1.authority == SOURCES_AUTHORITY) {
+        if (p1.authority == LEGACY_AUTHORITY) {
             return@Comparator 1
-        } else if (p2.authority == SOURCES_AUTHORITY) {
+        } else if (p2.authority == LEGACY_AUTHORITY) {
             return@Comparator -1
         }
         // Then put providers from Muzei on top

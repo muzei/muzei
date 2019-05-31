@@ -53,14 +53,14 @@
     <string name="auto_advance_tasker">For exact control over what triggers your wallpaper to change, use the \'Next artwork\' action available in Tasker under Plugin -> Muzei and disable auto advance here.</string>
 
     <string name="action_activate">Activate</string>
-    <string name="action_souce_done">Done</string>
-    <string name="action_source_settings">Customize source</string>
-    <string name="action_source_target_too_high_title">This source is disabled</string>
-    <string name="action_source_target_too_high_message">%s is incompatible with Muzei\'s API. To use this source, the developer must change their targetSdkVersion to 25 or lower.</string>
-    <string name="action_source_target_too_high_send_feedback">Send %s feedback</string>
-    <string name="action_source_target_too_high_learn_more">Learn more</string>
-    <string name="action_source_target_too_high_dismiss">Got it</string>
-    <string name="source_unavailable">Your selected source is unavailable. Switching to the default source.</string>
+    <string name="legacy_source_selection_done">Done</string>
+    <string name="legacy_source_settings">Customize source</string>
+    <string name="legacy_source_target_too_high_title">This source is disabled</string>
+    <string name="legacy_source_target_too_high_message">%s is incompatible with Muzei\'s API. To use this source, the developer must change their targetSdkVersion to 25 or lower.</string>
+    <string name="legacy_source_target_too_high_send_feedback">Send %s feedback</string>
+    <string name="legacy_source_target_too_high_learn_more">Learn more</string>
+    <string name="legacy_source_target_too_high_dismiss">Got it</string>
+    <string name="legacy_source_unavailable">Your selected source is unavailable. Switching to the default source.</string>
 
     <string name="error_view_details">Couldn\'t view artwork details.</string>
     <string name="error_wallpaper_chooser">Couldn\'t launch wallpaper chooser. You can still activate Muzei by choosing \'Live Wallpapers\' in your home screen wallpaper picker.</string>
@@ -68,6 +68,7 @@
     <string name="section_choose_source">Sources</string>
     <string name="section_effects">Effects</string>
 
+    <string name="legacy_action_next_artwork">Next artwork</string>
     <string name="action_next_artwork">Next artwork</string>
     <string name="action_next_artwork_condensed">Next</string>
     <string name="action_user_command">More</string>
@@ -86,14 +87,14 @@
     <string name="tutorial_main">Open the Muzei app to see your wallpaper</string>
     <string name="tutorial_subtitle">Double touch the blurred wallpaper on your home screen to temporarily focus</string>
 
-    <string name="source_provider_name">Legacy Sources</string>
-    <string name="source_warning_title">Activate a Legacy Source?</string>
-    <string name="source_warning_message">Legacy Sources load on their own schedule and don\'t
+    <string name="legacy_source_provider_name">Legacy Sources</string>
+    <string name="legacy_source_warning_title">Activate a Legacy Source?</string>
+    <string name="legacy_source_warning_message">Legacy Sources load on their own schedule and don\'t
         use Auto Advance. This may lead to additional data usage if the Legacy Source does not
         have its own WiFi only setting.</string>
-    <string name="source_warning_positive">Continue</string>
-    <string name="source_warning_learn_more">Learn more</string>
-    <string name="source_warning_negative">Cancel</string>
+    <string name="legacy_source_warning_positive">Continue</string>
+    <string name="legacy_source_warning_learn_more">Learn more</string>
+    <string name="legacy_source_warning_negative">Cancel</string>
     <string name="get_more_sources">Get more sources</string>
     <string name="get_more_sources_description">Change your wallpaper entirely with
         additional sources installed from the Google Play Store</string>

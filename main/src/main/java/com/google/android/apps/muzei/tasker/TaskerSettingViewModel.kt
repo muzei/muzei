@@ -51,10 +51,10 @@ internal class TaskerSettingViewModel(
         }
         // The SourceArtProvider should always the last provider listed
         if (a1.action is SelectProviderAction &&
-                a1.action.authority == BuildConfig.SOURCES_AUTHORITY) {
+                a1.action.authority == BuildConfig.LEGACY_AUTHORITY) {
             return@Comparator 1
         } else if (a2.action is SelectProviderAction &&
-                a2.action.authority == BuildConfig.SOURCES_AUTHORITY) {
+                a2.action.authority == BuildConfig.LEGACY_AUTHORITY) {
             return@Comparator -1
         }
         // Then put providers from Muzei on top

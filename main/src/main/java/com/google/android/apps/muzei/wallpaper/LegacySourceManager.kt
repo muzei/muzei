@@ -38,7 +38,7 @@ import com.google.android.apps.muzei.sync.ProviderManager
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig
-import net.nurik.roman.muzei.BuildConfig.SOURCES_AUTHORITY
+import net.nurik.roman.muzei.BuildConfig.LEGACY_AUTHORITY
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -46,7 +46,7 @@ suspend fun Provider?.allowsNextArtwork(context: Context): Boolean {
     return when {
         this == null -> false
         supportsNextArtwork -> true
-        authority != SOURCES_AUTHORITY -> false
+        authority != LEGACY_AUTHORITY -> false
         else -> LegacySourceManager.getInstance(context).allowsNextArtwork()
     }
 }
@@ -113,7 +113,7 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
 
     override fun onCreate(owner: LifecycleOwner) {
         MuzeiDatabase.getInstance(applicationContext).providerDao().currentProvider.observe(owner) { provider ->
-            if (provider?.authority == SOURCES_AUTHORITY) {
+            if (provider?.authority == LEGACY_AUTHORITY) {
                 bindService()
             } else {
                 unbindService()
@@ -139,7 +139,7 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
     suspend fun nextArtwork() {
         val provider = MuzeiDatabase.getInstance(applicationContext)
                 .providerDao().getCurrentProvider()
-        if (provider?.authority == SOURCES_AUTHORITY) {
+        if (provider?.authority == LEGACY_AUTHORITY) {
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Sending Next Artwork message")
             }
