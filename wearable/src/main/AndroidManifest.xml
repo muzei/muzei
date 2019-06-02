@@ -88,7 +88,7 @@
             android:name="com.google.android.apps.muzei.ProviderChangedReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.google.android.apps.muzei.ACTION_PROVIDER_CHANGED"/>
+                <action android:name="com.google.android.apps.muzei.ACTION_SOURCE_CHANGED"/>
             </intent-filter>
         </receiver>
 
