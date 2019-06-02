@@ -30,10 +30,10 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.observe
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
+import com.google.android.apps.muzei.legacy.LegacySourceService
+import com.google.android.apps.muzei.legacy.LegacySourceServiceProtocol
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
-import com.google.android.apps.muzei.sources.LegacySourceService
-import com.google.android.apps.muzei.sources.LegacySourceServiceProtocol
 import com.google.android.apps.muzei.sync.ProviderManager
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

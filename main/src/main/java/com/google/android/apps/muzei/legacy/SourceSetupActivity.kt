@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.sources
+package com.google.android.apps.muzei.legacy
 
 import android.app.Activity
 import android.app.Dialog

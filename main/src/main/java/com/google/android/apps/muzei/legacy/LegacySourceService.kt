@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.sources
+package com.google.android.apps.muzei.legacy
 
 import android.content.BroadcastReceiver
 import android.content.ComponentName
@@ -46,6 +46,7 @@ import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_TOKEN
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Source
 import com.google.android.apps.muzei.room.sendAction
+import com.google.android.apps.muzei.sources.SourceSubscriberService
 import com.google.android.apps.muzei.util.goAsync
 import com.google.android.apps.muzei.util.toastFromBackground
 import com.google.firebase.analytics.FirebaseAnalytics

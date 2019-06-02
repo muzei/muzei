@@ -69,7 +69,7 @@
         </service>
 
         <provider
-            android:name="com.google.android.apps.muzei.sources.SourceArtProvider"
+            android:name="com.google.android.apps.muzei.legacy.SourceArtProvider"
             android:label="@string/legacy_source_provider_name"
             android:icon="@drawable/legacy_source_ic_launcher"
             android:authorities="${legacyAuthority}"
@@ -83,18 +83,18 @@
                        android:value="com.google.android.apps.muzei.sources.SourceSetupActivity" />
         </provider>
 
-        <service android:name="com.google.android.apps.muzei.sources.LegacySourceService"/>
+        <service android:name="com.google.android.apps.muzei.legacy.LegacySourceService"/>
 
         <service
             android:name="com.google.android.apps.muzei.sources.SourceSubscriberService"
             android:exported="true"
             tools:ignore="ExportedService"/>
 
-        <activity android:name="com.google.android.apps.muzei.sources.SourceSetupActivity"
+        <activity android:name="com.google.android.apps.muzei.legacy.SourceSetupActivity"
                   android:label="@string/legacy_source_provider_name"
                   android:theme="@style/Theme.Legacy.Transparent"
                   android:exported="true" />
-        <activity android:name="com.google.android.apps.muzei.sources.SourceSettingsActivity"
+        <activity android:name="com.google.android.apps.muzei.legacy.SourceSettingsActivity"
                   android:label="@string/legacy_source_provider_name"
                   android:theme="@style/Theme.Legacy.Transparent"
                   android:exported="true" />
