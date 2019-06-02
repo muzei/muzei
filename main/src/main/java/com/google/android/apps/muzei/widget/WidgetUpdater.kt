@@ -21,6 +21,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.observe
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
@@ -38,11 +39,11 @@ class WidgetUpdater(private val context: Context) : DefaultLifecycleObserver {
         database.providerDao().currentProvider.observe(owner) {
             updateAppWidget()
         }
-    }
-
-    override fun onDestroy(owner: LifecycleOwner) {
-        // Update the widget one last time to disable the 'Next' button until Muzei is reactivated
-        updateAppWidget()
+        // Update the widget whenever the wallpaper state is changed
+        // to ensure the 'Next' button is only shown when the wallpaper is active
+        WallpaperActiveState.observe(owner) {
+            updateAppWidget()
+        }
     }
 
     private fun updateAppWidget() {
