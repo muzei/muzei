@@ -59,16 +59,6 @@ import net.nurik.roman.muzei.R
 import java.util.HashSet
 import java.util.concurrent.Executors
 
-object LegacySourceServiceProtocol {
-    const val WHAT_REGISTER_REPLY_TO = 0
-    const val WHAT_UNREGISTER_REPLY_TO = 1
-    const val WHAT_NEXT_ARTWORK = 2
-    const val WHAT_ALLOWS_NEXT_ARTWORK = 3
-
-    const val WHAT_REPLY_TO_REPLACEMENT = 0
-    const val WHAT_REPLY_TO_NO_SELECTED_SOURCE = 1
-}
-
 /**
  * Class responsible for managing interactions with sources such as subscribing, unsubscribing, and sending actions.
  */
