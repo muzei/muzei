@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.room.converter
+package com.google.android.apps.muzei.legacy
 
 import android.util.Log
 import androidx.room.TypeConverter

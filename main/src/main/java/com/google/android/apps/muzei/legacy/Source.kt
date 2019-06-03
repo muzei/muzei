@@ -28,8 +28,6 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.google.android.apps.muzei.api.UserCommand
 import com.google.android.apps.muzei.api.internal.ProtocolConstants
-import com.google.android.apps.muzei.room.converter.ComponentNameTypeConverter
-import com.google.android.apps.muzei.room.converter.UserCommandTypeConverter
 import com.google.android.apps.muzei.util.toastFromBackground
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R

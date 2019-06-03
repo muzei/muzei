@@ -24,7 +24,6 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.TypeConverters
 import androidx.room.Update
-import com.google.android.apps.muzei.room.converter.ComponentNameTypeConverter
 
 /**
  * Dao for Sources
