@@ -20,6 +20,8 @@ package com.google.android.apps.muzei.legacy
  * Constants used as the protocol to communicate with the LegacySourceService.
  */
 object LegacySourceServiceProtocol {
+    const val LEGACY_SOURCE_ACTION = "com.google.android.apps.muzei.legacy"
+
     const val WHAT_REGISTER_REPLY_TO = 0
     const val WHAT_UNREGISTER_REPLY_TO = 1
     const val WHAT_NEXT_ARTWORK = 2

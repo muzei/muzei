@@ -30,7 +30,6 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.observe
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
-import com.google.android.apps.muzei.legacy.LegacySourceService
 import com.google.android.apps.muzei.legacy.LegacySourceServiceProtocol
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
@@ -123,9 +122,24 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
 
     private fun bindService() {
         if (messenger == null) {
+            val pm = applicationContext.packageManager
+            val serviceInfo = pm.queryIntentServices(
+                    Intent(LegacySourceServiceProtocol.LEGACY_SOURCE_ACTION), 0)
+                    ?.get(0)
+                    ?.serviceInfo
+            if (serviceInfo == null) {
+                if (BuildConfig.DEBUG) {
+                    Log.e(TAG, "Could not find LegacySourceService")
+                }
+                return
+            }
             val binding = applicationContext.bindService(
-                    Intent(applicationContext, LegacySourceService::class.java),
-                    serviceConnection, Context.BIND_AUTO_CREATE)
+                    Intent().apply { component = ComponentName(
+                            serviceInfo.packageName,
+                            serviceInfo.name
+                    )},
+                    serviceConnection,
+                    Context.BIND_AUTO_CREATE)
             if (BuildConfig.DEBUG) {
                 if (binding) {
                     Log.d(TAG, "Binding to LegacySourceService")

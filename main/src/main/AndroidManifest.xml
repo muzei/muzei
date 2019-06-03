@@ -83,7 +83,13 @@
                        android:value="com.google.android.apps.muzei.legacy.SourceSetupActivity" />
         </provider>
 
-        <service android:name="com.google.android.apps.muzei.legacy.LegacySourceService"/>
+        <service
+            android:name="com.google.android.apps.muzei.legacy.LegacySourceService"
+            android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER">
+            <intent-filter>
+                <action android:name="com.google.android.apps.muzei.legacy"/>
+            </intent-filter>
+        </service>
 
         <service
             android:name="com.google.android.apps.muzei.sources.SourceSubscriberService"
