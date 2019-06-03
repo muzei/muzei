@@ -1,5 +1,6 @@
 include ':muzei-api'
 include ':extensions'
+include ':legacy-common'
 include ':android-client-common'
 include ':source-featured-art'
 include ':source-gallery'

@@ -133,6 +133,7 @@ dependencies {
 
     implementation project(':muzei-api')
     implementation project(':extensions')
+    implementation project(':legacy-common')
     implementation project(':android-client-common')
     implementation project(':source-featured-art')
     implementation project(':source-gallery')
