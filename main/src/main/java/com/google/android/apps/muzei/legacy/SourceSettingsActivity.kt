@@ -50,8 +50,6 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.observe
 import com.google.android.apps.muzei.api.MuzeiArtSource
-import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.room.Source
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.GlobalScope
@@ -74,7 +72,7 @@ class SourceSettingsActivity : AppCompatActivity() {
     }
 
     private val sourcesLiveData: LiveData<List<Source>> by lazy {
-        MuzeiDatabase.getInstance(this).sourceDao().sources
+        LegacyDatabase.getInstance(this).sourceDao().sources
     }
 
     private val adapter by lazy {

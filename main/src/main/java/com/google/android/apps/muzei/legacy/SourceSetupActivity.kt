@@ -26,7 +26,6 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
 import com.google.android.apps.muzei.api.MuzeiArtSource
-import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import net.nurik.roman.muzei.R
 
@@ -46,7 +45,7 @@ class SourceSetupActivity : AppCompatActivity() {
     override fun onAttachFragment(fragment: Fragment) {
         if (fragment is SourceWarningDialogFragment) {
             fragment.positiveListener = {
-                MuzeiDatabase.getInstance(this).sourceDao().currentSource.observe(this) { source ->
+                LegacyDatabase.getInstance(this).sourceDao().currentSource.observe(this) { source ->
                     if (source != null) {
                         setResult(Activity.RESULT_OK)
                         finish()

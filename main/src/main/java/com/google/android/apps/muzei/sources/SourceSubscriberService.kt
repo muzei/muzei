@@ -28,8 +28,8 @@ import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_TOKEN
 import com.google.android.apps.muzei.api.internal.SourceState
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.ProviderContract
-import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.room.SourceDao
+import com.google.android.apps.muzei.legacy.LegacyDatabase
+import com.google.android.apps.muzei.legacy.SourceDao
 import kotlinx.coroutines.runBlocking
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.BuildConfig.LEGACY_AUTHORITY
@@ -51,7 +51,7 @@ class SourceSubscriberService : IntentService("SourceSubscriberService") {
             SourceState.fromBundle(this)
         } ?: return // If there's no state, there's nothing to change
 
-        val database = MuzeiDatabase.getInstance(this)
+        val database = LegacyDatabase.getInstance(this)
         runBlocking {
             database.withTransaction {
                 update(database.sourceDao(), token, state)

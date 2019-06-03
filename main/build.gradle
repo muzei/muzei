@@ -47,6 +47,13 @@ android {
         buildConfigField "String", "LEGACY_AUTHORITY", "\"${legacyAuthorityValue}\""
 
         buildConfigField "String", "DEVICE_TYPE", "\"android\""
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation":
+                                     "$projectDir/schemas".toString()]
+            }
+        }
     }
 
     signingConfigs {
@@ -121,6 +128,8 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
     implementation "androidx.navigation:navigation-fragment-ktx:$navigationVersion"
     implementation "androidx.navigation:navigation-ui-ktx:$navigationVersion"
+    implementation "androidx.room:room-ktx:$roomVersion"
+    kapt "androidx.room:room-compiler:$roomVersion"
 
     implementation project(':muzei-api')
     implementation project(':extensions')

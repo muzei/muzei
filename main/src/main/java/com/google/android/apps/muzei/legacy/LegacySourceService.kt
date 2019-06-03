@@ -44,7 +44,6 @@ import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_SUBSC
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_SUBSCRIBER_COMPONENT
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_TOKEN
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.room.Source
 import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.sources.SourceSubscriberService
 import com.google.android.apps.muzei.util.goAsync
@@ -74,7 +73,7 @@ class LegacySourceService : LifecycleService() {
                 context: Context,
                 source: ComponentName
         ): Source {
-            val database = MuzeiDatabase.getInstance(context)
+            val database = LegacyDatabase.getInstance(context)
             val selectedSource = database.sourceDao().getCurrentSource()
             if (source == selectedSource?.componentName) {
                 return selectedSource
@@ -119,10 +118,11 @@ class LegacySourceService : LifecycleService() {
                     replyToMessenger = message.replyTo
                 }
                 LegacySourceServiceProtocol.WHAT_NEXT_ARTWORK -> lifecycleScope.launch(singleThreadContext) {
-                    val database = MuzeiDatabase.getInstance(applicationContext)
+                    val database = LegacyDatabase.getInstance(applicationContext)
                     val source = database.sourceDao().getCurrentSource()
                     if (source?.supportsNextArtwork == true) {
-                        val artwork = database.artworkDao().getCurrentArtwork()
+                        val artwork = MuzeiDatabase.getInstance(applicationContext)
+                                .artworkDao().getCurrentArtwork()
                         artwork?.sendAction(applicationContext,
                                 MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK)
                     }
@@ -130,7 +130,7 @@ class LegacySourceService : LifecycleService() {
                 LegacySourceServiceProtocol.WHAT_ALLOWS_NEXT_ARTWORK -> {
                     val replyMessenger = message.replyTo
                     lifecycleScope.launch(singleThreadContext) {
-                        val allowsNextArtwork = MuzeiDatabase.getInstance(applicationContext)
+                        val allowsNextArtwork = LegacyDatabase.getInstance(applicationContext)
                                 .sourceDao().getCurrentSource()?.supportsNextArtwork == true
                         replyMessenger.send(Message.obtain().apply {
                             arg1 = if (allowsNextArtwork) 1 else 0
@@ -157,14 +157,14 @@ class LegacySourceService : LifecycleService() {
             }
             if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
                 goAsync {
-                    val source = MuzeiDatabase.getInstance(context)
+                    val source = LegacyDatabase.getInstance(context)
                             .sourceDao().getCurrentSource()
                     if (source != null && packageName == source.componentName.packageName) {
                         try {
                             context.packageManager.getServiceInfo(source.componentName, 0)
                         } catch (e: PackageManager.NameNotFoundException) {
                             Log.i(TAG, "Selected source ${source.componentName} is no longer available")
-                            MuzeiDatabase.getInstance(context).sourceDao().delete(source)
+                            LegacyDatabase.getInstance(context).sourceDao().delete(source)
                             return@goAsync
                         }
 
@@ -183,7 +183,7 @@ class LegacySourceService : LifecycleService() {
             queryIntent.`package` = packageName
         }
         val pm = packageManager
-        val database = MuzeiDatabase.getInstance(this)
+        val database = LegacyDatabase.getInstance(this)
         database.withTransaction {
             val existingSources = HashSet(if (packageName != null)
                 database.sourceDao().getSourcesComponentNamesByPackageName(packageName)
@@ -220,10 +220,10 @@ class LegacySourceService : LifecycleService() {
     }
 
     private inner class SubscriberLiveData internal constructor() : MediatorLiveData<Source>() {
-        private var currentSource: com.google.android.apps.muzei.room.Source? = null
+        private var currentSource: com.google.android.apps.muzei.legacy.Source? = null
 
         init {
-            addSource<com.google.android.apps.muzei.room.Source>(MuzeiDatabase.getInstance(this@LegacySourceService)
+            addSource<com.google.android.apps.muzei.legacy.Source>(LegacyDatabase.getInstance(this@LegacySourceService)
                     .sourceDao().currentSource) { source ->
                 if (currentSource != null && source != null &&
                         currentSource?.componentName == source.componentName) {
@@ -262,7 +262,7 @@ class LegacySourceService : LifecycleService() {
             sendSelectedSourceAnalytics(source.componentName)
         }
         var currentSource: Source? = null
-        MuzeiDatabase.getInstance(this).sourceDao().currentSource.observe(this) { source ->
+        LegacyDatabase.getInstance(this).sourceDao().currentSource.observe(this) { source ->
             if (currentSource != null && source == null) {
                 // The selected source has been removed or was otherwise deselected
                 replyToMessenger?.send(Message.obtain().apply {
@@ -290,7 +290,7 @@ class LegacySourceService : LifecycleService() {
         val pm = packageManager
         val metaData = info.metaData
         val componentName = ComponentName(info.packageName, info.name)
-        val sourceDao = MuzeiDatabase.getInstance(this).sourceDao()
+        val sourceDao = LegacyDatabase.getInstance(this).sourceDao()
         val existingSource = sourceDao.getSourceByComponentName(componentName)
         if (metaData != null && metaData.containsKey("replacement")) {
             // Skip sources having a replacement MuzeiArtProvider that should be used instead
@@ -427,16 +427,16 @@ class LegacySourceService : LifecycleService() {
         } catch (e: PackageManager.NameNotFoundException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
             toastFromBackground(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
-            MuzeiDatabase.getInstance(this@LegacySourceService).sourceDao().delete(this)
+            LegacyDatabase.getInstance(this@LegacySourceService).sourceDao().delete(this)
         } catch (e: IllegalStateException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
             toastFromBackground(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
-            MuzeiDatabase.getInstance(this@LegacySourceService).sourceDao()
+            LegacyDatabase.getInstance(this@LegacySourceService).sourceDao()
                     .update(apply { selected = false })
         } catch (e: SecurityException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
             toastFromBackground(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
-            MuzeiDatabase.getInstance(this@LegacySourceService).sourceDao()
+            LegacyDatabase.getInstance(this@LegacySourceService).sourceDao()
                     .update(apply { selected = false })
         }
     }

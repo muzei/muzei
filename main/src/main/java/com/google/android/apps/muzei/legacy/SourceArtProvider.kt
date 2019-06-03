@@ -28,7 +28,6 @@ import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_HANDL
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_COMMAND_ID
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
-import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -58,7 +57,7 @@ class SourceArtProvider : MuzeiArtProvider() {
     }
 
     override fun getDescription(): String = context?.let { context ->
-        MuzeiDatabase.getInstance(context).sourceDao().currentSourceBlocking?.run {
+        LegacyDatabase.getInstance(context).sourceDao().currentSourceBlocking?.run {
             listOf(label, displayDescription)
                     .asSequence()
                     .filterNot { it.isNullOrEmpty() }
@@ -68,7 +67,7 @@ class SourceArtProvider : MuzeiArtProvider() {
 
     @SuppressLint("Range")
     override fun getCommands(artwork: Artwork): List<UserCommand> = context?.let { context ->
-        MuzeiDatabase.getInstance(context).sourceDao().currentSourceBlocking?.run {
+        LegacyDatabase.getInstance(context).sourceDao().currentSourceBlocking?.run {
             mutableListOf<UserCommand>().apply {
                 if (supportsNextArtwork) {
                     add(UserCommand(MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK,
@@ -88,7 +87,7 @@ class SourceArtProvider : MuzeiArtProvider() {
 
     private fun sendAction(id: Int) = GlobalScope.launch(Dispatchers.Main) {
         val context = context ?: return@launch
-        MuzeiDatabase.getInstance(context).sourceDao().getCurrentSource()?.run {
+        LegacyDatabase.getInstance(context).sourceDao().getCurrentSource()?.run {
             try {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "Sending command $id to ${this}")
@@ -101,16 +100,16 @@ class SourceArtProvider : MuzeiArtProvider() {
             } catch (e: PackageManager.NameNotFoundException) {
                 Log.i(TAG, "Sending action $id to $componentName failed as it is no longer available", e)
                 context.toast(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
-                MuzeiDatabase.getInstance(context).sourceDao().delete(this)
+                LegacyDatabase.getInstance(context).sourceDao().delete(this)
             } catch (e: IllegalStateException) {
                 Log.i(TAG, "Sending action $id to $componentName failed; unselecting it.", e)
                 context.toast(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
-                MuzeiDatabase.getInstance(context).sourceDao()
+                LegacyDatabase.getInstance(context).sourceDao()
                         .update(apply { selected = false })
             } catch (e: SecurityException) {
                 Log.i(TAG, "Sending action $id to $componentName failed; unselecting it.", e)
                 context.toast(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
-                MuzeiDatabase.getInstance(context).sourceDao()
+                LegacyDatabase.getInstance(context).sourceDao()
                         .update(apply { selected = false })
             }
         }

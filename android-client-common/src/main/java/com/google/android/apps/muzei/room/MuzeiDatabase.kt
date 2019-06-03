@@ -34,10 +34,8 @@ import java.io.File
 /**
  * Room Database for Muzei
  */
-@Database(entities = [(Artwork::class), (Source::class), (Provider::class)], version = 8)
+@Database(entities = [(Artwork::class), (Provider::class)], version = 9)
 abstract class MuzeiDatabase : RoomDatabase() {
-
-    abstract fun sourceDao(): SourceDao
 
     abstract fun providerDao(): ProviderDao
 
@@ -59,7 +57,8 @@ abstract class MuzeiDatabase : RoomDatabase() {
                                 MIGRATION_4_5,
                                 MIGRATION_5_6,
                                 Migration6to8(applicationContext),
-                                Migration7to8(applicationContext))
+                                Migration7to8(applicationContext),
+                                MIGRATION_8_9)
                         .build().also { database ->
                             database.invalidationTracker.addObserver(
                                     object : InvalidationTracker.Observer("artwork") {
@@ -355,6 +354,13 @@ abstract class MuzeiDatabase : RoomDatabase() {
                 database.execSQL("DROP TABLE artwork")
                 database.execSQL("ALTER TABLE artwork2 RENAME TO artwork")
                 database.execSQL("CREATE INDEX index_Artwork_providerAuthority " + "ON artwork (providerAuthority)")
+            }
+        }
+
+        private val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Drop the legacy source table
+                database.execSQL("DROP TABLE sources")
             }
         }
     }

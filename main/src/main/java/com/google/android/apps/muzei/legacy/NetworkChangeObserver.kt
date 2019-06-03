@@ -26,7 +26,6 @@ import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_NETWORK_AVAILABLE
-import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.goAsync
 
 /**
@@ -47,7 +46,7 @@ class NetworkChangeObserver internal constructor(private val context: Context) :
             }
 
             goAsync {
-                val sources = MuzeiDatabase.getInstance(context).sourceDao()
+                val sources = LegacyDatabase.getInstance(context).sourceDao()
                         .getCurrentSourcesThatWantNetwork()
                 for (source in sources) {
                     val sourceName = source.componentName
