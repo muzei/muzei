@@ -43,8 +43,6 @@ import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_SUBSCRIBE
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_SUBSCRIBER_COMPONENT
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_TOKEN
-import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.sources.SourceSubscriberService
 import com.google.android.apps.muzei.util.goAsync
 import com.google.android.apps.muzei.util.toastFromBackground
@@ -121,9 +119,7 @@ class LegacySourceService : LifecycleService() {
                     val database = LegacyDatabase.getInstance(applicationContext)
                     val source = database.sourceDao().getCurrentSource()
                     if (source?.supportsNextArtwork == true) {
-                        val artwork = MuzeiDatabase.getInstance(applicationContext)
-                                .artworkDao().getCurrentArtwork()
-                        artwork?.sendAction(applicationContext,
+                        source.sendAction(this@LegacySourceService,
                                 MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK)
                     }
                 }

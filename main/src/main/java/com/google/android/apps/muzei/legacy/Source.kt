@@ -17,13 +17,22 @@
 package com.google.android.apps.muzei.legacy
 
 import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.util.Log
+import android.widget.Toast
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.google.android.apps.muzei.api.UserCommand
+import com.google.android.apps.muzei.api.internal.ProtocolConstants
 import com.google.android.apps.muzei.room.converter.ComponentNameTypeConverter
 import com.google.android.apps.muzei.room.converter.UserCommandTypeConverter
+import com.google.android.apps.muzei.util.toastFromBackground
+import net.nurik.roman.muzei.BuildConfig
+import net.nurik.roman.muzei.R
 import java.util.ArrayList
 
 /**
@@ -63,4 +72,33 @@ class Source(
 
     @TypeConverters(UserCommandTypeConverter::class)
     var commands: MutableList<UserCommand> = ArrayList()
+}
+
+private const val TAG = "Source"
+
+suspend fun Source.sendAction(context: Context, id: Int) {
+    try {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Sending command $id to ${this}")
+        }
+        // Ensure that we have a valid service before sending the action
+        context.packageManager.getServiceInfo(componentName, 0)
+        context.startService(Intent(ProtocolConstants.ACTION_HANDLE_COMMAND)
+                .setComponent(componentName)
+                .putExtra(ProtocolConstants.EXTRA_COMMAND_ID, id))
+    } catch (e: PackageManager.NameNotFoundException) {
+        Log.i(TAG, "Sending action $id to $componentName failed as it is no longer available", e)
+        context.toastFromBackground(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
+        LegacyDatabase.getInstance(context).sourceDao().delete(this)
+    } catch (e: IllegalStateException) {
+        Log.i(TAG, "Sending action $id to $componentName failed; unselecting it.", e)
+        context.toastFromBackground(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
+        LegacyDatabase.getInstance(context).sourceDao()
+                .update(apply { selected = false })
+    } catch (e: SecurityException) {
+        Log.i(TAG, "Sending action $id to $componentName failed; unselecting it.", e)
+        context.toastFromBackground(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
+        LegacyDatabase.getInstance(context).sourceDao()
+                .update(apply { selected = false })
+    }
 }
