@@ -71,6 +71,9 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
         }
     }
 
+    private val currentProviderLiveData = MuzeiDatabase.getInstance(applicationContext)
+            .providerDao().currentProvider
+
     private val replyToMessenger by lazy {
         Messenger(Handler(Looper.getMainLooper()) { message ->
             when (message.what) {
@@ -89,14 +92,15 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
     }
 
     private var messenger: Messenger? = null
+    private var registered = false
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
             messenger = Messenger(service).also {
-                it.send(Message.obtain().apply {
-                    what = LegacySourceServiceProtocol.WHAT_REGISTER_REPLY_TO
-                    replyTo = replyToMessenger
-                })
+                if (currentProviderLiveData.value?.authority == LEGACY_AUTHORITY) {
+                    // Register immediately if the legacy art provider is selected
+                    register()
+                }
             }
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Bound to LegacySourceService")
@@ -111,11 +115,12 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
     }
 
     override fun onCreate(owner: LifecycleOwner) {
+        bindService()
         MuzeiDatabase.getInstance(applicationContext).providerDao().currentProvider.observe(owner) { provider ->
             if (provider?.authority == LEGACY_AUTHORITY) {
-                bindService()
+                register()
             } else {
-                unbindService()
+                unregister()
             }
         }
     }
@@ -150,6 +155,18 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
         }
     }
 
+    private fun register() {
+        // Only register if we're connected
+        val messenger = this.messenger ?: return
+        if (!registered) {
+            registered = true
+            messenger.send(Message.obtain().apply {
+                what = LegacySourceServiceProtocol.WHAT_REGISTER_REPLY_TO
+                replyTo = replyToMessenger
+            })
+        }
+    }
+
     suspend fun nextArtwork() {
         val provider = MuzeiDatabase.getInstance(applicationContext)
                 .providerDao().getCurrentProvider()
@@ -180,11 +197,20 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
         }
     }
 
-    private fun unbindService() {
-        if (messenger != null) {
-            messenger?.send(Message.obtain().apply {
+    private fun unregister() {
+        // Only unregister if we're connected
+        val messenger = this.messenger ?: return
+        if (registered) {
+            messenger.send(Message.obtain().apply {
                 what = LegacySourceServiceProtocol.WHAT_UNREGISTER_REPLY_TO
             })
+            registered = false
+        }
+    }
+
+    private fun unbindService() {
+        if (messenger != null) {
+            unregister()
             applicationContext.unbindService(serviceConnection)
             messenger = null
             if (BuildConfig.DEBUG) {

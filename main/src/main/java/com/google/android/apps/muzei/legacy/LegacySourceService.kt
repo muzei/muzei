@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.legacy
 
+import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
@@ -34,7 +35,8 @@ import android.text.TextUtils
 import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
@@ -59,7 +61,7 @@ import java.util.concurrent.Executors
 /**
  * Class responsible for managing interactions with sources such as subscribing, unsubscribing, and sending actions.
  */
-class LegacySourceService : LifecycleService() {
+class LegacySourceService : Service(), LifecycleOwner {
 
     companion object {
         private const val TAG = "LegacySourceService"
@@ -101,6 +103,8 @@ class LegacySourceService : LifecycleService() {
         }
     }
 
+    private val lifecycleRegistry = LifecycleRegistry(this)
+
     private val singleThreadContext by lazy {
         Executors.newSingleThreadExecutor { target ->
             Thread(target, "LegacySourceService")
@@ -114,6 +118,7 @@ class LegacySourceService : LifecycleService() {
             when (message.what) {
                 LegacySourceServiceProtocol.WHAT_REGISTER_REPLY_TO -> {
                     replyToMessenger = message.replyTo
+                    lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
                 }
                 LegacySourceServiceProtocol.WHAT_NEXT_ARTWORK -> lifecycleScope.launch(singleThreadContext) {
                     val database = LegacyDatabase.getInstance(applicationContext)
@@ -134,6 +139,7 @@ class LegacySourceService : LifecycleService() {
                     }
                 }
                 LegacySourceServiceProtocol.WHAT_UNREGISTER_REPLY_TO -> {
+                    lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
                     replyToMessenger = null
                 }
             }
@@ -247,13 +253,15 @@ class LegacySourceService : LifecycleService() {
         lifecycle.addObserver(NetworkChangeObserver(this))
     }
 
+    override fun getLifecycle() = lifecycleRegistry
+
     override fun onBind(intent: Intent): IBinder? {
-        super.onBind(intent)
         return messenger.binder
     }
 
     override fun onCreate() {
         super.onCreate()
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
         SubscriberLiveData().observe(this) { source ->
             sendSelectedSourceAnalytics(source.componentName)
         }
@@ -386,8 +394,9 @@ class LegacySourceService : LifecycleService() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         unregisterReceiver(sourcePackageChangeReceiver)
+        super.onDestroy()
     }
 
     private fun sendSelectedSourceAnalytics(selectedSource: ComponentName) {
