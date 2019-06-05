@@ -38,8 +38,8 @@ class UnsplashExampleWorker(
     companion object {
         private const val TAG = "UnsplashExample"
 
-        internal fun enqueueLoad() {
-            val workManager = WorkManager.getInstance()
+        internal fun enqueueLoad(context: Context) {
+            val workManager = WorkManager.getInstance(context)
             workManager.enqueue(OneTimeWorkRequestBuilder<UnsplashExampleWorker>()
                     .setConstraints(Constraints.Builder()
                             .setRequiredNetworkType(NetworkType.CONNECTED)

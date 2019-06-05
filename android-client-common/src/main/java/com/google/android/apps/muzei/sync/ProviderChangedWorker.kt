@@ -66,8 +66,8 @@ class ProviderChangedWorker(
         private const val PREF_PERSISTENT_LISTENERS = "persistentListeners"
         private const val PROVIDER_CHANGED_THROTTLE = 250L // quarter second
 
-        internal fun enqueueSelected() {
-            val workManager = WorkManager.getInstance()
+        internal fun enqueueSelected(context: Context) {
+            val workManager = WorkManager.getInstance(context)
             // Cancel changed work for the old provider
             workManager.cancelUniqueWork("changed")
             workManager.enqueue(OneTimeWorkRequestBuilder<ProviderChangedWorker>()
@@ -75,8 +75,8 @@ class ProviderChangedWorker(
                     .build())
         }
 
-        internal fun enqueueChanged() {
-            val workManager = WorkManager.getInstance()
+        internal fun enqueueChanged(context: Context) {
+            val workManager = WorkManager.getInstance(context)
             workManager.enqueueUniqueWork("changed", ExistingWorkPolicy.REPLACE,
                     OneTimeWorkRequestBuilder<ProviderChangedWorker>()
                             .setInitialDelay(PROVIDER_CHANGED_THROTTLE, TimeUnit.MILLISECONDS)
@@ -113,7 +113,7 @@ class ProviderChangedWorker(
                 putStringSet(PREF_PERSISTENT_LISTENERS, persistentListeners)
             }
             if (persistentListeners.isEmpty()) {
-                cancelObserver()
+                cancelObserver(context)
             }
         }
 
@@ -124,7 +124,7 @@ class ProviderChangedWorker(
                     HashSet()) ?: HashSet()
             if (persistentListeners.isNotEmpty()) {
                 if (listening) {
-                    cancelObserver()
+                    cancelObserver(context)
                 } else {
                     startListening(context)
                 }
@@ -149,7 +149,7 @@ class ProviderChangedWorker(
                                 if (!providerManager.hasActiveObservers()) {
                                     val contentUri = ProviderContract.getContentUri(
                                             provider.authority)
-                                    scheduleObserver(contentUri)
+                                    scheduleObserver(context, contentUri)
                                 }
                             }
                         })
@@ -157,8 +157,8 @@ class ProviderChangedWorker(
         }
 
         @RequiresApi(Build.VERSION_CODES.N)
-        private fun scheduleObserver(contentUri: Uri) {
-            val workManager = WorkManager.getInstance()
+        private fun scheduleObserver(context: Context, contentUri: Uri) {
+            val workManager = WorkManager.getInstance(context)
             workManager.enqueue(OneTimeWorkRequestBuilder<ProviderChangedWorker>()
                     .addTag(PERSISTENT_CHANGED_TAG)
                     .setInputData(workDataOf(
@@ -170,8 +170,8 @@ class ProviderChangedWorker(
                     .build())
         }
 
-        private fun cancelObserver() {
-            val workManager = WorkManager.getInstance()
+        private fun cancelObserver(context: Context) {
+            val workManager = WorkManager.getInstance(context)
             workManager.cancelAllWorkByTag(PERSISTENT_CHANGED_TAG)
         }
     }
@@ -183,7 +183,7 @@ class ProviderChangedWorker(
         if (tag == PERSISTENT_CHANGED_TAG &&
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             inputData.getString(EXTRA_CONTENT_URI)?.toUri()?.run {
-                scheduleObserver(this)
+                scheduleObserver(applicationContext, this)
             }
         }
         // Now actually handle the provider change
@@ -212,7 +212,7 @@ class ProviderChangedWorker(
                             if (BuildConfig.DEBUG) {
                                 Log.d(TAG, "Scheduling an immediate load")
                             }
-                            ArtworkLoadWorker.enqueueNext()
+                            ArtworkLoadWorker.enqueueNext(applicationContext)
                             enqueued = true
                         }
                     } else if (loadFrequencySeconds > 0) {
@@ -220,7 +220,8 @@ class ProviderChangedWorker(
                         if (BuildConfig.DEBUG) {
                             Log.d(TAG, "Scheduling periodic load")
                         }
-                        ArtworkLoadWorker.enqueuePeriodic(loadFrequencySeconds,
+                        ArtworkLoadWorker.enqueuePeriodic(applicationContext,
+                                loadFrequencySeconds,
                                 providerManager.loadOnWifi)
                         enqueued = true
                     }

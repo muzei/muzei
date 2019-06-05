@@ -45,8 +45,8 @@ class ArtworkComplicationWorker(
     companion object {
         private const val TAG = "ArtworkComplication"
 
-        internal fun scheduleComplicationUpdate() {
-            val workManager = WorkManager.getInstance()
+        internal fun scheduleComplicationUpdate(context: Context) {
+            val workManager = WorkManager.getInstance(context)
             workManager.enqueueUniqueWork(TAG, ExistingWorkPolicy.REPLACE,
                     OneTimeWorkRequestBuilder<ArtworkComplicationWorker>()
                             .setConstraints(Constraints.Builder()
@@ -58,8 +58,8 @@ class ArtworkComplicationWorker(
             }
         }
 
-        internal fun cancelComplicationUpdate() {
-            val workManager = WorkManager.getInstance()
+        internal fun cancelComplicationUpdate(context: Context) {
+            val workManager = WorkManager.getInstance(context)
             workManager.cancelUniqueWork(TAG)
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Work cancelled")
@@ -77,7 +77,7 @@ class ArtworkComplicationWorker(
             providerUpdateRequester.requestUpdate(*complicationSet.map { Integer.parseInt(it) }.toIntArray())
         }
         // Reschedule the job to listen for the next change
-        scheduleComplicationUpdate()
+        scheduleComplicationUpdate(applicationContext)
         return Result.success()
     }
 }

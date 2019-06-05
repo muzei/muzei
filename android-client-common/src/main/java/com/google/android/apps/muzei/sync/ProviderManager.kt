@@ -145,9 +145,9 @@ class ProviderManager private constructor(private val context: Context)
                 putLong(PREF_LOAD_FREQUENCY_SECONDS, newLoadFrequency)
             }
             if (newLoadFrequency > 0) {
-                ArtworkLoadWorker.enqueuePeriodic(newLoadFrequency, loadOnWifi)
+                ArtworkLoadWorker.enqueuePeriodic(context, newLoadFrequency, loadOnWifi)
             } else {
-                ArtworkLoadWorker.cancelPeriodic()
+                ArtworkLoadWorker.cancelPeriodic(context)
             }
         }
         get() = PreferenceManager.getDefaultSharedPreferences(context)
@@ -159,7 +159,7 @@ class ProviderManager private constructor(private val context: Context)
                 putBoolean(PREF_LOAD_ON_WIFI, newLoadOnWifi)
             }
             if (loadFrequencySeconds > 0) {
-                ArtworkLoadWorker.enqueuePeriodic(loadFrequencySeconds, newLoadOnWifi)
+                ArtworkLoadWorker.enqueuePeriodic(context, loadFrequencySeconds, newLoadOnWifi)
             }
         }
         get() = PreferenceManager.getDefaultSharedPreferences(context)
@@ -171,7 +171,7 @@ class ProviderManager private constructor(private val context: Context)
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "onChange for $uri")
                 }
-                ProviderChangedWorker.enqueueChanged()
+                ProviderChangedWorker.enqueueChanged(context)
             }
         }
     }
@@ -225,7 +225,7 @@ class ProviderManager private constructor(private val context: Context)
                 val contentUri = ProviderContract.getContentUri(currentSource.authority)
                 context.contentResolver.registerContentObserver(
                         contentUri, true, contentObserver)
-                ProviderChangedWorker.enqueueSelected()
+                ProviderChangedWorker.enqueueSelected(context)
             }
         }
     }
@@ -248,7 +248,7 @@ class ProviderManager private constructor(private val context: Context)
         artworkLiveData.removeObserver(artworkObserver)
         providerLiveData.removeObserver(this)
         context.contentResolver.unregisterContentObserver(contentObserver)
-        ArtworkLoadWorker.cancelPeriodic()
+        ArtworkLoadWorker.cancelPeriodic(context)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             ProviderChangedWorker.activeListeningStateChanged(context, false)
@@ -260,6 +260,6 @@ class ProviderManager private constructor(private val context: Context)
     }
 
     fun nextArtwork() {
-        ArtworkLoadWorker.enqueueNext()
+        ArtworkLoadWorker.enqueueNext(context)
     }
 }

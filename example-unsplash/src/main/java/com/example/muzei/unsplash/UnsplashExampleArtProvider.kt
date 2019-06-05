@@ -35,7 +35,8 @@ class UnsplashExampleArtProvider : MuzeiArtProvider() {
     }
 
     override fun onLoadRequested(initial: Boolean) {
-        UnsplashExampleWorker.enqueueLoad()
+        val context = context ?: return
+        UnsplashExampleWorker.enqueueLoad(context)
     }
 
     override fun getCommands(artwork: Artwork) = context?.run {

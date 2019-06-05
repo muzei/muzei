@@ -28,7 +28,8 @@ import java.io.InputStream
 
 class GalleryArtProvider: MuzeiArtProvider() {
     override fun onLoadRequested(initial: Boolean) {
-        GalleryScanWorker.enqueueRescan()
+        val context = context ?: return
+        GalleryScanWorker.enqueueRescan(context)
     }
 
     @SuppressLint("Recycle")

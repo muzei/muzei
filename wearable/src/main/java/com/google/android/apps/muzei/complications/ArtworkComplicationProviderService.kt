@@ -79,7 +79,7 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "addComplication: $complications")
         }
-        ArtworkComplicationWorker.scheduleComplicationUpdate()
+        ArtworkComplicationWorker.scheduleComplicationUpdate(this)
     }
 
     override fun onComplicationDeactivated(complicationId: Int) {
@@ -96,7 +96,7 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
             Log.d(TAG, "Current complications: $complications")
         }
         if (complications.isEmpty()) {
-            ArtworkComplicationWorker.cancelComplicationUpdate()
+            ArtworkComplicationWorker.cancelComplicationUpdate(this)
             ProviderChangedWorker.removePersistentListener(this, "complication_artwork")
             ProviderChangedReceiver.onVisibleChanged(this)
         }

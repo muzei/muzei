@@ -66,17 +66,18 @@ class ArtworkLoadWorker(
         private const val PERIODIC_TAG = "ArtworkLoadPeriodic"
         private const val ARTWORK_LOAD_THROTTLE = 250L // quarter second
 
-        internal fun enqueueNext() {
-            val workManager = WorkManager.getInstance()
+        internal fun enqueueNext(context: Context) {
+            val workManager = WorkManager.getInstance(context)
             workManager.enqueueUniqueWork(TAG, ExistingWorkPolicy.REPLACE,
                     OneTimeWorkRequestBuilder<ArtworkLoadWorker>().build())
         }
 
         internal fun enqueuePeriodic(
+                context: Context,
                 loadFrequencySeconds: Long,
                 loadOnWifi: Boolean
         ) {
-            val workManager = WorkManager.getInstance()
+            val workManager = WorkManager.getInstance(context)
             workManager.enqueueUniquePeriodicWork(PERIODIC_TAG, ExistingPeriodicWorkPolicy.REPLACE,
                     PeriodicWorkRequestBuilder<ArtworkLoadWorker>(
                             loadFrequencySeconds, TimeUnit.SECONDS,
@@ -91,8 +92,8 @@ class ArtworkLoadWorker(
                             .build())
         }
 
-        fun cancelPeriodic() {
-            val workManager = WorkManager.getInstance()
+        fun cancelPeriodic(context: Context) {
+            val workManager = WorkManager.getInstance(context)
             workManager.cancelUniqueWork(PERIODIC_TAG)
         }
     }

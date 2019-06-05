@@ -65,8 +65,8 @@ class GalleryScanWorker(
         private val EXIF_DATE_FORMAT = SimpleDateFormat("yyyy:MM:dd HH:mm:ss")
         private val OMIT_COUNTRY_CODES = hashSetOf("US")
 
-        fun enqueueInitialScan(ids: List<Long>) {
-            val workManager = WorkManager.getInstance()
+        fun enqueueInitialScan(context: Context, ids: List<Long>) {
+            val workManager = WorkManager.getInstance(context)
             workManager.enqueue(ids.map { id ->
                 OneTimeWorkRequestBuilder<GalleryScanWorker>()
                         .addTag(INITIAL_SCAN_TAG)
@@ -75,8 +75,8 @@ class GalleryScanWorker(
             })
         }
 
-        fun enqueueRescan() {
-            val workManager = WorkManager.getInstance()
+        fun enqueueRescan(context: Context) {
+            val workManager = WorkManager.getInstance(context)
             workManager.enqueueUniqueWork("rescan",
                     ExistingWorkPolicy.REPLACE,
                     OneTimeWorkRequestBuilder<GalleryScanWorker>()

@@ -53,8 +53,9 @@ class DataLayerArtProvider : MuzeiArtProvider() {
     }
 
     override fun onLoadRequested(initial: Boolean) {
+        val context = context ?: return
         if (initial) {
-            DataLayerLoadWorker.enqueueLoad()
+            DataLayerLoadWorker.enqueueLoad(context)
         }
     }
 

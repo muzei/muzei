@@ -50,8 +50,8 @@ class DataLayerLoadWorker(
         /**
          * Load artwork from the Data Layer
          */
-        fun enqueueLoad() {
-            val workManager = WorkManager.getInstance()
+        fun enqueueLoad(context: Context) {
+            val workManager = WorkManager.getInstance(context)
             workManager.enqueue(OneTimeWorkRequestBuilder<DataLayerLoadWorker>().build())
         }
     }

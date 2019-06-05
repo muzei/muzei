@@ -95,7 +95,7 @@ class FeaturedArtWorker(
                 Log.d(TAG, "Enqueuing next artwork with delay of " +
                     DateUtils.formatElapsedTime(TimeUnit.MILLISECONDS.toSeconds(delay)))
             }
-            val workManager = WorkManager.getInstance()
+            val workManager = WorkManager.getInstance(context)
             workManager.enqueueUniqueWork(
                     TAG,
                     ExistingWorkPolicy.REPLACE,
