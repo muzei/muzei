@@ -33,7 +33,7 @@ allprojects { ext."signing.password" = props["signing.password"] }
 allprojects { ext."signing.secretKeyRingFile" = props["signing.secretKeyRingFile"] }
 
 dependencies {
-    api "androidx.annotation:annotation:1.0.2"
+    api "androidx.annotation:annotation:1.1.0"
 }
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
