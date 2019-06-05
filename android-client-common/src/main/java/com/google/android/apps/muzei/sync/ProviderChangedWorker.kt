@@ -43,6 +43,7 @@ import com.google.android.apps.muzei.render.isValidImage
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
+import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.IOException
 import java.util.HashSet
@@ -175,9 +176,7 @@ class ProviderChangedWorker(
         }
     }
 
-    override val coroutineContext = syncSingleThreadContext
-
-    override suspend fun doWork(): Result {
+    override suspend fun doWork() = withContext(syncSingleThreadContext) {
         val tag = inputData.getString(TAG) ?: ""
         // First schedule the observer to pick up any changes fired
         // by the work done in handleProviderChange
@@ -190,7 +189,7 @@ class ProviderChangedWorker(
         // Now actually handle the provider change
         val database = MuzeiDatabase.getInstance(applicationContext)
         val provider = database.providerDao()
-                .getCurrentProvider() ?: return Result.failure()
+                .getCurrentProvider() ?: return@withContext Result.failure()
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Provider Change ($tag) for ${provider.authority}")
         }
@@ -198,7 +197,7 @@ class ProviderChangedWorker(
         try {
             ContentProviderClientCompat.getClient(applicationContext, contentUri)?.use { client ->
                 val result = client.call(METHOD_GET_LOAD_INFO)
-                        ?: return Result.retry()
+                        ?: return@withContext Result.retry()
                 val lastLoadedTime = result.getLong(KEY_LAST_LOADED_TIME, 0L)
                 client.query(contentUri)?.use { allArtwork ->
                     val providerManager = ProviderManager.getInstance(applicationContext)
@@ -248,13 +247,13 @@ class ProviderChangedWorker(
                         // and haven't just called enqueueNext / enqueuePeriodic
                         client.call(ProtocolConstants.METHOD_REQUEST_LOAD)
                     }
-                    return Result.success()
+                    return@withContext Result.success()
                 }
             }
         } catch (e: Exception) {
             Log.i(TAG, "Provider ${provider.authority} crashed while retrieving artwork: ${e.message}")
         }
-        return Result.retry()
+        Result.retry()
     }
 
     private suspend fun isCurrentArtworkValid(

@@ -33,6 +33,7 @@ import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONException
@@ -107,13 +108,11 @@ class FeaturedArtWorker(
         }
     }
 
-    override val coroutineContext = SINGLE_THREAD_CONTEXT
-
-    override suspend fun doWork(): Result {
+    override suspend fun doWork() = withContext(SINGLE_THREAD_CONTEXT) {
         val jsonObject: JSONObject?
         try {
             jsonObject = fetchJsonObject(QUERY_URL)
-            val imageUri = jsonObject.optString(KEY_IMAGE_URI) ?: return Result.success()
+            val imageUri = jsonObject.optString(KEY_IMAGE_URI) ?: return@withContext Result.success()
             val artwork = Artwork().apply {
                 persistentUri = imageUri.toUri()
                 token = jsonObject.optString(KEY_TOKEN).takeUnless { it.isEmpty() } ?: imageUri
@@ -130,10 +129,10 @@ class FeaturedArtWorker(
                     .addArtwork(artwork)
         } catch (e: JSONException) {
             Log.e(TAG, "Error reading JSON", e)
-            return Result.retry()
+            return@withContext Result.retry()
         } catch (e: IOException) {
             Log.e(TAG, "Error reading JSON", e)
-            return Result.retry()
+            return@withContext Result.retry()
         }
 
         val nextTime: Date? = jsonObject.optString("nextTime")?.takeUnless {
@@ -168,7 +167,7 @@ class FeaturedArtWorker(
         sp.edit {
             putLong(PREF_NEXT_UPDATE_MILLIS, nextUpdateMillis)
         }
-        return Result.success()
+        Result.success()
     }
 
     @Throws(IOException::class, JSONException::class)
