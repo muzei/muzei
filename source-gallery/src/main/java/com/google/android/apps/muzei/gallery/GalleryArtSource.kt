@@ -18,11 +18,12 @@ package com.google.android.apps.muzei.gallery
 
 import android.app.Service
 import android.content.Intent
+import android.os.Binder
 
 /**
  * This class is kept only to serve as a tombstone to Muzei to know to replace it
  * with [GalleryArtProvider].
  */
 class GalleryArtSource : Service() {
-    override fun onBind(intent: Intent?) = null
+    override fun onBind(intent: Intent?): Binder? = null
 }

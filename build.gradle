@@ -16,7 +16,7 @@
 
 buildscript {
     ext {
-        compileSdkVersion = 28
+        compileSdkVersion = 29
         targetSdkVersion = 25
 
         appCompatVersion = '1.1.0-beta01'

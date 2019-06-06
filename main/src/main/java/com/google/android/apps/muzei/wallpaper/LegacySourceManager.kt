@@ -130,7 +130,7 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
             val pm = applicationContext.packageManager
             val serviceInfo = pm.queryIntentServices(
                     Intent(LegacySourceServiceProtocol.LEGACY_SOURCE_ACTION), 0)
-                    ?.get(0)
+                    .firstOrNull()
                     ?.serviceInfo
             if (serviceInfo == null) {
                 if (BuildConfig.DEBUG) {

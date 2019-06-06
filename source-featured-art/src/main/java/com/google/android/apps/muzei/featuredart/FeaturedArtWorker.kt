@@ -119,7 +119,7 @@ class FeaturedArtWorker(
                 title = jsonObject.optString(KEY_TITLE)
                 byline = jsonObject.optString(KEY_BYLINE)
                 attribution = jsonObject.optString(KEY_ATTRIBUTION)
-                webUri = jsonObject.optString(KEY_DETAILS_URI)?.toUri()
+                webUri = jsonObject.optString(KEY_DETAILS_URI).takeUnless { it.isEmpty() }?.toUri()
             }
 
             if (BuildConfig.DEBUG) {
@@ -135,7 +135,7 @@ class FeaturedArtWorker(
             return@withContext Result.retry()
         }
 
-        val nextTime: Date? = jsonObject.optString("nextTime")?.takeUnless {
+        val nextTime: Date? = jsonObject.optString("nextTime").takeUnless {
             it.isEmpty()
         }?.run {
             if (length > 4 && this[length - 3] == ':') {

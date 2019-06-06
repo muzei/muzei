@@ -65,33 +65,31 @@ class InstalledProvidersLiveData(
         val pm = context.packageManager
         val resolveInfos = pm.queryIntentContentProviders(queryIntent,
                 PackageManager.GET_META_DATA)
-        if (resolveInfos != null) {
-            val newProviders = HashMap<ComponentName, ProviderInfo>().apply {
-                putAll(currentProviders)
-            }
-            val existingProviders = HashSet(currentProviders.values)
-            if (packageName != null) {
-                existingProviders.removeAll {
-                    it.packageName != packageName
-                }
-            }
-            for (ri in resolveInfos) {
-                val componentName = ri.providerInfo.getComponentName()
-                existingProviders.removeAll { it.getComponentName() == componentName }
-                if (ri.providerInfo.enabled) {
-                    newProviders[componentName] = ri.providerInfo
-                } else {
-                    newProviders.remove(componentName)
-                }
-            }
-            // Remove providers that weren't found in the resolveInfos
-            existingProviders.forEach {
-                newProviders.remove(it.getComponentName())
-            }
-            currentProviders.clear()
-            currentProviders.putAll(newProviders)
-            postValue(currentProviders.values.toList())
+        val newProviders = HashMap<ComponentName, ProviderInfo>().apply {
+            putAll(currentProviders)
         }
+        val existingProviders = HashSet(currentProviders.values)
+        if (packageName != null) {
+            existingProviders.removeAll {
+                it.packageName != packageName
+            }
+        }
+        for (ri in resolveInfos) {
+            val componentName = ri.providerInfo.getComponentName()
+            existingProviders.removeAll { it.getComponentName() == componentName }
+            if (ri.providerInfo.enabled) {
+                newProviders[componentName] = ri.providerInfo
+            } else {
+                newProviders.remove(componentName)
+            }
+        }
+        // Remove providers that weren't found in the resolveInfos
+        existingProviders.forEach {
+            newProviders.remove(it.getComponentName())
+        }
+        currentProviders.clear()
+        currentProviders.putAll(newProviders)
+        postValue(currentProviders.values.toList())
     }
 
     override fun onActive() {

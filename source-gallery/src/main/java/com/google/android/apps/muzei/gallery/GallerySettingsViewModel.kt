@@ -72,20 +72,20 @@ class GallerySettingsViewModel(application: Application) : AndroidViewModel(appl
                 }
                 val packageManager = getApplication<Application>().packageManager
                 val packageName = getApplication<Application>().packageName
-                value = packageManager.queryIntentActivities(intent, 0)?.asSequence()?.map {
+                value = packageManager.queryIntentActivities(intent, 0).asSequence().map {
                     it.activityInfo
-                }?.filter {
+                }.filter {
                     // Filter out the default system UI
                     it.packageName != "com.android.documentsui"
-                }?.filter {
+                }.filter {
                     // Only show exported activities
                     it.exported
-                }?.filter {
+                }.filter {
                     // Only show activities that have no permissions or permissions we hold
                     it.permission?.isEmpty() != false ||
                             packageManager.checkPermission(it.permission, packageName) ==
                             PackageManager.PERMISSION_GRANTED
-                }?.toList()
+                }.toList()
             }
         }
     }

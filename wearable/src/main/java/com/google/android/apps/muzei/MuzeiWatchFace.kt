@@ -167,14 +167,14 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
         internal var topComplication: ComplicationDrawable? = null
         internal var bottomComplication: ComplicationDrawable? = null
         private val drawableCallback = object : Drawable.Callback {
-            override fun invalidateDrawable(who: Drawable?) {
+            override fun invalidateDrawable(who: Drawable) {
                 invalidate()
             }
 
-            override fun scheduleDrawable(who: Drawable?, what: Runnable?, `when`: Long) {
+            override fun scheduleDrawable(who: Drawable, what: Runnable, `when`: Long) {
             }
 
-            override fun unscheduleDrawable(who: Drawable?, what: Runnable?) {
+            override fun unscheduleDrawable(who: Drawable, what: Runnable) {
             }
         }
 

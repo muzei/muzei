@@ -232,7 +232,7 @@ abstract class MuzeiDatabase : RoomDatabase() {
                     database.query("SELECT component_name FROM sources WHERE selected=1").use { selectedSource ->
                         if (selectedSource != null && selectedSource.moveToFirst()) {
                             val componentName = ComponentName.unflattenFromString(
-                                    selectedSource.getString(0))
+                                    selectedSource.getString(0))!!
                             val info = context.packageManager.getServiceInfo(componentName,
                                     PackageManager.GET_META_DATA)
                             val metadata = info.metaData
@@ -296,15 +296,13 @@ abstract class MuzeiDatabase : RoomDatabase() {
                         selectedProvider ->
                         if (selectedProvider.moveToFirst()) {
                             val componentName = ComponentName.unflattenFromString(
-                                    selectedProvider.getString(0))
+                                    selectedProvider.getString(0))!!
                             val supportsNextArtwork = selectedProvider.getInt(1)
                             val info = context.packageManager.getProviderInfo(componentName, 0)
-                            if (info != null) {
-                                database.execSQL("INSERT INTO provider2 " +
-                                        "(authority, supportsNextArtwork) "
-                                        + "VALUES (?, ?)",
-                                        arrayOf(info.authority, supportsNextArtwork))
-                            }
+                            database.execSQL("INSERT INTO provider2 " +
+                                    "(authority, supportsNextArtwork) "
+                                    + "VALUES (?, ?)",
+                                    arrayOf(info.authority, supportsNextArtwork))
                         }
                     }
                 } catch (e: PackageManager.NameNotFoundException) {
@@ -328,7 +326,7 @@ abstract class MuzeiDatabase : RoomDatabase() {
                     while (artwork.moveToNext()) {
                         val id = artwork.getLong(0)
                         val componentName = ComponentName.unflattenFromString(
-                                artwork.getString(1))
+                                artwork.getString(1))!!
                         val imageUri = artwork.getString(2)
                         val title = artwork.getString(3)
                         val byline = artwork.getString(4)
@@ -338,14 +336,12 @@ abstract class MuzeiDatabase : RoomDatabase() {
 
                         try {
                             val info = context.packageManager.getProviderInfo(componentName, 0)
-                            if (info != null) {
-                                database.execSQL("INSERT INTO artwork2 " +
-                                        "(_id, providerAuthority, imageUri, " +
-                                        "title, byline, attribution, metaFont, date_added) "
-                                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                                        arrayOf(id, info.authority, imageUri, title,
-                                                byline, attribution, metaFont, dateAdded))
-                            }
+                            database.execSQL("INSERT INTO artwork2 " +
+                                    "(_id, providerAuthority, imageUri, " +
+                                    "title, byline, attribution, metaFont, date_added) "
+                                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                                    arrayOf(id, info.authority, imageUri, title,
+                                            byline, attribution, metaFont, dateAdded))
                         } catch (e: PackageManager.NameNotFoundException) {
                             // Couldn't find the provider, so there's nothing more to do
                         }
