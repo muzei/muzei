@@ -16,15 +16,15 @@
 
 package com.google.android.apps.muzei
 
+import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.os.BuildCompat
 import androidx.multidex.MultiDexApplication
 
 class MuzeiApplication : MultiDexApplication() {
     override fun onCreate() {
         super.onCreate()
         AppCompatDelegate.setDefaultNightMode(
-                if (BuildCompat.isAtLeastQ())
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
                     AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
                 else
                     AppCompatDelegate.MODE_NIGHT_YES
