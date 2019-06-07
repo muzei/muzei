@@ -16,9 +16,11 @@
 
 package com.google.android.apps.muzei.wallpaper
 
+import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.ServiceConnection
 import android.os.Handler
 import android.os.IBinder
@@ -28,14 +30,20 @@ import android.os.Messenger
 import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.liveData
 import androidx.lifecycle.observe
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
 import com.google.android.apps.muzei.legacy.LegacySourceServiceProtocol
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.sync.ProviderManager
+import com.google.android.apps.muzei.util.filterNotNull
+import com.google.android.apps.muzei.util.goAsync
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.BuildConfig.LEGACY_AUTHORITY
 import kotlin.coroutines.resume
@@ -71,6 +79,46 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
         }
     }
 
+    private val serviceLiveData: LiveData<ComponentName?> = liveData {
+        val pm = applicationContext.packageManager
+        val queryAndEmit: suspend () -> Unit = {
+            emit(pm.queryIntentServices(Intent(LegacySourceServiceProtocol.LEGACY_SOURCE_ACTION), 0)
+                    .firstOrNull()
+                    ?.serviceInfo
+                    ?.run {
+                        ComponentName(packageName, name)
+                    })
+        }
+        // Create an IntentFilter for package change events
+        val packageChangeFilter = IntentFilter().apply {
+            addDataScheme("package")
+            addAction(Intent.ACTION_PACKAGE_ADDED)
+            addAction(Intent.ACTION_PACKAGE_CHANGED)
+            addAction(Intent.ACTION_PACKAGE_REPLACED)
+            addAction(Intent.ACTION_PACKAGE_REMOVED)
+        }
+        val packageChangeReceiver : BroadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent?) {
+                if (intent?.data == null) {
+                    return
+                }
+                goAsync {
+                    queryAndEmit()
+                }
+            }
+        }
+        try {
+            applicationContext.registerReceiver(packageChangeReceiver, packageChangeFilter)
+            // Set the initial state
+            queryAndEmit()
+            while (true) {
+                // Await callbacks to the packageChangeReceiver
+                yield()
+            }
+        } finally {
+            applicationContext.unregisterReceiver(packageChangeReceiver)
+        }
+    }
     private val currentProviderLiveData = MuzeiDatabase.getInstance(applicationContext)
             .providerDao().currentProvider
 
@@ -115,7 +163,9 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
     }
 
     override fun onCreate(owner: LifecycleOwner) {
-        bindService()
+        serviceLiveData.distinctUntilChanged().filterNotNull().observe(owner) { componentName ->
+            bindService(componentName)
+        }
         MuzeiDatabase.getInstance(applicationContext).providerDao().currentProvider.observe(owner) { provider ->
             if (provider?.authority == LEGACY_AUTHORITY) {
                 register()
@@ -125,32 +175,16 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
         }
     }
 
-    private fun bindService() {
-        if (messenger == null) {
-            val pm = applicationContext.packageManager
-            val serviceInfo = pm.queryIntentServices(
-                    Intent(LegacySourceServiceProtocol.LEGACY_SOURCE_ACTION), 0)
-                    .firstOrNull()
-                    ?.serviceInfo
-            if (serviceInfo == null) {
-                if (BuildConfig.DEBUG) {
-                    Log.e(TAG, "Could not find LegacySourceService")
-                }
-                return
-            }
-            val binding = applicationContext.bindService(
-                    Intent().apply { component = ComponentName(
-                            serviceInfo.packageName,
-                            serviceInfo.name
-                    )},
-                    serviceConnection,
-                    Context.BIND_AUTO_CREATE)
-            if (BuildConfig.DEBUG) {
-                if (binding) {
-                    Log.d(TAG, "Binding to LegacySourceService")
-                } else {
-                    Log.d(TAG, "Could not bind to LegacySourceService")
-                }
+    private fun bindService(componentName: ComponentName) {
+        val binding = applicationContext.bindService(
+                Intent().apply { component = componentName },
+                serviceConnection,
+                Context.BIND_AUTO_CREATE)
+        if (BuildConfig.DEBUG) {
+            if (binding) {
+                Log.d(TAG, "Binding to LegacySourceService")
+            } else {
+                Log.d(TAG, "Could not bind to LegacySourceService")
             }
         }
     }
