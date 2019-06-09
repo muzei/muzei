@@ -53,8 +53,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
-import net.nurik.roman.muzei.BuildConfig
-import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.legacy.BuildConfig
+import net.nurik.roman.muzei.legacy.R
 import java.util.HashSet
 import java.util.concurrent.Executors
 

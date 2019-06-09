@@ -64,22 +64,7 @@
            parent="Theme.Muzei.Transparent.Base"> <!-- pre-Lollipop -->
     </style>
 
-    <style name="Theme.Legacy.Transparent.Base"
-           parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:colorBackgroundCacheHint">@null</item>
-        <item name="android:windowIsTranslucent">true</item>
-    </style>
-
-    <style name="Theme.Legacy.Transparent"
-           parent="Theme.Legacy.Transparent.Base"> <!-- pre-Lollipop -->
-    </style>
-
     <style name="Theme.Muzei.Dialog" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
-        <item name="colorPrimary">?attr/colorOnSurface</item>
-    </style>
-
-    <style name="Theme.Legacy.Dialog" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
         <item name="colorPrimary">?attr/colorOnSurface</item>
     </style>
 

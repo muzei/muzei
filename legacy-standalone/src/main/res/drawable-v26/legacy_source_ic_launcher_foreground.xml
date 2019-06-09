@@ -24,7 +24,7 @@
         android:translateY="19">
         <path
             android:fillAlpha="0.2"
-            android:fillColor="@color/ic_launcher_shadow"
+            android:fillColor="@color/legacy_ic_launcher_shadow"
             android:pathData="M10,4.26 l5,5 L20,4.26 l23,23 V43 H27 l-23,-23 h3 l-1,-12 l1.8,1.8 v-4.5 Z"/>
         <path
             android:fillColor="#FFF"

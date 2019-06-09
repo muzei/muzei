@@ -26,10 +26,6 @@
         android:glEsVersion="0x00020000"
         android:required="true"/>
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-
     <!-- Don't request this starting with Marshmallow (we only write to the app's cache folder) -->
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
@@ -67,43 +63,6 @@
                 android:name="android.service.wallpaper"
                 android:resource="@xml/wallpaper"/>
         </service>
-
-        <provider
-            android:name="com.google.android.apps.muzei.legacy.SourceArtProvider"
-            android:label="@string/legacy_source_provider_name"
-            android:icon="@drawable/legacy_source_ic_launcher"
-            android:authorities="${legacyAuthority}"
-            android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER">
-            <intent-filter>
-                <action android:name="com.google.android.apps.muzei.api.MuzeiArtProvider"/>
-            </intent-filter>
-            <meta-data android:name="settingsActivity"
-                       android:value="com.google.android.apps.muzei.legacy.SourceSettingsActivity" />
-            <meta-data android:name="setupActivity"
-                       android:value="com.google.android.apps.muzei.legacy.SourceSetupActivity" />
-        </provider>
-
-        <service
-            android:name="com.google.android.apps.muzei.legacy.LegacySourceService"
-            android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER">
-            <intent-filter>
-                <action android:name="com.google.android.apps.muzei.legacy"/>
-            </intent-filter>
-        </service>
-
-        <service
-            android:name="com.google.android.apps.muzei.sources.SourceSubscriberService"
-            android:exported="true"
-            tools:ignore="ExportedService"/>
-
-        <activity android:name="com.google.android.apps.muzei.legacy.SourceSetupActivity"
-                  android:label="@string/legacy_source_provider_name"
-                  android:theme="@style/Theme.Legacy.Transparent"
-                  android:exported="true" />
-        <activity android:name="com.google.android.apps.muzei.legacy.SourceSettingsActivity"
-                  android:label="@string/legacy_source_provider_name"
-                  android:theme="@style/Theme.Legacy.Transparent"
-                  android:exported="true" />
 
         <activity
             android:name="com.google.android.apps.muzei.settings.SettingsActivity"

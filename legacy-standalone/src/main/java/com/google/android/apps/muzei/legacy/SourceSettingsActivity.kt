@@ -54,7 +54,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.legacy.R
 
 /**
  * Activity for allowing the user to choose the active source.

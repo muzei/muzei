@@ -1,0 +1,74 @@
+<!--
+  Copyright 2019 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="net.nurik.roman.muzei.legacy">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/legacy_source_ic_launcher"
+        android:label="@string/legacy_app_name"
+        tools:ignore="GoogleAppIndexingWarning">
+        <provider
+            android:name="com.google.android.apps.muzei.legacy.SourceArtProvider"
+            android:authorities="${legacyAuthority}"
+            android:exported="true"
+            android:icon="@drawable/legacy_source_ic_launcher"
+            android:label="@string/legacy_source_provider_name"
+            android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER">
+            <intent-filter>
+                <action android:name="com.google.android.apps.muzei.api.MuzeiArtProvider"/>
+            </intent-filter>
+
+            <meta-data
+                android:name="settingsActivity"
+                android:value="com.google.android.apps.muzei.legacy.SourceSettingsActivity"/>
+            <meta-data
+                android:name="setupActivity"
+                android:value="com.google.android.apps.muzei.legacy.SourceSetupActivity"/>
+        </provider>
+
+        <service
+            android:name="com.google.android.apps.muzei.legacy.LegacySourceService"
+            android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER">
+            <intent-filter>
+                <action android:name="com.google.android.apps.muzei.legacy"/>
+            </intent-filter>
+        </service>
+
+        <service
+            android:name="com.google.android.apps.muzei.sources.SourceSubscriberService"
+            android:exported="true"
+            tools:ignore="ExportedService"/>
+
+        <activity
+            android:name="com.google.android.apps.muzei.legacy.SourceSetupActivity"
+            android:exported="true"
+            android:label="@string/legacy_source_provider_name"
+            android:theme="@style/Theme.Legacy.Transparent"/>
+        <activity
+            android:name="com.google.android.apps.muzei.legacy.SourceSettingsActivity"
+            android:exported="true"
+            android:label="@string/legacy_source_provider_name"
+            android:theme="@style/Theme.Legacy.Transparent"/>
+
+    </application>
+
+</manifest>

@@ -42,8 +42,7 @@ android {
         multiDexEnabled true
         wearAppUnbundled true
 
-        def legacyAuthorityValue = "com.google.android.apps.muzei.sources"
-        manifestPlaceholders = [legacyAuthority: legacyAuthorityValue]
+        def legacyAuthorityValue = "com.google.android.apps.muzei.legacy"
         buildConfigField "String", "LEGACY_AUTHORITY", "\"${legacyAuthorityValue}\""
 
         buildConfigField "String", "DEVICE_TYPE", "\"android\""
@@ -108,7 +107,6 @@ dependencies {
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$coroutinesVersion"
     implementation "androidx.multidex:multidex:$multidexVersion"
-    implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
     implementation "com.github.bumptech.glide:glide:$glideVersion"
     implementation "com.google.android.gms:play-services-wearable:$playServicesWearableVersion"
     implementation "com.twofortyfouram:android-plugin-api-for-locale:1.0.4"
@@ -128,8 +126,6 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
     implementation "androidx.navigation:navigation-fragment-ktx:$navigationVersion"
     implementation "androidx.navigation:navigation-ui-ktx:$navigationVersion"
-    implementation "androidx.room:room-ktx:$roomVersion"
-    kapt "androidx.room:room-compiler:$roomVersion"
 
     implementation project(':muzei-api')
     implementation project(':extensions')

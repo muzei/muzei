@@ -29,8 +29,8 @@ import androidx.room.TypeConverters
 import com.google.android.apps.muzei.api.UserCommand
 import com.google.android.apps.muzei.api.internal.ProtocolConstants
 import com.google.android.apps.muzei.util.toastFromBackground
-import net.nurik.roman.muzei.BuildConfig
-import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.legacy.BuildConfig
+import net.nurik.roman.muzei.legacy.R
 import java.util.ArrayList
 
 /**

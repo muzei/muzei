@@ -26,8 +26,8 @@ import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import net.nurik.roman.muzei.BuildConfig
-import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.legacy.BuildConfig
+import net.nurik.roman.muzei.legacy.R
 import okhttp3.Request
 import java.io.IOException
 import java.net.URISyntaxException

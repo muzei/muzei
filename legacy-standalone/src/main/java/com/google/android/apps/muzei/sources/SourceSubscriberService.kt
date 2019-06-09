@@ -31,8 +31,8 @@ import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.legacy.LegacyDatabase
 import com.google.android.apps.muzei.legacy.SourceDao
 import kotlinx.coroutines.runBlocking
-import net.nurik.roman.muzei.BuildConfig
-import net.nurik.roman.muzei.BuildConfig.LEGACY_AUTHORITY
+import net.nurik.roman.muzei.legacy.BuildConfig
+import net.nurik.roman.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
 import java.util.ArrayList
 
 class SourceSubscriberService : IntentService("SourceSubscriberService") {
