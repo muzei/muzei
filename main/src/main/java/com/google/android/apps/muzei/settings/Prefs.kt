@@ -18,10 +18,10 @@ package com.google.android.apps.muzei.settings
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.preference.PreferenceManager
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.os.UserManagerCompat
+import androidx.preference.PreferenceManager
 
 /**
  * Preference constants/helpers.

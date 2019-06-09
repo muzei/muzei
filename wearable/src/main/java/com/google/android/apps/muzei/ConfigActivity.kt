@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package com.google.android.apps.muzei
 
 import android.app.Activity
@@ -23,13 +25,13 @@ import android.os.Build
 import android.os.Bundle
 import android.preference.Preference
 import android.preference.PreferenceActivity
-import android.preference.PreferenceManager
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.ComplicationHelperActivity
 import android.support.wearable.complications.ComplicationProviderInfo
 import android.support.wearable.complications.ProviderChooserIntent
 import android.support.wearable.complications.ProviderInfoRetriever
 import androidx.core.content.ContextCompat
+import androidx.preference.PreferenceManager
 import net.nurik.roman.muzei.R
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors

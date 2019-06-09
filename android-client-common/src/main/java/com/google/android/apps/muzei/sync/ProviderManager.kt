@@ -29,11 +29,11 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.RemoteException
-import android.preference.PreferenceManager
 import android.util.Log
 import androidx.core.content.edit
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.preference.PreferenceManager
 import com.google.android.apps.muzei.api.internal.ProtocolConstants
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.room.Artwork

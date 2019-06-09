@@ -21,7 +21,6 @@ import android.animation.ObjectAnimator
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Build
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.util.TypedValue
 import android.view.View
 import android.view.animation.OvershootInterpolator
@@ -31,6 +30,7 @@ import androidx.core.content.edit
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
+import androidx.preference.PreferenceManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
 

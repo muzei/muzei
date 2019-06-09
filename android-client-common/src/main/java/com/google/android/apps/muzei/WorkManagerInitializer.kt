@@ -7,11 +7,11 @@ import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.os.Build
-import android.preference.PreferenceManager
 import android.util.Log
 import androidx.core.content.edit
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.preference.PreferenceManager
 import androidx.work.Configuration
 import androidx.work.WorkManager
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig

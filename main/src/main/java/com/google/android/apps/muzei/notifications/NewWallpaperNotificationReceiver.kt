@@ -24,7 +24,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
 import android.os.Build
-import android.preference.PreferenceManager
 import android.provider.Settings
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -34,6 +33,7 @@ import androidx.core.app.RemoteInput
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.os.bundleOf
+import androidx.preference.PreferenceManager
 import com.google.android.apps.muzei.ArtDetailOpenLiveData
 import com.google.android.apps.muzei.ArtworkInfoRedirectActivity
 import com.google.android.apps.muzei.render.ContentUriImageLoader

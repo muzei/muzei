@@ -21,12 +21,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.provider.Settings
 import android.widget.Toast
 import androidx.core.content.edit
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
+import androidx.preference.PreferenceManager
 import com.google.android.apps.muzei.util.toast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import net.nurik.roman.muzei.R

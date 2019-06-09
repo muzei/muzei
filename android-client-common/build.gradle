@@ -28,6 +28,7 @@ dependencies {
     implementation "androidx.exifinterface:exifinterface:$exifInterfaceVersion"
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion"
     api "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
+    implementation "androidx.preference:preference-ktx:$preferenceVersion"
     implementation "androidx.work:work-runtime-ktx:$workManagerVersion"
     api "androidx.room:room-ktx:$roomVersion"
     kapt "androidx.room:room-compiler:$roomVersion"

@@ -33,7 +33,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
-import android.preference.PreferenceManager
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.SystemProviders
 import android.support.wearable.complications.rendering.ComplicationDrawable
@@ -52,6 +51,7 @@ import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
+import androidx.preference.PreferenceManager
 import com.google.android.apps.muzei.complications.ArtworkComplicationProviderService
 import com.google.android.apps.muzei.datalayer.ActivateMuzeiIntentService
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY

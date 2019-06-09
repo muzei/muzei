@@ -19,7 +19,6 @@ package com.google.android.apps.muzei.complications
 import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.Build
-import android.preference.PreferenceManager
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.ComplicationManager
 import android.support.wearable.complications.ComplicationProviderService
@@ -29,6 +28,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.TaskStackBuilder
 import androidx.core.content.edit
 import androidx.core.os.bundleOf
+import androidx.preference.PreferenceManager
 import com.google.android.apps.muzei.FullScreenActivity
 import com.google.android.apps.muzei.ProviderChangedReceiver
 import com.google.android.apps.muzei.datalayer.ActivateMuzeiIntentService

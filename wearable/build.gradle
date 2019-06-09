@@ -93,6 +93,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-livedata-core-ktx:$lifecycleVersion"
     implementation "androidx.fragment:fragment-ktx:$fragmentVersion"
     implementation "androidx.exifinterface:exifinterface:$exifInterfaceVersion"
+    implementation "androidx.preference:preference-ktx:$preferenceVersion"
     implementation "androidx.wear:wear:$wearVersion"
     compileOnly "com.google.android.wearable:wearable:$wearableVersion"
     implementation ("com.google.android.support:wearable:$wearableVersion") {

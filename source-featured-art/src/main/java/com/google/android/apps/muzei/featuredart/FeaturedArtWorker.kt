@@ -17,11 +17,11 @@
 package com.google.android.apps.muzei.featuredart
 
 import android.content.Context
-import android.preference.PreferenceManager
 import android.text.format.DateUtils
 import android.util.Log
 import androidx.core.content.edit
 import androidx.core.net.toUri
+import androidx.preference.PreferenceManager
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingWorkPolicy
