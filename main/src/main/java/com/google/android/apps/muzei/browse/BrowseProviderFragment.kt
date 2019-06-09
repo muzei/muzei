@@ -62,7 +62,7 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
         }
 
         val pm = requireContext().packageManager
-        val providerInfo = pm.resolveContentProvider(args.contentUri.authority, 0)
+        val providerInfo = pm.resolveContentProvider(args.contentUri.authority!!, 0)
                 ?: run {
                     findNavController().popBackStack()
                     return

@@ -34,7 +34,7 @@ import java.util.Date
  * Artwork's representation in Room
  */
 @Entity(indices = [(Index(value = ["providerAuthority"]))])
-class Artwork(
+data class Artwork(
         @field:TypeConverters(UriTypeConverter::class)
         val imageUri: Uri
 ) {
