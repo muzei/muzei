@@ -40,6 +40,18 @@ android {
         }
     }
 
+    buildTypes {
+        debug {
+            versionNameSuffix " Debug"
+        }
+
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), file('proguard-project.txt')
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
