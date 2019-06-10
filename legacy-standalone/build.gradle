@@ -28,6 +28,9 @@ android {
         //noinspection ExpiredTargetSdkVersion
         targetSdkVersion 25
 
+        versionName '1.0.0'
+        versionCode 1
+
         def legacyAuthorityValue = "com.google.android.apps.muzei.legacy"
         manifestPlaceholders = [legacyAuthority: legacyAuthorityValue]
         buildConfigField "String", "LEGACY_AUTHORITY", "\"${legacyAuthorityValue}\""
