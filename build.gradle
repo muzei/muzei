@@ -25,6 +25,7 @@ buildscript {
         coreVersion = '1.2.0-alpha02'
         coroutinesVersion = '1.2.1'
         crashlyticsVersion = '2.10.1'
+        drawerLayoutVersion = '1.1.0-alpha02'
         exifInterfaceVersion = '1.1.0-alpha01'
         firebaseCoreVersion = '16.0.9'
         firebasePerfVersion = '17.0.2'
