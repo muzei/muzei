@@ -30,9 +30,8 @@ import android.os.Messenger
 import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.distinctUntilChanged
-import androidx.lifecycle.liveData
 import androidx.lifecycle.observe
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
 import com.google.android.apps.muzei.legacy.LegacySourceServiceProtocol
@@ -40,10 +39,8 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.filterNotNull
-import com.google.android.apps.muzei.util.goAsync
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.yield
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.BuildConfig.LEGACY_AUTHORITY
 import kotlin.coroutines.resume
@@ -79,16 +76,8 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
         }
     }
 
-    private val serviceLiveData: LiveData<ComponentName?> = liveData {
+    private val serviceLiveData = object : MutableLiveData<ComponentName?>() {
         val pm = applicationContext.packageManager
-        val queryAndEmit: suspend () -> Unit = {
-            emit(pm.queryIntentServices(Intent(LegacySourceServiceProtocol.LEGACY_SOURCE_ACTION), 0)
-                    .firstOrNull()
-                    ?.serviceInfo
-                    ?.run {
-                        ComponentName(packageName, name)
-                    })
-        }
         // Create an IntentFilter for package change events
         val packageChangeFilter = IntentFilter().apply {
             addDataScheme("package")
@@ -102,20 +91,26 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
                 if (intent?.data == null) {
                     return
                 }
-                goAsync {
-                    queryAndEmit()
-                }
+                queryAndSet()
             }
         }
-        try {
+
+        override fun onActive() {
             applicationContext.registerReceiver(packageChangeReceiver, packageChangeFilter)
             // Set the initial state
-            queryAndEmit()
-            while (true) {
-                // Await callbacks to the packageChangeReceiver
-                yield()
-            }
-        } finally {
+            queryAndSet()
+        }
+
+        fun queryAndSet() {
+            value = pm.queryIntentServices(Intent(LegacySourceServiceProtocol.LEGACY_SOURCE_ACTION), 0)
+                    .firstOrNull()
+                    ?.serviceInfo
+                    ?.run {
+                        ComponentName(packageName, name)
+                    }
+        }
+
+        override fun onInactive() {
             applicationContext.unregisterReceiver(packageChangeReceiver)
         }
     }
