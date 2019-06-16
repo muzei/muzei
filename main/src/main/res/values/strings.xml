@@ -81,7 +81,9 @@
     <string name="get_more_sources_description">Change your wallpaper entirely with
         additional sources installed from the Google Play Store</string>
     <string name="action_link_effects">Home 🔗 Lock</string>
+    <string name="toast_link_effects">Home &amp; Lock screen effects are now linked</string>
     <string name="action_link_effects_off">Home &amp; Lock aren\'t linked together</string>
+    <string name="toast_link_effects_off">Home &amp; Lock screen effects are no longer linked together</string>
     <string name="reset_advanced_settings_defaults">Reset sliders</string>
     <string name="play_store_not_found">Unable to open Play Store.</string>
 
