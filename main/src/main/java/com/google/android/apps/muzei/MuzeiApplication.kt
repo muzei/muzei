@@ -16,15 +16,46 @@
 
 package com.google.android.apps.muzei
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.edit
 import androidx.multidex.MultiDexApplication
+import androidx.preference.PreferenceManager
 
-class MuzeiApplication : MultiDexApplication() {
+class MuzeiApplication : MultiDexApplication(), SharedPreferences.OnSharedPreferenceChangeListener {
+
+    companion object {
+        private const val ALWAYS_DARK_KEY = "always_dark"
+
+        fun setAlwaysDark(context: Context, alwaysDark: Boolean) {
+            PreferenceManager.getDefaultSharedPreferences(context).edit {
+                putBoolean(ALWAYS_DARK_KEY, alwaysDark)
+            }
+        }
+
+        fun getAlwaysDark(context: Context) =
+                PreferenceManager.getDefaultSharedPreferences(context).getBoolean(ALWAYS_DARK_KEY, false)
+    }
+
     override fun onCreate() {
         super.onCreate()
+        updateNightMode()
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+    }
+
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
+        if (key == ALWAYS_DARK_KEY) {
+            updateNightMode()
+        }
+    }
+
+    private fun updateNightMode() {
+        val alwaysDark = getAlwaysDark(this)
         AppCompatDelegate.setDefaultNightMode(
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !alwaysDark)
                     AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
                 else
                     AppCompatDelegate.MODE_NIGHT_YES

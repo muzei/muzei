@@ -146,7 +146,8 @@
         <androidx.appcompat.widget.ActionMenuView
             android:id="@+id/overflow_menu_view"
             android:layout_width="wrap_content"
-            android:layout_height="@dimen/art_detail_button_height"/>
+            android:layout_height="@dimen/art_detail_button_height"
+            android:theme="@style/ThemeOverlay.Muzei.AccentPrimary"/>
 
     </LinearLayout>
 

@@ -111,6 +111,8 @@
     <string name="gestures_tap_action_view_details">View Artwork Details</string>
     <string name="gestures_tap_action_none">None</string>
 
+    <string name="actions_always_dark">Always Dark</string>
+
     <string name="about_title">About Muzei</string>
     <string name="about_body"><![CDATA[
         Made by Roman Nurik and Ian Lake, with major contributions from

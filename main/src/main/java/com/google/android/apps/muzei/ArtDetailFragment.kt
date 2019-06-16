@@ -176,6 +176,8 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             overflowMenu.menu.clear()
             activity.menuInflater.inflate(R.menu.muzei_overflow,
                     overflowMenu.menu)
+            overflowMenu.menu.findItem(R.id.action_always_dark)?.isChecked =
+                    MuzeiApplication.getAlwaysDark(activity)
             commands.take(SOURCE_ACTION_IDS.size).forEachIndexed { i, action ->
                 overflowSourceActionMap.put(SOURCE_ACTION_IDS[i], action.id)
                 val menuItem = overflowMenu.menu.add(0, SOURCE_ACTION_IDS[i],
@@ -303,6 +305,14 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
                 R.id.action_gestures -> {
                     FirebaseAnalytics.getInstance(context).logEvent("gestures_open", null)
                     findNavController().navigate(ArtDetailFragmentDirections.gestures())
+                    true
+                }
+                R.id.action_always_dark -> {
+                    val alwaysDark = !menuItem.isChecked
+                    menuItem.isChecked = alwaysDark
+                    FirebaseAnalytics.getInstance(context).logEvent("always_dark", bundleOf(
+                            FirebaseAnalytics.Param.CONTENT_TYPE to alwaysDark.toString()))
+                    MuzeiApplication.setAlwaysDark(context, alwaysDark)
                     true
                 }
                 R.id.action_about -> {
