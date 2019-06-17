@@ -19,6 +19,7 @@
     package="com.google.android.apps.muzei.gallery">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION"/>
 
     <application>
         <provider

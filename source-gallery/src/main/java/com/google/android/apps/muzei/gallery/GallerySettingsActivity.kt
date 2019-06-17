@@ -200,7 +200,15 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         }
 
         val enableRandomImages = findViewById<Button>(R.id.gallery_enable_random)
-        enableRandomImages.setOnClickListener { ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_STORAGE_PERMISSION) }
+        enableRandomImages.setOnClickListener {
+            ActivityCompat.requestPermissions(this,
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
+                                Manifest.permission.ACCESS_MEDIA_LOCATION)
+                    } else {
+                        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    }, REQUEST_STORAGE_PERMISSION)
+        }
         val permissionSettings = findViewById<Button>(R.id.gallery_edit_permission_settings)
         permissionSettings.setOnClickListener {
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,

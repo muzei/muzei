@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.gallery
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ContentProviderOperation
 import android.content.ContentUris
@@ -251,7 +252,7 @@ class GalleryScanWorker(
     @SuppressLint("Recycle")
     private suspend fun addMediaUri(providerClient: ProviderClient): Result {
         if (ContextCompat.checkSelfPermission(applicationContext,
-                        android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             Log.w(TAG, "Missing read external storage permission.")
             return Result.failure()
         }
@@ -279,9 +280,17 @@ class GalleryScanWorker(
                             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                             data.getLong(0))
                     if (imageUri.toString() != lastToken) {
+                        val metadataUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+                                && ContextCompat.checkSelfPermission(applicationContext,
+                                        Manifest.permission.ACCESS_MEDIA_LOCATION) ==
+                                PackageManager.PERMISSION_GRANTED) {
+                            MediaStore.setRequireOriginal(imageUri)
+                        } else {
+                            imageUri
+                        }
                         providerClient.addArtwork(createArtwork(
                                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                                imageUri))
+                                imageUri, metadataUri = metadataUri))
                         return Result.success()
                     }
                 }
@@ -299,9 +308,10 @@ class GalleryScanWorker(
     private suspend fun createArtwork(
             baseUri: Uri,
             imageUri: Uri = baseUri,
-            publicWebUri: Uri = imageUri
+            publicWebUri: Uri = imageUri,
+            metadataUri: Uri = imageUri
     ): Artwork {
-        val imageMetadata = ensureMetadataExists(imageUri)
+        val imageMetadata = ensureMetadataExists(metadataUri)
 
         return Artwork().apply {
             token = imageUri.toString()

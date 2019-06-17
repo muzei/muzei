@@ -19,6 +19,7 @@ package com.google.android.apps.muzei.gallery
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -38,14 +39,23 @@ class GallerySetupActivity : FragmentActivity() {
         GalleryDatabase.getInstance(this).chosenPhotoDao()
                 .chosenPhotos.observe(this) { chosenUris ->
             val numChosenUris = chosenUris.size
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                    == PackageManager.PERMISSION_GRANTED || numChosenUris > 0) {
+            val hasPermission = ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE)== PackageManager.PERMISSION_GRANTED
+                    && (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
+                    || ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_MEDIA_LOCATION) == PackageManager.PERMISSION_GRANTED)
+            if (hasPermission || numChosenUris > 0) {
                 // If we have permission or have any previously selected images
                 setResult(RESULT_OK)
                 finish()
             } else {
                 ActivityCompat.requestPermissions(this,
-                        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
+                                    Manifest.permission.ACCESS_MEDIA_LOCATION)
+                        } else {
+                            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+                        },
                         REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE)
             }
         }
