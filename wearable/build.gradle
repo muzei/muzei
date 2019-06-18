@@ -100,9 +100,7 @@ dependencies {
         exclude module: 'support-v4'
     }
 
-    implementation ("com.google.android.gms:play-services-wearable:$playServicesWearableVersion") {
-        exclude module: 'support-v4'
-    }
+    implementation "com.google.android.gms:play-services-wearable:$playServicesWearableVersion"
 
     implementation project(':muzei-api')
     implementation project(':extensions')
