@@ -21,7 +21,7 @@ buildscript {
 
         appCompatVersion = '1.1.0-beta01'
         browserVersion = '1.0.0'
-        constraintLayoutVersion = '2.0.0-beta1'
+        constraintLayoutVersion = '2.0.0-beta2'
         coreVersion = '1.2.0-alpha02'
         coroutinesVersion = '1.2.1'
         crashlyticsVersion = '2.10.1'
