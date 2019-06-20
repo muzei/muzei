@@ -42,6 +42,8 @@ class SourceArtProvider : MuzeiArtProvider() {
         private const val TAG = "SourceArtProvider"
     }
 
+    private val client by lazy { OkHttpClientFactory.getNewOkHttpsSafeClient() }
+
     override fun onLoadRequested(initial: Boolean) {
         if (initial) {
             // If there's no artwork at all, immediately queue up the next artwork
@@ -107,7 +109,6 @@ class SourceArtProvider : MuzeiArtProvider() {
             artwork.persistentUri?.takeIf {
                 it.scheme == "http" || it.scheme == "https"
             }?.run {
-                val client = OkHttpClientFactory.getNewOkHttpsSafeClient()
                 val request = Request.Builder().url(URL(toString())).build()
                 val response = client.newCall(request).execute()
                 val responseCode = response.code()
