@@ -25,7 +25,6 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
-import android.text.TextUtils
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -281,7 +280,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                 }
             }
             itemView.setOnLongClickListener {
-                if (TextUtils.equals(packageName, requireContext().packageName)) {
+                if (packageName == requireContext().packageName) {
                     // Don't open Muzei's app info
                     return@setOnLongClickListener false
                 }

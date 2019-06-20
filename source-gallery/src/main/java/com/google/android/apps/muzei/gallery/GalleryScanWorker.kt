@@ -28,7 +28,6 @@ import android.os.Build
 import android.provider.BaseColumns
 import android.provider.DocumentsContract
 import android.provider.MediaStore
-import android.text.TextUtils
 import android.text.format.DateUtils
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -348,7 +347,7 @@ class GalleryScanWorker(
             applicationContext.contentResolver.openInputStream(imageUri)?.use { input ->
                 val exifInterface = ExifInterface(input)
                 val dateString = exifInterface.getAttribute(ExifInterface.TAG_DATETIME)
-                if (!TextUtils.isEmpty(dateString)) {
+                if (!dateString.isNullOrEmpty()) {
                     metadata.date = EXIF_DATE_FORMAT.parse(dateString)
                 }
 

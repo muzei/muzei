@@ -31,7 +31,6 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Message
 import android.os.Messenger
-import android.text.TextUtils
 import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.Lifecycle
@@ -352,12 +351,12 @@ class LegacySourceService : Service(), LifecycleOwner {
         source.color = Color.WHITE
         if (metaData != null) {
             val settingsActivity = metaData.getString("settingsActivity")
-            if (!TextUtils.isEmpty(settingsActivity)) {
+            if (!settingsActivity.isNullOrEmpty()) {
                 source.settingsActivity = ComponentName.unflattenFromString(
                         "${info.packageName}/$settingsActivity")
             }
             val setupActivity = metaData.getString("setupActivity")
-            if (!TextUtils.isEmpty(setupActivity)) {
+            if (!setupActivity.isNullOrEmpty()) {
                 source.setupActivity = ComponentName.unflattenFromString(
                         "${info.packageName}/$setupActivity")
             }
