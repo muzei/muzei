@@ -36,7 +36,7 @@ import java.util.concurrent.Executors
 
 class ProviderArtworkLiveData(
         val context: Context,
-        val coroutineScope: CoroutineScope,
+        private val coroutineScope: CoroutineScope,
         val contentUri: Uri
 ): MutableLiveData<List<Artwork>>() {
     private val authority: String = contentUri.authority

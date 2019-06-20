@@ -42,7 +42,6 @@ import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -417,7 +416,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                 payloads[0] == PAYLOAD_DESCRIPTION -> holder.setDescription(getItem(position))
                 payloads[0] == PAYLOAD_CURRENT_IMAGE_URI -> holder.setImage(getItem(position))
                 payloads[0] == PAYLOAD_SELECTED -> holder.setSelected(getItem(position))
-                else -> IllegalArgumentException("Forgot to handle ${payloads[0]}")
+                else -> throw IllegalArgumentException("Forgot to handle ${payloads[0]}")
             }
         }
     }

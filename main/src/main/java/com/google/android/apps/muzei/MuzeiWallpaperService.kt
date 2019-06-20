@@ -385,7 +385,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             delayedBlur = lifecycleScope.launch {
                 delay(TEMPORARY_FOCUS_DURATION_MILLIS)
                 queueEvent {
-                    renderer.setIsBlurred(true, false)
+                    renderer.setIsBlurred(isBlurred = true, artDetailMode = false)
                 }
             }
         }

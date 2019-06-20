@@ -39,6 +39,8 @@ import com.google.android.apps.muzei.wallpaper.allowsNextArtwork
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
+import kotlin.math.max
+import kotlin.math.min
 
 private const val TAG = "updateAppWidget"
 
@@ -96,10 +98,10 @@ suspend fun updateAppWidget(context: Context) = coroutineScope {
             val extras = appWidgetManager.getAppWidgetOptions(widgetId)
             var widgetWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                     extras.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH).toFloat(), displayMetrics).toInt()
-            widgetWidth = Math.max(Math.min(widgetWidth, displayMetrics.widthPixels), minWidgetSize)
+            widgetWidth = max(min(widgetWidth, displayMetrics.widthPixels), minWidgetSize)
             var widgetHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                     extras.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT).toFloat(), displayMetrics).toInt()
-            widgetHeight = Math.max(Math.min(widgetHeight, displayMetrics.heightPixels), minWidgetSize)
+            widgetHeight = max(min(widgetHeight, displayMetrics.heightPixels), minWidgetSize)
             var success = false
             while (!success) {
                 val remoteViews = createRemoteViews(context, provider, artwork,
@@ -170,7 +172,7 @@ private fun Bitmap.scale(widgetWidth: Int, widgetHeight: Int): Bitmap? {
             widgetWidth == 0 || widgetHeight == 0) {
         return null
     }
-    val largestDimension = Math.max(widgetWidth, widgetHeight)
+    val largestDimension = max(widgetWidth, widgetHeight)
     var width = width
     var height = height
     when {

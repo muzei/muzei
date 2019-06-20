@@ -34,6 +34,7 @@ import android.view.View
 import android.view.animation.DecelerateInterpolator
 
 import java.text.ParseException
+import kotlin.math.max
 
 class AnimatedMuzeiLogoView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0)
     : View(context, attrs, defStyle) {
@@ -190,7 +191,7 @@ class AnimatedMuzeiLogoView @JvmOverloads constructor(context: Context, attrs: A
             val pm = PathMeasure(path, true)
             var len = pm.length
             while (true) {
-                len = Math.max(len, pm.length)
+                len = max(len, pm.length)
                 if (!pm.nextContour()) {
                     break
                 }

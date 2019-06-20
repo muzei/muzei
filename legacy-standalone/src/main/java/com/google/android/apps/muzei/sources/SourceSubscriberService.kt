@@ -46,7 +46,7 @@ class SourceSubscriberService : IntentService("SourceSubscriberService") {
             return
         }
         // Handle API call from source
-        val token = intent.getStringExtra(EXTRA_TOKEN)
+        val token = intent.getStringExtra(EXTRA_TOKEN) ?: return
         val state = intent.getBundleExtra(EXTRA_STATE)?.run {
             SourceState.fromBundle(this)
         } ?: return // If there's no state, there's nothing to change

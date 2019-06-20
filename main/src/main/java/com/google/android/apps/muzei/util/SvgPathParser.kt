@@ -64,7 +64,7 @@ internal class SvgPathParser(
                     var firstPoint = true
                     while (advanceToNextToken() == TOKEN_VALUE) {
                         consumeAndTransformPoint(tempPoint1,
-                                relative && currentPoint.x != java.lang.Float.NaN)
+                                relative && !currentPoint.x.isNaN())
                         if (firstPoint) {
                             p.moveTo(tempPoint1.x, tempPoint1.y)
                             firstPoint = false
@@ -81,7 +81,7 @@ internal class SvgPathParser(
 
                 'C', 'c' -> {
                     // curve command
-                    if (currentPoint.x == java.lang.Float.NaN) {
+                    if (currentPoint.x.isNaN()) {
                         throw ParseException("Relative commands require current point", currentIndex)
                     }
 
@@ -97,7 +97,7 @@ internal class SvgPathParser(
 
                 'L', 'l' -> {
                     // line command
-                    if (currentPoint.x == java.lang.Float.NaN) {
+                    if (currentPoint.x.isNaN()) {
                         throw ParseException("Relative commands require current point", currentIndex)
                     }
 
@@ -110,7 +110,7 @@ internal class SvgPathParser(
 
                 'H', 'h' -> {
                     // horizontal line command
-                    if (currentPoint.x == java.lang.Float.NaN) {
+                    if (currentPoint.x.isNaN()) {
                         throw ParseException("Relative commands require current point", currentIndex)
                     }
 
@@ -126,7 +126,7 @@ internal class SvgPathParser(
 
                 'V', 'v' -> {
                     // vertical line command
-                    if (currentPoint.x == java.lang.Float.NaN) {
+                    if (currentPoint.x.isNaN()) {
                         throw ParseException("Relative commands require current point", currentIndex)
                     }
 
@@ -142,7 +142,7 @@ internal class SvgPathParser(
 
                 'Q', 'q' -> {
                     // curve command
-                    if (currentPoint.x == java.lang.Float.NaN) {
+                    if (currentPoint.x.isNaN()) {
                         throw ParseException("Relative commands require current point", currentIndex)
                     }
 

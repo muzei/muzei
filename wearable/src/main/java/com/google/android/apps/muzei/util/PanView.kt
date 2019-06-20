@@ -31,6 +31,8 @@ import android.view.View
 import android.widget.EdgeEffect
 import android.widget.OverScroller
 import androidx.annotation.Keep
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * View which supports panning around an image larger than the screen size. Supports both scrolling
@@ -152,8 +154,8 @@ class PanView @JvmOverloads constructor(context: Context, attrs: AttributeSet? =
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        currentWidth = Math.max(1, w)
-        currentHeight = Math.max(1, h)
+        currentWidth = max(1, w)
+        currentHeight = max(1, h)
         updateScaledImage()
     }
 
@@ -164,11 +166,11 @@ class PanView @JvmOverloads constructor(context: Context, attrs: AttributeSet? =
         val height = image.height
         scaledImage = if (width > height) {
             val scalingFactor = currentHeight * 1f / height
-            val scaledWidth = Math.max(1, (scalingFactor * width).toInt())
+            val scaledWidth = max(1, (scalingFactor * width).toInt())
             Bitmap.createScaledBitmap(image, scaledWidth, currentHeight, true)
         } else {
             val scalingFactor = currentWidth * 1f / width
-            val scaledHeight = Math.max(1, (scalingFactor * height).toInt())
+            val scaledHeight = max(1, (scalingFactor * height).toInt())
             Bitmap.createScaledBitmap(image, currentWidth, scaledHeight, true)
         }
         blurredImage = scaledImage.blur(context)
@@ -279,11 +281,11 @@ class PanView @JvmOverloads constructor(context: Context, attrs: AttributeSet? =
         // Constrain between currentWidth - scaledImage.getWidth() and 0
         // currentWidth - scaledImage.getWidth() -> right edge visible
         // 0 -> left edge visible
-        this.offsetX = Math.min(0f, Math.max((currentWidth - scaledImage.width).toFloat(), offsetX))
+        this.offsetX = min(0f, max((currentWidth - scaledImage.width).toFloat(), offsetX))
         // Constrain between currentHeight - scaledImage.getHeight() and 0
         // currentHeight - scaledImage.getHeight() -> bottom edge visible
         // 0 -> top edge visible
-        this.offsetY = Math.min(0f, Math.max((currentHeight - scaledImage.height).toFloat(), offsetY))
+        this.offsetY = min(0f, max((currentHeight - scaledImage.height).toFloat(), offsetY))
     }
 
     /**

@@ -91,7 +91,7 @@ class SingleArtProvider : MuzeiArtProvider() {
                             mkdirs()
                         }
 
-                        for (existingTempFile in directory.listFiles()) {
+                        for (existingTempFile in directory.listFiles()!!) {
                             existingTempFile.delete()
                         }
                         val filename = StringBuilder().apply {

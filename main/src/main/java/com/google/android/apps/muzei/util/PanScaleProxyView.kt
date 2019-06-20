@@ -30,6 +30,8 @@ import android.view.ScaleGestureDetector
 import android.view.View
 import android.widget.OverScroller
 import androidx.core.view.GestureDetectorCompat
+import kotlin.math.max
+import kotlin.math.min
 
 class PanScaleProxyView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0)
     : View(context, attrs, defStyle) {
@@ -251,8 +253,8 @@ class PanScaleProxyView @JvmOverloads constructor(context: Context, attrs: Attri
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        currentWidth = Math.max(1, w)
-        currentHeight = Math.max(1, h)
+        currentWidth = max(1, w)
+        currentHeight = max(1, h)
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -297,7 +299,7 @@ class PanScaleProxyView @JvmOverloads constructor(context: Context, attrs: Attri
                 if (bottom > 1) {
                     val requestedHeight = height()
                     bottom = 1f
-                    top = Math.max(0f, bottom - requestedHeight)
+                    top = max(0f, bottom - requestedHeight)
                 }
                 if (height() < minViewportWidthOrHeight) {
                     bottom = (bottom + top) / 2 + minViewportWidthOrHeight / 2
@@ -314,7 +316,7 @@ class PanScaleProxyView @JvmOverloads constructor(context: Context, attrs: Attri
                 if (right > 1) {
                     val requestedWidth = width()
                     right = 1f
-                    left = Math.max(0f, right - requestedWidth)
+                    left = max(0f, right - requestedWidth)
                 }
                 if (width() < minViewportWidthOrHeight) {
                     right = (right + left) / 2 + minViewportWidthOrHeight / 2
@@ -383,8 +385,8 @@ class PanScaleProxyView @JvmOverloads constructor(context: Context, attrs: Attri
          */
         val curWidth = currentViewport.width()
         val curHeight = currentViewport.height()
-        x = Math.max(0f, Math.min(x, 1 - curWidth))
-        y = Math.max(0f, Math.min(y, 1 - curHeight))
+        x = max(0f, min(x, 1 - curWidth))
+        y = max(0f, min(y, 1 - curHeight))
 
         currentViewport.set(x, y, x + curWidth, y + curHeight)
         triggerViewportChangedListener()

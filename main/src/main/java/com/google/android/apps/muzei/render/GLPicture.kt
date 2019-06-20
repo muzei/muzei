@@ -22,6 +22,7 @@ import android.graphics.Rect
 import android.opengl.GLES20
 import com.google.android.apps.muzei.util.divideRoundUp
 import java.nio.FloatBuffer
+import kotlin.math.min
 
 internal fun Bitmap.toGLPicture(): GLPicture? {
     if (width == 0 || height == 0) {
@@ -98,7 +99,7 @@ internal class GLPicture @SuppressLint("CheckResult") internal constructor(
             // Compute max texture size
             val maxTextureSize = IntArray(1)
             GLES20.glGetIntegerv(GLES20.GL_MAX_TEXTURE_SIZE, maxTextureSize, 0)
-            TILE_SIZE = Math.min(512, maxTextureSize[0])
+            TILE_SIZE = min(512, maxTextureSize[0])
         }
     }
 
@@ -174,16 +175,16 @@ internal class GLPicture @SuppressLint("CheckResult") internal constructor(
         for (y in 0 until numRows) {
             for (x in 0 until numColumns) {
                 // Pass in the vertex information
-                vertices[9] = Math.min(-1 + 2f * x.toFloat() * TILE_SIZE.toFloat() / width, 1f)
+                vertices[9] = min(-1 + 2f * x.toFloat() * TILE_SIZE.toFloat() / width, 1f)
                 vertices[3] = vertices[9]
                 vertices[0] = vertices[3] // left
-                vertices[16] = Math.min(-1 + 2f * (y + 1).toFloat() * TILE_SIZE.toFloat() / height, 1f)
+                vertices[16] = min(-1 + 2f * (y + 1).toFloat() * TILE_SIZE.toFloat() / height, 1f)
                 vertices[10] = vertices[16]
                 vertices[1] = vertices[10] // top
-                vertices[15] = Math.min(-1 + 2f * (x + 1).toFloat() * TILE_SIZE.toFloat() / width, 1f)
+                vertices[15] = min(-1 + 2f * (x + 1).toFloat() * TILE_SIZE.toFloat() / width, 1f)
                 vertices[12] = vertices[15]
                 vertices[6] = vertices[12] // right
-                vertices[13] = Math.min(-1 + 2f * y.toFloat() * TILE_SIZE.toFloat() / height, 1f)
+                vertices[13] = min(-1 + 2f * y.toFloat() * TILE_SIZE.toFloat() / height, 1f)
                 vertices[7] = vertices[13]
                 vertices[4] = vertices[7] // bottom
                 vertexBuffer.put(vertices)

@@ -255,7 +255,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         // Ensure we have the latest insets
         ViewCompat.requestApplyInsets(view)
 
-        scrimView = view.findViewById<View>(R.id.art_detail_scrim)
+        scrimView = view.findViewById(R.id.art_detail_scrim)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             scrimView.background = makeCubicGradientScrimDrawable(Gravity.TOP, 0x44)
         }

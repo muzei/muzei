@@ -26,6 +26,8 @@ import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RectShape
 import android.util.LruCache
 import android.view.Gravity
+import kotlin.math.max
+import kotlin.math.pow
 
 private val cubicGradientScrimCache = LruCache<Int, Drawable>(10)
 
@@ -55,7 +57,7 @@ fun makeCubicGradientScrimDrawable(
         return cachedGradient
     }
 
-    numStops = Math.max(numStops, 2)
+    numStops = max(numStops, 2)
 
     val paintDrawable = PaintDrawable().apply {
         shape = RectShape()
@@ -65,7 +67,7 @@ fun makeCubicGradientScrimDrawable(
 
     for (i in 0 until numStops) {
         val x = i * 1f / (numStops - 1)
-        val opacity = Math.pow(x.toDouble(), 3.0).toFloat().constrain(0f, 1f)
+        val opacity = x.toDouble().pow(3.0).toFloat().constrain(0f, 1f)
         stopColors[i] = Color.argb((alpha * opacity).toInt(), red, green, blue)
     }
 

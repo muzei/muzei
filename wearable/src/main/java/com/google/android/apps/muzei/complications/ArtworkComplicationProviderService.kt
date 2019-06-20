@@ -74,7 +74,7 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
         val complications = preferences.getStringSet(KEY_COMPLICATION_IDS,
                 null) ?: TreeSet()
-        complications.add(Integer.toString(complicationId))
+        complications.add(complicationId.toString())
         preferences.edit { putStringSet(KEY_COMPLICATION_IDS, complications) }
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "addComplication: $complications")
@@ -90,7 +90,7 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
         val complications = preferences.getStringSet(KEY_COMPLICATION_IDS,
                 null) ?: TreeSet()
-        complications.remove(Integer.toString(complicationId))
+        complications.remove(complicationId.toString())
         preferences.edit { putStringSet(KEY_COMPLICATION_IDS, complications) }
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Current complications: $complications")

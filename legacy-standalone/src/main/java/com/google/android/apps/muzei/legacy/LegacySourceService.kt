@@ -192,12 +192,10 @@ class LegacySourceService : Service(), LifecycleOwner {
                 database.sourceDao().getSourceComponentNames())
             val resolveInfos = pm.queryIntentServices(queryIntent,
                     PackageManager.GET_META_DATA)
-            if (resolveInfos != null) {
-                for (ri in resolveInfos) {
-                    existingSources.remove(ComponentName(ri.serviceInfo.packageName,
-                            ri.serviceInfo.name))
-                    updateSourceFromServiceInfo(ri.serviceInfo)
-                }
+            for (ri in resolveInfos) {
+                existingSources.remove(ComponentName(ri.serviceInfo.packageName,
+                        ri.serviceInfo.name))
+                updateSourceFromServiceInfo(ri.serviceInfo)
             }
             // Delete sources in the database that have since been removed
             database.sourceDao().deleteAll(existingSources.toTypedArray())

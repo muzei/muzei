@@ -27,9 +27,8 @@ fun Bitmap?.darkness(): Float {
     var totalLum = 0
     var n = 0
     var x: Int
-    var y: Int
+    var y = 0
     var color: Int
-    y = 0
     while (y < height) {
         x = 0
         while (x < width) {

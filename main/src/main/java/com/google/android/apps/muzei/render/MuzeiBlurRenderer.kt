@@ -39,6 +39,11 @@ import com.google.android.apps.muzei.util.roundMult4
 import com.google.android.apps.muzei.util.uninterpolate
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
+import kotlin.math.ceil
+import kotlin.math.floor
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.sqrt
 
 sealed class SwitchingPhotos(val viewportId: Int)
 data class SwitchingPhotosInProgress(private val currentId: Int) : SwitchingPhotos(currentId)
@@ -323,7 +328,7 @@ class MuzeiBlurRenderer(
                 dimAmount = if (demoMode)
                     DEMO_DIM
                 else
-                    (maxDim * (1 - DIM_RANGE + DIM_RANGE * Math.sqrt(darkness.toDouble()))).toInt()
+                    (maxDim * (1 - DIM_RANGE + DIM_RANGE * sqrt(darkness.toDouble()))).toInt()
                 tempBitmap?.recycle()
 
                 // Create the GLPicture objects
@@ -356,8 +361,8 @@ class MuzeiBlurRenderer(
                     }
                     // Note that image width should be a multiple of 4 to avoid
                     // issues with RenderScript allocations.
-                    val scaledHeight = Math.max(2, sampleSizeTargetHeight.floorEven())
-                    val scaledWidth = Math.max(4, (scaledHeight * bitmapAspectRatio).toInt().roundMult4())
+                    val scaledHeight = max(2, sampleSizeTargetHeight.floorEven())
+                    val scaledWidth = max(4, (scaledHeight * bitmapAspectRatio).toInt().roundMult4())
 
                     // To blur, first load the entire bitmap region, but at a very large
                     // sample size that's appropriate for the final blurred image
@@ -414,14 +419,14 @@ class MuzeiBlurRenderer(
             }
 
             // Ensure the bitmap is as wide as the screen by applying zoom if necessary
-            val zoom = Math.max(1f, screenToBitmapAspectRatio)
+            val zoom = max(1f, screenToBitmapAspectRatio)
 
             // Total scale factors in both zoom and scale due to aspect ratio.
             val scaledBitmapToScreenAspectRatio = zoom / screenToBitmapAspectRatio
 
             // At most pan across 1.8 screenfuls (2 screenfuls + some parallax)
             // TODO: if we know the number of home screen pages, use that number here
-            val maxPanScreenWidths = Math.min(1.8f, scaledBitmapToScreenAspectRatio)
+            val maxPanScreenWidths = min(1.8f, scaledBitmapToScreenAspectRatio)
 
             currentViewport.apply {
                 left = interpolate(-1f, 1f,
@@ -484,8 +489,8 @@ class MuzeiBlurRenderer(
             Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, mvpMatrix, 0)
 
             val blurFrame = blurAnimator.currentValue
-            val lo = Math.floor(blurFrame.toDouble()).toInt()
-            val hi = Math.ceil(blurFrame.toDouble()).toInt()
+            val lo = floor(blurFrame.toDouble()).toInt()
+            val hi = ceil(blurFrame.toDouble()).toInt()
 
             val localHiAlpha = blurFrame - lo
             when {

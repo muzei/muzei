@@ -38,7 +38,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewPropertyAnimator
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -331,7 +330,6 @@ class SourceSettingsActivity : AppCompatActivity() {
 
     internal inner class SourceView(var source: Source) {
         lateinit var icon: Drawable
-        var animation: ViewPropertyAnimator? = null
 
         fun toCharSequence() = buildSpannedString {
             bold { append(source.label) }

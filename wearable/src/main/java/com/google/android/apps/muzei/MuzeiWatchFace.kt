@@ -72,6 +72,7 @@ import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
 import java.util.concurrent.TimeUnit
+import kotlin.math.min
 
 /**
  * Default watch face for Muzei, showing the current time atop the current artwork. In ambient
@@ -576,8 +577,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
             else
                 timeFormat12h.format(calendar.time)
             val xOffset = width / 2f
-            val yOffset = Math.min((height + clockTextHeight) / 2,
-                    (if (cardBounds.top == 0) height else cardBounds.top) - clockMargin)
+            val yOffset = min((height + clockTextHeight) / 2, (if (cardBounds.top == 0) height else cardBounds.top) - clockMargin)
             if (!blurred) {
                 canvas.drawText(formattedTime,
                         xOffset,

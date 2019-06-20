@@ -76,6 +76,8 @@ import kotlinx.coroutines.launch
 import java.util.ArrayList
 import java.util.HashSet
 import java.util.LinkedList
+import kotlin.math.hypot
+import kotlin.math.max
 
 class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPhoto>>,
         GalleryImportPhotosDialogFragment.OnRequestContentListener, MultiSelectionController.Callbacks {
@@ -106,11 +108,11 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         viewModel.chosenPhotos
     }
 
-    private val selectionToolbar: Toolbar by lazy {
+    private val selectionToolbar by lazy {
         findViewById<Toolbar>(R.id.selection_toolbar)
     }
 
-    private val photoGridView: RecyclerView by lazy {
+    private val photoGridView by lazy {
         findViewById<RecyclerView>(R.id.photo_grid).apply {
             itemAnimator = DefaultItemAnimator().apply {
                 supportsChangeAnimations = false
@@ -132,7 +134,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
 
     private var updatePosition = -1
     private lateinit var addButton: View
-    private val addToolbar: LinearLayout by lazy {
+    private val addToolbar by lazy {
         findViewById<LinearLayout>(R.id.add_toolbar)
     }
 
@@ -513,7 +515,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         }
 
         if (toolbarVisible) {
-            val title = Integer.toString(selectedCount)
+            val title = selectedCount.toString()
             if (selectedCount == 1) {
                 // If they've selected a tree URI, show the DISPLAY_NAME instead of just '1'
                 val selectedId = multiSelectionController.selection.iterator().next()
@@ -690,10 +692,10 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
 
         private fun maxDistanceToCorner(x: Int, y: Int, left: Int, top: Int, right: Int, bottom: Int): Float {
             var maxDistance = 0f
-            maxDistance = Math.max(maxDistance, Math.hypot((x - left).toDouble(), (y - top).toDouble()).toFloat())
-            maxDistance = Math.max(maxDistance, Math.hypot((x - right).toDouble(), (y - top).toDouble()).toFloat())
-            maxDistance = Math.max(maxDistance, Math.hypot((x - left).toDouble(), (y - bottom).toDouble()).toFloat())
-            maxDistance = Math.max(maxDistance, Math.hypot((x - right).toDouble(), (y - bottom).toDouble()).toFloat())
+            maxDistance = max(maxDistance, hypot((x - left).toDouble(), (y - top).toDouble()).toFloat())
+            maxDistance = max(maxDistance, hypot((x - right).toDouble(), (y - top).toDouble()).toFloat())
+            maxDistance = max(maxDistance, hypot((x - left).toDouble(), (y - bottom).toDouble()).toFloat())
+            maxDistance = max(maxDistance, hypot((x - right).toDouble(), (y - bottom).toDouble()).toFloat())
             return maxDistance
         }
 
