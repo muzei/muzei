@@ -14,19 +14,23 @@
   limitations under the License.
   -->
 
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Theme.Legacy.Transparent.Base"
-           parent="Theme.MaterialComponents.DayNight.NoActionBar">
+           parent="Theme.MaterialComponents.DayNight.NoActionBar"
+           tools:ignore="ResourceName">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:colorBackgroundCacheHint">@null</item>
         <item name="android:windowIsTranslucent">true</item>
     </style>
 
     <style name="Theme.Legacy.Transparent"
-           parent="Theme.Legacy.Transparent.Base"> <!-- pre-Lollipop -->
+           parent="Theme.Legacy.Transparent.Base"
+           tools:ignore="ResourceName"> <!-- pre-Lollipop -->
     </style>
 
-    <style name="Theme.Legacy.Dialog" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
+    <style name="Theme.Legacy.Dialog"
+           parent="Theme.MaterialComponents.DayNight.Dialog.Alert"
+           tools:ignore="ResourceName">
         <item name="colorPrimary">?attr/colorOnSurface</item>
     </style>
 </resources>
