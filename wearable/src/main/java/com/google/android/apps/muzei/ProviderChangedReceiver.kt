@@ -67,6 +67,11 @@ class ProviderChangedReceiver : BroadcastReceiver() {
         }
     }
     override fun onReceive(context: Context, intent: Intent) {
+        if (intent.`package` != context.packageName) {
+            // Filter out Intents that don't explicitly
+            // have our package name
+            return
+        }
         goAsync {
             updateBridging(context)
         }

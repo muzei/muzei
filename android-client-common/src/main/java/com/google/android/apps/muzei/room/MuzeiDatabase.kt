@@ -76,6 +76,14 @@ abstract class MuzeiDatabase : RoomDatabase() {
                                         override fun onInvalidated(tables: Set<String>) {
                                             applicationContext.contentResolver
                                                     .notifyChange(MuzeiContract.Sources.CONTENT_URI, null)
+                                            // First send a targeted broadcast just to ourselves
+                                            applicationContext.sendBroadcast(
+                                                    Intent(MuzeiContract.Sources.ACTION_SOURCE_CHANGED).apply {
+                                                        `package` = applicationContext.packageName
+                                                    })
+                                            // Now send another broadcast to other apps listening
+                                            // (it is expected that our own listener filters
+                                            // these second calls out)
                                             applicationContext.sendBroadcast(
                                                     Intent(MuzeiContract.Sources.ACTION_SOURCE_CHANGED))
                                         }
