@@ -24,6 +24,8 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BlendMode
+import android.graphics.BlendModeColorFilter
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -131,7 +133,12 @@ class SourceSettingsActivity : AppCompatActivity() {
                 SourceView(source).apply {
                     icon = BitmapDrawable(resources, generateSourceImage(
                             info.loadIcon(pm))).apply {
-                        setColorFilter(source.color, PorterDuff.Mode.SRC_ATOP)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            colorFilter = BlendModeColorFilter(source.color, BlendMode.SRC_ATOP)
+                        } else {
+                            @Suppress("DEPRECATION")
+                            setColorFilter(source.color, PorterDuff.Mode.SRC_ATOP)
+                        }
                     }
                 }
             }.sortedWith(Comparator { sourceView1, sourceView2 ->
@@ -297,8 +304,14 @@ class SourceSettingsActivity : AppCompatActivity() {
                     ALPHA_DEFAULT
                 }
                 if (sourceView.source.selected) {
-                    selectedSourceImage.setColorFilter(
-                            sourceView.source.color, PorterDuff.Mode.SRC_ATOP)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        selectedSourceImage.colorFilter = BlendModeColorFilter(
+                                sourceView.source.color, BlendMode.SRC_ATOP)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        selectedSourceImage.setColorFilter(
+                                sourceView.source.color, PorterDuff.Mode.SRC_ATOP)
+                    }
                     textView.setCompoundDrawablesRelativeWithIntrinsicBounds(
                             selectedSourceImage,null, null, null)
 
