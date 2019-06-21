@@ -79,6 +79,7 @@ class ActivateMuzeiIntentService : IntentService(TAG) {
                 node = getNode(context, CapabilityClient.FILTER_ALL)
             } catch (e: TimeoutException) {
                 // Google Play services is out of date, nothing more we can do
+                Log.e(TAG, "Timed out connecting to Google Play services", e)
                 return
             }
             if (node != null) {
