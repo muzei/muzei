@@ -23,7 +23,7 @@ buildscript {
         browserVersion = '1.0.0'
         constraintLayoutVersion = '2.0.0-beta2'
         coreVersion = '1.2.0-alpha02'
-        coroutinesVersion = '1.2.1'
+        coroutinesVersion = '1.2.2'
         crashlyticsVersion = '2.10.1'
         drawerLayoutVersion = '1.1.0-alpha02'
         exifInterfaceVersion = '1.1.0-alpha01'
