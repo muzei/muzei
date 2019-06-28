@@ -42,6 +42,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
+import com.google.android.apps.muzei.legacy.LegacySourceManager
 import com.google.android.apps.muzei.notifications.NotificationUpdater
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer
@@ -55,7 +56,6 @@ import com.google.android.apps.muzei.settings.Prefs
 import com.google.android.apps.muzei.shortcuts.ArtworkInfoShortcutController
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.filterNotNull
-import com.google.android.apps.muzei.wallpaper.LegacySourceManager
 import com.google.android.apps.muzei.wallpaper.LockscreenObserver
 import com.google.android.apps.muzei.wallpaper.WallpaperAnalytics
 import com.google.android.apps.muzei.wearable.WearableController

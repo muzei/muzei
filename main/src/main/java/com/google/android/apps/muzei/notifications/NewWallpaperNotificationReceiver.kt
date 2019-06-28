@@ -36,13 +36,13 @@ import androidx.core.os.bundleOf
 import androidx.preference.PreferenceManager
 import com.google.android.apps.muzei.ArtDetailOpenLiveData
 import com.google.android.apps.muzei.ArtworkInfoRedirectActivity
+import com.google.android.apps.muzei.legacy.LegacySourceManager
+import com.google.android.apps.muzei.legacy.allowsNextArtwork
 import com.google.android.apps.muzei.render.ContentUriImageLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.getCommands
 import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.util.goAsync
-import com.google.android.apps.muzei.wallpaper.LegacySourceManager
-import com.google.android.apps.muzei.wallpaper.allowsNextArtwork
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
 

@@ -30,12 +30,12 @@ import android.widget.RemoteViews
 import androidx.annotation.LayoutRes
 import androidx.annotation.RequiresApi
 import androidx.core.os.bundleOf
+import com.google.android.apps.muzei.legacy.allowsNextArtwork
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
-import com.google.android.apps.muzei.wallpaper.allowsNextArtwork
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R

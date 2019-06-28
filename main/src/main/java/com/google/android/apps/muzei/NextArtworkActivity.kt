@@ -19,7 +19,7 @@ package com.google.android.apps.muzei
 import android.app.Activity
 import android.os.Bundle
 import androidx.core.os.bundleOf
-import com.google.android.apps.muzei.wallpaper.LegacySourceManager
+import com.google.android.apps.muzei.legacy.LegacySourceManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.wallpaper
+package com.google.android.apps.muzei.legacy
 
 import android.content.BroadcastReceiver
 import android.content.ComponentName
@@ -34,7 +34,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.observe
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
-import com.google.android.apps.muzei.legacy.LegacySourceServiceProtocol
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.sync.ProviderManager
@@ -69,7 +68,8 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
         fun getInstance(context: Context): LegacySourceManager {
             val applicationContext = context.applicationContext
             return instance ?: synchronized(this) {
-                instance ?: LegacySourceManager(applicationContext).also { manager ->
+                instance
+                        ?: LegacySourceManager(applicationContext).also { manager ->
                     instance = manager
                 }
             }

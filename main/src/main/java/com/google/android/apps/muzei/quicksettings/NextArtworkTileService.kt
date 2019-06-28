@@ -33,12 +33,12 @@ import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.observe
 import com.google.android.apps.muzei.MuzeiWallpaperService
+import com.google.android.apps.muzei.legacy.LegacySourceManager
+import com.google.android.apps.muzei.legacy.allowsNextArtwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.util.toast
-import com.google.android.apps.muzei.wallpaper.LegacySourceManager
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
-import com.google.android.apps.muzei.wallpaper.allowsNextArtwork
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
