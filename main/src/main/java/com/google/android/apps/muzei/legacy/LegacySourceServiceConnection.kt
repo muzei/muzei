@@ -54,11 +54,17 @@ internal class LegacySourceServiceConnection(
             when (message.what) {
                 LegacySourceServiceProtocol.WHAT_REPLY_TO_REPLACEMENT -> {
                     val authority = message.obj as String
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "Got replacement message for $authority")
+                    }
                     GlobalScope.launch {
                         ProviderManager.select(applicationContext, authority)
                     }
                 }
                 LegacySourceServiceProtocol.WHAT_REPLY_TO_NO_SELECTED_SOURCE -> GlobalScope.launch {
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "Got no selected source message")
+                    }
                     ProviderManager.select(applicationContext, FEATURED_ART_AUTHORITY)
                 }
             }
@@ -108,6 +114,9 @@ internal class LegacySourceServiceConnection(
         val messenger = this.messenger ?: return
         if (!registered) {
             registered = true
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Sending register message")
+            }
             messenger.send(Message.obtain().apply {
                 what = LegacySourceServiceProtocol.WHAT_REGISTER_REPLY_TO
                 replyTo = replyToMessenger
@@ -128,9 +137,15 @@ internal class LegacySourceServiceConnection(
         when(val messenger = this.messenger) {
             null -> cont.resume(false)
             else -> {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "Sending allows next artwork message")
+                }
                 messenger.send(Message.obtain().apply {
                     what = LegacySourceServiceProtocol.WHAT_ALLOWS_NEXT_ARTWORK
                     replyTo = Messenger(Handler(Looper.getMainLooper()) { message ->
+                        if (BuildConfig.DEBUG) {
+                            Log.d(TAG, "Answered allows next artwork ${message.arg1 == 1}")
+                        }
                         cont.resume(message.arg1 == 1)
                         true
                     })
@@ -143,6 +158,9 @@ internal class LegacySourceServiceConnection(
         // Only unregister if we're connected
         val messenger = this.messenger ?: return
         if (registered) {
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Sending unregister message")
+            }
             messenger.send(Message.obtain().apply {
                 what = LegacySourceServiceProtocol.WHAT_UNREGISTER_REPLY_TO
             })

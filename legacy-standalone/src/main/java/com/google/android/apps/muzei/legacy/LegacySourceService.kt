@@ -116,28 +116,46 @@ class LegacySourceService : Service(), LifecycleOwner {
         Messenger(Handler { message ->
             when (message.what) {
                 LegacySourceServiceProtocol.WHAT_REGISTER_REPLY_TO -> {
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "Registered")
+                    }
                     replyToMessenger = message.replyTo
                     lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
                 }
                 LegacySourceServiceProtocol.WHAT_NEXT_ARTWORK -> lifecycleScope.launch(singleThreadContext) {
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "Got next artwork command")
+                    }
                     val database = LegacyDatabase.getInstance(applicationContext)
                     val source = database.sourceDao().getCurrentSource()
                     if (source?.supportsNextArtwork == true) {
+                        if (BuildConfig.DEBUG) {
+                            Log.d(TAG, "Sending next artwork command to ${source.componentName}")
+                        }
                         source.sendAction(this@LegacySourceService,
                                 MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK)
                     }
                 }
                 LegacySourceServiceProtocol.WHAT_ALLOWS_NEXT_ARTWORK -> {
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "Got allows next artwork")
+                    }
                     val replyMessenger = message.replyTo
                     lifecycleScope.launch(singleThreadContext) {
                         val allowsNextArtwork = LegacyDatabase.getInstance(applicationContext)
                                 .sourceDao().getCurrentSource()?.supportsNextArtwork == true
+                        if (BuildConfig.DEBUG) {
+                            Log.d(TAG, "Sending allows next artwork of $allowsNextArtwork")
+                        }
                         replyMessenger.send(Message.obtain().apply {
                             arg1 = if (allowsNextArtwork) 1 else 0
                         })
                     }
                 }
                 LegacySourceServiceProtocol.WHAT_UNREGISTER_REPLY_TO -> {
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "Unregistered")
+                    }
                     lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
                     replyToMessenger = null
                 }
