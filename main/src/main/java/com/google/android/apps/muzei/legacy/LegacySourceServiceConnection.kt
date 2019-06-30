@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Handler
+import android.os.HandlerThread
 import android.os.IBinder
 import android.os.Looper
 import android.os.Message
@@ -73,6 +74,7 @@ internal class LegacySourceServiceConnection(
     }
 
     private var messenger: Messenger? = null
+    private var handlerThread: HandlerThread? = null
     private var registered = false
 
     fun onProviderChanged(provider: Provider?) {
@@ -104,6 +106,7 @@ internal class LegacySourceServiceConnection(
                 register()
             }
         }
+        handlerThread = HandlerThread(TAG).apply { start() }
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Bound to LegacySourceService")
         }
@@ -142,7 +145,7 @@ internal class LegacySourceServiceConnection(
                 }
                 messenger.send(Message.obtain().apply {
                     what = LegacySourceServiceProtocol.WHAT_ALLOWS_NEXT_ARTWORK
-                    replyTo = Messenger(Handler(Looper.getMainLooper()) { message ->
+                    replyTo = Messenger(Handler(handlerThread!!.looper) { message ->
                         if (BuildConfig.DEBUG) {
                             Log.d(TAG, "Answered allows next artwork ${message.arg1 == 1}")
                         }
@@ -179,6 +182,7 @@ internal class LegacySourceServiceConnection(
         if (messenger != null) {
             unregister()
             applicationContext.unbindService(this)
+            handlerThread?.quitSafely()
             messenger = null
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Unbound from LegacySourceService")
