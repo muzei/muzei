@@ -23,7 +23,6 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.edit
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
@@ -125,9 +124,6 @@ class EffectsFragment : Fragment(R.layout.effects_fragment) {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        // Ensure we have the latest insets
-        ViewCompat.requestApplyInsets(view)
-
         toolbar = view.findViewById(R.id.toolbar)
         if (requireActivity() is SettingsActivity) {
             toolbar.setNavigationIcon(R.drawable.ic_ab_done)

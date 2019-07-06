@@ -34,7 +34,6 @@ import androidx.appcompat.widget.TooltipCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
-import androidx.core.view.ViewCompat
 import androidx.core.view.children
 import androidx.core.view.get
 import androidx.core.view.isGone
@@ -252,9 +251,6 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        // Ensure we have the latest insets
-        ViewCompat.requestApplyInsets(view)
-
         scrimView = view.findViewById(R.id.art_detail_scrim)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             scrimView.background = makeCubicGradientScrimDrawable(Gravity.TOP, 0x44)

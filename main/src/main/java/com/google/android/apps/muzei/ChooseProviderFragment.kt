@@ -35,7 +35,6 @@ import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
-import androidx.core.view.ViewCompat
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
@@ -94,9 +93,6 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        // Ensure we have the latest insets
-        ViewCompat.requestApplyInsets(view)
-
         toolbar = view.findViewById(R.id.toolbar)
         requireActivity().menuInflater.inflate(R.menu.choose_provider_fragment,
                 toolbar.menu)

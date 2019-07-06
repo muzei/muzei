@@ -28,7 +28,6 @@ import android.widget.ImageView
 import androidx.core.animation.doOnEnd
 import androidx.core.content.edit
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -43,8 +42,6 @@ class TutorialFragment : Fragment(R.layout.tutorial_fragment) {
     private val runningAnimators = mutableListOf<AnimatorSet>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        // Ensure we have the latest insets
-        ViewCompat.requestApplyInsets(view)
         view.findViewById<View>(R.id.tutorial_icon_affordance).setOnClickListener {
             FirebaseAnalytics.getInstance(requireContext())
                     .logEvent(FirebaseAnalytics.Event.TUTORIAL_COMPLETE, null)
