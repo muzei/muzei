@@ -29,7 +29,6 @@ import androidx.lifecycle.observe
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.sync.ProviderManager
-import com.google.android.apps.muzei.util.filterNotNull
 import net.nurik.roman.muzei.BuildConfig.LEGACY_AUTHORITY
 
 suspend fun Provider?.allowsNextArtwork(context: Context): Boolean {
@@ -100,11 +99,18 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
         }
     }
 
+    private val legacySourcePackageListener = LegacySourcePackageListener(applicationContext)
     private val serviceConnection = LegacySourceServiceConnection(applicationContext)
 
     override fun onCreate(owner: LifecycleOwner) {
-        serviceLiveData.distinctUntilChanged().filterNotNull().observe(owner) { componentName ->
-            serviceConnection.bindService(componentName)
+        serviceLiveData.distinctUntilChanged().observe(owner) { componentName ->
+            if (componentName == null) {
+                legacySourcePackageListener.startListening()
+                serviceConnection.unbindService()
+            } else {
+                legacySourcePackageListener.stopListening()
+                serviceConnection.bindService(componentName)
+            }
         }
         MuzeiDatabase.getInstance(applicationContext).providerDao().currentProvider
                 .observe(owner, serviceConnection::onProviderChanged)
