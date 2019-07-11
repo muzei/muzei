@@ -1,20 +1,37 @@
 package com.google.android.apps.muzei.legacy
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.Drawable
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import com.google.android.apps.muzei.api.MuzeiArtSource
+import net.nurik.roman.muzei.R
 
 class LegacySourcePackageListener(
         private val applicationContext: Context
 ) {
     companion object {
         private const val TAG = "LegacySourcePackage"
+        private const val NOTIFICATION_CHANNEL = "legacy"
+        private const val NOTIFICATION_ID = 19
     }
+
+    private val largeIconSize = applicationContext.resources.getDimensionPixelSize(
+            android.R.dimen.notification_large_icon_height)
+    private var lastNotifiedSources = mutableListOf<SourceInfo>()
 
     private var registered = false
 
@@ -54,8 +71,10 @@ class LegacySourcePackageListener(
         val pm = applicationContext.packageManager
         val resolveInfos = pm.queryIntentServices(queryIntent,
                 PackageManager.GET_META_DATA)
+        val legacySources = mutableListOf<SourceInfo>()
         for (ri in resolveInfos) {
-            if (ri.serviceInfo?.metaData?.containsKey("replacement") == true) {
+            val info = ri.serviceInfo
+            if (info?.metaData?.containsKey("replacement") == true) {
                 // Skip MuzeiArtSources that have a replacement
                 continue
             }
@@ -64,7 +83,55 @@ class LegacySourcePackageListener(
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Found legacy source $legacySource")
             }
+            val sourceInfo = SourceInfo(
+                    legacySource.flattenToShortString(),
+                    info.applicationInfo.loadLabel(pm).toString(),
+                    generateSourceImage(info.applicationInfo.loadIcon(pm)))
+            legacySources.add(sourceInfo)
         }
+        if (lastNotifiedSources == legacySources) {
+            // Nothing changed, so there's nothing to update
+            return
+        }
+        lastNotifiedSources = legacySources
+        if (legacySources.isNotEmpty()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                createNotificationChannel()
+            }
+            val notificationManager = NotificationManagerCompat.from(applicationContext)
+            for (info in legacySources) {
+                val notification = NotificationCompat.Builder(applicationContext, NOTIFICATION_CHANNEL)
+                        .setSmallIcon(R.drawable.ic_stat_muzei)
+                        .setColor(ContextCompat.getColor(applicationContext, R.color.notification))
+                        .setContentTitle(applicationContext.getString(
+                                R.string.legacy_notification_title, info.title))
+                        .setContentText(applicationContext.getString(R.string.legacy_notification_text))
+                        .setStyle(NotificationCompat.BigTextStyle().bigText(
+                                applicationContext.getString(R.string.legacy_notification_text)))
+                        .setLargeIcon(info.icon)
+                        .setOnlyAlertOnce(true)
+                        .build()
+                notificationManager.notify(info.packageName, NOTIFICATION_ID, notification)
+            }
+        }
+    }
+
+    private fun generateSourceImage(image: Drawable?) = image?.run {
+        Bitmap.createBitmap(largeIconSize, largeIconSize,
+            Bitmap.Config.ARGB_8888).apply {
+            val canvas = Canvas(this)
+            image.setBounds(0, 0, largeIconSize, largeIconSize)
+            image.draw(canvas)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun createNotificationChannel() {
+        val notificationManager = NotificationManagerCompat.from(applicationContext)
+        val channel = NotificationChannel(NOTIFICATION_CHANNEL,
+                applicationContext.getString(R.string.legacy_notification_channel_name),
+                NotificationManager.IMPORTANCE_DEFAULT)
+        notificationManager.createNotificationChannel(channel)
     }
 
     fun stopListening() {
@@ -75,3 +142,9 @@ class LegacySourcePackageListener(
         applicationContext.unregisterReceiver(sourcePackageChangeReceiver)
     }
 }
+
+data class SourceInfo(
+        val packageName: String,
+        val title: String,
+        val icon: Bitmap?
+)

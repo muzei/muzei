@@ -69,6 +69,11 @@
     <string name="provider_settings">Settings</string>
     <string name="provider_browse">Browse</string>
 
+    <string name="legacy_notification_channel_name">Legacy Sources</string>
+    <string name="legacy_notification_title">%s is no longer supported</string>
+    <string name="legacy_notification_text">Muzei does not directly support sources built
+        with the Legacy Source API.</string>
+
     <string name="done">Done</string>
 
     <string name="set_as_wallpaper_using_muzei">Wallpaper (using Muzei)</string>
