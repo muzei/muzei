@@ -109,6 +109,9 @@ class LegacySourcePackageListener(
                         .setStyle(NotificationCompat.BigTextStyle().bigText(
                                 applicationContext.getString(R.string.legacy_notification_text)))
                         .setLargeIcon(info.icon)
+                        .setLocalOnly(true)
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                        .setDefaults(NotificationCompat.DEFAULT_ALL)
                         .setOnlyAlertOnce(true)
                         .build()
                 notificationManager.notify(info.packageName, NOTIFICATION_ID, notification)
