@@ -31,7 +31,7 @@ class LegacySourcePackageListener(
 
     private val largeIconSize = applicationContext.resources.getDimensionPixelSize(
             android.R.dimen.notification_large_icon_height)
-    private var lastNotifiedSources = mutableListOf<SourceInfo>()
+    private var lastNotifiedSources = mutableSetOf<SourceInfo>()
 
     private var registered = false
 
@@ -71,22 +71,22 @@ class LegacySourcePackageListener(
         val pm = applicationContext.packageManager
         val resolveInfos = pm.queryIntentServices(queryIntent,
                 PackageManager.GET_META_DATA)
-        val legacySources = mutableListOf<SourceInfo>()
+        val legacySources = mutableSetOf<SourceInfo>()
         for (ri in resolveInfos) {
             val info = ri.serviceInfo
             if (info?.metaData?.containsKey("replacement") == true) {
                 // Skip MuzeiArtSources that have a replacement
                 continue
             }
-            val legacySource = ComponentName(ri.serviceInfo.packageName,
-                    ri.serviceInfo.name)
             if (BuildConfig.DEBUG) {
+                val legacySource = ComponentName(ri.serviceInfo.packageName,
+                        ri.serviceInfo.name)
                 Log.d(TAG, "Found legacy source $legacySource")
             }
-            val sourceInfo = SourceInfo(
-                    legacySource.flattenToShortString(),
-                    info.applicationInfo.loadLabel(pm).toString(),
-                    generateSourceImage(info.applicationInfo.loadIcon(pm)))
+            val sourceInfo = SourceInfo(ri.serviceInfo.packageName).apply {
+                title = info.applicationInfo.loadLabel(pm).toString()
+                icon = generateSourceImage(info.applicationInfo.loadIcon(pm))
+            }
             legacySources.add(sourceInfo)
         }
         if (lastNotifiedSources == legacySources) {
@@ -143,8 +143,7 @@ class LegacySourcePackageListener(
     }
 }
 
-data class SourceInfo(
-        val packageName: String,
-        val title: String,
-        val icon: Bitmap?
-)
+data class SourceInfo(val packageName: String) {
+    lateinit var title: String
+    var icon: Bitmap? = null
+}
