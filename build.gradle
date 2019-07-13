@@ -27,7 +27,7 @@ buildscript {
         crashlyticsVersion = '2.10.1'
         drawerLayoutVersion = '1.1.0-alpha02'
         exifInterfaceVersion = '1.1.0-beta01'
-        firebaseCoreVersion = '17.0.0'
+        firebaseCoreVersion = '17.0.1'
         firebasePerfVersion = '18.0.1'
         fragmentVersion = '1.2.0-alpha01'
         glideVersion = '4.9.0'
