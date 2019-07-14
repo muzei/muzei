@@ -18,6 +18,7 @@ package com.google.android.apps.muzei.legacy
 
 import android.app.Activity
 import android.app.Dialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -105,10 +106,7 @@ class SourceWarningDialogFragment : DialogFragment() {
                 .create()
     }
 
-    override fun onStop() {
-        if (!requireDialog().isShowing) {
-            requireActivity().finish()
-        }
-        super.onStop()
+    override fun onCancel(dialog: DialogInterface) {
+        requireActivity().finish()
     }
 }
