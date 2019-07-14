@@ -2,6 +2,7 @@ package com.google.android.apps.muzei.legacy
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
@@ -17,6 +18,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import net.nurik.roman.muzei.R
 
@@ -27,6 +29,8 @@ class LegacySourcePackageListener(
         private const val TAG = "LegacySourcePackage"
         private const val NOTIFICATION_CHANNEL = "legacy"
         private const val NOTIFICATION_ID = 19
+        private val LEARN_MORE_LINK =
+                "https://medium.com/muzei/muzei-3-0-and-legacy-sources-8261979e2264".toUri()
     }
 
     private val largeIconSize = applicationContext.resources.getDimensionPixelSize(
@@ -98,6 +102,12 @@ class LegacySourcePackageListener(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 createNotificationChannel()
             }
+            val learnMorePendingIntent = PendingIntent.getActivity(
+                    applicationContext, 0,
+                    Intent(Intent.ACTION_VIEW, LEARN_MORE_LINK).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    },
+                    0)
             val notificationManager = NotificationManagerCompat.from(applicationContext)
             for (info in legacySources) {
                 val notification = NotificationCompat.Builder(applicationContext, NOTIFICATION_CHANNEL)
@@ -113,6 +123,9 @@ class LegacySourcePackageListener(
                         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                         .setDefaults(NotificationCompat.DEFAULT_ALL)
                         .setOnlyAlertOnce(true)
+                        .addAction(NotificationCompat.Action.Builder(R.drawable.ic_notif_info,
+                                applicationContext.getString(R.string.legacy_action_learn_more),
+                                learnMorePendingIntent).build())
                         .build()
                 notificationManager.notify(info.packageName, NOTIFICATION_ID, notification)
             }

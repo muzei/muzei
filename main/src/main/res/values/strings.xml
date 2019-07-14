@@ -73,6 +73,7 @@
     <string name="legacy_notification_title">%s is no longer supported</string>
     <string name="legacy_notification_text">Muzei does not directly support sources built
         with the Legacy Source API.</string>
+    <string name="legacy_action_learn_more">Learn more</string>
 
     <string name="done">Done</string>
 
