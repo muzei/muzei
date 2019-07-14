@@ -110,6 +110,11 @@ class LegacySourcePackageListener(
                     0)
             val notificationManager = NotificationManagerCompat.from(applicationContext)
             for (info in legacySources) {
+                val sendFeedbackPendingIntent = PendingIntent.getActivity(
+                        applicationContext, 0,
+                        Intent(Intent.ACTION_VIEW,
+                                "https://play.google.com/store/apps/details?id=${info.packageName}".toUri()),
+                        0)
                 val notification = NotificationCompat.Builder(applicationContext, NOTIFICATION_CHANNEL)
                         .setSmallIcon(R.drawable.ic_stat_muzei)
                         .setColor(ContextCompat.getColor(applicationContext, R.color.notification))
@@ -126,6 +131,9 @@ class LegacySourcePackageListener(
                         .addAction(NotificationCompat.Action.Builder(R.drawable.ic_notif_info,
                                 applicationContext.getString(R.string.legacy_action_learn_more),
                                 learnMorePendingIntent).build())
+                        .addAction(NotificationCompat.Action.Builder(R.drawable.ic_notif_feedback,
+                                applicationContext.getString(R.string.legacy_action_send_feedback),
+                                sendFeedbackPendingIntent).build())
                         .build()
                 notificationManager.notify(info.packageName, NOTIFICATION_ID, notification)
             }
