@@ -22,7 +22,7 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
 import androidx.multidex.MultiDexApplication
-import androidx.preference.PreferenceManager
+import com.google.android.apps.muzei.settings.Prefs
 
 class MuzeiApplication : MultiDexApplication(), SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -30,19 +30,19 @@ class MuzeiApplication : MultiDexApplication(), SharedPreferences.OnSharedPrefer
         private const val ALWAYS_DARK_KEY = "always_dark"
 
         fun setAlwaysDark(context: Context, alwaysDark: Boolean) {
-            PreferenceManager.getDefaultSharedPreferences(context).edit {
+            Prefs.getSharedPreferences(context).edit {
                 putBoolean(ALWAYS_DARK_KEY, alwaysDark)
             }
         }
 
         fun getAlwaysDark(context: Context) =
-                PreferenceManager.getDefaultSharedPreferences(context).getBoolean(ALWAYS_DARK_KEY, false)
+                Prefs.getSharedPreferences(context).getBoolean(ALWAYS_DARK_KEY, false)
     }
 
     override fun onCreate() {
         super.onCreate()
         updateNightMode()
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val sharedPreferences = Prefs.getSharedPreferences(this)
         sharedPreferences.registerOnSharedPreferenceChangeListener(this)
     }
 
