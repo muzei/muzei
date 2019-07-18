@@ -46,13 +46,6 @@ android {
         buildConfigField "String", "LEGACY_AUTHORITY", "\"${legacyAuthorityValue}\""
 
         buildConfigField "String", "DEVICE_TYPE", "\"android\""
-
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = ["room.schemaLocation":
-                                     "$projectDir/schemas".toString()]
-            }
-        }
     }
 
     signingConfigs {
