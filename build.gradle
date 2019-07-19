@@ -35,7 +35,7 @@ buildscript {
         lifecycleVersion = '2.2.0-alpha02'
         materialVersion = '1.1.0-alpha08'
         multidexVersion = '2.0.1'
-        navigationVersion = '2.1.0-beta01'
+        navigationVersion = '2.1.0-beta02'
         okhttpVersion = '3.12.1'
         pagingVersion = '2.1.0'
         playServicesWearableVersion = '17.0.0'
@@ -44,7 +44,7 @@ buildscript {
         roomVersion = '2.2.0-alpha01'
         wearableVersion = '2.4.0'
         wearVersion = '1.0.0'
-        workManagerVersion = '2.2.0-beta01'
+        workManagerVersion = '2.2.0-beta02'
     }
 
     repositories {
