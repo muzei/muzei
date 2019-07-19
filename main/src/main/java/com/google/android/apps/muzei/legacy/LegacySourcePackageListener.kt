@@ -29,6 +29,8 @@ class LegacySourcePackageListener(
         private const val TAG = "LegacySourcePackage"
         private const val NOTIFICATION_CHANNEL = "legacy"
         private const val NOTIFICATION_ID = 19
+        private const val NOTIFICATION_SUMMARY_TAG = "summary"
+        private const val NOTIFICATION_GROUP_KEY = "legacy"
         private val LEARN_MORE_LINK =
                 "https://medium.com/muzei/muzei-3-0-and-legacy-sources-8261979e2264".toUri()
     }
@@ -97,8 +99,26 @@ class LegacySourcePackageListener(
             // Nothing changed, so there's nothing to update
             return
         }
+        val notificationManager = applicationContext.getSystemService(
+                Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // Cancel the notification associated with sources that have since been removed
+            val removedPackages = lastNotifiedSources.filterNot {
+                it in legacySources
+            }.map {
+                it.packageName
+            }
+            notificationManager.activeNotifications.filter {
+                it.id == NOTIFICATION_ID && it.tag in removedPackages
+            }.forEach { sbn ->
+                notificationManager.cancel(sbn.tag, sbn.id)
+            }
+        }
         lastNotifiedSources = legacySources
-        if (legacySources.isNotEmpty()) {
+        if (legacySources.isEmpty()) {
+            // If there's no Legacy Sources, cancel any summary notification still present
+            notificationManager.cancel(NOTIFICATION_SUMMARY_TAG, NOTIFICATION_ID)
+        } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 createNotificationChannel()
             }
@@ -108,7 +128,7 @@ class LegacySourcePackageListener(
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     },
                     0)
-            val notificationManager = NotificationManagerCompat.from(applicationContext)
+            // Send a notification for each Legacy Source
             for (info in legacySources) {
                 val sendFeedbackPendingIntent = PendingIntent.getActivity(
                         applicationContext, 0,
@@ -124,6 +144,7 @@ class LegacySourcePackageListener(
                         .setStyle(NotificationCompat.BigTextStyle().bigText(
                                 applicationContext.getString(R.string.legacy_notification_text)))
                         .setLargeIcon(info.icon)
+                        .setGroup(NOTIFICATION_GROUP_KEY)
                         .setLocalOnly(true)
                         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                         .setDefaults(NotificationCompat.DEFAULT_ALL)
@@ -137,6 +158,34 @@ class LegacySourcePackageListener(
                         .build()
                 notificationManager.notify(info.packageName, NOTIFICATION_ID, notification)
             }
+            // Send a summary notification
+            val summaryText = applicationContext.resources.getQuantityString(
+                    R.plurals.legacy_summary_text,
+                    legacySources.size, legacySources.size)
+            val summaryNotification = NotificationCompat.Builder(applicationContext, NOTIFICATION_CHANNEL)
+                    .setSmallIcon(R.drawable.ic_stat_muzei)
+                    .setColor(ContextCompat.getColor(applicationContext, R.color.notification))
+                    .setContentTitle(applicationContext.getString(R.string.legacy_summary_title))
+                    .setContentText(summaryText)
+                    .setShowWhen(false)
+                    .setStyle(NotificationCompat.InboxStyle()
+                            .setSummaryText(summaryText)
+                            .also {
+                                for (info in legacySources) {
+                                    it.addLine(info.title)
+                                }
+                            })
+                    .setGroup(NOTIFICATION_GROUP_KEY)
+                    .setGroupSummary(true)
+                    .setLocalOnly(true)
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setDefaults(NotificationCompat.DEFAULT_ALL)
+                    .setOnlyAlertOnce(true)
+                    .addAction(NotificationCompat.Action.Builder(R.drawable.ic_notif_info,
+                            applicationContext.getString(R.string.legacy_action_learn_more),
+                            learnMorePendingIntent).build())
+                    .build()
+            notificationManager.notify(NOTIFICATION_SUMMARY_TAG, NOTIFICATION_ID, summaryNotification)
         }
     }
 

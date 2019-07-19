@@ -75,6 +75,11 @@
         with the Legacy Source API.</string>
     <string name="legacy_action_learn_more">Learn more</string>
     <string name="legacy_action_send_feedback">Send feedback</string>
+    <string name="legacy_summary_title">Legacy Sources are no longer supported</string>
+    <plurals name="legacy_summary_text">
+        <item quantity="one">%d Legacy Source found</item>
+        <item quantity="other">%d Legacy Sources found</item>
+    </plurals>
 
     <string name="done">Done</string>
 
