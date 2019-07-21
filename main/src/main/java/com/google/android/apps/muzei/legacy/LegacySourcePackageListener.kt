@@ -18,9 +18,11 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.lifecycle.MutableLiveData
 import com.google.android.apps.muzei.api.MuzeiArtSource
+import com.google.android.apps.muzei.settings.Prefs
 import net.nurik.roman.muzei.R
 
 class LegacySourcePackageListener(
@@ -28,6 +30,7 @@ class LegacySourcePackageListener(
 ) {
     companion object {
         private const val TAG = "LegacySourcePackage"
+        private const val PREF_LAST_NOTIFIED = "legacy_last_notified"
         private const val NOTIFICATION_CHANNEL = "legacy"
         private const val NOTIFICATION_ID = 19
         private const val NOTIFICATION_SUMMARY_TAG = "summary"
@@ -39,6 +42,16 @@ class LegacySourcePackageListener(
     private val largeIconSize = applicationContext.resources.getDimensionPixelSize(
             android.R.dimen.notification_large_icon_height)
     private var lastNotifiedSources = mutableSetOf<SourceInfo>()
+    private val prefs = Prefs.getSharedPreferences(applicationContext)
+
+    init {
+        prefs.getStringSet(PREF_LAST_NOTIFIED, mutableSetOf())?.forEach { packageName ->
+            lastNotifiedSources.add(SourceInfo(packageName))
+        }
+        if (lastNotifiedSources.isNotEmpty()) {
+            unsupportedSourcesLiveData.value = lastNotifiedSources.toList()
+        }
+    }
 
     private var registered = false
 
@@ -117,6 +130,9 @@ class LegacySourcePackageListener(
             }
         }
         lastNotifiedSources = legacySources
+        prefs.edit {
+            putStringSet(PREF_LAST_NOTIFIED, lastNotifiedSources.map { it.packageName }.toSet())
+        }
         if (legacySources.isEmpty()) {
             // If there's no Legacy Sources, cancel any summary notification still present
             notificationManager.cancel(NOTIFICATION_SUMMARY_TAG, NOTIFICATION_ID)
