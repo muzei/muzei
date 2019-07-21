@@ -80,6 +80,10 @@
         <item quantity="one">%d Legacy Source found</item>
         <item quantity="other">%d Legacy Sources found</item>
     </plurals>
+    <plurals name="legacy_unsupported_text">
+        <item quantity="one">%d unsupported source found</item>
+        <item quantity="other">%d unsupported sources found</item>
+    </plurals>
 
     <string name="done">Done</string>
 

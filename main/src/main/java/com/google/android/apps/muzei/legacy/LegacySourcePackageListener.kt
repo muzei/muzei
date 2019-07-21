@@ -19,6 +19,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.lifecycle.MutableLiveData
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import net.nurik.roman.muzei.R
 
@@ -31,9 +32,9 @@ class LegacySourcePackageListener(
         private const val NOTIFICATION_ID = 19
         private const val NOTIFICATION_SUMMARY_TAG = "summary"
         private const val NOTIFICATION_GROUP_KEY = "legacy"
-        private val LEARN_MORE_LINK =
-                "https://medium.com/muzei/muzei-3-0-and-legacy-sources-8261979e2264".toUri()
     }
+
+    internal val unsupportedSourcesLiveData: MutableLiveData<List<SourceInfo>> = MutableLiveData()
 
     private val largeIconSize = applicationContext.resources.getDimensionPixelSize(
             android.R.dimen.notification_large_icon_height)
@@ -95,6 +96,7 @@ class LegacySourcePackageListener(
             }
             legacySources.add(sourceInfo)
         }
+        unsupportedSourcesLiveData.value = legacySources.toList()
         if (lastNotifiedSources == legacySources) {
             // Nothing changed, so there's nothing to update
             return
@@ -124,7 +126,7 @@ class LegacySourcePackageListener(
             }
             val learnMorePendingIntent = PendingIntent.getActivity(
                     applicationContext, 0,
-                    Intent(Intent.ACTION_VIEW, LEARN_MORE_LINK).apply {
+                    Intent(Intent.ACTION_VIEW, LegacySourceManager.LEARN_MORE_LINK).apply {
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     },
                     0)

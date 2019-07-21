@@ -33,11 +33,13 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -53,10 +55,12 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.api.provider.ProviderContract
+import com.google.android.apps.muzei.legacy.LegacySourceManager
 import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.toast
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -82,6 +86,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
     private val viewModel: ChooseProviderViewModel by viewModels()
     private val adapter = ProviderListAdapter()
 
+    private lateinit var layout: CoordinatorLayout
     private lateinit var toolbar: Toolbar
     private lateinit var drawerLayout: DrawerLayout
 
@@ -93,6 +98,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        layout = view.findViewById(R.id.provider_layout)
         toolbar = view.findViewById(R.id.toolbar)
         requireActivity().menuInflater.inflate(R.menu.choose_provider_fragment,
                 toolbar.menu)
@@ -159,6 +165,40 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
         providerList.adapter = adapter
         viewModel.providers.observe(this) {
             adapter.submitList(it)
+        }
+        // Show a SnackBar whenever there are unsupported sources installed
+        var snackBar: Snackbar? = null
+        LegacySourceManager.getInstance(requireContext()).unsupportedSourceCount.observe(this) { count ->
+            if (count > 0) {
+                snackBar = Snackbar.make(
+                        layout,
+                        resources.getQuantityString(R.plurals.legacy_unsupported_text, count, count),
+                        Snackbar.LENGTH_INDEFINITE
+                ).apply {
+                    addCallback(object : Snackbar.Callback() {
+                        override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                            if (event != DISMISS_EVENT_CONSECUTIVE) {
+                                // Reset the padding now that the SnackBar is dismissed
+                                providerList.updatePadding(bottom = resources.getDimensionPixelSize(
+                                        R.dimen.provider_padding))
+                            }
+                        }
+                    })
+                    setAction(R.string.legacy_action_learn_more) {
+                        startActivity(Intent(Intent.ACTION_VIEW,
+                                LegacySourceManager.LEARN_MORE_LINK))
+                    }
+                    show()
+                    // Increase the padding when the SnackBar is shown to avoid
+                    // overlapping the last element
+                    providerList.updatePadding(bottom = resources.getDimensionPixelSize(
+                            R.dimen.provider_padding_with_snackbar))
+                }
+            } else {
+                // There's no unsupported sources installed anymore, so just
+                // dismiss any SnackBar that is being shown
+                snackBar?.dismiss()
+            }
         }
     }
 
@@ -397,7 +437,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
     ) {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
                 ProviderViewHolder(layoutInflater.inflate(
-                    R.layout.choose_provider_item, parent, false))
+                        R.layout.choose_provider_item, parent, false))
 
         override fun onBindViewHolder(holder: ProviderViewHolder, position: Int) {
             holder.bind(getItem(position))

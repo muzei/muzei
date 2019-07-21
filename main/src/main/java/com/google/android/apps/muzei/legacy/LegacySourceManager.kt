@@ -21,8 +21,11 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import androidx.core.net.toUri
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.observe
@@ -46,6 +49,9 @@ suspend fun Provider?.allowsNextArtwork(context: Context): Boolean {
 class LegacySourceManager(private val applicationContext: Context) : DefaultLifecycleObserver {
 
     companion object {
+        val LEARN_MORE_LINK =
+                "https://medium.com/muzei/muzei-3-0-and-legacy-sources-8261979e2264".toUri()
+
         @Volatile
         private var instance: LegacySourceManager? = null
 
@@ -102,12 +108,20 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
     private val legacySourcePackageListener = LegacySourcePackageListener(applicationContext)
     private val serviceConnection = LegacySourceServiceConnection(applicationContext)
 
+    private val unsupportedSources = MediatorLiveData<Int>()
+    val unsupportedSourceCount: LiveData<Int> = unsupportedSources
+
     override fun onCreate(owner: LifecycleOwner) {
         serviceLiveData.distinctUntilChanged().observe(owner) { componentName ->
             if (componentName == null) {
                 legacySourcePackageListener.startListening()
+                unsupportedSources.addSource(legacySourcePackageListener.unsupportedSourcesLiveData) {
+                    unsupportedSources.value = it.size
+                }
                 serviceConnection.unbindService()
             } else {
+                unsupportedSources.removeSource(legacySourcePackageListener.unsupportedSourcesLiveData)
+                unsupportedSources.value = 0
                 legacySourcePackageListener.stopListening()
                 serviceConnection.bindService(componentName)
             }
