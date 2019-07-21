@@ -115,12 +115,12 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
         serviceLiveData.distinctUntilChanged().observe(owner) { componentName ->
             if (componentName == null) {
                 legacySourcePackageListener.startListening()
-                unsupportedSources.addSource(legacySourcePackageListener.unsupportedSourcesLiveData) {
-                    unsupportedSources.value = it.size
+                unsupportedSources.addSource(legacySourcePackageListener.unsupportedSourceCount) {
+                    unsupportedSources.value = it
                 }
                 serviceConnection.unbindService()
             } else {
-                unsupportedSources.removeSource(legacySourcePackageListener.unsupportedSourcesLiveData)
+                unsupportedSources.removeSource(legacySourcePackageListener.unsupportedSourceCount)
                 unsupportedSources.value = 0
                 legacySourcePackageListener.stopListening()
                 serviceConnection.bindService(componentName)

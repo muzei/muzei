@@ -37,7 +37,7 @@ class LegacySourcePackageListener(
         private const val NOTIFICATION_GROUP_KEY = "legacy"
     }
 
-    internal val unsupportedSourcesLiveData: MutableLiveData<List<SourceInfo>> = MutableLiveData()
+    internal val unsupportedSourceCount: MutableLiveData<Int> = MutableLiveData()
 
     private val largeIconSize = applicationContext.resources.getDimensionPixelSize(
             android.R.dimen.notification_large_icon_height)
@@ -49,7 +49,7 @@ class LegacySourcePackageListener(
             lastNotifiedSources.add(SourceInfo(packageName))
         }
         if (lastNotifiedSources.isNotEmpty()) {
-            unsupportedSourcesLiveData.value = lastNotifiedSources.toList()
+            unsupportedSourceCount.value = lastNotifiedSources.size
         }
     }
 
@@ -109,7 +109,7 @@ class LegacySourcePackageListener(
             }
             legacySources.add(sourceInfo)
         }
-        unsupportedSourcesLiveData.value = legacySources.toList()
+        unsupportedSourceCount.value = legacySources.size
         if (lastNotifiedSources == legacySources) {
             // Nothing changed, so there's nothing to update
             return
@@ -234,7 +234,7 @@ class LegacySourcePackageListener(
     }
 }
 
-data class SourceInfo(val packageName: String) {
+private data class SourceInfo(val packageName: String) {
     lateinit var title: String
     var icon: Bitmap? = null
 }
