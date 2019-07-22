@@ -179,7 +179,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                 ).apply {
                     addCallback(object : Snackbar.Callback() {
                         override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                            if (event != DISMISS_EVENT_CONSECUTIVE) {
+                            if (isAdded && event != DISMISS_EVENT_CONSECUTIVE) {
                                 // Reset the padding now that the SnackBar is dismissed
                                 providerList.updatePadding(bottom = resources.getDimensionPixelSize(
                                         R.dimen.provider_padding))
