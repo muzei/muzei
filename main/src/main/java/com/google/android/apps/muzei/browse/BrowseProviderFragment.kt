@@ -76,7 +76,7 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
         view.findViewById<RecyclerView>(R.id.browse_list).adapter = adapter
 
         viewModel.setContentUri(args.contentUri)
-        viewModel.artLiveData.observe(this) {
+        viewModel.artLiveData.observe(viewLifecycleOwner) {
             adapter.submitList(it)
         }
     }

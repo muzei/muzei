@@ -388,7 +388,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         loadingContainerView = view.findViewById(R.id.image_loading_container)
         loadingIndicatorView = view.findViewById(R.id.image_loading_indicator)
 
-        WallpaperSizeLiveData.observe(this) { size ->
+        WallpaperSizeLiveData.observe(viewLifecycleOwner) { size ->
             wallpaperAspectRatio = if (size.height > 0) {
                 size.width * 1f / size.height
             } else {
@@ -397,14 +397,14 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             resetProxyViewport()
         }
 
-        ArtworkSizeLiveData.observe(this) { size ->
+        ArtworkSizeLiveData.observe(viewLifecycleOwner) { size ->
             artworkAspectRatio = size.width * 1f / size.height
             resetProxyViewport()
         }
 
         ArtDetailViewport.addObserver(this)
 
-        SwitchingPhotosLiveData.observe(this) { switchingPhotos ->
+        SwitchingPhotosLiveData.observe(viewLifecycleOwner) { switchingPhotos ->
             currentViewportId = switchingPhotos.viewportId
             panScaleProxyView.panScaleEnabled = switchingPhotos is SwitchingPhotosDone
             // Process deferred artwork size change when done switching
@@ -413,8 +413,8 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             }
         }
 
-        currentProviderLiveData.observe(this, providerObserver)
-        currentArtworkLiveData.observe(this, artworkObserver)
+        currentProviderLiveData.observe(viewLifecycleOwner, providerObserver)
+        currentArtworkLiveData.observe(viewLifecycleOwner, artworkObserver)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -435,8 +435,6 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
     override fun onDestroyView() {
         super.onDestroyView()
         ArtDetailViewport.removeObserver(this)
-        currentProviderLiveData.removeObserver(providerObserver)
-        currentArtworkLiveData.removeObserver(artworkObserver)
     }
 
     private fun showHideChrome(show: Boolean) {

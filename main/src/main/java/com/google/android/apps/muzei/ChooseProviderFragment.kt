@@ -138,7 +138,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
         drawerLayout = view.findViewById(R.id.choose_provider_drawer)
         drawerLayout.setStatusBarBackgroundColor(Color.TRANSPARENT)
         drawerLayout.setScrimColor(Color.argb(68, 0, 0, 0))
-        currentProviderLiveData.observe(this) { provider ->
+        currentProviderLiveData.observe(viewLifecycleOwner) { provider ->
             val legacySelected = provider?.authority == LEGACY_AUTHORITY
             toolbar.menu.findItem(R.id.auto_advance_settings).isVisible = !legacySelected
             toolbar.menu.findItem(R.id.auto_advance_disabled).isVisible = legacySelected
@@ -164,13 +164,13 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
             }
         })
         providerList.adapter = adapter
-        viewModel.providers.observe(this) {
+        viewModel.providers.observe(viewLifecycleOwner) {
             adapter.submitList(it)
         }
         // Show a SnackBar whenever there are unsupported sources installed
         var snackBar: Snackbar? = null
         LegacySourceManager.getInstance(requireContext()).unsupportedSourceCount
-                .distinctUntilChanged().observe(this) { count ->
+                .distinctUntilChanged().observe(viewLifecycleOwner) { count ->
             if (count > 0) {
                 snackBar = Snackbar.make(
                         layout,
