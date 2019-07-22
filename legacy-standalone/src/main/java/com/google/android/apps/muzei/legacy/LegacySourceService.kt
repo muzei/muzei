@@ -175,7 +175,7 @@ class LegacySourceService : Service(), LifecycleOwner {
                 updateSources(packageName)
             }
             if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
-                goAsync {
+                goAsync(lifecycleScope) {
                     val source = LegacyDatabase.getInstance(context)
                             .sourceDao().getCurrentSource()
                     if (source != null && packageName == source.componentName.packageName) {
