@@ -21,6 +21,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.lifecycle.MutableLiveData
+import androidx.navigation.NavDeepLinkBuilder
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.settings.Prefs
 import net.nurik.roman.muzei.R
@@ -140,6 +141,10 @@ class LegacySourcePackageListener(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 createNotificationChannel()
             }
+            val contentIntent = NavDeepLinkBuilder(applicationContext)
+                    .setGraph(R.navigation.main_navigation)
+                    .setDestination(R.id.main_choose_provider)
+                    .createPendingIntent()
             val learnMorePendingIntent = PendingIntent.getActivity(
                     applicationContext, 0,
                     Intent(Intent.ACTION_VIEW, LegacySourceManager.LEARN_MORE_LINK).apply {
@@ -159,6 +164,7 @@ class LegacySourcePackageListener(
                         .setContentTitle(applicationContext.getString(
                                 R.string.legacy_notification_title, info.title))
                         .setContentText(applicationContext.getString(R.string.legacy_notification_text))
+                        .setContentIntent(contentIntent)
                         .setStyle(NotificationCompat.BigTextStyle().bigText(
                                 applicationContext.getString(R.string.legacy_notification_text)))
                         .setLargeIcon(info.icon)
@@ -185,6 +191,7 @@ class LegacySourcePackageListener(
                     .setColor(ContextCompat.getColor(applicationContext, R.color.notification))
                     .setContentTitle(applicationContext.getString(R.string.legacy_summary_title))
                     .setContentText(summaryText)
+                    .setContentIntent(contentIntent)
                     .setShowWhen(false)
                     .setStyle(NotificationCompat.InboxStyle()
                             .setSummaryText(summaryText)
