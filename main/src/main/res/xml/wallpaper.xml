@@ -20,5 +20,5 @@
     android:author="@string/app_author"
     android:contextDescription="@string/app_context_description"
     android:contextUri="@string/app_context_uri"
-    android:settingsActivity="com.google.android.apps.muzei.settings.SettingsActivity"
+    android:settingsActivity="com.google.android.apps.muzei.MuzeiActivity"
     android:description="@string/app_description"/>

@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei
 
+import android.app.Activity
 import android.app.Application
 import android.app.Notification
 import android.content.SharedPreferences
@@ -33,38 +34,52 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.observe
 import androidx.preference.PreferenceManager
 import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
+import com.google.android.apps.muzei.render.MuzeiRendererFragment
+import com.google.android.apps.muzei.settings.EffectsFragment
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
 
+private const val PREVIEW_MODE = "android.service.wallpaper.PREVIEW_MODE"
+val Activity.isPreviewMode get() = intent?.extras?.getBoolean(PREVIEW_MODE) == true
+
 class MuzeiActivity : AppCompatActivity() {
     private var fadeIn = false
+    private var renderLocally = false
     private val viewModel : MuzeiActivityViewModel by viewModels()
 
     private val currentFragment: Fragment
         get() {
             val sp = PreferenceManager.getDefaultSharedPreferences(this)
             val seenTutorial = sp.getBoolean(TutorialFragment.PREF_SEEN_TUTORIAL, false)
-            when {
+            return when {
                 WallpaperActiveState.value == true && seenTutorial -> {
                     // The wallpaper is active and they've seen the tutorial
                     FirebaseAnalytics.getInstance(this).setCurrentScreen(this, "Main",
                             MainFragment::class.java.simpleName)
-                    return MainFragment()
+                    MainFragment()
                 }
                 WallpaperActiveState.value == true && !seenTutorial -> {
                     // They need to see the tutorial after activating Muzei for the first time
                     FirebaseAnalytics.getInstance(this).setCurrentScreen(this, "Tutorial",
                             TutorialFragment::class.java.simpleName)
-                    return TutorialFragment()
+                    TutorialFragment()
+                }
+                isPreviewMode -> {
+                    // We're previewing the wallpaper and want to adjust its settings
+                    FirebaseAnalytics.getInstance(this).setCurrentScreen(this, "Effects",
+                            EffectsFragment::class.java.simpleName)
+                    EffectsFragment()
                 }
                 else -> {
                     // Show the intro fragment to have them activate Muzei
                     FirebaseAnalytics.getInstance(this).setCurrentScreen(this, "Intro",
                             IntroFragment::class.java.simpleName)
-                    return IntroFragment()
+                    IntroFragment()
                 }
+            }.also {
+                updateRenderLocally(it is EffectsFragment)
             }
         }
 
@@ -138,6 +153,31 @@ class MuzeiActivity : AppCompatActivity() {
             }
 
             fadeIn = false
+        }
+    }
+
+    private fun updateRenderLocally(renderLocally: Boolean) {
+        if (this.renderLocally == renderLocally) {
+            return
+        }
+
+        this.renderLocally = renderLocally
+
+        val fm = supportFragmentManager
+        val localRenderFragment = fm.findFragmentById(R.id.local_render_container)
+        if (renderLocally) {
+            if (localRenderFragment == null) {
+                fm.commit {
+                    add(R.id.local_render_container,
+                            MuzeiRendererFragment.createInstance(false))
+                }
+            }
+        } else {
+            if (localRenderFragment != null) {
+                fm.commit {
+                    remove(localRenderFragment)
+                }
+            }
         }
     }
 }

@@ -41,6 +41,13 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
         // Set up the container for the child fragments
         val container = view.findViewById<View>(R.id.container)
         val navController = container.findNavController()
+        val navGraph = navController.navInflater.inflate(R.navigation.main_navigation)
+        if (requireActivity().isPreviewMode) {
+            // Make the Effects screen the start destination when
+            // coming from the Settings button on the Live Wallpaper picker
+            navGraph.startDestination = R.id.main_effects
+        }
+        navController.graph = navGraph
 
         // Set up the bottom nav
         bottomNavigationView = view.findViewById(R.id.bottom_nav)

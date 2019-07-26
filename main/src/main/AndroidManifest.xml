@@ -64,13 +64,11 @@
                 android:resource="@xml/wallpaper"/>
         </service>
 
-        <activity
+        <activity-alias
             android:name="com.google.android.apps.muzei.settings.SettingsActivity"
             android:label="@string/settings_title"
-            android:theme="@style/Theme.Muzei.Wallpaper"
-            android:exported="true"
-            android:parentActivityName="com.google.android.apps.muzei.MuzeiActivity">
-        </activity>
+            android:targetActivity="com.google.android.apps.muzei.MuzeiActivity"
+            android:exported="true"/>
 
         <activity-alias
             android:name="com.google.android.apps.muzei.settings.NotificationSettings"
@@ -86,7 +84,7 @@
             android:name="com.google.android.apps.muzei.settings.AboutActivity"
             android:label="@string/about_title"
             android:theme="@style/Theme.Muzei.About"
-            android:parentActivityName="com.google.android.apps.muzei.settings.SettingsActivity"/>
+            android:parentActivityName="com.google.android.apps.muzei.MuzeiActivity"/>
 
         <service
             android:name="com.google.android.apps.muzei.quicksettings.NextArtworkTileService"
