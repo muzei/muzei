@@ -143,6 +143,7 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
     suspend fun allowsNextArtwork() = serviceConnection.allowsNextArtwork()
 
     override fun onDestroy(owner: LifecycleOwner) {
+        unsupportedSources.removeSource(legacySourcePackageListener.unsupportedSourceCount)
         serviceConnection.unbindService()
     }
 }
