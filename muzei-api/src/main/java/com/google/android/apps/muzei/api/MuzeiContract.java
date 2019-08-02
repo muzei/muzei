@@ -171,16 +171,19 @@ public class MuzeiContract {
          * Column name for the artwork's opaque application-specific identifier.
          * This is generally only useful to the app that published the artwork and should
          * not be relied upon by other apps.
-         * <p>Type: TEXT
+         * <p>Type: TEXT: This always returns a <code>null</code> String
+         * @deprecated Tokens are no longer exposed outside of Muzei.
          */
+        @SuppressWarnings("DeprecatedIsStillUsed")
+        @Deprecated
         public static final String COLUMN_NAME_TOKEN = "token";
         /**
-         * Column name for the artwork's view Intent, encoded via
-         * {@link android.content.Intent#toUri(int) Intent.toUri(Intent.URI_INTENT_SCHEME)} and can
-         * be decoded via
-         * {@link android.content.Intent#parseUri(String, int) Intent.parseUri(viewIntent, Intent.URI_INTENT_SCHEME)}
-         * <p>Type: TEXT (Intent encoded URI)
+         * Column name for the artwork's view Intent
+         * <p>Type: TEXT: This always returns a <code>null</code> String.
+         * @deprecated View Intents are no longer exposed outside of Muzei.
          */
+        @SuppressWarnings("DeprecatedIsStillUsed")
+        @Deprecated
         public static final String COLUMN_NAME_VIEW_INTENT = "viewIntent";
         /**
          * Column name for the font type to use to display artwork meta info.
