@@ -297,8 +297,10 @@ public class MuzeiContract {
         public static final String COLUMN_NAME_COMPONENT_NAME = "component_name";
         /**
          * Column name for the flag indicating if the source is currently selected
-         * <p>Type: INTEGER (boolean)
+         * <p>Type: INTEGER (boolean): This always returns true (1)
+         * @deprecated Only selected rows are returned.
          */
+        @Deprecated
         public static final String COLUMN_NAME_IS_SELECTED = "selected";
         /**
          * Column name for the source's description.
@@ -307,8 +309,10 @@ public class MuzeiContract {
         public static final String COLUMN_NAME_DESCRIPTION = "description";
         /**
          * Column name for the flag indicating if the source wants callbacks for network connectivity changes
-         * <p>Type: INTEGER (boolean)
+         * <p>Type: INTEGER (boolean): This always returns false (0)
+         * @deprecated Only selected rows are returned.
          */
+        @Deprecated
         public static final String COLUMN_NAME_WANTS_NETWORK_AVAILABLE = "network";
         /**
          * Column name for the flag indicating if the source supports a 'Next Artwork' action
@@ -317,8 +321,10 @@ public class MuzeiContract {
         public static final String COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND = "supports_next_artwork";
         /**
          * Column name for the commands the source supports
-         * <p>Type: TEXT
+         * <p>Type: TEXT: This always returns a <code>null</code> String
+         * @deprecated Commands are no longer exposed outside of Muzei.
          */
+        @Deprecated
         public static final String COLUMN_NAME_COMMANDS = "commands";
         /**
          * The MIME type of {@link #CONTENT_URI} providing sources.
@@ -331,8 +337,7 @@ public class MuzeiContract {
         /**
          * The default sort order for this table
          */
-        public static final String DEFAULT_SORT_ORDER = Sources.COLUMN_NAME_IS_SELECTED + " DESC," +
-                Sources.COLUMN_NAME_COMPONENT_NAME;
+        public static final String DEFAULT_SORT_ORDER = Sources.COLUMN_NAME_COMPONENT_NAME;
         /**
          * The table name offered by this provider.
          */
@@ -366,7 +371,9 @@ public class MuzeiContract {
          * @param commandsString The serialized commands found in {@link #COLUMN_NAME_COMMANDS}.
          *
          * @return A deserialized List of {@link UserCommand}s.
+         * @deprecated Commands are no longer exposed outside of Muzei.
          */
+        @Deprecated
         @NonNull
         public static List<UserCommand> parseCommands(String commandsString) {
             ArrayList<UserCommand> commands = new ArrayList<>();
