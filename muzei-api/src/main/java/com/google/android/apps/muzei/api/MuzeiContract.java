@@ -123,7 +123,7 @@ public class MuzeiContract {
          * @see #META_FONT_TYPE_ELEGANT
          * @deprecated Choosing a font type is no longer supported.
          */
-        @SuppressWarnings("DeprecatedIsStillUsed")
+        @SuppressWarnings({"deprecation", "DeprecatedIsStillUsed"})
         @Deprecated
         @Retention(RetentionPolicy.SOURCE)
         @StringDef({META_FONT_TYPE_DEFAULT, META_FONT_TYPE_ELEGANT})
