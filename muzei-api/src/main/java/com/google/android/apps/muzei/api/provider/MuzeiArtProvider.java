@@ -44,7 +44,6 @@ import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.google.android.apps.muzei.api.BuildConfig;
 import com.google.android.apps.muzei.api.UserCommand;
 import com.google.android.apps.muzei.api.internal.RecentArtworkIdsConverter;
 
@@ -418,7 +417,7 @@ public abstract class MuzeiArtProvider extends ContentProvider implements Provid
             switch (method) {
                 case METHOD_GET_VERSION: {
                     Bundle bundle = new Bundle();
-                    bundle.putInt(KEY_VERSION, BuildConfig.API_VERSION);
+                    bundle.putInt(KEY_VERSION, com.google.android.apps.muzei.api.BuildConfig.API_VERSION);
                     return bundle;
                 }
                 case METHOD_REQUEST_LOAD:
