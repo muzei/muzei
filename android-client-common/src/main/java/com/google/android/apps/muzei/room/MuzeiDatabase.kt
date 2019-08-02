@@ -62,6 +62,7 @@ abstract class MuzeiDatabase : RoomDatabase() {
                         .build().also { database ->
                             database.invalidationTracker.addObserver(
                                     object : InvalidationTracker.Observer("artwork") {
+                                        @Suppress("DEPRECATION")
                                         override fun onInvalidated(tables: Set<String>) {
                                             DirectBootCache.onArtworkChanged(applicationContext)
                                             applicationContext.contentResolver
@@ -73,6 +74,7 @@ abstract class MuzeiDatabase : RoomDatabase() {
                             )
                             database.invalidationTracker.addObserver(
                                     object : InvalidationTracker.Observer("provider") {
+                                        @Suppress("DEPRECATION")
                                         override fun onInvalidated(tables: Set<String>) {
                                             applicationContext.contentResolver
                                                     .notifyChange(MuzeiContract.Sources.CONTENT_URI, null)

@@ -98,8 +98,11 @@ public class MuzeiContract {
      * implementing a {@link android.database.ContentObserver ContentObserver} on {@link #CONTENT_URI} or by using
      * any of the helper classes such as {@link android.content.CursorLoader CursorLoader} to listen for updates.
      *
-     * <p>However, if you want to receive updates while in the background and do not want to maintain
-     * a constantly running {@link android.database.ContentObserver ContentObserver}, you can instead listen for the
+     * <p>On API 24+ devices, it is strongly recommended to use <code>WorkManager</code> or
+     * <code>JobScheduler</code> to listen for content URI changes in the background without
+     * maintaining a constantly running {@link android.database.ContentObserver ContentObserver}.
+     *
+     * <p>To support earlier versions of Android, you can listen for the
      * {@link #ACTION_ARTWORK_CHANGED} broadcast, sent out immediately after an update is made:
      *
      * <pre class="prettyprint">
@@ -110,8 +113,8 @@ public class MuzeiContract {
      * &lt;/receiver&gt;
      * </pre>
      *
-     * No data is sent alongside the broadcast, but this can be used to kick off an
-     * {@link android.app.IntentService IntentService} to retrieve the latest artwork or start
+     * No data is sent alongside the broadcast, but this can be used to kick off
+     * background processing to retrieve the latest artwork or start
      * other processing.
      */
     public static final class Artwork implements BaseColumns {
@@ -238,7 +241,12 @@ public class MuzeiContract {
          * Intent action that will be broadcast when the artwork is changed. This happens immediately after the
          * ContentProvider is updated with data and should be considered the signal that you can retrieve the new
          * artwork.
+         * @deprecated This broadcast cannot be received on
+         * {@link android.os.Build.VERSION_CODES#O} and higher devices.
+         * Use <code>WorkManager</code> or <code>JobScheduler</code> to listen for
+         * artwork change events in the background on API 24+ devices.
          */
+        @Deprecated
         public static final String ACTION_ARTWORK_CHANGED = "com.google.android.apps.muzei.ACTION_ARTWORK_CHANGED";
 
         /**
@@ -362,7 +370,12 @@ public class MuzeiContract {
          * Intent action that will be broadcast when the source info is changed. This happens immediately after the
          * ContentProvider is updated with data and should be considered the signal that you can retrieve the new
          * source info.
+         * @deprecated This broadcast cannot be received on
+         * {@link android.os.Build.VERSION_CODES#O} and higher devices.
+         * Use <code>WorkManager</code> or <code>JobScheduler</code> to listen for
+         * source change events in the background on API 24+ devices.
          */
+        @Deprecated
         public static final String ACTION_SOURCE_CHANGED = "com.google.android.apps.muzei.ACTION_SOURCE_CHANGED";
 
         /**
