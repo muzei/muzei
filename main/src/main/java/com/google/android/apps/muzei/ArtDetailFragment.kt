@@ -109,17 +109,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
 
     @SuppressLint("Range")
     private val artworkObserver = Observer<Artwork?> { currentArtwork ->
-        var titleFont = R.font.alegreya_sans_black
-        var bylineFont = R.font.alegreya_sans_medium
-        if (MuzeiContract.Artwork.META_FONT_TYPE_ELEGANT == currentArtwork?.metaFont) {
-            titleFont = R.font.alegreya_black_italic
-            bylineFont = R.font.alegreya_italic
-        }
-
-        titleView.typeface = ResourcesCompat.getFont(requireContext(), titleFont)
         titleView.text = currentArtwork?.title
-
-        bylineView.typeface = ResourcesCompat.getFont(requireContext(), bylineFont)
         bylineView.text = currentArtwork?.byline
 
         val attribution = currentArtwork?.attribution
@@ -268,7 +258,9 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         }
 
         titleView = view.findViewById(R.id.title)
+        titleView.typeface = ResourcesCompat.getFont(requireContext(), R.font.alegreya_sans_black)
         bylineView = view.findViewById(R.id.byline)
+        bylineView.typeface = ResourcesCompat.getFont(requireContext(), R.font.alegreya_sans_medium)
         attributionView = view.findViewById(R.id.attribution)
 
         overflowMenu = view.findViewById(R.id.overflow_menu_view)

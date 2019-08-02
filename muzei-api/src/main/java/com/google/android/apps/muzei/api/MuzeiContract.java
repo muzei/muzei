@@ -121,17 +121,24 @@ public class MuzeiContract {
          * @see #COLUMN_NAME_META_FONT
          * @see #META_FONT_TYPE_DEFAULT
          * @see #META_FONT_TYPE_ELEGANT
+         * @deprecated Choosing a font type is no longer supported.
          */
+        @SuppressWarnings("DeprecatedIsStillUsed")
+        @Deprecated
         @Retention(RetentionPolicy.SOURCE)
         @StringDef({META_FONT_TYPE_DEFAULT, META_FONT_TYPE_ELEGANT})
         public @interface MetaFontType {}
         /**
          * The default font type for {@link #COLUMN_NAME_META_FONT}
+         * @deprecated Choosing a font type is no longer supported.
          */
+        @Deprecated
         public static final String META_FONT_TYPE_DEFAULT = "";
         /**
          * An elegant alternate font type for {@link #COLUMN_NAME_META_FONT}
+         * @deprecated Choosing a font type is no longer supported.
          */
+        @Deprecated
         public static final String META_FONT_TYPE_ELEGANT = "elegant";
         /**
          * Column name for the authority of the provider for this artwork.
@@ -177,8 +184,11 @@ public class MuzeiContract {
         public static final String COLUMN_NAME_VIEW_INTENT = "viewIntent";
         /**
          * Column name for the font type to use to display artwork meta info.
-         * <p>Type: TEXT (one of {@link #META_FONT_TYPE_DEFAULT} or {@link #META_FONT_TYPE_ELEGANT})
+         * <p>Type: TEXT: This always returns an empty string.
+         * @deprecated Choosing a font type is no longer supported.
          */
+        @SuppressWarnings("DeprecatedIsStillUsed")
+        @Deprecated
         public static final String COLUMN_NAME_META_FONT = "metaFont";
         /**
          * Column name for when this artwork was added.

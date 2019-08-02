@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package com.google.android.apps.muzei.provider
 
 import android.content.ContentProvider
@@ -89,7 +91,7 @@ class MuzeiProvider : ContentProvider() {
             MuzeiContract.Artwork.COLUMN_NAME_ATTRIBUTION to "attribution",
             MuzeiContract.Artwork.COLUMN_NAME_TOKEN to "NULL AS token",
             MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT to "NULL AS viewIntent",
-            MuzeiContract.Artwork.COLUMN_NAME_META_FONT to "metaFont",
+            MuzeiContract.Artwork.COLUMN_NAME_META_FONT to "\"\" as metaFont",
             MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED to "date_added",
             "${MuzeiContract.Sources.TABLE_NAME}.${BaseColumns._ID}" to
                     "0 AS \"sources._id\"",
