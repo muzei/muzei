@@ -83,7 +83,7 @@ class MuzeiProvider : ContentProvider() {
     private val allArtworkColumnProjectionMap = mapOf(
             BaseColumns._ID to "artwork._id",
             "${MuzeiContract.Artwork.TABLE_NAME}.${BaseColumns._ID}" to "artwork._id",
-            MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME to
+            MuzeiContract.Artwork.COLUMN_NAME_PROVIDER_AUTHORITY to
                     "providerAuthority AS sourceComponentName",
             MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI to "imageUri",
             MuzeiContract.Artwork.COLUMN_NAME_TITLE to "title",
@@ -95,7 +95,7 @@ class MuzeiProvider : ContentProvider() {
             MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED to "date_added",
             "${MuzeiContract.Sources.TABLE_NAME}.${BaseColumns._ID}" to
                     "0 AS \"sources._id\"",
-            MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME to
+            MuzeiContract.Sources.COLUMN_NAME_AUTHORITY to
                     "providerAuthority AS component_name",
             MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED to "1 AS selected",
             MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION to "\"\" AS description",
@@ -205,7 +205,7 @@ class MuzeiProvider : ContentProvider() {
         currentProvider?.let { provider ->
             c.newRow().apply {
                 add(BaseColumns._ID, 0L)
-                add(MuzeiContract.Sources.COLUMN_NAME_COMPONENT_NAME, provider.authority)
+                add(MuzeiContract.Sources.COLUMN_NAME_AUTHORITY, provider.authority)
                 add(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, true)
                 add(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION, runBlocking {
                     ProviderManager.getDescription(context, provider.authority)

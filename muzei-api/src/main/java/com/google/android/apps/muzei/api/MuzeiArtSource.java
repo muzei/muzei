@@ -37,6 +37,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.apps.muzei.api.internal.SourceState;
+import com.google.android.apps.muzei.api.provider.MuzeiArtProvider;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -123,7 +124,7 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA
  * activated. It will be started with {@link Activity#startActivityForResult} and must return
  * {@link Activity#RESULT_OK} for the source to be activated. This activity must be exported.</li>
  * <li><code>replacement</code> (optional): if present, should be the qualified
- * component name of a {@link com.google.android.apps.muzei.api.provider.MuzeiArtProvider}
+ * component name of a {@link MuzeiArtProvider}
  * that fully replaces this MuzeiArtSource. This informs Muzei that users should
  * automatically be migrated to the MuzeiArtProvider if they had the MuzeiArtSource
  * selected previously. It will also cause this MuzeiArtSource to be hidden
@@ -208,7 +209,10 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA
  * element in the manifest will be used.
  *
  * @see RemoteMuzeiArtSource
+ * @deprecated Use {@link MuzeiArtProvider}.
  */
+@SuppressWarnings({"deprecation"})
+@Deprecated
 public abstract class MuzeiArtSource extends Service {
     private static final String TAG = "MuzeiArtSource";
 
@@ -216,7 +220,10 @@ public abstract class MuzeiArtSource extends Service {
      * The {@link Intent} action representing a Muzei art source. This service should
      * declare an <code>&lt;intent-filter&gt;</code> for this action in order to register with
      * Muzei.
+     * @deprecated Use {@link MuzeiArtProvider#ACTION_MUZEI_ART_PROVIDER}
+     * with your {@link MuzeiArtProvider}.
      */
+    @Deprecated
     public static final String ACTION_MUZEI_ART_SOURCE
             = "com.google.android.apps.muzei.api.MuzeiArtSource";
 
@@ -224,6 +231,8 @@ public abstract class MuzeiArtSource extends Service {
      * Boolean extra that will be set to true when Muzei starts source settings activities.
      * Check for this extra in your settings activity if you need to adjust your UI depending on
      * whether or not the user came from Muzei's settings screen.
+     * @deprecated Use {@link MuzeiArtProvider#EXTRA_FROM_MUZEI}
+     * with your {@link MuzeiArtProvider}.
      */
     public static final String EXTRA_FROM_MUZEI_SETTINGS
             = "com.google.android.apps.muzei.api.extra.FROM_MUZEI_SETTINGS";
@@ -236,6 +245,7 @@ public abstract class MuzeiArtSource extends Service {
      *
      * @see #setUserCommands(UserCommand...)
      */
+    @Deprecated
     public static final int BUILTIN_COMMAND_ID_NEXT_ARTWORK = FIRST_BUILTIN_COMMAND_ID + 1;
 
     /**
@@ -243,6 +253,7 @@ public abstract class MuzeiArtSource extends Service {
      *
      * @see #setUserCommands(UserCommand...)
      */
+    @Deprecated
     protected static final int MAX_CUSTOM_COMMAND_ID = FIRST_BUILTIN_COMMAND_ID - 1;
 
     /**
@@ -253,6 +264,7 @@ public abstract class MuzeiArtSource extends Service {
      * @see #UPDATE_REASON_USER_NEXT
      * @see #UPDATE_REASON_SCHEDULED
      */
+    @Deprecated
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({UPDATE_REASON_OTHER, UPDATE_REASON_INITIAL, UPDATE_REASON_USER_NEXT, UPDATE_REASON_SCHEDULED})
     public @interface UpdateReason {}
@@ -261,6 +273,7 @@ public abstract class MuzeiArtSource extends Service {
      * Indicates that {@link #onUpdate(int)} was triggered for some reason not represented by
      * another known reason constant.
      */
+    @Deprecated
     public static final int UPDATE_REASON_OTHER = 0;
 
     /**
@@ -268,6 +281,7 @@ public abstract class MuzeiArtSource extends Service {
      * published an artwork and the first subscriber has subscribed (e.g. the user has chosen
      * this source).
      */
+    @Deprecated
     public static final int UPDATE_REASON_INITIAL = 1;
 
     /**
@@ -275,12 +289,14 @@ public abstract class MuzeiArtSource extends Service {
      * the next artwork. This should only be sent when {@link #BUILTIN_COMMAND_ID_NEXT_ARTWORK}
      * is an {@linkplain #setUserCommands(UserCommand...) available user command}.
      */
+    @Deprecated
     public static final int UPDATE_REASON_USER_NEXT = 2;
 
     /**
      * Indicates that {@link #onUpdate(int)} was triggered because a
      * {@linkplain #scheduleUpdate(long) scheduled update} has been triggered.
      */
+    @Deprecated
     public static final int UPDATE_REASON_SCHEDULED = 3;
 
     private static final String PREF_STATE = "state";
@@ -303,6 +319,7 @@ public abstract class MuzeiArtSource extends Service {
     };
 
     // From IntentService
+    @Deprecated
     protected String mName;
     private boolean mRedelivery;
     private volatile Looper mServiceLooper;
@@ -326,12 +343,15 @@ public abstract class MuzeiArtSource extends Service {
      * @param name Should be an ID-style name for your source, usually just the class name. This is
      *             not user-visible and is only used for {@linkplain #getSharedPreferences()
      *             storing preferences} and in system log output.
+     * @deprecated Use {@link MuzeiArtProvider}.
      */
+    @Deprecated
     public MuzeiArtSource(@NonNull String name) {
         super();
         mName = name;
     }
 
+    @Deprecated
     @Override
     public void onCreate() {
         super.onCreate();
@@ -353,6 +373,7 @@ public abstract class MuzeiArtSource extends Service {
      *
      * @see android.app.IntentService#onStartCommand
      */
+    @Deprecated
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
@@ -363,6 +384,7 @@ public abstract class MuzeiArtSource extends Service {
         return mRedelivery ? START_REDELIVER_INTENT : START_NOT_STICKY;
     }
 
+    @Deprecated
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -394,6 +416,7 @@ public abstract class MuzeiArtSource extends Service {
      *
      * @see IntentService#setIntentRedelivery
      */
+    @Deprecated
     public void setIntentRedelivery(boolean enabled) {
         mRedelivery = enabled;
     }
@@ -406,6 +429,7 @@ public abstract class MuzeiArtSource extends Service {
      *
      * @return true if the subscription should be allowed, false if it should be denied.
      */
+    @Deprecated
     protected boolean onAllowSubscription(@NonNull ComponentName subscriber) {
         return true;
     }
@@ -417,6 +441,7 @@ public abstract class MuzeiArtSource extends Service {
      *
      * @param subscriber the subscriber that was just added.
      */
+    @Deprecated
     protected void onSubscriberAdded(@NonNull ComponentName subscriber) {
     }
 
@@ -427,6 +452,7 @@ public abstract class MuzeiArtSource extends Service {
      *
      * @param subscriber the subscriber that was just removed.
      */
+    @Deprecated
     protected void onSubscriberRemoved(@NonNull ComponentName subscriber) {
     }
 
@@ -436,6 +462,7 @@ public abstract class MuzeiArtSource extends Service {
      * For more details on the source lifecycle, see the discussion in the {@link MuzeiArtSource}
      * reference.
      */
+    @Deprecated
     protected void onEnabled() {
     }
 
@@ -445,6 +472,7 @@ public abstract class MuzeiArtSource extends Service {
      * For more details on the source lifecycle, see the discussion in the {@link MuzeiArtSource}
      * reference.
      */
+    @Deprecated
     protected void onDisabled() {
     }
 
@@ -459,7 +487,10 @@ public abstract class MuzeiArtSource extends Service {
      *
      * @param reason The reason for the update. See {@link UpdateReason} and the related
      *               constants for more details.
+     * @deprecated Use {@link MuzeiArtProvider#onLoadRequested(boolean)}
+     * with your {@link MuzeiArtProvider}.
      */
+    @Deprecated
     protected abstract void onUpdate(@UpdateReason int reason);
 
     /**
@@ -468,7 +499,10 @@ public abstract class MuzeiArtSource extends Service {
      * @param id the ID of the command the user has chosen.
      *
      * @see #setUserCommands(UserCommand...)
+     * @deprecated Use {@link MuzeiArtProvider#onCommand(com.google.android.apps.muzei.api.provider.Artwork, int)}
+     * with your {@link MuzeiArtProvider}.
      */
+    @Deprecated
     protected void onCustomCommand(int id) {
     }
 
@@ -476,7 +510,9 @@ public abstract class MuzeiArtSource extends Service {
      * Convenience callback method indicating that a network connection is now available. This
      * will only be called if {@link #setWantsNetworkAvailable(boolean)} was last called with
      * <code>true</code>.
+     * @deprecated Use <code>WorkManager</code> to trigger your updates when network is available.
      */
+    @Deprecated
     protected void onNetworkAvailable() {
     }
 
@@ -485,7 +521,10 @@ public abstract class MuzeiArtSource extends Service {
      * and to all future subscribers, until a new artwork is published.
      *
      * @param artwork the artwork to publish.
+     * @deprecated Use {@link com.google.android.apps.muzei.api.provider.ProviderClient}
+     * to add artwork to your {@link MuzeiArtProvider}.
      */
+    @Deprecated
     protected final void publishArtwork(@NonNull Artwork artwork) {
         artwork.setComponentName(new ComponentName(this, getClass()));
         mCurrentState.setCurrentArtwork(artwork);
@@ -499,7 +538,10 @@ public abstract class MuzeiArtSource extends Service {
      * element of the source's service element in the manifest will be used.
      *
      * @param description the new description to be shown when the source is selected.
+     * @deprecated Use {@link MuzeiArtProvider#getDescription()}
+     * with your {@link MuzeiArtProvider}.
      */
+    @Deprecated
     protected final void setDescription(String description) {
         mCurrentState.setDescription(description);
         mServiceHandler.removeCallbacks(mPublishStateRunnable);
@@ -517,7 +559,10 @@ public abstract class MuzeiArtSource extends Service {
      *
      * @see #BUILTIN_COMMAND_ID_NEXT_ARTWORK
      * @see #MAX_CUSTOM_COMMAND_ID
+     * @deprecated Use {@link MuzeiArtProvider#getCommands(com.google.android.apps.muzei.api.provider.Artwork)}
+     * with your {@link MuzeiArtProvider}.
      */
+    @Deprecated
     protected final void setUserCommands(UserCommand... commands) {
         mCurrentState.setUserCommands(Arrays.asList(commands));
         mServiceHandler.removeCallbacks(mPublishStateRunnable);
@@ -533,7 +578,10 @@ public abstract class MuzeiArtSource extends Service {
      *
      * @see #BUILTIN_COMMAND_ID_NEXT_ARTWORK
      * @see #MAX_CUSTOM_COMMAND_ID
+     * @deprecated Use {@link MuzeiArtProvider#getCommands(com.google.android.apps.muzei.api.provider.Artwork)}
+     * with your {@link MuzeiArtProvider}.
      */
+    @Deprecated
     protected final void setUserCommands(List<UserCommand> commands) {
         mCurrentState.setUserCommands(commands);
         mServiceHandler.removeCallbacks(mPublishStateRunnable);
@@ -549,7 +597,10 @@ public abstract class MuzeiArtSource extends Service {
      *
      * @see #BUILTIN_COMMAND_ID_NEXT_ARTWORK
      * @see #MAX_CUSTOM_COMMAND_ID
+     * @deprecated Use {@link MuzeiArtProvider#getCommands(com.google.android.apps.muzei.api.provider.Artwork)}
+     * with your {@link MuzeiArtProvider}.
      */
+    @Deprecated
     protected final void setUserCommands(int... commands) {
         mCurrentState.setUserCommands(commands);
         mServiceHandler.removeCallbacks(mPublishStateRunnable);
@@ -561,6 +612,7 @@ public abstract class MuzeiArtSource extends Service {
      *
      * @see #setUserCommands(UserCommand...)
      */
+    @Deprecated
     protected final void removeAllUserCommands() {
         mCurrentState.setUserCommands((int[]) null);
         mServiceHandler.removeCallbacks(mPublishStateRunnable);
@@ -573,7 +625,9 @@ public abstract class MuzeiArtSource extends Service {
      *
      * @param wantsNetworkAvailable Whether or not the source wants to be notified about network
      *                              availability.
+     * @deprecated Use <code>WorkManager</code> to trigger your updates when network is available.
      */
+    @Deprecated
     protected final void setWantsNetworkAvailable(boolean wantsNetworkAvailable) {
         mCurrentState.setWantsNetworkAvailable(wantsNetworkAvailable);
         mServiceHandler.removeCallbacks(mPublishStateRunnable);
@@ -588,7 +642,10 @@ public abstract class MuzeiArtSource extends Service {
      *
      * @return the most recently {@linkplain #publishArtwork published} artwork, or null
      * if none has been published.
+     * @deprecated Use {@link MuzeiArtProvider#getLastAddedArtwork()}
+     * with your {@link MuzeiArtProvider}.
      */
+    @Deprecated
     @Nullable
     protected final Artwork getCurrentArtwork() {
         return mCurrentState != null ? mCurrentState.getCurrentArtwork() : null;
@@ -606,7 +663,9 @@ public abstract class MuzeiArtSource extends Service {
      * @param scheduledUpdateTimeMillis The absolute scheduled update time, based on {@link
      *                                  System#currentTimeMillis()}. This value must be after
      *                                  the current time.
+     * @deprecated Use <code>WorkManager</code> to schedule updates.
      */
+    @Deprecated
     protected final void scheduleUpdate(long scheduledUpdateTimeMillis) {
         getSharedPreferences().edit()
                 .putLong(PREF_SCHEDULED_UPDATE_TIME_MILLIS, scheduledUpdateTimeMillis).apply();
@@ -615,7 +674,9 @@ public abstract class MuzeiArtSource extends Service {
 
     /**
      * Cancels any {@linkplain #scheduleUpdate(long) previously scheduled} updates.
+     * @deprecated Use <code>WorkManager</code> to cancel updates you've scheduled.
      */
+    @Deprecated
     protected final void unscheduleUpdate() {
         getSharedPreferences().edit().remove(PREF_SCHEDULED_UPDATE_TIME_MILLIS).apply();
         clearUpdateAlarm();
@@ -629,6 +690,7 @@ public abstract class MuzeiArtSource extends Service {
      * @see #onEnabled()
      * @see #onDisabled()
      */
+    @Deprecated
     protected synchronized final boolean isEnabled() {
         return mSubscriptions.size() > 0;
     }
@@ -646,6 +708,7 @@ public abstract class MuzeiArtSource extends Service {
      * @return the {@link SharedPreferences} where the MuzeiArtSource associated with the
      * sourceName stores its state.
      */
+    @Deprecated
     protected static SharedPreferences getSharedPreferences(Context context, @NonNull String sourceName) {
         return context.getSharedPreferences("muzeiartsource_" + sourceName, 0);
     }
@@ -657,6 +720,7 @@ public abstract class MuzeiArtSource extends Service {
      *
      * @see #getSharedPreferences(android.content.Context, String)
      */
+    @Deprecated
     protected final SharedPreferences getSharedPreferences() {
         return getSharedPreferences(this, mName);
     }
@@ -679,6 +743,7 @@ public abstract class MuzeiArtSource extends Service {
      *
      * @see IntentService#onHandleIntent(Intent)
      */
+    @Deprecated
     @CallSuper
     protected void onHandleIntent(Intent intent) {
         if (intent == null) {
@@ -911,6 +976,7 @@ public abstract class MuzeiArtSource extends Service {
         }
     }
 
+    @Deprecated
     @Override
     public IBinder onBind(Intent intent) {
         return null;

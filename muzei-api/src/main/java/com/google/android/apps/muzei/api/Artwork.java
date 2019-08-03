@@ -25,6 +25,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import com.google.android.apps.muzei.api.provider.MuzeiArtProvider;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -34,12 +36,12 @@ import java.util.Date;
 import androidx.annotation.NonNull;
 
 /**
- * A serializable object representing a single artwork produced by a {@link MuzeiArtSource}. An
- * artwork is simple an {@linkplain Artwork.Builder#imageUri(Uri) image} along with
- * some metadata.
+ * A serializable object representing a single artwork retrieved from the
+ * {@link MuzeiContract.Artwork} table.
  *
- * <p> To create an instance, use the {@link Artwork.Builder} class.
+ * <p> Instances of this should only be created by using {@link Artwork#fromCursor(Cursor)}.
  */
+@SuppressWarnings("deprecation")
 public class Artwork {
     /**
      * @deprecated use {@link com.google.android.apps.muzei.api.MuzeiContract.Artwork#META_FONT_TYPE_DEFAULT}
@@ -63,7 +65,7 @@ public class Artwork {
     private static final String KEY_META_FONT = "metaFont";
     private static final String KEY_DATE_ADDED = "dateAdded";
 
-    private ComponentName mComponentName;
+    private String mComponentName;
     private Uri mImageUri;
     private String mTitle;
     private String mByline;
@@ -77,12 +79,23 @@ public class Artwork {
     }
 
     /**
+     * Returns the authority of the art provider for this artwork.
+     *
+     * @return the authority of the {@link MuzeiArtProvider} providing this artwork.
+     */
+    public String getProviderAuthority() {
+        return mComponentName;
+    }
+
+    /**
      * Returns the {@link ComponentName} of the art source providing this artwork.
      *
      * @return a {@link ComponentName} of the {@link MuzeiArtSource} providing this artwork.
+     * @deprecated Use {@link #getProviderAuthority()}.
      */
+    @Deprecated
     public ComponentName getComponentName() {
-        return mComponentName;
+        return ComponentName.unflattenFromString(mComponentName);
     }
 
     /**
@@ -130,7 +143,9 @@ public class Artwork {
      *
      * @return the artwork's opaque application-specific identifier, or null if it doesn't have
      * one.
+     * @deprecated Tokens are no longer exposed outside of Muzei.
      */
+    @Deprecated
     public String getToken() {
         return mToken;
     }
@@ -146,7 +161,9 @@ public class Artwork {
      * @return the activity {@link Intent} that will be
      * {@linkplain Context#startActivity(Intent) started} when the user clicks
      * for more details about the artwork, or null if the artwork doesn't have one.
+     * @deprecated View Intents are no longer exposed outside of Muzei.
      */
+    @Deprecated
     public Intent getViewIntent() {
         return mViewIntent;
     }
@@ -157,7 +174,9 @@ public class Artwork {
      * if null.
      *
      * @return the font type to use for showing metadata.
+     * @deprecated Choosing a font type is no longer supported.
      */
+    @Deprecated
     @MuzeiContract.Artwork.MetaFontType
     public String getMetaFont() {
         return mMetaFont;
@@ -182,7 +201,7 @@ public class Artwork {
      */
     @Deprecated
     public void setComponentName(Context context, Class<? extends MuzeiArtSource> source) {
-        mComponentName = new ComponentName(context, source);
+        mComponentName = new ComponentName(context, source).flattenToShortString();
     }
 
     /**
@@ -192,10 +211,9 @@ public class Artwork {
      * @param source the {@link MuzeiArtSource} providing this artwork.
      * @deprecated Artwork should be considered immutable after creation.
      */
-    @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     public void setComponentName(ComponentName source) {
-        mComponentName = source;
+        mComponentName = source.flattenToShortString();
     }
 
     /**
@@ -325,7 +343,7 @@ public class Artwork {
      * The only required field is {@linkplain #imageUri(Uri) the image URI}, but you
      * should really provide all the metadata, especially title, byline, and view intent.
      * @deprecated Use {@link com.google.android.apps.muzei.api.provider.Artwork.Builder} with a
-     * {@link com.google.android.apps.muzei.api.provider.MuzeiArtProvider}.
+     * {@link MuzeiArtProvider}.
      */
     @SuppressWarnings({"deprecation", "DeprecatedIsStillUsed"})
     @Deprecated
@@ -334,7 +352,7 @@ public class Artwork {
 
         /**
          * @deprecated Use {@link com.google.android.apps.muzei.api.provider.Artwork.Builder}
-         * with a {@link com.google.android.apps.muzei.api.provider.MuzeiArtProvider}.
+         * with a {@link MuzeiArtProvider}.
          */
         @Deprecated
         public Builder() {
@@ -350,11 +368,11 @@ public class Artwork {
          *
          * @return this {@link Builder}.
          * @deprecated Use {@link com.google.android.apps.muzei.api.provider.Artwork.Builder}
-         * with a {@link com.google.android.apps.muzei.api.provider.MuzeiArtProvider}.
+         * with a {@link MuzeiArtProvider}.
          */
         @Deprecated
         public Builder componentName(Context context, Class<? extends MuzeiArtSource> source) {
-            mArtwork.mComponentName = new ComponentName(context, source);
+            mArtwork.mComponentName = new ComponentName(context, source).flattenToShortString();
             return this;
         }
 
@@ -366,11 +384,25 @@ public class Artwork {
          *
          * @return this {@link Builder}.
          * @deprecated Use {@link com.google.android.apps.muzei.api.provider.Artwork.Builder}
-         * with a {@link com.google.android.apps.muzei.api.provider.MuzeiArtProvider}.
+         * with a {@link MuzeiArtProvider}.
          */
         @Deprecated
         public Builder componentName(ComponentName source) {
-            mArtwork.mComponentName = source;
+            mArtwork.mComponentName = source.flattenToShortString();
+            return this;
+        }
+
+        /**
+         * Sets the authority of the {@link MuzeiArtSource} for this artwork.
+         * This will automatically be set for you by Muzei.
+         *
+         * @param authority the authority of the {@link MuzeiArtProvider} for this artwork.
+         *
+         * @return this {@link Builder}.
+         */
+        @SuppressWarnings("UnusedReturnValue")
+        Builder providerAuthority(String authority) {
+            mArtwork.mComponentName = authority;
             return this;
         }
 
@@ -400,7 +432,7 @@ public class Artwork {
          *
          * @return this {@link Builder}.
          * @deprecated Use {@link com.google.android.apps.muzei.api.provider.Artwork.Builder}
-         * with a {@link com.google.android.apps.muzei.api.provider.MuzeiArtProvider}.
+         * with a {@link MuzeiArtProvider}.
          */
         @Deprecated
         public Builder imageUri(Uri imageUri) {
@@ -415,7 +447,7 @@ public class Artwork {
          *
          * @return this {@link Builder}.
          * @deprecated Use {@link com.google.android.apps.muzei.api.provider.Artwork.Builder}
-         * with a {@link com.google.android.apps.muzei.api.provider.MuzeiArtProvider}.
+         * with a {@link MuzeiArtProvider}.
          */
         @Deprecated
         public Builder title(String title) {
@@ -431,7 +463,7 @@ public class Artwork {
          *
          * @return this {@link Builder}.
          * @deprecated Use {@link com.google.android.apps.muzei.api.provider.Artwork.Builder}
-         * with a {@link com.google.android.apps.muzei.api.provider.MuzeiArtProvider}.
+         * with a {@link MuzeiArtProvider}.
          */
         @Deprecated
         public Builder byline(String byline) {
@@ -448,7 +480,7 @@ public class Artwork {
          *
          * @return this {@link Builder}.
          * @deprecated Use {@link com.google.android.apps.muzei.api.provider.Artwork.Builder}
-         * with a {@link com.google.android.apps.muzei.api.provider.MuzeiArtProvider}.
+         * with a {@link MuzeiArtProvider}.
          */
         @Deprecated
         public Builder attribution(String attribution) {
@@ -463,7 +495,7 @@ public class Artwork {
          *
          * @return this {@link Builder}.
          * @deprecated Use {@link com.google.android.apps.muzei.api.provider.Artwork.Builder}
-         * with a {@link com.google.android.apps.muzei.api.provider.MuzeiArtProvider}.
+         * with a {@link MuzeiArtProvider}.
          */
         @Deprecated
         public Builder token(String token) {
@@ -493,7 +525,7 @@ public class Artwork {
          *
          * @return this {@link Builder}.
          * @deprecated Use {@link com.google.android.apps.muzei.api.provider.Artwork.Builder}
-         * with a {@link com.google.android.apps.muzei.api.provider.MuzeiArtProvider}.
+         * with a {@link MuzeiArtProvider}.
          */
         @Deprecated
         public Builder viewIntent(Intent viewIntent) {
@@ -513,7 +545,7 @@ public class Artwork {
          * @see com.google.android.apps.muzei.api.MuzeiContract.Artwork#META_FONT_TYPE_DEFAULT
          * @see com.google.android.apps.muzei.api.MuzeiContract.Artwork#META_FONT_TYPE_ELEGANT
          * @deprecated Use {@link com.google.android.apps.muzei.api.provider.Artwork.Builder}
-         * with a {@link com.google.android.apps.muzei.api.provider.MuzeiArtProvider}.
+         * with a {@link MuzeiArtProvider}.
          */
         @Deprecated
         public Builder metaFont(@MuzeiContract.Artwork.MetaFontType String metaFont) {
@@ -528,7 +560,7 @@ public class Artwork {
          *
          * @return this {@link Builder}.
          * @deprecated Use {@link com.google.android.apps.muzei.api.provider.Artwork.Builder}
-         * with a {@link com.google.android.apps.muzei.api.provider.MuzeiArtProvider}.
+         * with a {@link MuzeiArtProvider}.
          */
         @Deprecated
         public Builder dateAdded(Date dateAdded) {
@@ -542,7 +574,7 @@ public class Artwork {
          *
          * @return the final constructed {@link Artwork}.
          * @deprecated Use {@link com.google.android.apps.muzei.api.provider.Artwork.Builder}
-         * with a {@link com.google.android.apps.muzei.api.provider.MuzeiArtProvider}.
+         * with a {@link MuzeiArtProvider}.
          */
         @Deprecated
         public Artwork build() {
@@ -556,11 +588,13 @@ public class Artwork {
      * @return a serialized version of the artwork.
      *
      * @see #fromBundle
+     * @deprecated Converting Artwork to a {@link Bundle} is no longer supported.
      */
+    @Deprecated
     @NonNull
     public Bundle toBundle() {
         Bundle bundle = new Bundle();
-        bundle.putString(KEY_COMPONENT_NAME, (mComponentName != null) ? mComponentName.flattenToShortString() : null);
+        bundle.putString(KEY_COMPONENT_NAME, mComponentName);
         bundle.putString(KEY_IMAGE_URI, (mImageUri != null) ? mImageUri.toString() : null);
         bundle.putString(KEY_TITLE, mTitle);
         bundle.putString(KEY_BYLINE, mByline);
@@ -579,8 +613,10 @@ public class Artwork {
      * @param bundle Bundle generated by {@link #toBundle} to deserialize.
      *
      * @return the artwork from the given {@link Bundle}
+     * @deprecated Converting Artwork from a {@link Bundle} is no longer supported.
      */
     @SuppressWarnings("deprecation")
+    @Deprecated
     @NonNull
     public static Artwork fromBundle(@NonNull Bundle bundle) {
         @SuppressWarnings("WrongConstant") // Assume the KEY_META_FONT is valid
@@ -594,7 +630,7 @@ public class Artwork {
 
         String componentName = bundle.getString(KEY_COMPONENT_NAME);
         if (!TextUtils.isEmpty(componentName)) {
-            builder.componentName(ComponentName.unflattenFromString(componentName));
+            builder.providerAuthority(componentName);
         }
 
         String imageUri = bundle.getString(KEY_IMAGE_URI);
@@ -619,11 +655,13 @@ public class Artwork {
      * @return the JSON representation of the artwork.
      *
      * @throws JSONException if there is an error creating the JSON representation.
+     * @deprecated Converting Artwork to a {@link JSONObject} is no longer supported.
      */
+    @Deprecated
     @NonNull
     public JSONObject toJson() throws JSONException {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put(KEY_COMPONENT_NAME, (mComponentName != null) ? mComponentName.flattenToShortString() : null);
+        jsonObject.put(KEY_COMPONENT_NAME, mComponentName);
         jsonObject.put(KEY_IMAGE_URI, (mImageUri != null) ? mImageUri.toString() : null);
         jsonObject.put(KEY_TITLE, mTitle);
         jsonObject.put(KEY_BYLINE, mByline);
@@ -642,8 +680,10 @@ public class Artwork {
      * @param jsonObject JSON representation generated by {@link #toJson} to deserialize.
      *
      * @return the artwork from the given {@link JSONObject}
+     * @deprecated Converting Artwork from a {@link JSONObject} is no longer supported.
      */
     @SuppressWarnings("deprecation")
+    @Deprecated
     @NonNull
     public static Artwork fromJson(@NonNull JSONObject jsonObject) {
         @SuppressWarnings("WrongConstant") // Assume the KEY_META_FONT is valid
@@ -657,7 +697,7 @@ public class Artwork {
 
         String componentName = jsonObject.optString(KEY_COMPONENT_NAME);
         if (!TextUtils.isEmpty(componentName)) {
-            builder.componentName(ComponentName.unflattenFromString(componentName));
+            builder.providerAuthority(componentName);
         }
 
         String imageUri = jsonObject.optString(KEY_IMAGE_URI);
@@ -684,12 +724,13 @@ public class Artwork {
      *
      * @return a {@link ContentValues} appropriate to insert into
      * {@link com.google.android.apps.muzei.api.MuzeiContract.Artwork#CONTENT_URI}.
+     * @deprecated Converting Artwork to a {@link ContentValues} is no longer supported.
      */
+    @Deprecated
     @NonNull
     public ContentValues toContentValues() {
         ContentValues values = new ContentValues();
-        values.put(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME, (mComponentName != null)
-                ? mComponentName.flattenToShortString() : null);
+        values.put(MuzeiContract.Artwork.COLUMN_NAME_PROVIDER_AUTHORITY, mComponentName);
         values.put(MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI, (mImageUri != null)
                 ? mImageUri.toString() : null);
         values.put(MuzeiContract.Artwork.COLUMN_NAME_TITLE, mTitle);
@@ -714,13 +755,13 @@ public class Artwork {
      *
      * @return the artwork from the current position of the Cursor.
      */
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"deprecation", "WeakerAccess"})
     @NonNull
     public static Artwork fromCursor(@NonNull Cursor cursor) {
         Builder builder = new Builder();
-        int componentNameColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_SOURCE_COMPONENT_NAME);
+        int componentNameColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_PROVIDER_AUTHORITY);
         if (componentNameColumnIndex != -1) {
-            builder.componentName(ComponentName.unflattenFromString(cursor.getString(componentNameColumnIndex)));
+            builder.providerAuthority(cursor.getString(componentNameColumnIndex));
         }
         int imageUriColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI);
         if (imageUriColumnIndex != -1) {

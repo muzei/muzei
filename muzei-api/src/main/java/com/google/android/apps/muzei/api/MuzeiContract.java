@@ -147,6 +147,13 @@ public class MuzeiContract {
          * Column name for the authority of the provider for this artwork.
          * <p>Type: TEXT
          */
+        public static final String COLUMN_NAME_PROVIDER_AUTHORITY = "sourceComponentName";
+        /**
+         * Column name for the authority of the provider for this artwork.
+         * <p>Type: TEXT
+         * @deprecated Use {@link #COLUMN_NAME_PROVIDER_AUTHORITY}
+         */
+        @Deprecated
         public static final String COLUMN_NAME_SOURCE_COMPONENT_NAME = "sourceComponentName";
         /**
          * Column name of the artwork image URI. In almost all cases you should use
@@ -299,9 +306,16 @@ public class MuzeiContract {
      */
     public static final class Sources implements BaseColumns {
         /**
-         * Column name for the authority of the provider.
+         * Column name for the authority of the provider for this artwork.
          * <p>Type: TEXT
          */
+        public static final String COLUMN_NAME_AUTHORITY = "component_name";
+        /**
+         * Column name for the authority of the provider.
+         * <p>Type: TEXT
+         * @deprecated Use {@link #COLUMN_NAME_AUTHORITY}.
+         */
+        @Deprecated
         public static final String COLUMN_NAME_COMPONENT_NAME = "component_name";
         /**
          * Column name for the flag indicating if the source is currently selected
@@ -345,7 +359,7 @@ public class MuzeiContract {
         /**
          * The default sort order for this table
          */
-        public static final String DEFAULT_SORT_ORDER = Sources.COLUMN_NAME_COMPONENT_NAME;
+        public static final String DEFAULT_SORT_ORDER = Sources.COLUMN_NAME_AUTHORITY;
         /**
          * The table name offered by this provider.
          */
