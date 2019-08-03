@@ -50,8 +50,7 @@ data class Artwork(
 
     var attribution: String? = null
 
-    @MuzeiContract.Artwork.MetaFontType
-    var metaFont = MuzeiContract.Artwork.META_FONT_TYPE_DEFAULT
+    var metaFont = ""
 
     @TypeConverters(DateTypeConverter::class)
     @ColumnInfo(name = "date_added")

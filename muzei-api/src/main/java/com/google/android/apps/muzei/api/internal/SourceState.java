@@ -31,45 +31,58 @@ import java.util.List;
 
 /**
  * Represents the published state of an art source.
+ * @deprecated This is only used by the deprecated
+ * {@link com.google.android.apps.muzei.api.MuzeiArtSource}.
  */
+@SuppressWarnings({"deprecation", "DeprecatedIsStillUsed"})
+@Deprecated
 public class SourceState {
     private Artwork mCurrentArtwork;
     private String mDescription;
     private boolean mWantsNetworkAvailable;
     private final ArrayList<UserCommand> mUserCommands = new ArrayList<>();
 
+    @Deprecated
     public Artwork getCurrentArtwork() {
         return mCurrentArtwork;
     }
 
+    @Deprecated
     public String getDescription() {
         return mDescription;
     }
 
+    @Deprecated
     public boolean getWantsNetworkAvailable() {
         return mWantsNetworkAvailable;
     }
 
+    @Deprecated
     public int getNumUserCommands() {
         return mUserCommands.size();
     }
 
+    @Deprecated
     public UserCommand getUserCommandAt(int index) {
         return mUserCommands.get(index);
     }
 
+    @Deprecated
     public void setCurrentArtwork(Artwork artwork) {
         mCurrentArtwork = artwork;
     }
 
+    @Deprecated
     public void setDescription(String description) {
         mDescription = description;
     }
 
+    @Deprecated
     public void setWantsNetworkAvailable(boolean wantsNetworkAvailable) {
         mWantsNetworkAvailable = wantsNetworkAvailable;
     }
 
+    @Deprecated
     public synchronized void setUserCommands(int... userCommands) {
         mUserCommands.clear();
         if (userCommands != null) {
@@ -80,14 +93,7 @@ public class SourceState {
         }
     }
 
-    public synchronized void setUserCommands(UserCommand... userCommands) {
-        mUserCommands.clear();
-        if (userCommands != null) {
-            mUserCommands.ensureCapacity(userCommands.length);
-            Collections.addAll(mUserCommands, userCommands);
-        }
-    }
-
+    @Deprecated
     public synchronized void setUserCommands(List<UserCommand> userCommands) {
         mUserCommands.clear();
         if (userCommands != null) {
@@ -95,6 +101,7 @@ public class SourceState {
         }
     }
 
+    @Deprecated
     public synchronized Bundle toBundle() {
         Bundle bundle = new Bundle();
         if (mCurrentArtwork != null) {
@@ -110,6 +117,7 @@ public class SourceState {
         return bundle;
     }
 
+    @Deprecated
     public static SourceState fromBundle(Bundle bundle) {
         SourceState state = new SourceState();
         Bundle artworkBundle = bundle.getBundle("currentArtwork");
@@ -128,6 +136,7 @@ public class SourceState {
         return state;
     }
 
+    @Deprecated
     public synchronized JSONObject toJson() throws JSONException{
         JSONObject jsonObject = new JSONObject();
         if (mCurrentArtwork != null) {
@@ -143,7 +152,7 @@ public class SourceState {
         return jsonObject;
     }
 
-    public void readJson(JSONObject jsonObject) throws JSONException {
+    private void readJson(JSONObject jsonObject) {
         JSONObject artworkJsonObject = jsonObject.optJSONObject("currentArtwork");
         if (artworkJsonObject != null) {
             mCurrentArtwork = Artwork.fromJson(artworkJsonObject);
@@ -161,6 +170,7 @@ public class SourceState {
         }
     }
 
+    @Deprecated
     public static SourceState fromJson(JSONObject jsonObject) throws JSONException{
         SourceState state = new SourceState();
         state.readJson(jsonObject);

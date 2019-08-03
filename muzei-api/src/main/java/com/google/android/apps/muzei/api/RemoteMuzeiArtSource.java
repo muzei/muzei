@@ -55,7 +55,11 @@ import androidx.annotation.RequiresPermission;
  * &lt;uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /&gt;
  * &lt;uses-permission android:name="android.permission.WAKE_LOCK" /&gt;
  * </pre>
+ * @deprecated Use {@link com.google.android.apps.muzei.api.provider.MuzeiArtProvider} and use
+ * <code>WorkManager</code> to schedule updates when network is available.
  */
+@SuppressWarnings({"deprecation"})
+@Deprecated
 public abstract class RemoteMuzeiArtSource extends MuzeiArtSource {
     private static final String TAG = "MuzeiArtSource";
 
@@ -72,6 +76,7 @@ public abstract class RemoteMuzeiArtSource extends MuzeiArtSource {
      *             not user-visible and is only used for {@linkplain #getSharedPreferences()
      *             storing preferences} and in system log output.
      */
+    @Deprecated
     @RequiresPermission(allOf =
             {Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.WAKE_LOCK})
     public RemoteMuzeiArtSource(@NonNull String name) {
@@ -89,13 +94,17 @@ public abstract class RemoteMuzeiArtSource extends MuzeiArtSource {
      * tried again with an exponential backoff.
      *
      * @see com.google.android.apps.muzei.api.MuzeiArtSource.UpdateReason
+     * @deprecated Use {@link com.google.android.apps.muzei.api.provider.MuzeiArtProvider} and use
+     * <code>WorkManager</code> to schedule updates when network is available.
      */
+    @Deprecated
     protected abstract void onTryUpdate(@UpdateReason int reason) throws RetryException;
 
     /**
      * Subclasses of {@link RemoteMuzeiArtSource} should implement {@link #onTryUpdate(int)}
      * instead of this method.
      */
+    @Deprecated
     @RequiresPermission(allOf =
             {Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.WAKE_LOCK})
     @CallSuper
@@ -141,6 +150,7 @@ public abstract class RemoteMuzeiArtSource extends MuzeiArtSource {
         }
     }
 
+    @Deprecated
     @RequiresPermission(allOf =
             {Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.WAKE_LOCK})
     @CallSuper
@@ -157,6 +167,7 @@ public abstract class RemoteMuzeiArtSource extends MuzeiArtSource {
         }
     }
 
+    @Deprecated
     @CallSuper
     @Override
     protected void onDisabled() {
@@ -165,6 +176,7 @@ public abstract class RemoteMuzeiArtSource extends MuzeiArtSource {
         setWantsNetworkAvailable(false);
     }
 
+    @Deprecated
     @RequiresPermission(allOf =
             {Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.WAKE_LOCK})
     @CallSuper
@@ -181,10 +193,13 @@ public abstract class RemoteMuzeiArtSource extends MuzeiArtSource {
      * An exception indicating that the {@link RemoteMuzeiArtSource} would like to retry
      * a failed update attempt.
      */
+    @Deprecated
     public static class RetryException extends Exception {
+        @Deprecated
         public RetryException() {
         }
 
+        @Deprecated
         public RetryException(Throwable cause) {
             super(cause);
         }

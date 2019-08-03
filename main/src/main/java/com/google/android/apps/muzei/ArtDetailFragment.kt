@@ -48,9 +48,9 @@ import androidx.navigation.fragment.findNavController
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.ImageViewState
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.api.UserCommand
+import com.google.android.apps.muzei.legacy.LegacySourceServiceProtocol
 import com.google.android.apps.muzei.notifications.NewWallpaperNotificationReceiver
 import com.google.android.apps.muzei.render.ArtworkSizeLiveData
 import com.google.android.apps.muzei.render.ContentUriImageLoader
@@ -109,17 +109,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
 
     @SuppressLint("Range")
     private val artworkObserver = Observer<Artwork?> { currentArtwork ->
-        var titleFont = R.font.alegreya_sans_black
-        var bylineFont = R.font.alegreya_sans_medium
-        if (MuzeiContract.Artwork.META_FONT_TYPE_ELEGANT == currentArtwork?.metaFont) {
-            titleFont = R.font.alegreya_black_italic
-            bylineFont = R.font.alegreya_italic
-        }
-
-        titleView.typeface = ResourcesCompat.getFont(requireContext(), titleFont)
         titleView.text = currentArtwork?.title
-
-        bylineView.typeface = ResourcesCompat.getFont(requireContext(), bylineFont)
         bylineView.text = currentArtwork?.byline
 
         val attribution = currentArtwork?.attribution
@@ -163,7 +153,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
                 currentArtwork?.getCommands(this) ?: run {
                     if (currentProviderLiveData.value?.authority == LEGACY_AUTHORITY) {
                         listOf(UserCommand(
-                                MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK,
+                                LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK,
                                         getString(R.string.action_next_artwork)))
                     } else {
                         listOf()
@@ -181,7 +171,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
                 overflowSourceActionMap.put(SOURCE_ACTION_IDS[i], action.id)
                 val menuItem = overflowMenu.menu.add(0, SOURCE_ACTION_IDS[i],
                         0, action.title)
-                if (action.id == MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK &&
+                if (action.id == LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK &&
                         currentProviderLiveData.value?.authority == LEGACY_AUTHORITY) {
                     menuItem.setIcon(R.drawable.ic_skip)
                     menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
@@ -268,7 +258,9 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         }
 
         titleView = view.findViewById(R.id.title)
+        titleView.typeface = ResourcesCompat.getFont(requireContext(), R.font.alegreya_sans_black)
         bylineView = view.findViewById(R.id.byline)
+        bylineView.typeface = ResourcesCompat.getFont(requireContext(), R.font.alegreya_sans_medium)
         attributionView = view.findViewById(R.id.attribution)
 
         overflowMenu = view.findViewById(R.id.overflow_menu_view)
@@ -280,7 +272,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             if (id > 0) {
                 currentArtworkLiveData.value?.run {
                     GlobalScope.launch {
-                        if (id == MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK) {
+                        if (id == LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK) {
                             FirebaseAnalytics.getInstance(context).logEvent("next_artwork", bundleOf(
                                     FirebaseAnalytics.Param.CONTENT_TYPE to "art_detail"))
                         } else {

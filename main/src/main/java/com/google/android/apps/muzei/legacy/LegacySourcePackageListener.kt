@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.google.android.apps.muzei.legacy
 
 import android.app.NotificationChannel

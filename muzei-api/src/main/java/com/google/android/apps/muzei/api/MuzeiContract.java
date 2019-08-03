@@ -98,8 +98,11 @@ public class MuzeiContract {
      * implementing a {@link android.database.ContentObserver ContentObserver} on {@link #CONTENT_URI} or by using
      * any of the helper classes such as {@link android.content.CursorLoader CursorLoader} to listen for updates.
      *
-     * <p>However, if you want to receive updates while in the background and do not want to maintain
-     * a constantly running {@link android.database.ContentObserver ContentObserver}, you can instead listen for the
+     * <p>On API 24+ devices, it is strongly recommended to use <code>WorkManager</code> or
+     * <code>JobScheduler</code> to listen for content URI changes in the background without
+     * maintaining a constantly running {@link android.database.ContentObserver ContentObserver}.
+     *
+     * <p>To support earlier versions of Android, you can listen for the
      * {@link #ACTION_ARTWORK_CHANGED} broadcast, sent out immediately after an update is made:
      *
      * <pre class="prettyprint">
@@ -110,8 +113,8 @@ public class MuzeiContract {
      * &lt;/receiver&gt;
      * </pre>
      *
-     * No data is sent alongside the broadcast, but this can be used to kick off an
-     * {@link android.app.IntentService IntentService} to retrieve the latest artwork or start
+     * No data is sent alongside the broadcast, but this can be used to kick off
+     * background processing to retrieve the latest artwork or start
      * other processing.
      */
     public static final class Artwork implements BaseColumns {
@@ -121,22 +124,36 @@ public class MuzeiContract {
          * @see #COLUMN_NAME_META_FONT
          * @see #META_FONT_TYPE_DEFAULT
          * @see #META_FONT_TYPE_ELEGANT
+         * @deprecated Choosing a font type is no longer supported.
          */
+        @SuppressWarnings({"deprecation", "DeprecatedIsStillUsed"})
+        @Deprecated
         @Retention(RetentionPolicy.SOURCE)
         @StringDef({META_FONT_TYPE_DEFAULT, META_FONT_TYPE_ELEGANT})
         public @interface MetaFontType {}
         /**
          * The default font type for {@link #COLUMN_NAME_META_FONT}
+         * @deprecated Choosing a font type is no longer supported.
          */
+        @Deprecated
         public static final String META_FONT_TYPE_DEFAULT = "";
         /**
          * An elegant alternate font type for {@link #COLUMN_NAME_META_FONT}
+         * @deprecated Choosing a font type is no longer supported.
          */
+        @Deprecated
         public static final String META_FONT_TYPE_ELEGANT = "elegant";
         /**
          * Column name for the authority of the provider for this artwork.
          * <p>Type: TEXT
          */
+        public static final String COLUMN_NAME_PROVIDER_AUTHORITY = "sourceComponentName";
+        /**
+         * Column name for the authority of the provider for this artwork.
+         * <p>Type: TEXT
+         * @deprecated Use {@link #COLUMN_NAME_PROVIDER_AUTHORITY}
+         */
+        @Deprecated
         public static final String COLUMN_NAME_SOURCE_COMPONENT_NAME = "sourceComponentName";
         /**
          * Column name of the artwork image URI. In almost all cases you should use
@@ -164,21 +181,27 @@ public class MuzeiContract {
          * Column name for the artwork's opaque application-specific identifier.
          * This is generally only useful to the app that published the artwork and should
          * not be relied upon by other apps.
-         * <p>Type: TEXT
+         * <p>Type: TEXT: This always returns a <code>null</code> String
+         * @deprecated Tokens are no longer exposed outside of Muzei.
          */
+        @SuppressWarnings("DeprecatedIsStillUsed")
+        @Deprecated
         public static final String COLUMN_NAME_TOKEN = "token";
         /**
-         * Column name for the artwork's view Intent, encoded via
-         * {@link android.content.Intent#toUri(int) Intent.toUri(Intent.URI_INTENT_SCHEME)} and can
-         * be decoded via
-         * {@link android.content.Intent#parseUri(String, int) Intent.parseUri(viewIntent, Intent.URI_INTENT_SCHEME)}
-         * <p>Type: TEXT (Intent encoded URI)
+         * Column name for the artwork's view Intent
+         * <p>Type: TEXT: This always returns a <code>null</code> String.
+         * @deprecated View Intents are no longer exposed outside of Muzei.
          */
+        @SuppressWarnings("DeprecatedIsStillUsed")
+        @Deprecated
         public static final String COLUMN_NAME_VIEW_INTENT = "viewIntent";
         /**
          * Column name for the font type to use to display artwork meta info.
-         * <p>Type: TEXT (one of {@link #META_FONT_TYPE_DEFAULT} or {@link #META_FONT_TYPE_ELEGANT})
+         * <p>Type: TEXT: This always returns an empty string.
+         * @deprecated Choosing a font type is no longer supported.
          */
+        @SuppressWarnings("DeprecatedIsStillUsed")
+        @Deprecated
         public static final String COLUMN_NAME_META_FONT = "metaFont";
         /**
          * Column name for when this artwork was added.
@@ -225,7 +248,12 @@ public class MuzeiContract {
          * Intent action that will be broadcast when the artwork is changed. This happens immediately after the
          * ContentProvider is updated with data and should be considered the signal that you can retrieve the new
          * artwork.
+         * @deprecated This broadcast cannot be received on
+         * {@link android.os.Build.VERSION_CODES#O} and higher devices.
+         * Use <code>WorkManager</code> or <code>JobScheduler</code> to listen for
+         * artwork change events in the background on API 24+ devices.
          */
+        @Deprecated
         public static final String ACTION_ARTWORK_CHANGED = "com.google.android.apps.muzei.ACTION_ARTWORK_CHANGED";
 
         /**
@@ -278,14 +306,23 @@ public class MuzeiContract {
      */
     public static final class Sources implements BaseColumns {
         /**
-         * Column name for the authority of the provider.
+         * Column name for the authority of the provider for this artwork.
          * <p>Type: TEXT
          */
+        public static final String COLUMN_NAME_AUTHORITY = "component_name";
+        /**
+         * Column name for the authority of the provider.
+         * <p>Type: TEXT
+         * @deprecated Use {@link #COLUMN_NAME_AUTHORITY}.
+         */
+        @Deprecated
         public static final String COLUMN_NAME_COMPONENT_NAME = "component_name";
         /**
          * Column name for the flag indicating if the source is currently selected
-         * <p>Type: INTEGER (boolean)
+         * <p>Type: INTEGER (boolean): This always returns true (1)
+         * @deprecated Only selected rows are returned.
          */
+        @Deprecated
         public static final String COLUMN_NAME_IS_SELECTED = "selected";
         /**
          * Column name for the source's description.
@@ -294,8 +331,10 @@ public class MuzeiContract {
         public static final String COLUMN_NAME_DESCRIPTION = "description";
         /**
          * Column name for the flag indicating if the source wants callbacks for network connectivity changes
-         * <p>Type: INTEGER (boolean)
+         * <p>Type: INTEGER (boolean): This always returns false (0)
+         * @deprecated Only selected rows are returned.
          */
+        @Deprecated
         public static final String COLUMN_NAME_WANTS_NETWORK_AVAILABLE = "network";
         /**
          * Column name for the flag indicating if the source supports a 'Next Artwork' action
@@ -304,8 +343,10 @@ public class MuzeiContract {
         public static final String COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND = "supports_next_artwork";
         /**
          * Column name for the commands the source supports
-         * <p>Type: TEXT
+         * <p>Type: TEXT: This always returns a <code>null</code> String
+         * @deprecated Commands are no longer exposed outside of Muzei.
          */
+        @Deprecated
         public static final String COLUMN_NAME_COMMANDS = "commands";
         /**
          * The MIME type of {@link #CONTENT_URI} providing sources.
@@ -318,8 +359,7 @@ public class MuzeiContract {
         /**
          * The default sort order for this table
          */
-        public static final String DEFAULT_SORT_ORDER = Sources.COLUMN_NAME_IS_SELECTED + " DESC," +
-                Sources.COLUMN_NAME_COMPONENT_NAME;
+        public static final String DEFAULT_SORT_ORDER = Sources.COLUMN_NAME_AUTHORITY;
         /**
          * The table name offered by this provider.
          */
@@ -344,7 +384,12 @@ public class MuzeiContract {
          * Intent action that will be broadcast when the source info is changed. This happens immediately after the
          * ContentProvider is updated with data and should be considered the signal that you can retrieve the new
          * source info.
+         * @deprecated This broadcast cannot be received on
+         * {@link android.os.Build.VERSION_CODES#O} and higher devices.
+         * Use <code>WorkManager</code> or <code>JobScheduler</code> to listen for
+         * source change events in the background on API 24+ devices.
          */
+        @Deprecated
         public static final String ACTION_SOURCE_CHANGED = "com.google.android.apps.muzei.ACTION_SOURCE_CHANGED";
 
         /**
@@ -353,7 +398,9 @@ public class MuzeiContract {
          * @param commandsString The serialized commands found in {@link #COLUMN_NAME_COMMANDS}.
          *
          * @return A deserialized List of {@link UserCommand}s.
+         * @deprecated Commands are no longer exposed outside of Muzei.
          */
+        @Deprecated
         @NonNull
         public static List<UserCommand> parseCommands(String commandsString) {
             ArrayList<UserCommand> commands = new ArrayList<>();

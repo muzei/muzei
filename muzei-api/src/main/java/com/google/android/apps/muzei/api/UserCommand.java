@@ -18,12 +18,13 @@ package com.google.android.apps.muzei.api;
 
 import android.text.TextUtils;
 
-import androidx.annotation.IntRange;
+import com.google.android.apps.muzei.api.provider.Artwork;
+import com.google.android.apps.muzei.api.provider.MuzeiArtProvider;
 
 /**
  * Data class representing a user-visible command.
  *
- * @see MuzeiArtSource#setUserCommands(int...)
+ * @see MuzeiArtProvider#getCommands(Artwork)
  */
 public class UserCommand {
     private int mId;
@@ -42,10 +43,9 @@ public class UserCommand {
      * Instantiates a user command with the given ID and user-visible title text.
      *
      * @param id the unique ID of the command.
-     *           Must be less than {@link MuzeiArtSource#MAX_CUSTOM_COMMAND_ID}.
      * @param title the user-visible title text.
      */
-    public UserCommand(@IntRange(to=MuzeiArtSource.MAX_CUSTOM_COMMAND_ID) int id, String title) {
+    public UserCommand(int id, String title) {
         mId = id;
         mTitle = title;
     }
@@ -63,9 +63,8 @@ public class UserCommand {
      * Sets the ID for this user command.
      *
      * @param id the unique ID of the command.
-     *           Must be less than {@link MuzeiArtSource#MAX_CUSTOM_COMMAND_ID}.
      */
-    public void setId(@IntRange(to=MuzeiArtSource.MAX_CUSTOM_COMMAND_ID) int id) {
+    public void setId(int id) {
         mId = id;
     }
 
