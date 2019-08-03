@@ -398,9 +398,7 @@ public class MuzeiContract {
          * @param commandsString The serialized commands found in {@link #COLUMN_NAME_COMMANDS}.
          *
          * @return A deserialized List of {@link UserCommand}s.
-         * @deprecated Commands are no longer exposed outside of Muzei.
          */
-        @Deprecated
         @NonNull
         public static List<UserCommand> parseCommands(String commandsString) {
             ArrayList<UserCommand> commands = new ArrayList<>();
