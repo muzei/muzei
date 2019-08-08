@@ -26,7 +26,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 /**
  * Database for accessing Gallery data
  */
-@Database(entities = [(ChosenPhoto::class), (Metadata::class)], version = 6)
+@Database(entities = [(ChosenPhoto::class), (Metadata::class)], version = 7)
 internal abstract class GalleryDatabase : RoomDatabase() {
 
     companion object {
@@ -46,7 +46,8 @@ internal abstract class GalleryDatabase : RoomDatabase() {
                                 MIGRATION_2_3,
                                 MIGRATION_3_4,
                                 MIGRATION_4_5,
-                                MIGRATION_5_6)
+                                MIGRATION_5_6,
+                                MIGRATION_6_7)
                         .build()
 
         private val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -116,6 +117,36 @@ internal abstract class GalleryDatabase : RoomDatabase() {
                         + "datetime INTEGER,"
                         + "location TEXT,"
                         + "UNIQUE (uri) ON CONFLICT REPLACE)")
+                database.execSQL("INSERT INTO metadata_cache2 " + "SELECT * FROM metadata_cache")
+                database.execSQL("DROP TABLE metadata_cache")
+                database.execSQL("ALTER TABLE metadata_cache2 RENAME TO metadata_cache")
+                database.execSQL("CREATE UNIQUE INDEX index_metadata_cache_uri " + "ON metadata_cache (uri)")
+            }
+        }
+
+        /**
+         * Basically an identity migration, but handles issues with the more strict
+         * schema checking in Room 2.2.0 (specifically around the UNIQUE (uri) ON CONFLICT REPLACE
+         * constraint that was added in MIGRATION_5_6).
+         */
+        private val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Handle Chosen Photos
+                database.execSQL("CREATE TABLE chosen_photos2 ("
+                        + "_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
+                        + "uri TEXT NOT NULL,"
+                        + "is_tree_uri INTEGER NOT NULL)")
+                database.execSQL("INSERT INTO chosen_photos2 " + "SELECT * FROM chosen_photos")
+                database.execSQL("DROP TABLE chosen_photos")
+                database.execSQL("ALTER TABLE chosen_photos2 RENAME TO chosen_photos")
+                database.execSQL("CREATE UNIQUE INDEX index_chosen_photos_uri " + "ON chosen_photos (uri)")
+
+                // Handle Metadata
+                database.execSQL("CREATE TABLE metadata_cache2 ("
+                        + "_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
+                        + "uri TEXT NOT NULL,"
+                        + "datetime INTEGER,"
+                        + "location TEXT)")
                 database.execSQL("INSERT INTO metadata_cache2 " + "SELECT * FROM metadata_cache")
                 database.execSQL("DROP TABLE metadata_cache")
                 database.execSQL("ALTER TABLE metadata_cache2 RENAME TO metadata_cache")
