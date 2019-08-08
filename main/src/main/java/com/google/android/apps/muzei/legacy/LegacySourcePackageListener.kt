@@ -42,6 +42,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavDeepLinkBuilder
 import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.settings.Prefs
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
 
 class LegacySourcePackageListener(
@@ -68,7 +71,9 @@ class LegacySourcePackageListener(
             lastNotifiedSources.add(SourceInfo(packageName))
         }
         if (lastNotifiedSources.isNotEmpty()) {
-            unsupportedSourceCount.value = lastNotifiedSources.size
+            GlobalScope.launch(Dispatchers.Main.immediate) {
+                unsupportedSourceCount.value = lastNotifiedSources.size
+            }
         }
     }
 
