@@ -355,7 +355,7 @@ class GalleryScanWorker(
                     // Reverse geocode
                     val addresses = try {
                         geocoder.getFromLocation(this[0], this[1], 1)
-                    } catch (e: IllegalArgumentException) {
+                    } catch (e: Exception) {
                         Log.w(TAG, "Invalid latitude/longitude, skipping location metadata", e)
                         null
                     }
