@@ -157,8 +157,8 @@ class EffectsScreenFragment : Fragment(R.layout.effects_screen_fragment) {
         prefs.registerOnSharedPreferenceChangeListener(greyOnPreferenceChangeListener)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
+        super.onDestroyView()
         val prefs = Prefs.getSharedPreferences(requireContext())
         prefs.unregisterOnSharedPreferenceChangeListener(
                 blurOnPreferenceChangeListener)
