@@ -37,7 +37,7 @@
         android:layout_gravity="center"
         android:orientation="horizontal">
 
-        <FrameLayout
+        <androidx.fragment.app.FragmentContainerView
             android:id="@+id/animated_logo_fragment"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"/>

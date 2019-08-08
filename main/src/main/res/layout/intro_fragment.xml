@@ -31,7 +31,7 @@
         android:layout_width="match_parent"
         android:background="@drawable/intro_background_protection"/>
 
-    <FrameLayout
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/animated_logo_fragment"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"

@@ -18,11 +18,11 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <FrameLayout
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/local_render_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
-    <FrameLayout
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

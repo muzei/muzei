@@ -20,7 +20,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <FrameLayout
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/demo_view_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
