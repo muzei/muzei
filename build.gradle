@@ -40,7 +40,7 @@ buildscript {
         pagingVersion = '2.1.0'
         playServicesWearableVersion = '17.0.0'
         preferenceVersion = '1.1.0-rc01'
-        recyclerViewVersion = '1.1.0-beta02'
+        recyclerViewVersion = '1.1.0-beta01'
         roomVersion = '2.2.0-alpha02'
         wearableVersion = '2.4.0'
         wearVersion = '1.0.0'
