@@ -77,6 +77,7 @@ class GallerySettingsViewModel(application: Application) : AndroidViewModel(appl
                 }.filter {
                     // Filter out the default system UI
                     it.packageName != "com.android.documentsui"
+                            && it.packageName != "com.google.android.documentsui"
                 }.filter {
                     // Only show exported activities
                     it.exported
