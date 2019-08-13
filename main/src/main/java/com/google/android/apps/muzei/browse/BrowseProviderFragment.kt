@@ -28,6 +28,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
@@ -35,12 +36,11 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
+import coil.api.load
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
@@ -89,19 +89,19 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
     }
 
     class ArtViewHolder(
-            private val coroutineScope: CoroutineScope,
+            private val owner: LifecycleOwner,
             itemView: View
     ): RecyclerView.ViewHolder(itemView) {
         private val imageView = itemView.findViewById<ImageView>(R.id.browse_image)
 
         fun bind(artwork: Artwork) {
             imageView.contentDescription = artwork.title
-            Glide.with(imageView)
-                    .load(artwork.imageUri)
-                    .into(imageView)
+            imageView.load(artwork.imageUri) {
+                lifecycle(owner)
+            }
             itemView.setOnClickListener {
                 val context = it.context
-                coroutineScope.launch(Dispatchers.Main) {
+                owner.lifecycleScope.launch(Dispatchers.Main) {
                     FirebaseAnalytics.getInstance(context).logEvent(
                             FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
                             FirebaseAnalytics.Param.ITEM_ID to artwork.id,
@@ -131,7 +131,7 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
             }
     ) {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-                ArtViewHolder(viewLifecycleOwner.lifecycleScope,
+                ArtViewHolder(viewLifecycleOwner,
                         layoutInflater.inflate(R.layout.browse_provider_item, parent, false))
 
         override fun onBindViewHolder(holder: ArtViewHolder, position: Int) {

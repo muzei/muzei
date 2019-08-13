@@ -64,7 +64,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
+import coil.api.load
 import com.google.android.apps.muzei.util.MultiSelectionController
 import com.google.android.apps.muzei.util.getString
 import com.google.android.apps.muzei.util.getStringOrNull
@@ -637,11 +637,10 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             for (h in 0 until numImages) {
                 val thumbView = vh.thumbViews[h]
                 thumbView.visibility = View.VISIBLE
-                Glide.with(this@GallerySettingsActivity)
-                        .load(images[h])
-                        .override(targetSize)
-                        .placeholder(placeholderDrawable)
-                        .into(thumbView)
+                thumbView.load(images[h]) {
+                    size(targetSize)
+                    placeholder(placeholderDrawable)
+                }
             }
             for (h in numImages until maxImages) {
                 val thumbView = vh.thumbViews[h]

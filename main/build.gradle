@@ -106,7 +106,7 @@ dependencies {
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$coroutinesVersion"
     implementation "androidx.multidex:multidex:$multidexVersion"
-    implementation "com.github.bumptech.glide:glide:$glideVersion"
+    implementation "io.coil-kt:coil:$coilVersion"
     implementation "com.google.android.gms:play-services-wearable:$playServicesWearableVersion"
     implementation "com.twofortyfouram:android-plugin-api-for-locale:1.0.4"
     implementation "com.davemorrissey.labs:subsampling-scale-image-view:3.10.0"

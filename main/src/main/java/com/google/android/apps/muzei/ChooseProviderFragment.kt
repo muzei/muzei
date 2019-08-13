@@ -21,7 +21,6 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Rect
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
@@ -50,11 +49,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
+import coil.api.load
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.legacy.LegacySourceManager
@@ -263,7 +258,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
         }
     }
 
-    inner class ProviderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), RequestListener<Drawable> {
+    inner class ProviderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val providerIcon: ImageView = itemView.findViewById(R.id.provider_icon)
         private val providerTitle: TextView = itemView.findViewById(R.id.provider_title)
         private val providerSelected: ImageView = itemView.findViewById(R.id.provider_selected)
@@ -364,26 +359,6 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
             }
         }
 
-        override fun onResourceReady(
-                resource: Drawable?,
-                model: Any?,
-                target: Target<Drawable>?,
-                dataSource: DataSource?,
-                isFirstResource: Boolean
-        ): Boolean {
-            providerArtwork.isVisible = true
-            return false
-        }
-
-        override fun onLoadFailed(e: GlideException?,
-                model: Any?,
-                target: Target<Drawable>?,
-                isFirstResource: Boolean
-        ): Boolean {
-            providerArtwork.isVisible = false
-            return false
-        }
-
         fun setDescription(providerInfo: ProviderInfo) = providerInfo.run {
             providerDescription.text = description
             providerDescription.isGone = description.isNullOrEmpty()
@@ -392,10 +367,13 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
         fun setImage(providerInfo: ProviderInfo) = providerInfo.run {
             providerArtwork.isVisible = currentArtworkUri != null
             if (currentArtworkUri != null) {
-                Glide.with(this@ChooseProviderFragment)
-                        .load(currentArtworkUri)
-                        .addListener(this@ProviderViewHolder)
-                        .into(providerArtwork)
+                providerArtwork.load(currentArtworkUri) {
+                    lifecycle(viewLifecycleOwner)
+                    listener(
+                            onError = { _, _ -> providerArtwork.isVisible = false },
+                            onSuccess = { _, _ -> providerArtwork.isVisible = true }
+                    )
+                }
             }
         }
 
