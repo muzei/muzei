@@ -59,20 +59,20 @@ class LegacySourcePackageListener(
         private const val NOTIFICATION_GROUP_KEY = "legacy"
     }
 
-    internal val unsupportedSourceCount: MutableLiveData<Int> = MutableLiveData()
+    internal val unsupportedSources: MutableLiveData<List<LegacySourceInfo>> = MutableLiveData()
 
     private val largeIconSize = applicationContext.resources.getDimensionPixelSize(
             android.R.dimen.notification_large_icon_height)
-    private var lastNotifiedSources = mutableSetOf<SourceInfo>()
+    private var lastNotifiedSources = mutableSetOf<LegacySourceInfo>()
     private val prefs = Prefs.getSharedPreferences(applicationContext)
 
     init {
         prefs.getStringSet(PREF_LAST_NOTIFIED, mutableSetOf())?.forEach { packageName ->
-            lastNotifiedSources.add(SourceInfo(packageName))
+            lastNotifiedSources.add(LegacySourceInfo(packageName))
         }
         if (lastNotifiedSources.isNotEmpty()) {
             GlobalScope.launch(Dispatchers.Main.immediate) {
-                unsupportedSourceCount.value = lastNotifiedSources.size
+                unsupportedSources.value = lastNotifiedSources.toList()
             }
         }
     }
@@ -115,7 +115,7 @@ class LegacySourcePackageListener(
         val pm = applicationContext.packageManager
         val resolveInfos = pm.queryIntentServices(queryIntent,
                 PackageManager.GET_META_DATA)
-        val legacySources = mutableSetOf<SourceInfo>()
+        val legacySources = mutableSetOf<LegacySourceInfo>()
         for (ri in resolveInfos) {
             val info = ri.serviceInfo
             if (info?.metaData?.containsKey("replacement") == true) {
@@ -127,13 +127,13 @@ class LegacySourcePackageListener(
                         ri.serviceInfo.name)
                 Log.d(TAG, "Found legacy source $legacySource")
             }
-            val sourceInfo = SourceInfo(ri.serviceInfo.packageName).apply {
+            val sourceInfo = LegacySourceInfo(ri.serviceInfo.packageName).apply {
                 title = info.applicationInfo.loadLabel(pm).toString()
                 icon = generateSourceImage(info.applicationInfo.loadIcon(pm))
             }
             legacySources.add(sourceInfo)
         }
-        unsupportedSourceCount.value = legacySources.size
+        unsupportedSources.value = legacySources.toList()
         if (lastNotifiedSources == legacySources) {
             // Nothing changed, so there's nothing to update
             return
@@ -264,7 +264,7 @@ class LegacySourcePackageListener(
     }
 }
 
-private data class SourceInfo(val packageName: String) {
+data class LegacySourceInfo(val packageName: String) {
     lateinit var title: String
     var icon: Bitmap? = null
 }

@@ -44,6 +44,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.map
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
@@ -169,7 +170,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
         }
         // Show a SnackBar whenever there are unsupported sources installed
         var snackBar: Snackbar? = null
-        LegacySourceManager.getInstance(requireContext()).unsupportedSourceCount
+        LegacySourceManager.getInstance(requireContext()).unsupportedSources.map { it.size }
                 .distinctUntilChanged().observe(viewLifecycleOwner) { count ->
             if (count > 0) {
                 snackBar = Snackbar.make(
