@@ -108,20 +108,20 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
     private val legacySourcePackageListener = LegacySourcePackageListener(applicationContext)
     private val serviceConnection = LegacySourceServiceConnection(applicationContext)
 
-    private val unsupportedSources = MediatorLiveData<Int>()
-    val unsupportedSourceCount: LiveData<Int> = unsupportedSources
+    private val unsupportedSourcesMediator = MediatorLiveData<List<LegacySourceInfo>>()
+    val unsupportedSources: LiveData<List<LegacySourceInfo>> = unsupportedSourcesMediator
 
     override fun onCreate(owner: LifecycleOwner) {
         serviceLiveData.distinctUntilChanged().observe(owner) { componentName ->
             if (componentName == null) {
                 legacySourcePackageListener.startListening()
-                unsupportedSources.addSource(legacySourcePackageListener.unsupportedSourceCount) {
-                    unsupportedSources.value = it
+                unsupportedSourcesMediator.addSource(legacySourcePackageListener.unsupportedSources) {
+                    unsupportedSourcesMediator.value = it
                 }
                 serviceConnection.unbindService()
             } else {
-                unsupportedSources.removeSource(legacySourcePackageListener.unsupportedSourceCount)
-                unsupportedSources.value = 0
+                unsupportedSourcesMediator.removeSource(legacySourcePackageListener.unsupportedSources)
+                unsupportedSourcesMediator.value = emptyList()
                 legacySourcePackageListener.stopListening()
                 serviceConnection.bindService(componentName)
             }
@@ -143,7 +143,7 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
     suspend fun allowsNextArtwork() = serviceConnection.allowsNextArtwork()
 
     override fun onDestroy(owner: LifecycleOwner) {
-        unsupportedSources.removeSource(legacySourcePackageListener.unsupportedSourceCount)
+        unsupportedSourcesMediator.removeSource(legacySourcePackageListener.unsupportedSources)
         serviceConnection.unbindService()
     }
 }

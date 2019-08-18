@@ -84,6 +84,12 @@
         <item quantity="one">%d unsupported source found</item>
         <item quantity="other">%d unsupported sources found</item>
     </plurals>
+    <string name="legacy_source_info_title">Legacy Sources</string>
+    <string name="legacy_source_info_subtitle">Sources built with the Legacy Source API are
+        no longer directly supported by Muzei.</string>
+    <string name="legacy_source_info_app_info">App info</string>
+    <string name="legacy_source_info_send_feedback">Send feedback</string>
+    <string name="legacy_source_all_uninstalled">All Legacy Sources have been uninstalled</string>
 
     <string name="done">Done</string>
 
