@@ -188,8 +188,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                         }
                     })
                     setAction(R.string.legacy_action_learn_more) {
-                        startActivity(Intent(Intent.ACTION_VIEW,
-                                LegacySourceManager.LEARN_MORE_LINK))
+                        findNavController().navigate(R.id.legacy_info)
                     }
                     show()
                     // Increase the padding when the SnackBar is shown to avoid
