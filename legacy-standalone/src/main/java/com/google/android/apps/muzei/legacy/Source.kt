@@ -74,6 +74,7 @@ class Source(
 
 private const val TAG = "Source"
 
+@Suppress("DEPRECATION")
 suspend fun Source.sendAction(context: Context, id: Int) {
     try {
         if (BuildConfig.DEBUG) {
