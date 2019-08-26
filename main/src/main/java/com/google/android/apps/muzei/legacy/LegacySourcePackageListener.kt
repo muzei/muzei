@@ -138,20 +138,13 @@ class LegacySourcePackageListener(
             // Nothing changed, so there's nothing to update
             return
         }
+        val additions = legacySources - lastNotifiedSources
+        val removals = lastNotifiedSources - legacySources
         val notificationManager = applicationContext.getSystemService(
                 Context.NOTIFICATION_SERVICE) as NotificationManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // Cancel the notification associated with sources that have since been removed
-            val removedPackages = lastNotifiedSources.filterNot {
-                it in legacySources
-            }.map {
-                it.packageName
-            }
-            notificationManager.activeNotifications.filter {
-                it.id == NOTIFICATION_ID && it.tag in removedPackages
-            }.forEach { sbn ->
-                notificationManager.cancel(sbn.tag, sbn.id)
-            }
+        // Cancel the notification associated with sources that have since been removed
+        removals.forEach {
+            notificationManager.cancel(it.packageName, NOTIFICATION_ID)
         }
         lastNotifiedSources = legacySources
         prefs.edit {
@@ -174,8 +167,8 @@ class LegacySourcePackageListener(
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     },
                     0)
-            // Send a notification for each Legacy Source
-            for (info in legacySources) {
+            // Send a notification for each new Legacy Source
+            for (info in additions) {
                 val sendFeedbackPendingIntent = PendingIntent.getActivity(
                         applicationContext, 0,
                         Intent(Intent.ACTION_VIEW,
