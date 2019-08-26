@@ -166,7 +166,7 @@ class LegacySourcePackageListener(
             }
             val contentIntent = NavDeepLinkBuilder(applicationContext)
                     .setGraph(R.navigation.main_navigation)
-                    .setDestination(R.id.main_choose_provider)
+                    .setDestination(R.id.legacy_source_info)
                     .createPendingIntent()
             val learnMorePendingIntent = PendingIntent.getActivity(
                     applicationContext, 0,
