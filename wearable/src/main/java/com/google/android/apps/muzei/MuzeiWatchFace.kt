@@ -507,10 +507,10 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
             when (tapType) {
                 WatchFaceService.TAP_TYPE_TAP -> {
                     when {
-                        topComplication?.safeOnTap(x, y) == true -> {
+                        topComplication?.onTap(x, y) == true -> {
                             invalidate()
                         }
-                        bottomComplication?.safeOnTap(x, y) == true -> {
+                        bottomComplication?.onTap(x, y) == true -> {
                             invalidate()
                         }
                         tapAction == "toggle" -> {

@@ -42,7 +42,7 @@ buildscript {
         preferenceVersion = '1.1.0-rc01'
         recyclerViewVersion = '1.1.0-beta03'
         roomVersion = '2.2.0-beta01'
-        wearableVersion = '2.4.0'
+        wearableVersion = '2.5.0'
         wearVersion = '1.0.0'
         workManagerVersion = '2.3.0-alpha01'
     }
