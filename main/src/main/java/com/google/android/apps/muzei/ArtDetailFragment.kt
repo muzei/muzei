@@ -79,6 +79,15 @@ import net.nurik.roman.muzei.R
 
 object ArtDetailOpenLiveData : MutableLiveData<Boolean>()
 
+private fun TextView.setTextOrGone(text: String?) {
+    if (text?.isNotEmpty() == true) {
+        this.text = text
+        isVisible = true
+    } else {
+        isGone = true
+    }
+}
+
 class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
 
     companion object {
@@ -328,16 +337,9 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         }
 
         currentArtworkLiveData.observe(viewLifecycleOwner) { currentArtwork ->
-            titleView.text = currentArtwork?.title
-            bylineView.text = currentArtwork?.byline
-
-            val attribution = currentArtwork?.attribution
-            if (attribution?.isNotEmpty() == true) {
-                attributionView.text = attribution
-                attributionView.isVisible = true
-            } else {
-                attributionView.isGone = true
-            }
+            titleView.setTextOrGone(currentArtwork?.title)
+            bylineView.setTextOrGone(currentArtwork?.byline)
+            attributionView.setTextOrGone(currentArtwork?.attribution)
 
             metadataView.setOnClickListener {
                 val context = requireContext()
