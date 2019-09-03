@@ -28,6 +28,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
+import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.InstalledProvidersLiveData
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
@@ -205,7 +206,7 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
         }
         val currentArtworkByProviderLiveData = MuzeiDatabase.getInstance(application).artworkDao()
                 .currentArtworkByProvider
-        val currentArtworkByProviderObserver = Observer<List<com.google.android.apps.muzei.room.Artwork>> { artworkByProvider ->
+        val currentArtworkByProviderObserver = Observer<List<Artwork>> { artworkByProvider ->
             if (artworkByProvider != null) {
                 viewModelScope.launch(singleThreadContext) {
                     val artworkMap = HashMap<String, Uri>()
