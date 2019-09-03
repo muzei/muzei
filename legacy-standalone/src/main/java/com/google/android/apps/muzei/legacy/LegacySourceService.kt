@@ -42,7 +42,6 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.room.withTransaction
-import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_SUBSCRIBE
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_SUBSCRIBER_COMPONENT
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_TOKEN
@@ -135,7 +134,7 @@ class LegacySourceService : Service(), LifecycleOwner {
                             Log.d(TAG, "Sending next artwork command to ${source.componentName}")
                         }
                         source.sendAction(this@LegacySourceService,
-                                MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK)
+                                LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK)
                     }
                 }
                 LegacySourceServiceProtocol.WHAT_ALLOWS_NEXT_ARTWORK -> {
@@ -199,7 +198,7 @@ class LegacySourceService : Service(), LifecycleOwner {
     }
 
     private suspend fun updateSources(packageName: String? = null) {
-        val queryIntent = Intent(MuzeiArtSource.ACTION_MUZEI_ART_SOURCE)
+        val queryIntent = Intent(LegacySourceServiceProtocol.ACTION_MUZEI_ART_SOURCE)
         if (packageName != null) {
             queryIntent.`package` = packageName
         }

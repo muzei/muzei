@@ -28,7 +28,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
-import com.google.android.apps.muzei.api.MuzeiArtSource
+import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import net.nurik.roman.muzei.legacy.R
 
@@ -58,8 +58,8 @@ class SourceSetupActivity : AppCompatActivity() {
                                 SourceSettingsActivity::class.java)
 
                         if (getIntent().getBooleanExtra(
-                                        MuzeiArtSource.EXTRA_FROM_MUZEI_SETTINGS, false)) {
-                            intent.putExtra(MuzeiArtSource.EXTRA_FROM_MUZEI_SETTINGS, true)
+                                        MuzeiArtProvider.EXTRA_FROM_MUZEI, false)) {
+                            intent.putExtra(MuzeiArtProvider.EXTRA_FROM_MUZEI, true)
                         }
                         startActivityForResult(intent, REQUEST_CHOOSE_SOURCE)
                     }

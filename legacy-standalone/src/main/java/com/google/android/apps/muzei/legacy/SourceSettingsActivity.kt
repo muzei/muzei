@@ -51,7 +51,7 @@ import androidx.core.text.buildSpannedString
 import androidx.core.view.isVisible
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.observe
-import com.google.android.apps.muzei.api.MuzeiArtSource
+import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.GlobalScope
@@ -225,7 +225,7 @@ class SourceSettingsActivity : AppCompatActivity() {
         try {
             val settingsIntent = Intent()
                     .setComponent(source.settingsActivity)
-                    .putExtra(MuzeiArtSource.EXTRA_FROM_MUZEI_SETTINGS, true)
+                    .putExtra(MuzeiArtProvider.EXTRA_FROM_MUZEI, true)
             startActivity(settingsIntent)
         } catch (e: ActivityNotFoundException) {
             Log.e(TAG, "Can't launch source settings.", e)
@@ -238,7 +238,7 @@ class SourceSettingsActivity : AppCompatActivity() {
         try {
             val setupIntent = Intent()
                     .setComponent(source.setupActivity)
-                    .putExtra(MuzeiArtSource.EXTRA_FROM_MUZEI_SETTINGS, true)
+                    .putExtra(MuzeiArtProvider.EXTRA_FROM_MUZEI, true)
             startActivityForResult(setupIntent, REQUEST_EXTENSION_SETUP)
         } catch (e: ActivityNotFoundException) {
             Log.e(TAG, "Can't launch source setup.", e)

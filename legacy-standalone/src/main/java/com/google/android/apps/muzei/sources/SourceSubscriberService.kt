@@ -23,7 +23,6 @@ import android.content.Intent
 import android.util.Log
 import androidx.core.net.toUri
 import androidx.room.withTransaction
-import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_PUBLISH_STATE
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_STATE
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_TOKEN
@@ -31,6 +30,7 @@ import com.google.android.apps.muzei.api.internal.SourceState
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.legacy.LegacyDatabase
+import com.google.android.apps.muzei.legacy.LegacySourceServiceProtocol
 import com.google.android.apps.muzei.legacy.SourceDao
 import kotlinx.coroutines.runBlocking
 import net.nurik.roman.muzei.legacy.BuildConfig
@@ -79,7 +79,7 @@ class SourceSubscriberService : IntentService("SourceSubscriberService") {
         for (i in 0 until numSourceActions) {
             val command = state.getUserCommandAt(i)
             when (state.getUserCommandAt(i)?.id) {
-                MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK -> source.supportsNextArtwork = true
+                LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK -> source.supportsNextArtwork = true
                 else -> source.commands.add(command)
             }
         }

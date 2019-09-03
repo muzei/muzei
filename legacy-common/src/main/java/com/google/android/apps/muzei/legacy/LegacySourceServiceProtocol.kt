@@ -16,10 +16,18 @@
 
 package com.google.android.apps.muzei.legacy
 
+import android.content.Intent
+
 /**
  * Constants used as the protocol to communicate with the LegacySourceService.
  */
 object LegacySourceServiceProtocol {
+    /**
+     * The [Intent] action representing a Muzei art source. This service should
+     * declare an `<intent-filter>` for this action in order to register with
+     * Muzei.
+     */
+    const val ACTION_MUZEI_ART_SOURCE = "com.google.android.apps.muzei.api.MuzeiArtSource"
     const val LEGACY_COMMAND_ID_NEXT_ARTWORK = 1001
     const val LEGACY_SOURCE_ACTION = "com.google.android.apps.muzei.legacy"
 
