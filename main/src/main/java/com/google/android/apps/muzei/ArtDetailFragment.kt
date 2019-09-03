@@ -16,7 +16,6 @@
 
 package com.google.android.apps.muzei
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -41,7 +40,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
@@ -101,87 +99,6 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
     private var currentViewportId = 0
     private var wallpaperAspectRatio: Float = 0f
     private var artworkAspectRatio: Float = 0f
-
-    private val providerObserver = Observer<Provider?> { provider ->
-        val supportsNextArtwork = provider?.supportsNextArtwork == true
-        nextButton.isVisible = supportsNextArtwork
-    }
-
-    @SuppressLint("Range")
-    private val artworkObserver = Observer<Artwork?> { currentArtwork ->
-        titleView.text = currentArtwork?.title
-        bylineView.text = currentArtwork?.byline
-
-        val attribution = currentArtwork?.attribution
-        if (attribution?.isNotEmpty() == true) {
-            attributionView.text = attribution
-            attributionView.isVisible = true
-        } else {
-            attributionView.isGone = true
-        }
-
-        metadataView.setOnClickListener {
-            val context = requireContext()
-            lifecycleScope.launch {
-                FirebaseAnalytics.getInstance(context).logEvent("artwork_info_open", bundleOf(
-                        FirebaseAnalytics.Param.CONTENT_TYPE to "art_detail"))
-                currentArtworkLiveData.value?.openArtworkInfo(context)
-            }
-        }
-
-        if (backgroundImageContainer.isVisible) {
-            lifecycleScope.launch {
-                val nextId = (backgroundImageContainer.displayedChild + 1) % 2
-                val orientation = withContext(Dispatchers.IO) {
-                    ContentUriImageLoader(requireContext().contentResolver,
-                            MuzeiContract.Artwork.CONTENT_URI).getRotation()
-                }
-                val backgroundImage = backgroundImageContainer[nextId]
-                        as SubsamplingScaleImageView
-                backgroundImage.orientation = orientation
-                backgroundImage.setImage(ImageSource.uri(MuzeiContract.Artwork.CONTENT_URI),
-                        backgroundImageViewState)
-                backgroundImageViewState = null
-                // Set the image to visible since SubsamplingScaleImageView does some of
-                // its processing in onDraw()
-                backgroundImage.isVisible = true
-            }
-        }
-
-        lifecycleScope.launch(Dispatchers.Main) {
-            val commands = context?.run {
-                currentArtwork?.getCommands(this) ?: run {
-                    if (currentProviderLiveData.value?.authority == LEGACY_AUTHORITY) {
-                        listOf(UserCommand(
-                                LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK,
-                                        getString(R.string.action_next_artwork)))
-                    } else {
-                        listOf()
-                    }
-                }
-            } ?: return@launch
-            val activity = activity ?: return@launch
-            overflowSourceActionMap.clear()
-            overflowMenu.menu.clear()
-            activity.menuInflater.inflate(R.menu.muzei_overflow,
-                    overflowMenu.menu)
-            overflowMenu.menu.findItem(R.id.action_always_dark)?.isChecked =
-                    MuzeiApplication.getAlwaysDark(activity)
-            commands.take(SOURCE_ACTION_IDS.size).forEachIndexed { i, action ->
-                overflowSourceActionMap.put(SOURCE_ACTION_IDS[i], action.id)
-                val menuItem = overflowMenu.menu.add(0, SOURCE_ACTION_IDS[i],
-                        0, action.title)
-                if (action.id == LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK &&
-                        currentProviderLiveData.value?.authority == LEGACY_AUTHORITY) {
-                    menuItem.setIcon(R.drawable.ic_skip)
-                    menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-                }
-            }
-        }
-        showFakeLoading = false
-        updateLoadingSpinnerVisibility()
-    }
-
     private var guardViewportChangeListener: Boolean = false
     private var deferResetViewport: Boolean = false
 
@@ -405,8 +322,84 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             }
         }
 
-        currentProviderLiveData.observe(viewLifecycleOwner, providerObserver)
-        currentArtworkLiveData.observe(viewLifecycleOwner, artworkObserver)
+        currentProviderLiveData.observe(viewLifecycleOwner) { provider ->
+            val supportsNextArtwork = provider?.supportsNextArtwork == true
+            nextButton.isVisible = supportsNextArtwork
+        }
+
+        currentArtworkLiveData.observe(viewLifecycleOwner) { currentArtwork ->
+            titleView.text = currentArtwork?.title
+            bylineView.text = currentArtwork?.byline
+
+            val attribution = currentArtwork?.attribution
+            if (attribution?.isNotEmpty() == true) {
+                attributionView.text = attribution
+                attributionView.isVisible = true
+            } else {
+                attributionView.isGone = true
+            }
+
+            metadataView.setOnClickListener {
+                val context = requireContext()
+                lifecycleScope.launch {
+                    FirebaseAnalytics.getInstance(context).logEvent("artwork_info_open", bundleOf(
+                            FirebaseAnalytics.Param.CONTENT_TYPE to "art_detail"))
+                    currentArtworkLiveData.value?.openArtworkInfo(context)
+                }
+            }
+
+            if (backgroundImageContainer.isVisible) {
+                lifecycleScope.launch {
+                    val nextId = (backgroundImageContainer.displayedChild + 1) % 2
+                    val orientation = withContext(Dispatchers.IO) {
+                        ContentUriImageLoader(requireContext().contentResolver,
+                                MuzeiContract.Artwork.CONTENT_URI).getRotation()
+                    }
+                    val backgroundImage = backgroundImageContainer[nextId]
+                            as SubsamplingScaleImageView
+                    backgroundImage.orientation = orientation
+                    backgroundImage.setImage(ImageSource.uri(MuzeiContract.Artwork.CONTENT_URI),
+                            backgroundImageViewState)
+                    backgroundImageViewState = null
+                    // Set the image to visible since SubsamplingScaleImageView does some of
+                    // its processing in onDraw()
+                    backgroundImage.isVisible = true
+                }
+            }
+
+            lifecycleScope.launch(Dispatchers.Main) {
+                val commands = context?.run {
+                    currentArtwork?.getCommands(this) ?: run {
+                        if (currentProviderLiveData.value?.authority == LEGACY_AUTHORITY) {
+                            listOf(UserCommand(
+                                    LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK,
+                                    getString(R.string.action_next_artwork)))
+                        } else {
+                            listOf()
+                        }
+                    }
+                } ?: return@launch
+                val activity = activity ?: return@launch
+                overflowSourceActionMap.clear()
+                overflowMenu.menu.clear()
+                activity.menuInflater.inflate(R.menu.muzei_overflow,
+                        overflowMenu.menu)
+                overflowMenu.menu.findItem(R.id.action_always_dark)?.isChecked =
+                        MuzeiApplication.getAlwaysDark(activity)
+                commands.take(SOURCE_ACTION_IDS.size).forEachIndexed { i, action ->
+                    overflowSourceActionMap.put(SOURCE_ACTION_IDS[i], action.id)
+                    val menuItem = overflowMenu.menu.add(0, SOURCE_ACTION_IDS[i],
+                            0, action.title)
+                    if (action.id == LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK &&
+                            currentProviderLiveData.value?.authority == LEGACY_AUTHORITY) {
+                        menuItem.setIcon(R.drawable.ic_skip)
+                        menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+                    }
+                }
+            }
+            showFakeLoading = false
+            updateLoadingSpinnerVisibility()
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
