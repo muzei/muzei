@@ -208,7 +208,6 @@ import static com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA
  * description is provided, the <code>android:description</code> element of the source's service
  * element in the manifest will be used.
  *
- * @see RemoteMuzeiArtSource
  * @deprecated Use {@link MuzeiArtProvider}.
  */
 @SuppressWarnings({"deprecation"})
