@@ -131,7 +131,9 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
         p1.title.compareTo(p2.title)
     }
 
-    private suspend fun updateProviders(providerInfos: List<android.content.pm.ProviderInfo>) {
+    private suspend fun updateProvidersFromInfo(
+            providerInfos: List<android.content.pm.ProviderInfo>
+    ) {
         val context = getApplication<Application>()
         val pm = context.packageManager
         val newProviders = HashMap<String, ProviderInfo>().apply {
@@ -180,7 +182,7 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
         val allProvidersObserver = Observer<List<android.content.pm.ProviderInfo>> { providerInfos ->
             if (providerInfos != null) {
                 viewModelScope.launch(singleThreadContext) {
-                    updateProviders(providerInfos)
+                    updateProvidersFromInfo(providerInfos)
                     withContext(Dispatchers.Main) {
                         startObserving()
                     }
