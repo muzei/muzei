@@ -28,6 +28,7 @@ handlers:
 - url: /tasks/.*
   script: handlers.tasks.app
   login: admin
+  secure: always
 
 # backroom
 
@@ -35,33 +36,41 @@ handlers:
   static_files: frontend/html/backroom_schedule.html
   upload: frontend/html/backroom_schedule.html
   login: admin
+  secure: always
 
 - url: /backroom/.*
   script: handlers.backroom.app
   login: admin
+  secure: always
 
 # static frontend assets
 
 - url: /frontend
   static_dir: frontend
+  secure: always
 
 - url: /favicon.ico
   static_files: frontend/favicon.ico
   upload: frontend/favicon.ico
+  secure: always
 
 - url: /today
   static_files: frontend/html/today.html
   upload: frontend/html/today.html
+  secure: always
 
 - url: /archive(/.*)?
   static_files: frontend/html/archive.html
   upload: frontend/html/archive.html
+  secure: always
 
 - url: /
   static_files: frontend/html/landing.html
   upload: frontend/html/landing.html
+  secure: always
 
 # other handlers
 
 - url: .*
   script: handlers.main.app
+  secure: always
