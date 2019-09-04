@@ -24,16 +24,9 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Looper;
 import android.provider.BaseColumns;
-import android.util.Log;
-
-import org.json.JSONArray;
-import org.json.JSONException;
 
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.WorkerThread;
 
@@ -250,36 +243,15 @@ public class MuzeiContract {
          */
         public static final String COLUMN_NAME_AUTHORITY = "component_name";
         /**
-         * Column name for the flag indicating if the source is currently selected
-         * <p>Type: INTEGER (boolean): This always returns true (1)
-         * @deprecated Only selected rows are returned.
-         */
-        @Deprecated
-        public static final String COLUMN_NAME_IS_SELECTED = "selected";
-        /**
          * Column name for the source's description.
          * <p>Type: TEXT
          */
         public static final String COLUMN_NAME_DESCRIPTION = "description";
         /**
-         * Column name for the flag indicating if the source wants callbacks for network connectivity changes
-         * <p>Type: INTEGER (boolean): This always returns false (0)
-         * @deprecated Only selected rows are returned.
-         */
-        @Deprecated
-        public static final String COLUMN_NAME_WANTS_NETWORK_AVAILABLE = "network";
-        /**
          * Column name for the flag indicating if the source supports a 'Next Artwork' action
          * <p>Type: INTEGER (boolean)
          */
         public static final String COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND = "supports_next_artwork";
-        /**
-         * Column name for the commands the source supports
-         * <p>Type: TEXT: This always returns a <code>null</code> String
-         * @deprecated Commands are no longer exposed outside of Muzei.
-         */
-        @Deprecated
-        public static final String COLUMN_NAME_COMMANDS = "commands";
         /**
          * The MIME type of {@link #CONTENT_URI} providing sources.
          */
@@ -323,29 +295,5 @@ public class MuzeiContract {
          */
         @Deprecated
         public static final String ACTION_SOURCE_CHANGED = "com.google.android.apps.muzei.ACTION_SOURCE_CHANGED";
-
-        /**
-         * Parse the commands found in the {@link #COLUMN_NAME_COMMANDS} field into a List of {@link UserCommand}s.
-         *
-         * @param commandsString The serialized commands found in {@link #COLUMN_NAME_COMMANDS}.
-         *
-         * @return A deserialized List of {@link UserCommand}s.
-         */
-        @NonNull
-        public static List<UserCommand> parseCommands(String commandsString) {
-            ArrayList<UserCommand> commands = new ArrayList<>();
-            if (commandsString == null) {
-                return commands;
-            }
-            try {
-                JSONArray commandArray = new JSONArray(commandsString);
-                for (int h=0; h<commandArray.length(); h++) {
-                    commands.add(UserCommand.deserialize(commandArray.getString(h)));
-                }
-            } catch (JSONException e) {
-                Log.e(MuzeiContract.Sources.class.getSimpleName(), "Error parsing commands from " + commandsString, e);
-            }
-            return commands;
-        }
     }
 }

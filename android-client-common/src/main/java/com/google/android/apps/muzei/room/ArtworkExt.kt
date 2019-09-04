@@ -21,7 +21,6 @@ import android.content.Context
 import android.os.Bundle
 import android.os.RemoteException
 import android.util.Log
-import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.api.UserCommand
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.DEFAULT_VERSION
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.GET_ARTWORK_INFO_MIN_VERSION
@@ -38,6 +37,8 @@ import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_TRIGG
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
 import com.google.android.apps.muzei.util.toastFromBackground
 import net.nurik.roman.muzei.androidclientcommon.R
+import org.json.JSONArray
+import org.json.JSONException
 import java.util.ArrayList
 
 private const val TAG = "Artwork"
@@ -82,8 +83,18 @@ suspend fun Artwork.getCommands(context: Context) : List<UserCommand> {
     return ContentProviderClientCompat.getClient(context, imageUri)?.use { client ->
         return try {
             val result = client.call(METHOD_GET_COMMANDS, imageUri.toString())
-            val commandsString = result?.getString(KEY_COMMANDS, null)
-            MuzeiContract.Sources.parseCommands(commandsString)
+            result?.getString(KEY_COMMANDS, null)?.run {
+                val commands = mutableListOf<UserCommand>()
+                try {
+                    val commandArray = JSONArray(this)
+                    for (index in 0 until commandArray.length()) {
+                        commands.add(UserCommand.deserialize(commandArray.getString(index)))
+                    }
+                } catch (e: JSONException) {
+                    Log.e(TAG, "Error parsing commands from $this", e)
+                }
+                commands
+            } ?: ArrayList()
         } catch (e: RemoteException) {
             Log.i(TAG, "Provider for $imageUri crashed while retrieving commands", e)
             ArrayList()

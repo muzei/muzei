@@ -97,12 +97,12 @@ class MuzeiProvider : ContentProvider() {
                     "0 AS \"sources._id\"",
             MuzeiContract.Sources.COLUMN_NAME_AUTHORITY to
                     "providerAuthority AS component_name",
-            MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED to "1 AS selected",
+            "selected" to "1 AS selected",
             MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION to "\"\" AS description",
-            MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE to "0 AS network",
+            "network" to "0 AS network",
             MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND to
                     "1 AS supports_next_artwork",
-            MuzeiContract.Sources.COLUMN_NAME_COMMANDS to "NULL AS commands"
+            "commands" to "NULL AS commands"
     )
 
     override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String>?): Int {
@@ -206,14 +206,14 @@ class MuzeiProvider : ContentProvider() {
             c.newRow().apply {
                 add(BaseColumns._ID, 0L)
                 add(MuzeiContract.Sources.COLUMN_NAME_AUTHORITY, provider.authority)
-                add(MuzeiContract.Sources.COLUMN_NAME_IS_SELECTED, true)
+                add("selected", true)
                 add(MuzeiContract.Sources.COLUMN_NAME_DESCRIPTION, runBlocking {
                     ProviderManager.getDescription(context, provider.authority)
                 })
-                add(MuzeiContract.Sources.COLUMN_NAME_WANTS_NETWORK_AVAILABLE, false)
+                add("network", false)
                 add(MuzeiContract.Sources.COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND,
                         provider.supportsNextArtwork)
-                add(MuzeiContract.Sources.COLUMN_NAME_COMMANDS, null)
+                add("commands", null)
             }
         }
         return c.apply { setNotificationUri(context.contentResolver, uri) }
