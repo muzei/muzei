@@ -32,10 +32,9 @@ import androidx.annotation.NonNull;
  *
  * <p> Instances of this should only be created by using {@link Artwork#fromCursor(Cursor)}.
  */
-@SuppressWarnings("deprecation")
 public class Artwork {
 
-    private String mComponentName;
+    private String mProviderAuthority;
     private Uri mImageUri;
     private String mTitle;
     private String mByline;
@@ -51,7 +50,7 @@ public class Artwork {
      * @return the authority of the {@link MuzeiArtProvider} providing this artwork.
      */
     public String getProviderAuthority() {
-        return mComponentName;
+        return mProviderAuthority;
     }
 
     /**
@@ -102,14 +101,16 @@ public class Artwork {
         return mDateAdded;
     }
 
+    void setProviderAuthority(String providerAuthority) {
+        mProviderAuthority = providerAuthority;
+    }
+
     /**
      * Sets the artwork's image URI.
      *
      * @param imageUri the artwork's image URI.
-     * @deprecated Artwork should be considered immutable after creation.
      */
-    @Deprecated
-    public void setImageUri(Uri imageUri) {
+    void setImageUri(Uri imageUri) {
         mImageUri = imageUri;
     }
 
@@ -117,10 +118,8 @@ public class Artwork {
      * Sets the artwork's user-visible title.
      *
      * @param title the artwork's user-visible title.
-     * @deprecated Artwork should be considered immutable after creation.
      */
-    @Deprecated
-    public void setTitle(String title) {
+    void setTitle(String title) {
         mTitle = title;
     }
 
@@ -129,10 +128,8 @@ public class Artwork {
      * This is generally used as a secondary source of information after the {@link #setTitle} title}.
      *
      * @param byline the artwork's user-visible byline.
-     * @deprecated Artwork should be considered immutable after creation.
      */
-    @Deprecated
-    public void setByline(String byline) {
+    void setByline(String byline) {
         mByline = byline;
     }
 
@@ -142,10 +139,8 @@ public class Artwork {
      * {@link #setTitle  title} and the {@link #setByline byline}.
      *
      * @param attribution the artwork's user-visible attribution text.
-     * @deprecated Artwork should be considered immutable after creation.
      */
-    @Deprecated
-    public void setAttribution(String attribution) {
+    void setAttribution(String attribution) {
         mAttribution = attribution;
     }
 
@@ -153,171 +148,9 @@ public class Artwork {
      * Sets when this artwork was added to Muzei. This will be done automatically for you.
      *
      * @param dateAdded when this artwork was added to Muzei.
-     * @deprecated Artwork should be considered immutable after creation.
      */
-    @Deprecated
-    public void setDateAdded(Date dateAdded) {
+    void setDateAdded(Date dateAdded) {
         mDateAdded = dateAdded;
-    }
-
-    /**
-     * A <a href="http://en.wikipedia.org/wiki/Builder_pattern">builder</a>-style, <a
-     * href="http://en.wikipedia.org/wiki/Fluent_interface">fluent interface</a> for creating {@link
-     * Artwork} objects. Example usage is below.
-     *
-     * <pre class="prettyprint">
-     * Artwork artwork = new Artwork.Builder()
-     *         .imageUri(Uri.parse("http://example.com/image.jpg"))
-     *         .title("Example image")
-     *         .byline("Unknown person, c. 1980")
-     *         .attribution("Copyright (C) Unknown person, 1980")
-     *         .viewIntent(new Intent(Intent.ACTION_VIEW,
-     *                 Uri.parse("http://example.com/imagedetails.html")))
-     *         .build();
-     * </pre>
-     *
-     * The only required field is {@linkplain #imageUri(Uri) the image URI}, but you
-     * should really provide all the metadata, especially title, byline, and view intent.
-     * @deprecated Use {@link com.google.android.apps.muzei.api.provider.Artwork.Builder} with a
-     * {@link MuzeiArtProvider}.
-     */
-    @SuppressWarnings({"deprecation", "DeprecatedIsStillUsed"})
-    @Deprecated
-    public static class Builder {
-        private final Artwork mArtwork;
-
-        /**
-         * @deprecated Use {@link com.google.android.apps.muzei.api.provider.Artwork.Builder}
-         * with a {@link MuzeiArtProvider}.
-         */
-        @Deprecated
-        public Builder() {
-            mArtwork = new Artwork();
-        }
-
-        /**
-         * Sets the authority of the {@link MuzeiArtProvider} for this artwork.
-         * This will automatically be set for you by Muzei.
-         *
-         * @param authority the authority of the {@link MuzeiArtProvider} for this artwork.
-         *
-         * @return this {@link Builder}.
-         */
-        @SuppressWarnings("UnusedReturnValue")
-        Builder providerAuthority(String authority) {
-            mArtwork.mComponentName = authority;
-            return this;
-        }
-
-        /**
-         * Sets the artwork's image URI, which must resolve to a JPEG or PNG image, ideally
-         * under 5MB. Supported URI schemes are:
-         *
-         * <ul>
-         * <li><code>content://...</code>. Content URIs must be public (i.e. not require
-         * permissions). To build a file-based content provider, see the
-         * <a href="https://developer.android.com/reference/android/support/v4/content/FileProvider.html">FileProvider</a>
-         * class in the Android support library.</li>
-         * <li><code>android.resource://...</code>. Resource URLs are recommended to be identified
-         * by resource type name and entry name instead of resource ID, to be more reliable after
-         * source app updates.</li>
-         * <li><code>http://...</code> or <code>https://...</code>. These URLs must be
-         * publicly accessible (i.e. not require authentication of any kind).</li>
-         * </ul>
-         *
-         * While Muzei will download and cache the artwork, these URIs should be as long-lived as
-         * possible, since in the event Muzei's cache is wiped out, it will attempt to fetch the
-         * image again. Also, given that the device may not be connected to the network at the time
-         * an artwork is added, the time the URI may be fetched significantly after the artwork
-         * is published.
-         *
-         * @param imageUri the artwork's image URI
-         *
-         * @return this {@link Builder}.
-         * @deprecated Use {@link com.google.android.apps.muzei.api.provider.Artwork.Builder}
-         * with a {@link MuzeiArtProvider}.
-         */
-        @Deprecated
-        public Builder imageUri(Uri imageUri) {
-            mArtwork.mImageUri = imageUri;
-            return this;
-        }
-
-        /**
-         * Sets the artwork's user-visible title.
-         *
-         * @param title the artwork's user-visible title.
-         *
-         * @return this {@link Builder}.
-         * @deprecated Use {@link com.google.android.apps.muzei.api.provider.Artwork.Builder}
-         * with a {@link MuzeiArtProvider}.
-         */
-        @Deprecated
-        public Builder title(String title) {
-            mArtwork.mTitle = title;
-            return this;
-        }
-
-        /**
-         * Sets the artwork's user-visible byline, usually containing the author and date.
-         * This is generally used as a secondary source of information after the {@link #title} title}.
-         *
-         * @param byline the artwork's user-visible byline.
-         *
-         * @return this {@link Builder}.
-         * @deprecated Use {@link com.google.android.apps.muzei.api.provider.Artwork.Builder}
-         * with a {@link MuzeiArtProvider}.
-         */
-        @Deprecated
-        public Builder byline(String byline) {
-            mArtwork.mByline = byline;
-            return this;
-        }
-
-        /**
-         * Sets the artwork's user-visible attribution text.
-         * This is generally used as a tertiary source of information after the
-         * {@link #setTitle  title} and the {@link #byline byline}.
-         *
-         * @param attribution the artwork's user-visible attribution text.
-         *
-         * @return this {@link Builder}.
-         * @deprecated Use {@link com.google.android.apps.muzei.api.provider.Artwork.Builder}
-         * with a {@link MuzeiArtProvider}.
-         */
-        @Deprecated
-        public Builder attribution(String attribution) {
-            mArtwork.mAttribution = attribution;
-            return this;
-        }
-
-        /**
-         * Sets when this artwork was added to Muzei. This will be done automatically for you.
-         *
-         * @param dateAdded when this artwork was added to Muzei.
-         *
-         * @return this {@link Builder}.
-         * @deprecated Use {@link com.google.android.apps.muzei.api.provider.Artwork.Builder}
-         * with a {@link MuzeiArtProvider}.
-         */
-        @Deprecated
-        public Builder dateAdded(Date dateAdded) {
-            mArtwork.mDateAdded = dateAdded;
-            return this;
-        }
-
-        /**
-         * Creates and returns the final Artwork object. Once this method is called, it is not valid
-         * to further use this {@link Artwork.Builder} object.
-         *
-         * @return the final constructed {@link Artwork}.
-         * @deprecated Use {@link com.google.android.apps.muzei.api.provider.Artwork.Builder}
-         * with a {@link MuzeiArtProvider}.
-         */
-        @Deprecated
-        public Artwork build() {
-            return mArtwork;
-        }
     }
 
     /**
@@ -330,37 +163,37 @@ public class Artwork {
      *
      * @return the artwork from the current position of the Cursor.
      */
-    @SuppressWarnings({"deprecation", "WeakerAccess"})
+    @SuppressWarnings({"WeakerAccess"})
     @NonNull
     public static Artwork fromCursor(@NonNull Cursor cursor) {
-        Builder builder = new Builder();
+        Artwork artwork = new Artwork();
         int componentNameColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_PROVIDER_AUTHORITY);
         if (componentNameColumnIndex != -1) {
-            builder.providerAuthority(cursor.getString(componentNameColumnIndex));
+            artwork.setProviderAuthority(cursor.getString(componentNameColumnIndex));
         }
         int imageUriColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_IMAGE_URI);
         if (imageUriColumnIndex != -1) {
             String uriString = cursor.getString(imageUriColumnIndex);
             if (!TextUtils.isEmpty(uriString)) {
-                builder.imageUri(Uri.parse(uriString));
+                artwork.setImageUri(Uri.parse(uriString));
             }
         }
         int titleColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_TITLE);
         if (titleColumnIndex != -1) {
-            builder.title(cursor.getString(titleColumnIndex));
+            artwork.setTitle(cursor.getString(titleColumnIndex));
         }
         int bylineColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_BYLINE);
         if (bylineColumnIndex != -1) {
-            builder.byline(cursor.getString(bylineColumnIndex));
+            artwork.setByline(cursor.getString(bylineColumnIndex));
         }
         int attributionColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_ATTRIBUTION);
         if (attributionColumnIndex != -1) {
-            builder.attribution(cursor.getString(attributionColumnIndex));
+            artwork.setAttribution(cursor.getString(attributionColumnIndex));
         }
         int dateAddedColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED);
         if (dateAddedColumnIndex != -1) {
-            builder.dateAdded(new Date(cursor.getLong(dateAddedColumnIndex)));
+            artwork.setDateAdded(new Date(cursor.getLong(dateAddedColumnIndex)));
         }
-        return builder.build();
+        return artwork;
     }
 }
