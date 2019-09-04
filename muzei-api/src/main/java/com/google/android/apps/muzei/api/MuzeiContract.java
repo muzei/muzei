@@ -121,13 +121,6 @@ public class MuzeiContract {
          */
         public static final String COLUMN_NAME_PROVIDER_AUTHORITY = "sourceComponentName";
         /**
-         * Column name for the authority of the provider for this artwork.
-         * <p>Type: TEXT
-         * @deprecated Use {@link #COLUMN_NAME_PROVIDER_AUTHORITY}
-         */
-        @Deprecated
-        public static final String COLUMN_NAME_SOURCE_COMPONENT_NAME = "sourceComponentName";
-        /**
          * Column name of the artwork image URI. In almost all cases you should use
          * {@link ContentResolver#openInputStream(Uri) ContentResolver.openInputStream(CONTENT_URI)}
          * to retrieve the already downloaded artwork.
@@ -256,13 +249,6 @@ public class MuzeiContract {
          * <p>Type: TEXT
          */
         public static final String COLUMN_NAME_AUTHORITY = "component_name";
-        /**
-         * Column name for the authority of the provider.
-         * <p>Type: TEXT
-         * @deprecated Use {@link #COLUMN_NAME_AUTHORITY}.
-         */
-        @Deprecated
-        public static final String COLUMN_NAME_COMPONENT_NAME = "component_name";
         /**
          * Column name for the flag indicating if the source is currently selected
          * <p>Type: INTEGER (boolean): This always returns true (1)
