@@ -315,7 +315,7 @@ class LegacySourceService : Service(), LifecycleOwner {
             if (existingSource != null) {
                 if (existingSource.selected) {
                     // If this is the selected source, switch Muzei to the new MuzeiArtProvider
-                    // rather than continue to use the legacy MuzeiArtSource
+                    // rather than continue to use the legacy art source
                     metaData.getString("replacement").takeUnless { it.isNullOrEmpty() }?.run {
                         val providerInfo = pm.resolveContentProvider(this, 0)
                                 ?: try {
@@ -347,7 +347,7 @@ class LegacySourceService : Service(), LifecycleOwner {
         source.label = info.loadLabel(pm).toString()
         source.targetSdkVersion = info.applicationInfo.targetSdkVersion
         if (source.targetSdkVersion >= Build.VERSION_CODES.O) {
-            // The MuzeiArtSource API is incompatible with apps
+            // The Legacy API is incompatible with apps
             // targeting Android O+
             source.selected = false
         }

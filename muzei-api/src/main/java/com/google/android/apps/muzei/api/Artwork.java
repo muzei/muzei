@@ -16,7 +16,6 @@
 
 package com.google.android.apps.muzei.api;
 
-import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -85,17 +84,6 @@ public class Artwork {
      */
     public String getProviderAuthority() {
         return mComponentName;
-    }
-
-    /**
-     * Returns the {@link ComponentName} of the art source providing this artwork.
-     *
-     * @return a {@link ComponentName} of the {@link MuzeiArtSource} providing this artwork.
-     * @deprecated Use {@link #getProviderAuthority()}.
-     */
-    @Deprecated
-    public ComponentName getComponentName() {
-        return ComponentName.unflattenFromString(mComponentName);
     }
 
     /**
@@ -189,31 +177,6 @@ public class Artwork {
      */
     public Date getDateAdded() {
         return mDateAdded;
-    }
-
-    /**
-     * Sets the {@link ComponentName} of the {@link MuzeiArtSource} providing this artwork.
-     * This will automatically be set for you by Muzei.
-     *
-     * @param context context to use to construct the {@link ComponentName}.
-     * @param source the {@link MuzeiArtSource} providing this artwork.
-     * @deprecated Artwork should be considered immutable after creation.
-     */
-    @Deprecated
-    public void setComponentName(Context context, Class<? extends MuzeiArtSource> source) {
-        mComponentName = new ComponentName(context, source).flattenToShortString();
-    }
-
-    /**
-     * Sets the {@link ComponentName} of the {@link MuzeiArtSource} providing this artwork.
-     * This will automatically be set for you by Muzei.
-     *
-     * @param source the {@link MuzeiArtSource} providing this artwork.
-     * @deprecated Artwork should be considered immutable after creation.
-     */
-    @Deprecated
-    public void setComponentName(ComponentName source) {
-        mComponentName = source.flattenToShortString();
     }
 
     /**
@@ -360,40 +323,7 @@ public class Artwork {
         }
 
         /**
-         * Sets the {@link ComponentName} of the {@link MuzeiArtSource} providing this artwork.
-         * This will automatically be set for you by Muzei.
-         *
-         * @param context context to use to construct the {@link ComponentName}
-         * @param source the {@link MuzeiArtSource} providing this artwork
-         *
-         * @return this {@link Builder}.
-         * @deprecated Use {@link com.google.android.apps.muzei.api.provider.Artwork.Builder}
-         * with a {@link MuzeiArtProvider}.
-         */
-        @Deprecated
-        public Builder componentName(Context context, Class<? extends MuzeiArtSource> source) {
-            mArtwork.mComponentName = new ComponentName(context, source).flattenToShortString();
-            return this;
-        }
-
-        /**
-         * Sets the {@link ComponentName} of the {@link MuzeiArtSource} providing this artwork.
-         * This will automatically be set for you by Muzei.
-         *
-         * @param source the {@link MuzeiArtSource} providing this artwork.
-         *
-         * @return this {@link Builder}.
-         * @deprecated Use {@link com.google.android.apps.muzei.api.provider.Artwork.Builder}
-         * with a {@link MuzeiArtProvider}.
-         */
-        @Deprecated
-        public Builder componentName(ComponentName source) {
-            mArtwork.mComponentName = source.flattenToShortString();
-            return this;
-        }
-
-        /**
-         * Sets the authority of the {@link MuzeiArtSource} for this artwork.
+         * Sets the authority of the {@link MuzeiArtProvider} for this artwork.
          * This will automatically be set for you by Muzei.
          *
          * @param authority the authority of the {@link MuzeiArtProvider} for this artwork.
@@ -425,8 +355,8 @@ public class Artwork {
          * While Muzei will download and cache the artwork, these URIs should be as long-lived as
          * possible, since in the event Muzei's cache is wiped out, it will attempt to fetch the
          * image again. Also, given that the device may not be connected to the network at the time
-         * an artwork is {@linkplain MuzeiArtSource#publishArtwork(Artwork) published}, the time
-         * the URI may be fetched significantly after the artwork is published.
+         * an artwork is added, the time the URI may be fetched significantly after the artwork
+         * is published.
          *
          * @param imageUri the artwork's image URI
          *
