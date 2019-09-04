@@ -37,16 +37,6 @@ import androidx.annotation.NonNull;
  */
 @SuppressWarnings("deprecation")
 public class Artwork {
-    /**
-     * @deprecated use {@link com.google.android.apps.muzei.api.MuzeiContract.Artwork#META_FONT_TYPE_DEFAULT}
-     */
-    @Deprecated
-    public static final String FONT_TYPE_DEFAULT = MuzeiContract.Artwork.META_FONT_TYPE_DEFAULT;
-    /**
-     * @deprecated use {@link com.google.android.apps.muzei.api.MuzeiContract.Artwork#META_FONT_TYPE_ELEGANT}
-     */
-    @Deprecated
-    public static final String FONT_TYPE_ELEGANT = MuzeiContract.Artwork.META_FONT_TYPE_ELEGANT;
 
     private String mComponentName;
     private Uri mImageUri;
@@ -55,7 +45,6 @@ public class Artwork {
     private String mAttribution;
     private String mToken;
     private Intent mViewIntent;
-    private @MuzeiContract.Artwork.MetaFontType String mMetaFont;
     private Date mDateAdded;
 
     private Artwork() {
@@ -138,20 +127,6 @@ public class Artwork {
     @Deprecated
     public Intent getViewIntent() {
         return mViewIntent;
-    }
-
-    /**
-     * Returns the font type to use for showing metadata. This should be treated as
-     * {@link com.google.android.apps.muzei.api.MuzeiContract.Artwork#META_FONT_TYPE_DEFAULT}
-     * if null.
-     *
-     * @return the font type to use for showing metadata.
-     * @deprecated Choosing a font type is no longer supported.
-     */
-    @Deprecated
-    @MuzeiContract.Artwork.MetaFontType
-    public String getMetaFont() {
-        return mMetaFont;
     }
 
     /**
@@ -245,19 +220,6 @@ public class Artwork {
     @Deprecated
     public void setViewIntent(Intent viewIntent) {
         mViewIntent = viewIntent;
-    }
-
-    /**
-     * Sets the font type to use for showing metadata. If unset,
-     * {@link com.google.android.apps.muzei.api.MuzeiContract.Artwork#META_FONT_TYPE_DEFAULT}
-     * will be used by default.
-     *
-     * @param metaFont the font type to use for showing metadata.
-     * @deprecated Artwork should be considered immutable after creation.
-     */
-    @Deprecated
-    public void setMetaFont(@MuzeiContract.Artwork.MetaFontType String metaFont) {
-        mMetaFont = metaFont;
     }
 
     /**
@@ -448,26 +410,6 @@ public class Artwork {
         }
 
         /**
-         * Sets the font type to use for showing metadata. If unset,
-         * {@link com.google.android.apps.muzei.api.MuzeiContract.Artwork#META_FONT_TYPE_DEFAULT}
-         * will be used by default.
-         *
-         * @param metaFont the font type to use for showing metadata.
-         *
-         * @return this {@link Builder}.
-         *
-         * @see com.google.android.apps.muzei.api.MuzeiContract.Artwork#META_FONT_TYPE_DEFAULT
-         * @see com.google.android.apps.muzei.api.MuzeiContract.Artwork#META_FONT_TYPE_ELEGANT
-         * @deprecated Use {@link com.google.android.apps.muzei.api.provider.Artwork.Builder}
-         * with a {@link MuzeiArtProvider}.
-         */
-        @Deprecated
-        public Builder metaFont(@MuzeiContract.Artwork.MetaFontType String metaFont) {
-            mArtwork.mMetaFont = metaFont;
-            return this;
-        }
-
-        /**
          * Sets when this artwork was added to Muzei. This will be done automatically for you.
          *
          * @param dateAdded when this artwork was added to Muzei.
@@ -546,12 +488,6 @@ public class Artwork {
                 }
             } catch (URISyntaxException ignored) {
             }
-        }
-        int metaFontColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_META_FONT);
-        if (metaFontColumnIndex != -1) {
-            // Assume the COLUMN_NAME_META_FONT value is valid
-            //noinspection WrongConstant
-            builder.metaFont(cursor.getString(metaFontColumnIndex));
         }
         int dateAddedColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED);
         if (dateAddedColumnIndex != -1) {
