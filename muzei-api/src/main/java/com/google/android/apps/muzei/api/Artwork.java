@@ -16,15 +16,12 @@
 
 package com.google.android.apps.muzei.api;
 
-import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
 
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider;
 
-import java.net.URISyntaxException;
 import java.util.Date;
 
 import androidx.annotation.NonNull;
@@ -43,7 +40,6 @@ public class Artwork {
     private String mTitle;
     private String mByline;
     private String mAttribution;
-    private Intent mViewIntent;
     private Date mDateAdded;
 
     private Artwork() {
@@ -95,24 +91,6 @@ public class Artwork {
      */
     public String getAttribution() {
         return mAttribution;
-    }
-
-    /**
-     * Returns the activity {@link Intent} that will be started when the user clicks
-     * for more details about the artwork. This should point to an exported
-     * {@link android.app.Activity}. Muzei will automatically add
-     * {@link Intent#FLAG_GRANT_READ_URI_PERMISSION} to allow reading any attached data URI,
-     * but note that all extras will be lost when Muzei uses {@link Intent#toUri(int)}.
-     *
-     *
-     * @return the activity {@link Intent} that will be
-     * {@linkplain Context#startActivity(Intent) started} when the user clicks
-     * for more details about the artwork, or null if the artwork doesn't have one.
-     * @deprecated View Intents are no longer exposed outside of Muzei.
-     */
-    @Deprecated
-    public Intent getViewIntent() {
-        return mViewIntent;
     }
 
     /**
@@ -169,32 +147,6 @@ public class Artwork {
     @Deprecated
     public void setAttribution(String attribution) {
         mAttribution = attribution;
-    }
-
-    /**
-     * Sets the activity {@link Intent} that will be
-     * {@linkplain Context#startActivity(Intent) started} when
-     * the user clicks for more details about the artwork.
-     *
-     * <p> The activity that this intent resolves to must have <code>android:exported</code>
-     * set to <code>true</code>.
-     *
-     * <p> Muzei will automatically add {@link Intent#FLAG_GRANT_READ_URI_PERMISSION}
-     * to allow reading any  attached data URI, but note that all extras will be lost
-     * when Muzei uses {@link Intent#toUri(int)} to serialize the Intent.
-     *
-     * <p> Because artwork objects can be persisted across device reboots,
-     * {@linkplain android.app.PendingIntent pending intents}, which would alleviate the
-     * exported requirement, are not currently supported.
-     *
-     * @param viewIntent the activity {@link Intent} that will be
-     *                   {@linkplain Context#startActivity(Intent) started} when the user clicks
-     *                   for more details about the artwork.
-     * @deprecated Artwork should be considered immutable after creation.
-     */
-    @Deprecated
-    public void setViewIntent(Intent viewIntent) {
-        mViewIntent = viewIntent;
     }
 
     /**
@@ -340,36 +292,6 @@ public class Artwork {
         }
 
         /**
-         * Sets the activity {@link Intent} that will be
-         * {@linkplain Context#startActivity(Intent) started} when
-         * the user clicks for more details about the artwork.
-         *
-         * <p> The activity that this intent resolves to must have <code>android:exported</code>
-         * set to <code>true</code>.
-         *
-         * <p> Muzei will automatically add {@link Intent#FLAG_GRANT_READ_URI_PERMISSION}
-         * to allow reading any  attached data URI, but note that all extras will be lost
-         * when Muzei uses {@link Intent#toUri(int)} to serialize the Intent.
-         *
-         * <p> Because artwork objects can be persisted across device reboots,
-         * {@linkplain android.app.PendingIntent pending intents}, which would alleviate the
-         * exported requirement, are not currently supported.
-         *
-         * @param viewIntent the activity {@link Intent} that will be
-         *                   {@linkplain Context#startActivity(Intent) started} when the user clicks
-         *                   for more details about the artwork.
-         *
-         * @return this {@link Builder}.
-         * @deprecated Use {@link com.google.android.apps.muzei.api.provider.Artwork.Builder}
-         * with a {@link MuzeiArtProvider}.
-         */
-        @Deprecated
-        public Builder viewIntent(Intent viewIntent) {
-            mArtwork.mViewIntent = viewIntent;
-            return this;
-        }
-
-        /**
          * Sets when this artwork was added to Muzei. This will be done automatically for you.
          *
          * @param dateAdded when this artwork was added to Muzei.
@@ -434,16 +356,6 @@ public class Artwork {
         int attributionColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_ATTRIBUTION);
         if (attributionColumnIndex != -1) {
             builder.attribution(cursor.getString(attributionColumnIndex));
-        }
-        int viewIntentColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT);
-        if (viewIntentColumnIndex != -1) {
-            try {
-                String viewIntent = cursor.getString(viewIntentColumnIndex);
-                if (!TextUtils.isEmpty(viewIntent)) {
-                    builder.viewIntent(Intent.parseUri(viewIntent, Intent.URI_INTENT_SCHEME));
-                }
-            } catch (URISyntaxException ignored) {
-            }
         }
         int dateAddedColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED);
         if (dateAddedColumnIndex != -1) {
