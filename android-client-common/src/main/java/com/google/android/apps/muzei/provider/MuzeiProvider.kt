@@ -89,7 +89,7 @@ class MuzeiProvider : ContentProvider() {
             MuzeiContract.Artwork.COLUMN_NAME_TITLE to "title",
             MuzeiContract.Artwork.COLUMN_NAME_BYLINE to "byline",
             MuzeiContract.Artwork.COLUMN_NAME_ATTRIBUTION to "attribution",
-            MuzeiContract.Artwork.COLUMN_NAME_TOKEN to "NULL AS token",
+            "token" to "NULL AS token",
             MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT to "NULL AS viewIntent",
             "metaFont" to "\"\" as metaFont",
             MuzeiContract.Artwork.COLUMN_NAME_DATE_ADDED to "date_added",

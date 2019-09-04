@@ -43,7 +43,6 @@ public class Artwork {
     private String mTitle;
     private String mByline;
     private String mAttribution;
-    private String mToken;
     private Intent mViewIntent;
     private Date mDateAdded;
 
@@ -96,19 +95,6 @@ public class Artwork {
      */
     public String getAttribution() {
         return mAttribution;
-    }
-
-    /**
-     * Returns the artwork's opaque application-specific identifier. This is generally only useful
-     * to the app that published the artwork and should not be relied upon by other apps.
-     *
-     * @return the artwork's opaque application-specific identifier, or null if it doesn't have
-     * one.
-     * @deprecated Tokens are no longer exposed outside of Muzei.
-     */
-    @Deprecated
-    public String getToken() {
-        return mToken;
     }
 
     /**
@@ -183,17 +169,6 @@ public class Artwork {
     @Deprecated
     public void setAttribution(String attribution) {
         mAttribution = attribution;
-    }
-
-    /**
-     * Sets the artwork's opaque application-specific identifier.
-     *
-     * @param token the artwork's opaque application-specific identifier.
-     * @deprecated Artwork should be considered immutable after creation.
-     */
-    @Deprecated
-    public void setToken(String token) {
-        mToken = token;
     }
 
     /**
@@ -365,21 +340,6 @@ public class Artwork {
         }
 
         /**
-         * Sets the artwork's opaque application-specific identifier.
-         *
-         * @param token the artwork's opaque application-specific identifier.
-         *
-         * @return this {@link Builder}.
-         * @deprecated Use {@link com.google.android.apps.muzei.api.provider.Artwork.Builder}
-         * with a {@link MuzeiArtProvider}.
-         */
-        @Deprecated
-        public Builder token(String token) {
-            mArtwork.mToken = token;
-            return this;
-        }
-
-        /**
          * Sets the activity {@link Intent} that will be
          * {@linkplain Context#startActivity(Intent) started} when
          * the user clicks for more details about the artwork.
@@ -474,10 +434,6 @@ public class Artwork {
         int attributionColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_ATTRIBUTION);
         if (attributionColumnIndex != -1) {
             builder.attribution(cursor.getString(attributionColumnIndex));
-        }
-        int tokenColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_TOKEN);
-        if (tokenColumnIndex != -1) {
-            builder.token(cursor.getString(tokenColumnIndex));
         }
         int viewIntentColumnIndex = cursor.getColumnIndex(MuzeiContract.Artwork.COLUMN_NAME_VIEW_INTENT);
         if (viewIntentColumnIndex != -1) {

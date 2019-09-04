@@ -150,16 +150,6 @@ public class MuzeiContract {
          */
         public static final String COLUMN_NAME_ATTRIBUTION = "attribution";
         /**
-         * Column name for the artwork's opaque application-specific identifier.
-         * This is generally only useful to the app that published the artwork and should
-         * not be relied upon by other apps.
-         * <p>Type: TEXT: This always returns a <code>null</code> String
-         * @deprecated Tokens are no longer exposed outside of Muzei.
-         */
-        @SuppressWarnings("DeprecatedIsStillUsed")
-        @Deprecated
-        public static final String COLUMN_NAME_TOKEN = "token";
-        /**
          * Column name for the artwork's view Intent
          * <p>Type: TEXT: This always returns a <code>null</code> String.
          * @deprecated View Intents are no longer exposed outside of Muzei.
