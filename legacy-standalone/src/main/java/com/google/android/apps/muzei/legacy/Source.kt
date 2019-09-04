@@ -27,7 +27,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.google.android.apps.muzei.api.UserCommand
-import com.google.android.apps.muzei.api.internal.ProtocolConstants
 import com.google.android.apps.muzei.util.toastFromBackground
 import net.nurik.roman.muzei.legacy.BuildConfig
 import net.nurik.roman.muzei.legacy.R
@@ -73,8 +72,9 @@ class Source(
 }
 
 private const val TAG = "Source"
+private const val ACTION_HANDLE_COMMAND = "com.google.android.apps.muzei.api.action.HANDLE_COMMAND"
+private const val EXTRA_COMMAND_ID = "com.google.android.apps.muzei.api.extra.COMMAND_ID"
 
-@Suppress("DEPRECATION")
 suspend fun Source.sendAction(context: Context, id: Int) {
     try {
         if (BuildConfig.DEBUG) {
@@ -82,9 +82,9 @@ suspend fun Source.sendAction(context: Context, id: Int) {
         }
         // Ensure that we have a valid service before sending the action
         context.packageManager.getServiceInfo(componentName, 0)
-        context.startService(Intent(ProtocolConstants.ACTION_HANDLE_COMMAND)
+        context.startService(Intent(ACTION_HANDLE_COMMAND)
                 .setComponent(componentName)
-                .putExtra(ProtocolConstants.EXTRA_COMMAND_ID, id))
+                .putExtra(EXTRA_COMMAND_ID, id))
     } catch (e: PackageManager.NameNotFoundException) {
         Log.i(TAG, "Sending action $id to $componentName failed as it is no longer available", e)
         context.toastFromBackground(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
