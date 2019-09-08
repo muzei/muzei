@@ -30,15 +30,15 @@ import android.widget.ImageView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
-import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
-import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import coil.api.load
+import coil.bitmappool.BitmapPool
+import coil.transform.Transformation
 import com.google.android.apps.muzei.settings.EffectsLockScreenOpenLiveData
 import com.google.android.apps.muzei.util.ImageBlurrer
 import com.google.android.apps.muzei.util.blur
 import com.google.android.apps.muzei.util.roundMult4
-import java.security.MessageDigest
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurRenderer.Callbacks {
 
@@ -48,7 +48,6 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
         private const val ARG_DEMO_FOCUS = "demo_focus"
 
         private const val TRANSFORMATION_ID = "simpleDemoModeTransformation"
-        private val TRANSFORMATION_BYTES = TRANSFORMATION_ID.toByteArray()
 
         fun createInstance(demoMode: Boolean, demoFocus: Boolean = false): MuzeiRendererFragment {
             return MuzeiRendererFragment().apply {
@@ -64,30 +63,24 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
     private var demoMode: Boolean = false
     private var demoFocus: Boolean = false
 
-    private val simpleDemoModeTransformation = object : BitmapTransformation() {
-        override fun transform(
+    private val simpleDemoModeTransformation = object : Transformation {
+        override suspend fun transform(
                 pool: BitmapPool,
-                bitmap: Bitmap,
-                outWidth: Int,
-                outHeight: Int
+                input: Bitmap
         ) = if (!demoFocus) {
-            bitmap.blur(requireContext())?.apply {
-                // Dim
-                val c = Canvas(this)
-                c.drawColor(Color.argb(255 - MuzeiBlurRenderer.DEFAULT_MAX_DIM,
-                        0, 0, 0))
-            }
+            withContext(Dispatchers.IO) {
+                input.blur(requireContext())?.apply {
+                    // Dim
+                    val c = Canvas(this)
+                    c.drawColor(Color.argb(255 - MuzeiBlurRenderer.DEFAULT_MAX_DIM,
+                            0, 0, 0))
+                }
+            } ?: input
         } else {
-            bitmap
+            input
         }
 
-        override fun equals(other: Any?) = other === this
-
-        override fun hashCode() = TRANSFORMATION_ID.hashCode()
-
-        override fun updateDiskCacheKey(messageDigest: MessageDigest) {
-            messageDigest.update(TRANSFORMATION_BYTES)
-        }
+        override fun key() = TRANSFORMATION_ID
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -116,11 +109,11 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
             simpleDemoModeImageView = ImageView(context).apply {
                 scaleType = ImageView.ScaleType.CENTER_CROP
             }
-            Glide.with(this)
-                    .load("file:///android_asset/starrynight.jpg")
-                    .override(targetWidth, targetHeight)
-                    .transform(CenterCrop(), simpleDemoModeTransformation)
-                    .into(simpleDemoModeImageView)
+            simpleDemoModeImageView.load("file:///android_asset/starrynight.jpg") {
+                lifecycle(viewLifecycleOwner)
+                size(targetWidth, targetHeight)
+                transformations(simpleDemoModeTransformation)
+            }
             return simpleDemoModeImageView
         } else {
             muzeiView = MuzeiView(requireContext())
