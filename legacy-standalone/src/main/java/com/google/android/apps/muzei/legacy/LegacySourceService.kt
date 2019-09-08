@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
-
 package com.google.android.apps.muzei.legacy
 
 import android.app.Service
@@ -42,10 +40,6 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.room.withTransaction
-import com.google.android.apps.muzei.api.MuzeiArtSource
-import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_SUBSCRIBE
-import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_SUBSCRIBER_COMPONENT
-import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_TOKEN
 import com.google.android.apps.muzei.sources.SourceSubscriberService
 import com.google.android.apps.muzei.util.goAsync
 import com.google.android.apps.muzei.util.toastFromBackground
@@ -66,6 +60,9 @@ class LegacySourceService : Service(), LifecycleOwner {
 
     companion object {
         private const val TAG = "LegacySourceService"
+        private const val ACTION_SUBSCRIBE = "com.google.android.apps.muzei.api.action.SUBSCRIBE"
+        private const val EXTRA_SUBSCRIBER_COMPONENT = "com.google.android.apps.muzei.api.extra.SUBSCRIBER_COMPONENT"
+        private const val EXTRA_TOKEN = "com.google.android.apps.muzei.api.extra.TOKEN"
         private const val USER_PROPERTY_SELECTED_SOURCE = "selected_source"
         private const val USER_PROPERTY_SELECTED_SOURCE_PACKAGE = "selected_source_package"
         private const val MAX_VALUE_LENGTH = 36
@@ -135,7 +132,7 @@ class LegacySourceService : Service(), LifecycleOwner {
                             Log.d(TAG, "Sending next artwork command to ${source.componentName}")
                         }
                         source.sendAction(this@LegacySourceService,
-                                MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK)
+                                LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK)
                     }
                 }
                 LegacySourceServiceProtocol.WHAT_ALLOWS_NEXT_ARTWORK -> {
@@ -199,7 +196,7 @@ class LegacySourceService : Service(), LifecycleOwner {
     }
 
     private suspend fun updateSources(packageName: String? = null) {
-        val queryIntent = Intent(MuzeiArtSource.ACTION_MUZEI_ART_SOURCE)
+        val queryIntent = Intent(LegacySourceServiceProtocol.ACTION_MUZEI_ART_SOURCE)
         if (packageName != null) {
             queryIntent.`package` = packageName
         }
@@ -318,7 +315,7 @@ class LegacySourceService : Service(), LifecycleOwner {
             if (existingSource != null) {
                 if (existingSource.selected) {
                     // If this is the selected source, switch Muzei to the new MuzeiArtProvider
-                    // rather than continue to use the legacy MuzeiArtSource
+                    // rather than continue to use the legacy art source
                     metaData.getString("replacement").takeUnless { it.isNullOrEmpty() }?.run {
                         val providerInfo = pm.resolveContentProvider(this, 0)
                                 ?: try {
@@ -350,7 +347,7 @@ class LegacySourceService : Service(), LifecycleOwner {
         source.label = info.loadLabel(pm).toString()
         source.targetSdkVersion = info.applicationInfo.targetSdkVersion
         if (source.targetSdkVersion >= Build.VERSION_CODES.O) {
-            // The MuzeiArtSource API is incompatible with apps
+            // The Legacy API is incompatible with apps
             // targeting Android O+
             source.selected = false
         }

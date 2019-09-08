@@ -24,20 +24,10 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Looper;
 import android.provider.BaseColumns;
-import android.util.Log;
-
-import org.json.JSONArray;
-import org.json.JSONException;
 
 import java.io.FileNotFoundException;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
-import java.util.List;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
-import androidx.annotation.StringDef;
 import androidx.annotation.WorkerThread;
 
 /**
@@ -119,42 +109,10 @@ public class MuzeiContract {
      */
     public static final class Artwork implements BaseColumns {
         /**
-         * The set of valid font types to use to display artwork meta info.
-         *
-         * @see #COLUMN_NAME_META_FONT
-         * @see #META_FONT_TYPE_DEFAULT
-         * @see #META_FONT_TYPE_ELEGANT
-         * @deprecated Choosing a font type is no longer supported.
-         */
-        @SuppressWarnings({"deprecation", "DeprecatedIsStillUsed"})
-        @Deprecated
-        @Retention(RetentionPolicy.SOURCE)
-        @StringDef({META_FONT_TYPE_DEFAULT, META_FONT_TYPE_ELEGANT})
-        public @interface MetaFontType {}
-        /**
-         * The default font type for {@link #COLUMN_NAME_META_FONT}
-         * @deprecated Choosing a font type is no longer supported.
-         */
-        @Deprecated
-        public static final String META_FONT_TYPE_DEFAULT = "";
-        /**
-         * An elegant alternate font type for {@link #COLUMN_NAME_META_FONT}
-         * @deprecated Choosing a font type is no longer supported.
-         */
-        @Deprecated
-        public static final String META_FONT_TYPE_ELEGANT = "elegant";
-        /**
          * Column name for the authority of the provider for this artwork.
          * <p>Type: TEXT
          */
         public static final String COLUMN_NAME_PROVIDER_AUTHORITY = "sourceComponentName";
-        /**
-         * Column name for the authority of the provider for this artwork.
-         * <p>Type: TEXT
-         * @deprecated Use {@link #COLUMN_NAME_PROVIDER_AUTHORITY}
-         */
-        @Deprecated
-        public static final String COLUMN_NAME_SOURCE_COMPONENT_NAME = "sourceComponentName";
         /**
          * Column name of the artwork image URI. In almost all cases you should use
          * {@link ContentResolver#openInputStream(Uri) ContentResolver.openInputStream(CONTENT_URI)}
@@ -177,32 +135,6 @@ public class MuzeiContract {
          * <p>Type: TEXT
          */
         public static final String COLUMN_NAME_ATTRIBUTION = "attribution";
-        /**
-         * Column name for the artwork's opaque application-specific identifier.
-         * This is generally only useful to the app that published the artwork and should
-         * not be relied upon by other apps.
-         * <p>Type: TEXT: This always returns a <code>null</code> String
-         * @deprecated Tokens are no longer exposed outside of Muzei.
-         */
-        @SuppressWarnings("DeprecatedIsStillUsed")
-        @Deprecated
-        public static final String COLUMN_NAME_TOKEN = "token";
-        /**
-         * Column name for the artwork's view Intent
-         * <p>Type: TEXT: This always returns a <code>null</code> String.
-         * @deprecated View Intents are no longer exposed outside of Muzei.
-         */
-        @SuppressWarnings("DeprecatedIsStillUsed")
-        @Deprecated
-        public static final String COLUMN_NAME_VIEW_INTENT = "viewIntent";
-        /**
-         * Column name for the font type to use to display artwork meta info.
-         * <p>Type: TEXT: This always returns an empty string.
-         * @deprecated Choosing a font type is no longer supported.
-         */
-        @SuppressWarnings("DeprecatedIsStillUsed")
-        @Deprecated
-        public static final String COLUMN_NAME_META_FONT = "metaFont";
         /**
          * Column name for when this artwork was added.
          * This will be automatically added for you by Muzei.
@@ -311,43 +243,15 @@ public class MuzeiContract {
          */
         public static final String COLUMN_NAME_AUTHORITY = "component_name";
         /**
-         * Column name for the authority of the provider.
-         * <p>Type: TEXT
-         * @deprecated Use {@link #COLUMN_NAME_AUTHORITY}.
-         */
-        @Deprecated
-        public static final String COLUMN_NAME_COMPONENT_NAME = "component_name";
-        /**
-         * Column name for the flag indicating if the source is currently selected
-         * <p>Type: INTEGER (boolean): This always returns true (1)
-         * @deprecated Only selected rows are returned.
-         */
-        @Deprecated
-        public static final String COLUMN_NAME_IS_SELECTED = "selected";
-        /**
          * Column name for the source's description.
          * <p>Type: TEXT
          */
         public static final String COLUMN_NAME_DESCRIPTION = "description";
         /**
-         * Column name for the flag indicating if the source wants callbacks for network connectivity changes
-         * <p>Type: INTEGER (boolean): This always returns false (0)
-         * @deprecated Only selected rows are returned.
-         */
-        @Deprecated
-        public static final String COLUMN_NAME_WANTS_NETWORK_AVAILABLE = "network";
-        /**
          * Column name for the flag indicating if the source supports a 'Next Artwork' action
          * <p>Type: INTEGER (boolean)
          */
         public static final String COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND = "supports_next_artwork";
-        /**
-         * Column name for the commands the source supports
-         * <p>Type: TEXT: This always returns a <code>null</code> String
-         * @deprecated Commands are no longer exposed outside of Muzei.
-         */
-        @Deprecated
-        public static final String COLUMN_NAME_COMMANDS = "commands";
         /**
          * The MIME type of {@link #CONTENT_URI} providing sources.
          */
@@ -391,29 +295,5 @@ public class MuzeiContract {
          */
         @Deprecated
         public static final String ACTION_SOURCE_CHANGED = "com.google.android.apps.muzei.ACTION_SOURCE_CHANGED";
-
-        /**
-         * Parse the commands found in the {@link #COLUMN_NAME_COMMANDS} field into a List of {@link UserCommand}s.
-         *
-         * @param commandsString The serialized commands found in {@link #COLUMN_NAME_COMMANDS}.
-         *
-         * @return A deserialized List of {@link UserCommand}s.
-         */
-        @NonNull
-        public static List<UserCommand> parseCommands(String commandsString) {
-            ArrayList<UserCommand> commands = new ArrayList<>();
-            if (commandsString == null) {
-                return commands;
-            }
-            try {
-                JSONArray commandArray = new JSONArray(commandsString);
-                for (int h=0; h<commandArray.length(); h++) {
-                    commands.add(UserCommand.deserialize(commandArray.getString(h)));
-                }
-            } catch (JSONException e) {
-                Log.e(MuzeiContract.Sources.class.getSimpleName(), "Error parsing commands from " + commandsString, e);
-            }
-            return commands;
-        }
     }
 }

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
-
 package com.google.android.apps.muzei.legacy
 
 import android.content.BroadcastReceiver
@@ -27,7 +25,6 @@ import android.net.ConnectivityManager
 import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_NETWORK_AVAILABLE
 import com.google.android.apps.muzei.util.goAsync
 
 /**
@@ -37,6 +34,7 @@ class NetworkChangeObserver internal constructor(private val context: Context) :
 
     companion object {
         private const val TAG = "NetworkChangeObserver"
+        private const val ACTION_NETWORK_AVAILABLE = "com.google.android.apps.muzei.api.action.NETWORK_AVAILABLE"
     }
 
     private val networkChangeReceiver = object : BroadcastReceiver() {

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
-
 package com.google.android.apps.muzei.sources
 
 import android.app.IntentService
@@ -23,14 +21,10 @@ import android.content.Intent
 import android.util.Log
 import androidx.core.net.toUri
 import androidx.room.withTransaction
-import com.google.android.apps.muzei.api.MuzeiArtSource
-import com.google.android.apps.muzei.api.internal.ProtocolConstants.ACTION_PUBLISH_STATE
-import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_STATE
-import com.google.android.apps.muzei.api.internal.ProtocolConstants.EXTRA_TOKEN
-import com.google.android.apps.muzei.api.internal.SourceState
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.legacy.LegacyDatabase
+import com.google.android.apps.muzei.legacy.LegacySourceServiceProtocol
 import com.google.android.apps.muzei.legacy.SourceDao
 import kotlinx.coroutines.runBlocking
 import net.nurik.roman.muzei.legacy.BuildConfig
@@ -41,6 +35,9 @@ class SourceSubscriberService : IntentService("SourceSubscriberService") {
 
     companion object {
         private const val TAG = "SourceSubscriberService"
+        private const val ACTION_PUBLISH_STATE = "com.google.android.apps.muzei.api.action.PUBLISH_UPDATE"
+        private const val EXTRA_TOKEN = "com.google.android.apps.muzei.api.extra.TOKEN"
+        private const val EXTRA_STATE = "com.google.android.apps.muzei.api.extra.STATE"
     }
 
     override fun onHandleIntent(intent: Intent?) {
@@ -49,9 +46,8 @@ class SourceSubscriberService : IntentService("SourceSubscriberService") {
         }
         // Handle API call from source
         val token = intent.getStringExtra(EXTRA_TOKEN) ?: return
-        val state = intent.getBundleExtra(EXTRA_STATE)?.run {
-            SourceState.fromBundle(this)
-        } ?: return // If there's no state, there's nothing to change
+        val state = intent.getBundleExtra(EXTRA_STATE)?.toSourceState()
+                ?: return // If there's no state, there's nothing to change
 
         val database = LegacyDatabase.getInstance(this)
         runBlocking {
@@ -75,11 +71,9 @@ class SourceSubscriberService : IntentService("SourceSubscriberService") {
             supportsNextArtwork = false
             commands = ArrayList()
         }
-        val numSourceActions = state.numUserCommands
-        for (i in 0 until numSourceActions) {
-            val command = state.getUserCommandAt(i)
-            when (state.getUserCommandAt(i)?.id) {
-                MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK -> source.supportsNextArtwork = true
+        state.userCommands.forEach { command ->
+            when (command.id) {
+                LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK -> source.supportsNextArtwork = true
                 else -> source.commands.add(command)
             }
         }

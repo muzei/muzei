@@ -19,33 +19,8 @@ package com.google.android.apps.muzei.api.internal;
 /**
  * Internal intent constants for sources.
  */
-@SuppressWarnings("DeprecatedIsStillUsed")
 public class ProtocolConstants {
-    // Received intents
-    @Deprecated
-    public static final String ACTION_SUBSCRIBE = "com.google.android.apps.muzei.api.action.SUBSCRIBE";
-    @Deprecated
-    public static final String EXTRA_SUBSCRIBER_COMPONENT = "com.google.android.apps.muzei.api.extra.SUBSCRIBER_COMPONENT";
-    @Deprecated
-    public static final String EXTRA_TOKEN = "com.google.android.apps.muzei.api.extra.TOKEN";
 
-    @Deprecated
-    public static final String ACTION_HANDLE_COMMAND = "com.google.android.apps.muzei.api.action.HANDLE_COMMAND";
-    @Deprecated
-    public static final String EXTRA_COMMAND_ID = "com.google.android.apps.muzei.api.extra.COMMAND_ID";
-    @Deprecated
-    public static final String EXTRA_SCHEDULED = "com.google.android.apps.muzei.api.extra.SCHEDULED";
-
-    @Deprecated
-    public static final String ACTION_NETWORK_AVAILABLE = "com.google.android.apps.muzei.api.action.NETWORK_AVAILABLE";
-
-    // Sent intents
-    @Deprecated
-    public static final String ACTION_PUBLISH_STATE = "com.google.android.apps.muzei.api.action.PUBLISH_UPDATE";
-    @Deprecated
-    public static final String EXTRA_STATE = "com.google.android.apps.muzei.api.extra.STATE";
-
-    // MuzeiArtProvider
     private static final String PREFIX = "com.google.android.apps.muzei.api.";
     public static final String METHOD_GET_VERSION = PREFIX + "GET_VERSION";
     public static final String KEY_VERSION = PREFIX + "VERSION";

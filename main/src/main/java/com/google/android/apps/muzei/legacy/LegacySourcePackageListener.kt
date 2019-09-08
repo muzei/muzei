@@ -40,7 +40,6 @@ import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavDeepLinkBuilder
-import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.settings.Prefs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -111,7 +110,7 @@ class LegacySourcePackageListener(
     }
 
     private fun queryLegacySources() {
-        val queryIntent = Intent(MuzeiArtSource.ACTION_MUZEI_ART_SOURCE)
+        val queryIntent = Intent(LegacySourceServiceProtocol.ACTION_MUZEI_ART_SOURCE)
         val pm = applicationContext.packageManager
         val resolveInfos = pm.queryIntentServices(queryIntent,
                 PackageManager.GET_META_DATA)

@@ -22,7 +22,6 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
 import android.util.Log
-import com.google.android.apps.muzei.api.MuzeiArtSource
 import com.google.android.apps.muzei.api.UserCommand
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
@@ -49,7 +48,7 @@ class SourceArtProvider : MuzeiArtProvider() {
     override fun onLoadRequested(initial: Boolean) {
         if (initial) {
             // If there's no artwork at all, immediately queue up the next artwork
-            sendAction(MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK)
+            sendAction(LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK)
         }
         // else, Sources will load on their own schedule
     }
@@ -68,7 +67,7 @@ class SourceArtProvider : MuzeiArtProvider() {
         LegacyDatabase.getInstance(context).sourceDao().currentSourceBlocking?.run {
             mutableListOf<UserCommand>().apply {
                 if (supportsNextArtwork) {
-                    add(UserCommand(MuzeiArtSource.BUILTIN_COMMAND_ID_NEXT_ARTWORK,
+                    add(UserCommand(LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK,
                             context.getString(R.string.legacy_action_next_artwork)))
                 }
                 addAll(commands)
