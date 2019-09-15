@@ -89,7 +89,9 @@ internal abstract class ChosenPhotoDao {
                 .map { ChosenPhoto(it) }
                 .filter { persistUriAccess(context, it) }
         ).run {
-            GalleryScanWorker.enqueueInitialScan(context, this)
+            if (isNotEmpty()) {
+                GalleryScanWorker.enqueueInitialScan(context, this)
+            }
         }
     }
 
