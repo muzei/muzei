@@ -243,7 +243,8 @@ class GalleryScanWorker(
                 }
             } catch (e: SecurityException) {
                 // No longer can read this URI, which means no children from this URI
-            } catch (e: NullPointerException) {
+            } catch (e: Exception) {
+                // Could be anything: NullPointerException, IllegalArgumentException, etc.
             }
         }
     }
