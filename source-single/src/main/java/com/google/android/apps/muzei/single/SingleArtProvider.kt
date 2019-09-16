@@ -54,10 +54,8 @@ class SingleArtProvider : MuzeiArtProvider() {
             val tempFile = writeUriToFile(context, artworkUri, getArtworkFile(context))
             if (tempFile != null) {
                 ProviderContract.getProviderClient(context, SINGLE_AUTHORITY).setArtwork(
-                        Artwork().apply {
-                            title = getDisplayName(context, artworkUri)
-                                    ?: context.getString(R.string.single_default_artwork_title)
-                        })
+                        Artwork(getDisplayName(context, artworkUri)
+                                    ?: context.getString(R.string.single_default_artwork_title)))
             }
             return tempFile != null
         }
@@ -131,9 +129,7 @@ class SingleArtProvider : MuzeiArtProvider() {
         val context = context ?: return
         if (initial) {
             if (getArtworkFile(context).exists()) {
-                setArtwork(Artwork().apply {
-                    title = context.getString(R.string.single_default_artwork_title)
-                })
+                setArtwork(Artwork(context.getString(R.string.single_default_artwork_title)))
             }
         }
         // There's always only one artwork for this provider,

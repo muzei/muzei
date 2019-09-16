@@ -13,78 +13,65 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.apps.muzei.api.provider;
+package com.google.android.apps.muzei.api.provider
 
-import android.content.ContentResolver;
-import android.content.Context;
-import android.net.Uri;
-
-import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import android.content.ContentResolver
+import android.net.Uri
 
 /**
- * Interface for interacting with a {@link MuzeiArtProvider}. Methods of this interface can
- * be used directly within a MuzeiArtProvider or you can get an instance via
- * {@link ProviderContract#getProviderClient(Context, Class)} or
- * {@link ProviderContract#getProviderClient(Context, String)}.
+ * Interface for interacting with a [MuzeiArtProvider]. Methods of this interface can
+ * be used directly within a `MuzeiArtProvider` or you can get an instance via
+ * [ProviderContract.getProviderClient].
  */
-public interface ProviderClient {
+interface ProviderClient {
     /**
-     * Retrieve the content URI for the {@link MuzeiArtProvider}, allowing you to build
-     * custom queries, inserts, updates, and deletes using a {@link ContentResolver}.
+     * Retrieve the content URI for the [MuzeiArtProvider], allowing you to build
+     * custom queries, inserts, updates, and deletes using a [ContentResolver].
      *
-     * @return The content URI for the {@link MuzeiArtProvider}
+     * @return The content URI for the [MuzeiArtProvider]
      */
-    @NonNull
-    Uri getContentUri();
+    val contentUri: Uri
 
     /**
-     * Retrieve the last added artwork from the {@link MuzeiArtProvider}.
+     * Retrieve the last added artwork from the [MuzeiArtProvider].
      *
      * @return The last added Artwork, or null if no artwork has been added
      */
-    @Nullable
-    Artwork getLastAddedArtwork();
+    val lastAddedArtwork: Artwork?
 
     /**
-     * Add a new piece of artwork to the {@link MuzeiArtProvider}.
+     * Add a new piece of artwork to the [MuzeiArtProvider].
      *
      * @param artwork The artwork to add
      * @return The URI of the newly added artwork or null if the insert failed
      */
-    @Nullable
-    Uri addArtwork(@NonNull Artwork artwork);
+    fun addArtwork(artwork: Artwork): Uri?
 
     /**
-     * Add multiple artwork as a batch operation to the {@link MuzeiArtProvider}.
+     * Add multiple artwork as a batch operation to the [MuzeiArtProvider].
      *
      * @param artwork The artwork to add
      * @return The URIs of the newly added artwork or an empty List if the insert failed.
      */
-    @NonNull
-    List<Uri> addArtwork(@NonNull Iterable<Artwork> artwork);
+    fun addArtwork(artwork: Iterable<Artwork>): List<Uri>
 
     /**
-     * Set the {@link MuzeiArtProvider} to only show the given artwork, deleting any other
+     * Set the [MuzeiArtProvider] to only show the given artwork, deleting any other
      * artwork previously added. Only in the cases where the artwork is successfully inserted
      * will the other artwork be removed.
      *
      * @param artwork The artwork to set
      * @return The URI of the newly set artwork or null if the insert failed
      */
-    @Nullable
-    Uri setArtwork(@NonNull Artwork artwork);
+    fun setArtwork(artwork: Artwork): Uri?
 
     /**
-     * Set the {@link MuzeiArtProvider} to only show the given artwork, deleting any other
+     * Set the [MuzeiArtProvider] to only show the given artwork, deleting any other
      * artwork previously added. Only in the cases where the artwork is successfully inserted
      * will the other artwork be removed.
      *
      * @param artwork The artwork to set
      * @return The URIs of the newly set artwork or an empty List if the inserts failed.
      */
-    @NonNull
-    List<Uri> setArtwork(@NonNull Iterable<Artwork> artwork);
+    fun setArtwork(artwork: Iterable<Artwork>): List<Uri>
 }

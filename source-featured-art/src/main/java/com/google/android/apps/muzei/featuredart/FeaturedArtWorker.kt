@@ -113,14 +113,13 @@ class FeaturedArtWorker(
         try {
             jsonObject = fetchJsonObject(QUERY_URL)
             val imageUri = jsonObject.optString(KEY_IMAGE_URI) ?: return@withContext Result.success()
-            val artwork = Artwork().apply {
-                persistentUri = imageUri.toUri()
-                token = jsonObject.optString(KEY_TOKEN).takeUnless { it.isEmpty() } ?: imageUri
-                title = jsonObject.optString(KEY_TITLE)
-                byline = jsonObject.optString(KEY_BYLINE)
-                attribution = jsonObject.optString(KEY_ATTRIBUTION)
-                webUri = jsonObject.optString(KEY_DETAILS_URI).takeUnless { it.isEmpty() }?.toUri()
-            }
+            val artwork = Artwork(
+                persistentUri = imageUri.toUri(),
+                token = jsonObject.optString(KEY_TOKEN).takeUnless { it.isEmpty() } ?: imageUri,
+                title = jsonObject.optString(KEY_TITLE),
+                byline = jsonObject.optString(KEY_BYLINE),
+                attribution = jsonObject.optString(KEY_ATTRIBUTION),
+                webUri = jsonObject.optString(KEY_DETAILS_URI).takeUnless { it.isEmpty() }?.toUri())
 
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Adding new artwork: $imageUri")
