@@ -46,13 +46,10 @@ fun Artwork.toDataMap(): DataMap = DataMap.fromBundle(bundleOf(
  */
 fun DataMap.toArtwork(): com.google.android.apps.muzei.api.provider.Artwork {
     val bundle = toBundle()
-    return com.google.android.apps.muzei.api.provider.Artwork().apply {
-        val imageUri = bundle.getString(KEY_IMAGE_URI)
-        if (imageUri != null && !imageUri.isBlank()) {
-            persistentUri = imageUri.toUri()
-        }
-        title = bundle.getString(KEY_TITLE)
-        byline = bundle.getString(KEY_BYLINE)
-        attribution = bundle.getString(KEY_ATTRIBUTION)
-    }
+    return com.google.android.apps.muzei.api.provider.Artwork(
+            persistentUri = bundle.getString(KEY_IMAGE_URI)?.takeUnless { it.isBlank() }?.toUri(),
+            title = bundle.getString(KEY_TITLE),
+            byline = bundle.getString(KEY_BYLINE),
+            attribution = bundle.getString(KEY_ATTRIBUTION)
+    )
 }

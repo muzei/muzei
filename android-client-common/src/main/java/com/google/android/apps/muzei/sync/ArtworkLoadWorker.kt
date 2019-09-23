@@ -37,7 +37,7 @@ import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_RECENT_A
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_LOAD_INFO
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_MARK_ARTWORK_LOADED
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_REQUEST_LOAD
-import com.google.android.apps.muzei.api.internal.RecentArtworkIdsConverter
+import com.google.android.apps.muzei.api.internal.getRecentIds
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.render.isValidImage
@@ -114,8 +114,7 @@ class ArtworkLoadWorker(
                 val result = client.call(METHOD_GET_LOAD_INFO)
                         ?: return@withContext Result.failure()
                 val maxLoadedArtworkId = result.getLong(KEY_MAX_LOADED_ARTWORK_ID, 0L)
-                val recentArtworkIds = RecentArtworkIdsConverter.fromString(
-                        result.getString(KEY_RECENT_ARTWORK_IDS, ""))
+                val recentArtworkIds = result.getRecentIds(KEY_RECENT_ARTWORK_IDS)
                 client.query(
                         contentUri,
                         selection = "_id > ?",

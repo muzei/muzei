@@ -312,26 +312,25 @@ class GalleryScanWorker(
             metadataUri: Uri = imageUri
     ): Artwork {
         val imageMetadata = ensureMetadataExists(metadataUri)
+        val date = imageMetadata.date
 
-        return Artwork().apply {
-            token = imageUri.toString()
-            persistentUri = imageUri
-            webUri = publicWebUri
-            metadata = baseUri.toString()
-            val date = imageMetadata.date
+        return Artwork(
+            token = imageUri.toString(),
+            persistentUri = imageUri,
+            webUri = publicWebUri,
+            metadata = baseUri.toString(),
             title = if (date != null) {
                 DateUtils.formatDateTime(applicationContext, date.time,
                         DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_YEAR
                                 or DateUtils.FORMAT_SHOW_WEEKDAY)
             } else {
                 applicationContext.getString(R.string.gallery_from_gallery)
-            }
+            },
             byline = if (imageMetadata.location.isNullOrBlank()) {
                 applicationContext.getString(R.string.gallery_touch_to_view)
             } else {
                 imageMetadata.location
-            }
-        }
+            })
     }
 
     private suspend fun ensureMetadataExists(imageUri: Uri): Metadata {

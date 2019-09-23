@@ -81,15 +81,14 @@ class SourceSubscriberService : IntentService("SourceSubscriberService") {
 
         val currentArtwork = state.currentArtwork
         if (currentArtwork?.imageUri != null) {
-            val newArtwork = Artwork().apply {
-                metadata = source.componentName.toShortString()
-                persistentUri = currentArtwork.imageUri
-                title = currentArtwork.title
-                byline = currentArtwork.byline
-                attribution = currentArtwork.attribution
-                token = currentArtwork.imageUri.toString()
-                webUri = currentArtwork.viewIntent?.toUri(Intent.URI_INTENT_SCHEME)?.toUri()
-            }
+            val newArtwork = Artwork(
+                metadata = source.componentName.toShortString(),
+                persistentUri = currentArtwork.imageUri,
+                title = currentArtwork.title,
+                byline = currentArtwork.byline,
+                attribution = currentArtwork.attribution,
+                token = currentArtwork.imageUri.toString(),
+                webUri = currentArtwork.viewIntent?.toUri(Intent.URI_INTENT_SCHEME)?.toUri())
 
             val artworkUri = ProviderContract.getProviderClient(this,
                     LEGACY_AUTHORITY).setArtwork(newArtwork)
