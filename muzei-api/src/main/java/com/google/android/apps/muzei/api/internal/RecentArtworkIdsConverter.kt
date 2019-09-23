@@ -41,7 +41,9 @@ fun Bundle.getRecentIds(key: String) = getString(key, "").toRecentIds()
 
 private fun String.toRecentIds(): ArrayDeque<Long> {
     val ids = ArrayDeque<Long>()
-    splitToSequence(',').map {
+    splitToSequence(',').filter {
+        it.isNotEmpty()
+    }.map {
         it.toLong()
     }.forEach { id ->
         // Remove the id if it exists in the list already
