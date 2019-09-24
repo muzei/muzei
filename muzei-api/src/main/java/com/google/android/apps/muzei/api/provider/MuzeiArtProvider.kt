@@ -189,6 +189,11 @@ import java.util.HashSet
  * authentication with a remote server), this behavior can be added to
  * [openFile]. If you already have binary data available locally for your
  * artwork, you can also write it directly via [ContentResolver.openOutputStream].
+ *
+ * MuzeiArtProvider respects [Log.isLoggable] for debug logging, allowing you to
+ * use `adb shell setprop log.tag.MuzeiArtProvider VERBOSE` to enable logging of the
+ * communications between Muzei and your MuzeiArtProvider.
+ *
  * @constructor Constructs a `MuzeiArtProvider`.
  */
 @RequiresApi(Build.VERSION_CODES.KITKAT)
@@ -196,7 +201,6 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
 
     companion object {
         private const val TAG = "MuzeiArtProvider"
-        private const val DEBUG = false
         private const val MAX_RECENT_ARTWORK = 100
         /**
          * Permission that can be used with your [MuzeiArtProvider] to ensure that only your app
@@ -262,7 +266,9 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
         val context = context ?: return
         val contentResolver = context.contentResolver
         for (uri in changedUris.get()!!) {
-            Log.d(TAG, "Notified for batch change on $uri")
+            if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                Log.v(TAG, "Notified for batch change on $uri")
+            }
             contentResolver.notifyChange(uri, null)
         }
     }
@@ -289,7 +295,10 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
             for (result in results) {
                 resultUris.add(result.uri)
             }
-        } catch (ignored: OperationApplicationException) {
+        } catch (e: OperationApplicationException) {
+            if (Log.isLoggable(TAG, Log.INFO)) {
+                Log.i(TAG, "addArtwork failed", e)
+            }
         }
 
         return resultUris
@@ -308,7 +317,9 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
             val results = applyBatch(operations)
             results[0].uri
         } catch (e: OperationApplicationException) {
-            Log.e(TAG, "setArtwork failed", e)
+            if (Log.isLoggable(TAG, Log.INFO)) {
+                Log.i(TAG, "setArtwork failed", e)
+            }
             null
         }
     }
@@ -346,7 +357,10 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
             if (deleteOperations.isNotEmpty()) {
                 applyBatch(deleteOperations)
             }
-        } catch (ignored: OperationApplicationException) {
+        } catch (e: OperationApplicationException) {
+            if (Log.isLoggable(TAG, Log.INFO)) {
+                Log.i(TAG, "setArtwork failed", e)
+            }
         }
 
         return resultUris
@@ -363,8 +377,8 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
     ): Bundle? {
         val context = context ?: return null
         val token = Binder.clearCallingIdentity()
-        if (DEBUG) {
-            Log.d(TAG, "Received command $method with arg \"$arg\" and extras $extras")
+        if (Log.isLoggable(TAG, Log.VERBOSE)) {
+            Log.v(TAG, "Received command $method with arg \"$arg\" and extras $extras")
         }
         try {
             when (method) {
@@ -413,8 +427,8 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
                         putLong(KEY_LAST_LOADED_TIME, prefs.getLong(PREF_LAST_LOADED_TIME, 0L))
                         putString(KEY_RECENT_ARTWORK_IDS, prefs.getString(PREF_RECENT_ARTWORK_IDS, ""))
                     }.also {
-                        if (DEBUG) {
-                            Log.d(TAG, "For $METHOD_GET_LOAD_INFO returning $it")
+                        if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                            Log.v(TAG, "For $METHOD_GET_LOAD_INFO returning $it")
                         }
                     }
                 }
@@ -433,8 +447,8 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
                             }
                             putString(KEY_COMMANDS, commandsSerialized.toString())
                         }.also {
-                            if (DEBUG) {
-                                Log.d(TAG, "For $METHOD_GET_COMMANDS returning $it")
+                            if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                                Log.v(TAG, "For $METHOD_GET_COMMANDS returning $it")
                             }
                         }
                     }
@@ -453,8 +467,8 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
                             val success = openArtworkInfo(Artwork.fromCursor(data))
                             putBoolean(KEY_OPEN_ARTWORK_INFO_SUCCESS, success)
                         }.also {
-                            if (DEBUG) {
-                                Log.d(TAG, "For $METHOD_OPEN_ARTWORK_INFO returning $it")
+                            if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                                Log.v(TAG, "For $METHOD_OPEN_ARTWORK_INFO returning $it")
                             }
                         }
                     }
@@ -465,8 +479,8 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
                             val artworkInfo = getArtworkInfo(Artwork.fromCursor(data))
                             putParcelable(KEY_GET_ARTWORK_INFO, artworkInfo)
                         }.also {
-                            if (DEBUG) {
-                                Log.d(TAG, "For $METHOD_GET_ARTWORK_INFO returning $it")
+                            if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                                Log.v(TAG, "For $METHOD_GET_ARTWORK_INFO returning $it")
                             }
                         }
                     }
@@ -566,8 +580,10 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                 return true
             } catch (e: ActivityNotFoundException) {
-                Log.w(TAG, "Could not open ${artwork.webUri}, artwork info for " +
-                        ContentUris.withAppendedId(contentUri, artwork.id), e)
+                if (Log.isLoggable(TAG, Log.INFO)) {
+                    Log.i(TAG, "Could not open ${artwork.webUri}, artwork info for " +
+                            ContentUris.withAppendedId(contentUri, artwork.id), e)
+                }
             }
         }
         return false
@@ -696,7 +712,9 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
             if (token.isNullOrEmpty()) {
                 // Treat empty strings as null
                 if (token != null) {
-                    Log.w(TAG, "${ProviderContract.Artwork.TOKEN} must be non-empty if included")
+                    if (Log.isLoggable(TAG, Log.INFO)) {
+                        Log.i(TAG, "${ProviderContract.Artwork.TOKEN} must be non-empty if included")
+                    }
                 }
                 values.remove(token)
             } else {
@@ -779,7 +797,9 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
         if (applyingBatch()) {
             changedUris.get()!!.add(artworkUri)
         } else {
-            Log.d(TAG, "Notified for insert on $artworkUri")
+            if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                Log.v(TAG, "Notified for insert on $artworkUri")
+            }
             context.contentResolver.notifyChange(artworkUri, null)
         }
         return artworkUri
@@ -811,7 +831,9 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
                 val file = if (fileName != null) File(fileName) else null
                 if (file != null && file.exists()) {
                     if (!file.delete()) {
-                        Log.w(TAG, "Unable to delete $file")
+                        if (Log.isLoggable(TAG, Log.INFO)) {
+                            Log.i(TAG, "Unable to delete $file")
+                        }
                     }
                 }
             }
@@ -823,7 +845,9 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
             if (applyingBatch()) {
                 changedUris.get()!!.add(uri)
             } else {
-                Log.d(TAG, "Notified for delete on $uri")
+                if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                    Log.v(TAG, "Notified for delete on $uri")
+                }
                 context.contentResolver.notifyChange(uri, null)
             }
         }
@@ -864,7 +888,9 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
             if (applyingBatch()) {
                 changedUris.get()!!.add(uri)
             } else {
-                Log.d(TAG, "Notified for update on $uri")
+                if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                    Log.v(TAG, "Notified for update on $uri")
+                }
                 context.contentResolver.notifyChange(uri, null)
             }
         }
@@ -999,12 +1025,16 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
                 }
             } catch (e: Exception) {
                 if (e !is IOException) {
-                    Log.e(TAG, "Unable to open artwork $artwork for $uri", e)
+                    if (Log.isLoggable(TAG, Log.INFO)) {
+                        Log.i(TAG, "Unable to open artwork $artwork for $uri", e)
+                    }
                     onInvalidArtwork(artwork)
                 }
                 // Delete the file in cases of an error so that we will try again from scratch next time.
                 if (artwork.data.exists() && !artwork.data.delete()) {
-                    Log.w(TAG, "Error deleting partially downloaded file after error", e)
+                    if (Log.isLoggable(TAG, Log.INFO)) {
+                        Log.i(TAG, "Error deleting partially downloaded file after error", e)
+                    }
                 }
                 throw FileNotFoundException("Could not download artwork $artwork for $uri: ${e.message}")
             }
