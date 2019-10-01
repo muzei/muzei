@@ -51,7 +51,7 @@ internal interface UnsplashService {
         }
 
         @Throws(IOException::class)
-        internal fun popularPhotos(): List<UnsplashService.Photo> {
+        internal fun popularPhotos(): List<Photo> {
             return createService().popularPhotos.execute().body()
                     ?: throw IOException("Response was null")
         }

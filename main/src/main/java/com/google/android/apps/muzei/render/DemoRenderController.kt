@@ -61,9 +61,9 @@ class DemoRenderController(
         if (allowFocus) {
             coroutineScope.launch {
                 delay(FOCUS_DELAY_TIME_MILLIS)
-                renderer.setIsBlurred(false, false)
+                renderer.setIsBlurred(isBlurred = false, artDetailMode = false)
                 delay(FOCUS_TIME_MILLIS)
-                renderer.setIsBlurred(true, false)
+                renderer.setIsBlurred(isBlurred = true, artDetailMode = false)
             }
         }
     }

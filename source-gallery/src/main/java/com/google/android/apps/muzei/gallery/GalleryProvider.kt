@@ -108,9 +108,7 @@ class GalleryProvider : ContentProvider() {
     @Throws(FileNotFoundException::class)
     override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
         val context: Context = context ?: return null
-        if (mode != "r") {
-            throw IllegalArgumentException("Only reading chosen photos is allowed")
-        }
+        require(mode == "r") { "Only reading chosen photos is allowed" }
         val id = ContentUris.parseId(uri)
         val chosenPhoto = GalleryDatabase.getInstance(context).chosenPhotoDao()
                 .chosenPhotoBlocking(id) ?: throw FileNotFoundException("Unable to load $uri")

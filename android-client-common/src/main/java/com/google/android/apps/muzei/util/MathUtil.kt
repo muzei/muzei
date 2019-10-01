@@ -25,9 +25,7 @@ fun Float.constrain(min: Float, max: Float): Float = max(min, min(max, this))
 fun interpolate(x1: Float, x2: Float, f: Float): Float = x1 + (x2 - x1) * f
 
 fun uninterpolate(x1: Float, x2: Float, v: Float): Float {
-    if (x2 - x1 == 0f) {
-        throw IllegalArgumentException("Can't reverse interpolate with domain size of 0")
-    }
+    require(x2 - x1 != 0f) { "Can't reverse interpolate with domain size of 0" }
     return (v - x1) / (x2 - x1)
 }
 
