@@ -111,7 +111,7 @@ class MuzeiProvider : ContentProvider() {
 
     override fun getType(uri: Uri): String? {
         // Chooses the MIME type based on the incoming URI pattern
-        return when (MuzeiProvider.uriMatcher.match(uri)) {
+        return when (uriMatcher.match(uri)) {
             ARTWORK ->
                 // If the pattern is for artwork, returns the artwork content type.
                 MuzeiContract.Artwork.CONTENT_TYPE
@@ -153,7 +153,7 @@ class MuzeiProvider : ContentProvider() {
             Log.w(TAG, "Queries are not supported until the user is unlocked")
             return null
         }
-        return when(MuzeiProvider.uriMatcher.match(uri)) {
+        return when(uriMatcher.match(uri)) {
             ARTWORK -> queryArtwork(uri, projection, selection, selectionArgs, sortOrder)
             ARTWORK_ID -> queryArtwork(uri, projection, selection, selectionArgs, sortOrder)
             SOURCES -> querySource(uri, projection)
@@ -180,7 +180,7 @@ class MuzeiProvider : ContentProvider() {
             DatabaseUtils.concatenateWhere(selection,
                     "providerAuthority = \"${provider.authority}\"")
         } ?: selection
-        if (MuzeiProvider.uriMatcher.match(uri) == ARTWORK_ID) {
+        if (uriMatcher.match(uri) == ARTWORK_ID) {
             // If the incoming URI is for a single artwork identified by its ID, appends "_ID = <artworkId>"
             // to the where clause, so that it selects that single piece of artwork
             finalSelection = DatabaseUtils.concatenateWhere(selection,
@@ -236,7 +236,7 @@ class MuzeiProvider : ContentProvider() {
 
     @Throws(FileNotFoundException::class)
     override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
-        return when(MuzeiProvider.uriMatcher.match(uri)) {
+        return when(uriMatcher.match(uri)) {
             ARTWORK -> openFileArtwork(uri, mode)
             ARTWORK_ID -> openFileArtwork(uri, mode)
             else -> throw IllegalArgumentException("Unknown URI $uri")
@@ -253,7 +253,7 @@ class MuzeiProvider : ContentProvider() {
         }
         val artworkDao = MuzeiDatabase.getInstance(context).artworkDao()
         val artwork = ensureBackground {
-            when (MuzeiProvider.uriMatcher.match(uri)) {
+            when (uriMatcher.match(uri)) {
                 ARTWORK -> artworkDao.currentArtworkBlocking
                 else -> artworkDao.getArtworkByIdBlocking(ContentUris.parseId(uri))
             }

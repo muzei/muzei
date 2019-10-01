@@ -52,7 +52,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
         const val PREF_ENABLED = "new_wallpaper_notification_enabled"
         private const val PREF_LAST_READ_NOTIFICATION_ARTWORK_ID = "last_read_notification_artwork_id"
 
-        internal const val NOTIFICATION_CHANNEL = "new_wallpaper"
+        private const val NOTIFICATION_CHANNEL = "new_wallpaper"
         private const val NOTIFICATION_ID = 1234
 
         private const val ACTION_MARK_NOTIFICATION_READ = "com.google.android.apps.muzei.action.NOTIFICATION_DELETED"

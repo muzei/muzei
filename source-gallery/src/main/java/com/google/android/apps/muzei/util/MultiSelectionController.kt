@@ -59,7 +59,7 @@ class MultiSelectionController(
             }
         }
 
-        callbacks?.onSelectionChanged(true, false)
+        callbacks?.onSelectionChanged(restored = true, fromUser = false)
     }
 
     override fun saveState() = bundleOf(STATE_SELECTION to selection.toLongArray())
