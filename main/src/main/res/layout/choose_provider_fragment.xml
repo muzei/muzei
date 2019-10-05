@@ -57,7 +57,7 @@
 
     <fragment
         android:id="@+id/provider_auto_advance"
-        android:name="com.google.android.apps.muzei.AutoAdvanceSettingsFragment"
+        android:name="com.google.android.apps.muzei.AutoAdvanceFragment"
         android:layout_width="300dp"
         android:layout_height="match_parent"
         android:layout_gravity="end"

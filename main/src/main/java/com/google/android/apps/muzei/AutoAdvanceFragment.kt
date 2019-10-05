@@ -38,7 +38,7 @@ import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
 
-class AutoAdvanceSettingsFragment : Fragment(R.layout.auto_advance_settings_fragment) {
+class AutoAdvanceFragment : Fragment(R.layout.auto_advance_fragment) {
     companion object {
         private const val TASKER_PACKAGE_NAME = "net.dinglisch.android.taskerm"
 
