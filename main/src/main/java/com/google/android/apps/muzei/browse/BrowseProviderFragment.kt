@@ -16,15 +16,12 @@
 
 package com.google.android.apps.muzei.browse
 
-import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -52,11 +49,6 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
     private val adapter = Adapter()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            requireActivity().window.statusBarColor = ContextCompat.getColor(
-                    requireContext(), R.color.theme_primary_dark)
-        }
-
         val pm = requireContext().packageManager
         val providerInfo = pm.resolveContentProvider(args.contentUri.authority!!, 0)
                 ?: run {
@@ -78,13 +70,6 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
         viewModel.setContentUri(args.contentUri)
         viewModel.artLiveData.observe(viewLifecycleOwner) {
             adapter.submitList(it)
-        }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            requireActivity().window.statusBarColor = Color.TRANSPARENT
         }
     }
 

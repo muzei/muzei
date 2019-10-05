@@ -17,8 +17,6 @@
 package com.google.android.apps.muzei.legacy
 
 import android.content.Intent
-import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
@@ -27,7 +25,6 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
@@ -45,11 +42,6 @@ class LegacySourceInfoFragment : Fragment(R.layout.legacy_source_info_fragment) 
     private val adapter = LegacySourceListAdapter()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            requireActivity().window.statusBarColor = ContextCompat.getColor(
-                    requireContext(), R.color.theme_primary_dark)
-        }
-
         val toolbar = view.findViewById<Toolbar>(R.id.legacy_source_info_toolbar)
         toolbar.setNavigationOnClickListener {
             findNavController().popBackStack()
@@ -75,13 +67,6 @@ class LegacySourceInfoFragment : Fragment(R.layout.legacy_source_info_fragment) 
             } else {
                 adapter.submitList(it)
             }
-        }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            requireActivity().window.statusBarColor = Color.TRANSPARENT
         }
     }
 

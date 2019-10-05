@@ -16,14 +16,11 @@
 
 package com.google.android.apps.muzei.settings
 
-import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.RadioGroup
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -31,11 +28,6 @@ import net.nurik.roman.muzei.R
 
 class GesturesFragment: Fragment(R.layout.gestures_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            requireActivity().window.statusBarColor = ContextCompat.getColor(
-                    requireContext(), R.color.theme_primary_dark)
-        }
-
         view.findViewById<Toolbar>(R.id.gestures_toolbar).apply {
             navigationIcon = DrawerArrowDrawable(requireContext()).apply {
                 progress = 1f
@@ -86,13 +78,6 @@ class GesturesFragment: Fragment(R.layout.gestures_fragment) {
             prefs.edit {
                 putString(Prefs.PREF_THREE_FINGER_TAP, newValue)
             }
-        }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            requireActivity().window.statusBarColor = Color.TRANSPARENT
         }
     }
 }

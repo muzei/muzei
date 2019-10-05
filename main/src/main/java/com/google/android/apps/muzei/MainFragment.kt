@@ -16,9 +16,11 @@
 
 package com.google.android.apps.muzei
 
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
@@ -35,6 +37,9 @@ import net.nurik.roman.muzei.R
  */
 class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Callbacks {
 
+    private val darkStatusBarColor by lazy {
+        ContextCompat.getColor(requireContext(), R.color.theme_primary_dark)
+    }
     private lateinit var bottomNavigationView: BottomNavigationView
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -52,6 +57,18 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
         // Set up the bottom nav
         bottomNavigationView = view.findViewById(R.id.bottom_nav)
         bottomNavigationView.setupWithNavController(navController)
+        // Set up an OnDestinationChangedListener for the status bar color
+        navController.addOnDestinationChangedListener { _, _, args ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                requireActivity().window.statusBarColor =
+                        if (args?.getBoolean("useDarkStatusBar") == true) {
+                            darkStatusBarColor
+                        } else {
+                            Color.TRANSPARENT
+                        }
+            }
+        }
+        // Set up an OnDestinationChangedListener for analytics
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
                 R.id.main_art_details -> {

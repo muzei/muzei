@@ -37,7 +37,11 @@
         android:id="@+id/gestures_fragment"
         android:name="com.google.android.apps.muzei.settings.GesturesFragment"
         android:label="@string/gestures_title"
-        tools:layout="@layout/gestures_fragment"/>
+        tools:layout="@layout/gestures_fragment">
+        <argument
+            android:name="useDarkStatusBar"
+            android:defaultValue="true" />
+    </fragment>
     <navigation
         android:id="@+id/main_choose_provider"
         app:startDestination="@+id/choose_provider_fragment">
@@ -68,11 +72,18 @@
             <argument
                 android:name="contentUri"
                 app:argType="android.net.Uri"/>
+            <argument
+                android:name="useDarkStatusBar"
+                android:defaultValue="true" />
         </fragment>
         <fragment
             android:id="@+id/legacy_source_info"
             android:name="com.google.android.apps.muzei.legacy.LegacySourceInfoFragment"
-            tools:layout="@layout/legacy_source_info_fragment"/>
+            tools:layout="@layout/legacy_source_info_fragment">
+            <argument
+                android:name="useDarkStatusBar"
+                android:defaultValue="true" />
+        </fragment>
     </navigation>
     <fragment
         android:id="@+id/main_effects"
