@@ -115,6 +115,7 @@ dependencies {
     implementation "androidx.appcompat:appcompat:$appCompatVersion"
     implementation "androidx.drawerlayout:drawerlayout:$drawerLayoutVersion"
     implementation "androidx.recyclerview:recyclerview:$recyclerViewVersion"
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:$swipeRefreshLayoutVersion"
     implementation "com.google.android.material:material:$materialVersion"
     implementation "androidx.browser:browser:$browserVersion"
     implementation "androidx.exifinterface:exifinterface:$exifInterfaceVersion"

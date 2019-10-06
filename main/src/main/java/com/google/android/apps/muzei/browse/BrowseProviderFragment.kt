@@ -33,16 +33,24 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import coil.api.load
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.R
 
 class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
+
+    companion object {
+        const val REFRESH_DELAY = 300L // milliseconds
+    }
 
     private val viewModel: BrowseProviderViewModel by viewModels()
     private val args: BrowseProviderFragmentArgs by navArgs()
@@ -56,6 +64,10 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
                     return
                 }
 
+        val swipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.browse_swipe_refresh)
+        swipeRefreshLayout.setOnRefreshListener {
+            refresh(swipeRefreshLayout)
+        }
         view.findViewById<Toolbar>(R.id.browse_toolbar).apply {
             navigationIcon = DrawerArrowDrawable(requireContext()).apply {
                 progress = 1f
@@ -64,12 +76,30 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
                 findNavController().popBackStack()
             }
             title = providerInfo.loadLabel(pm)
+            inflateMenu(R.menu.browse_provider_fragment)
+            setOnMenuItemClickListener {
+                refresh(swipeRefreshLayout)
+                true
+            }
         }
         view.findViewById<RecyclerView>(R.id.browse_list).adapter = adapter
 
         viewModel.setContentUri(args.contentUri)
         viewModel.artLiveData.observe(viewLifecycleOwner) {
             adapter.submitList(it)
+        }
+    }
+
+    private fun refresh(swipeRefreshLayout: SwipeRefreshLayout) {
+        lifecycleScope.launch {
+            ProviderManager.requestLoad(requireContext(), args.contentUri)
+            // Show the refresh indicator for some visible amount of time
+            // rather than immediately dismissing it. We don't know how long
+            // the provider will actually take to refresh, if it does at all.
+            delay(REFRESH_DELAY)
+            withContext(Dispatchers.Main.immediate) {
+                swipeRefreshLayout.isRefreshing = false
+            }
         }
     }
 

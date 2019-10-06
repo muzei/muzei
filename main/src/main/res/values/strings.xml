@@ -109,6 +109,7 @@
     <string name="reset_advanced_settings_defaults">Reset sliders</string>
     <string name="play_store_not_found">Unable to open Play Store.</string>
 
+    <string name="browse_refresh">Refresh</string>
     <string name="browse_set_wallpaper">Set the current wallpaper</string>
     <string name="browse_set_wallpaper_with_title">Set the current wallpaper to \"%s\"</string>
 
