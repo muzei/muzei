@@ -28,6 +28,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.google.android.apps.muzei.room.Artwork
+import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -101,6 +102,9 @@ class BrowseProviderViewModel(
 
     fun setContentUri(contentUri: Uri) {
         contentUriLiveData.value = contentUri
+        viewModelScope.launch {
+            ProviderManager.requestLoad(getApplication(), contentUri)
+        }
     }
 
     val artLiveData: LiveData<List<Artwork>> = contentUriLiveData.switchMap { contentUri ->

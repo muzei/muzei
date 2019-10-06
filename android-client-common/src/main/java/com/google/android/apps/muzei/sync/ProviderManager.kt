@@ -84,6 +84,11 @@ class ProviderManager private constructor(private val context: Context)
             MuzeiDatabase.getInstance(context).providerDao().select(authority)
         }
 
+        suspend fun requestLoad(context: Context, contentUri: Uri) {
+            ContentProviderClientCompat.getClient(context, contentUri)?.call(
+                    ProtocolConstants.METHOD_REQUEST_LOAD)
+        }
+
         suspend fun getDescription(context: Context, authority: String): String {
             val contentUri = Uri.Builder()
                     .scheme(ContentResolver.SCHEME_CONTENT)
