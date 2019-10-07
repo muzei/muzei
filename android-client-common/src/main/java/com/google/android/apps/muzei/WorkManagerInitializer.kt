@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.core.content.edit
+import androidx.core.content.pm.PackageInfoCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.preference.PreferenceManager
@@ -44,12 +45,7 @@ class WorkManagerInitializer : ContentProvider() {
                     sharedPreferences.edit {
                         putLong(KEY_RESET_VERSION_CODE, context.packageManager.getPackageInfo(context
                                 .packageName, 0)?.run {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                                longVersionCode
-                            } else {
-                                @Suppress("DEPRECATION")
-                                versionCode.toLong()
-                            }
+                            PackageInfoCompat.getLongVersionCode(this)
                         } ?: 0L)
                     }
                     if (BuildConfig.DEBUG) {
