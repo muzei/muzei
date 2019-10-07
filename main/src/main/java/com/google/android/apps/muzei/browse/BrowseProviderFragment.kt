@@ -17,6 +17,7 @@
 package com.google.android.apps.muzei.browse
 
 import android.os.Bundle
+import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -35,8 +36,11 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import coil.api.load
+import com.google.android.apps.muzei.legacy.LegacySourceServiceProtocol
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.room.getCommands
+import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -110,12 +114,12 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
         private val imageView = itemView.findViewById<ImageView>(R.id.browse_image)
 
         fun bind(artwork: Artwork) {
+            val context = itemView.context
             imageView.contentDescription = artwork.title
             imageView.load(artwork.imageUri) {
                 lifecycle(owner)
             }
             itemView.setOnClickListener {
-                val context = it.context
                 owner.lifecycleScope.launch(Dispatchers.Main) {
                     FirebaseAnalytics.getInstance(context).logEvent(
                             FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
@@ -131,6 +135,28 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
                         context.getString(R.string.browse_set_wallpaper_with_title,
                                 artwork.title)
                     })
+                }
+            }
+            itemView.setOnCreateContextMenuListener(null)
+            owner.lifecycleScope.launch(Dispatchers.Main.immediate) {
+                val actions = artwork.getCommands(context).filterNot {
+                    it.id == LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK
+                }.filterNot {
+                    it.title.isNullOrEmpty()
+                }
+                if (actions.isNotEmpty()) {
+                    itemView.setOnCreateContextMenuListener { menu, _, _ ->
+                        actions.forEachIndexed { index, action ->
+                            menu.add(Menu.NONE, action.id, index, action.title).apply {
+                                setOnMenuItemClickListener {
+                                    owner.lifecycleScope.launch {
+                                        artwork.sendAction(context, action.id)
+                                    }
+                                    true
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
