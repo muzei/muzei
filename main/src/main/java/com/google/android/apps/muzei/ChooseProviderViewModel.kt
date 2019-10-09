@@ -246,7 +246,7 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
     val providers : LiveData<List<ProviderInfo>> = mutableProviders
 
     internal fun refreshDescription(authority: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(singleThreadContext) {
             val updatedDescription = ProviderManager.getDescription(getApplication(), authority)
             currentProviders[authority]?.let { providerInfo ->
                 if (providerInfo.description != updatedDescription) {
