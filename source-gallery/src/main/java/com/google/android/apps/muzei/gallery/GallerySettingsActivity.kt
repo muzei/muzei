@@ -31,6 +31,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.provider.DocumentsContract
 import android.provider.Settings
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
@@ -73,6 +74,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.lang.Exception
 import java.util.ArrayList
 import java.util.HashSet
 import java.util.LinkedList
@@ -83,6 +85,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         GalleryImportPhotosDialogFragment.OnRequestContentListener, MultiSelectionController.Callbacks {
 
     companion object {
+        private const val TAG = "GallerySettingsActivity"
         private const val SHARED_PREF_NAME = "GallerySettingsActivity"
         private const val SHOW_INTERNAL_STORAGE_MESSAGE = "show_internal_storage_message"
         private const val REQUEST_CHOOSE_PHOTOS = 1
@@ -735,7 +738,9 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                 }
             } catch (e: SecurityException) {
                 // No longer can read this URI, which means no children from this URI
-            } catch (e: NullPointerException) {
+            } catch (e: Exception) {
+                // Could be anything: NullPointerException, IllegalArgumentException, etc.
+                Log.i(TAG, "Unable to load images from $treeUri", e)
             }
         }
         return images

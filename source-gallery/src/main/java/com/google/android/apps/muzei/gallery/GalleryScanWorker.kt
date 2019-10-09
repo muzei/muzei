@@ -46,6 +46,7 @@ import com.google.android.apps.muzei.gallery.BuildConfig.GALLERY_ART_AUTHORITY
 import com.google.android.apps.muzei.util.getString
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.io.FileNotFoundException
 import java.io.IOException
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -157,6 +158,9 @@ class GalleryScanWorker(
         } catch (e: SecurityException) {
             Log.w(TAG, "Unable to access image from $imageUri, deleting row", e)
             deleteChosenPhoto(chosenPhoto)
+        } catch (e: Exception) {
+            // Could be anything: NullPointerException, IllegalArgumentException, etc.
+            Log.i(TAG, "Unable to load images from $imageUri", e)
         }
     }
 
@@ -201,6 +205,12 @@ class GalleryScanWorker(
         } catch (e: SecurityException) {
             Log.w(TAG, "Unable to load images from $treeUri, deleting row", e)
             deleteChosenPhoto(chosenPhoto)
+        } catch (e: FileNotFoundException) {
+            Log.w(TAG, "Unable to load images from $treeUri, deleting row", e)
+            deleteChosenPhoto(chosenPhoto)
+        } catch (e: Exception) {
+            // Could be anything: NullPointerException, IllegalArgumentException, etc.
+            Log.i(TAG, "Unable to load images from $treeUri", e)
         }
     }
 
@@ -245,6 +255,7 @@ class GalleryScanWorker(
                 // No longer can read this URI, which means no children from this URI
             } catch (e: Exception) {
                 // Could be anything: NullPointerException, IllegalArgumentException, etc.
+                Log.i(TAG, "Unable to load images from $treeUri", e)
             }
         }
     }
