@@ -20,7 +20,7 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
-    <fragment
+    <androidx.fragment.app.FragmentContainerView
         android:name="com.google.android.apps.muzei.render.MuzeiRendererFragment"
         android:id="@+id/demo_view"
         android:layout_width="match_parent"
