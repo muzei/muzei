@@ -16,7 +16,7 @@
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'org.jetbrains.dokka-android'
+apply plugin: 'org.jetbrains.dokka'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
@@ -65,15 +65,18 @@ dokka {
     outputFormat = 'html'
     outputDirectory = "$buildDir/dokka"
 
-    externalDocumentationLink {
-        url = new URL("https://developer.android.com/reference/")
-        packageListUrl = new URL("https://developer.android.com/reference/android/support/package-list")
+    configuration {
+        externalDocumentationLink {
+            url = new URL("https://developer.android.com/reference/")
+            packageListUrl = new URL("https://developer.android.com/reference/android/support/package-list")
+        }
+
+        perPackageOption {
+            prefix = "com.google.android.apps.muzei.api.internal"
+            suppress = true
+        }
     }
 
-    packageOptions {
-        prefix = "com.google.android.apps.muzei.api.internal"
-        suppress = true
-    }
     /* TODO Re-enable prettifying the generated documentation
     doLast {
         copy {
@@ -94,22 +97,24 @@ dokka {
      */
 }
 
-task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaAndroidTask) {
+task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
     outputFormat = 'javadoc'
     outputDirectory = "$buildDir/javadoc"
 
-    externalDocumentationLink {
-        url = new URL("https://developer.android.com/reference/")
-        packageListUrl = new URL("https://developer.android.com/reference/android/support/package-list")
-    }
+    configuration {
+        externalDocumentationLink {
+            url = new URL("https://developer.android.com/reference/")
+            packageListUrl = new URL("https://developer.android.com/reference/android/support/package-list")
+        }
 
-    packageOptions {
-        prefix = "com.google.android.apps.muzei.api.internal"
-        suppress = true
-    }
-    packageOptions {
-        prefix = "com.google.android.apps.muzei.api.BuildConfig"
-        suppress = true
+        perPackageOption {
+            prefix = "com.google.android.apps.muzei.api.internal"
+            suppress = true
+        }
+        perPackageOption {
+            prefix = "com.google.android.apps.muzei.api.BuildConfig"
+            suppress = true
+        }
     }
 }
 
