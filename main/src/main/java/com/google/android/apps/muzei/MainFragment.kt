@@ -23,7 +23,7 @@ import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.apps.muzei.browse.BrowseProviderFragment
 import com.google.android.apps.muzei.settings.EffectsFragment
@@ -45,7 +45,8 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         // Set up the container for the child fragments
         val container = view.findViewById<View>(R.id.container)
-        val navController = container.findNavController()
+        val navHostFragment = childFragmentManager.findFragmentById(R.id.container) as NavHostFragment
+        val navController = navHostFragment.navController
         val navGraph = navController.navInflater.inflate(R.navigation.main_navigation)
         if (requireActivity().isPreviewMode) {
             // Make the Effects screen the start destination when

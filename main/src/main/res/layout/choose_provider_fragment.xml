@@ -55,7 +55,7 @@
             app:spanCount="@integer/choose_provider_span_count"/>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <fragment
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/provider_auto_advance"
         android:name="com.google.android.apps.muzei.AutoAdvanceFragment"
         android:layout_width="300dp"
