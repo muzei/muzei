@@ -110,11 +110,18 @@ class ProviderManager private constructor(private val context: Context)
         override fun onReceive(context: Context, intent: Intent?) {
             val provider = value ?: return
             val packageName = intent?.data?.schemeSpecificPart
+            val changedComponents = intent?.getStringArrayExtra(
+                    Intent.EXTRA_CHANGED_COMPONENT_NAME_LIST) ?: emptyArray()
             val pm = context.packageManager
             @SuppressLint("InlinedApi")
             val providerInfo = pm.resolveContentProvider(provider.authority,
                     PackageManager.MATCH_DISABLED_COMPONENTS)
-            if (providerInfo == null || providerInfo.packageName == packageName) {
+            val providerComponentName = providerInfo?.name
+            val wholePackageChanged = changedComponents.any { it == packageName }
+            val providerChanged = providerInfo != null
+                    && changedComponents.any { it == providerComponentName }
+            if (providerInfo == null || (providerInfo.packageName == packageName
+                            && (wholePackageChanged || providerChanged))) {
                 // The selected provider changed, so restart loading
                 startArtworkLoad()
             }
