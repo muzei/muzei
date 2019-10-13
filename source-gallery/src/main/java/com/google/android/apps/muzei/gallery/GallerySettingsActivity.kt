@@ -251,6 +251,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         }
         chosenPhotosLiveData.observe(this, this)
         getContentActivitiesLiveData.observe(this) { invalidateOptionsMenu() }
+        GalleryScanWorker.enqueueRescan(this)
     }
 
     private fun requestPhotos() {
