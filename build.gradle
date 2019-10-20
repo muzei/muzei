@@ -31,7 +31,7 @@ buildscript {
         drawerLayoutVersion = '1.1.0-alpha03'
         exifInterfaceVersion = '1.1.0-rc01'
         firebaseAnalyticsVersion = '17.2.0'
-        firebasePerfVersion = '19.0.0'
+        firebasePerfVersion = '19.0.1'
         fragmentVersion = '1.2.0-beta02'
         kotlinVersion = '1.3.50'
         lifecycleVersion = '2.2.0-beta01'
