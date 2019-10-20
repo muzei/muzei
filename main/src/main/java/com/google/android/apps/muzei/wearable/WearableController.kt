@@ -36,8 +36,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.TimeoutException
 
 /**
  * Controller for updating Android Wear devices with new wallpapers.
@@ -72,13 +70,7 @@ class WearableController(private val context: Context) : DefaultLifecycleObserve
                 Log.w(TAG, "onConnectionFailed: $connectionResult", e.cause)
             }
             return
-        } catch (e: ExecutionException) {
-            Log.w(TAG, "Unable to check for Wear API availability", e)
-            return
-        } catch (e: InterruptedException) {
-            Log.w(TAG, "Unable to check for Wear API availability", e)
-            return
-        } catch (e: TimeoutException) {
+        } catch (e: Exception) {
             Log.w(TAG, "Unable to check for Wear API availability", e)
             return
         }
@@ -96,9 +88,7 @@ class WearableController(private val context: Context) : DefaultLifecycleObserve
         }
         try {
             dataClient.putDataItem(dataMapRequest.asPutDataRequest().setUrgent()).await()
-        } catch (e: ExecutionException) {
-            Log.w(TAG, "Error uploading artwork to Wear", e)
-        } catch (e: InterruptedException) {
+        } catch (e: Exception) {
             Log.w(TAG, "Error uploading artwork to Wear", e)
         }
     }

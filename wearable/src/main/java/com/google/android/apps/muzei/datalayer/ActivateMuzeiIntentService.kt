@@ -49,7 +49,6 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.tasks.await
 import net.nurik.roman.muzei.R
 import java.util.TreeSet
-import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeoutException
 
 class ActivateMuzeiIntentService : IntentService(TAG) {
@@ -179,10 +178,7 @@ class ActivateMuzeiIntentService : IntentService(TAG) {
             val capabilityClient = Wearable.getCapabilityClient(context)
             val nodes: Set<Node> = try {
                 capabilityClient.getCapability("activate_muzei", capability).await().nodes
-            } catch (e: ExecutionException) {
-                Log.e(TAG, "Error getting all capability info", e)
-                TreeSet()
-            } catch (e: InterruptedException) {
+            } catch (e: Exception) {
                 Log.e(TAG, "Error getting all capability info", e)
                 TreeSet()
             }

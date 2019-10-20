@@ -34,7 +34,6 @@ import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.BuildConfig.DATA_LAYER_AUTHORITY
 import java.io.FileOutputStream
 import java.io.IOException
-import java.util.concurrent.ExecutionException
 
 /**
  * Load artwork from the Wear Data Layer, writing it into [DataLayerArtProvider].
@@ -110,10 +109,7 @@ class DataLayerLoadWorker(
                 }
             }
             return Result.success()
-        } catch (e: ExecutionException) {
-            Log.w(TAG, "Error getting artwork from Wear Data Layer", e)
-            return Result.failure()
-        } catch (e: InterruptedException) {
+        } catch (e: Exception) {
             Log.w(TAG, "Error getting artwork from Wear Data Layer", e)
             return Result.failure()
         }
