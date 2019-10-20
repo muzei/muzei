@@ -27,7 +27,7 @@
     "gulp-tap": "^1.0.1",
     "gulp-uglify": "^3.0.0",
     "gulp-util": "^3.0.7",
-    "js-yaml": "^3.4.5",
+    "js-yaml": "^3.13.1",
     "merge-stream": "^1.0.0",
     "node-util": "0.0.1",
     "path": "^0.12.7",
