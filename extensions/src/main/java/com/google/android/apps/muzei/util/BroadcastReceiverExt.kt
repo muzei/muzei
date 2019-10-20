@@ -27,7 +27,11 @@ fun BroadcastReceiver.goAsync(
 ) {
     val result = goAsync()
     coroutineScope.launch {
-        block()
-        result.finish()
+        try {
+            block()
+        } finally {
+            // Always call finish(), even if the coroutineScope was cancelled
+            result.finish()
+        }
     }
 }
