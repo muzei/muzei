@@ -71,6 +71,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
         private const val REQUEST_EXTENSION_SETTINGS = 2
         private const val START_ACTIVITY_PROVIDER = "startActivityProvider"
 
+        private const val PAYLOAD_HEADER = "HEADER"
         private const val PAYLOAD_DESCRIPTION = "DESCRIPTION"
         private const val PAYLOAD_CURRENT_IMAGE_URI = "CURRENT_IMAGE_URI"
         private const val PAYLOAD_SELECTED = "SELECTED"
@@ -332,9 +333,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                 true
             }
 
-            providerIcon.setImageDrawable(icon)
-
-            providerTitle.text = title
+            setHeader(providerInfo)
 
             setDescription(providerInfo)
 
@@ -357,6 +356,11 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                         ChooseProviderFragmentDirections.browse(
                                 ProviderContract.getContentUri(authority)))
             }
+        }
+
+        fun setHeader(providerInfo: ProviderInfo) = providerInfo.run {
+            providerIcon.setImageDrawable(icon)
+            providerTitle.text = title
         }
 
         fun setDescription(providerInfo: ProviderInfo) = providerInfo.run {
@@ -399,6 +403,10 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
 
                 override fun getChangePayload(oldItem: ProviderInfo, newItem: ProviderInfo): Any? {
                     return when {
+                        (oldItem.title != newItem.title || oldItem.icon != newItem.icon) &&
+                                oldItem.copy(title = newItem.title, icon = newItem.icon) ==
+                                newItem ->
+                            PAYLOAD_HEADER
                         oldItem.description != newItem.description &&
                                 oldItem.copy(description = newItem.description) ==
                                 newItem ->
@@ -430,6 +438,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
         ) {
             when {
                 payloads.isEmpty() -> super.onBindViewHolder(holder, position, payloads)
+                payloads[0] == PAYLOAD_HEADER -> holder.setHeader(getItem(position))
                 payloads[0] == PAYLOAD_DESCRIPTION -> holder.setDescription(getItem(position))
                 payloads[0] == PAYLOAD_CURRENT_IMAGE_URI -> holder.setImage(getItem(position))
                 payloads[0] == PAYLOAD_SELECTED -> holder.setSelected(getItem(position))
