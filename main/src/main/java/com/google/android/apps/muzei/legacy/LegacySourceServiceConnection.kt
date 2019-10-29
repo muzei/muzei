@@ -100,13 +100,12 @@ internal class LegacySourceServiceConnection(
     }
 
     override fun onServiceConnected(name: ComponentName, service: IBinder) {
-        messenger = Messenger(service).also {
-            if (currentProvider?.authority == LEGACY_AUTHORITY) {
-                // Register immediately if the legacy art provider is selected
-                register()
-            }
-        }
+        messenger = Messenger(service)
         handlerThread = HandlerThread(TAG).apply { start() }
+        if (currentProvider?.authority == LEGACY_AUTHORITY) {
+            // Register immediately if the legacy art provider is selected
+            register()
+        }
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Bound to LegacySourceService")
         }
