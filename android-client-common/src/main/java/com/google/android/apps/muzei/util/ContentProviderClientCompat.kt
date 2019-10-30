@@ -53,10 +53,9 @@ class ContentProviderClientCompat private constructor(
         try {
             mContentProviderClient.call(method, arg, extras)
         } catch (e: Exception) {
-            if (e is RemoteException) {
-                throw e
-            } else {
-                throw RemoteException(e.message)
+            when (e) {
+                is RemoteException -> throw e
+                else -> throw RemoteException(e.message)
             }
         }
     }
@@ -74,10 +73,9 @@ class ContentProviderClientCompat private constructor(
             mContentProviderClient.query(
                     url, projection, selection, selectionArgs, sortOrder)
         } catch (e: Exception) {
-            if (e is RemoteException) {
-                throw e
-            } else {
-                throw RemoteException(e.message)
+            when (e) {
+                is RemoteException -> throw e
+                else -> throw RemoteException(e.message)
             }
         }
     }
@@ -91,10 +89,10 @@ class ContentProviderClientCompat private constructor(
                 ParcelFileDescriptor.AutoCloseInputStream(this)
             }
         } catch (e: Exception) {
-            if (e is FileNotFoundException || e is RemoteException) {
-                throw e
-            } else {
-                throw RemoteException(e.message)
+            when (e) {
+                is FileNotFoundException -> throw e
+                is RemoteException -> throw e
+                else -> throw RemoteException(e.message)
             }
         }
     }
