@@ -43,6 +43,7 @@ import com.google.android.apps.muzei.render.isValidImage
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.IOException
@@ -252,7 +253,10 @@ class ProviderChangedWorker(
                 }
             }
         } catch (e: Exception) {
-            Log.i(TAG, "Provider ${provider.authority} crashed while retrieving artwork: ${e.message}")
+            when (e) {
+                is CancellationException -> throw e
+                else -> Log.i(TAG, "Provider ${provider.authority} crashed while retrieving artwork: ${e.message}")
+            }
         }
         Result.retry()
     }
@@ -293,8 +297,11 @@ class ProviderChangedWorker(
         } catch (e: IOException) {
             Log.i(TAG, "Unable to preload artwork $artworkUri: ${e.message}")
         } catch (e: Exception) {
-            Log.i(TAG, "Provider ${contentUri.authority} crashed preloading artwork " +
-                    "$artworkUri: ${e.message}")
+            when (e) {
+                is CancellationException -> throw e
+                else -> Log.i(TAG, "Provider ${contentUri.authority} crashed preloading artwork " +
+                        "$artworkUri: ${e.message}")
+            }
         }
 
         return false

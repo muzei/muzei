@@ -210,8 +210,9 @@ class ArtworkLoadWorker(
                 }
             }
         } catch (e: Exception) {
-            if (e !is CancellationException) {
-                Log.i(TAG, "Provider $authority crashed while retrieving artwork: ${e.message}")
+            when (e) {
+                is CancellationException -> throw e
+                else -> Log.i(TAG, "Provider $authority crashed while retrieving artwork: ${e.message}")
             }
         }
         Result.retry()
@@ -243,8 +244,9 @@ class ArtworkLoadWorker(
         } catch (e: IOException) {
             Log.i(TAG, "Unable to preload artwork $artworkUri: ${e.message}")
         } catch (e: Exception) {
-            if (e !is CancellationException) {
-                Log.i(TAG, "Provider ${contentUri.authority} crashed preloading artwork " +
+            when (e) {
+                is CancellationException -> throw e
+                else -> Log.i(TAG, "Provider ${contentUri.authority} crashed preloading artwork " +
                         "$artworkUri: ${e.message}")
             }
         }
