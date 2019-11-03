@@ -6,19 +6,13 @@ const fs = require('fs');
 const history = require('connect-history-api-fallback');
 const merge = require('merge-stream');
 const path = require('path');
-const requireDir = require('require-dir');
-const runSequence = require('run-sequence');
 const recursiveReaddirSync = require('recursive-readdir-sync');
 const source = require('vinyl-source-stream');
-const swig = require('swig');
 const swigExtras = require('swig-extras');
 const through = require('through2');
-const url = require('url');
-const yaml = require('js-yaml');
 
 const gulp = require('gulp');
 const $ = require('gulp-load-plugins')();
-const exclude = require('gulp-ignore').exclude;
 
 const DEV_MODE = false;
 
@@ -204,7 +198,12 @@ gulp.task('clean', cb => {
 });
 
 
-gulp.task('serve', ['build'], () => {
+gulp.task('build', gulp.series('styles', gulp.parallel('html', 'scripts', 'copy', 'images')));
+
+gulp.task('default', gulp.series('clean', 'build'));
+
+
+gulp.task('serve', gulp.series('build', () => {
   browserSync({
     notify: false,
     server: {
@@ -230,10 +229,10 @@ gulp.task('serve', ['build'], () => {
   gulp.watch(['frontend/styles/**/*.{scss,css}'], ['styles', browserSync.reload]);
   gulp.watch(['frontend/scripts/**/*.{js,json}'], ['scripts', browserSync.reload]);
   gulp.watch(['frontend/images/**/*'], browserSync.reload);
-});
+}));
 
 
-gulp.task('serve:dist', ['default'], () => {
+gulp.task('serve:dist', gulp.series('default', () => {
   browserSync({
     notify: false,
     server: {
@@ -244,12 +243,5 @@ gulp.task('serve:dist', ['default'], () => {
       index: 'frontend/html/landing.html'
     }
   });
-});
+}));
 
-
-gulp.task('build', cb => {
-  runSequence('styles', ['html', 'scripts', 'copy', 'images'], cb);
-});
-
-
-gulp.task('default', ['clean', 'build']);
