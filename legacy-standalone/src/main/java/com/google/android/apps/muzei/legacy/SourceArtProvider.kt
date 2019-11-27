@@ -101,7 +101,7 @@ class SourceArtProvider : MuzeiArtProvider() {
                 return PendingIntent.getActivity(context, 0, this, 0)
             }
         } catch (e: URISyntaxException) {
-            Log.i(TAG, "Unable to parse viewIntent ${this}", e)
+            Log.i(TAG, "Unable to parse viewIntent $artwork", e)
         }
         return null
     }

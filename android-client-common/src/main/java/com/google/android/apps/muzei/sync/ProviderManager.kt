@@ -99,7 +99,7 @@ class ProviderManager private constructor(private val context: Context)
                     val result = client.call(ProtocolConstants.METHOD_GET_DESCRIPTION)
                     result?.getString(ProtocolConstants.KEY_DESCRIPTION, "") ?: ""
                 } catch (e: RemoteException) {
-                    Log.i(TAG, "Provider ${this} crashed while retrieving description", e)
+                    Log.i(TAG, "Provider $authority crashed while retrieving description", e)
                     ""
                 }
             } ?: ""

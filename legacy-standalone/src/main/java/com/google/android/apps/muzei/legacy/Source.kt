@@ -78,7 +78,7 @@ private const val EXTRA_COMMAND_ID = "com.google.android.apps.muzei.api.extra.CO
 suspend fun Source.sendAction(context: Context, id: Int) {
     try {
         if (BuildConfig.DEBUG) {
-            Log.d(TAG, "Sending command $id to ${this}")
+            Log.d(TAG, "Sending command $id to $this")
         }
         // Ensure that we have a valid service before sending the action
         context.packageManager.getServiceInfo(componentName, 0)
