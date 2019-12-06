@@ -24,7 +24,7 @@ buildscript {
         browserVersion = '1.0.0'
         coilVersion = '0.7.0'
         constraintLayoutVersion = '2.0.0-beta3'
-        coreVersion = '1.2.0-beta01'
+        coreVersion = '1.2.0-rc01'
         coroutinesVersion = '1.3.2'
         crashlyticsVersion = '2.10.1'
         dokkaVersion = '0.10.0'
@@ -32,12 +32,12 @@ buildscript {
         exifInterfaceVersion = '1.1.0'
         firebaseAnalyticsVersion = '17.2.1'
         firebasePerfVersion = '19.0.2'
-        fragmentVersion = '1.2.0-rc01'
+        fragmentVersion = '1.2.0-rc03'
         kotlinVersion = '1.3.61'
-        lifecycleVersion = '2.2.0-rc01'
+        lifecycleVersion = '2.2.0-rc03'
         materialVersion = '1.1.0-beta01'
         multidexVersion = '2.0.1'
-        navigationVersion = '2.2.0-rc01'
+        navigationVersion = '2.2.0-rc03'
         okhttpVersion = '3.12.6'
         pagingVersion = '2.1.0'
         playServicesWearableVersion = '17.0.0'
@@ -47,7 +47,7 @@ buildscript {
         swipeRefreshLayoutVersion = '1.1.0-alpha03'
         wearableVersion = '2.5.0'
         wearVersion = '1.0.0'
-        workManagerVersion = '2.3.0-alpha03'
+        workManagerVersion = '2.3.0-beta01'
     }
 
     repositories {
