@@ -14,12 +14,25 @@
   limitations under the License.
   -->
 
-<resources>
-    <string name="app_name">Unsplash (Example Muzei Source)</string>
-    <string name="name">Unsplash (Example)</string>
-    <string name="description">Popular photos from Unsplash</string>
-    <string name="attribution">Photo on Unsplash</string>
-    <string name="action_view_profile">View %s\'s profile</string>
-    <string name="action_visit_unsplash">Visit Unsplash</string>
-    <string name="unsplash_link">https://unsplash.com/</string>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">
+        <xliff:g id="unsplash_name">Unsplash</xliff:g>
+        (Example <xliff:g id="muzei_name">Muzei</xliff:g> Source)
+    </string>
+    <string name="name">
+        <xliff:g id="unsplash_name">Unsplash</xliff:g> (Example)
+    </string>
+    <string name="description">
+        Popular photos from <xliff:g id="unsplash_name">Unsplash</xliff:g>
+    </string>
+    <string name="attribution">
+        Photo on <xliff:g id="unsplash_name">Unsplash</xliff:g>
+    </string>
+    <string name="action_view_profile">
+        View <xliff:g id="user_name" example="ilake">%s</xliff:g>\'s profile
+    </string>
+    <string name="action_visit_unsplash">
+        Visit <xliff:g id="unsplash_name">Unsplash</xliff:g>
+    </string>
+    <string name="unsplash_link" translatable="false">https://unsplash.com/</string>
 </resources>

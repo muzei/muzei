@@ -15,6 +15,6 @@
   -->
 
 <resources>
-    <string name="app_name">Muzei</string>
+    <string name="app_name" translatable="false">Muzei</string>
     <string name="error_view_details">Couldn\'t view artwork details.</string>
 </resources>

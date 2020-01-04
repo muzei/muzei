@@ -14,10 +14,12 @@
   limitations under the License.
   -->
 
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="gallery_add_fab">Add photos</string>
     <string name="gallery_add_photos">Add photos</string>
-    <string name="gallery_add_folder">Import photos from %s</string>
+    <string name="gallery_add_folder">
+        Import photos from <xliff:g id="app_name" example="Gallery">%s</xliff:g>
+    </string>
     <string name="gallery_internal_storage_message">Don\'t see anything? Try enabling internal storage in the overflow
         menu</string>
     <string name="gallery_add_photos_error">Your device does not support adding pictures.\nPlease contact your manufacturer.</string>
@@ -25,7 +27,9 @@
 
     <string name="gallery_action_clear_photos">Remove all photos</string>
     <string name="gallery_action_import_photos">Import photos…</string>
-    <string name="gallery_action_import_photos_from">Import photos from %s</string>
+    <string name="gallery_action_import_photos_from">
+        Import photos from <xliff:g id="app_name" example="Gallery">%s</xliff:g>
+    </string>
 
     <string name="gallery_import_dialog_title">Import photos from</string>
 
@@ -34,21 +38,39 @@
     <string name="gallery_title">My Photos</string>
     <string name="gallery_description">Random camera photos</string>
     <plurals name="gallery_description_choice_template">
-        <item quantity="one">1 photo</item>
-        <item quantity="other">%1$d photos</item>
+        <item quantity="one">
+            <xliff:g id="quantity" example="1">%1$d</xliff:g> photo
+        </item>
+        <item quantity="other">
+            <xliff:g id="quantity" example="2">%1$d</xliff:g> photos
+        </item>
     </plurals>
     <string name="gallery_empty">Random camera photos</string>
     <string name="gallery_empty_subtitle">Choose specific photos instead</string>
     <string name="gallery_from_gallery">From your gallery</string>
     <string name="gallery_touch_to_view">Touch to view</string>
-    <string name="gallery_shared_from">Shared from %s</string>
+    <string name="gallery_shared_from">
+        Shared from <xliff:g id="app_name" example="Gallery">%s</xliff:g>
+    </string>
     <plurals name="gallery_add_photos_success">
-        <item quantity="one">Successfully added the image\nto the \"My Photos\" source</item>
-        <item quantity="other">Successfully added %d images\nto the \"My Photos\" source</item>
+        <item quantity="one">
+            Successfully added the image\n
+            to the \"My Photos\" source
+        </item>
+        <item quantity="other">
+            Successfully added <xliff:g id="quantity" example="2">%d</xliff:g> images\n
+            to the \"My Photos\" source
+        </item>
     </plurals>
     <plurals name="gallery_add_photos_failure">
-        <item quantity="one">Unable to add the image\nto the \"My Photos\" source</item>
-        <item quantity="other">Unable to add %d images\nto the \"My Photos\" source</item>
+        <item quantity="one">
+            Unable to add the image\n
+            to the \"My Photos\" source
+        </item>
+        <item quantity="other">
+            Unable to add <xliff:g id="quantity" example="2">%d</xliff:g> images\n
+            to the \"My Photos\" source
+        </item>
     </plurals>
 
     <string name="gallery_enable_random">Enable random camera photos</string>
