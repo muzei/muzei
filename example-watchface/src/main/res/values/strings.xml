@@ -14,6 +14,8 @@
   limitations under the License.
   -->
 
-<resources>
-    <string name="app_name">Muzei Example</string>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">
+        <xliff:g id="muzei_name">Muzei</xliff:g> Example
+    </string>
 </resources>
