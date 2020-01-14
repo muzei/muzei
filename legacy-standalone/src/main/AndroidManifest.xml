@@ -23,6 +23,7 @@
 
     <application
         android:allowBackup="true"
+        android:name="androidx.multidex.MultiDexApplication"
         android:icon="@drawable/legacy_source_ic_launcher"
         android:label="@string/legacy_app_name"
         tools:ignore="GoogleAppIndexingWarning">
