@@ -44,7 +44,7 @@ buildscript {
         playServicesWearableVersion = '17.0.0'
         preferenceVersion = '1.1.0'
         recyclerViewVersion = '1.1.0'
-        retrofitVersion = '2.6.2'
+        retrofitVersion = '2.7.1'
         roomVersion = '2.2.3'
         subsamplingVersion = '3.10.0'
         swipeRefreshLayoutVersion = '1.1.0-alpha03'
