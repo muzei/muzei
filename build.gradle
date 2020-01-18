@@ -25,7 +25,7 @@ buildscript {
         coilVersion = '0.8.0'
         constraintLayoutVersion = '2.0.0-beta4'
         coreVersion = '1.2.0-rc01'
-        coroutinesVersion = '1.3.2'
+        coroutinesVersion = '1.3.3'
         crashlyticsVersion = '2.10.1'
         dokkaVersion = '0.10.0'
         drawerLayoutVersion = '1.1.0-alpha03'
