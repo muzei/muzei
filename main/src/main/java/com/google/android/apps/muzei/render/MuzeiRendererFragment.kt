@@ -32,6 +32,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
 import coil.api.load
 import coil.bitmappool.BitmapPool
+import coil.size.Size
 import coil.transform.Transformation
 import com.google.android.apps.muzei.settings.EffectsLockScreenOpenLiveData
 import com.google.android.apps.muzei.util.ImageBlurrer
@@ -66,7 +67,8 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
     private val simpleDemoModeTransformation = object : Transformation {
         override suspend fun transform(
                 pool: BitmapPool,
-                input: Bitmap
+                input: Bitmap,
+                size: Size
         ) = if (!demoFocus) {
             withContext(Dispatchers.IO) {
                 input.blur(requireContext())?.apply {
