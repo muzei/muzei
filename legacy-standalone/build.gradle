@@ -17,8 +17,8 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'com.google.firebase.firebase-perf'
-apply plugin: 'io.fabric'
 
 android {
     resourcePrefix 'legacy_'
@@ -102,8 +102,8 @@ dependencies {
     kapt "androidx.room:room-compiler:$roomVersion"
     implementation "com.google.android.material:material:$materialVersion"
     implementation "com.google.firebase:firebase-analytics:$firebaseAnalyticsVersion"
+    api "com.google.firebase:firebase-crashlytics:$firebaseCrashlyticsVersion"
     implementation "com.google.firebase:firebase-perf:$firebasePerfVersion"
-    implementation "com.crashlytics.sdk.android:crashlytics:$crashlyticsVersion"
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
     implementation project(':muzei-api')
     implementation project(':extensions')
