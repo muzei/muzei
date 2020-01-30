@@ -21,7 +21,9 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
@@ -110,16 +112,18 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
         ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
             // Ensure the container gets the appropriate insets
             ViewCompat.dispatchApplyWindowInsets(container,
-                    insets.replaceSystemWindowInsets(insets.systemWindowInsetLeft,
+                    WindowInsetsCompat.Builder(insets).setSystemWindowInsets(Insets.of(
+                            insets.systemWindowInsetLeft,
                             insets.systemWindowInsetTop,
                             insets.systemWindowInsetRight,
-                            0))
+                            0)).build())
             ViewCompat.dispatchApplyWindowInsets(bottomNavigationView,
-                    insets.replaceSystemWindowInsets(insets.systemWindowInsetLeft,
+                    WindowInsetsCompat.Builder(insets).setSystemWindowInsets(Insets.of(
+                            insets.systemWindowInsetLeft,
                             0,
                             insets.systemWindowInsetRight,
-                            insets.systemWindowInsetBottom))
-            insets.consumeSystemWindowInsets().consumeDisplayCutout()
+                            insets.systemWindowInsetBottom)).build())
+            insets.consumeSystemWindowInsets()?.consumeDisplayCutout()
         }
 
         // Listen for visibility changes to know when to hide our views

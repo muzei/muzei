@@ -54,7 +54,9 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
+import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
@@ -195,12 +197,15 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         ViewCompat.setOnApplyWindowInsetsListener(photoGridView) { v, insets ->
             val gridSpacing = resources
                     .getDimensionPixelSize(R.dimen.gallery_chosen_photo_grid_spacing)
-            ViewCompat.onApplyWindowInsets(v, insets.replaceSystemWindowInsets(
-                    insets.systemWindowInsetLeft + gridSpacing,
-                    gridSpacing,
-                    insets.systemWindowInsetRight + gridSpacing,
-                    insets.systemWindowInsetBottom + insets.systemWindowInsetTop + gridSpacing +
-                            resources.getDimensionPixelSize(R.dimen.gallery_fab_space)))
+            ViewCompat.onApplyWindowInsets(v, WindowInsetsCompat.Builder(insets)
+                    .setSystemWindowInsets(Insets.of(
+                            insets.systemWindowInsetLeft + gridSpacing,
+                            gridSpacing,
+                            insets.systemWindowInsetRight + gridSpacing,
+                            insets.systemWindowInsetBottom +
+                                    insets.systemWindowInsetTop + gridSpacing +
+                                    resources.getDimensionPixelSize(R.dimen.gallery_fab_space)))
+                    .build())
             insets
         }
 
