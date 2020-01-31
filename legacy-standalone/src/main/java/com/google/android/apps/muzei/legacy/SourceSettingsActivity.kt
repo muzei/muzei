@@ -42,7 +42,6 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
@@ -57,6 +56,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.legacy.R
+import net.nurik.roman.muzei.legacy.databinding.LegacyChooseSourceItemBinding
 
 /**
  * Activity for allowing the user to choose the active source.
@@ -286,14 +286,13 @@ class SourceSettingsActivity : AppCompatActivity() {
 
     internal inner class SourceListAdapter(
             context: Context
-    ) : ArrayAdapter<SourceView>(context, R.layout.legacy_choose_source_item, R.id.legacy_choose_source_title) {
+    ) : ArrayAdapter<SourceView>(context, R.layout.legacy_choose_source_item, R.id.title) {
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
             val view = super.getView(position, convertView, parent)
             val sourceView = getItem(position) ?: return view
-            return view.apply {
-                val textView: TextView = findViewById(R.id.legacy_choose_source_title)
-                textView.text = sourceView.toCharSequence()
-                alpha = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+            return LegacyChooseSourceItemBinding.bind(view).run {
+                legacyTitle.text = sourceView.toCharSequence()
+                root.alpha = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
                         sourceView.source.targetSdkVersion >= Build.VERSION_CODES.O) {
                     ALPHA_DISABLED
                 } else {
@@ -302,14 +301,14 @@ class SourceSettingsActivity : AppCompatActivity() {
                 if (sourceView.source.selected) {
                     selectedSourceImage.colorFilter = PorterDuffColorFilter(sourceView.source.color,
                             PorterDuff.Mode.SRC_ATOP)
-                    textView.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    legacyTitle.setCompoundDrawablesRelativeWithIntrinsicBounds(
                             selectedSourceImage,null, null, null)
 
                 } else {
-                    textView.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    legacyTitle.setCompoundDrawablesRelativeWithIntrinsicBounds(
                             sourceView.icon,null, null, null)
                 }
-                findViewById<View>(R.id.legacy_choose_source_settings).apply {
+                legacySettings.apply {
                     val show = sourceView.source.selected &&
                             sourceView.source.settingsActivity != null
                     val wasVisible = isVisible
@@ -327,6 +326,7 @@ class SourceSettingsActivity : AppCompatActivity() {
                         launchSourceSettings(sourceView.source)
                     }
                 }
+                root
             }
         }
     }

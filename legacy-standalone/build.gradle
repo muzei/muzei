@@ -25,6 +25,8 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
+    viewBinding.enabled = true
+
     defaultConfig {
         minSdkVersion 19
         //noinspection ExpiredTargetSdkVersion

@@ -26,7 +26,7 @@
     tools:ignore="UseCompoundDrawables">
 
     <TextView
-        android:id="@+id/legacy_choose_source_title"
+        android:id="@+id/legacy_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
@@ -40,7 +40,7 @@
         android:textColor="?attr/colorOnSurface"/>
 
     <ImageView
-        android:id="@+id/legacy_choose_source_settings"
+        android:id="@+id/legacy_settings"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:background="?selectableItemBackgroundBorderless"
