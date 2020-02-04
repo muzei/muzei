@@ -40,11 +40,13 @@ import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.databinding.MuzeiActivityBinding
 
 private const val PREVIEW_MODE = "android.service.wallpaper.PREVIEW_MODE"
 val Activity.isPreviewMode get() = intent?.extras?.getBoolean(PREVIEW_MODE) == true
 
 class MuzeiActivity : AppCompatActivity() {
+    private lateinit var binding: MuzeiActivityBinding
     private var fadeIn = false
     private var renderLocally = false
     private val viewModel : MuzeiActivityViewModel by viewModels()
@@ -88,11 +90,11 @@ class MuzeiActivity : AppCompatActivity() {
         if (MissingResourcesDialogFragment.showDialogIfNeeded(this)) {
             return
         }
-        setContentView(R.layout.muzei_activity)
+        binding = MuzeiActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
-        val containerView = findViewById<View>(R.id.container)
 
-        containerView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        binding.container.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
 

@@ -21,9 +21,7 @@ import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.view.View
 import android.view.ViewPropertyAnimator
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
@@ -33,19 +31,22 @@ import com.google.android.apps.muzei.render.MuzeiRendererFragment
 import com.google.android.apps.muzei.util.AnimatedMuzeiLogoFragment
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.databinding.AboutActivityBinding
 
 class AboutActivity : AppCompatActivity() {
 
+    private lateinit var binding: AboutActivityBinding
     private var animator: ViewPropertyAnimator? = null
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.about_activity)
+        binding = AboutActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
 
-        (findViewById<View>(R.id.app_bar) as Toolbar).setNavigationOnClickListener { onNavigateUp() }
+        binding.appBar.setNavigationOnClickListener { onNavigateUp() }
 
         if (savedInstanceState == null) {
             supportFragmentManager.commit {
@@ -55,16 +56,16 @@ class AboutActivity : AppCompatActivity() {
         }
 
         // Build the about body view and append the link to see OSS licenses
-        findViewById<TextView>(R.id.app_version).apply {
+        binding.includeContent.appVersion.apply {
             text = getString(R.string.about_version_template, BuildConfig.VERSION_NAME)
         }
 
-        findViewById<TextView>(R.id.about_body).apply {
+        binding.includeContent.aboutBody.apply {
             text = HtmlCompat.fromHtml(getString(R.string.about_body), 0)
             movementMethod = LinkMovementMethod()
         }
 
-        findViewById<View>(R.id.android_experiment_link).setOnClickListener {
+        binding.includeContent.androidExperimentLink.setOnClickListener {
             val cti = CustomTabsIntent.Builder()
                     .setShowTitle(true)
                     .setToolbarColor(ContextCompat.getColor(this, R.color.theme_primary))
@@ -80,7 +81,7 @@ class AboutActivity : AppCompatActivity() {
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
 
-        val demoContainerView = findViewById<View>(R.id.demo_view_container).apply {
+        val demoContainerView = binding.demoViewContainer.apply {
             alpha = 0f
         }
         animator = demoContainerView.animate()
