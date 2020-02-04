@@ -20,9 +20,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
-import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -49,6 +47,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.databinding.BrowseProviderFragmentBinding
+import net.nurik.roman.muzei.databinding.BrowseProviderItemBinding
 
 class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
 
@@ -58,9 +58,9 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
 
     private val viewModel: BrowseProviderViewModel by viewModels()
     private val args: BrowseProviderFragmentArgs by navArgs()
-    private val adapter = Adapter()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val binding = BrowseProviderFragmentBinding.bind(view)
         val pm = requireContext().packageManager
         val providerInfo = pm.resolveContentProvider(args.contentUri.authority!!, 0)
                 ?: run {
@@ -68,11 +68,10 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
                     return
                 }
 
-        val swipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.browse_swipe_refresh)
-        swipeRefreshLayout.setOnRefreshListener {
-            refresh(swipeRefreshLayout)
+        binding.browseSwipeRefresh.setOnRefreshListener {
+            refresh(binding.browseSwipeRefresh)
         }
-        view.findViewById<Toolbar>(R.id.browse_toolbar).apply {
+        binding.browseToolbar.apply {
             navigationIcon = DrawerArrowDrawable(requireContext()).apply {
                 progress = 1f
             }
@@ -82,11 +81,12 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
             title = providerInfo.loadLabel(pm)
             inflateMenu(R.menu.browse_provider_fragment)
             setOnMenuItemClickListener {
-                refresh(swipeRefreshLayout)
+                refresh(binding.browseSwipeRefresh)
                 true
             }
         }
-        view.findViewById<RecyclerView>(R.id.browse_list).adapter = adapter
+        val adapter = Adapter()
+        binding.browseList.adapter = adapter
 
         viewModel.setContentUri(args.contentUri)
         viewModel.artLiveData.observe(viewLifecycleOwner) {
@@ -109,14 +109,13 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
 
     class ArtViewHolder(
             private val owner: LifecycleOwner,
-            itemView: View
-    ): RecyclerView.ViewHolder(itemView) {
-        private val imageView = itemView.findViewById<ImageView>(R.id.browse_image)
+            private val binding: BrowseProviderItemBinding
+    ): RecyclerView.ViewHolder(binding.root) {
 
         fun bind(artwork: Artwork) {
             val context = itemView.context
-            imageView.contentDescription = artwork.title
-            imageView.load(artwork.imageUri) {
+            binding.browseImage.contentDescription = artwork.title
+            binding.browseImage.load(artwork.imageUri) {
                 lifecycle(owner)
             }
             itemView.setOnClickListener {
@@ -173,7 +172,7 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
     ) {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
                 ArtViewHolder(viewLifecycleOwner,
-                        layoutInflater.inflate(R.layout.browse_provider_item, parent, false))
+                        BrowseProviderItemBinding.inflate(layoutInflater, parent, false))
 
         override fun onBindViewHolder(holder: ArtViewHolder, position: Int) {
             holder.bind(getItem(position))
