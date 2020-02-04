@@ -21,7 +21,6 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.widget.Toolbar
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -31,8 +30,8 @@ import androidx.viewpager.widget.ViewPager
 import com.google.android.apps.muzei.isPreviewMode
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer
 import com.google.android.apps.muzei.util.toast
-import com.google.android.material.tabs.TabLayout
 import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.databinding.EffectsFragmentBinding
 
 object EffectsLockScreenOpenLiveData : MutableLiveData<Boolean>()
 
@@ -41,15 +40,14 @@ object EffectsLockScreenOpenLiveData : MutableLiveData<Boolean>()
  */
 class EffectsFragment : Fragment(R.layout.effects_fragment) {
 
-    private lateinit var toolbar: Toolbar
-    private lateinit var viewPager: ViewPager
+    private lateinit var binding: EffectsFragmentBinding
 
     private val sharedPreferencesListener = SharedPreferences.OnSharedPreferenceChangeListener {
         sp, key ->
         val effectsLinked = sp.getBoolean(Prefs.PREF_LINK_EFFECTS, false)
         if (key == Prefs.PREF_LINK_EFFECTS) {
             if (effectsLinked) {
-                if (viewPager.currentItem == 0) {
+                if (binding.viewPager.currentItem == 0) {
                     // Update the lock screen effects to match the home screen
                     sp.edit {
                         putInt(Prefs.PREF_LOCK_BLUR_AMOUNT,
@@ -125,20 +123,20 @@ class EffectsFragment : Fragment(R.layout.effects_fragment) {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        toolbar = view.findViewById(R.id.toolbar)
+        binding = EffectsFragmentBinding.bind(view)
         if (requireActivity().isPreviewMode) {
-            toolbar.setNavigationIcon(R.drawable.ic_ab_done)
-            toolbar.navigationContentDescription = getString(R.string.done)
-            toolbar.setNavigationOnClickListener {
+            binding.toolbar.setNavigationIcon(R.drawable.ic_ab_done)
+            binding.toolbar.navigationContentDescription = getString(R.string.done)
+            binding.toolbar.setNavigationOnClickListener {
                 requireActivity().run {
                     setResult(Activity.RESULT_OK)
                     finish()
                 }
             }
         }
-        requireActivity().menuInflater.inflate(R.menu.effects_fragment, toolbar.menu)
+        requireActivity().menuInflater.inflate(R.menu.effects_fragment, binding.toolbar.menu)
         updateLinkEffectsMenuItem()
-        toolbar.setOnMenuItemClickListener { item ->
+        binding.toolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_link_effects -> {
                     val sp = Prefs.getSharedPreferences(requireContext())
@@ -162,11 +160,9 @@ class EffectsFragment : Fragment(R.layout.effects_fragment) {
                 else -> false
             }
         }
-        val tabLayout = view.findViewById<TabLayout>(R.id.tabLayout)
-        viewPager = view.findViewById(R.id.view_pager)
-        viewPager.adapter = Adapter(childFragmentManager)
-        tabLayout.setupWithViewPager(viewPager)
-        viewPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
+        binding.viewPager.adapter = Adapter(childFragmentManager)
+        binding.tabLayout.setupWithViewPager(binding.viewPager)
+        binding.viewPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
             override fun onPageSelected(position: Int) {
                 EffectsLockScreenOpenLiveData.value = position == 1
             }
@@ -178,14 +174,14 @@ class EffectsFragment : Fragment(R.layout.effects_fragment) {
     override fun onStart() {
         super.onStart()
         // Reset the value here to restore the state lost in onStop()
-        EffectsLockScreenOpenLiveData.value = viewPager.currentItem == 1
+        EffectsLockScreenOpenLiveData.value = binding.viewPager.currentItem == 1
     }
 
     private fun updateLinkEffectsMenuItem(
             effectsLinked: Boolean = Prefs.getSharedPreferences(requireContext())
                     .getBoolean(Prefs.PREF_LINK_EFFECTS, false)
     ) {
-        val menuItem = toolbar.menu.findItem(R.id.action_link_effects)
+        val menuItem = binding.toolbar.menu.findItem(R.id.action_link_effects)
         menuItem.setIcon(if (effectsLinked)
             R.drawable.ic_action_link_effects
         else

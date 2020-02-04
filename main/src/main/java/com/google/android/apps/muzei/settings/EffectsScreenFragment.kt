@@ -29,6 +29,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.databinding.EffectsScreenFragmentBinding
 
 /**
  * Fragment for allowing the user to configure advanced settings.
@@ -57,10 +58,6 @@ class EffectsScreenFragment : Fragment(R.layout.effects_screen_fragment) {
     private lateinit var dimPref: String
     private lateinit var greyPref: String
 
-    private lateinit var blurSeekBar: SeekBar
-    private lateinit var dimSeekBar: SeekBar
-    private lateinit var greySeekBar: SeekBar
-
     private lateinit var blurOnPreferenceChangeListener: SharedPreferences.OnSharedPreferenceChangeListener
     private lateinit var dimOnPreferenceChangeListener: SharedPreferences.OnSharedPreferenceChangeListener
     private lateinit var greyOnPreferenceChangeListener: SharedPreferences.OnSharedPreferenceChangeListener
@@ -80,17 +77,17 @@ class EffectsScreenFragment : Fragment(R.layout.effects_screen_fragment) {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val binding = EffectsScreenFragmentBinding.bind(view)
         val prefs = Prefs.getSharedPreferences(requireContext())
-        blurSeekBar = view.findViewById(R.id.blur_amount)
-        blurSeekBar.progress = prefs.getInt(blurPref, MuzeiBlurRenderer.DEFAULT_BLUR)
-        blurSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        binding.includeContent.blurAmount.progress = prefs.getInt(blurPref, MuzeiBlurRenderer.DEFAULT_BLUR)
+        binding.includeContent.blurAmount.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
                 if (fromUser) {
                     updateBlur?.cancel()
                     updateBlur = lifecycleScope.launch {
                         delay(750)
                         prefs.edit {
-                            putInt(blurPref, blurSeekBar.progress)
+                            putInt(blurPref, binding.includeContent.blurAmount.progress)
                         }
                     }
                 }
@@ -102,20 +99,19 @@ class EffectsScreenFragment : Fragment(R.layout.effects_screen_fragment) {
         })
         blurOnPreferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener {
             _, _ ->
-            blurSeekBar.progress = prefs.getInt(blurPref, MuzeiBlurRenderer.DEFAULT_BLUR)
+            binding.includeContent.blurAmount.progress = prefs.getInt(blurPref, MuzeiBlurRenderer.DEFAULT_BLUR)
         }
         prefs.registerOnSharedPreferenceChangeListener(blurOnPreferenceChangeListener)
 
-        dimSeekBar = view.findViewById(R.id.dim_amount)
-        dimSeekBar.progress = prefs.getInt(dimPref, MuzeiBlurRenderer.DEFAULT_MAX_DIM)
-        dimSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        binding.includeContent.dimAmount.progress = prefs.getInt(dimPref, MuzeiBlurRenderer.DEFAULT_MAX_DIM)
+        binding.includeContent.dimAmount.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
                 if (fromUser) {
                     updateDim?.cancel()
                     updateDim = lifecycleScope.launch {
                         delay(750)
                         prefs.edit {
-                            putInt(dimPref, dimSeekBar.progress)
+                            putInt(dimPref, binding.includeContent.dimAmount.progress)
                         }
                     }
                 }
@@ -127,20 +123,19 @@ class EffectsScreenFragment : Fragment(R.layout.effects_screen_fragment) {
         })
         dimOnPreferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener {
             _, _ ->
-            dimSeekBar.progress = prefs.getInt(dimPref, MuzeiBlurRenderer.DEFAULT_MAX_DIM)
+            binding.includeContent.dimAmount.progress = prefs.getInt(dimPref, MuzeiBlurRenderer.DEFAULT_MAX_DIM)
         }
         prefs.registerOnSharedPreferenceChangeListener(dimOnPreferenceChangeListener)
 
-        greySeekBar = view.findViewById(R.id.grey_amount)
-        greySeekBar.progress = prefs.getInt(greyPref, MuzeiBlurRenderer.DEFAULT_GREY)
-        greySeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        binding.includeContent.greyAmount.progress = prefs.getInt(greyPref, MuzeiBlurRenderer.DEFAULT_GREY)
+        binding.includeContent.greyAmount.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
                 if (fromUser) {
                     updateGrey?.cancel()
                     updateGrey = lifecycleScope.launch {
                         delay(750)
                         prefs.edit {
-                            putInt(greyPref, greySeekBar.progress)
+                            putInt(greyPref, binding.includeContent.greyAmount.progress)
                         }
                     }
                 }
@@ -152,7 +147,7 @@ class EffectsScreenFragment : Fragment(R.layout.effects_screen_fragment) {
         })
         greyOnPreferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener {
             _, _ ->
-            greySeekBar.progress = prefs.getInt(greyPref, MuzeiBlurRenderer.DEFAULT_GREY)
+            binding.includeContent.greyAmount.progress = prefs.getInt(greyPref, MuzeiBlurRenderer.DEFAULT_GREY)
         }
         prefs.registerOnSharedPreferenceChangeListener(greyOnPreferenceChangeListener)
     }
