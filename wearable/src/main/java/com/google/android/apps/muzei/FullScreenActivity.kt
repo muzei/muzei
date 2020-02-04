@@ -17,7 +17,6 @@
 package com.google.android.apps.muzei
 
 import android.os.Bundle
-import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
@@ -25,7 +24,6 @@ import androidx.lifecycle.observe
 import androidx.wear.ambient.AmbientModeSupport
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.util.PanView
 import com.google.android.apps.muzei.util.filterNotNull
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.Dispatchers
@@ -33,7 +31,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig
-import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.databinding.FullScreenActivityBinding
 
 class FullScreenActivity : FragmentActivity(),
         AmbientModeSupport.AmbientCallbackProvider {
@@ -44,22 +42,20 @@ class FullScreenActivity : FragmentActivity(),
                 }
             }
 
-    private lateinit var panView: PanView
-    private lateinit var loadingIndicatorView: View
+    private lateinit var binding: FullScreenActivityBinding
 
     private var showLoadingIndicator: Job? = null
 
     public override fun onCreate(savedState: Bundle?) {
         super.onCreate(savedState)
         AmbientModeSupport.attach(this)
-        setContentView(R.layout.full_screen_activity)
+        binding = FullScreenActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
-        panView = findViewById(R.id.pan_view)
 
-        loadingIndicatorView = findViewById(R.id.loading_indicator)
         showLoadingIndicator = lifecycleScope.launch(Dispatchers.Main) {
             delay(500)
-            loadingIndicatorView.isVisible = true
+            binding.loadingIndicator.isVisible = true
         }
 
         MuzeiDatabase.getInstance(this).artworkDao()
@@ -68,9 +64,9 @@ class FullScreenActivity : FragmentActivity(),
                 val image = ImageLoader.decode(
                         contentResolver, artwork.contentUri)
                 showLoadingIndicator?.cancel()
-                loadingIndicatorView.isVisible = false
-                panView.isVisible = true
-                panView.setImage(image)
+                binding.loadingIndicator.isVisible = false
+                binding.panView.isVisible = true
+                binding.panView.setImage(image)
             }
         }
     }

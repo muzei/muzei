@@ -22,9 +22,7 @@ import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import androidx.activity.viewModels
 import androidx.core.os.bundleOf
 import androidx.fragment.app.FragmentActivity
@@ -33,13 +31,14 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.widget.WearableLinearLayoutManager
-import androidx.wear.widget.WearableRecyclerView
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.databinding.ChooseProviderActivityBinding
+import net.nurik.roman.muzei.databinding.ChooseProviderItemBinding
 
 class ChooseProviderActivity : FragmentActivity() {
 
@@ -53,16 +52,18 @@ class ChooseProviderActivity : FragmentActivity() {
 
     private val adapter = ProviderAdapter()
 
+    private lateinit var binding: ChooseProviderActivityBinding
+
     private var startActivityProvider: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         startActivityProvider = savedInstanceState?.getString(START_ACTIVITY_PROVIDER)
-        setContentView(R.layout.choose_provider_activity)
-        val providerList = findViewById<WearableRecyclerView>(R.id.provider_list)
-        providerList.isEdgeItemsCenteringEnabled = true
-        providerList.layoutManager = WearableLinearLayoutManager(this)
-        providerList.adapter = adapter
+        binding = ChooseProviderActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        binding.providerList.isEdgeItemsCenteringEnabled = true
+        binding.providerList.layoutManager = WearableLinearLayoutManager(this)
+        binding.providerList.adapter = adapter
 
         viewModel.providers.observe(this) { providers ->
             adapter.submitList(providers)
@@ -109,15 +110,16 @@ class ChooseProviderActivity : FragmentActivity() {
         }
     }
 
-    inner class ProviderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ProviderViewHolder(
+            private val binding: ChooseProviderItemBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
         fun setProviderInfo(providerInfo: ProviderInfo) {
-            val chooseProvider = itemView as Button
             val size = resources.getDimensionPixelSize(R.dimen.choose_provider_image_size)
             providerInfo.icon.bounds = Rect(0, 0, size, size)
-            chooseProvider.setCompoundDrawablesRelative(providerInfo.icon,
+            binding.chooseProvider.setCompoundDrawablesRelative(providerInfo.icon,
                     null, null, null)
-            chooseProvider.text = providerInfo.title
-            chooseProvider.setOnClickListener {
+            binding.chooseProvider.text = providerInfo.title
+            binding.chooseProvider.setOnClickListener {
                 if (providerInfo.setupActivity != null) {
                     launchProviderSetup(providerInfo)
                 } else {
@@ -145,8 +147,7 @@ class ChooseProviderActivity : FragmentActivity() {
             }
     ) {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-                ProviderViewHolder(layoutInflater.inflate(
-                        R.layout.choose_provider_item,
+                ProviderViewHolder(ChooseProviderItemBinding.inflate(layoutInflater,
                         parent, false))
 
         override fun onBindViewHolder(holder: ProviderViewHolder, position: Int) {
