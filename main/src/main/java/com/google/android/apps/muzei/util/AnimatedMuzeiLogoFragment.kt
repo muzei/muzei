@@ -24,10 +24,11 @@ import android.view.View
 import android.view.animation.OvershootInterpolator
 import androidx.fragment.app.Fragment
 import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.databinding.AnimatedLogoFragmentBinding
 
 class AnimatedMuzeiLogoFragment : Fragment(R.layout.animated_logo_fragment) {
-    private lateinit var subtitleView: View
-    private lateinit var logoView: AnimatedMuzeiLogoView
+    private lateinit var binding: AnimatedLogoFragmentBinding
+
     private val initialLogoOffset: Float by lazy {
         TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16f,
                 resources.displayMetrics)
@@ -35,12 +36,11 @@ class AnimatedMuzeiLogoFragment : Fragment(R.layout.animated_logo_fragment) {
     var onFillStarted: () -> Unit = {}
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        subtitleView = view.findViewById(R.id.logo_subtitle)
+        binding = AnimatedLogoFragmentBinding.bind(view)
 
-        logoView = view.findViewById(R.id.animated_logo)
-        logoView.onStateChange = { state ->
+        binding.animatedLogo.onStateChange = { state ->
             if (state == AnimatedMuzeiLogoView.STATE_FILL_STARTED) {
-                subtitleView.apply {
+                binding.logoSubtitle.apply {
                     alpha = 0f
                     visibility = View.VISIBLE
                     translationY = (-height).toFloat()
@@ -48,10 +48,10 @@ class AnimatedMuzeiLogoFragment : Fragment(R.layout.animated_logo_fragment) {
 
                 // Bug in older versions where set.setInterpolator didn't work
                 val interpolator = OvershootInterpolator()
-                val a1 = ObjectAnimator.ofFloat<View>(logoView, View.TRANSLATION_Y, 0f)
-                val a2 = ObjectAnimator.ofFloat<View>(subtitleView,
+                val a1 = ObjectAnimator.ofFloat<View>(binding.animatedLogo, View.TRANSLATION_Y, 0f)
+                val a2 = ObjectAnimator.ofFloat<View>(binding.logoSubtitle,
                         View.TRANSLATION_Y, 0f)
-                val a3 = ObjectAnimator.ofFloat<View>(subtitleView, View.ALPHA, 1f)
+                val a3 = ObjectAnimator.ofFloat<View>(binding.logoSubtitle, View.ALPHA, 1f)
                 a1.interpolator = interpolator
                 a2.interpolator = interpolator
                 AnimatorSet().apply {
@@ -68,12 +68,12 @@ class AnimatedMuzeiLogoFragment : Fragment(R.layout.animated_logo_fragment) {
     }
 
     fun start() {
-        logoView.start()
+        binding.animatedLogo.start()
     }
 
     private fun reset() {
-        logoView.reset()
-        logoView.translationY = initialLogoOffset
-        subtitleView.visibility = View.INVISIBLE
+        binding.animatedLogo.reset()
+        binding.animatedLogo.translationY = initialLogoOffset
+        binding.logoSubtitle.visibility = View.INVISIBLE
     }
 }
