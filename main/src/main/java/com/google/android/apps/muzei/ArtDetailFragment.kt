@@ -27,8 +27,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.ViewAnimator
-import androidx.appcompat.widget.ActionMenuView
 import androidx.appcompat.widget.TooltipCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
@@ -63,8 +61,6 @@ import com.google.android.apps.muzei.room.openArtworkInfo
 import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.settings.AboutActivity
 import com.google.android.apps.muzei.sync.ProviderManager
-import com.google.android.apps.muzei.util.AnimatedMuzeiLoadingSpinnerView
-import com.google.android.apps.muzei.util.PanScaleProxyView
 import com.google.android.apps.muzei.util.makeCubicGradientScrimDrawable
 import com.google.android.apps.muzei.widget.showWidgetPreview
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -76,6 +72,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.BuildConfig.LEGACY_AUTHORITY
 import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.databinding.ArtDetailFragmentBinding
 
 object ArtDetailOpenLiveData : MutableLiveData<Boolean>()
 
@@ -88,7 +85,7 @@ private fun TextView.setTextOrGone(text: String?) {
     }
 }
 
-class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
+class ArtDetailFragment : Fragment(R.layout.art_detail_fragment), (Boolean) -> Unit {
 
     companion object {
         private const val KEY_IMAGE_VIEW_STATE = "IMAGE_VIEW_STATE"
@@ -119,20 +116,8 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics)
     }
 
-    private lateinit var containerView: View
-    private lateinit var overflowMenu: ActionMenuView
+    private lateinit var binding: ArtDetailFragmentBinding
     private val overflowSourceActionMap = SparseIntArray()
-    private lateinit var scrimView: View
-    private lateinit var chromeContainerView: View
-    private lateinit var metadataView: View
-    private lateinit var loadingContainerView: View
-    private lateinit var loadingIndicatorView: AnimatedMuzeiLoadingSpinnerView
-    private lateinit var nextButton: View
-    private lateinit var titleView: TextView
-    private lateinit var bylineView: TextView
-    private lateinit var attributionView: TextView
-    private lateinit var backgroundImageContainer: ViewAnimator
-    private lateinit var panScaleProxyView: PanScaleProxyView
     private var loadingSpinnerShown = false
     private var showFakeLoading = false
     private var showChrome = true
@@ -158,41 +143,31 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        containerView = inflater.inflate(R.layout.art_detail_fragment, container, false)
-
-        chromeContainerView = containerView.findViewById(R.id.chrome_container)
         showHideChrome(true)
-
-        return containerView
+        return super.onCreateView(inflater, container, savedInstanceState)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        scrimView = view.findViewById(R.id.art_detail_scrim)
+        binding = ArtDetailFragmentBinding.bind(view)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            scrimView.background = makeCubicGradientScrimDrawable(Gravity.TOP, 0x44)
+            binding.artDetailScrim.background = makeCubicGradientScrimDrawable(Gravity.TOP, 0x44)
         }
 
         val scrimColor = resources.getInteger(R.integer.scrim_channel_color)
-        chromeContainerView.background = makeCubicGradientScrimDrawable(Gravity.BOTTOM, 0xAA,
+        binding.chromeContainer.background = makeCubicGradientScrimDrawable(Gravity.BOTTOM, 0xAA,
                 scrimColor, scrimColor, scrimColor)
 
-        metadataView = view.findViewById(R.id.metadata)
-
-        containerView.setOnSystemUiVisibilityChangeListener { vis ->
+        view.setOnSystemUiVisibilityChangeListener { vis ->
             val visible = vis and View.SYSTEM_UI_FLAG_LOW_PROFILE == 0
             animateChromeVisibility(visible)
         }
 
-        titleView = view.findViewById(R.id.title)
-        titleView.typeface = ResourcesCompat.getFont(requireContext(), R.font.alegreya_sans_black)
-        bylineView = view.findViewById(R.id.byline)
-        bylineView.typeface = ResourcesCompat.getFont(requireContext(), R.font.alegreya_sans_medium)
-        attributionView = view.findViewById(R.id.attribution)
+        binding.title.typeface = ResourcesCompat.getFont(requireContext(), R.font.alegreya_sans_black)
+        binding.byline.typeface = ResourcesCompat.getFont(requireContext(), R.font.alegreya_sans_medium)
 
-        overflowMenu = view.findViewById(R.id.overflow_menu_view)
-        overflowMenu.overflowIcon = ContextCompat.getDrawable(requireContext(),
+        binding.overflowMenuView.overflowIcon = ContextCompat.getDrawable(requireContext(),
                 R.drawable.ic_overflow)
-        overflowMenu.setOnMenuItemClickListener { menuItem ->
+        binding.overflowMenuView.setOnMenuItemClickListener { menuItem ->
             val context = context ?: return@setOnMenuItemClickListener false
             val id = overflowSourceActionMap.get(menuItem.itemId)
             if (id > 0) {
@@ -238,27 +213,25 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             }
         }
 
-        nextButton = view.findViewById(R.id.next_button)
-        nextButton.setOnClickListener {
+        binding.nextButton.setOnClickListener {
             FirebaseAnalytics.getInstance(requireContext()).logEvent("next_artwork", bundleOf(
                     FirebaseAnalytics.Param.CONTENT_TYPE to "art_detail"))
             ProviderManager.getInstance(requireContext()).nextArtwork()
             showFakeLoading()
         }
-        TooltipCompat.setTooltipText(nextButton, nextButton.contentDescription)
+        TooltipCompat.setTooltipText(binding.nextButton, binding.nextButton.contentDescription)
 
         backgroundImageViewState = savedInstanceState?.getSerializable(
                 KEY_IMAGE_VIEW_STATE) as ImageViewState?
-        backgroundImageContainer = view.findViewById(R.id.background_image_container)
-        backgroundImageContainer.isVisible = showBackgroundImage
-        backgroundImageContainer.children.forEachIndexed { index, img ->
+        binding.backgroundImageContainer.isVisible = showBackgroundImage
+        binding.backgroundImageContainer.children.forEachIndexed { index, img ->
             val backgroundImage = img as SubsamplingScaleImageView
             backgroundImage.apply {
                 setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CENTER_CROP)
                 setOnImageEventListener(object : SubsamplingScaleImageView.DefaultOnImageEventListener() {
                     override fun onImageLoaded() {
                         // Only update the displayedChild when the image has finished loading
-                        backgroundImageContainer.displayedChild = index
+                        binding.backgroundImageContainer.displayedChild = index
                     }
                 })
                 setOnClickListener {
@@ -276,15 +249,14 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             }
         }
 
-        panScaleProxyView = view.findViewById(R.id.pan_scale_proxy)
-        panScaleProxyView.apply {
+        binding.panScaleProxy.apply {
             // Don't show the PanScaleProxyView when the background image is visible
             isVisible = !showBackgroundImage
             setMaxZoom(5)
             onViewportChanged = {
                 if (!guardViewportChangeListener) {
                     ArtDetailViewport.setViewport(
-                            currentViewportId, panScaleProxyView.currentViewport, true)
+                            currentViewportId, binding.panScaleProxy.currentViewport, true)
                 }
             }
             onSingleTapUp = {
@@ -303,14 +275,11 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             }
         }
 
-        loadingContainerView = view.findViewById(R.id.image_loading_container)
-        loadingIndicatorView = view.findViewById(R.id.image_loading_indicator)
-
         WallpaperSizeLiveData.observe(viewLifecycleOwner) { size ->
             wallpaperAspectRatio = if (size.height > 0) {
                 size.width * 1f / size.height
             } else {
-                panScaleProxyView.width * 1f / panScaleProxyView.height
+                binding.panScaleProxy.width * 1f / binding.panScaleProxy.height
             }
             resetProxyViewport()
         }
@@ -324,7 +293,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
 
         SwitchingPhotosLiveData.observe(viewLifecycleOwner) { switchingPhotos ->
             currentViewportId = switchingPhotos.viewportId
-            panScaleProxyView.panScaleEnabled = switchingPhotos is SwitchingPhotosDone
+            binding.panScaleProxy.panScaleEnabled = switchingPhotos is SwitchingPhotosDone
             // Process deferred artwork size change when done switching
             if (switchingPhotos is SwitchingPhotosDone && deferResetViewport) {
                 resetProxyViewport()
@@ -333,15 +302,15 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
 
         currentProviderLiveData.observe(viewLifecycleOwner) { provider ->
             val supportsNextArtwork = provider?.supportsNextArtwork == true
-            nextButton.isVisible = supportsNextArtwork
+            binding.nextButton.isVisible = supportsNextArtwork
         }
 
         currentArtworkLiveData.observe(viewLifecycleOwner) { currentArtwork ->
-            titleView.setTextOrGone(currentArtwork?.title)
-            bylineView.setTextOrGone(currentArtwork?.byline)
-            attributionView.setTextOrGone(currentArtwork?.attribution)
+            binding.title.setTextOrGone(currentArtwork?.title)
+            binding.byline.setTextOrGone(currentArtwork?.byline)
+            binding.attribution.setTextOrGone(currentArtwork?.attribution)
 
-            metadataView.setOnClickListener {
+            binding.metadata.setOnClickListener {
                 val context = requireContext()
                 lifecycleScope.launch {
                     FirebaseAnalytics.getInstance(context).logEvent("artwork_info_open", bundleOf(
@@ -350,14 +319,14 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
                 }
             }
 
-            if (backgroundImageContainer.isVisible) {
+            if (binding.backgroundImageContainer.isVisible) {
                 lifecycleScope.launch {
-                    val nextId = (backgroundImageContainer.displayedChild + 1) % 2
+                    val nextId = (binding.backgroundImageContainer.displayedChild + 1) % 2
                     val orientation = withContext(Dispatchers.IO) {
                         ContentUriImageLoader(requireContext().contentResolver,
                                 MuzeiContract.Artwork.CONTENT_URI).getRotation()
                     }
-                    val backgroundImage = backgroundImageContainer[nextId]
+                    val backgroundImage = binding.backgroundImageContainer[nextId]
                             as SubsamplingScaleImageView
                     backgroundImage.orientation = orientation
                     backgroundImage.setImage(ImageSource.uri(MuzeiContract.Artwork.CONTENT_URI),
@@ -383,14 +352,14 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
                 } ?: return@launch
                 val activity = activity ?: return@launch
                 overflowSourceActionMap.clear()
-                overflowMenu.menu.clear()
+                binding.overflowMenuView.menu.clear()
                 activity.menuInflater.inflate(R.menu.muzei_overflow,
-                        overflowMenu.menu)
-                overflowMenu.menu.findItem(R.id.action_always_dark)?.isChecked =
+                        binding.overflowMenuView.menu)
+                binding.overflowMenuView.menu.findItem(R.id.action_always_dark)?.isChecked =
                         MuzeiApplication.getAlwaysDark(activity)
                 commands.take(SOURCE_ACTION_IDS.size).forEachIndexed { i, action ->
                     overflowSourceActionMap.put(SOURCE_ACTION_IDS[i], action.id)
-                    val menuItem = overflowMenu.menu.add(0, SOURCE_ACTION_IDS[i],
+                    val menuItem = binding.overflowMenuView.menu.add(0, SOURCE_ACTION_IDS[i],
                             0, action.title)
                     if (action.id == LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK &&
                             currentProviderLiveData.value?.authority == LEGACY_AUTHORITY) {
@@ -408,7 +377,7 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
         super.onSaveInstanceState(outState)
         if (view != null) {
             val backgroundImage =
-                    backgroundImageContainer[backgroundImageContainer.displayedChild]
+                    binding.backgroundImageContainer[binding.backgroundImageContainer.displayedChild]
                     as SubsamplingScaleImageView
             outState.putSerializable(KEY_IMAGE_VIEW_STATE, backgroundImage.state)
         }
@@ -442,24 +411,24 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
     }
 
     private fun animateChromeVisibility(visible: Boolean) {
-        scrimView.visibility = View.VISIBLE
-        scrimView.animate()
+        binding.artDetailScrim.visibility = View.VISIBLE
+        binding.artDetailScrim.animate()
                 .alpha(if (visible) 1f else 0f)
                 .setDuration(200)
                 .withEndAction {
                     if (!visible) {
-                        scrimView.visibility = View.GONE
+                        binding.artDetailScrim.visibility = View.GONE
                     }
                 }
 
-        chromeContainerView.isVisible = true
-        chromeContainerView.animate()
+        binding.chromeContainer.isVisible = true
+        binding.chromeContainer.animate()
                 .alpha(if (visible) 1f else 0f)
                 .translationY(if (visible) 0f else metadataSlideDistance)
                 .setDuration(200)
                 .withEndAction {
                     if (!visible) {
-                        chromeContainerView.isGone = true
+                        binding.chromeContainer.isGone = true
                     }
                 }
     }
@@ -475,20 +444,20 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             return
         }
 
-        panScaleProxyView.relativeAspectRatio = artworkAspectRatio / wallpaperAspectRatio
+        binding.panScaleProxy.relativeAspectRatio = artworkAspectRatio / wallpaperAspectRatio
     }
 
     override fun invoke(isFromUser: Boolean) {
         if (!isFromUser) {
             guardViewportChangeListener = true
-            panScaleProxyView.setViewport(ArtDetailViewport.getViewport(currentViewportId))
+            binding.panScaleProxy.setViewport(ArtDetailViewport.getViewport(currentViewportId))
             guardViewportChangeListener = false
         }
     }
 
     override fun onStop() {
         super.onStop()
-        overflowMenu.hideOverflowMenu()
+        binding.overflowMenuView.hideOverflowMenu()
         ArtDetailOpenLiveData.value = false
     }
 
@@ -515,20 +484,20 @@ class ArtDetailFragment : Fragment(), (Boolean) -> Unit {
             if (showFakeLoading) {
                 this.showLoadingSpinner = lifecycleScope.launch(Dispatchers.Main) {
                     delay(700)
-                    loadingIndicatorView.start()
-                    loadingContainerView.isVisible = true
-                    loadingContainerView.animate()
+                    binding.imageLoadingIndicator.start()
+                    binding.imageLoadingContainer.isVisible = true
+                    binding.imageLoadingContainer.animate()
                             .alpha(1f)
                             .setDuration(300)
                             .withEndAction(null)
                 }
             } else {
-                loadingContainerView.animate()
+                binding.imageLoadingContainer.animate()
                         .alpha(0f)
                         .setDuration(1000)
                         .withEndAction {
-                            loadingContainerView.isGone = true
-                            loadingIndicatorView.stop()
+                            binding.imageLoadingContainer.isGone = true
+                            binding.imageLoadingIndicator.stop()
                         }
             }
         }
