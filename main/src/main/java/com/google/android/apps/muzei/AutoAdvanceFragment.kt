@@ -25,9 +25,6 @@ import android.text.style.UnderlineSpan
 import android.util.SparseIntArray
 import android.util.SparseLongArray
 import android.view.View
-import android.widget.CheckBox
-import android.widget.RadioGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.core.text.set
@@ -37,6 +34,7 @@ import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.databinding.AutoAdvanceFragmentBinding
 
 class AutoAdvanceFragment : Fragment(R.layout.auto_advance_fragment) {
     companion object {
@@ -65,10 +63,10 @@ class AutoAdvanceFragment : Fragment(R.layout.auto_advance_fragment) {
 
     @SuppressLint("InlinedApi")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val binding = AutoAdvanceFragmentBinding.bind(view)
         val providerManager = ProviderManager.getInstance(requireContext())
-        val autoAdvanceWifi: CheckBox = view.findViewById(R.id.auto_advance_wifi)
-        autoAdvanceWifi.isChecked = providerManager.loadOnWifi
-        autoAdvanceWifi.setOnCheckedChangeListener { _, isChecked ->
+        binding.autoAdvanceWifi.isChecked = providerManager.loadOnWifi
+        binding.autoAdvanceWifi.setOnCheckedChangeListener { _, isChecked ->
             FirebaseAnalytics.getInstance(requireContext()).logEvent(
                     "auto_advance_load_on_wifi", bundleOf(
                     FirebaseAnalytics.Param.VALUE to isChecked.toString()))
@@ -76,23 +74,21 @@ class AutoAdvanceFragment : Fragment(R.layout.auto_advance_fragment) {
         }
 
         val currentInterval = providerManager.loadFrequencySeconds
-        val intervalRadioGroup: RadioGroup = view.findViewById(R.id.auto_advance_interval)
 
-        intervalRadioGroup.check(INTERVAL_RADIO_BUTTON_IDS_BY_TIME[currentInterval.toInt()])
-        intervalRadioGroup.setOnCheckedChangeListener { _, id ->
+        binding.autoAdvanceInterval.check(INTERVAL_RADIO_BUTTON_IDS_BY_TIME[currentInterval.toInt()])
+        binding.autoAdvanceInterval.setOnCheckedChangeListener { _, id ->
             FirebaseAnalytics.getInstance(requireContext()).logEvent(
                     "auto_advance_load_frequency", bundleOf(
                     FirebaseAnalytics.Param.VALUE to INTERVAL_TIME_BY_RADIO_BUTTON_ID[id]))
             providerManager.loadFrequencySeconds = INTERVAL_TIME_BY_RADIO_BUTTON_ID[id]
         }
 
-        val tasker: TextView = view.findViewById(R.id.auto_advance_tasker)
-        val text = tasker.text.toSpannable()
+        val text = binding.autoAdvanceTasker.text.toSpannable()
         val taskerIndex = text.indexOf("Tasker")
         text[taskerIndex, taskerIndex + 6] = UnderlineSpan()
-        tasker.text = text
+        binding.autoAdvanceTasker.text = text
         val context = requireContext()
-        tasker.setOnClickListener {
+        binding.autoAdvanceTasker.setOnClickListener {
             try {
                 val pm = context.packageManager
                 context.startActivity(
