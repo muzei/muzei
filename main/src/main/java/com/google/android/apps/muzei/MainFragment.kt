@@ -29,9 +29,9 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.apps.muzei.browse.BrowseProviderFragment
 import com.google.android.apps.muzei.settings.EffectsFragment
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.databinding.MainFragmentBinding
 
 /**
  * Fragment which controls the main view of the Muzei app and handles the bottom navigation
@@ -42,11 +42,11 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
     private val darkStatusBarColor by lazy {
         ContextCompat.getColor(requireContext(), R.color.theme_primary_dark)
     }
-    private lateinit var bottomNavigationView: BottomNavigationView
+    private lateinit var binding: MainFragmentBinding
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         // Set up the container for the child fragments
-        val container = view.findViewById<View>(R.id.container)
+        binding = MainFragmentBinding.bind(view)
         val navHostFragment = childFragmentManager.findFragmentById(R.id.container) as NavHostFragment
         val navController = navHostFragment.navController
         val navGraph = navController.navInflater.inflate(R.navigation.main_navigation)
@@ -58,8 +58,7 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
         navController.graph = navGraph
 
         // Set up the bottom nav
-        bottomNavigationView = view.findViewById(R.id.bottom_nav)
-        bottomNavigationView.setupWithNavController(navController)
+        binding.bottomNav.setupWithNavController(navController)
         // Set up an OnDestinationChangedListener for the status bar color
         navController.addOnDestinationChangedListener { _, _, args ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -96,7 +95,7 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
                 }
             }
         }
-        bottomNavigationView.setOnNavigationItemReselectedListener { item ->
+        binding.bottomNav.setOnNavigationItemReselectedListener { item ->
             if (item.itemId == R.id.main_art_details) {
                 activity?.window?.decorView?.systemUiVisibility = (View.SYSTEM_UI_FLAG_LOW_PROFILE
                         or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
@@ -111,13 +110,13 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
         // Send the correct window insets to each view
         ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
             // Ensure the container gets the appropriate insets
-            ViewCompat.dispatchApplyWindowInsets(container,
+            ViewCompat.dispatchApplyWindowInsets(binding.container,
                     WindowInsetsCompat.Builder(insets).setSystemWindowInsets(Insets.of(
                             insets.systemWindowInsetLeft,
                             insets.systemWindowInsetTop,
                             insets.systemWindowInsetRight,
                             0)).build())
-            ViewCompat.dispatchApplyWindowInsets(bottomNavigationView,
+            ViewCompat.dispatchApplyWindowInsets(binding.bottomNav,
                     WindowInsetsCompat.Builder(insets).setSystemWindowInsets(Insets.of(
                             insets.systemWindowInsetLeft,
                             0,
@@ -130,13 +129,13 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
         view.setOnSystemUiVisibilityChangeListener { vis ->
             val visible = vis and View.SYSTEM_UI_FLAG_LOW_PROFILE == 0
 
-            bottomNavigationView.visibility = View.VISIBLE
-            bottomNavigationView.animate()
+            binding.bottomNav.visibility = View.VISIBLE
+            binding.bottomNav.animate()
                     .alpha(if (visible) 1f else 0f)
                     .setDuration(200)
                     .withEndAction {
                         if (!visible) {
-                            bottomNavigationView.visibility = View.GONE
+                            binding.bottomNav.visibility = View.GONE
                         }
                         updateNavigationBarColor()
                     }
@@ -164,6 +163,6 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
     }
 
     override fun onRequestCloseActivity() {
-        bottomNavigationView.selectedItemId = R.id.main_art_details
+        binding.bottomNav.selectedItemId = R.id.main_art_details
     }
 }

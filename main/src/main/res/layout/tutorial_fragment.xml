@@ -20,5 +20,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <include layout="@layout/tutorial_content"/>
+    <include
+        layout="@layout/tutorial_content"
+        android:id="@+id/content"/>
 </FrameLayout>

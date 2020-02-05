@@ -24,7 +24,6 @@ import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
 import android.view.animation.OvershootInterpolator
-import android.widget.ImageView
 import androidx.core.animation.doOnEnd
 import androidx.core.content.edit
 import androidx.core.content.res.ResourcesCompat
@@ -32,6 +31,7 @@ import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.databinding.TutorialFragmentBinding
 
 class TutorialFragment : Fragment(R.layout.tutorial_fragment) {
 
@@ -42,7 +42,8 @@ class TutorialFragment : Fragment(R.layout.tutorial_fragment) {
     private val runningAnimators = mutableListOf<AnimatorSet>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        view.findViewById<View>(R.id.tutorial_icon_affordance).setOnClickListener {
+        val binding = TutorialFragmentBinding.bind(view).content
+        binding.tutorialIconAffordance.setOnClickListener {
             FirebaseAnalytics.getInstance(requireContext())
                     .logEvent(FirebaseAnalytics.Event.TUTORIAL_COMPLETE, null)
             PreferenceManager.getDefaultSharedPreferences(context).edit {
@@ -53,19 +54,19 @@ class TutorialFragment : Fragment(R.layout.tutorial_fragment) {
         if (savedInstanceState == null) {
             val animateDistance = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100f,
                     resources.displayMetrics)
-            val mainTextView = view.findViewById<View>(R.id.tutorial_main_text).apply {
+            val mainTextView = binding.tutorialMainText.apply {
                 alpha = 0f
                 translationY = -animateDistance / 5
             }
-            val subTextView = view.findViewById<View>(R.id.tutorial_sub_text).apply {
+            val subTextView = binding.tutorialSubText.apply {
                 alpha = 0f
                 translationY = -animateDistance / 5
             }
-            val affordanceView = view.findViewById<View>(R.id.tutorial_icon_affordance).apply {
+            val affordanceView = binding.tutorialIconAffordance.apply {
                 alpha = 0f
                 translationY = animateDistance
             }
-            val iconTextView = view.findViewById<View>(R.id.tutorial_icon_text).apply {
+            val iconTextView = binding.tutorialIconText.apply {
                 alpha = 0f
                 translationY = animateDistance
             }
@@ -97,11 +98,10 @@ class TutorialFragment : Fragment(R.layout.tutorial_fragment) {
                         a1, a2, a3, a4)
                 doOnEnd {
                     if (isAdded && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        val emanateView = view.findViewById<ImageView>(R.id.tutorial_icon_emanate)
                         val avd = ResourcesCompat.getDrawable(resources,
                                 R.drawable.avd_tutorial_icon_emanate,
                                 context?.theme) as AnimatedVectorDrawable
-                        emanateView.setImageDrawable(avd)
+                        binding.tutorialIconEmanate.setImageDrawable(avd)
                         avd.start()
                     }
                     runningAnimators.remove(this)
@@ -109,11 +109,10 @@ class TutorialFragment : Fragment(R.layout.tutorial_fragment) {
                 start()
             })
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val emanateView = view.findViewById<ImageView>(R.id.tutorial_icon_emanate)
             val avd = ResourcesCompat.getDrawable(resources,
                     R.drawable.avd_tutorial_icon_emanate,
                     context?.theme) as AnimatedVectorDrawable
-            emanateView.setImageDrawable(avd)
+            binding.tutorialIconEmanate.setImageDrawable(avd)
             avd.start()
         }
     }

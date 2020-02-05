@@ -21,6 +21,7 @@
 
     <include
         layout="@layout/tutorial_content"
+        android:id="@+id/content"
         android:layout_width="360dp"
         android:layout_height="300dp"
         android:layout_gravity="center"/>
