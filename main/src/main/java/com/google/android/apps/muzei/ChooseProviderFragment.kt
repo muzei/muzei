@@ -27,12 +27,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.widget.Toolbar
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
 import androidx.core.view.isGone
@@ -63,6 +58,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig.LEGACY_AUTHORITY
 import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.databinding.ChooseProviderFragmentBinding
+import net.nurik.roman.muzei.databinding.ChooseProviderItemBinding
 
 class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
     companion object {
@@ -82,11 +79,6 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                 .currentProvider
     }
     private val viewModel: ChooseProviderViewModel by viewModels()
-    private val adapter = ProviderListAdapter()
-
-    private lateinit var layout: CoordinatorLayout
-    private lateinit var toolbar: Toolbar
-    private lateinit var drawerLayout: DrawerLayout
 
     private var startActivityProvider: String? = null
 
@@ -96,20 +88,19 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        layout = view.findViewById(R.id.provider_layout)
-        toolbar = view.findViewById(R.id.toolbar)
+        val binding = ChooseProviderFragmentBinding.bind(view)
         requireActivity().menuInflater.inflate(R.menu.choose_provider_fragment,
-                toolbar.menu)
+                binding.toolbar.menu)
         val context = requireContext()
-        toolbar.setOnMenuItemClickListener { item ->
+        binding.toolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.auto_advance_settings -> {
-                    if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
-                        drawerLayout.closeDrawer(GravityCompat.END)
+                    if (binding.chooseProviderDrawer.isDrawerOpen(GravityCompat.END)) {
+                        binding.chooseProviderDrawer.closeDrawer(GravityCompat.END)
                     } else {
                         FirebaseAnalytics.getInstance(context).logEvent(
                                 "auto_advance_open", null)
-                        drawerLayout.openDrawer(GravityCompat.END)
+                        binding.chooseProviderDrawer.openDrawer(GravityCompat.END)
                     }
                     true
                 }
@@ -132,25 +123,23 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
             }
         }
 
-        drawerLayout = view.findViewById(R.id.choose_provider_drawer)
-        drawerLayout.setStatusBarBackgroundColor(Color.TRANSPARENT)
-        drawerLayout.setScrimColor(Color.argb(68, 0, 0, 0))
+        binding.chooseProviderDrawer.setStatusBarBackgroundColor(Color.TRANSPARENT)
+        binding.chooseProviderDrawer.setScrimColor(Color.argb(68, 0, 0, 0))
         currentProviderLiveData.observe(viewLifecycleOwner) { provider ->
             val legacySelected = provider?.authority == LEGACY_AUTHORITY
-            toolbar.menu.findItem(R.id.auto_advance_settings).isVisible = !legacySelected
-            toolbar.menu.findItem(R.id.auto_advance_disabled).isVisible = legacySelected
+            binding.toolbar.menu.findItem(R.id.auto_advance_settings).isVisible = !legacySelected
+            binding.toolbar.menu.findItem(R.id.auto_advance_disabled).isVisible = legacySelected
             if (legacySelected) {
-                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
+                binding.chooseProviderDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
                         GravityCompat.END)
             } else {
-                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED,
+                binding.chooseProviderDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED,
                         GravityCompat.END)
             }
         }
 
-        val providerList = view.findViewById<RecyclerView>(R.id.provider_list)
         val spacing = resources.getDimensionPixelSize(R.dimen.provider_padding)
-        providerList.addItemDecoration(object : RecyclerView.ItemDecoration() {
+        binding.providerList.addItemDecoration(object : RecyclerView.ItemDecoration() {
             override fun getItemOffsets(
                     outRect: Rect,
                     view: View,
@@ -160,7 +149,8 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                 outRect.set(spacing, spacing, spacing, spacing)
             }
         })
-        providerList.adapter = adapter
+        val adapter = ProviderListAdapter()
+        binding.providerList.adapter = adapter
         viewModel.providers.observe(viewLifecycleOwner) {
             adapter.submitList(it)
         }
@@ -170,7 +160,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                 .distinctUntilChanged().observe(viewLifecycleOwner) { count ->
             if (count > 0) {
                 snackBar = Snackbar.make(
-                        layout,
+                        binding.providerLayout,
                         resources.getQuantityString(R.plurals.legacy_unsupported_text, count, count),
                         Snackbar.LENGTH_INDEFINITE
                 ).apply {
@@ -178,7 +168,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                         override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
                             if (isAdded && event != DISMISS_EVENT_CONSECUTIVE) {
                                 // Reset the padding now that the SnackBar is dismissed
-                                providerList.updatePadding(bottom = resources.getDimensionPixelSize(
+                                binding.providerList.updatePadding(bottom = resources.getDimensionPixelSize(
                                         R.dimen.provider_padding))
                             }
                         }
@@ -189,7 +179,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                     show()
                     // Increase the padding when the SnackBar is shown to avoid
                     // overlapping the last element
-                    providerList.updatePadding(bottom = resources.getDimensionPixelSize(
+                    binding.providerList.updatePadding(bottom = resources.getDimensionPixelSize(
                             R.dimen.provider_padding_with_snackbar))
                 }
             } else {
@@ -259,14 +249,9 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
         }
     }
 
-    inner class ProviderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val providerIcon: ImageView = itemView.findViewById(R.id.provider_icon)
-        private val providerTitle: TextView = itemView.findViewById(R.id.provider_title)
-        private val providerSelected: ImageView = itemView.findViewById(R.id.provider_selected)
-        private val providerArtwork: ImageView = itemView.findViewById(R.id.provider_artwork)
-        private val providerDescription: TextView = itemView.findViewById(R.id.provider_description)
-        private val providerSettings: Button = itemView.findViewById(R.id.provider_settings)
-        private val providerBrowse: Button = itemView.findViewById(R.id.provider_browse)
+    inner class ProviderViewHolder(
+            private val binding: ChooseProviderItemBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
 
         private var isSelected = false
 
@@ -340,14 +325,14 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
             setImage(providerInfo)
 
             setSelected(providerInfo)
-            providerSettings.setOnClickListener {
+            binding.providerSettings.setOnClickListener {
                 FirebaseAnalytics.getInstance(requireContext()).logEvent(
                         "provider_settings_open", bundleOf(
                         FirebaseAnalytics.Param.ITEM_ID to authority,
                         FirebaseAnalytics.Param.ITEM_NAME to title))
                 launchProviderSettings(this)
             }
-            providerBrowse.setOnClickListener {
+            binding.providerBrowse.setOnClickListener {
                 FirebaseAnalytics.getInstance(requireContext()).logEvent(
                         "provider_browse_open", bundleOf(
                         FirebaseAnalytics.Param.ITEM_ID to authority,
@@ -359,23 +344,23 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
         }
 
         fun setHeader(providerInfo: ProviderInfo) = providerInfo.run {
-            providerIcon.setImageDrawable(icon)
-            providerTitle.text = title
+            binding.providerIcon.setImageDrawable(icon)
+            binding.providerTitle.text = title
         }
 
         fun setDescription(providerInfo: ProviderInfo) = providerInfo.run {
-            providerDescription.text = description
-            providerDescription.isGone = description.isNullOrEmpty()
+            binding.providerDescription.text = description
+            binding.providerDescription.isGone = description.isNullOrEmpty()
         }
 
         fun setImage(providerInfo: ProviderInfo) = providerInfo.run {
-            providerArtwork.isVisible = currentArtworkUri != null
+            binding.providerArtwork.isVisible = currentArtworkUri != null
             if (currentArtworkUri != null) {
-                providerArtwork.load(currentArtworkUri) {
+                binding.providerArtwork.load(currentArtworkUri) {
                     lifecycle(viewLifecycleOwner)
                     listener(
-                            onError = { _, _ -> providerArtwork.isVisible = false },
-                            onSuccess = { _, _ -> providerArtwork.isVisible = true }
+                            onError = { _, _ -> binding.providerArtwork.isVisible = false },
+                            onSuccess = { _, _ -> binding.providerArtwork.isVisible = true }
                     )
                 }
             }
@@ -383,9 +368,9 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
 
         fun setSelected(providerInfo: ProviderInfo) = providerInfo.run {
             isSelected = selected
-            providerSelected.isInvisible = !selected
-            providerSettings.isVisible = selected && settingsActivity != null
-            providerBrowse.isVisible = selected
+            binding.providerSelected.isInvisible = !selected
+            binding.providerSettings.isVisible = selected && settingsActivity != null
+            binding.providerBrowse.isVisible = selected
         }
     }
 
@@ -424,8 +409,8 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
             }
     ) {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-                ProviderViewHolder(layoutInflater.inflate(
-                        R.layout.choose_provider_item, parent, false))
+                ProviderViewHolder(ChooseProviderItemBinding.inflate(layoutInflater,
+                        parent, false))
 
         override fun onBindViewHolder(holder: ProviderViewHolder, position: Int) {
             holder.bind(getItem(position))
