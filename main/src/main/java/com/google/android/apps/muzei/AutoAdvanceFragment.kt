@@ -45,14 +45,14 @@ class AutoAdvanceFragment : Fragment(R.layout.auto_advance_fragment) {
 
         init {
             INTERVAL_RADIO_BUTTON_IDS_BY_TIME.apply {
-                put(60 * 15, R.id.auto_advance_interval_15m)
-                put(60 * 30, R.id.auto_advance_interval_30m)
-                put(60 * 60, R.id.auto_advance_interval_1h)
-                put(60 * 60 * 3, R.id.auto_advance_interval_3h)
-                put(60 * 60 * 6, R.id.auto_advance_interval_6h)
-                put(60 * 60 * 24, R.id.auto_advance_interval_24h)
-                put(60 * 60 * 72, R.id.auto_advance_interval_72h)
-                put(0, R.id.auto_advance_interval_never)
+                put(60 * 15, R.id.interval_15m)
+                put(60 * 30, R.id.interval_30m)
+                put(60 * 60, R.id.interval_1h)
+                put(60 * 60 * 3, R.id.interval_3h)
+                put(60 * 60 * 6, R.id.interval_6h)
+                put(60 * 60 * 24, R.id.interval_24h)
+                put(60 * 60 * 72, R.id.interval_72h)
+                put(0, R.id.interval_never)
             }
             for (i in 0 until INTERVAL_RADIO_BUTTON_IDS_BY_TIME.size()) {
                 INTERVAL_TIME_BY_RADIO_BUTTON_ID.put(INTERVAL_RADIO_BUTTON_IDS_BY_TIME.valueAt(i),
@@ -65,8 +65,8 @@ class AutoAdvanceFragment : Fragment(R.layout.auto_advance_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = AutoAdvanceFragmentBinding.bind(view)
         val providerManager = ProviderManager.getInstance(requireContext())
-        binding.autoAdvanceWifi.isChecked = providerManager.loadOnWifi
-        binding.autoAdvanceWifi.setOnCheckedChangeListener { _, isChecked ->
+        binding.useWifi.isChecked = providerManager.loadOnWifi
+        binding.useWifi.setOnCheckedChangeListener { _, isChecked ->
             FirebaseAnalytics.getInstance(requireContext()).logEvent(
                     "auto_advance_load_on_wifi", bundleOf(
                     FirebaseAnalytics.Param.VALUE to isChecked.toString()))
@@ -75,20 +75,20 @@ class AutoAdvanceFragment : Fragment(R.layout.auto_advance_fragment) {
 
         val currentInterval = providerManager.loadFrequencySeconds
 
-        binding.autoAdvanceInterval.check(INTERVAL_RADIO_BUTTON_IDS_BY_TIME[currentInterval.toInt()])
-        binding.autoAdvanceInterval.setOnCheckedChangeListener { _, id ->
+        binding.intervalGroup.check(INTERVAL_RADIO_BUTTON_IDS_BY_TIME[currentInterval.toInt()])
+        binding.intervalGroup.setOnCheckedChangeListener { _, id ->
             FirebaseAnalytics.getInstance(requireContext()).logEvent(
                     "auto_advance_load_frequency", bundleOf(
                     FirebaseAnalytics.Param.VALUE to INTERVAL_TIME_BY_RADIO_BUTTON_ID[id]))
             providerManager.loadFrequencySeconds = INTERVAL_TIME_BY_RADIO_BUTTON_ID[id]
         }
 
-        val text = binding.autoAdvanceTasker.text.toSpannable()
+        val text = binding.tasker.text.toSpannable()
         val taskerIndex = text.indexOf("Tasker")
         text[taskerIndex, taskerIndex + 6] = UnderlineSpan()
-        binding.autoAdvanceTasker.text = text
+        binding.tasker.text = text
         val context = requireContext()
-        binding.autoAdvanceTasker.setOnClickListener {
+        binding.tasker.setOnClickListener {
             try {
                 val pm = context.packageManager
                 context.startActivity(

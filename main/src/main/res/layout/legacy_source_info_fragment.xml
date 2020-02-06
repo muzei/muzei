@@ -34,7 +34,7 @@
             android:orientation="vertical"
             android:fitsSystemWindows="true">
             <androidx.appcompat.widget.Toolbar
-                android:id="@+id/legacy_source_info_toolbar"
+                android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
                 app:navigationIcon="?attr/homeAsUpIndicator"
@@ -48,7 +48,7 @@
                 android:paddingTop="@dimen/legacy_source_info_padding"
                 android:text="@string/legacy_source_info_subtitle"/>
             <Button
-                android:id="@+id/legacy_source_info_learn_more"
+                android:id="@+id/learn_more"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -60,7 +60,7 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/legacy_source_info_list"
+        android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"

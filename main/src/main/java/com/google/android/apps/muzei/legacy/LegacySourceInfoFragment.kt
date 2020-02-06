@@ -40,22 +40,22 @@ class LegacySourceInfoFragment : Fragment(R.layout.legacy_source_info_fragment) 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = LegacySourceInfoFragmentBinding.bind(view)
-        binding.legacySourceInfoToolbar.setNavigationOnClickListener {
+        binding.toolbar.setNavigationOnClickListener {
             findNavController().popBackStack()
         }
-        if (binding.legacySourceInfoLearnMore != null) {
-            binding.legacySourceInfoLearnMore.setOnClickListener {
+        if (binding.learnMore != null) {
+            binding.learnMore.setOnClickListener {
                 startActivity(Intent(Intent.ACTION_VIEW, LegacySourceManager.LEARN_MORE_LINK))
             }
         } else {
-            binding.legacySourceInfoToolbar.inflateMenu(R.menu.legacy_source_info_fragment)
-            binding.legacySourceInfoToolbar.setOnMenuItemClickListener {
+            binding.toolbar.inflateMenu(R.menu.legacy_source_info_fragment)
+            binding.toolbar.setOnMenuItemClickListener {
                 startActivity(Intent(Intent.ACTION_VIEW, LegacySourceManager.LEARN_MORE_LINK))
                 true
             }
         }
         val adapter = LegacySourceListAdapter()
-        binding.legacySourceInfoList.adapter = adapter
+        binding.list.adapter = adapter
         LegacySourceManager.getInstance(requireContext()).unsupportedSources.observe(viewLifecycleOwner) {
             if (it.isEmpty()) {
                 requireContext().toast(R.string.legacy_source_all_uninstalled)
@@ -71,9 +71,9 @@ class LegacySourceInfoFragment : Fragment(R.layout.legacy_source_info_fragment) 
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(legacySourceInfo: LegacySourceInfo) = legacySourceInfo.run {
-            binding.legacySourceInfoIcon.setImageBitmap(icon)
-            binding.legacySourceInfoTitle.text = title
-            binding.legacySourceInfoAppInfo.setOnClickListener {
+            binding.icon.setImageBitmap(icon)
+            binding.title.text = title
+            binding.appInfo.setOnClickListener {
                 FirebaseAnalytics.getInstance(requireContext()).logEvent(
                         "legacy_source_info_app_info_open", bundleOf(
                         FirebaseAnalytics.Param.ITEM_ID to packageName,
@@ -84,9 +84,9 @@ class LegacySourceInfoFragment : Fragment(R.layout.legacy_source_info_fragment) 
             }
             val intent = Intent(Intent.ACTION_VIEW,
                     "https://play.google.com/store/apps/details?id=$packageName".toUri())
-            binding.legacySourceInfoSendFeedback.isVisible =
+            binding.sendFeedback.isVisible =
                     intent.resolveActivity(requireContext().packageManager) != null
-            binding.legacySourceInfoSendFeedback.setOnClickListener {
+            binding.sendFeedback.setOnClickListener {
                 FirebaseAnalytics.getInstance(requireContext()).logEvent(
                         "legacy_source_info_send_feedback_open", bundleOf(
                         FirebaseAnalytics.Param.ITEM_ID to packageName,

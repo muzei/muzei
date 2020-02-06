@@ -33,7 +33,7 @@
         android:background="@android:color/transparent">
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/app_bar"
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
             app:contentInsetStart="@dimen/keyline_2"
@@ -46,7 +46,7 @@
 
             <include
                 layout="@layout/about_include_content"
-                android:id="@+id/include_content"
+                android:id="@+id/content"
                 android:layout_width="600dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"/>

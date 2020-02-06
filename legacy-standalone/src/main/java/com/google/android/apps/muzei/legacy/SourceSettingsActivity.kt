@@ -291,7 +291,7 @@ class SourceSettingsActivity : AppCompatActivity() {
             val view = super.getView(position, convertView, parent)
             val sourceView = getItem(position) ?: return view
             return LegacyChooseSourceItemBinding.bind(view).run {
-                legacyTitle.text = sourceView.toCharSequence()
+                title.text = sourceView.toCharSequence()
                 root.alpha = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
                         sourceView.source.targetSdkVersion >= Build.VERSION_CODES.O) {
                     ALPHA_DISABLED
@@ -301,14 +301,14 @@ class SourceSettingsActivity : AppCompatActivity() {
                 if (sourceView.source.selected) {
                     selectedSourceImage.colorFilter = PorterDuffColorFilter(sourceView.source.color,
                             PorterDuff.Mode.SRC_ATOP)
-                    legacyTitle.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    title.setCompoundDrawablesRelativeWithIntrinsicBounds(
                             selectedSourceImage,null, null, null)
 
                 } else {
-                    legacyTitle.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    title.setCompoundDrawablesRelativeWithIntrinsicBounds(
                             sourceView.icon,null, null, null)
                 }
-                legacySettings.apply {
+                settings.apply {
                     val show = sourceView.source.selected &&
                             sourceView.source.settingsActivity != null
                     val wasVisible = isVisible

@@ -29,13 +29,13 @@
         android:layout_marginTop="@dimen/tutorial_content_margin">
 
         <ImageView
-            android:id="@+id/tutorial_icon_emanate"
+            android:id="@+id/icon_emanate"
             android:layout_width="144dp"
             android:layout_height="144dp"
             android:layout_centerInParent="true"/>
 
         <FrameLayout
-            android:id="@+id/tutorial_icon_affordance"
+            android:id="@+id/icon_affordance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
@@ -57,11 +57,11 @@
         </FrameLayout>
 
         <com.google.android.apps.muzei.util.ShadowDipsTextView
-            android:id="@+id/tutorial_icon_text"
+            android:id="@+id/icon_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="-8dp"
-            android:layout_below="@id/tutorial_icon_affordance"
+            android:layout_below="@id/icon_affordance"
             android:layout_centerHorizontal="true"
             android:paddingTop="4dp"
             android:paddingBottom="16dp"
@@ -77,7 +77,7 @@
     </RelativeLayout>
 
     <com.google.android.apps.muzei.util.ShadowDipsTextView
-        android:id="@+id/tutorial_main_text"
+        android:id="@+id/main_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="4dp"
@@ -94,7 +94,7 @@
         android:text="@string/tutorial_main"/>
 
     <com.google.android.apps.muzei.util.ShadowDipsTextView
-        android:id="@+id/tutorial_sub_text"
+        android:id="@+id/sub_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-condensed"

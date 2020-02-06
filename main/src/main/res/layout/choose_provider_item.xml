@@ -13,7 +13,7 @@
         android:layout_height="wrap_content">
 
         <ImageView
-            android:id="@+id/provider_icon"
+            android:id="@+id/icon"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginBottom="16dp"
@@ -21,8 +21,8 @@
             android:layout_marginTop="16dp"
             android:importantForAccessibility="no"
             android:scaleType="centerCrop"
-            app:layout_constraintBottom_toTopOf="@+id/provider_artwork"
-            app:layout_constraintEnd_toStartOf="@+id/provider_title"
+            app:layout_constraintBottom_toTopOf="@+id/artwork"
+            app:layout_constraintEnd_toStartOf="@+id/title"
             app:layout_constraintHorizontal_chainStyle="spread_inside"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -30,50 +30,50 @@
             app:srcCompat="@mipmap/ic_launcher" />
 
         <TextView
-            android:id="@+id/provider_title"
+            android:id="@+id/title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:layout_marginStart="8dp"
             android:lines="1"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-            app:layout_constraintBottom_toBottomOf="@+id/provider_icon"
-            app:layout_constraintEnd_toStartOf="@+id/provider_selected"
-            app:layout_constraintStart_toEndOf="@+id/provider_icon"
-            app:layout_constraintTop_toTopOf="@+id/provider_icon"
+            app:layout_constraintBottom_toBottomOf="@+id/icon"
+            app:layout_constraintEnd_toStartOf="@+id/selected"
+            app:layout_constraintStart_toEndOf="@+id/icon"
+            app:layout_constraintTop_toTopOf="@+id/icon"
             tools:text="Label" />
 
         <ImageView
-            android:id="@+id/provider_selected"
+            android:id="@+id/selected"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginBottom="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginTop="16dp"
-            app:layout_constraintBottom_toTopOf="@+id/provider_artwork"
+            app:layout_constraintBottom_toTopOf="@+id/artwork"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/provider_title"
+            app:layout_constraintStart_toEndOf="@+id/title"
             app:layout_constraintTop_toTopOf="parent"
             android:src="@drawable/ic_source_selected"
             android:tint="?attr/colorOnSurface"
             android:visibility="invisible"/>
 
         <ImageView
-            android:id="@+id/provider_artwork"
+            android:id="@+id/artwork"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:cropToPadding="false"
             android:scaleType="centerCrop"
             android:adjustViewBounds="true"
-            app:layout_constraintBottom_toTopOf="@+id/provider_description"
+            app:layout_constraintBottom_toTopOf="@+id/description"
             app:layout_constraintDimensionRatio="h,16:9"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/provider_icon"
+            app:layout_constraintTop_toBottomOf="@+id/icon"
             app:srcCompat="@mipmap/ic_launcher" />
 
         <TextView
-            android:id="@+id/provider_description"
+            android:id="@+id/description"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
@@ -81,21 +81,21 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-            app:layout_constraintBottom_toTopOf="@+id/provider_button_bar"
+            app:layout_constraintBottom_toTopOf="@+id/button_bar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/provider_artwork"
+            app:layout_constraintTop_toBottomOf="@+id/artwork"
             tools:text="Description" />
 
         <androidx.constraintlayout.widget.Barrier
-            android:id="@+id/provider_button_bar"
+            android:id="@+id/button_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="top"
-            app:constraint_referenced_ids="provider_settings,provider_browse" />
+            app:constraint_referenced_ids="settings,browse" />
 
         <Button
-            android:id="@+id/provider_settings"
+            android:id="@+id/settings"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -103,14 +103,14 @@
             android:text="@string/provider_settings"
             android:textColor="?android:attr/textColorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/provider_browse"
+            app:layout_constraintEnd_toStartOf="@+id/browse"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/provider_button_bar" />
+            app:layout_constraintTop_toBottomOf="@+id/button_bar" />
 
         <Button
-            android:id="@+id/provider_browse"
+            android:id="@+id/browse"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -122,8 +122,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/provider_settings"
-            app:layout_constraintTop_toBottomOf="@+id/provider_button_bar" />
+            app:layout_constraintStart_toEndOf="@+id/settings"
+            app:layout_constraintTop_toBottomOf="@+id/button_bar" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

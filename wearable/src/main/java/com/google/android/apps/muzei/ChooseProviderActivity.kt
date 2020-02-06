@@ -61,9 +61,9 @@ class ChooseProviderActivity : FragmentActivity() {
         startActivityProvider = savedInstanceState?.getString(START_ACTIVITY_PROVIDER)
         binding = ChooseProviderActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.providerList.isEdgeItemsCenteringEnabled = true
-        binding.providerList.layoutManager = WearableLinearLayoutManager(this)
-        binding.providerList.adapter = adapter
+        binding.list.isEdgeItemsCenteringEnabled = true
+        binding.list.layoutManager = WearableLinearLayoutManager(this)
+        binding.list.adapter = adapter
 
         viewModel.providers.observe(this) { providers ->
             adapter.submitList(providers)

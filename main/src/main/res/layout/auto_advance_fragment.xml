@@ -40,7 +40,7 @@
             android:text="@string/auto_advance_description"/>
 
         <CheckBox
-            android:id="@+id/auto_advance_wifi"
+            android:id="@+id/use_wifi"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="16dp"
@@ -54,61 +54,61 @@
             android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"/>
 
         <RadioGroup
-            android:id="@+id/auto_advance_interval"
+            android:id="@+id/interval_group"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <RadioButton
-                android:id="@+id/auto_advance_interval_15m"
+                android:id="@+id/interval_15m"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/auto_advance_interval_15m"/>
 
             <RadioButton
-                android:id="@+id/auto_advance_interval_30m"
+                android:id="@+id/interval_30m"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/auto_advance_interval_30m"/>
 
             <RadioButton
-                android:id="@+id/auto_advance_interval_1h"
+                android:id="@+id/interval_1h"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/auto_advance_interval_1h"/>
 
             <RadioButton
-                android:id="@+id/auto_advance_interval_3h"
+                android:id="@+id/interval_3h"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/auto_advance_interval_3h"/>
 
             <RadioButton
-                android:id="@+id/auto_advance_interval_6h"
+                android:id="@+id/interval_6h"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/auto_advance_interval_6h"/>
 
             <RadioButton
-                android:id="@+id/auto_advance_interval_24h"
+                android:id="@+id/interval_24h"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/auto_advance_interval_24h"/>
 
             <RadioButton
-                android:id="@+id/auto_advance_interval_72h"
+                android:id="@+id/interval_72h"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/auto_advance_interval_72h"/>
 
             <RadioButton
-                android:id="@+id/auto_advance_interval_never"
+                android:id="@+id/interval_never"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/auto_advance_interval_never"/>
         </RadioGroup>
 
         <TextView
-            android:id="@+id/auto_advance_tasker"
+            android:id="@+id/tasker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/auto_advance_tasker"/>

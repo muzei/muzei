@@ -36,7 +36,7 @@
             android:layout_height="wrap_content">
 
             <ImageView
-                android:id="@+id/legacy_source_info_icon"
+                android:id="@+id/icon"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginStart="16dp"
@@ -44,8 +44,8 @@
                 android:layout_marginBottom="8dp"
                 android:importantForAccessibility="no"
                 android:scaleType="centerCrop"
-                app:layout_constraintBottom_toTopOf="@+id/legacy_source_info_button_bar"
-                app:layout_constraintEnd_toStartOf="@+id/legacy_source_info_title"
+                app:layout_constraintBottom_toTopOf="@+id/button_bar"
+                app:layout_constraintEnd_toStartOf="@+id/title"
                 app:layout_constraintHorizontal_chainStyle="spread_inside"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -53,28 +53,28 @@
                 app:srcCompat="@mipmap/ic_launcher" />
 
             <TextView
-                android:id="@+id/legacy_source_info_title"
+                android:id="@+id/title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="16dp"
                 android:lines="1"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-                app:layout_constraintBottom_toBottomOf="@+id/legacy_source_info_icon"
+                app:layout_constraintBottom_toBottomOf="@+id/icon"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/legacy_source_info_icon"
-                app:layout_constraintTop_toTopOf="@+id/legacy_source_info_icon"
+                app:layout_constraintStart_toEndOf="@+id/icon"
+                app:layout_constraintTop_toTopOf="@+id/icon"
                 tools:text="Label" />
 
             <androidx.constraintlayout.widget.Barrier
-                android:id="@+id/legacy_source_info_button_bar"
+                android:id="@+id/button_bar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:barrierDirection="top"
-                app:constraint_referenced_ids="legacy_source_info_app_info,legacy_source_info_send_feedback" />
+                app:constraint_referenced_ids="app_info,send_feedback" />
 
             <Button
-                android:id="@+id/legacy_source_info_app_info"
+                android:id="@+id/app_info"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -82,14 +82,14 @@
                 android:text="@string/legacy_source_info_app_info"
                 android:textColor="?android:attr/textColorPrimary"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/legacy_source_info_send_feedback"
+                app:layout_constraintEnd_toStartOf="@+id/send_feedback"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintHorizontal_chainStyle="packed"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/legacy_source_info_button_bar" />
+                app:layout_constraintTop_toBottomOf="@+id/button_bar" />
 
             <Button
-                android:id="@+id/legacy_source_info_send_feedback"
+                android:id="@+id/send_feedback"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -100,8 +100,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/legacy_source_info_app_info"
-                app:layout_constraintTop_toBottomOf="@+id/legacy_source_info_button_bar" />
+                app:layout_constraintStart_toEndOf="@+id/app_info"
+                app:layout_constraintTop_toBottomOf="@+id/button_bar" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

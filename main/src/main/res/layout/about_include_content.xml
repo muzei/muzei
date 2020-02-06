@@ -50,7 +50,7 @@
             android:textSize="@dimen/settings_text_size_normal"/>
 
         <TextView
-            android:id="@+id/about_body"
+            android:id="@+id/body"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"

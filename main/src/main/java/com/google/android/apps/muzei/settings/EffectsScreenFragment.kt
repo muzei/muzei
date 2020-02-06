@@ -79,15 +79,15 @@ class EffectsScreenFragment : Fragment(R.layout.effects_screen_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = EffectsScreenFragmentBinding.bind(view)
         val prefs = Prefs.getSharedPreferences(requireContext())
-        binding.includeContent.blurAmount.progress = prefs.getInt(blurPref, MuzeiBlurRenderer.DEFAULT_BLUR)
-        binding.includeContent.blurAmount.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        binding.content.blurAmount.progress = prefs.getInt(blurPref, MuzeiBlurRenderer.DEFAULT_BLUR)
+        binding.content.blurAmount.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
                 if (fromUser) {
                     updateBlur?.cancel()
                     updateBlur = lifecycleScope.launch {
                         delay(750)
                         prefs.edit {
-                            putInt(blurPref, binding.includeContent.blurAmount.progress)
+                            putInt(blurPref, binding.content.blurAmount.progress)
                         }
                     }
                 }
@@ -99,19 +99,19 @@ class EffectsScreenFragment : Fragment(R.layout.effects_screen_fragment) {
         })
         blurOnPreferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener {
             _, _ ->
-            binding.includeContent.blurAmount.progress = prefs.getInt(blurPref, MuzeiBlurRenderer.DEFAULT_BLUR)
+            binding.content.blurAmount.progress = prefs.getInt(blurPref, MuzeiBlurRenderer.DEFAULT_BLUR)
         }
         prefs.registerOnSharedPreferenceChangeListener(blurOnPreferenceChangeListener)
 
-        binding.includeContent.dimAmount.progress = prefs.getInt(dimPref, MuzeiBlurRenderer.DEFAULT_MAX_DIM)
-        binding.includeContent.dimAmount.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        binding.content.dimAmount.progress = prefs.getInt(dimPref, MuzeiBlurRenderer.DEFAULT_MAX_DIM)
+        binding.content.dimAmount.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
                 if (fromUser) {
                     updateDim?.cancel()
                     updateDim = lifecycleScope.launch {
                         delay(750)
                         prefs.edit {
-                            putInt(dimPref, binding.includeContent.dimAmount.progress)
+                            putInt(dimPref, binding.content.dimAmount.progress)
                         }
                     }
                 }
@@ -123,19 +123,19 @@ class EffectsScreenFragment : Fragment(R.layout.effects_screen_fragment) {
         })
         dimOnPreferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener {
             _, _ ->
-            binding.includeContent.dimAmount.progress = prefs.getInt(dimPref, MuzeiBlurRenderer.DEFAULT_MAX_DIM)
+            binding.content.dimAmount.progress = prefs.getInt(dimPref, MuzeiBlurRenderer.DEFAULT_MAX_DIM)
         }
         prefs.registerOnSharedPreferenceChangeListener(dimOnPreferenceChangeListener)
 
-        binding.includeContent.greyAmount.progress = prefs.getInt(greyPref, MuzeiBlurRenderer.DEFAULT_GREY)
-        binding.includeContent.greyAmount.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        binding.content.greyAmount.progress = prefs.getInt(greyPref, MuzeiBlurRenderer.DEFAULT_GREY)
+        binding.content.greyAmount.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
                 if (fromUser) {
                     updateGrey?.cancel()
                     updateGrey = lifecycleScope.launch {
                         delay(750)
                         prefs.edit {
-                            putInt(greyPref, binding.includeContent.greyAmount.progress)
+                            putInt(greyPref, binding.content.greyAmount.progress)
                         }
                     }
                 }
@@ -147,7 +147,7 @@ class EffectsScreenFragment : Fragment(R.layout.effects_screen_fragment) {
         })
         greyOnPreferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener {
             _, _ ->
-            binding.includeContent.greyAmount.progress = prefs.getInt(greyPref, MuzeiBlurRenderer.DEFAULT_GREY)
+            binding.content.greyAmount.progress = prefs.getInt(greyPref, MuzeiBlurRenderer.DEFAULT_GREY)
         }
         prefs.registerOnSharedPreferenceChangeListener(greyOnPreferenceChangeListener)
     }

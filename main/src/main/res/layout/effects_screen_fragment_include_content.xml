@@ -22,14 +22,14 @@
     android:theme="@style/ThemeOverlay.MaterialComponents.Dark">
 
     <TextView
-        android:id="@+id/settings_blur_amount_title"
+        android:id="@+id/blur_amount_title"
         style="@style/Widget.Muzei.TextView.SettingsAdvancedSeekBarLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:text="@string/settings_blur_amount_title"
-        app:layout_constraintBottom_toTopOf="@+id/settings_dim_amount_title"
-        app:layout_constraintEnd_toEndOf="@+id/settings_dim_amount_title"
+        app:layout_constraintBottom_toTopOf="@+id/dim_amount_title"
+        app:layout_constraintEnd_toEndOf="@+id/dim_amount_title"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <SeekBar
@@ -38,21 +38,21 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:max="500"
-        app:layout_constraintBottom_toBottomOf="@+id/settings_blur_amount_title"
+        app:layout_constraintBottom_toBottomOf="@+id/blur_amount_title"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/settings_title_barrier"
-        app:layout_constraintTop_toTopOf="@+id/settings_blur_amount_title"/>
+        app:layout_constraintStart_toEndOf="@+id/title_barrier"
+        app:layout_constraintTop_toTopOf="@+id/blur_amount_title"/>
 
     <TextView
-        android:id="@+id/settings_dim_amount_title"
+        android:id="@+id/dim_amount_title"
         style="@style/Widget.Muzei.TextView.SettingsAdvancedSeekBarLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:text="@string/settings_dim_amount_title"
-        app:layout_constraintBottom_toTopOf="@+id/settings_grey_amount_title"
-        app:layout_constraintEnd_toEndOf="@+id/settings_grey_amount_title"
-        app:layout_constraintTop_toBottomOf="@+id/settings_blur_amount_title"/>
+        app:layout_constraintBottom_toTopOf="@+id/grey_amount_title"
+        app:layout_constraintEnd_toEndOf="@+id/grey_amount_title"
+        app:layout_constraintTop_toBottomOf="@+id/blur_amount_title"/>
 
     <SeekBar
         android:id="@+id/dim_amount"
@@ -60,20 +60,20 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:max="255"
-        app:layout_constraintBottom_toBottomOf="@+id/settings_dim_amount_title"
+        app:layout_constraintBottom_toBottomOf="@+id/dim_amount_title"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/settings_title_barrier"
-        app:layout_constraintTop_toTopOf="@+id/settings_dim_amount_title"/>
+        app:layout_constraintStart_toEndOf="@+id/title_barrier"
+        app:layout_constraintTop_toTopOf="@+id/dim_amount_title"/>
 
     <TextView
-        android:id="@+id/settings_grey_amount_title"
+        android:id="@+id/grey_amount_title"
         style="@style/Widget.Muzei.TextView.SettingsAdvancedSeekBarLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/settings_grey_amount_title"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/settings_dim_amount_title"/>
+        app:layout_constraintTop_toBottomOf="@+id/dim_amount_title"/>
 
     <SeekBar
         android:id="@+id/grey_amount"
@@ -81,15 +81,15 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:max="500"
-        app:layout_constraintBottom_toBottomOf="@+id/settings_grey_amount_title"
+        app:layout_constraintBottom_toBottomOf="@+id/grey_amount_title"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/settings_title_barrier"
-        app:layout_constraintTop_toTopOf="@+id/settings_grey_amount_title"/>
+        app:layout_constraintStart_toEndOf="@+id/title_barrier"
+        app:layout_constraintTop_toTopOf="@+id/grey_amount_title"/>
 
     <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/settings_title_barrier"
+        android:id="@+id/title_barrier"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         app:barrierDirection="end"
-        app:constraint_referenced_ids="settings_dim_amount_title,settings_grey_amount_title,settings_blur_amount_title"/>
+        app:constraint_referenced_ids="dim_amount_title,grey_amount_title,blur_amount_title" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -21,7 +21,7 @@
     android:layout_height="match_parent">
 
     <View
-        android:id="@+id/art_detail_scrim"
+        android:id="@+id/scrim"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"/>
 
@@ -134,7 +134,7 @@
         </FrameLayout>
 
         <ImageButton
-            android:id="@+id/next_button"
+            android:id="@+id/next_artwork"
             android:layout_width="@dimen/art_detail_button_width"
             android:layout_height="@dimen/art_detail_button_height"
             android:background="?selectableItemBackgroundBorderless"
@@ -144,7 +144,7 @@
             android:visibility="gone"/>
 
         <androidx.appcompat.widget.ActionMenuView
-            android:id="@+id/overflow_menu_view"
+            android:id="@+id/overflow_menu"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/art_detail_button_height"
             android:theme="@style/ThemeOverlay.Muzei.AccentPrimary"/>

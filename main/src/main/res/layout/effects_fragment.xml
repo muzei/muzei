@@ -31,7 +31,7 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.DayNight"/>
 
     <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabLayout"
+        android:id="@+id/tab_layout"
         style="@style/Widget.Design.TabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

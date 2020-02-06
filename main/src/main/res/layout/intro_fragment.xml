@@ -16,7 +16,6 @@
 
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/intro_container"
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
@@ -38,7 +37,7 @@
         android:layout_centerInParent="true"/>
 
     <com.google.android.apps.muzei.IntroButton
-        android:id="@+id/activate_muzei_button"
+        android:id="@+id/activate_muzei"
         style="@style/Widget.Muzei.IntroButton"
         android:background="@drawable/white_circle_button"
         android:layout_height="@dimen/intro_activate_button_size"

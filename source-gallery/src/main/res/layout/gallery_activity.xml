@@ -42,7 +42,7 @@
         android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar">
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/app_bar"
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
             app:title="@string/gallery_title"
@@ -76,13 +76,13 @@
                     android:layout_height="wrap_content"/>
 
                 <Button
-                    android:id="@+id/gallery_enable_random"
+                    android:id="@+id/enable_random"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/gallery_enable_random"/>
 
                 <Button
-                    android:id="@+id/gallery_edit_permission_settings"
+                    android:id="@+id/edit_permission_settings"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/gallery_edit_settings"/>

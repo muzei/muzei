@@ -150,7 +150,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment), (Boolean) -> U
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding = ArtDetailFragmentBinding.bind(view)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            binding.artDetailScrim.background = makeCubicGradientScrimDrawable(Gravity.TOP, 0x44)
+            binding.scrim.background = makeCubicGradientScrimDrawable(Gravity.TOP, 0x44)
         }
 
         val scrimColor = resources.getInteger(R.integer.scrim_channel_color)
@@ -165,9 +165,9 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment), (Boolean) -> U
         binding.title.typeface = ResourcesCompat.getFont(requireContext(), R.font.alegreya_sans_black)
         binding.byline.typeface = ResourcesCompat.getFont(requireContext(), R.font.alegreya_sans_medium)
 
-        binding.overflowMenuView.overflowIcon = ContextCompat.getDrawable(requireContext(),
+        binding.overflowMenu.overflowIcon = ContextCompat.getDrawable(requireContext(),
                 R.drawable.ic_overflow)
-        binding.overflowMenuView.setOnMenuItemClickListener { menuItem ->
+        binding.overflowMenu.setOnMenuItemClickListener { menuItem ->
             val context = context ?: return@setOnMenuItemClickListener false
             val id = overflowSourceActionMap.get(menuItem.itemId)
             if (id > 0) {
@@ -213,13 +213,13 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment), (Boolean) -> U
             }
         }
 
-        binding.nextButton.setOnClickListener {
+        binding.nextArtwork.setOnClickListener {
             FirebaseAnalytics.getInstance(requireContext()).logEvent("next_artwork", bundleOf(
                     FirebaseAnalytics.Param.CONTENT_TYPE to "art_detail"))
             ProviderManager.getInstance(requireContext()).nextArtwork()
             showFakeLoading()
         }
-        TooltipCompat.setTooltipText(binding.nextButton, binding.nextButton.contentDescription)
+        TooltipCompat.setTooltipText(binding.nextArtwork, binding.nextArtwork.contentDescription)
 
         backgroundImageViewState = savedInstanceState?.getSerializable(
                 KEY_IMAGE_VIEW_STATE) as ImageViewState?
@@ -302,7 +302,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment), (Boolean) -> U
 
         currentProviderLiveData.observe(viewLifecycleOwner) { provider ->
             val supportsNextArtwork = provider?.supportsNextArtwork == true
-            binding.nextButton.isVisible = supportsNextArtwork
+            binding.nextArtwork.isVisible = supportsNextArtwork
         }
 
         currentArtworkLiveData.observe(viewLifecycleOwner) { currentArtwork ->
@@ -352,14 +352,14 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment), (Boolean) -> U
                 } ?: return@launch
                 val activity = activity ?: return@launch
                 overflowSourceActionMap.clear()
-                binding.overflowMenuView.menu.clear()
+                binding.overflowMenu.menu.clear()
                 activity.menuInflater.inflate(R.menu.muzei_overflow,
-                        binding.overflowMenuView.menu)
-                binding.overflowMenuView.menu.findItem(R.id.action_always_dark)?.isChecked =
+                        binding.overflowMenu.menu)
+                binding.overflowMenu.menu.findItem(R.id.action_always_dark)?.isChecked =
                         MuzeiApplication.getAlwaysDark(activity)
                 commands.take(SOURCE_ACTION_IDS.size).forEachIndexed { i, action ->
                     overflowSourceActionMap.put(SOURCE_ACTION_IDS[i], action.id)
-                    val menuItem = binding.overflowMenuView.menu.add(0, SOURCE_ACTION_IDS[i],
+                    val menuItem = binding.overflowMenu.menu.add(0, SOURCE_ACTION_IDS[i],
                             0, action.title)
                     if (action.id == LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK &&
                             currentProviderLiveData.value?.authority == LEGACY_AUTHORITY) {
@@ -411,13 +411,13 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment), (Boolean) -> U
     }
 
     private fun animateChromeVisibility(visible: Boolean) {
-        binding.artDetailScrim.visibility = View.VISIBLE
-        binding.artDetailScrim.animate()
+        binding.scrim.visibility = View.VISIBLE
+        binding.scrim.animate()
                 .alpha(if (visible) 1f else 0f)
                 .setDuration(200)
                 .withEndAction {
                     if (!visible) {
-                        binding.artDetailScrim.visibility = View.GONE
+                        binding.scrim.visibility = View.GONE
                     }
                 }
 
@@ -457,7 +457,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment), (Boolean) -> U
 
     override fun onStop() {
         super.onStop()
-        binding.overflowMenuView.hideOverflowMenu()
+        binding.overflowMenu.hideOverflowMenu()
         ArtDetailOpenLiveData.value = false
     }
 

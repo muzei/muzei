@@ -48,7 +48,7 @@ class IntroFragment : Fragment(R.layout.intro_fragment) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding = IntroFragmentBinding.bind(view)
-        binding.activateMuzeiButton.setOnClickListener {
+        binding.activateMuzei.setOnClickListener {
             FirebaseAnalytics.getInstance(requireContext()).logEvent("activate", null)
             try {
                 startActivity(Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
@@ -75,11 +75,11 @@ class IntroFragment : Fragment(R.layout.intro_fragment) {
                 add(R.id.animated_logo_fragment, logoFragment)
             }
 
-            binding.activateMuzeiButton.alpha = 0f
+            binding.activateMuzei.alpha = 0f
             logoFragment.onFillStarted = {
-                binding.activateMuzeiButton.animate().alpha(1f).setDuration(500)
+                binding.activateMuzei.animate().alpha(1f).setDuration(500)
             }
-            binding.activateMuzeiButton.postDelayed({
+            binding.activateMuzei.postDelayed({
                 if (logoFragment.isAdded) {
                     logoFragment.start()
                 }

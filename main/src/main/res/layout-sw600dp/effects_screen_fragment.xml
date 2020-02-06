@@ -21,7 +21,7 @@
 
     <include
         layout="@layout/effects_screen_fragment_include_content"
-        android:id="@+id/include_content"
+        android:id="@+id/content"
         android:layout_width="500dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"/>

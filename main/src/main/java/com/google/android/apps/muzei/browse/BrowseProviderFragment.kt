@@ -68,10 +68,10 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
                     return
                 }
 
-        binding.browseSwipeRefresh.setOnRefreshListener {
-            refresh(binding.browseSwipeRefresh)
+        binding.swipeRefresh.setOnRefreshListener {
+            refresh(binding.swipeRefresh)
         }
-        binding.browseToolbar.apply {
+        binding.toolbar.apply {
             navigationIcon = DrawerArrowDrawable(requireContext()).apply {
                 progress = 1f
             }
@@ -81,12 +81,12 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
             title = providerInfo.loadLabel(pm)
             inflateMenu(R.menu.browse_provider_fragment)
             setOnMenuItemClickListener {
-                refresh(binding.browseSwipeRefresh)
+                refresh(binding.swipeRefresh)
                 true
             }
         }
         val adapter = Adapter()
-        binding.browseList.adapter = adapter
+        binding.list.adapter = adapter
 
         viewModel.setContentUri(args.contentUri)
         viewModel.artLiveData.observe(viewLifecycleOwner) {
@@ -114,8 +114,8 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
 
         fun bind(artwork: Artwork) {
             val context = itemView.context
-            binding.browseImage.contentDescription = artwork.title
-            binding.browseImage.load(artwork.imageUri) {
+            binding.image.contentDescription = artwork.title
+            binding.image.load(artwork.imageUri) {
                 lifecycle(owner)
             }
             itemView.setOnClickListener {

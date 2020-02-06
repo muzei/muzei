@@ -18,7 +18,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/legacy_source_info_learn_more"
+        android:id="@+id/learn_more"
         android:title="@string/legacy_action_learn_more"
         app:showAsAction="withText|ifRoom"/>
 </menu>

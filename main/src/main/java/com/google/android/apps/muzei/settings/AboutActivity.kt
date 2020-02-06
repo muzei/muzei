@@ -46,7 +46,7 @@ class AboutActivity : AppCompatActivity() {
                 or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
 
-        binding.appBar.setNavigationOnClickListener { onNavigateUp() }
+        binding.toolbar.setNavigationOnClickListener { onNavigateUp() }
 
         if (savedInstanceState == null) {
             supportFragmentManager.commit {
@@ -56,16 +56,16 @@ class AboutActivity : AppCompatActivity() {
         }
 
         // Build the about body view and append the link to see OSS licenses
-        binding.includeContent.appVersion.apply {
+        binding.content.appVersion.apply {
             text = getString(R.string.about_version_template, BuildConfig.VERSION_NAME)
         }
 
-        binding.includeContent.aboutBody.apply {
+        binding.content.body.apply {
             text = HtmlCompat.fromHtml(getString(R.string.about_body), 0)
             movementMethod = LinkMovementMethod()
         }
 
-        binding.includeContent.androidExperimentLink.setOnClickListener {
+        binding.content.androidExperimentLink.setOnClickListener {
             val cti = CustomTabsIntent.Builder()
                     .setShowTitle(true)
                     .setToolbarColor(ContextCompat.getColor(this, R.color.theme_primary))

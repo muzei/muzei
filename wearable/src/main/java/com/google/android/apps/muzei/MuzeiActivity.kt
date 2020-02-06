@@ -128,7 +128,7 @@ class MuzeiActivity : FragmentActivity(),
             startActivity(Intent(this@MuzeiActivity,
                     ChooseProviderActivity::class.java))
         }
-        binding.providerSettings.setCompoundDrawablesRelative(RoundedDrawable().apply {
+        binding.settings.setCompoundDrawablesRelative(RoundedDrawable().apply {
             isClipEnabled = true
             radius = resources.getDimensionPixelSize(R.dimen.art_detail_open_on_phone_radius)
             backgroundColor = ContextCompat.getColor(this@MuzeiActivity,
@@ -204,8 +204,8 @@ class MuzeiActivity : FragmentActivity(),
                 val settingsActivity = providerInfo.metaData?.getString("settingsActivity")?.run {
                     ComponentName(providerInfo.packageName, this)
                 }
-                binding.providerSettings.isVisible = settingsActivity != null
-                binding.providerSettings.setOnClickListener {
+                binding.settings.isVisible = settingsActivity != null
+                binding.settings.setOnClickListener {
                     if (settingsActivity != null) {
                         startActivity(Intent().apply {
                             component = settingsActivity

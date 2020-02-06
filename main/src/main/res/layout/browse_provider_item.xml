@@ -23,7 +23,7 @@
     android:foreground="?selectableItemBackground">
 
     <ImageView
-        android:id="@+id/browse_image"
+        android:id="@+id/image"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:adjustViewBounds="true"

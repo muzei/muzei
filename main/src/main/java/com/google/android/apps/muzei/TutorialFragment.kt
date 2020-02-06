@@ -43,7 +43,7 @@ class TutorialFragment : Fragment(R.layout.tutorial_fragment) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = TutorialFragmentBinding.bind(view).content
-        binding.tutorialIconAffordance.setOnClickListener {
+        binding.iconAffordance.setOnClickListener {
             FirebaseAnalytics.getInstance(requireContext())
                     .logEvent(FirebaseAnalytics.Event.TUTORIAL_COMPLETE, null)
             PreferenceManager.getDefaultSharedPreferences(context).edit {
@@ -54,19 +54,19 @@ class TutorialFragment : Fragment(R.layout.tutorial_fragment) {
         if (savedInstanceState == null) {
             val animateDistance = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100f,
                     resources.displayMetrics)
-            val mainTextView = binding.tutorialMainText.apply {
+            val mainTextView = binding.mainText.apply {
                 alpha = 0f
                 translationY = -animateDistance / 5
             }
-            val subTextView = binding.tutorialSubText.apply {
+            val subTextView = binding.subText.apply {
                 alpha = 0f
                 translationY = -animateDistance / 5
             }
-            val affordanceView = binding.tutorialIconAffordance.apply {
+            val affordanceView = binding.iconAffordance.apply {
                 alpha = 0f
                 translationY = animateDistance
             }
-            val iconTextView = binding.tutorialIconText.apply {
+            val iconTextView = binding.iconText.apply {
                 alpha = 0f
                 translationY = animateDistance
             }
@@ -101,7 +101,7 @@ class TutorialFragment : Fragment(R.layout.tutorial_fragment) {
                         val avd = ResourcesCompat.getDrawable(resources,
                                 R.drawable.avd_tutorial_icon_emanate,
                                 context?.theme) as AnimatedVectorDrawable
-                        binding.tutorialIconEmanate.setImageDrawable(avd)
+                        binding.iconEmanate.setImageDrawable(avd)
                         avd.start()
                     }
                     runningAnimators.remove(this)
@@ -112,7 +112,7 @@ class TutorialFragment : Fragment(R.layout.tutorial_fragment) {
             val avd = ResourcesCompat.getDrawable(resources,
                     R.drawable.avd_tutorial_icon_emanate,
                     context?.theme) as AnimatedVectorDrawable
-            binding.tutorialIconEmanate.setImageDrawable(avd)
+            binding.iconEmanate.setImageDrawable(avd)
             avd.start()
         }
     }

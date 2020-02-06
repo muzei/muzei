@@ -134,7 +134,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         super.onCreate(savedInstanceState)
         binding = GalleryActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        setSupportActionBar(binding.appBar)
+        setSupportActionBar(binding.toolbar)
 
         setupMultiSelect()
 
@@ -196,7 +196,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             insets
         }
 
-        binding.galleryEnableRandom.setOnClickListener {
+        binding.enableRandom.setOnClickListener {
             ActivityCompat.requestPermissions(this,
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -205,7 +205,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                         arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
                     }, REQUEST_STORAGE_PERMISSION)
         }
-        binding.galleryEditPermissionSettings.setOnClickListener {
+        binding.editPermissionSettings.setOnClickListener {
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                     Uri.fromParts("package", packageName, null))
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
