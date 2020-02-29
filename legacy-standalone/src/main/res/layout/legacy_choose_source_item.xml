@@ -14,8 +14,8 @@
   limitations under the License.
   -->
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -46,5 +46,5 @@
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/legacy_source_settings"
         android:src="@drawable/legacy_ic_source_settings"
-        android:tint="?attr/colorOnSurface"/>
+        app:tint="?attr/colorOnSurface"/>
 </LinearLayout>

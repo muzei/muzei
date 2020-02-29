@@ -106,7 +106,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:src="@drawable/gallery_chosen_photo_selected"
-            android:tint="@color/gallery_theme_dark"/>
+            app:tint="@color/gallery_theme_dark"/>
 
     </FrameLayout>
 
