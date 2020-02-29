@@ -172,7 +172,7 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
             }
             lifecycle.addObserver(renderController)
             if (!demoMode) {
-                EffectsLockScreenOpenLiveData.observe(this@MuzeiRendererFragment) {
+                EffectsLockScreenOpenLiveData.observe(viewLifecycleOwner) {
                     isEffectsLockScreenOpen ->
                     renderController.onLockScreen = isEffectsLockScreenOpen
                 }
