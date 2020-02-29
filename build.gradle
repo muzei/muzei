@@ -45,7 +45,7 @@ buildscript {
         preferenceVersion = '1.1.0'
         recyclerViewVersion = '1.1.0'
         retrofitVersion = '2.7.1'
-        roomVersion = '2.2.3'
+        roomVersion = '2.2.4'
         subsamplingVersion = '3.10.0'
         swipeRefreshLayoutVersion = '1.1.0-alpha03'
         wearableVersion = '2.5.0'
