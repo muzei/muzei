@@ -47,6 +47,7 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.api.load
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.api.provider.ProviderContract
+import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
 import com.google.android.apps.muzei.legacy.LegacySourceManager
 import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
 import com.google.android.apps.muzei.room.MuzeiDatabase
@@ -56,7 +57,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import net.nurik.roman.muzei.BuildConfig.LEGACY_AUTHORITY
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.ChooseProviderFragmentBinding
 import net.nurik.roman.muzei.databinding.ChooseProviderItemBinding

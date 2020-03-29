@@ -28,12 +28,12 @@ import android.os.Message
 import android.os.Messenger
 import android.util.Log
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
+import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.sync.ProviderManager
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig
-import net.nurik.roman.muzei.BuildConfig.LEGACY_AUTHORITY
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 

@@ -30,6 +30,9 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion rootProject.ext.targetSdkVersion
+
+        def legacyAuthorityValue = "com.google.android.apps.muzei.legacy"
+        buildConfigField "String", "LEGACY_AUTHORITY", "\"${legacyAuthorityValue}\""
     }
 
     buildTypes {

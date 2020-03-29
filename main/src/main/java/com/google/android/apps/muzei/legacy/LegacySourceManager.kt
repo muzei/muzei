@@ -29,10 +29,10 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.observe
+import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.sync.ProviderManager
-import net.nurik.roman.muzei.BuildConfig.LEGACY_AUTHORITY
 
 suspend fun Provider?.allowsNextArtwork(context: Context): Boolean {
     return when {
