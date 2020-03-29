@@ -73,7 +73,7 @@ internal class TaskerSettingViewModel(
 
     val actions : LiveData<List<Action>> = object : MutableLiveData<List<Action>>() {
         val nextArtworkAction = Action(
-                ContextCompat.getDrawable(application, R.drawable.ic_next_artwork)!!.apply {
+                ContextCompat.getDrawable(application, R.drawable.ic_launcher_next_artwork)!!.apply {
                     setBounds(0, 0, imageSize, imageSize)
                 },
                 application.getString(R.string.action_next_artwork),
