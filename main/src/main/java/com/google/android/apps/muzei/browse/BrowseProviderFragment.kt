@@ -122,7 +122,7 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
                 owner.lifecycleScope.launch(Dispatchers.Main) {
                     FirebaseAnalytics.getInstance(context).logEvent(
                             FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                            FirebaseAnalytics.Param.ITEM_ID to artwork.id,
+                            FirebaseAnalytics.Param.ITEM_ID to artwork.providerAuthority,
                             FirebaseAnalytics.Param.ITEM_NAME to artwork.title,
                             FirebaseAnalytics.Param.ITEM_CATEGORY to "artwork",
                             FirebaseAnalytics.Param.CONTENT_TYPE to "browse"))

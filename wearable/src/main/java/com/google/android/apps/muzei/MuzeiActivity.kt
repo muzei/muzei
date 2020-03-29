@@ -163,7 +163,7 @@ class MuzeiActivity : FragmentActivity(),
                     lifecycleScope.launch {
                         FirebaseAnalytics.getInstance(this@MuzeiActivity).logEvent(
                                 FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                                FirebaseAnalytics.Param.ITEM_ID to DataLayerArtProvider.OPEN_ON_PHONE_ACTION,
+                                FirebaseAnalytics.Param.ITEM_ID to DATA_LAYER_AUTHORITY,
                                 FirebaseAnalytics.Param.ITEM_NAME to getString(R.string.common_open_on_phone),
                                 FirebaseAnalytics.Param.ITEM_CATEGORY to "actions",
                                 FirebaseAnalytics.Param.CONTENT_TYPE to "wear_activity"))

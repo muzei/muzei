@@ -176,7 +176,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment), (Boolean) -> U
                         } else {
                             FirebaseAnalytics.getInstance(context).logEvent(
                                     FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                                    FirebaseAnalytics.Param.ITEM_ID to id,
+                                    FirebaseAnalytics.Param.ITEM_ID to providerAuthority,
                                     FirebaseAnalytics.Param.ITEM_NAME to menuItem.title,
                                     FirebaseAnalytics.Param.ITEM_CATEGORY to "actions",
                                     FirebaseAnalytics.Param.CONTENT_TYPE to "art_detail"))

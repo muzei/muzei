@@ -327,7 +327,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                 commands.find { selectedCommand == it.title }?.run {
                     FirebaseAnalytics.getInstance(context).logEvent(
                             FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                            FirebaseAnalytics.Param.ITEM_ID to id,
+                            FirebaseAnalytics.Param.ITEM_ID to artwork.providerAuthority,
                             FirebaseAnalytics.Param.ITEM_NAME to title,
                             FirebaseAnalytics.Param.ITEM_CATEGORY to "actions",
                             FirebaseAnalytics.Param.CONTENT_TYPE to "notification"))
