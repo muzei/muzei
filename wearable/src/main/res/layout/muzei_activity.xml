@@ -88,14 +88,13 @@
             android:visibility="gone"/>
 
         <Button
-            android:id="@+id/open_on_phone"
+            android:id="@+id/command"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:background="?android:selectableItemBackground"
             android:drawablePadding="8dp"
             android:gravity="center_vertical"
-            android:text="@string/common_open_on_phone"
             android:textAllCaps="false"
             android:visibility="gone"/>
 

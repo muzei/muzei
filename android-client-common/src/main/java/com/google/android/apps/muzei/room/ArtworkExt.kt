@@ -135,15 +135,3 @@ suspend fun Artwork.getCommands(context: Context) : List<RemoteActionCompat> {
         Log.i(TAG, "Could not connect to provider for $imageUri while retrieving commands")
     }
 }
-
-suspend fun Artwork.sendAction(context: Context, id: Int) {
-    ContentProviderClientCompat.getClient(context, imageUri)?.use { client ->
-        try {
-            client.call(METHOD_TRIGGER_COMMAND,
-                    imageUri.toString(),
-                    Bundle().apply { putInt(KEY_COMMAND, id) })
-        } catch (e: RemoteException) {
-            Log.i(TAG, "Provider for $imageUri crashed while sending action", e)
-        }
-    }
-}
