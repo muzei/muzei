@@ -84,10 +84,10 @@ class TutorialFragment : Fragment(R.layout.tutorial_fragment) {
                 duration = 500
                 // Bug in older versions where set.setInterpolator didn't work
                 val interpolator = OvershootInterpolator()
-                val a1 = ObjectAnimator.ofFloat<View>(affordanceView, View.TRANSLATION_Y, 0f)
-                val a2 = ObjectAnimator.ofFloat<View>(iconTextView, View.TRANSLATION_Y, 0f)
-                val a3 = ObjectAnimator.ofFloat<View>(mainTextView, View.TRANSLATION_Y, 0f)
-                val a4 = ObjectAnimator.ofFloat<View>(subTextView, View.TRANSLATION_Y, 0f)
+                val a1 = ObjectAnimator.ofFloat(affordanceView, View.TRANSLATION_Y, 0f)
+                val a2 = ObjectAnimator.ofFloat(iconTextView, View.TRANSLATION_Y, 0f)
+                val a3 = ObjectAnimator.ofFloat(mainTextView, View.TRANSLATION_Y, 0f)
+                val a4 = ObjectAnimator.ofFloat(subTextView, View.TRANSLATION_Y, 0f)
                 a1.interpolator = interpolator
                 a2.interpolator = interpolator
                 a3.interpolator = interpolator

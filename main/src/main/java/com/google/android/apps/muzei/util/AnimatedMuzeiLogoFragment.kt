@@ -48,10 +48,10 @@ class AnimatedMuzeiLogoFragment : Fragment(R.layout.animated_logo_fragment) {
 
                 // Bug in older versions where set.setInterpolator didn't work
                 val interpolator = OvershootInterpolator()
-                val a1 = ObjectAnimator.ofFloat<View>(binding.animatedLogo, View.TRANSLATION_Y, 0f)
-                val a2 = ObjectAnimator.ofFloat<View>(binding.logoSubtitle,
+                val a1 = ObjectAnimator.ofFloat(binding.animatedLogo, View.TRANSLATION_Y, 0f)
+                val a2 = ObjectAnimator.ofFloat(binding.logoSubtitle,
                         View.TRANSLATION_Y, 0f)
-                val a3 = ObjectAnimator.ofFloat<View>(binding.logoSubtitle, View.ALPHA, 1f)
+                val a3 = ObjectAnimator.ofFloat(binding.logoSubtitle, View.ALPHA, 1f)
                 a1.interpolator = interpolator
                 a2.interpolator = interpolator
                 AnimatorSet().apply {
