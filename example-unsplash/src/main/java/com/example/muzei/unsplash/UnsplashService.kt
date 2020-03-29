@@ -62,7 +62,7 @@ internal interface UnsplashService {
         }
     }
 
-    @get:GET("photos/curated?order_by=popular&per_page=30")
+    @get:GET("photos?order_by=popular&per_page=30")
     val popularPhotos: Call<List<Photo>>
 
     @GET("photos/{id}/download")
