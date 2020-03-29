@@ -137,7 +137,7 @@
             android:layout_width="@dimen/art_detail_button_width"
             android:layout_height="@dimen/art_detail_button_height"
             android:background="?selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_skip"
+            android:src="@drawable/ic_next_artwork"
             android:scaleType="center"
             android:contentDescription="@string/action_next_artwork"
             android:visibility="gone"/>

@@ -360,7 +360,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment), (Boolean) -> U
                             0, action.title)
                     if (action.id == LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK &&
                             currentProviderLiveData.value?.authority == LEGACY_AUTHORITY) {
-                        menuItem.setIcon(R.drawable.ic_skip)
+                        menuItem.setIcon(R.drawable.ic_next_artwork)
                         menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
                     }
                 }
