@@ -28,7 +28,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.widget.TooltipCompat
-import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.children
@@ -165,8 +164,6 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment), (Boolean) -> U
         binding.title.typeface = ResourcesCompat.getFont(requireContext(), R.font.alegreya_sans_black)
         binding.byline.typeface = ResourcesCompat.getFont(requireContext(), R.font.alegreya_sans_medium)
 
-        binding.overflowMenu.overflowIcon = ContextCompat.getDrawable(requireContext(),
-                R.drawable.ic_overflow)
         binding.overflowMenu.setOnMenuItemClickListener { menuItem ->
             val context = context ?: return@setOnMenuItemClickListener false
             val id = overflowSourceActionMap.get(menuItem.itemId)

@@ -93,6 +93,10 @@
         <item name="android:background">@color/theme_primary</item>
     </style>
 
+    <style name="ThemeOverlay.Muzei.DetailPane" parent="ThemeOverlay.MaterialComponents.Dark">
+        <item name="colorControlNormal">#FFF</item>
+    </style>
+
     <style name="ThemeOverlay.Muzei.AccentPrimary" parent="ThemeOverlay.AppCompat.DayNight">
         <item name="colorAccent">@color/theme_primary</item>
     </style>
