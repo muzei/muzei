@@ -19,7 +19,7 @@ package com.google.android.apps.muzei
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.SparseIntArray
+import android.util.SparseArray
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -28,7 +28,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.widget.TooltipCompat
+import androidx.core.app.RemoteActionCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.IconCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.children
 import androidx.core.view.get
@@ -44,9 +46,8 @@ import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.ImageViewState
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.google.android.apps.muzei.api.MuzeiContract
-import com.google.android.apps.muzei.api.UserCommand
+import com.google.android.apps.muzei.api.internal.RemoteActionBroadcastReceiver
 import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
-import com.google.android.apps.muzei.legacy.LegacySourceServiceProtocol
 import com.google.android.apps.muzei.notifications.NewWallpaperNotificationReceiver
 import com.google.android.apps.muzei.render.ArtworkSizeLiveData
 import com.google.android.apps.muzei.render.ContentUriImageLoader
@@ -58,14 +59,12 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.room.getCommands
 import com.google.android.apps.muzei.room.openArtworkInfo
-import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.settings.AboutActivity
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.makeCubicGradientScrimDrawable
 import com.google.android.apps.muzei.widget.showWidgetPreview
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -116,7 +115,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment), (Boolean) -> U
     }
 
     private lateinit var binding: ArtDetailFragmentBinding
-    private val overflowSourceActionMap = SparseIntArray()
+    private val overflowSourceActionMap = SparseArray<RemoteActionCompat>()
     private var loadingSpinnerShown = false
     private var showFakeLoading = false
     private var showChrome = true
@@ -166,23 +165,16 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment), (Boolean) -> U
 
         binding.overflowMenu.setOnMenuItemClickListener { menuItem ->
             val context = context ?: return@setOnMenuItemClickListener false
-            val id = overflowSourceActionMap.get(menuItem.itemId)
-            if (id > 0) {
+            val action = overflowSourceActionMap.get(menuItem.itemId)
+            if (action != null) {
                 currentArtworkLiveData.value?.run {
-                    GlobalScope.launch {
-                        if (id == LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK) {
-                            FirebaseAnalytics.getInstance(context).logEvent("next_artwork", bundleOf(
-                                    FirebaseAnalytics.Param.CONTENT_TYPE to "art_detail"))
-                        } else {
-                            FirebaseAnalytics.getInstance(context).logEvent(
-                                    FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                                    FirebaseAnalytics.Param.ITEM_ID to providerAuthority,
-                                    FirebaseAnalytics.Param.ITEM_NAME to menuItem.title,
-                                    FirebaseAnalytics.Param.ITEM_CATEGORY to "actions",
-                                    FirebaseAnalytics.Param.CONTENT_TYPE to "art_detail"))
-                        }
-                        sendAction(context, id)
-                    }
+                    FirebaseAnalytics.getInstance(context).logEvent(
+                            FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
+                            FirebaseAnalytics.Param.ITEM_ID to providerAuthority,
+                            FirebaseAnalytics.Param.ITEM_NAME to menuItem.title,
+                            FirebaseAnalytics.Param.ITEM_CATEGORY to "actions",
+                            FirebaseAnalytics.Param.CONTENT_TYPE to "art_detail"))
+                    action.actionIntent.send()
                 }
                 return@setOnMenuItemClickListener true
             }
@@ -339,9 +331,12 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment), (Boolean) -> U
                 val commands = context?.run {
                     currentArtwork?.getCommands(this) ?: run {
                         if (currentProviderLiveData.value?.authority == LEGACY_AUTHORITY) {
-                            listOf(UserCommand(
-                                    LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK,
-                                    getString(R.string.action_next_artwork)))
+                            listOf(RemoteActionCompat(
+                                    IconCompat.createWithResource(context, R.drawable.ic_next_artwork),
+                                    getString(R.string.action_next_artwork),
+                                    getString(R.string.action_next_artwork),
+                                    RemoteActionBroadcastReceiver.createPendingIntent(
+                                            this, LEGACY_AUTHORITY, id.toLong(), id)))
                         } else {
                             listOf()
                         }
@@ -354,14 +349,20 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment), (Boolean) -> U
                         binding.overflowMenu.menu)
                 binding.overflowMenu.menu.findItem(R.id.action_always_dark)?.isChecked =
                         MuzeiApplication.getAlwaysDark(activity)
-                commands.take(SOURCE_ACTION_IDS.size).forEachIndexed { i, action ->
-                    overflowSourceActionMap.put(SOURCE_ACTION_IDS[i], action.id)
-                    val menuItem = binding.overflowMenu.menu.add(0, SOURCE_ACTION_IDS[i],
-                            0, action.title)
-                    if (action.id == LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK &&
-                            currentProviderLiveData.value?.authority == LEGACY_AUTHORITY) {
-                        menuItem.setIcon(R.drawable.ic_next_artwork)
-                        menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+                commands.filterNot { action ->
+                    action.title.isBlank()
+                }.take(SOURCE_ACTION_IDS.size).forEachIndexed { i, action ->
+                    overflowSourceActionMap.put(SOURCE_ACTION_IDS[i], action)
+                    binding.overflowMenu.menu.add(0, SOURCE_ACTION_IDS[i],
+                            0, action.title).apply {
+                        isEnabled = action.isEnabled
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            contentDescription = action.contentDescription
+                        }
+                        if (action.shouldShowIcon()) {
+                            icon = action.icon.loadDrawable(activity)
+                            setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
+                        }
                     }
                 }
             }
