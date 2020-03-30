@@ -17,7 +17,6 @@
 package com.google.android.apps.muzei.sources
 
 import android.os.Bundle
-import com.google.android.apps.muzei.api.UserCommand
 
 /**
  * Convert a [Bundle] into a [SourceState].
@@ -26,9 +25,7 @@ internal fun Bundle.toSourceState() = SourceState(
         getBundle("currentArtwork")?.toLegacyArtwork(),
         getString("description"),
         getBoolean("wantsNetworkAvailable"),
-        getStringArray("userCommands")?.run {
-            map { UserCommand.deserialize(it) }.toList()
-        } ?: emptyList()
+        getStringArray("userCommands")?.toList() ?: emptyList()
 )
 
 /**
@@ -38,5 +35,5 @@ data class SourceState(
         val currentArtwork: LegacyArtwork?,
         val description: String?,
         val wantsNetworkAvailable: Boolean,
-        val userCommands: List<UserCommand>
+        val userCommands: List<String>
 )

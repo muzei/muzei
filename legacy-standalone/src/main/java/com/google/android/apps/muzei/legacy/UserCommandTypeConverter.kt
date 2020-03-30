@@ -18,13 +18,12 @@ package com.google.android.apps.muzei.legacy
 
 import android.util.Log
 import androidx.room.TypeConverter
-import com.google.android.apps.muzei.api.UserCommand
 import org.json.JSONArray
 import org.json.JSONException
 import java.util.ArrayList
 
 /**
- * Converts a list of [UserCommand]s into and from a persisted value
+ * Converts a list of commands into and from a persisted value
  */
 class UserCommandTypeConverter {
     companion object {
@@ -32,15 +31,15 @@ class UserCommandTypeConverter {
     }
 
     @TypeConverter
-    fun fromString(commandsString: String): List<UserCommand> {
-        val commands = ArrayList<UserCommand>()
+    fun fromString(commandsString: String): List<String> {
+        val commands = ArrayList<String>()
         if (commandsString.isEmpty()) {
             return commands
         }
         try {
             val commandArray = JSONArray(commandsString)
             (0 until commandArray.length()).mapTo(commands) { index ->
-                UserCommand.deserialize(commandArray.getString(index))
+                commandArray.getString(index)
             }
         } catch (e: JSONException) {
             Log.e(TAG, "Error parsing commands from $commandsString", e)
@@ -50,8 +49,8 @@ class UserCommandTypeConverter {
     }
 
     @TypeConverter
-    fun commandsListToString(commands: List<UserCommand>?): String =
+    fun commandsListToString(commands: List<String>?): String =
             JSONArray().apply {
-                commands?.forEach { command -> put(command.serialize()) }
+                commands?.forEach { command -> put(command) }
             }.toString()
 }

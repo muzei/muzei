@@ -46,6 +46,9 @@
                 android:value="com.google.android.apps.muzei.legacy.SourceSetupActivity"/>
         </provider>
 
+        <receiver
+            android:name="com.google.android.apps.muzei.legacy.SendActionBroadcastReceiver" />
+
         <service
             android:name="com.google.android.apps.muzei.legacy.LegacySourceService"
             android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER">

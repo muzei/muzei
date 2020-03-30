@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package com.google.android.apps.muzei.sources
 
 import android.app.IntentService
@@ -21,6 +23,7 @@ import android.content.Intent
 import android.util.Log
 import androidx.core.net.toUri
 import androidx.room.withTransaction
+import com.google.android.apps.muzei.api.UserCommand
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.legacy.LegacyDatabase
@@ -57,6 +60,7 @@ class SourceSubscriberService : IntentService("SourceSubscriberService") {
         }
     }
 
+    @Suppress("DEPRECATION")
     private suspend fun update(sourceDao: SourceDao, sourceToken: String, state: SourceState)  {
         val source = sourceDao.getCurrentSource()
         if (source == null || sourceToken != source.componentName.flattenToShortString()) {
@@ -71,10 +75,12 @@ class SourceSubscriberService : IntentService("SourceSubscriberService") {
             supportsNextArtwork = false
             commands = ArrayList()
         }
-        state.userCommands.forEach { command ->
+        state.userCommands.map { serialized ->
+            serialized to UserCommand.deserialize(serialized)
+        }.forEach { (serialized, command) ->
             when (command.id) {
                 LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK -> source.supportsNextArtwork = true
-                else -> source.commands.add(command)
+                else -> source.commands.add(serialized)
             }
         }
         sourceDao.update(source)
