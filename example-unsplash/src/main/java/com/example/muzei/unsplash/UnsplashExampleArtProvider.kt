@@ -16,10 +16,13 @@
 
 package com.example.muzei.unsplash
 
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.core.app.RemoteActionCompat
+import androidx.core.graphics.drawable.IconCompat
 import androidx.core.net.toUri
-import com.google.android.apps.muzei.api.UserCommand
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import java.io.IOException
@@ -29,9 +32,6 @@ class UnsplashExampleArtProvider : MuzeiArtProvider() {
 
     companion object {
         private const val TAG = "UnsplashExample"
-
-        private const val COMMAND_ID_VIEW_PROFILE = 1
-        private const val COMMAND_ID_VISIT_UNSPLASH = 2
     }
 
     override fun onLoadRequested(initial: Boolean) {
@@ -39,26 +39,38 @@ class UnsplashExampleArtProvider : MuzeiArtProvider() {
         UnsplashExampleWorker.enqueueLoad(context)
     }
 
-    override fun getCommands(artwork: Artwork) = context?.run {
-        listOf(
-                UserCommand(COMMAND_ID_VIEW_PROFILE,
-                        getString(R.string.action_view_profile, artwork.byline)),
-                UserCommand(COMMAND_ID_VISIT_UNSPLASH,
-                        getString(R.string.action_visit_unsplash)))
-    } ?: super.getCommands(artwork)
+    override fun getCommandActions(artwork: Artwork): List<RemoteActionCompat> {
+        val context = context ?: return super.getCommandActions(artwork)
+        return listOfNotNull(
+                createViewProfileAction(context, artwork),
+                createVisitUnsplashAction(context))
+    }
 
-    override fun onCommand(artwork: Artwork, id: Int) {
-        val context = context ?: return
-        when (id) {
-            COMMAND_ID_VIEW_PROFILE -> {
-                val profileUri = artwork.metadata?.toUri() ?: return
-                context.startActivity(Intent(Intent.ACTION_VIEW, profileUri))
-            }
-            COMMAND_ID_VISIT_UNSPLASH -> {
-                val unsplashUri = context.getString(R.string.unsplash_link) +
-                        ATTRIBUTION_QUERY_PARAMETERS
-                context.startActivity(Intent(Intent.ACTION_VIEW, unsplashUri.toUri()))
-            }
+    private fun createViewProfileAction(context: Context, artwork: Artwork): RemoteActionCompat? {
+        val profileUri = artwork.metadata?.toUri() ?: return null
+        val title = context.getString(R.string.action_view_profile, artwork.byline)
+        val intent = Intent(Intent.ACTION_VIEW, profileUri)
+        return RemoteActionCompat(
+                IconCompat.createWithResource(context, R.drawable.source_ic_profile),
+                title,
+                title,
+                PendingIntent.getActivity(context, 0, intent,
+                        PendingIntent.FLAG_UPDATE_CURRENT))
+    }
+
+    private fun createVisitUnsplashAction(context: Context): RemoteActionCompat {
+        val title = context.getString(R.string.action_visit_unsplash)
+        val unsplashUri = context.getString(R.string.unsplash_link) +
+            ATTRIBUTION_QUERY_PARAMETERS
+        val intent = Intent(Intent.ACTION_VIEW, unsplashUri.toUri())
+        return RemoteActionCompat(
+                IconCompat.createWithResource(context,
+                        com.google.android.apps.muzei.api.R.drawable.muzei_launch_command),
+                title,
+                title,
+                PendingIntent.getActivity(context, 0, intent,
+                        PendingIntent.FLAG_UPDATE_CURRENT)).apply {
+            setShouldShowIcon(false)
         }
     }
 
