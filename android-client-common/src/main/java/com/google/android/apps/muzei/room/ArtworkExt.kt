@@ -20,7 +20,6 @@ package com.google.android.apps.muzei.room
 
 import android.app.PendingIntent
 import android.content.Context
-import android.os.Bundle
 import android.os.RemoteException
 import android.util.Log
 import androidx.core.app.RemoteActionCompat
@@ -31,7 +30,6 @@ import com.google.android.apps.muzei.api.BuildConfig.API_VERSION
 import com.google.android.apps.muzei.api.UserCommand
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.DEFAULT_VERSION
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.GET_ARTWORK_INFO_MIN_VERSION
-import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_COMMAND
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_COMMANDS
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_GET_ARTWORK_INFO
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_OPEN_ARTWORK_INFO_SUCCESS
@@ -40,7 +38,6 @@ import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_A
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_COMMANDS
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_VERSION
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_OPEN_ARTWORK_INFO
-import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_TRIGGER_COMMAND
 import com.google.android.apps.muzei.api.internal.RemoteActionBroadcastReceiver
 import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
 import com.google.android.apps.muzei.legacy.LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK

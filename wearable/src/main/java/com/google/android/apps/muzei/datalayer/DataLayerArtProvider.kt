@@ -35,8 +35,6 @@ import java.io.InputStream
 class DataLayerArtProvider : MuzeiArtProvider() {
 
     companion object {
-        private const val TAG = "DataLayerArtProvider"
-
         fun getAssetFile(context: Context): File =
                 File(context.filesDir, "data_layer")
     }
