@@ -25,8 +25,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
+import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
 import com.google.android.apps.muzei.room.InstalledProvidersLiveData
-import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
 
 internal data class Action(
@@ -51,10 +51,10 @@ internal class TaskerSettingViewModel(
         }
         // The SourceArtProvider should always the last provider listed
         if (a1.action is SelectProviderAction &&
-                a1.action.authority == BuildConfig.LEGACY_AUTHORITY) {
+                a1.action.authority == LEGACY_AUTHORITY) {
             return@Comparator 1
         } else if (a2.action is SelectProviderAction &&
-                a2.action.authority == BuildConfig.LEGACY_AUTHORITY) {
+                a2.action.authority == LEGACY_AUTHORITY) {
             return@Comparator -1
         }
         // Then put providers from Muzei on top
@@ -73,7 +73,7 @@ internal class TaskerSettingViewModel(
 
     val actions : LiveData<List<Action>> = object : MutableLiveData<List<Action>>() {
         val nextArtworkAction = Action(
-                ContextCompat.getDrawable(application, R.drawable.ic_next_artwork)!!.apply {
+                ContextCompat.getDrawable(application, R.drawable.ic_launcher_next_artwork)!!.apply {
                     setBounds(0, 0, imageSize, imageSize)
                 },
                 application.getString(R.string.action_next_artwork),

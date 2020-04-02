@@ -42,5 +42,5 @@
         android:background="@drawable/white_selectable_item_background"
         android:contentDescription="@string/action_next_artwork"
         android:padding="@dimen/widget_padding"
-        android:src="@drawable/ic_skip"/>
+        android:src="@drawable/ic_next_artwork"/>
 </FrameLayout>

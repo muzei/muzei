@@ -23,6 +23,8 @@ import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
  *
  * @see MuzeiArtProvider.getCommands
  */
+@Deprecated("The UserCommand class have been replaced with RemoteActionCompat, see " +
+        "getCommandActions().")
 data class UserCommand(
         /**
          * The unique ID for this user command
@@ -41,6 +43,8 @@ data class UserCommand(
      *
      * @see deserialize
      */
+    @Suppress("DeprecatedCallableAddReplaceWith")
+    @Deprecated("UserCommands should not be serialized and deserialized")
     fun serialize(): String {
         return id.toString() + if (title.isNullOrEmpty()) "" else ":$title"
     }
@@ -53,6 +57,8 @@ data class UserCommand(
          *
          * @return the deserialized [UserCommand] from the given string.
          */
+        @Suppress("DEPRECATION")
+        @Deprecated("UserCommands should not be serialized and deserialized")
         @JvmStatic
         fun deserialize(serialized: String): UserCommand {
             if (serialized.isEmpty()) {

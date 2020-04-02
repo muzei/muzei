@@ -133,7 +133,7 @@
         <activity
             android:name="com.google.android.apps.muzei.NextArtworkActivity"
             android:label="@string/action_next_artwork"
-            android:icon="@drawable/ic_next_artwork"
+            android:icon="@drawable/ic_launcher_next_artwork"
             android:exported="true"
             android:excludeFromRecents="true"
             android:taskAffinity=""

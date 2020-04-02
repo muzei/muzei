@@ -22,6 +22,8 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
 import android.util.Log
+import androidx.core.app.RemoteActionCompat
+import androidx.core.graphics.drawable.IconCompat
 import com.google.android.apps.muzei.api.UserCommand
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
@@ -62,6 +64,7 @@ class SourceArtProvider : MuzeiArtProvider() {
         }
     } ?: ""
 
+    @Suppress("OverridingDeprecatedMember") /* for backward compatibility */
     @SuppressLint("Range")
     override fun getCommands(artwork: Artwork): List<UserCommand> = context?.let { context ->
         LegacyDatabase.getInstance(context).sourceDao().currentSourceBlocking?.run {
@@ -70,11 +73,12 @@ class SourceArtProvider : MuzeiArtProvider() {
                     add(UserCommand(LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK,
                             context.getString(R.string.legacy_action_next_artwork)))
                 }
-                addAll(commands)
+                addAll(commands.map { UserCommand.deserialize(it) })
             }
         }
     } ?: super.getCommands(artwork)
 
+    @Suppress("OverridingDeprecatedMember") /* for backward compatibility */
     override fun onCommand(artwork: Artwork, id: Int) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Sending command $id for ${artwork.id}")
@@ -86,6 +90,31 @@ class SourceArtProvider : MuzeiArtProvider() {
         val context = context ?: return@launch
         LegacyDatabase.getInstance(context).sourceDao().getCurrentSource()?.sendAction(context, id)
     }
+
+    override fun getCommandActions(artwork: Artwork) = context?.let { context ->
+        LegacyDatabase.getInstance(context).sourceDao().currentSourceBlocking?.run {
+            mutableListOf<RemoteActionCompat>().apply {
+                if (supportsNextArtwork) {
+                    add(RemoteActionCompat(
+                            IconCompat.createWithResource(context, R.drawable.legacy_ic_next_artwork),
+                            context.getString(R.string.legacy_action_next_artwork),
+                            context.getString(R.string.legacy_action_next_artwork),
+                            SendActionBroadcastReceiver.createPendingIntent(context,
+                                    LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK)))
+                }
+                addAll(commands.map { UserCommand.deserialize(it) }.map { command ->
+                    RemoteActionCompat(
+                            IconCompat.createWithResource(context, R.drawable.muzei_launch_command),
+                            command.title ?: "",
+                            command.title ?: "",
+                            SendActionBroadcastReceiver.createPendingIntent(context, command.id)
+                    ).apply {
+                        setShouldShowIcon(false)
+                    }
+                })
+            }
+        }
+    } ?: super.getCommandActions(artwork)
 
     override fun getArtworkInfo(artwork: Artwork): PendingIntent? {
         val context = context ?: return null

@@ -21,11 +21,10 @@ import androidx.lifecycle.observe
 import androidx.wear.ambient.AmbientModeSupport
 import androidx.wear.widget.RoundedDrawable
 import com.google.android.apps.muzei.datalayer.ActivateMuzeiIntentService
-import com.google.android.apps.muzei.datalayer.DataLayerArtProvider
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.room.sendAction
+import com.google.android.apps.muzei.room.getCommands
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.filterNotNull
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -33,7 +32,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig
-import net.nurik.roman.muzei.BuildConfig.DATA_LAYER_AUTHORITY
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.MuzeiActivityBinding
 import java.text.SimpleDateFormat
@@ -115,15 +113,6 @@ class MuzeiActivity : FragmentActivity(),
         binding.nextArtwork.setOnClickListener {
             ProviderManager.getInstance(this).nextArtwork()
         }
-        binding.openOnPhone.setCompoundDrawablesRelative(RoundedDrawable().apply {
-            isClipEnabled = true
-            radius = resources.getDimensionPixelSize(R.dimen.art_detail_open_on_phone_radius)
-            backgroundColor = ContextCompat.getColor(this@MuzeiActivity,
-                    R.color.theme_primary)
-            drawable = ContextCompat.getDrawable(this@MuzeiActivity,
-                    R.drawable.open_on_phone_button)
-            bounds = Rect(0, 0, radius * 2, radius * 2)
-        }, null, null, null)
         binding.provider.setOnClickListener {
             startActivity(Intent(this@MuzeiActivity,
                     ChooseProviderActivity::class.java))
@@ -159,19 +148,36 @@ class MuzeiActivity : FragmentActivity(),
                 binding.byline.isVisible = !artwork.byline.isNullOrBlank()
                 binding.attribution.text = artwork.attribution
                 binding.attribution.isVisible = !artwork.attribution.isNullOrBlank()
-                binding.openOnPhone.setOnClickListener {
-                    lifecycleScope.launch {
+                val commands = artwork.getCommands(this@MuzeiActivity)
+                // TODO Show multiple commands rather than only the first
+                val command = commands.filterNot { action ->
+                    action.title.isBlank()
+                }.firstOrNull { action ->
+                    action.shouldShowIcon()
+                }
+                if (command != null) {
+                    binding.command.text = command.title
+                    binding.command.setCompoundDrawablesRelative(RoundedDrawable().apply {
+                        isClipEnabled = true
+                        radius = resources.getDimensionPixelSize(R.dimen.art_detail_open_on_phone_radius)
+                        backgroundColor = ContextCompat.getColor(this@MuzeiActivity,
+                                R.color.theme_primary)
+                        drawable = command.icon.loadDrawable(this@MuzeiActivity)
+                        bounds = Rect(0, 0, radius * 2, radius * 2)
+                    }, null, null, null)
+                    binding.command.setOnClickListener {
                         FirebaseAnalytics.getInstance(this@MuzeiActivity).logEvent(
                                 FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                                FirebaseAnalytics.Param.ITEM_ID to DataLayerArtProvider.OPEN_ON_PHONE_ACTION,
+                                FirebaseAnalytics.Param.ITEM_ID to artwork.providerAuthority,
                                 FirebaseAnalytics.Param.ITEM_NAME to getString(R.string.common_open_on_phone),
                                 FirebaseAnalytics.Param.ITEM_CATEGORY to "actions",
                                 FirebaseAnalytics.Param.CONTENT_TYPE to "wear_activity"))
-                        artwork.sendAction(this@MuzeiActivity,
-                                DataLayerArtProvider.OPEN_ON_PHONE_ACTION)
+                        command.actionIntent.send()
                     }
+                    binding.command.isVisible = true
+                } else {
+                    binding.command.isVisible = false
                 }
-                binding.openOnPhone.isVisible = artwork.providerAuthority == DATA_LAYER_AUTHORITY
             }
         }
 

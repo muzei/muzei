@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
+
 package com.google.android.apps.muzei.api.provider
 
 import android.annotation.SuppressLint
@@ -42,7 +44,14 @@ import android.provider.BaseColumns
 import android.util.Log
 import androidx.annotation.CallSuper
 import androidx.annotation.RequiresApi
+import androidx.core.app.RemoteActionCompat
+import androidx.core.graphics.drawable.IconCompat
+import androidx.versionedparcelable.ParcelUtils
+import com.google.android.apps.muzei.api.BuildConfig
+import com.google.android.apps.muzei.api.R
 import com.google.android.apps.muzei.api.UserCommand
+import com.google.android.apps.muzei.api.internal.ProtocolConstants.DEFAULT_VERSION
+import com.google.android.apps.muzei.api.internal.ProtocolConstants.GET_COMMAND_ACTIONS_MIN_VERSION
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_COMMAND
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_COMMANDS
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_DESCRIPTION
@@ -62,6 +71,7 @@ import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_MARK_
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_OPEN_ARTWORK_INFO
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_REQUEST_LOAD
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_TRIGGER_COMMAND
+import com.google.android.apps.muzei.api.internal.RemoteActionBroadcastReceiver
 import com.google.android.apps.muzei.api.internal.getRecentIds
 import com.google.android.apps.muzei.api.internal.putRecentIds
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider.Companion.ACCESS_PERMISSION
@@ -174,8 +184,7 @@ import java.util.HashSet
  *
  * ### Additional notes
  * Providers can also expose additional user-facing commands (such as 'Share artwork') by
- * returning one or more [commands][UserCommand] from [getCommands]. To handle
- * commands, override the [onCommand] callback method.
+ * returning one or more [RemoteActionCompat] instances from [getCommandActions].
  *
  * Providers can provide a dynamic description of the current configuration (e.g.
  * 'Popular photos tagged "landscape"'), by overriding [getDescription]. By default,
@@ -384,7 +393,7 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
             when (method) {
                 METHOD_GET_VERSION -> {
                     return Bundle().apply {
-                        putInt(KEY_VERSION, com.google.android.apps.muzei.api.BuildConfig.API_VERSION)
+                        putInt(KEY_VERSION, BuildConfig.API_VERSION)
                     }
                 }
                 METHOD_REQUEST_LOAD -> databaseHelper.readableDatabase.query(TABLE_NAME,
@@ -440,12 +449,20 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
                 METHOD_GET_COMMANDS -> query(Uri.parse(arg), null, null, null, null).use { data ->
                     if (data.moveToNext()) {
                         return Bundle().apply {
-                            val userCommands = getCommands(Artwork.fromCursor(data))
-                            val commandsSerialized = JSONArray()
-                            for (command in userCommands) {
-                                commandsSerialized.put(command.serialize())
+                            val muzeiVersion = extras?.getInt(KEY_VERSION, DEFAULT_VERSION)
+                                    ?: DEFAULT_VERSION
+                            if (muzeiVersion >= GET_COMMAND_ACTIONS_MIN_VERSION) {
+                                val userCommands = getCommandActions(Artwork.fromCursor(data))
+                                putInt(KEY_VERSION, BuildConfig.API_VERSION)
+                                ParcelUtils.putVersionedParcelableList(this, KEY_COMMANDS, userCommands)
+                            } else {
+                                val userCommands = getCommands(Artwork.fromCursor(data))
+                                val commandsSerialized = JSONArray()
+                                for (command in userCommands) {
+                                    commandsSerialized.put(command.serialize())
+                                }
+                                putString(KEY_COMMANDS, commandsSerialized.toString())
                             }
-                            putString(KEY_COMMANDS, commandsSerialized.toString())
                         }.also {
                             if (Log.isLoggable(TAG, Log.VERBOSE)) {
                                 Log.v(TAG, "For $METHOD_GET_COMMANDS returning $it")
@@ -463,7 +480,6 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
                 METHOD_OPEN_ARTWORK_INFO -> query(Uri.parse(arg), null, null, null, null).use { data ->
                     if (data.moveToNext()) {
                         return Bundle().apply {
-                            @Suppress("DEPRECATION")
                             val success = openArtworkInfo(Artwork.fromCursor(data))
                             putBoolean(KEY_OPEN_ARTWORK_INFO_SUCCESS, success)
                         }.also {
@@ -548,18 +564,55 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
      * @return A List of [commands][UserCommand] that the user can trigger.
      * @see onCommand
      */
+    @Deprecated(message = "Override getCommandActions() to set an icon and PendingIntent " +
+            "that should be triggered. This method will still be called on devices that " +
+            "have an older version of Muzei installed.",
+            replaceWith = ReplaceWith("getCommandActions(artwork)"))
     open fun getCommands(artwork: Artwork): List<UserCommand> {
         return ArrayList()
     }
 
     /**
-     * Callback method indicating that the user has selected a command.
+     * Callback method indicating that the user has selected a command returned by
+     * [getCommands].
      *
      * @param artwork The artwork at the time when this command was triggered.
      * @param id the ID of the command the user has chosen.
      * @see getCommands
      */
+    @Deprecated("Provide your own PendingIntent for each RemoteActionCompat returned " +
+            "by getCommandActions(). This method will still be called on devices that " +
+            "have an older version of Muzei installed if you continue to override getCommands().")
     open fun onCommand(artwork: Artwork, id: Int) {
+    }
+
+    /**
+     * Retrieve the list of commands available for the given artwork. Each action should have
+     * an icon 48x48dp. Muzei respects the [RemoteActionCompat.setShouldShowIcon] to determine
+     * when to show the action as an icon (assuming there is enough space). Actions with a
+     * blank title will be ignored by Muzei.
+     *
+     * Each action triggers a [PendingIntent]. This can directly open an Activity for sending
+     * the user to an external app / website or can point to a [android.content.BroadcastReceiver]
+     * for doing a small amount of background work.
+     *
+     * @param artwork The associated artwork that can be used to customize the list of available
+     * commands.
+     * @return A List of [commands][RemoteActionCompat] that the user can trigger.
+     */
+    open fun getCommandActions(artwork: Artwork) : List<RemoteActionCompat> {
+        val context = context ?: return listOf()
+        return getCommands(artwork).map { command ->
+            RemoteActionCompat(
+                    IconCompat.createWithResource(context, R.drawable.muzei_launch_command),
+                    command.title ?: "",
+                    command.title ?: "",
+                    RemoteActionBroadcastReceiver.createPendingIntent(
+                            context, authority, artwork.id, command.id)
+            ).apply {
+                setShouldShowIcon(false)
+            }
+        }
     }
 
     /**

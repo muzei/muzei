@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package com.google.android.apps.muzei.room
 
 import android.app.PendingIntent
@@ -21,6 +23,11 @@ import android.content.Context
 import android.os.Bundle
 import android.os.RemoteException
 import android.util.Log
+import androidx.core.app.RemoteActionCompat
+import androidx.core.graphics.drawable.IconCompat
+import androidx.core.os.bundleOf
+import androidx.versionedparcelable.ParcelUtils
+import com.google.android.apps.muzei.api.BuildConfig.API_VERSION
 import com.google.android.apps.muzei.api.UserCommand
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.DEFAULT_VERSION
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.GET_ARTWORK_INFO_MIN_VERSION
@@ -34,6 +41,9 @@ import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_C
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_GET_VERSION
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_OPEN_ARTWORK_INFO
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_TRIGGER_COMMAND
+import com.google.android.apps.muzei.api.internal.RemoteActionBroadcastReceiver
+import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
+import com.google.android.apps.muzei.legacy.LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
 import com.google.android.apps.muzei.util.toastFromBackground
 import net.nurik.roman.muzei.androidclientcommon.R
@@ -79,39 +89,49 @@ suspend fun Artwork.openArtworkInfo(context: Context) {
     }
 }
 
-suspend fun Artwork.getCommands(context: Context) : List<UserCommand> {
+suspend fun Artwork.getCommands(context: Context) : List<RemoteActionCompat> {
     return ContentProviderClientCompat.getClient(context, imageUri)?.use { client ->
         return try {
-            val result = client.call(METHOD_GET_COMMANDS, imageUri.toString())
-            result?.getString(KEY_COMMANDS, null)?.run {
-                val commands = mutableListOf<UserCommand>()
-                try {
-                    val commandArray = JSONArray(this)
-                    for (index in 0 until commandArray.length()) {
-                        commands.add(UserCommand.deserialize(commandArray.getString(index)))
+            val result = client.call(METHOD_GET_COMMANDS, imageUri.toString(),
+                    bundleOf(KEY_VERSION to API_VERSION))
+                    ?: return ArrayList()
+            val extensionVersion = result.getInt(KEY_VERSION, DEFAULT_VERSION)
+            if (extensionVersion >= GET_ARTWORK_INFO_MIN_VERSION) {
+                ParcelUtils.getVersionedParcelableList(result, KEY_COMMANDS) ?: ArrayList()
+            } else {
+                result.getString(KEY_COMMANDS, null)?.run {
+                    val commands = mutableListOf<UserCommand>()
+                    try {
+                        val commandArray = JSONArray(this)
+                        for (index in 0 until commandArray.length()) {
+                            commands.add(UserCommand.deserialize(commandArray.getString(index)))
+                        }
+                    } catch (e: JSONException) {
+                        Log.e(TAG, "Error parsing commands from $this", e)
                     }
-                } catch (e: JSONException) {
-                    Log.e(TAG, "Error parsing commands from $this", e)
-                }
-                commands
-            } ?: ArrayList()
+                    commands.map { command ->
+                        val isLegacyNext = providerAuthority == LEGACY_AUTHORITY &&
+                                command.id == LEGACY_COMMAND_ID_NEXT_ARTWORK
+                        val iconResourceId = if (isLegacyNext)
+                            R.drawable.muzei_launch_command
+                        else
+                            R.drawable.ic_next_artwork
+                        RemoteActionCompat(
+                                IconCompat.createWithResource(context, iconResourceId),
+                                command.title ?: "",
+                                command.title ?: "",
+                                RemoteActionBroadcastReceiver.createPendingIntent(context,
+                                        providerAuthority, id, command.id)).apply {
+                            setShouldShowIcon(isLegacyNext)
+                        }
+                    }
+                } ?: ArrayList()
+            }
         } catch (e: RemoteException) {
             Log.i(TAG, "Provider for $imageUri crashed while retrieving commands", e)
             ArrayList()
         }
-    } ?: ArrayList<UserCommand>().also {
+    } ?: ArrayList<RemoteActionCompat>().also {
         Log.i(TAG, "Could not connect to provider for $imageUri while retrieving commands")
-    }
-}
-
-suspend fun Artwork.sendAction(context: Context, id: Int) {
-    ContentProviderClientCompat.getClient(context, imageUri)?.use { client ->
-        try {
-            client.call(METHOD_TRIGGER_COMMAND,
-                    imageUri.toString(),
-                    Bundle().apply { putInt(KEY_COMMAND, id) })
-        } catch (e: RemoteException) {
-            Log.i(TAG, "Provider for $imageUri crashed while sending action", e)
-        }
     }
 }

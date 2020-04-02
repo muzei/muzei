@@ -85,6 +85,9 @@
         </provider>
 
         <receiver
+            android:name="com.google.android.apps.muzei.datalayer.OpenOnPhoneReceiver" />
+
+        <receiver
             android:name="com.google.android.apps.muzei.ProviderChangedReceiver"
             android:exported="false">
             <intent-filter>

@@ -67,7 +67,8 @@
         android:gravity="bottom"
         android:layout_gravity="bottom"
         android:orientation="horizontal"
-        android:fitsSystemWindows="true">
+        android:fitsSystemWindows="true"
+        android:theme="@style/ThemeOverlay.Muzei.DetailPane">
 
         <FrameLayout
             android:layout_width="0dp"
@@ -105,7 +106,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/art_detail_title_text_size"
-                    android:textColor="#fff"
                     app:shadowColor="#8000"
                     app:shadowDx="0dp"
                     app:shadowDy="1dp"
@@ -121,7 +121,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/art_detail_byline_text_size"
-                    android:textColor="#fff"
                     app:shadowColor="#8000"
                     app:shadowDx="0dp"
                     app:shadowDy="1dp"
@@ -138,7 +137,7 @@
             android:layout_width="@dimen/art_detail_button_width"
             android:layout_height="@dimen/art_detail_button_height"
             android:background="?selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_skip"
+            android:src="@drawable/ic_next_artwork"
             android:scaleType="center"
             android:contentDescription="@string/action_next_artwork"
             android:visibility="gone"/>
@@ -146,8 +145,7 @@
         <androidx.appcompat.widget.ActionMenuView
             android:id="@+id/overflow_menu"
             android:layout_width="wrap_content"
-            android:layout_height="@dimen/art_detail_button_height"
-            android:theme="@style/ThemeOverlay.Muzei.AccentPrimary"/>
+            android:layout_height="@dimen/art_detail_button_height"/>
 
     </LinearLayout>
 

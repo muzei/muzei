@@ -34,11 +34,9 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import coil.api.load
-import com.google.android.apps.muzei.legacy.LegacySourceServiceProtocol
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.getCommands
-import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -122,7 +120,7 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
                 owner.lifecycleScope.launch(Dispatchers.Main) {
                     FirebaseAnalytics.getInstance(context).logEvent(
                             FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                            FirebaseAnalytics.Param.ITEM_ID to artwork.id,
+                            FirebaseAnalytics.Param.ITEM_ID to artwork.providerAuthority,
                             FirebaseAnalytics.Param.ITEM_NAME to artwork.title,
                             FirebaseAnalytics.Param.ITEM_CATEGORY to "artwork",
                             FirebaseAnalytics.Param.CONTENT_TYPE to "browse"))
@@ -139,18 +137,20 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
             itemView.setOnCreateContextMenuListener(null)
             owner.lifecycleScope.launch(Dispatchers.Main.immediate) {
                 val actions = artwork.getCommands(context).filterNot {
-                    it.id == LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK
-                }.filterNot {
-                    it.title.isNullOrEmpty()
+                    it.title.isBlank()
                 }
                 if (actions.isNotEmpty()) {
                     itemView.setOnCreateContextMenuListener { menu, _, _ ->
                         actions.forEachIndexed { index, action ->
-                            menu.add(Menu.NONE, action.id, index, action.title).apply {
-                                setOnMenuItemClickListener {
-                                    owner.lifecycleScope.launch {
-                                        artwork.sendAction(context, action.id)
-                                    }
+                            menu.add(Menu.NONE, index, index, action.title).apply {
+                                    setOnMenuItemClickListener { menuItem ->
+                                    FirebaseAnalytics.getInstance(context).logEvent(
+                                            FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
+                                            FirebaseAnalytics.Param.ITEM_ID to artwork.providerAuthority,
+                                            FirebaseAnalytics.Param.ITEM_NAME to menuItem.title,
+                                            FirebaseAnalytics.Param.ITEM_CATEGORY to "actions",
+                                            FirebaseAnalytics.Param.CONTENT_TYPE to "browse"))
+                                    action.actionIntent.send()
                                     true
                                 }
                             }

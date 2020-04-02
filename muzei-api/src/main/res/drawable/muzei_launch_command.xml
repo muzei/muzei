@@ -1,5 +1,5 @@
 <!--
-  Copyright 2018 Google Inc.
+  Copyright 2020 Google Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,13 +14,16 @@
   limitations under the License.
   -->
 
-<vector
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
     android:height="48dp"
-    android:viewportHeight="48"
-    android:viewportWidth="48"
-    android:width="48dp">
-    <path
-        android:fillColor="#FFF"
-        android:pathData="M21,24L15,30L17,32L24,25L25,24L24,23L17,16L15,18L22,25ZM31,24L25,30L27,32L34,25L35,24L34,23L27,16L25,18L32,25Z"/>
+    android:viewportWidth="28"
+    android:viewportHeight="28">
+    <group
+        android:translateX="2"
+        android:translateY="2">
+        <path
+            android:fillColor="#FFF"
+            android:pathData="M19,19H5V5h7V3H5c-1.11,0 -2,0.9 -2,2v14c0,1.1 0.89,2 2,2h14c1.1,0 2,-0.9 2,-2v-7h-2v7zM14,3v2h3.59l-9.83,9.83 1.41,1.41L19,6.41V10h2V3h-7z" />
+    </group>
 </vector>

@@ -26,7 +26,6 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
-import com.google.android.apps.muzei.api.UserCommand
 import com.google.android.apps.muzei.util.toastFromBackground
 import net.nurik.roman.muzei.legacy.BuildConfig
 import net.nurik.roman.muzei.legacy.R
@@ -68,7 +67,7 @@ class Source(
     var supportsNextArtwork: Boolean = false
 
     @TypeConverters(UserCommandTypeConverter::class)
-    var commands: MutableList<UserCommand> = ArrayList()
+    var commands: MutableList<String> = ArrayList()
 }
 
 private const val TAG = "Source"

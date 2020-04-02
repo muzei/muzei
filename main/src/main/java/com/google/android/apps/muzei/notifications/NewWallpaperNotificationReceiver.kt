@@ -41,7 +41,6 @@ import com.google.android.apps.muzei.legacy.allowsNextArtwork
 import com.google.android.apps.muzei.render.ContentUriImageLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.getCommands
-import com.google.android.apps.muzei.room.sendAction
 import com.google.android.apps.muzei.util.goAsync
 import com.google.firebase.analytics.FirebaseAnalytics
 import net.nurik.roman.muzei.R
@@ -327,11 +326,11 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                 commands.find { selectedCommand == it.title }?.run {
                     FirebaseAnalytics.getInstance(context).logEvent(
                             FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                            FirebaseAnalytics.Param.ITEM_ID to id,
+                            FirebaseAnalytics.Param.ITEM_ID to artwork.providerAuthority,
                             FirebaseAnalytics.Param.ITEM_NAME to title,
                             FirebaseAnalytics.Param.ITEM_CATEGORY to "actions",
                             FirebaseAnalytics.Param.CONTENT_TYPE to "notification"))
-                    artwork.sendAction(context, id)
+                    actionIntent.send()
                 }
             }
     }
