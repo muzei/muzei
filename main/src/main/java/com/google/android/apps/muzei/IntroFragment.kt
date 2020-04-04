@@ -79,7 +79,9 @@ class IntroFragment : Fragment(R.layout.intro_fragment) {
 
             binding.activateMuzei.alpha = 0f
             logoFragment.onFillStarted = {
-                binding.activateMuzei.animate().alpha(1f).setDuration(500)
+                binding.activateMuzei.animate().alpha(1f).apply {
+                    duration = 500
+                }
             }
             binding.activateMuzei.postDelayed({
                 if (logoFragment.isAdded) {

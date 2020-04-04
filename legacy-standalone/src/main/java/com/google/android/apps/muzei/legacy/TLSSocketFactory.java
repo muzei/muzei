@@ -74,7 +74,7 @@ class TLSSocketFactory extends SSLSocketFactory {
         return enableTLSOnSocket(delegate.createSocket(address, port, localAddress, localPort));
     }
 
-    private Socket enableTLSOnSocket(Socket socket) {
+    private static Socket enableTLSOnSocket(Socket socket) {
         if ((socket instanceof SSLSocket)) {
             ((SSLSocket) socket).setEnabledProtocols(new String[]{"TLSv1.1", "TLSv1.2"});
         }

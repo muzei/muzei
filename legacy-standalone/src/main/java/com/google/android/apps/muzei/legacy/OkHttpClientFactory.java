@@ -52,7 +52,7 @@ public class OkHttpClientFactory {
                 .connectTimeout(DEFAULT_CONNECT_TIMEOUT, TimeUnit.SECONDS)
                 .readTimeout(DEFAULT_READ_TIMEOUT, TimeUnit.SECONDS);
         if (enableTLS) {
-            client = enableTls12(client);
+            enableTls12(client);
         }
         return client.build();
     }
@@ -76,9 +76,8 @@ public class OkHttpClientFactory {
     /**
      * Enable TLS on the OKHttp builder by setting a custom SocketFactory
      * @param client the client to enable TLS
-     * @return an OkhttpClient.Builder with TLS enabled
      */
-    private static OkHttpClient.Builder enableTls12(OkHttpClient.Builder client) {
+    private static void enableTls12(OkHttpClient.Builder client) {
         try {
             TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(
                     TrustManagerFactory.getDefaultAlgorithm());
@@ -101,6 +100,5 @@ public class OkHttpClientFactory {
         } catch (Exception exc) {
             Log.e(TAG, "Error while setting TLS", exc);
         }
-        return client;
     }
 }

@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.room
 
+import android.app.Application
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
@@ -36,7 +37,7 @@ fun ProviderInfo.getComponentName() = ComponentName(packageName, name)
  * LiveData that returns the list of currently installed [MuzeiArtProvider] instances.
  */
 class InstalledProvidersLiveData(
-        private val context: Context,
+        private val application: Application,
         private val coroutineScope: CoroutineScope
 ) : MutableLiveData<List<ProviderInfo>>() {
 
@@ -62,7 +63,7 @@ class InstalledProvidersLiveData(
         if (packageName != null) {
             queryIntent.`package` = packageName
         }
-        val pm = context.packageManager
+        val pm = application.packageManager
         val resolveInfos = pm.queryIntentContentProviders(queryIntent,
                 PackageManager.GET_META_DATA)
         val newProviders = HashMap<ComponentName, ProviderInfo>().apply {
@@ -101,13 +102,13 @@ class InstalledProvidersLiveData(
             addAction(Intent.ACTION_PACKAGE_REPLACED)
             addAction(Intent.ACTION_PACKAGE_REMOVED)
         }
-        context.registerReceiver(packageChangeReceiver, packageChangeFilter)
+        application.registerReceiver(packageChangeReceiver, packageChangeFilter)
         coroutineScope.launch(singleThreadContext) {
             updateProviders()
         }
     }
 
     override fun onInactive() {
-        context.unregisterReceiver(packageChangeReceiver)
+        application.unregisterReceiver(packageChangeReceiver)
     }
 }

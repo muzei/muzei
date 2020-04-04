@@ -50,10 +50,11 @@ class MuzeiActivity : FragmentActivity(),
         private const val FACTOR = 0.146467f // c = a * sqrt(2)
     }
 
+    private val timeFormat12h = SimpleDateFormat("h:mm", Locale.getDefault())
+    private val timeFormat24h = SimpleDateFormat("H:mm", Locale.getDefault())
+
     private val ambientCallback: AmbientModeSupport.AmbientCallback =
             object : AmbientModeSupport.AmbientCallback() {
-                private val timeFormat12h = SimpleDateFormat("h:mm", Locale.getDefault())
-                private val timeFormat24h = SimpleDateFormat("H:mm", Locale.getDefault())
 
                 private var showImageOnExit = false
 

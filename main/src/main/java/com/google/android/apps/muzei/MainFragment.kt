@@ -119,7 +119,7 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
                             0,
                             insets.systemWindowInsetRight,
                             insets.systemWindowInsetBottom)).build())
-            insets.consumeSystemWindowInsets()?.consumeDisplayCutout()
+            insets.consumeSystemWindowInsets().consumeDisplayCutout()
         }
 
         // Listen for visibility changes to know when to hide our views
