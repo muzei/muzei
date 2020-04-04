@@ -15,7 +15,9 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.liveData
 import androidx.lifecycle.observe
+import androidx.lifecycle.switchMap
 import androidx.wear.ambient.AmbientModeSupport
 import androidx.wear.widget.RoundedDrawable
 import coil.api.load
@@ -41,6 +43,13 @@ import java.util.Locale
 class MuzeiViewModel(application: Application) : AndroidViewModel(application) {
 
     val artworkLiveData = MuzeiDatabase.getInstance(application).artworkDao().currentArtwork
+
+    val commandsLiveData = artworkLiveData.switchMap { artwork ->
+        liveData {
+            emit(artwork to
+                    (artwork?.getCommands(getApplication<Application>()) ?: emptyList()))
+        }
+    }
 }
 
 class MuzeiActivity : FragmentActivity(),
@@ -125,60 +134,60 @@ class MuzeiActivity : FragmentActivity(),
         }, null, null, null)
 
         viewModel.artworkLiveData.filterNotNull().observe(this) { artwork ->
-            lifecycleScope.launch(Dispatchers.Main) {
-                binding.artworkInfo.image.load(artwork.contentUri) {
-                    allowHardware(false)
-                    target { image ->
-                        binding.artworkInfo.image.setImageDrawable(RoundedDrawable().apply {
-                            isClipEnabled = true
-                            radius = resources.getDimensionPixelSize(R.dimen.art_detail_image_radius)
-                            drawable = image
-                        })
-                    }
-                    listener(
-                            onError = { _, _ -> binding.artworkInfo.image.isVisible = false },
-                            onSuccess = { _, _ -> binding.artworkInfo.image.isVisible = true }
-                    )
-                }
-                binding.artworkInfo.image.contentDescription = artwork.title
-                        ?: artwork.byline
-                        ?: artwork.attribution
-                binding.artworkInfo.title.text = artwork.title
-                binding.artworkInfo.title.isVisible = !artwork.title.isNullOrBlank()
-                binding.artworkInfo.byline.text = artwork.byline
-                binding.artworkInfo.byline.isVisible = !artwork.byline.isNullOrBlank()
-                binding.artworkInfo.attribution.text = artwork.attribution
-                binding.artworkInfo.attribution.isVisible = !artwork.attribution.isNullOrBlank()
-                val commands = artwork.getCommands(this@MuzeiActivity)
-                // TODO Show multiple commands rather than only the first
-                val command = commands.filterNot { action ->
-                    action.title.isBlank()
-                }.firstOrNull { action ->
-                    action.shouldShowIcon()
-                }
-                if (command != null) {
-                    binding.command.command.text = command.title
-                    binding.command.command.setCompoundDrawablesRelative(RoundedDrawable().apply {
+            binding.artworkInfo.image.load(artwork.contentUri) {
+                allowHardware(false)
+                target { image ->
+                    binding.artworkInfo.image.setImageDrawable(RoundedDrawable().apply {
                         isClipEnabled = true
-                        radius = resources.getDimensionPixelSize(R.dimen.art_detail_open_on_phone_radius)
-                        backgroundColor = ContextCompat.getColor(this@MuzeiActivity,
-                                R.color.theme_primary)
-                        drawable = command.icon.loadDrawable(this@MuzeiActivity)
-                        bounds = Rect(0, 0, radius * 2, radius * 2)
-                    }, null, null, null)
-                    binding.command.command.setOnClickListener {
-                        Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
-                            param(FirebaseAnalytics.Param.ITEM_LIST_ID, artwork.providerAuthority)
-                            param(FirebaseAnalytics.Param.ITEM_NAME, command.title.toString())
-                            param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "actions")
-                            param(FirebaseAnalytics.Param.CONTENT_TYPE, "wear_activity")
-                        }
-                        command.actionIntent.send()
-                    }
-                    binding.command.command.isVisible = true
-                } else {
-                    binding.command.command.isVisible = false
+                        radius = resources.getDimensionPixelSize(R.dimen.art_detail_image_radius)
+                        drawable = image
+                    })
                 }
+                listener(
+                        onError = { _, _ -> binding.artworkInfo.image.isVisible = false },
+                        onSuccess = { _, _ -> binding.artworkInfo.image.isVisible = true }
+                )
+            }
+            binding.artworkInfo.image.contentDescription = artwork.title
+                    ?: artwork.byline
+                    ?: artwork.attribution
+            binding.artworkInfo.title.text = artwork.title
+            binding.artworkInfo.title.isVisible = !artwork.title.isNullOrBlank()
+            binding.artworkInfo.byline.text = artwork.byline
+            binding.artworkInfo.byline.isVisible = !artwork.byline.isNullOrBlank()
+            binding.artworkInfo.attribution.text = artwork.attribution
+            binding.artworkInfo.attribution.isVisible = !artwork.attribution.isNullOrBlank()
+        }
+
+        viewModel.commandsLiveData.observe(this) { (artwork, commands) ->
+            // TODO Show multiple commands rather than only the first
+            val command = commands.filterNot { action ->
+                action.title.isBlank()
+            }.firstOrNull { action ->
+                action.shouldShowIcon()
+            }
+            if (artwork != null && command != null) {
+                binding.command.command.text = command.title
+                binding.command.command.setCompoundDrawablesRelative(RoundedDrawable().apply {
+                    isClipEnabled = true
+                    radius = resources.getDimensionPixelSize(R.dimen.art_detail_open_on_phone_radius)
+                    backgroundColor = ContextCompat.getColor(this@MuzeiActivity,
+                            R.color.theme_primary)
+                    drawable = command.icon.loadDrawable(this@MuzeiActivity)
+                    bounds = Rect(0, 0, radius * 2, radius * 2)
+                }, null, null, null)
+                binding.command.command.setOnClickListener {
+                    Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                        param(FirebaseAnalytics.Param.ITEM_LIST_ID, artwork.providerAuthority)
+                        param(FirebaseAnalytics.Param.ITEM_NAME, command.title.toString())
+                        param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "actions")
+                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "wear_activity")
+                    }
+                    command.actionIntent.send()
+                }
+                binding.command.command.isVisible = true
+            } else {
+                binding.command.command.isVisible = false
             }
         }
 
