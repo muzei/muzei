@@ -23,13 +23,13 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.MutableLiveData
-import androidx.viewpager.widget.ViewPager
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.apps.muzei.isPreviewMode
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer
 import com.google.android.apps.muzei.util.toast
+import com.google.android.material.tabs.TabLayoutMediator
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.EffectsFragmentBinding
 
@@ -160,9 +160,14 @@ class EffectsFragment : Fragment(R.layout.effects_fragment) {
                 else -> false
             }
         }
-        binding.viewPager.adapter = Adapter(childFragmentManager)
-        binding.tabLayout.setupWithViewPager(binding.viewPager)
-        binding.viewPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
+        binding.viewPager.adapter = Adapter(this)
+        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position -> 
+            tab.text = when(position) {
+                0 -> getString(R.string.settings_home_screen_title)
+                else -> getString(R.string.settings_lock_screen_title)
+            }
+        }.attach()
+        binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 EffectsLockScreenOpenLiveData.value = position == 1
             }
@@ -204,17 +209,10 @@ class EffectsFragment : Fragment(R.layout.effects_fragment) {
         super.onDestroyView()
     }
 
-    private inner class Adapter(
-            fragmentManager: FragmentManager
-    ) : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
-        override fun getCount() = 2
+    private class Adapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
+        override fun getItemCount() = 2
 
-        override fun getPageTitle(position: Int) = when(position) {
-            0 -> getString(R.string.settings_home_screen_title)
-            else -> getString(R.string.settings_lock_screen_title)
-        }
-
-        override fun getItem(position: Int) = when(position) {
+        override fun createFragment(position: Int) = when(position) {
             0 -> EffectsScreenFragment.create(
                     Prefs.PREF_BLUR_AMOUNT,
                     Prefs.PREF_DIM_AMOUNT,

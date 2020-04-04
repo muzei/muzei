@@ -67,11 +67,7 @@ class IntroFragment : Fragment(R.layout.intro_fragment) {
                 }
             }
         }
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        if (savedInstanceState == null) {
+        if (childFragmentManager.findFragmentById(R.id.animated_logo_fragment) == null) {
             val logoFragment = AnimatedMuzeiLogoFragment()
             childFragmentManager.commitNow {
                 add(R.id.animated_logo_fragment, logoFragment)
