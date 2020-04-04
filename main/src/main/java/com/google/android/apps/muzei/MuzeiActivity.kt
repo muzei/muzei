@@ -24,7 +24,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commit
@@ -38,6 +37,9 @@ import com.google.android.apps.muzei.render.MuzeiRendererFragment
 import com.google.android.apps.muzei.settings.EffectsFragment
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.MuzeiActivityBinding
@@ -58,25 +60,25 @@ class MuzeiActivity : AppCompatActivity() {
             return when {
                 WallpaperActiveState.value == true && seenTutorial -> {
                     // The wallpaper is active and they've seen the tutorial
-                    FirebaseAnalytics.getInstance(this).setCurrentScreen(this, "Main",
+                    Firebase.analytics.setCurrentScreen(this, "Main",
                             MainFragment::class.java.simpleName)
                     MainFragment()
                 }
                 WallpaperActiveState.value == true && !seenTutorial -> {
                     // They need to see the tutorial after activating Muzei for the first time
-                    FirebaseAnalytics.getInstance(this).setCurrentScreen(this, "Tutorial",
+                    Firebase.analytics.setCurrentScreen(this, "Tutorial",
                             TutorialFragment::class.java.simpleName)
                     TutorialFragment()
                 }
                 isPreviewMode -> {
                     // We're previewing the wallpaper and want to adjust its settings
-                    FirebaseAnalytics.getInstance(this).setCurrentScreen(this, "Effects",
+                    Firebase.analytics.setCurrentScreen(this, "Effects",
                             EffectsFragment::class.java.simpleName)
                     EffectsFragment()
                 }
                 else -> {
                     // Show the intro fragment to have them activate Muzei
-                    FirebaseAnalytics.getInstance(this).setCurrentScreen(this, "Intro",
+                    Firebase.analytics.setCurrentScreen(this, "Intro",
                             IntroFragment::class.java.simpleName)
                     IntroFragment()
                 }
@@ -92,7 +94,7 @@ class MuzeiActivity : AppCompatActivity() {
         }
         binding = MuzeiActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
+        Firebase.analytics.setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
 
         binding.container.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -132,9 +134,9 @@ class MuzeiActivity : AppCompatActivity() {
             }
         }
         if (intent?.hasCategory(Notification.INTENT_CATEGORY_NOTIFICATION_PREFERENCES) == true) {
-            FirebaseAnalytics.getInstance(this).logEvent(
-                    "notification_settings_open", bundleOf(
-                    FirebaseAnalytics.Param.CONTENT_TYPE to "intent"))
+            Firebase.analytics.logEvent("notification_settings_open") {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "intent")
+            }
             NotificationSettingsDialogFragment.showSettings(this,
                     supportFragmentManager)
         }

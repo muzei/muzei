@@ -30,6 +30,8 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.TutorialFragmentBinding
 
@@ -44,8 +46,7 @@ class TutorialFragment : Fragment(R.layout.tutorial_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = TutorialFragmentBinding.bind(view).content
         binding.iconAffordance.setOnClickListener {
-            FirebaseAnalytics.getInstance(requireContext())
-                    .logEvent(FirebaseAnalytics.Event.TUTORIAL_COMPLETE, null)
+            Firebase.analytics.logEvent(FirebaseAnalytics.Event.TUTORIAL_COMPLETE, null)
             PreferenceManager.getDefaultSharedPreferences(context).edit {
                 putBoolean(PREF_SEEN_TUTORIAL, true)
             }

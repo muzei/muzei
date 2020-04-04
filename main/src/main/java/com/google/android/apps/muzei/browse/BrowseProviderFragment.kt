@@ -21,7 +21,6 @@ import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.LifecycleOwner
@@ -40,6 +39,9 @@ import com.google.android.apps.muzei.room.getCommands
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -118,12 +120,12 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
             }
             itemView.setOnClickListener {
                 owner.lifecycleScope.launch(Dispatchers.Main) {
-                    FirebaseAnalytics.getInstance(context).logEvent(
-                            FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                            FirebaseAnalytics.Param.ITEM_ID to artwork.providerAuthority,
-                            FirebaseAnalytics.Param.ITEM_NAME to artwork.title,
-                            FirebaseAnalytics.Param.ITEM_CATEGORY to "artwork",
-                            FirebaseAnalytics.Param.CONTENT_TYPE to "browse"))
+                    Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                        param(FirebaseAnalytics.Param.ITEM_LIST_ID, artwork.providerAuthority)
+                        param(FirebaseAnalytics.Param.ITEM_NAME, artwork.title ?: "")
+                        param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "actions")
+                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "browse")
+                    }
                     MuzeiDatabase.getInstance(context).artworkDao()
                             .insert(artwork)
                     context.toast(if (artwork.title.isNullOrBlank()) {
@@ -144,12 +146,12 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
                         actions.forEachIndexed { index, action ->
                             menu.add(Menu.NONE, index, index, action.title).apply {
                                     setOnMenuItemClickListener { menuItem ->
-                                    FirebaseAnalytics.getInstance(context).logEvent(
-                                            FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                                            FirebaseAnalytics.Param.ITEM_ID to artwork.providerAuthority,
-                                            FirebaseAnalytics.Param.ITEM_NAME to menuItem.title,
-                                            FirebaseAnalytics.Param.ITEM_CATEGORY to "actions",
-                                            FirebaseAnalytics.Param.CONTENT_TYPE to "browse"))
+                                        Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                                            param(FirebaseAnalytics.Param.ITEM_LIST_ID, artwork.providerAuthority)
+                                            param(FirebaseAnalytics.Param.ITEM_NAME, menuItem.title.toString())
+                                            param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "actions")
+                                            param(FirebaseAnalytics.Param.CONTENT_TYPE, "browse")
+                                        }
                                     action.actionIntent.send()
                                     true
                                 }

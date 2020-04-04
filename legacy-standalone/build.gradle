@@ -103,7 +103,7 @@ dependencies {
     implementation "androidx.room:room-ktx:$roomVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
     implementation "com.google.android.material:material:$materialVersion"
-    implementation "com.google.firebase:firebase-analytics:$firebaseAnalyticsVersion"
+    implementation "com.google.firebase:firebase-analytics-ktx:$firebaseAnalyticsVersion"
     api "com.google.firebase:firebase-crashlytics:$firebaseCrashlyticsVersion"
     implementation "com.google.firebase:firebase-perf:$firebasePerfVersion"
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"

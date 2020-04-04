@@ -61,7 +61,8 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.ImageBlurrer
 import com.google.android.apps.muzei.util.blur
-import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig
@@ -108,7 +109,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
     override fun onCreate() {
         super.onCreate()
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
-        FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
+        Firebase.analytics.setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
         ProviderManager.getInstance(this).observe(this) { provider ->
             if (provider == null) {
                 val context = this@MuzeiWatchFace
@@ -248,7 +249,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
 
         override fun onCreate(holder: SurfaceHolder) {
             super.onCreate(holder)
-            FirebaseAnalytics.getInstance(this@MuzeiWatchFace).logEvent("watchface_created", null)
+            Firebase.analytics.logEvent("watchface_created", null)
             MuzeiDatabase.getInstance(this@MuzeiWatchFace)
                     .artworkDao().currentArtwork
                     .observe(this@MuzeiWatchFace, LoadImageObserver())
@@ -367,7 +368,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
         }
 
         override fun onDestroy() {
-            FirebaseAnalytics.getInstance(this@MuzeiWatchFace).logEvent("watchface_destroyed", null)
+            Firebase.analytics.logEvent("watchface_destroyed", null)
             updateTimeHandler.removeMessages(MSG_UPDATE_TIME)
             super.onDestroy()
         }

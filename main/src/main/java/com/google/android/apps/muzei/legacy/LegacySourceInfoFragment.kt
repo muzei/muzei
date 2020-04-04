@@ -22,7 +22,6 @@ import android.provider.Settings
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.net.toUri
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
@@ -32,6 +31,9 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.LegacySourceInfoFragmentBinding
 import net.nurik.roman.muzei.databinding.LegacySourceInfoItemBinding
@@ -74,10 +76,11 @@ class LegacySourceInfoFragment : Fragment(R.layout.legacy_source_info_fragment) 
             binding.icon.setImageBitmap(icon)
             binding.title.text = title
             binding.appInfo.setOnClickListener {
-                FirebaseAnalytics.getInstance(requireContext()).logEvent(
-                        "legacy_source_info_app_info_open", bundleOf(
-                        FirebaseAnalytics.Param.ITEM_ID to packageName,
-                        FirebaseAnalytics.Param.ITEM_NAME to title))
+                Firebase.analytics.logEvent("legacy_source_info_app_info_open") {
+                    param(FirebaseAnalytics.Param.ITEM_LIST_ID, packageName)
+                    param(FirebaseAnalytics.Param.ITEM_NAME, title)
+                    param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "sources")
+                }
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                 intent.data = "package:$packageName".toUri()
                 startActivity(intent)
@@ -87,10 +90,11 @@ class LegacySourceInfoFragment : Fragment(R.layout.legacy_source_info_fragment) 
             binding.sendFeedback.isVisible =
                     intent.resolveActivity(requireContext().packageManager) != null
             binding.sendFeedback.setOnClickListener {
-                FirebaseAnalytics.getInstance(requireContext()).logEvent(
-                        "legacy_source_info_send_feedback_open", bundleOf(
-                        FirebaseAnalytics.Param.ITEM_ID to packageName,
-                        FirebaseAnalytics.Param.ITEM_NAME to title))
+                Firebase.analytics.logEvent("legacy_source_info_send_feedback_open") {
+                    param(FirebaseAnalytics.Param.ITEM_LIST_ID, packageName)
+                    param(FirebaseAnalytics.Param.ITEM_NAME, title)
+                    param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "sources")
+                }
                 startActivity(intent)
             }
         }

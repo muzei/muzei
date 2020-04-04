@@ -25,7 +25,8 @@ import androidx.wear.ambient.AmbientModeSupport
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.filterNotNull
-import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -51,7 +52,7 @@ class FullScreenActivity : FragmentActivity(),
         AmbientModeSupport.attach(this)
         binding = FullScreenActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
+        Firebase.analytics.setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
 
         showLoadingIndicator = lifecycleScope.launch(Dispatchers.Main) {
             delay(500)

@@ -43,6 +43,9 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.getCommands
 import com.google.android.apps.muzei.util.goAsync
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
 import net.nurik.roman.muzei.R
 
 class NewWallpaperNotificationReceiver : BroadcastReceiver() {
@@ -305,7 +308,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
             when (intent?.action) {
                 ACTION_MARK_NOTIFICATION_READ -> markNotificationRead(context)
                 ACTION_NEXT_ARTWORK -> {
-                    FirebaseAnalytics.getInstance(context).logEvent(
+                    Firebase.analytics.logEvent(
                             "next_artwork", bundleOf(
                             FirebaseAnalytics.Param.CONTENT_TYPE to "notification"))
                     LegacySourceManager.getInstance(context).nextArtwork()
@@ -324,12 +327,12 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
             if (artwork != null) {
                 val commands = artwork.getCommands(context)
                 commands.find { selectedCommand == it.title }?.run {
-                    FirebaseAnalytics.getInstance(context).logEvent(
-                            FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                            FirebaseAnalytics.Param.ITEM_ID to artwork.providerAuthority,
-                            FirebaseAnalytics.Param.ITEM_NAME to title,
-                            FirebaseAnalytics.Param.ITEM_CATEGORY to "actions",
-                            FirebaseAnalytics.Param.CONTENT_TYPE to "notification"))
+                    Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                        param(FirebaseAnalytics.Param.ITEM_LIST_ID, artwork.providerAuthority)
+                        param(FirebaseAnalytics.Param.ITEM_NAME, title.toString())
+                        param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "actions")
+                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "notification")
+                    }
                     actionIntent.send()
                 }
             }

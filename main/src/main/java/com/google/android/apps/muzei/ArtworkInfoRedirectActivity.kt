@@ -18,12 +18,14 @@ package com.google.android.apps.muzei
 
 import android.content.Context
 import android.content.Intent
-import androidx.core.os.bundleOf
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.openArtworkInfo
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
 
 /**
  * Open the Artwork Info associated with the current artwork
@@ -46,9 +48,9 @@ class ArtworkInfoRedirectActivity : FragmentActivity() {
                     .getCurrentArtwork()
             artwork?.run {
                 val from = intent?.getStringExtra(EXTRA_FROM) ?: "activity_shortcut"
-                FirebaseAnalytics.getInstance(this@ArtworkInfoRedirectActivity).logEvent(
-                        "artwork_info_open", bundleOf(
-                        FirebaseAnalytics.Param.CONTENT_TYPE to from))
+                Firebase.analytics.logEvent("artwork_info_open") {
+                    param(FirebaseAnalytics.Param.CONTENT_TYPE, from)
+                }
                 openArtworkInfo(this@ArtworkInfoRedirectActivity)
             }
             finish()

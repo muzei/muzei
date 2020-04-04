@@ -31,7 +31,6 @@ import androidx.appcompat.widget.TooltipCompat
 import androidx.core.app.RemoteActionCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.IconCompat
-import androidx.core.os.bundleOf
 import androidx.core.view.children
 import androidx.core.view.get
 import androidx.core.view.isGone
@@ -64,6 +63,9 @@ import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.makeCubicGradientScrimDrawable
 import com.google.android.apps.muzei.widget.showWidgetPreview
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -168,12 +170,12 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment), (Boolean) -> U
             val action = overflowSourceActionMap.get(menuItem.itemId)
             if (action != null) {
                 currentArtworkLiveData.value?.run {
-                    FirebaseAnalytics.getInstance(context).logEvent(
-                            FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                            FirebaseAnalytics.Param.ITEM_ID to providerAuthority,
-                            FirebaseAnalytics.Param.ITEM_NAME to menuItem.title,
-                            FirebaseAnalytics.Param.ITEM_CATEGORY to "actions",
-                            FirebaseAnalytics.Param.CONTENT_TYPE to "art_detail"))
+                    Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                        param(FirebaseAnalytics.Param.ITEM_LIST_ID, providerAuthority)
+                        param(FirebaseAnalytics.Param.ITEM_NAME, menuItem.title.toString())
+                        param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "actions")
+                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "art_detail")
+                    }
                     action.actionIntent.send()
                 }
                 return@setOnMenuItemClickListener true
@@ -181,20 +183,21 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment), (Boolean) -> U
 
             return@setOnMenuItemClickListener when (menuItem.itemId) {
                 R.id.action_gestures -> {
-                    FirebaseAnalytics.getInstance(context).logEvent("gestures_open", null)
+                    Firebase.analytics.logEvent("gestures_open", null)
                     findNavController().navigate(ArtDetailFragmentDirections.gestures())
                     true
                 }
                 R.id.action_always_dark -> {
                     val alwaysDark = !menuItem.isChecked
                     menuItem.isChecked = alwaysDark
-                    FirebaseAnalytics.getInstance(context).logEvent("always_dark", bundleOf(
-                            FirebaseAnalytics.Param.CONTENT_TYPE to alwaysDark.toString()))
+                    Firebase.analytics.logEvent("always_dark") {
+                        param(FirebaseAnalytics.Param.VALUE, alwaysDark.toString())
+                    }
                     MuzeiApplication.setAlwaysDark(context, alwaysDark)
                     true
                 }
                 R.id.action_about -> {
-                    FirebaseAnalytics.getInstance(context).logEvent("about_open", null)
+                    Firebase.analytics.logEvent("about_open", null)
                     startActivity(Intent(context, AboutActivity::class.java))
                     true
                 }
@@ -203,8 +206,9 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment), (Boolean) -> U
         }
 
         binding.nextArtwork.setOnClickListener {
-            FirebaseAnalytics.getInstance(requireContext()).logEvent("next_artwork", bundleOf(
-                    FirebaseAnalytics.Param.CONTENT_TYPE to "art_detail"))
+            Firebase.analytics.logEvent("next_artwork") {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "art_detail")
+            }
             ProviderManager.getInstance(requireContext()).nextArtwork()
             showFakeLoading()
         }
@@ -302,8 +306,9 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment), (Boolean) -> U
             binding.metadata.setOnClickListener {
                 val context = requireContext()
                 lifecycleScope.launch {
-                    FirebaseAnalytics.getInstance(context).logEvent("artwork_info_open", bundleOf(
-                            FirebaseAnalytics.Param.CONTENT_TYPE to "art_detail"))
+                    Firebase.analytics.logEvent("artwork_info_open") {
+                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "art_detail")
+                    }
                     currentArtworkLiveData.value?.openArtworkInfo(context)
                 }
             }

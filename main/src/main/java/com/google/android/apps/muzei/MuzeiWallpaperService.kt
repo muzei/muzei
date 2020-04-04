@@ -33,7 +33,6 @@ import android.view.SurfaceHolder
 import android.view.ViewConfiguration
 import androidx.annotation.RequiresApi
 import androidx.core.os.UserManagerCompat
-import androidx.core.os.bundleOf
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -61,6 +60,9 @@ import com.google.android.apps.muzei.wallpaper.WallpaperAnalytics
 import com.google.android.apps.muzei.wearable.WearableController
 import com.google.android.apps.muzei.widget.WidgetUpdater
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -318,9 +320,9 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         private fun triggerTapAction(action: String, type: String) {
             when (action) {
                 Prefs.PREF_TAP_ACTION_TEMP -> {
-                    FirebaseAnalytics.getInstance(this@MuzeiWallpaperService).logEvent(
-                            "temp_disable_effects", bundleOf(
-                            FirebaseAnalytics.Param.CONTENT_TYPE to type))
+                    Firebase.analytics.logEvent("temp_disable_effects") {
+                        param(FirebaseAnalytics.Param.CONTENT_TYPE, type)
+                    }
                     // Temporarily toggle focused/blurred
                     queueEvent {
                         renderer.setIsBlurred(!renderer.isBlurred, false)
@@ -330,9 +332,9 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                 }
                 Prefs.PREF_TAP_ACTION_NEXT -> {
                     GlobalScope.launch {
-                        FirebaseAnalytics.getInstance(this@MuzeiWallpaperService).logEvent(
-                                "next_artwork", bundleOf(
-                                FirebaseAnalytics.Param.CONTENT_TYPE to type))
+                        Firebase.analytics.logEvent("next_artwork") {
+                            param(FirebaseAnalytics.Param.CONTENT_TYPE, type)
+                        }
                         LegacySourceManager.getInstance(this@MuzeiWallpaperService).nextArtwork()
                     }
                 }
@@ -343,9 +345,9 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                                 .artworkDao()
                                 .getCurrentArtwork()
                         artwork?.run {
-                            FirebaseAnalytics.getInstance(this@MuzeiWallpaperService).logEvent(
-                                    "artwork_info_open", bundleOf(
-                                    FirebaseAnalytics.Param.CONTENT_TYPE to type))
+                            Firebase.analytics.logEvent("artwork_info_open") {
+                                param(FirebaseAnalytics.Param.CONTENT_TYPE, type)
+                            }
                             openArtworkInfo(this@MuzeiWallpaperService)
                         }
                     }

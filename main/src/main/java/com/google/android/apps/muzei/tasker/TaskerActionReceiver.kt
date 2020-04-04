@@ -19,11 +19,13 @@ package com.google.android.apps.muzei.tasker
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.legacy.LegacySourceManager
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.goAsync
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
 import com.twofortyfouram.locale.api.Intent.ACTION_FIRE_SETTING
 import com.twofortyfouram.locale.api.Intent.EXTRA_BUNDLE
 
@@ -42,18 +44,18 @@ class TaskerActionReceiver : BroadcastReceiver() {
                 is SelectProviderAction -> {
                     val authority = selectedAction.authority
                     if (context.packageManager.resolveContentProvider(authority, 0) != null) {
-                        FirebaseAnalytics.getInstance(context).logEvent(
-                                FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                                FirebaseAnalytics.Param.ITEM_ID to authority,
-                                FirebaseAnalytics.Param.ITEM_CATEGORY to "providers",
-                                FirebaseAnalytics.Param.CONTENT_TYPE to "tasker"))
+                        Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                            param(FirebaseAnalytics.Param.ITEM_LIST_ID, authority)
+                            param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
+                            param(FirebaseAnalytics.Param.CONTENT_TYPE, "tasker")
+                        }
                         ProviderManager.select(context, authority)
                     }
                 }
                 is NextArtworkAction -> {
-                    FirebaseAnalytics.getInstance(context).logEvent(
-                            "next_artwork", bundleOf(
-                            FirebaseAnalytics.Param.CONTENT_TYPE to "tasker"))
+                    Firebase.analytics.logEvent("next_artwork") {
+                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "tasker")
+                    }
                     LegacySourceManager.getInstance(context).nextArtwork()
                 }
             }

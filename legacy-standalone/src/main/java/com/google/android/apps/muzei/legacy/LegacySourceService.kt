@@ -43,7 +43,8 @@ import androidx.room.withTransaction
 import com.google.android.apps.muzei.sources.SourceSubscriberService
 import com.google.android.apps.muzei.util.goAsync
 import com.google.android.apps.muzei.util.toastFromBackground
-import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -419,15 +420,13 @@ class LegacySourceService : Service(), LifecycleOwner {
         if (packageName.length > MAX_VALUE_LENGTH) {
             packageName = packageName.substring(packageName.length - MAX_VALUE_LENGTH)
         }
-        FirebaseAnalytics.getInstance(this).setUserProperty(USER_PROPERTY_SELECTED_SOURCE_PACKAGE,
-                packageName)
+        Firebase.analytics.setUserProperty(USER_PROPERTY_SELECTED_SOURCE_PACKAGE, packageName)
         var className = selectedSource.flattenToShortString()
         className = className.substring(className.indexOf('/') + 1)
         if (className.length > MAX_VALUE_LENGTH) {
             className = className.substring(className.length - MAX_VALUE_LENGTH)
         }
-        FirebaseAnalytics.getInstance(this).setUserProperty(USER_PROPERTY_SELECTED_SOURCE,
-                className)
+        Firebase.analytics.setUserProperty(USER_PROPERTY_SELECTED_SOURCE, className)
     }
 
     private suspend fun Source.subscribe() {

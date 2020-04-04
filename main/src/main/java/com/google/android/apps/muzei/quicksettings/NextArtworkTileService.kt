@@ -26,7 +26,6 @@ import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.core.os.bundleOf
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -40,6 +39,9 @@ import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.util.toast
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -73,7 +75,7 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
     }
 
     override fun onTileAdded() {
-        FirebaseAnalytics.getInstance(this).logEvent("tile_next_artwork_added", null)
+        Firebase.analytics.logEvent("tile_next_artwork_added", null)
     }
 
     override fun onStartListening() {
@@ -110,16 +112,15 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
             when (state) {
                 Tile.STATE_ACTIVE -> { // Active means we send the 'Next Artwork' command
                     GlobalScope.launch {
-                        FirebaseAnalytics.getInstance(context).logEvent(
-                                "next_artwork", bundleOf(
-                                FirebaseAnalytics.Param.CONTENT_TYPE to "tile"))
+                        Firebase.analytics.logEvent("next_artwork") {
+                            param(FirebaseAnalytics.Param.CONTENT_TYPE, "tile")
+                        }
                         LegacySourceManager.getInstance(context).nextArtwork()
                     }
                 }
                 else -> unlockAndRun {
                     // Inactive means we attempt to activate Muzei
-                    FirebaseAnalytics.getInstance(context).logEvent(
-                            "tile_next_artwork_activate", null)
+                    Firebase.analytics.logEvent("tile_next_artwork_activate", null)
                     try {
                         startActivityAndCollapse(Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
                                 .putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
@@ -144,7 +145,7 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
     }
 
     override fun onTileRemoved() {
-        FirebaseAnalytics.getInstance(this).logEvent("tile_next_artwork_removed", null)
+        Firebase.analytics.logEvent("tile_next_artwork_removed", null)
     }
 
     override fun onDestroy() {

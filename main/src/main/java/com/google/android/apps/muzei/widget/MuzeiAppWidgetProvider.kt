@@ -21,10 +21,12 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.legacy.LegacySourceManager
 import com.google.android.apps.muzei.util.goAsync
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
 
 /**
  * AppWidgetProvider for Muzei. The actual updating is done asynchronously in
@@ -40,9 +42,9 @@ class MuzeiAppWidgetProvider : AppWidgetProvider() {
         super.onReceive(context, intent)
         if (intent?.action == ACTION_NEXT_ARTWORK) {
             goAsync {
-                FirebaseAnalytics.getInstance(context).logEvent(
-                        "next_artwork", bundleOf(
-                        FirebaseAnalytics.Param.CONTENT_TYPE to "app_widget"))
+                Firebase.analytics.logEvent("next_artwork") {
+                    param(FirebaseAnalytics.Param.CONTENT_TYPE, "app_widget")
+                }
                 LegacySourceManager.getInstance(context).nextArtwork()
             }
         }

@@ -27,7 +27,6 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.TaskStackBuilder
 import androidx.core.content.edit
-import androidx.core.os.bundleOf
 import androidx.preference.PreferenceManager
 import com.google.android.apps.muzei.FullScreenActivity
 import com.google.android.apps.muzei.ProviderChangedReceiver
@@ -37,6 +36,9 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.sync.ProviderChangedWorker
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig
@@ -56,7 +58,7 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
 
     override fun onCreate() {
         super.onCreate()
-        FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
+        Firebase.analytics.setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
     }
 
     override fun onComplicationActivated(complicationId: Int, type: Int, manager: ComplicationManager) {
@@ -64,8 +66,9 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
             Log.d(TAG, "Activated $complicationId")
         }
         addComplication(complicationId)
-        FirebaseAnalytics.getInstance(this).logEvent("complication_artwork_activated", bundleOf(
-                FirebaseAnalytics.Param.CONTENT_TYPE to type.toString()))
+        Firebase.analytics.logEvent("complication_artwork_activated") {
+            param(FirebaseAnalytics.Param.CONTENT_TYPE, type.toString())
+        }
         ProviderChangedWorker.addPersistentListener(this, "complication_artwork")
         ProviderChangedReceiver.onVisibleChanged(this)
     }
@@ -86,7 +89,7 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Deactivated $complicationId")
         }
-        FirebaseAnalytics.getInstance(this).logEvent("complication_artwork_deactivated", null)
+        Firebase.analytics.logEvent("complication_artwork_deactivated", null)
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
         val complications = preferences.getStringSet(KEY_COMPLICATION_IDS,
                 null) ?: TreeSet()

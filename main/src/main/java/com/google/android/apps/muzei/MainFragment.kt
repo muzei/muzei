@@ -29,7 +29,8 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.apps.muzei.browse.BrowseProviderFragment
 import com.google.android.apps.muzei.settings.EffectsFragment
-import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.MainFragmentBinding
 
@@ -74,24 +75,20 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
                 R.id.main_art_details -> {
-                    FirebaseAnalytics.getInstance(requireContext())
-                            .setCurrentScreen(requireActivity(), "ArtDetail",
-                                    ArtDetailFragment::class.java.simpleName)
+                    Firebase.analytics.setCurrentScreen(requireActivity(), "ArtDetail",
+                            ArtDetailFragment::class.java.simpleName)
                 }
                 R.id.main_choose_provider -> {
-                    FirebaseAnalytics.getInstance(requireContext())
-                            .setCurrentScreen(requireActivity(), "ChooseProvider",
-                                    ChooseProviderFragment::class.java.simpleName)
+                    Firebase.analytics.setCurrentScreen(requireActivity(), "ChooseProvider",
+                            ChooseProviderFragment::class.java.simpleName)
                 }
                 R.id.browse_provider -> {
-                    FirebaseAnalytics.getInstance(requireContext())
-                            .setCurrentScreen(requireActivity(), "BrowseProvider",
-                                    BrowseProviderFragment::class.java.simpleName)
+                    Firebase.analytics.setCurrentScreen(requireActivity(), "BrowseProvider",
+                            BrowseProviderFragment::class.java.simpleName)
                 }
                 R.id.main_effects -> {
-                    FirebaseAnalytics.getInstance(requireContext())
-                            .setCurrentScreen(requireActivity(), "Effects",
-                                    EffectsFragment::class.java.simpleName)
+                    Firebase.analytics.setCurrentScreen(requireActivity(), "Effects",
+                            EffectsFragment::class.java.simpleName)
                 }
             }
         }

@@ -28,7 +28,6 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
@@ -55,6 +54,9 @@ import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.toast
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
@@ -98,23 +100,21 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                     if (binding.drawer.isDrawerOpen(GravityCompat.END)) {
                         binding.drawer.closeDrawer(GravityCompat.END)
                     } else {
-                        FirebaseAnalytics.getInstance(context).logEvent(
-                                "auto_advance_open", null)
+                        Firebase.analytics.logEvent("auto_advance_open", null)
                         binding.drawer.openDrawer(GravityCompat.END)
                     }
                     true
                 }
                 R.id.auto_advance_disabled -> {
-                    FirebaseAnalytics.getInstance(context).logEvent(
-                            "auto_advance_disabled", null)
+                    Firebase.analytics.logEvent("auto_advance_disabled", null)
                     context.toast(R.string.auto_advance_disabled_description,
                             Toast.LENGTH_LONG)
                     true
                 }
                 R.id.action_notification_settings -> {
-                    FirebaseAnalytics.getInstance(context).logEvent(
-                            "notification_settings_open", bundleOf(
-                            FirebaseAnalytics.Param.CONTENT_TYPE to "overflow"))
+                    Firebase.analytics.logEvent("notification_settings_open") {
+                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "overflow")
+                    }
                     NotificationSettingsDialogFragment.showSettings(context,
                             childFragmentManager)
                     true
@@ -230,11 +230,11 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                 if (resultCode == Activity.RESULT_OK && provider != null) {
                     val context = requireContext()
                     GlobalScope.launch {
-                        FirebaseAnalytics.getInstance(context).logEvent(
-                                FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                                FirebaseAnalytics.Param.ITEM_ID to provider,
-                                FirebaseAnalytics.Param.ITEM_CATEGORY to "providers",
-                                FirebaseAnalytics.Param.CONTENT_TYPE to "after_setup"))
+                        Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                            param(FirebaseAnalytics.Param.ITEM_LIST_ID, provider)
+                            param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
+                            param(FirebaseAnalytics.Param.CONTENT_TYPE, "after_setup")
+                        }
                         ProviderManager.select(context, provider)
                     }
                 }
@@ -261,23 +261,22 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                     val context = context
                     val parentFragment = parentFragment?.parentFragment
                     if (context is Callbacks) {
-                        FirebaseAnalytics.getInstance(requireContext()).logEvent(
-                                "choose_provider_reselected", null)
+                        Firebase.analytics.logEvent("choose_provider_reselected", null)
                         context.onRequestCloseActivity()
                     } else if (parentFragment is Callbacks) {
-                        FirebaseAnalytics.getInstance(requireContext()).logEvent(
-                                "choose_provider_reselected", null)
+                        Firebase.analytics.logEvent("choose_provider_reselected", null)
                         parentFragment.onRequestCloseActivity()
                     }
                 } else if (setupActivity != null) {
-                    FirebaseAnalytics.getInstance(requireContext()).logEvent(
-                            FirebaseAnalytics.Event.VIEW_ITEM, bundleOf(
-                            FirebaseAnalytics.Param.ITEM_ID to authority,
-                            FirebaseAnalytics.Param.ITEM_NAME to title,
-                            FirebaseAnalytics.Param.ITEM_CATEGORY to "providers"))
+                    Firebase.analytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
+                        param(FirebaseAnalytics.Param.ITEM_LIST_ID, authority)
+                        param(FirebaseAnalytics.Param.ITEM_NAME, title)
+                        param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
+                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "choose")
+                    }
                     launchProviderSetup(this)
                 } else if (providerInfo.authority == viewModel.playStoreAuthority) {
-                    FirebaseAnalytics.getInstance(requireContext()).logEvent("more_sources_open", null)
+                    Firebase.analytics.logEvent("more_sources_open", null)
                     try {
                         startActivity(viewModel.playStoreIntent)
                     } catch (e: ActivityNotFoundException) {
@@ -286,12 +285,12 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                         requireContext().toast(R.string.play_store_not_found, Toast.LENGTH_LONG)
                     }
                 } else {
-                    FirebaseAnalytics.getInstance(requireContext()).logEvent(
-                            FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                            FirebaseAnalytics.Param.ITEM_ID to authority,
-                            FirebaseAnalytics.Param.ITEM_NAME to title,
-                            FirebaseAnalytics.Param.ITEM_CATEGORY to "providers",
-                            FirebaseAnalytics.Param.CONTENT_TYPE to "choose"))
+                    Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                        param(FirebaseAnalytics.Param.ITEM_LIST_ID, authority)
+                        param(FirebaseAnalytics.Param.ITEM_NAME, title)
+                        param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
+                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "choose")
+                    }
                     val context = requireContext()
                     GlobalScope.launch {
                         ProviderManager.select(context, authority)
@@ -307,10 +306,11 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                 try {
                     startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                             Uri.fromParts("package", packageName, null)))
-                    FirebaseAnalytics.getInstance(requireContext()).logEvent(
-                            "app_settings_open", bundleOf(
-                            FirebaseAnalytics.Param.ITEM_ID to authority,
-                            FirebaseAnalytics.Param.ITEM_NAME to title))
+                    Firebase.analytics.logEvent("app_settings_open") {
+                        param(FirebaseAnalytics.Param.ITEM_LIST_ID, authority)
+                        param(FirebaseAnalytics.Param.ITEM_NAME, title)
+                        param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
+                    }
                 } catch (e: ActivityNotFoundException) {
                     return@setOnLongClickListener false
                 }
@@ -326,17 +326,19 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
 
             setSelected(providerInfo)
             binding.settings.setOnClickListener {
-                FirebaseAnalytics.getInstance(requireContext()).logEvent(
-                        "provider_settings_open", bundleOf(
-                        FirebaseAnalytics.Param.ITEM_ID to authority,
-                        FirebaseAnalytics.Param.ITEM_NAME to title))
+                Firebase.analytics.logEvent("provider_settings_open") {
+                    param(FirebaseAnalytics.Param.ITEM_LIST_ID, authority)
+                    param(FirebaseAnalytics.Param.ITEM_NAME, title)
+                    param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
+                }
                 launchProviderSettings(this)
             }
             binding.browse.setOnClickListener {
-                FirebaseAnalytics.getInstance(requireContext()).logEvent(
-                        "provider_browse_open", bundleOf(
-                        FirebaseAnalytics.Param.ITEM_ID to authority,
-                        FirebaseAnalytics.Param.ITEM_NAME to title))
+                Firebase.analytics.logEvent("provider_browse_open") {
+                    param(FirebaseAnalytics.Param.ITEM_LIST_ID, authority)
+                    param(FirebaseAnalytics.Param.ITEM_NAME, title)
+                    param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
+                }
                 findNavController().navigate(
                         ChooseProviderFragmentDirections.browse(
                                 ProviderContract.getContentUri(authority)))

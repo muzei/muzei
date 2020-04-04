@@ -11,7 +11,6 @@ import android.os.Bundle
 import android.text.format.DateFormat
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
@@ -28,6 +27,9 @@ import com.google.android.apps.muzei.room.getCommands
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.filterNotNull
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -87,7 +89,7 @@ class MuzeiActivity : FragmentActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ambientController = AmbientModeSupport.attach(this)
-        FirebaseAnalytics.getInstance(this).setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
+        Firebase.analytics.setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
 
         binding = MuzeiActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -166,12 +168,12 @@ class MuzeiActivity : FragmentActivity(),
                         bounds = Rect(0, 0, radius * 2, radius * 2)
                     }, null, null, null)
                     binding.command.setOnClickListener {
-                        FirebaseAnalytics.getInstance(this@MuzeiActivity).logEvent(
-                                FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                                FirebaseAnalytics.Param.ITEM_ID to artwork.providerAuthority,
-                                FirebaseAnalytics.Param.ITEM_NAME to getString(R.string.common_open_on_phone),
-                                FirebaseAnalytics.Param.ITEM_CATEGORY to "actions",
-                                FirebaseAnalytics.Param.CONTENT_TYPE to "wear_activity"))
+                        Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                            param(FirebaseAnalytics.Param.ITEM_LIST_ID, artwork.providerAuthority)
+                            param(FirebaseAnalytics.Param.ITEM_NAME, command.title.toString())
+                            param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "actions")
+                            param(FirebaseAnalytics.Param.CONTENT_TYPE, "wear_activity")
+                        }
                         command.actionIntent.send()
                     }
                     binding.command.isVisible = true

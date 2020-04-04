@@ -18,9 +18,11 @@ package com.google.android.apps.muzei
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.legacy.LegacySourceManager
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
@@ -31,9 +33,9 @@ class NextArtworkActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         GlobalScope.launch {
-            FirebaseAnalytics.getInstance(this@NextArtworkActivity).logEvent(
-                    "next_artwork", bundleOf(
-                    FirebaseAnalytics.Param.CONTENT_TYPE to "activity_shortcut"))
+            Firebase.analytics.logEvent("next_artwork") {
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "activity_shortcut")
+            }
             LegacySourceManager.getInstance(this@NextArtworkActivity).nextArtwork()
         }
         finish()

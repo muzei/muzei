@@ -45,7 +45,8 @@ import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.Wearable
 import com.google.android.wearable.intent.RemoteIntent
 import com.google.android.wearable.playstore.PlayStoreAvailability
-import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
 import net.nurik.roman.muzei.R
 import java.util.TreeSet
@@ -129,7 +130,7 @@ class ActivateMuzeiIntentService : IntentService(TAG) {
                     .setContentIntent(TaskStackBuilder.create(context)
                             .addNextIntentWithParentStack(Intent(context, ChooseProviderActivity::class.java))
                             .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT))
-            FirebaseAnalytics.getInstance(context).logEvent("activate_notif_installed", null)
+            Firebase.analytics.logEvent("activate_notif_installed", null)
             notificationManager.notify(ACTIVATE_NOTIFICATION_ID, builder.build())
         }
 
@@ -160,7 +161,7 @@ class ActivateMuzeiIntentService : IntentService(TAG) {
                             .setHintDisplayActionInline(true)
                             .setAvailableOffline(false))
                     .build())
-            FirebaseAnalytics.getInstance(context).logEvent("activate_notif_play_store", null)
+            Firebase.analytics.logEvent("activate_notif_play_store", null)
             notificationManager.notify(INSTALL_NOTIFICATION_ID, builder.build())
         }
 
@@ -198,8 +199,7 @@ class ActivateMuzeiIntentService : IntentService(TAG) {
                 RemoteIntent.startRemoteActivity(this, remoteIntent, object : ResultReceiver(Handler(Looper.getMainLooper())) {
                     override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
                         if (resultCode == RemoteIntent.RESULT_OK) {
-                            FirebaseAnalytics.getInstance(this@ActivateMuzeiIntentService)
-                                    .logEvent("activate_notif_install_sent", null)
+                            Firebase.analytics.logEvent("activate_notif_install_sent", null)
                         } else {
                             toast(R.string.datalayer_install_failed)
                         }

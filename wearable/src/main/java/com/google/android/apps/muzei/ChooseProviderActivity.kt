@@ -24,7 +24,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.ViewGroup
 import androidx.activity.viewModels
-import androidx.core.os.bundleOf
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DiffUtil
@@ -34,6 +33,9 @@ import androidx.wear.widget.WearableLinearLayoutManager
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
@@ -94,11 +96,11 @@ class ChooseProviderActivity : FragmentActivity() {
             REQUEST_EXTENSION_SETUP -> {
                 val provider = startActivityProvider
                 if (resultCode == Activity.RESULT_OK && provider != null) {
-                    FirebaseAnalytics.getInstance(this).logEvent(
-                            FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                            FirebaseAnalytics.Param.ITEM_ID to provider,
-                            FirebaseAnalytics.Param.CONTENT_TYPE to "providers",
-                            FirebaseAnalytics.Param.CONTENT_TYPE to "after_setup"))
+                    Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                        param(FirebaseAnalytics.Param.ITEM_LIST_ID, provider)
+                        param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
+                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "after_setup")
+                    }
                     GlobalScope.launch {
                         ProviderManager.select(this@ChooseProviderActivity, provider)
                         finish()
@@ -123,11 +125,12 @@ class ChooseProviderActivity : FragmentActivity() {
                 if (providerInfo.setupActivity != null) {
                     launchProviderSetup(providerInfo)
                 } else {
-                    FirebaseAnalytics.getInstance(this@ChooseProviderActivity).logEvent(
-                            FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                            FirebaseAnalytics.Param.ITEM_ID to providerInfo.authority,
-                            FirebaseAnalytics.Param.CONTENT_TYPE to "providers",
-                            FirebaseAnalytics.Param.CONTENT_TYPE to "choose"))
+                    Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                        param(FirebaseAnalytics.Param.ITEM_LIST_ID, providerInfo.authority)
+                        param(FirebaseAnalytics.Param.ITEM_NAME, providerInfo.title)
+                        param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
+                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "choose")
+                    }
                     GlobalScope.launch {
                         ProviderManager.select(this@ChooseProviderActivity, providerInfo.authority)
                         finish()

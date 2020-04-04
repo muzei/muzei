@@ -26,13 +26,15 @@ import android.util.SparseIntArray
 import android.util.SparseLongArray
 import android.view.View
 import android.widget.Toast
-import androidx.core.os.bundleOf
 import androidx.core.text.set
 import androidx.core.text.toSpannable
 import androidx.fragment.app.Fragment
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.AutoAdvanceFragmentBinding
 
@@ -67,9 +69,9 @@ class AutoAdvanceFragment : Fragment(R.layout.auto_advance_fragment) {
         val providerManager = ProviderManager.getInstance(requireContext())
         binding.useWifi.isChecked = providerManager.loadOnWifi
         binding.useWifi.setOnCheckedChangeListener { _, isChecked ->
-            FirebaseAnalytics.getInstance(requireContext()).logEvent(
-                    "auto_advance_load_on_wifi", bundleOf(
-                    FirebaseAnalytics.Param.VALUE to isChecked.toString()))
+            Firebase.analytics.logEvent("auto_advance_load_on_wifi") {
+                param(FirebaseAnalytics.Param.VALUE, isChecked.toString())
+            }
             providerManager.loadOnWifi = isChecked
         }
 
@@ -77,9 +79,9 @@ class AutoAdvanceFragment : Fragment(R.layout.auto_advance_fragment) {
 
         binding.intervalGroup.check(INTERVAL_RADIO_BUTTON_IDS_BY_TIME[currentInterval.toInt()])
         binding.intervalGroup.setOnCheckedChangeListener { _, id ->
-            FirebaseAnalytics.getInstance(requireContext()).logEvent(
-                    "auto_advance_load_frequency", bundleOf(
-                    FirebaseAnalytics.Param.VALUE to INTERVAL_TIME_BY_RADIO_BUTTON_ID[id]))
+            Firebase.analytics.logEvent("auto_advance_load_frequency") {
+                param(FirebaseAnalytics.Param.VALUE, INTERVAL_TIME_BY_RADIO_BUTTON_ID[id])
+            }
             providerManager.loadFrequencySeconds = INTERVAL_TIME_BY_RADIO_BUTTON_ID[id]
         }
 
@@ -100,7 +102,7 @@ class AutoAdvanceFragment : Fragment(R.layout.auto_advance_fragment) {
                                                 "%26utm_medium%3Dapp" +
                                                 "%26utm_campaign%3Dauto_advance"))
                                 ).addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT))
-                FirebaseAnalytics.getInstance(context).logEvent("tasker_open", null)
+                Firebase.analytics.logEvent("tasker_open", null)
             } catch (e: ActivityNotFoundException) {
                 context.toast(R.string.play_store_not_found, Toast.LENGTH_LONG)
             } catch (e: SecurityException) {

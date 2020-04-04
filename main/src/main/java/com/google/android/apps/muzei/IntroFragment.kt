@@ -31,6 +31,8 @@ import androidx.fragment.app.commitNow
 import com.google.android.apps.muzei.util.AnimatedMuzeiLogoFragment
 import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.IntroFragmentBinding
 
@@ -42,14 +44,14 @@ class IntroFragment : Fragment(R.layout.intro_fragment) {
         super.onCreate(savedInstanceState)
 
         if (savedInstanceState == null) {
-            FirebaseAnalytics.getInstance(requireContext()).logEvent(FirebaseAnalytics.Event.TUTORIAL_BEGIN, null)
+            Firebase.analytics.logEvent(FirebaseAnalytics.Event.TUTORIAL_BEGIN, null)
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding = IntroFragmentBinding.bind(view)
         binding.activateMuzei.setOnClickListener {
-            FirebaseAnalytics.getInstance(requireContext()).logEvent("activate", null)
+            Firebase.analytics.logEvent("activate", null)
             try {
                 startActivity(Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
                         .putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,

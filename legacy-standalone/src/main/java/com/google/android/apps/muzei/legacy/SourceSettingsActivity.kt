@@ -44,7 +44,6 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.os.bundleOf
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import androidx.core.view.isVisible
@@ -53,6 +52,9 @@ import androidx.lifecycle.observe
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.legacy.R
@@ -168,8 +170,9 @@ class SourceSettingsActivity : AppCompatActivity() {
             adapter.clear()
             adapter.addAll(sourcesViews)
             if (!dialog.isShowing) {
-                FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST,
-                        bundleOf(FirebaseAnalytics.Param.ITEM_CATEGORY to "sources"))
+                Firebase.analytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST) {
+                    param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "sources")
+                }
                 dialog.show()
             }
         }
@@ -202,19 +205,21 @@ class SourceSettingsActivity : AppCompatActivity() {
             }
             builder.show()
         } else if (source.setupActivity != null) {
-            FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.VIEW_ITEM,
-                    bundleOf(
-                            FirebaseAnalytics.Param.ITEM_ID to source.componentName.flattenToShortString(),
-                            FirebaseAnalytics.Param.ITEM_NAME to source.label,
-                            FirebaseAnalytics.Param.ITEM_CATEGORY to "sources"))
+            Firebase.analytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
+                param(FirebaseAnalytics.Param.ITEM_LIST_ID, source.componentName.flattenToShortString())
+                param(FirebaseAnalytics.Param.ITEM_NAME, source.label ?: "")
+                param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "sources")
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "choose")
+            }
             currentInitialSetupSource = source.componentName
             launchSourceSetup(source)
         } else {
-            FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                    FirebaseAnalytics.Param.ITEM_ID to source.componentName.flattenToShortString(),
-                    FirebaseAnalytics.Param.ITEM_NAME to source.label,
-                    FirebaseAnalytics.Param.ITEM_CATEGORY to "sources",
-                    FirebaseAnalytics.Param.CONTENT_TYPE to "choose"))
+            Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                param(FirebaseAnalytics.Param.ITEM_LIST_ID, source.componentName.flattenToShortString())
+                param(FirebaseAnalytics.Param.ITEM_NAME, source.label ?: "")
+                param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "sources")
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "choose")
+            }
             GlobalScope.launch {
                 LegacySourceService.selectSource(this@SourceSettingsActivity, source.componentName)
             }
@@ -251,10 +256,11 @@ class SourceSettingsActivity : AppCompatActivity() {
         if (requestCode == REQUEST_EXTENSION_SETUP) {
             val setupSource = currentInitialSetupSource
             if (resultCode == Activity.RESULT_OK && setupSource != null) {
-                FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundleOf(
-                        FirebaseAnalytics.Param.ITEM_ID to setupSource.flattenToShortString(),
-                        FirebaseAnalytics.Param.CONTENT_TYPE to "sources",
-                        FirebaseAnalytics.Param.CONTENT_TYPE to "after_setup"))
+                Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                    param(FirebaseAnalytics.Param.ITEM_LIST_ID, setupSource.flattenToShortString())
+                    param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "sources")
+                    param(FirebaseAnalytics.Param.CONTENT_TYPE, "after_setup")
+                }
                 GlobalScope.launch {
                     LegacySourceService.selectSource(this@SourceSettingsActivity, setupSource)
                 }

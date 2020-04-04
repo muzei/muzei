@@ -28,7 +28,8 @@ import com.google.android.gms.wearable.CapabilityClient
 import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.Wearable
 import com.google.android.wearable.intent.RemoteIntent
-import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
 import net.nurik.roman.muzei.R
 import java.util.TreeSet
@@ -54,7 +55,7 @@ class OpenOnPhoneReceiver : BroadcastReceiver() {
             if (nodes.isEmpty()) {
                 context.toastFromBackground(R.string.datalayer_open_failed)
             } else {
-                FirebaseAnalytics.getInstance(context).logEvent("data_layer_open_on_phone", null)
+                Firebase.analytics.logEvent("data_layer_open_on_phone", null)
                 // Show the open on phone animation
                 val openOnPhoneIntent = Intent(context, ConfirmationActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK
