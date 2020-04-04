@@ -14,47 +14,53 @@
   limitations under the License.
   -->
 
-<ScrollView
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/scroll_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
-        android:id="@+id/content"
+    <ScrollView
+        android:id="@+id/scroll_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingBottom="8dp"
-        android:paddingEnd="8dp"
-        android:paddingStart="8dp">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/time"
+        <LinearLayout
+            android:id="@+id/content"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/art_detail_image_size"
-            android:layout_marginTop="8dp"
-            android:fontFamily="@font/nunito_clock_regular"
-            android:gravity="center"
-            android:textSize="@dimen/clock_text_size"
-            android:visibility="gone"/>
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="8dp"
+            android:paddingEnd="8dp"
+            android:paddingStart="8dp">
 
-        <include
-            android:id="@+id/artwork_info"
-            layout="@layout/muzei_artwork_item" />
+            <include
+                android:id="@+id/artwork_info"
+                layout="@layout/muzei_artwork_item" />
 
-        <include
-            android:id="@+id/next_artwork"
-            layout="@layout/muzei_next_artwork_item"
-            android:visibility="gone" />
+            <include
+                android:id="@+id/next_artwork"
+                layout="@layout/muzei_next_artwork_item"
+                android:visibility="gone" />
 
-        <include
-            android:id="@+id/command"
-            layout="@layout/muzei_command_item"
-            android:visibility="gone" />
+            <include
+                android:id="@+id/command"
+                layout="@layout/muzei_command_item"
+                android:visibility="gone" />
 
-        <include
-            android:id="@+id/provider_info"
-            layout="@layout/muzei_provider_item" />
-    </LinearLayout>
-</ScrollView>
+            <include
+                android:id="@+id/provider_info"
+                layout="@layout/muzei_provider_item" />
+        </LinearLayout>
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/time"
+        android:background="@color/black"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/art_detail_time_height"
+        android:paddingTop="8dp"
+        android:fontFamily="@font/nunito_clock_regular"
+        android:gravity="center"
+        android:textSize="@dimen/clock_text_size"
+        android:visibility="gone"/>
+</FrameLayout>

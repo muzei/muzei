@@ -56,11 +56,7 @@ class MuzeiActivity : FragmentActivity(),
     private val ambientCallback: AmbientModeSupport.AmbientCallback =
             object : AmbientModeSupport.AmbientCallback() {
 
-                private var showImageOnExit = false
-
                 override fun onEnterAmbient(ambientDetails: Bundle?) {
-                    showImageOnExit = binding.artworkInfo.image.isVisible
-                    binding.artworkInfo.image.isVisible = false
                     binding.time.isVisible = true
                     updateTime()
                 }
@@ -77,7 +73,6 @@ class MuzeiActivity : FragmentActivity(),
                 }
 
                 override fun onExitAmbient() {
-                    binding.artworkInfo.image.isVisible = showImageOnExit
                     binding.time.isVisible = false
                 }
             }
@@ -144,7 +139,7 @@ class MuzeiActivity : FragmentActivity(),
                 binding.artworkInfo.image.contentDescription = artwork.title
                         ?: artwork.byline
                         ?: artwork.attribution
-                binding.artworkInfo.image.isVisible = image != null && !ambientController.isAmbient
+                binding.artworkInfo.image.isVisible = image != null
                 binding.artworkInfo.title.text = artwork.title
                 binding.artworkInfo.title.isVisible = !artwork.title.isNullOrBlank()
                 binding.artworkInfo.byline.text = artwork.byline
