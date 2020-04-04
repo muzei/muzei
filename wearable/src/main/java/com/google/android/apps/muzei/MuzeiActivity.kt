@@ -9,6 +9,7 @@ import android.graphics.Rect
 import android.os.Bundle
 import android.text.format.DateFormat
 import androidx.activity.viewModels
+import androidx.core.app.RemoteActionCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
@@ -23,6 +24,7 @@ import androidx.wear.widget.RoundedDrawable
 import coil.api.load
 import com.google.android.apps.muzei.datalayer.ActivateMuzeiIntentService
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
+import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.getCommands
 import com.google.android.apps.muzei.sync.ProviderManager
@@ -40,14 +42,30 @@ import net.nurik.roman.muzei.databinding.MuzeiActivityBinding
 import java.text.SimpleDateFormat
 import java.util.Locale
 
+data class ArtworkCommand(
+        private val artwork: Artwork,
+        private val command: RemoteActionCompat
+) {
+    val providerAuthority = artwork.providerAuthority
+    val title = command.title
+    val actionIntent = command.actionIntent
+    val icon = command.icon
+    fun shouldShowIcon() = command.shouldShowIcon()
+}
+
 class MuzeiViewModel(application: Application) : AndroidViewModel(application) {
 
     val artworkLiveData = MuzeiDatabase.getInstance(application).artworkDao().currentArtwork
 
     val commandsLiveData = artworkLiveData.switchMap { artwork ->
         liveData {
-            emit(artwork to
-                    (artwork?.getCommands(getApplication<Application>()) ?: emptyList()))
+            if (artwork != null) {
+                emit(artwork.getCommands(getApplication<Application>()).map { command ->
+                    ArtworkCommand(artwork, command)
+                })
+            } else {
+                emit(emptyList<ArtworkCommand>())
+            }
         }
     }
 }
@@ -159,14 +177,14 @@ class MuzeiActivity : FragmentActivity(),
             binding.artworkInfo.attribution.isVisible = !artwork.attribution.isNullOrBlank()
         }
 
-        viewModel.commandsLiveData.observe(this) { (artwork, commands) ->
+        viewModel.commandsLiveData.observe(this) { commands ->
             // TODO Show multiple commands rather than only the first
             val command = commands.filterNot { action ->
                 action.title.isBlank()
             }.firstOrNull { action ->
                 action.shouldShowIcon()
             }
-            if (artwork != null && command != null) {
+            if (command != null) {
                 binding.command.command.text = command.title
                 binding.command.command.setCompoundDrawablesRelative(RoundedDrawable().apply {
                     isClipEnabled = true
@@ -178,7 +196,7 @@ class MuzeiActivity : FragmentActivity(),
                 }, null, null, null)
                 binding.command.command.setOnClickListener {
                     Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
-                        param(FirebaseAnalytics.Param.ITEM_LIST_ID, artwork.providerAuthority)
+                        param(FirebaseAnalytics.Param.ITEM_LIST_ID, command.providerAuthority)
                         param(FirebaseAnalytics.Param.ITEM_NAME, command.title.toString())
                         param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "actions")
                         param(FirebaseAnalytics.Param.CONTENT_TYPE, "wear_activity")
