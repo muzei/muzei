@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.graphics.Rect
-import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.text.format.DateFormat
 import androidx.activity.viewModels
@@ -19,9 +18,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.wear.ambient.AmbientModeSupport
 import androidx.wear.widget.RoundedDrawable
+import coil.api.load
 import com.google.android.apps.muzei.datalayer.ActivateMuzeiIntentService
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
-import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.getCommands
 import com.google.android.apps.muzei.sync.ProviderManager
@@ -127,19 +126,23 @@ class MuzeiActivity : FragmentActivity(),
 
         viewModel.artworkLiveData.filterNotNull().observe(this) { artwork ->
             lifecycleScope.launch(Dispatchers.Main) {
-                val image = ImageLoader.decode(
-                        contentResolver, artwork.contentUri)
-                if (image != null) {
-                    binding.artworkInfo.image.setImageDrawable(RoundedDrawable().apply {
-                        isClipEnabled = true
-                        radius = resources.getDimensionPixelSize(R.dimen.art_detail_image_radius)
-                        drawable = BitmapDrawable(resources, image)
-                    })
+                binding.artworkInfo.image.load(artwork.contentUri) {
+                    allowHardware(false)
+                    target { image ->
+                        binding.artworkInfo.image.setImageDrawable(RoundedDrawable().apply {
+                            isClipEnabled = true
+                            radius = resources.getDimensionPixelSize(R.dimen.art_detail_image_radius)
+                            drawable = image
+                        })
+                    }
+                    listener(
+                            onError = { _, _ -> binding.artworkInfo.image.isVisible = false },
+                            onSuccess = { _, _ -> binding.artworkInfo.image.isVisible = true }
+                    )
                 }
                 binding.artworkInfo.image.contentDescription = artwork.title
                         ?: artwork.byline
                         ?: artwork.attribution
-                binding.artworkInfo.image.isVisible = image != null
                 binding.artworkInfo.title.text = artwork.title
                 binding.artworkInfo.title.isVisible = !artwork.title.isNullOrBlank()
                 binding.artworkInfo.byline.text = artwork.byline
