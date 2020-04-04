@@ -59,8 +59,8 @@ class MuzeiActivity : FragmentActivity(),
                 private var showImageOnExit = false
 
                 override fun onEnterAmbient(ambientDetails: Bundle?) {
-                    showImageOnExit = binding.image.isVisible
-                    binding.image.isVisible = false
+                    showImageOnExit = binding.artworkInfo.image.isVisible
+                    binding.artworkInfo.image.isVisible = false
                     binding.time.isVisible = true
                     updateTime()
                 }
@@ -77,7 +77,7 @@ class MuzeiActivity : FragmentActivity(),
                 }
 
                 override fun onExitAmbient() {
-                    binding.image.isVisible = showImageOnExit
+                    binding.artworkInfo.image.isVisible = showImageOnExit
                     binding.time.isVisible = false
                 }
             }
@@ -100,11 +100,11 @@ class MuzeiActivity : FragmentActivity(),
             val inset = (FACTOR * Resources.getSystem().displayMetrics.widthPixels).toInt()
             binding.content.setPadding(inset, 0, inset, inset)
         }
-        binding.image.setOnClickListener {
+        binding.artworkInfo.image.setOnClickListener {
             startActivity(Intent(this@MuzeiActivity,
                     FullScreenActivity::class.java))
         }
-        binding.nextArtwork.setCompoundDrawablesRelative(RoundedDrawable().apply {
+        binding.nextArtwork.nextArtwork.setCompoundDrawablesRelative(RoundedDrawable().apply {
             isClipEnabled = true
             radius = resources.getDimensionPixelSize(R.dimen.art_detail_open_on_phone_radius)
             backgroundColor = ContextCompat.getColor(this@MuzeiActivity,
@@ -113,14 +113,14 @@ class MuzeiActivity : FragmentActivity(),
                     R.drawable.ic_next_artwork)
             bounds = Rect(0, 0, radius * 2, radius * 2)
         }, null, null, null)
-        binding.nextArtwork.setOnClickListener {
+        binding.nextArtwork.nextArtwork.setOnClickListener {
             ProviderManager.getInstance(this).nextArtwork()
         }
-        binding.provider.setOnClickListener {
+        binding.providerInfo.provider.setOnClickListener {
             startActivity(Intent(this@MuzeiActivity,
                     ChooseProviderActivity::class.java))
         }
-        binding.settings.setCompoundDrawablesRelative(RoundedDrawable().apply {
+        binding.providerInfo.settings.setCompoundDrawablesRelative(RoundedDrawable().apply {
             isClipEnabled = true
             radius = resources.getDimensionPixelSize(R.dimen.art_detail_open_on_phone_radius)
             backgroundColor = ContextCompat.getColor(this@MuzeiActivity,
@@ -135,22 +135,22 @@ class MuzeiActivity : FragmentActivity(),
                 val image = ImageLoader.decode(
                         contentResolver, artwork.contentUri)
                 if (image != null) {
-                    binding.image.setImageDrawable(RoundedDrawable().apply {
+                    binding.artworkInfo.image.setImageDrawable(RoundedDrawable().apply {
                         isClipEnabled = true
                         radius = resources.getDimensionPixelSize(R.dimen.art_detail_image_radius)
                         drawable = BitmapDrawable(resources, image)
                     })
                 }
-                binding.image.contentDescription = artwork.title
+                binding.artworkInfo.image.contentDescription = artwork.title
                         ?: artwork.byline
                         ?: artwork.attribution
-                binding.image.isVisible = image != null && !ambientController.isAmbient
-                binding.title.text = artwork.title
-                binding.title.isVisible = !artwork.title.isNullOrBlank()
-                binding.byline.text = artwork.byline
-                binding.byline.isVisible = !artwork.byline.isNullOrBlank()
-                binding.attribution.text = artwork.attribution
-                binding.attribution.isVisible = !artwork.attribution.isNullOrBlank()
+                binding.artworkInfo.image.isVisible = image != null && !ambientController.isAmbient
+                binding.artworkInfo.title.text = artwork.title
+                binding.artworkInfo.title.isVisible = !artwork.title.isNullOrBlank()
+                binding.artworkInfo.byline.text = artwork.byline
+                binding.artworkInfo.byline.isVisible = !artwork.byline.isNullOrBlank()
+                binding.artworkInfo.attribution.text = artwork.attribution
+                binding.artworkInfo.attribution.isVisible = !artwork.attribution.isNullOrBlank()
                 val commands = artwork.getCommands(this@MuzeiActivity)
                 // TODO Show multiple commands rather than only the first
                 val command = commands.filterNot { action ->
@@ -159,8 +159,8 @@ class MuzeiActivity : FragmentActivity(),
                     action.shouldShowIcon()
                 }
                 if (command != null) {
-                    binding.command.text = command.title
-                    binding.command.setCompoundDrawablesRelative(RoundedDrawable().apply {
+                    binding.command.command.text = command.title
+                    binding.command.command.setCompoundDrawablesRelative(RoundedDrawable().apply {
                         isClipEnabled = true
                         radius = resources.getDimensionPixelSize(R.dimen.art_detail_open_on_phone_radius)
                         backgroundColor = ContextCompat.getColor(this@MuzeiActivity,
@@ -168,7 +168,7 @@ class MuzeiActivity : FragmentActivity(),
                         drawable = command.icon.loadDrawable(this@MuzeiActivity)
                         bounds = Rect(0, 0, radius * 2, radius * 2)
                     }, null, null, null)
-                    binding.command.setOnClickListener {
+                    binding.command.command.setOnClickListener {
                         Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
                             param(FirebaseAnalytics.Param.ITEM_LIST_ID, artwork.providerAuthority)
                             param(FirebaseAnalytics.Param.ITEM_NAME, command.title.toString())
@@ -177,9 +177,9 @@ class MuzeiActivity : FragmentActivity(),
                         }
                         command.actionIntent.send()
                     }
-                    binding.command.isVisible = true
+                    binding.command.command.isVisible = true
                 } else {
-                    binding.command.isVisible = false
+                    binding.command.command.isVisible = false
                 }
             }
         }
@@ -193,7 +193,7 @@ class MuzeiActivity : FragmentActivity(),
                 }
                 return@observe
             }
-            binding.nextArtwork.isVisible = provider.supportsNextArtwork
+            binding.nextArtwork.nextArtwork.isVisible = provider.supportsNextArtwork
             val pm = packageManager
             val providerInfo = pm.resolveContentProvider(provider.authority,
                     PackageManager.GET_META_DATA)
@@ -201,20 +201,20 @@ class MuzeiActivity : FragmentActivity(),
                 val size = resources.getDimensionPixelSize(R.dimen.choose_provider_image_size)
                 val icon = providerInfo.loadIcon(pm)
                 icon.bounds = Rect(0, 0, size, size)
-                binding.provider.setCompoundDrawablesRelative(icon,
+                binding.providerInfo.provider.setCompoundDrawablesRelative(icon,
                         null, null, null)
-                binding.provider.text = providerInfo.loadLabel(pm)
+                binding.providerInfo.provider.text = providerInfo.loadLabel(pm)
                 val authority = providerInfo.authority
                 lifecycleScope.launch(Dispatchers.Main) {
                     val description = ProviderManager.getDescription(this@MuzeiActivity, authority)
-                    binding.providerDescription.isGone = description.isBlank()
-                    binding.providerDescription.text = description
+                    binding.providerInfo.providerDescription.isGone = description.isBlank()
+                    binding.providerInfo.providerDescription.text = description
                 }
                 val settingsActivity = providerInfo.metaData?.getString("settingsActivity")?.run {
                     ComponentName(providerInfo.packageName, this)
                 }
-                binding.settings.isVisible = settingsActivity != null
-                binding.settings.setOnClickListener {
+                binding.providerInfo.settings.isVisible = settingsActivity != null
+                binding.providerInfo.settings.setOnClickListener {
                     if (settingsActivity != null) {
                         startActivity(Intent().apply {
                             component = settingsActivity
