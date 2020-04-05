@@ -22,6 +22,11 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.get
+import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -55,7 +60,7 @@ class MuzeiNextArtworkViewHolder(
     }
 }
 
-class MuzeiNextArtworkAdapter : ListAdapter<Provider, MuzeiNextArtworkViewHolder>(
+class MuzeiNextArtworkAdapter<O>(owner: O) : ListAdapter<Provider, MuzeiNextArtworkViewHolder>(
         object : DiffUtil.ItemCallback<Provider>() {
             override fun areItemsTheSame(
                     provider1: Provider,
@@ -67,7 +72,14 @@ class MuzeiNextArtworkAdapter : ListAdapter<Provider, MuzeiNextArtworkViewHolder
                     provider2: Provider
             ) = provider1 == provider2
         }
-) {
+) where O : LifecycleOwner, O : ViewModelStoreOwner {
+    init {
+        val viewModel: MuzeiNextArtworkViewModel = ViewModelProvider(owner).get()
+        viewModel.providerLiveData.observe(owner) { provider ->
+            submitList(listOfNotNull(provider?.takeIf { it.supportsNextArtwork }))
+        }
+    }
+
     override fun onCreateViewHolder(
             parent: ViewGroup,
             viewType: Int

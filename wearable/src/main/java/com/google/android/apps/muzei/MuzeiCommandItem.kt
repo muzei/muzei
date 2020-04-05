@@ -23,7 +23,12 @@ import android.view.ViewGroup
 import androidx.core.app.RemoteActionCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.get
 import androidx.lifecycle.liveData
+import androidx.lifecycle.observe
 import androidx.lifecycle.switchMap
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -91,7 +96,7 @@ class MuzeiCommandViewHolder(
     }
 }
 
-class MuzeiCommandAdapter : ListAdapter<ArtworkCommand, MuzeiCommandViewHolder>(
+class MuzeiCommandAdapter<O>(owner: O) : ListAdapter<ArtworkCommand, MuzeiCommandViewHolder>(
         object : DiffUtil.ItemCallback<ArtworkCommand>() {
             override fun areItemsTheSame(
                     artworkCommand1: ArtworkCommand,
@@ -103,7 +108,14 @@ class MuzeiCommandAdapter : ListAdapter<ArtworkCommand, MuzeiCommandViewHolder>(
                     artworkCommand2: ArtworkCommand
             ) = artworkCommand1 == artworkCommand2
         }
-) {
+) where O : LifecycleOwner, O : ViewModelStoreOwner {
+    init {
+        val viewModel: MuzeiCommandViewModel = ViewModelProvider(owner).get()
+        viewModel.commandsLiveData.observe(owner) { commands ->
+            submitList(commands)
+        }
+    }
+
     override fun onCreateViewHolder(
             parent: ViewGroup,
             viewType: Int

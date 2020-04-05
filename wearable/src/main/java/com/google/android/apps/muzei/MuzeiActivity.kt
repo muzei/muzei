@@ -19,13 +19,10 @@ package com.google.android.apps.muzei
 import android.content.res.Resources
 import android.os.Bundle
 import android.text.format.DateFormat
-import androidx.activity.viewModels
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.observe
 import androidx.recyclerview.widget.MergeAdapter
 import androidx.wear.ambient.AmbientModeSupport
-import com.google.android.apps.muzei.util.filterNotNull
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import net.nurik.roman.muzei.BuildConfig
@@ -69,11 +66,6 @@ class MuzeiActivity : FragmentActivity(),
 
     private lateinit var binding: MuzeiActivityBinding
 
-    private val artworkViewModel: MuzeiArtworkViewModel by viewModels()
-    private val nextArtworkViewModel: MuzeiNextArtworkViewModel by viewModels()
-    private val commandViewModel: MuzeiCommandViewModel by viewModels()
-    private val providerViewModel: MuzeiProviderViewModel by viewModels()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ambientController = AmbientModeSupport.attach(this)
@@ -87,10 +79,10 @@ class MuzeiActivity : FragmentActivity(),
             val inset = (FACTOR * Resources.getSystem().displayMetrics.widthPixels).toInt()
             binding.recyclerView.setPadding(inset, 0, inset, inset)
         }
-        val artworkAdapter = MuzeiArtworkAdapter()
-        val nextArtworkAdapter = MuzeiNextArtworkAdapter()
-        val commandArtworkAdapter = MuzeiCommandAdapter()
-        val providerAdapter = MuzeiProviderAdapter()
+        val artworkAdapter = MuzeiArtworkAdapter(this)
+        val nextArtworkAdapter = MuzeiNextArtworkAdapter(this)
+        val commandArtworkAdapter = MuzeiCommandAdapter(this)
+        val providerAdapter = MuzeiProviderAdapter(this)
 
         binding.recyclerView.adapter = MergeAdapter(
                 artworkAdapter,
@@ -98,22 +90,6 @@ class MuzeiActivity : FragmentActivity(),
                 commandArtworkAdapter,
                 providerAdapter)
 
-        artworkViewModel.artworkLiveData.filterNotNull().observe(this) { artwork ->
-            artworkAdapter.submitList(listOf(artwork))
-        }
-
-        nextArtworkViewModel.providerLiveData.observe(this) { provider ->
-            nextArtworkAdapter.submitList(listOfNotNull(
-                    provider?.takeIf { it.supportsNextArtwork }))
-        }
-
-        commandViewModel.commandsLiveData.observe(this) { commands ->
-            commandArtworkAdapter.submitList(commands)
-        }
-
-        providerViewModel.providerLiveData.observe(this) { provider ->
-            providerAdapter.submitList(listOf(provider))
-        }
         ProviderChangedReceiver.observeForVisibility(this, this)
     }
 
