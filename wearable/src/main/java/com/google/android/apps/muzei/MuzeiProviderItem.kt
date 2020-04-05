@@ -82,44 +82,37 @@ class MuzeiProviderViewModel(application: Application) : AndroidViewModel(applic
 class MuzeiProviderViewHolder(
         private val binding: MuzeiProviderItemBinding
 ) : RecyclerView.ViewHolder(binding.root) {
+    private val context = binding.root.context
+
     init {
-        binding.create()
+        binding.provider.setOnClickListener {
+            context.startActivity(Intent(context, ChooseProviderActivity::class.java))
+        }
+        binding.settings.setCompoundDrawablesRelative(RoundedDrawable().apply {
+            isClipEnabled = true
+            radius = context.resources.getDimensionPixelSize(R.dimen.art_detail_open_on_phone_radius)
+            backgroundColor = ContextCompat.getColor(context, R.color.theme_primary)
+            drawable = ContextCompat.getDrawable(context, R.drawable.ic_provider_settings)
+            bounds = Rect(0, 0, radius * 2, radius * 2)
+        }, null, null, null)
     }
 
-    fun bind(providerData: ProviderData) {
-        binding.bind(providerData)
-    }
-}
-
-fun MuzeiProviderItemBinding.create() {
-    val context = root.context
-    provider.setOnClickListener {
-        context.startActivity(Intent(context, ChooseProviderActivity::class.java))
-    }
-    settings.setCompoundDrawablesRelative(RoundedDrawable().apply {
-        isClipEnabled = true
-        radius = context.resources.getDimensionPixelSize(R.dimen.art_detail_open_on_phone_radius)
-        backgroundColor = ContextCompat.getColor(context, R.color.theme_primary)
-        drawable = ContextCompat.getDrawable(context, R.drawable.ic_provider_settings)
-        bounds = Rect(0, 0, radius * 2, radius * 2)
-    }, null, null, null)
-}
-
-fun MuzeiProviderItemBinding.bind(providerData: ProviderData) {
-    val context = root.context
-    val size = context.resources.getDimensionPixelSize(R.dimen.choose_provider_image_size)
-    providerData.icon.bounds = Rect(0, 0, size, size)
-    provider.setCompoundDrawablesRelative(providerData.icon,
-            null, null, null)
-    provider.text = providerData.label
-    providerDescription.isGone = providerData.description.isBlank()
-    providerDescription.text = providerData.description
-    settings.isVisible = providerData.settingsActivity != null
-    settings.setOnClickListener {
-        if (providerData.settingsActivity != null) {
-            context.startActivity(Intent().apply {
-                component = providerData.settingsActivity
-            })
+    fun bind(providerData: ProviderData) = binding.run {
+        val context = root.context
+        val size = context.resources.getDimensionPixelSize(R.dimen.choose_provider_image_size)
+        providerData.icon.bounds = Rect(0, 0, size, size)
+        provider.setCompoundDrawablesRelative(providerData.icon,
+                null, null, null)
+        provider.text = providerData.label
+        providerDescription.isGone = providerData.description.isBlank()
+        providerDescription.text = providerData.description
+        settings.isVisible = providerData.settingsActivity != null
+        settings.setOnClickListener {
+            if (providerData.settingsActivity != null) {
+                context.startActivity(Intent().apply {
+                    component = providerData.settingsActivity
+                })
+            }
         }
     }
 }

@@ -68,29 +68,25 @@ class MuzeiCommandViewHolder(
         private val binding: MuzeiCommandItemBinding
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(artworkCommand: ArtworkCommand) {
-        binding.bind(artworkCommand)
-    }
-}
-
-fun MuzeiCommandItemBinding.bind(artworkCommand: ArtworkCommand) {
-    val context = root.context
-    command.text = artworkCommand.title
-    command.setCompoundDrawablesRelative(RoundedDrawable().apply {
-        isClipEnabled = true
-        radius = root.context.resources.getDimensionPixelSize(R.dimen.art_detail_open_on_phone_radius)
-        backgroundColor = ContextCompat.getColor(context, R.color.theme_primary)
-        drawable = artworkCommand.icon.loadDrawable(context)
-        bounds = Rect(0, 0, radius * 2, radius * 2)
-    }, null, null, null)
-    command.setOnClickListener {
-        Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
-            param(FirebaseAnalytics.Param.ITEM_LIST_ID, artworkCommand.providerAuthority)
-            param(FirebaseAnalytics.Param.ITEM_NAME, artworkCommand.title.toString())
-            param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "actions")
-            param(FirebaseAnalytics.Param.CONTENT_TYPE, "wear_activity")
+    fun bind(artworkCommand: ArtworkCommand) = binding.run {
+        val context = root.context
+        command.text = artworkCommand.title
+        command.setCompoundDrawablesRelative(RoundedDrawable().apply {
+            isClipEnabled = true
+            radius = root.context.resources.getDimensionPixelSize(R.dimen.art_detail_open_on_phone_radius)
+            backgroundColor = ContextCompat.getColor(context, R.color.theme_primary)
+            drawable = artworkCommand.icon.loadDrawable(context)
+            bounds = Rect(0, 0, radius * 2, radius * 2)
+        }, null, null, null)
+        command.setOnClickListener {
+            Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                param(FirebaseAnalytics.Param.ITEM_LIST_ID, artworkCommand.providerAuthority)
+                param(FirebaseAnalytics.Param.ITEM_NAME, artworkCommand.title.toString())
+                param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "actions")
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "wear_activity")
+            }
+            artworkCommand.actionIntent.send()
         }
-        artworkCommand.actionIntent.send()
     }
 }
 

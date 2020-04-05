@@ -39,21 +39,19 @@ class MuzeiNextArtworkViewHolder(
         binding: MuzeiNextArtworkItemBinding
 ) : RecyclerView.ViewHolder(binding.root) {
     init {
-        binding.create()
-    }
-}
-
-fun MuzeiNextArtworkItemBinding.create() {
-    val context = root.context
-    nextArtwork.setCompoundDrawablesRelative(RoundedDrawable().apply {
-        isClipEnabled = true
-        radius = context.resources.getDimensionPixelSize(R.dimen.art_detail_open_on_phone_radius)
-        backgroundColor = ContextCompat.getColor(context, R.color.theme_primary)
-        drawable = ContextCompat.getDrawable(context, R.drawable.ic_next_artwork)
-        bounds = Rect(0, 0, radius * 2, radius * 2)
-    }, null, null, null)
-    nextArtwork.setOnClickListener {
-        ProviderManager.getInstance(context).nextArtwork()
+        binding.run {
+            val context = root.context
+            nextArtwork.setCompoundDrawablesRelative(RoundedDrawable().apply {
+                isClipEnabled = true
+                radius = context.resources.getDimensionPixelSize(R.dimen.art_detail_open_on_phone_radius)
+                backgroundColor = ContextCompat.getColor(context, R.color.theme_primary)
+                drawable = ContextCompat.getDrawable(context, R.drawable.ic_next_artwork)
+                bounds = Rect(0, 0, radius * 2, radius * 2)
+            }, null, null, null)
+            nextArtwork.setOnClickListener {
+                ProviderManager.getInstance(context).nextArtwork()
+            }
+        }
     }
 }
 

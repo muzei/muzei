@@ -40,43 +40,35 @@ class MuzeiArtworkViewHolder(
         private val binding: MuzeiArtworkItemBinding
 ) : RecyclerView.ViewHolder(binding.root) {
     init {
-        binding.create()
-    }
-
-    fun bind(artwork: Artwork) {
-        binding.bind(artwork)
-    }
-}
-
-fun MuzeiArtworkItemBinding.create() {
-    val context = root.context
-    image.setOnClickListener {
-        context.startActivity(Intent(context, FullScreenActivity::class.java))
-    }
-}
-
-fun MuzeiArtworkItemBinding.bind(artwork: Artwork) {
-    image.load(artwork.contentUri) {
-        allowHardware(false)
-        target { loadedDrawable ->
-            image.setImageDrawable(RoundedDrawable().apply {
-                isClipEnabled = true
-                radius = root.context.resources.getDimensionPixelSize(R.dimen.art_detail_image_radius)
-                drawable = loadedDrawable
-            })
+        val context = binding.root.context
+        binding.image.setOnClickListener {
+            context.startActivity(Intent(context, FullScreenActivity::class.java))
         }
-        listener(
-                onError = { _, _ -> image.isVisible = false },
-                onSuccess = { _, _ -> image.isVisible = true }
-        )
     }
-    image.contentDescription = artwork.title ?: artwork.byline ?: artwork.attribution
-    title.text = artwork.title
-    title.isVisible = !artwork.title.isNullOrBlank()
-    byline.text = artwork.byline
-    byline.isVisible = !artwork.byline.isNullOrBlank()
-    attribution.text = artwork.attribution
-    attribution.isVisible = !artwork.attribution.isNullOrBlank()
+
+    fun bind(artwork: Artwork) = binding.run {
+        image.load(artwork.contentUri) {
+            allowHardware(false)
+            target { loadedDrawable ->
+                image.setImageDrawable(RoundedDrawable().apply {
+                    isClipEnabled = true
+                    radius = root.context.resources.getDimensionPixelSize(R.dimen.art_detail_image_radius)
+                    drawable = loadedDrawable
+                })
+            }
+            listener(
+                    onError = { _, _ -> image.isVisible = false },
+                    onSuccess = { _, _ -> image.isVisible = true }
+            )
+        }
+        image.contentDescription = artwork.title ?: artwork.byline ?: artwork.attribution
+        title.text = artwork.title
+        title.isVisible = !artwork.title.isNullOrBlank()
+        byline.text = artwork.byline
+        byline.isVisible = !artwork.byline.isNullOrBlank()
+        attribution.text = artwork.attribution
+        attribution.isVisible = !artwork.attribution.isNullOrBlank()
+    }
 }
 
 class MuzeiArtworkAdapter : ListAdapter<Artwork, MuzeiArtworkViewHolder>(
