@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.graphics.Rect
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.text.format.DateFormat
 import androidx.activity.viewModels
@@ -15,7 +16,6 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.liveData
 import androidx.lifecycle.observe
 import androidx.lifecycle.switchMap
@@ -26,6 +26,7 @@ import com.google.android.apps.muzei.datalayer.ActivateMuzeiIntentService
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.room.getCommands
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.filterNotNull
@@ -33,7 +34,6 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig
@@ -53,6 +53,16 @@ data class ArtworkCommand(
     fun shouldShowIcon() = command.shouldShowIcon()
 }
 
+data class ProviderData(
+        private val provider: Provider,
+        val icon: Drawable,
+        val label: CharSequence,
+        val description: String,
+        val settingsActivity: ComponentName?
+) {
+    val supportsNextArtwork = provider.supportsNextArtwork
+}
+
 class MuzeiViewModel(application: Application) : AndroidViewModel(application) {
 
     val artworkLiveData = MuzeiDatabase.getInstance(application).artworkDao().currentArtwork
@@ -65,6 +75,32 @@ class MuzeiViewModel(application: Application) : AndroidViewModel(application) {
                 })
             } else {
                 emit(emptyList<ArtworkCommand>())
+            }
+        }
+    }
+
+    val providerLiveData = ProviderManager.getInstance(getApplication()).switchMap { provider ->
+        liveData {
+            val app = getApplication<Application>()
+            if (provider != null) {
+                val pm = app.packageManager
+                val providerInfo = pm.resolveContentProvider(provider.authority,
+                        PackageManager.GET_META_DATA)
+                if (providerInfo != null) {
+                    val icon = providerInfo.loadIcon(pm)
+                    val label = providerInfo.loadLabel(pm)
+                    val settingsActivity = providerInfo.metaData?.getString("settingsActivity")?.run {
+                        ComponentName(providerInfo.packageName, this)
+                    }
+                    emit(ProviderData(provider, icon, label,
+                            ProviderManager.getDescription(app, provider.authority),
+                            settingsActivity))
+                }
+            } else {
+                GlobalScope.launch {
+                    ProviderManager.select(app, FEATURED_ART_AUTHORITY)
+                    ActivateMuzeiIntentService.checkForPhoneApp(app)
+                }
             }
         }
     }
@@ -209,42 +245,21 @@ class MuzeiActivity : FragmentActivity(),
             }
         }
 
-        ProviderManager.getInstance(this).observe(this) { provider ->
-            if (provider == null) {
-                val context = this@MuzeiActivity
-                GlobalScope.launch {
-                    ProviderManager.select(context, FEATURED_ART_AUTHORITY)
-                    ActivateMuzeiIntentService.checkForPhoneApp(context)
-                }
-                return@observe
-            }
+        viewModel.providerLiveData.observe(this) { provider ->
             binding.nextArtwork.nextArtwork.isVisible = provider.supportsNextArtwork
-            val pm = packageManager
-            val providerInfo = pm.resolveContentProvider(provider.authority,
-                    PackageManager.GET_META_DATA)
-            if (providerInfo != null) {
-                val size = resources.getDimensionPixelSize(R.dimen.choose_provider_image_size)
-                val icon = providerInfo.loadIcon(pm)
-                icon.bounds = Rect(0, 0, size, size)
-                binding.providerInfo.provider.setCompoundDrawablesRelative(icon,
-                        null, null, null)
-                binding.providerInfo.provider.text = providerInfo.loadLabel(pm)
-                val authority = providerInfo.authority
-                lifecycleScope.launch(Dispatchers.Main) {
-                    val description = ProviderManager.getDescription(this@MuzeiActivity, authority)
-                    binding.providerInfo.providerDescription.isGone = description.isBlank()
-                    binding.providerInfo.providerDescription.text = description
-                }
-                val settingsActivity = providerInfo.metaData?.getString("settingsActivity")?.run {
-                    ComponentName(providerInfo.packageName, this)
-                }
-                binding.providerInfo.settings.isVisible = settingsActivity != null
-                binding.providerInfo.settings.setOnClickListener {
-                    if (settingsActivity != null) {
-                        startActivity(Intent().apply {
-                            component = settingsActivity
-                        })
-                    }
+            val size = resources.getDimensionPixelSize(R.dimen.choose_provider_image_size)
+            provider.icon.bounds = Rect(0, 0, size, size)
+            binding.providerInfo.provider.setCompoundDrawablesRelative(provider.icon,
+                    null, null, null)
+            binding.providerInfo.provider.text = provider.label
+            binding.providerInfo.providerDescription.isGone = provider.description.isBlank()
+            binding.providerInfo.providerDescription.text = provider.description
+            binding.providerInfo.settings.isVisible = provider.settingsActivity != null
+            binding.providerInfo.settings.setOnClickListener {
+                if (provider.settingsActivity != null) {
+                    startActivity(Intent().apply {
+                        component = provider.settingsActivity
+                    })
                 }
             }
         }
