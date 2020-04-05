@@ -18,11 +18,16 @@ package com.google.android.apps.muzei
 
 import android.app.Application
 import android.graphics.Rect
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import androidx.core.app.RemoteActionCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.widget.RoundedDrawable
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
@@ -59,6 +64,15 @@ class MuzeiCommandViewModel(application: Application) : AndroidViewModel(applica
     }
 }
 
+class MuzeiCommandViewHolder(
+        private val binding: MuzeiCommandItemBinding
+) : RecyclerView.ViewHolder(binding.root) {
+
+    fun bind(artworkCommand: ArtworkCommand) {
+        binding.bind(artworkCommand)
+    }
+}
+
 fun MuzeiCommandItemBinding.bind(artworkCommand: ArtworkCommand) {
     val context = root.context
     command.text = artworkCommand.title
@@ -77,5 +91,29 @@ fun MuzeiCommandItemBinding.bind(artworkCommand: ArtworkCommand) {
             param(FirebaseAnalytics.Param.CONTENT_TYPE, "wear_activity")
         }
         artworkCommand.actionIntent.send()
+    }
+}
+
+class MuzeiCommandAdapter : ListAdapter<ArtworkCommand, MuzeiCommandViewHolder>(
+        object : DiffUtil.ItemCallback<ArtworkCommand>() {
+            override fun areItemsTheSame(
+                    artworkCommand1: ArtworkCommand,
+                    artworkCommand2: ArtworkCommand
+            ) = artworkCommand1.title == artworkCommand2.title
+
+            override fun areContentsTheSame(
+                    artworkCommand1: ArtworkCommand,
+                    artworkCommand2: ArtworkCommand
+            ) = artworkCommand1 == artworkCommand2
+        }
+) {
+    override fun onCreateViewHolder(
+            parent: ViewGroup,
+            viewType: Int
+    ) = MuzeiCommandViewHolder(MuzeiCommandItemBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false))
+
+    override fun onBindViewHolder(holder: MuzeiCommandViewHolder, position: Int) {
+        holder.bind(getItem(position))
     }
 }

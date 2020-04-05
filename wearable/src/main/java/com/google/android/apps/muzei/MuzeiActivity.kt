@@ -23,6 +23,7 @@ import androidx.activity.viewModels
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.observe
+import androidx.recyclerview.widget.MergeAdapter
 import androidx.wear.ambient.AmbientModeSupport
 import com.google.android.apps.muzei.util.filterNotNull
 import com.google.firebase.analytics.ktx.analytics
@@ -80,41 +81,38 @@ class MuzeiActivity : FragmentActivity(),
 
         binding = MuzeiActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.scrollView.requestFocus()
+        binding.recyclerView.requestFocus()
 
         if (resources.configuration.isScreenRound) {
             val inset = (FACTOR * Resources.getSystem().displayMetrics.widthPixels).toInt()
-            binding.content.setPadding(inset, 0, inset, inset)
+            binding.recyclerView.setPadding(inset, 0, inset, inset)
         }
-        binding.artworkInfo.create()
-        binding.nextArtwork.create()
-        binding.providerInfo.create()
+        val artworkAdapter = MuzeiArtworkAdapter()
+        val nextArtworkAdapter = MuzeiNextArtworkAdapter()
+        val commandArtworkAdapter = MuzeiCommandAdapter()
+        val providerAdapter = MuzeiProviderAdapter()
+
+        binding.recyclerView.adapter = MergeAdapter(
+                artworkAdapter,
+                nextArtworkAdapter,
+                commandArtworkAdapter,
+                providerAdapter)
 
         artworkViewModel.artworkLiveData.filterNotNull().observe(this) { artwork ->
-            binding.artworkInfo.bind(artwork)
+            artworkAdapter.submitList(listOf(artwork))
         }
 
         nextArtworkViewModel.providerLiveData.observe(this) { provider ->
-            binding.nextArtwork.nextArtwork.isVisible = provider?.supportsNextArtwork == true
+            nextArtworkAdapter.submitList(listOfNotNull(
+                    provider?.takeIf { it.supportsNextArtwork }))
         }
 
         commandViewModel.commandsLiveData.observe(this) { commands ->
-            // TODO Show multiple commands rather than only the first
-            val command = commands.filterNot { action ->
-                action.title.isBlank()
-            }.firstOrNull { action ->
-                action.shouldShowIcon()
-            }
-            if (command != null) {
-                binding.command.bind(command)
-                binding.command.command.isVisible = true
-            } else {
-                binding.command.command.isVisible = false
-            }
+            commandArtworkAdapter.submitList(commands)
         }
 
         providerViewModel.providerLiveData.observe(this) { provider ->
-            binding.providerInfo.bind(provider)
+            providerAdapter.submitList(listOf(provider))
         }
         ProviderChangedReceiver.observeForVisibility(this, this)
     }

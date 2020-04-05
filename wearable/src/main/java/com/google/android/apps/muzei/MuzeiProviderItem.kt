@@ -22,15 +22,21 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.widget.RoundedDrawable
 import com.google.android.apps.muzei.datalayer.ActivateMuzeiIntentService
 import com.google.android.apps.muzei.featuredart.BuildConfig
+import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.sync.ProviderManager
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -38,6 +44,7 @@ import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.MuzeiProviderItemBinding
 
 data class ProviderData(
+        val provider: Provider,
         val icon: Drawable,
         val label: CharSequence,
         val description: String,
@@ -58,7 +65,7 @@ class MuzeiProviderViewModel(application: Application) : AndroidViewModel(applic
                     val settingsActivity = providerInfo.metaData?.getString("settingsActivity")?.run {
                         ComponentName(providerInfo.packageName, this)
                     }
-                    emit(ProviderData(icon, label,
+                    emit(ProviderData(provider, icon, label,
                             ProviderManager.getDescription(app, provider.authority),
                             settingsActivity))
                 }
@@ -69,6 +76,18 @@ class MuzeiProviderViewModel(application: Application) : AndroidViewModel(applic
                 }
             }
         }
+    }
+}
+
+class MuzeiProviderViewHolder(
+        private val binding: MuzeiProviderItemBinding
+) : RecyclerView.ViewHolder(binding.root) {
+    init {
+        binding.create()
+    }
+
+    fun bind(providerData: ProviderData) {
+        binding.bind(providerData)
     }
 }
 
@@ -102,5 +121,30 @@ fun MuzeiProviderItemBinding.bind(providerData: ProviderData) {
                 component = providerData.settingsActivity
             })
         }
+    }
+}
+
+class MuzeiProviderAdapter : ListAdapter<ProviderData, MuzeiProviderViewHolder>(
+        object : DiffUtil.ItemCallback<ProviderData>() {
+            override fun areItemsTheSame(
+                    providerData1: ProviderData,
+                    providerData2: ProviderData
+            ) = providerData1.provider.authority == providerData2.provider.authority
+
+            override fun areContentsTheSame(
+                    providerData1: ProviderData,
+                    providerData2: ProviderData
+            ) = providerData1.provider == providerData2.provider
+        }
+) {
+
+    override fun onCreateViewHolder(
+            parent: ViewGroup,
+            viewType: Int
+    ) = MuzeiProviderViewHolder(MuzeiProviderItemBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false))
+
+    override fun onBindViewHolder(holder: MuzeiProviderViewHolder, position: Int) {
+        holder.bind(getItem(position))
     }
 }

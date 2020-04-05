@@ -18,15 +18,29 @@ package com.google.android.apps.muzei
 
 import android.app.Application
 import android.graphics.Rect
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.widget.RoundedDrawable
+import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.sync.ProviderManager
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.MuzeiNextArtworkItemBinding
 
 class MuzeiNextArtworkViewModel(application: Application) : AndroidViewModel(application) {
     val providerLiveData = ProviderManager.getInstance(getApplication())
+}
+
+class MuzeiNextArtworkViewHolder(
+        binding: MuzeiNextArtworkItemBinding
+) : RecyclerView.ViewHolder(binding.root) {
+    init {
+        binding.create()
+    }
 }
 
 fun MuzeiNextArtworkItemBinding.create() {
@@ -40,5 +54,28 @@ fun MuzeiNextArtworkItemBinding.create() {
     }, null, null, null)
     nextArtwork.setOnClickListener {
         ProviderManager.getInstance(context).nextArtwork()
+    }
+}
+
+class MuzeiNextArtworkAdapter : ListAdapter<Provider, MuzeiNextArtworkViewHolder>(
+        object : DiffUtil.ItemCallback<Provider>() {
+            override fun areItemsTheSame(
+                    provider1: Provider,
+                    provider2: Provider
+            ) = provider1.authority == provider2.authority
+
+            override fun areContentsTheSame(
+                    provider1: Provider,
+                    provider2: Provider
+            ) = provider1 == provider2
+        }
+) {
+    override fun onCreateViewHolder(
+            parent: ViewGroup,
+            viewType: Int
+    ) = MuzeiNextArtworkViewHolder(MuzeiNextArtworkItemBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false))
+
+    override fun onBindViewHolder(holder: MuzeiNextArtworkViewHolder, position: Int) {
     }
 }

@@ -18,8 +18,13 @@ package com.google.android.apps.muzei
 
 import android.app.Application
 import android.content.Intent
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.lifecycle.AndroidViewModel
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.widget.RoundedDrawable
 import coil.api.load
 import com.google.android.apps.muzei.room.Artwork
@@ -29,6 +34,18 @@ import net.nurik.roman.muzei.databinding.MuzeiArtworkItemBinding
 
 class MuzeiArtworkViewModel(application: Application) : AndroidViewModel(application) {
     val artworkLiveData = MuzeiDatabase.getInstance(application).artworkDao().currentArtwork
+}
+
+class MuzeiArtworkViewHolder(
+        private val binding: MuzeiArtworkItemBinding
+) : RecyclerView.ViewHolder(binding.root) {
+    init {
+        binding.create()
+    }
+
+    fun bind(artwork: Artwork) {
+        binding.bind(artwork)
+    }
 }
 
 fun MuzeiArtworkItemBinding.create() {
@@ -60,4 +77,28 @@ fun MuzeiArtworkItemBinding.bind(artwork: Artwork) {
     byline.isVisible = !artwork.byline.isNullOrBlank()
     attribution.text = artwork.attribution
     attribution.isVisible = !artwork.attribution.isNullOrBlank()
+}
+
+class MuzeiArtworkAdapter : ListAdapter<Artwork, MuzeiArtworkViewHolder>(
+        object : DiffUtil.ItemCallback<Artwork>() {
+            override fun areItemsTheSame(
+                    artwork1: Artwork,
+                    artwork2: Artwork
+            ) = artwork1.id == artwork2.id
+
+            override fun areContentsTheSame(
+                    artwork1: Artwork,
+                    artwork2: Artwork
+            ) = artwork1 == artwork2
+        }
+) {
+    override fun onCreateViewHolder(
+            parent: ViewGroup,
+            viewType: Int
+    ) = MuzeiArtworkViewHolder(MuzeiArtworkItemBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false))
+
+    override fun onBindViewHolder(holder: MuzeiArtworkViewHolder, position: Int) {
+        holder.bind(getItem(position))
+    }
 }
