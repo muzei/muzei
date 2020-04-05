@@ -47,14 +47,15 @@ data class ArtworkCommand(
     val title = command.title
     val actionIntent = command.actionIntent
     val icon = command.icon
-    fun shouldShowIcon() = command.shouldShowIcon()
 }
 
 class MuzeiCommandViewModel(application: Application) : AndroidViewModel(application) {
     val commandsLiveData = MuzeiDatabase.getInstance(application).artworkDao().currentArtwork.switchMap { artwork ->
         liveData {
             if (artwork != null) {
-                emit(artwork.getCommands(getApplication<Application>()).map { command ->
+                emit(artwork.getCommands(getApplication<Application>()).sortedByDescending { command ->
+                    command.shouldShowIcon()
+                }.map { command ->
                     ArtworkCommand(artwork, command)
                 })
             } else {
