@@ -14,126 +14,30 @@
   limitations under the License.
   -->
 
-<ScrollView
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/scroll_view"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
-        android:id="@+id/content"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingBottom="8dp"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingStart="8dp"
         android:paddingEnd="8dp"
-        android:paddingStart="8dp">
+        android:paddingBottom="8dp"
+        app:layoutManager="LinearLayoutManager" />
 
-        <TextView
-            android:id="@+id/time"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/art_detail_image_size"
-            android:layout_marginTop="8dp"
-            android:fontFamily="@font/nunito_clock_regular"
-            android:gravity="center"
-            android:textSize="@dimen/clock_text_size"
-            android:visibility="gone"/>
-
-        <ImageView
-            android:id="@+id/image"
-            android:layout_width="@dimen/art_detail_image_size"
-            android:layout_height="@dimen/art_detail_image_size"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="8dp"
-            tools:ignore="ContentDescription"/>
-
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/alegreya"
-            android:paddingTop="8dp"
-            android:textSize="@dimen/art_detail_title_text_size"
-            android:textStyle="bold|italic"/>
-
-        <TextView
-            android:id="@+id/byline"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/alegreya"
-            android:paddingTop="8dp"
-            android:textSize="@dimen/art_detail_byline_text_size"
-            android:textStyle="italic"/>
-
-        <TextView
-            android:id="@+id/attribution"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/alegreya"
-            android:paddingTop="8dp"
-            android:textSize="@dimen/art_detail_attribution_text_size"
-            android:textStyle="italic"/>
-
-        <Button
-            android:id="@+id/next_artwork"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:background="?android:selectableItemBackground"
-            android:drawablePadding="8dp"
-            android:gravity="center_vertical"
-            android:text="@string/next_artwork"
-            android:textAllCaps="false"
-            android:visibility="gone"/>
-
-        <Button
-            android:id="@+id/command"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:background="?android:selectableItemBackground"
-            android:drawablePadding="8dp"
-            android:gravity="center_vertical"
-            android:textAllCaps="false"
-            android:visibility="gone"/>
-
-        <TextView
-            android:id="@+id/current_provider"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:paddingTop="8dp"
-            android:text="@string/provider_title"
-            android:textAppearance="@android:style/TextAppearance.Material.Title"
-            android:textColor="@color/theme_primary"/>
-
-        <Button
-            android:id="@+id/provider"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?android:selectableItemBackground"
-            android:drawablePadding="8dp"
-            android:gravity="center_vertical"
-            android:paddingBottom="8dp"
-            android:paddingTop="8dp"
-            android:textAllCaps="false"
-            android:textSize="20sp"/>
-
-        <TextView
-            android:id="@+id/provider_description"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="8dp"/>
-
-        <Button
-            android:id="@+id/settings"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:background="?android:selectableItemBackground"
-            android:text="@string/provider_settings"
-            android:textAllCaps="false"
-            android:visibility="gone"/>
-    </LinearLayout>
-</ScrollView>
+    <TextView
+        android:id="@+id/time"
+        android:background="@color/black"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/art_detail_time_height"
+        android:paddingTop="8dp"
+        android:fontFamily="@font/nunito_clock_regular"
+        android:gravity="center"
+        android:textSize="@dimen/clock_text_size"
+        android:visibility="gone" />
+</FrameLayout>

@@ -61,7 +61,7 @@ internal val syncSingleThreadContext by lazy {
  * Manager which monitors the current Provider
  */
 class ProviderManager private constructor(private val context: Context)
-    : MutableLiveData<Provider>(), Observer<Provider?> {
+    : MutableLiveData<Provider?>(), Observer<Provider?> {
 
     companion object {
         private const val TAG = "ProviderManager"
