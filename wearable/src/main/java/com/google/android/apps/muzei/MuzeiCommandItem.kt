@@ -78,7 +78,6 @@ class MuzeiCommandViewHolder(
         val context = root.context
         command.text = artworkCommand.title
         command.setCompoundDrawablesRelative(RoundedDrawable().apply {
-            isClipEnabled = true
             radius = root.context.resources.getDimensionPixelSize(R.dimen.art_detail_open_on_phone_radius)
             backgroundColor = ContextCompat.getColor(context, R.color.theme_primary)
             drawable = artworkCommand.icon.loadDrawable(context)

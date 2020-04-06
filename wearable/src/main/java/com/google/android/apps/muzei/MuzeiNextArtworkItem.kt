@@ -47,7 +47,6 @@ class MuzeiNextArtworkViewHolder(
         binding.run {
             val context = root.context
             nextArtwork.setCompoundDrawablesRelative(RoundedDrawable().apply {
-                isClipEnabled = true
                 radius = context.resources.getDimensionPixelSize(R.dimen.art_detail_open_on_phone_radius)
                 backgroundColor = ContextCompat.getColor(context, R.color.theme_primary)
                 drawable = ContextCompat.getDrawable(context, R.drawable.ic_next_artwork)
