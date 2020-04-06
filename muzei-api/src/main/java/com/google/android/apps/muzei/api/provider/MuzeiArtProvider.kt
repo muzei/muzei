@@ -588,7 +588,7 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
 
     /**
      * Retrieve the list of commands available for the given artwork. Each action should have
-     * an icon 48x48dp. Muzei respects the [RemoteActionCompat.setShouldShowIcon] to determine
+     * an icon 24x24dp. Muzei respects the [RemoteActionCompat.setShouldShowIcon] to determine
      * when to show the action as an icon (assuming there is enough space). Actions with a
      * blank title will be ignored by Muzei.
      *
