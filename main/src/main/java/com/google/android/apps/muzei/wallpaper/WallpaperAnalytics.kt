@@ -43,7 +43,7 @@ class WallpaperAnalytics(context: Context) : DefaultLifecycleObserver {
         WallpaperActiveState.initState(context)
     }
 
-    override fun onCreate(owner: LifecycleOwner) {
+    override fun onStart(owner: LifecycleOwner) {
         Firebase.analytics.setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
     }
 
