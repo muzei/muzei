@@ -68,7 +68,7 @@ dokka {
     configuration {
         externalDocumentationLink {
             url = new URL("https://developer.android.com/reference/")
-            packageListUrl = new URL("https://developer.android.com/reference/android/support/package-list")
+            packageListUrl = new URL("https://developer.android.com/reference/androidx/package-list")
         }
 
         perPackageOption {
