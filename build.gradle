@@ -33,7 +33,7 @@ buildscript {
         firebaseCrashlyticsVersion = '17.0.0-beta03'
         firebasePerfVersion = '19.0.5'
         fragmentVersion = '1.3.0-alpha03'
-        kotlinVersion = '1.3.71'
+        kotlinVersion = '1.3.72'
         lifecycleVersion = '2.3.0-alpha01'
         localeVersion = '1.0.4'
         materialVersion = '1.1.0'

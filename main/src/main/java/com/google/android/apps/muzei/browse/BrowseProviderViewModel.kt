@@ -37,7 +37,7 @@ import java.util.concurrent.Executors
 class ProviderArtworkLiveData(
         val context: Context,
         private val coroutineScope: CoroutineScope,
-        val contentUri: Uri
+        private val contentUri: Uri
 ): MutableLiveData<List<Artwork>>() {
     private val authority: String = contentUri.authority
             ?: throw IllegalArgumentException("Invalid contentUri $contentUri")
