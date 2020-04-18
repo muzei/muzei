@@ -41,6 +41,8 @@ import android.view.ViewAnimationUtils
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.Toast
+import androidx.activity.prepareCall
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermissions
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -86,7 +88,6 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         private const val SHOW_INTERNAL_STORAGE_MESSAGE = "show_internal_storage_message"
         private const val REQUEST_CHOOSE_PHOTOS = 1
         private const val REQUEST_CHOOSE_FOLDER = 2
-        private const val REQUEST_STORAGE_PERMISSION = 3
 
         internal val CHOSEN_PHOTO_DIFF_CALLBACK: DiffUtil.ItemCallback<ChosenPhoto> = object : DiffUtil.ItemCallback<ChosenPhoto>() {
             override fun areItemsTheSame(oldItem: ChosenPhoto, newItem: ChosenPhoto): Boolean {
@@ -102,6 +103,17 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
     }
 
     private val viewModel: GallerySettingsViewModel by viewModels()
+
+    private val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.ACCESS_MEDIA_LOCATION)
+    } else {
+        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+    }
+
+    private val requestStoragePermission = prepareCall(RequestPermissions(), permissions) {
+        onDataSetChanged()
+    }
 
     private val chosenPhotosLiveData: LiveData<PagedList<ChosenPhoto>> by lazy {
         viewModel.chosenPhotos
@@ -197,13 +209,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         }
 
         binding.enableRandom.setOnClickListener {
-            ActivityCompat.requestPermissions(this,
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
-                                Manifest.permission.ACCESS_MEDIA_LOCATION)
-                    } else {
-                        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
-                    }, REQUEST_STORAGE_PERMISSION)
+            requestStoragePermission()
         }
         binding.editPermissionSettings.setOnClickListener {
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
@@ -265,18 +271,6 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                 hideAddToolbar(true)
             }
         }
-    }
-
-    override fun onRequestPermissionsResult(
-            requestCode: Int,
-            permissions: Array<String>,
-            grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode != REQUEST_STORAGE_PERMISSION) {
-            return
-        }
-        onDataSetChanged()
     }
 
     override fun onResume() {

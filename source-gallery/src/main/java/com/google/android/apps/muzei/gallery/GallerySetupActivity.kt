@@ -21,7 +21,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import androidx.core.app.ActivityCompat
+import androidx.activity.invoke
+import androidx.activity.prepareCall
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermissions
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.observe
@@ -29,9 +32,11 @@ import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 
 class GallerySetupActivity : FragmentActivity() {
 
-    companion object {
-        private const val REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 1
-        private const val REQUEST_CHOOSE_IMAGES = 2
+    private val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.ACCESS_MEDIA_LOCATION)
+    } else {
+        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,60 +44,38 @@ class GallerySetupActivity : FragmentActivity() {
         GalleryDatabase.getInstance(this).chosenPhotoDao()
                 .chosenPhotos.observe(this) { chosenUris ->
             val numChosenUris = chosenUris.size
-            val hasPermission = ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE)== PackageManager.PERMISSION_GRANTED
-                    && (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
-                    || ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_MEDIA_LOCATION) == PackageManager.PERMISSION_GRANTED)
+            val hasPermission = permissions.all { permission ->
+                ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+            }
             if (hasPermission || numChosenUris > 0) {
                 // If we have permission or have any previously selected images
                 setResult(RESULT_OK)
                 finish()
             } else {
-                ActivityCompat.requestPermissions(this,
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
-                                    Manifest.permission.ACCESS_MEDIA_LOCATION)
-                        } else {
-                            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
-                        },
-                        REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE)
+                requestStoragePermission()
             }
         }
     }
 
-    override fun onRequestPermissionsResult(
-            requestCode: Int,
-            permissions: Array<String>,
-            grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode != REQUEST_READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE) {
-            return
-        }
-
-        if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+    private val requestStoragePermission = prepareCall(RequestPermissions(), permissions) { results ->
+        if (results.getOrElse(Manifest.permission.READ_EXTERNAL_STORAGE) { false }) {
             GalleryScanWorker.enqueueRescan(this)
             setResult(RESULT_OK)
             finish()
         } else {
             // Push the user to the GallerySettingsActivity to see inline rationale or just
             // select individual photos
-            startActivityForResult(Intent(this, GallerySettingsActivity::class.java).apply {
+            startSettings(Intent(this, GallerySettingsActivity::class.java).apply {
                 if (intent.getBooleanExtra(MuzeiArtProvider.EXTRA_FROM_MUZEI, false)) {
                     putExtra(MuzeiArtProvider.EXTRA_FROM_MUZEI, true)
                 }
-            }, REQUEST_CHOOSE_IMAGES)
+            })
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode != REQUEST_CHOOSE_IMAGES) {
-            return
-        }
+    private val startSettings = prepareCall(StartActivityForResult()) { result ->
         // Pass on the resultCode from the GallerySettingsActivity onto Muzei
-        setResult(resultCode)
+        setResult(result.resultCode)
         finish()
     }
 }
