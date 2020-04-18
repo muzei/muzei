@@ -594,14 +594,14 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             binding.root.layoutParams.height = itemSize
             binding.root.setOnTouchListener { _, motionEvent ->
                 if (motionEvent.actionMasked != MotionEvent.ACTION_CANCEL) {
-                    lastTouchPosition = vh.adapterPosition
+                    lastTouchPosition = vh.bindingAdapterPosition
                     lastTouchX = motionEvent.x.toInt()
                     lastTouchY = motionEvent.y.toInt()
                 }
                 false
             }
             binding.root.setOnClickListener {
-                updatePosition = vh.adapterPosition
+                updatePosition = vh.bindingAdapterPosition
                 if (updatePosition != RecyclerView.NO_POSITION) {
                     multiSelectionController.toggle(getItemId(updatePosition), true)
                 }
@@ -637,7 +637,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             }
             val checked = multiSelectionController.isSelected(chosenPhoto.id)
             vh.itemView.setTag(R.id.gallery_viewtag_position, position)
-            if (lastTouchPosition == vh.adapterPosition && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (lastTouchPosition == vh.bindingAdapterPosition && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 Handler().post {
                     if (!vh.binding.checkedOverlay.isAttachedToWindow) {
                         // Can't animate detached Views
