@@ -75,6 +75,9 @@ class FeaturedArtProvider : MuzeiArtProvider() {
 
     override fun getCommandActions(artwork: Artwork): List<RemoteActionCompat> {
         val context = context ?: return super.getCommandActions(artwork)
+        if (!context.resources.getBoolean(R.bool.featuredart_supports_actions)) {
+            return emptyList()
+        }
         return listOf(
                 createShareAction(context, artwork),
                 createViewArchiveAction(context))
