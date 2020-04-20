@@ -75,6 +75,9 @@ dokka {
             prefix = "com.google.android.apps.muzei.api.internal"
             suppress = true
         }
+
+        // Add package level documentation
+        includes = ['package.md']
     }
 
     /* TODO Re-enable prettifying the generated documentation
@@ -115,6 +118,9 @@ task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
             prefix = "com.google.android.apps.muzei.api.BuildConfig"
             suppress = true
         }
+
+        // Add package level documentation
+        includes = ['package.md']
     }
 }
 
