@@ -24,6 +24,8 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import androidx.activity.invoke
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
@@ -33,10 +35,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import net.nurik.roman.muzei.legacy.R
 
 class SourceSetupActivity : AppCompatActivity() {
-
-    companion object {
-        private const val REQUEST_CHOOSE_SOURCE = 1
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,7 +59,7 @@ class SourceSetupActivity : AppCompatActivity() {
                                         MuzeiArtProvider.EXTRA_FROM_MUZEI, false)) {
                             intent.putExtra(MuzeiArtProvider.EXTRA_FROM_MUZEI, true)
                         }
-                        startActivityForResult(intent, REQUEST_CHOOSE_SOURCE)
+                        startSettings(intent)
                     }
                 }
             }
@@ -76,13 +74,9 @@ class SourceSetupActivity : AppCompatActivity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode != REQUEST_CHOOSE_SOURCE) {
-            return
-        }
+    private val startSettings = prepareCall(StartActivityForResult()) { result ->
         // Pass on the resultCode from the SourceSettingsActivity onto Muzei
-        setResult(resultCode)
+        setResult(result.resultCode)
         finish()
     }
 }
