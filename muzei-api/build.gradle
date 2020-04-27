@@ -80,24 +80,13 @@ dokka {
         includes = ['package.md']
     }
 
-    /* TODO Re-enable prettifying the generated documentation
     doLast {
         copy {
             from "javadoc-scripts"
-            into new File(outputDirectory, "resources")
-            include "prettify.*"
-            include "javadoc_stylesheet.css"
-        }
-        exec {
-            commandLine "python", "javadoc-scripts/tweak_javadoc_html.py", outputDirectory.toString()
-        }
-        copy {
-            from "javadoc-scripts"
-            into outputDirectory
-            include "index.html"
+            into new File(outputDirectory)
+            include "style.css"
         }
     }
-     */
 }
 
 task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
