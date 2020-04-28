@@ -15,7 +15,5 @@
   -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name">
-        <xliff:g id="muzei_name">Muzei</xliff:g> Example
-    </string>
+    <string name="app_name"><xliff:g id="muzei_name">Muzei</xliff:g> Example</string>
 </resources>

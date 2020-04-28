@@ -15,13 +15,9 @@
   -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_description">
-        <xliff:g id="muzei_name">Muzei</xliff:g> Live Wallpaper
-    </string>
+    <string name="app_description"><xliff:g id="muzei_name">Muzei</xliff:g> Live Wallpaper</string>
 
-    <string name="settings_title">
-        <xliff:g id="muzei_name">Muzei</xliff:g> Settings
-    </string>
+    <string name="settings_title"><xliff:g id="muzei_name">Muzei</xliff:g> Settings</string>
     <string name="settings_home_screen_title">Home Screen</string>
     <string name="settings_lock_screen_title">Lock Screen</string>
     <string name="settings_blur_amount_title">Blur</string>
@@ -31,11 +27,9 @@
     <string name="notification_new_wallpaper">New wallpaper</string>
     <string name="notification_new_wallpaper_channel_name">New wallpapers</string>
     <string name="notification_settings">Notification Settings</string>
-    <string name="notification_settings_failed">
-        Opening notification settings failed,
+    <string name="notification_settings_failed">Opening notification settings failed,
         please adjust <xliff:g id="muzei_name">Muzei</xliff:g>\'s notification settings
-        from the Settings app.
-    </string>
+        from the Settings app.</string>
     <string name="notification_settings_done">Done</string>
     <string name="notification_settings_moved_title">Notification settings have moved</string>
     <string name="notification_settings_moved_text">Review your notification settings</string>
@@ -45,10 +39,8 @@
     <string name="auto_advance_disabled_description">Legacy Sources handle their own
         wallpaper loading and do not support Auto Advance</string>
     <string name="auto_advance_title">Auto Advance</string>
-    <string name="auto_advance_description">
-        Control when <xliff:g id="muzei_name">Muzei</xliff:g> automatically advances to the next
-        wallpaper.
-    </string>
+    <string name="auto_advance_description">Control when <xliff:g id="muzei_name">Muzei</xliff:g>
+        automatically advances to the next wallpaper.</string>
     <string name="auto_advance_wifi">Auto advance only on Wi-Fi</string>
     <string name="auto_advance_interval">Interval</string>
     <string name="auto_advance_interval_15m">Every 15 minutes</string>
@@ -59,17 +51,15 @@
     <string name="auto_advance_interval_24h">Every 24 hours</string>
     <string name="auto_advance_interval_72h">Every 3 days</string>
     <string name="auto_advance_interval_never">Don\'t auto advance</string>
-    <string name="auto_advance_tasker">
-        For exact control over what triggers your wallpaper to change, use the
-        \'Next artwork\' action available in
+    <string name="auto_advance_tasker">For exact control over what triggers your wallpaper
+        to change, use the \'Next artwork\' action available in
         <xliff:g id="tasker_name">Tasker</xliff:g> under Plugin ->
         <xliff:g id="muzei_name">Muzei</xliff:g> and disable auto advance here.</string>
 
     <string name="action_activate">Activate</string>
     <string name="error_view_details">Couldn\'t view artwork details.</string>
-    <string name="error_wallpaper_chooser">
-        Couldn\'t launch wallpaper chooser. You can still activate
-        <xliff:g id="muzei_name">Muzei</xliff:g> by choosing
+    <string name="error_wallpaper_chooser">Couldn\'t launch wallpaper chooser. You can still
+        activate <xliff:g id="muzei_name">Muzei</xliff:g> by choosing
         \'Live Wallpapers\' in your home screen wallpaper picker.</string>
 
     <string name="section_choose_source">Sources</string>
@@ -86,92 +76,65 @@
     <string name="provider_browse">Browse</string>
 
     <string name="legacy_notification_channel_name">Legacy Sources</string>
-    <string name="legacy_notification_title">
-        <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> is no longer supported
-    </string>
-    <string name="legacy_notification_text">
-        <xliff:g id="muzei_name">Muzei</xliff:g> does not directly support sources built
-        with the Legacy Source API.
-    </string>
+    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g>
+        is no longer supported</string>
+    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> does not
+        directly support sources built with the Legacy Source API.</string>
     <string name="legacy_action_learn_more">Learn more</string>
     <string name="legacy_action_send_feedback">Send feedback</string>
     <string name="legacy_summary_title">Legacy Sources are no longer supported</string>
     <plurals name="legacy_summary_text">
-        <item quantity="one">
-            <xliff:g id="quantity" example="1">%1$d</xliff:g> Legacy Source found
-        </item>
-        <item quantity="other">
-            <xliff:g id="quantity" example="2">%1$d</xliff:g> Legacy Sources found
-        </item>
+        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> Legacy Source found</item>
+        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> Legacy Sources found</item>
     </plurals>
     <plurals name="legacy_unsupported_text">
-        <item quantity="one">
-            <xliff:g id="quantity" example="1">%1$d</xliff:g> unsupported source found
-        </item>
-        <item quantity="other">
-            <xliff:g id="quantity" example="2">%1$d</xliff:g> unsupported sources found
-        </item>
+        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> unsupported source found</item>
+        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> unsupported sources found</item>
     </plurals>
     <string name="legacy_source_info_title">Legacy Sources</string>
-    <string name="legacy_source_info_subtitle">
-        Sources built with the Legacy Source API are
-        no longer directly supported by <xliff:g id="muzei_name">Muzei</xliff:g>.
-    </string>
+    <string name="legacy_source_info_subtitle">Sources built with the Legacy Source API are
+        no longer directly supported by <xliff:g id="muzei_name">Muzei</xliff:g>.</string>
     <string name="legacy_source_info_app_info">App info</string>
     <string name="legacy_source_info_send_feedback">Send feedback</string>
     <string name="legacy_source_all_uninstalled">All Legacy Sources have been uninstalled</string>
 
     <string name="done">Done</string>
 
-    <string name="set_as_wallpaper_using_muzei">
-        Wallpaper (using <xliff:g id="muzei_name">Muzei</xliff:g>)
-    </string>
+    <string name="set_as_wallpaper_using_muzei">Wallpaper (using <xliff:g id="muzei_name">Muzei</xliff:g>)</string>
     <string name="set_as_wallpaper_failed">Unable to read artwork</string>
 
-    <string name="tutorial_main">
-        Open the <xliff:g id="muzei_name">Muzei</xliff:g> app to see your wallpaper
-    </string>
+    <string name="tutorial_main">Open the <xliff:g id="muzei_name">Muzei</xliff:g> app to see
+        your wallpaper</string>
     <string name="tutorial_subtitle">Double touch the blurred wallpaper on your home screen to temporarily focus</string>
 
     <string name="get_more_sources">Get more sources</string>
-    <string name="get_more_sources_description">
-        Change your wallpaper entirely with additional sources installed from the
-        <xliff:g id="google_play">Google Play</xliff:g> Store
-    </string>
+    <string name="get_more_sources_description">Change your wallpaper entirely with additional
+        sources installed from the <xliff:g id="google_play">Google Play</xliff:g> Store</string>
     <string name="action_link_effects">Home 🔗 Lock</string>
     <string name="toast_link_effects">Home &amp; Lock screen effects are now linked</string>
     <string name="action_link_effects_off">Home &amp; Lock aren\'t linked together</string>
     <string name="toast_link_effects_off">Home &amp; Lock screen effects are no longer linked together</string>
     <string name="reset_advanced_settings_defaults">Reset sliders</string>
-    <string name="play_store_not_found">
-        Unable to open <xliff:g id="google_play">Google Play</xliff:g> Store.
-    </string>
+    <string name="play_store_not_found">Unable to open
+        <xliff:g id="google_play">Google Play</xliff:g> Store.</string>
 
     <string name="browse_refresh">Refresh</string>
     <string name="browse_set_wallpaper">Set the current wallpaper</string>
-    <string name="browse_set_wallpaper_with_title">
-        Set the current wallpaper to
-        \"<xliff:g id="image_name" example="IMG14227.jpg">%s</xliff:g>\"
-    </string>
+    <string name="browse_set_wallpaper_with_title">Set the current wallpaper to
+        \"<xliff:g id="image_name" example="IMG14227.jpg">%s</xliff:g>\"</string>
 
-    <string name="missing_resources_title">
-        Invalid <xliff:g id="muzei_name">Muzei</xliff:g> installation
-    </string>
-    <string name="missing_resources_message">
-        <xliff:g id="muzei_name">Muzei</xliff:g> is in an invalid state.
-        Please uninstall <xliff:g id="muzei_name">Muzei</xliff:g> and install it from the
-        <xliff:g id="google_play">Google Play</xliff:g> Store to repair your installation.</string>
-    <string name="missing_resources_open">
-        Open <xliff:g id="google_play">Google Play</xliff:g> Store
-    </string>
-    <string name="missing_resources_quit">
-        Close <xliff:g id="muzei_name">Muzei</xliff:g>
-    </string>
+    <string name="missing_resources_title">Invalid <xliff:g id="muzei_name">Muzei</xliff:g>
+        installation</string>
+    <string name="missing_resources_message"><xliff:g id="muzei_name">Muzei</xliff:g> is in an
+        invalid state. Please uninstall <xliff:g id="muzei_name">Muzei</xliff:g> and install it
+        from the <xliff:g id="google_play">Google Play</xliff:g> Store to repair your
+        installation.</string>
+    <string name="missing_resources_open">Open <xliff:g id="google_play">Google Play</xliff:g> Store</string>
+    <string name="missing_resources_quit">Close <xliff:g id="muzei_name">Muzei</xliff:g></string>
 
     <string name="tasker_setting_dialog_title">Select action</string>
-    <string name="tasker_action_select_provider">
-        Select <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g>
-    </string>
+    <string name="tasker_action_select_provider">Select
+        <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g></string>
 
     <string name="actions_gestures">Customize Gestures</string>
     <string name="gestures_title">Gestures</string>
@@ -188,9 +151,7 @@
 
     <string name="actions_always_dark">Always Dark</string>
 
-    <string name="about_title">
-        About <xliff:g id="muzei_name">Muzei</xliff:g>
-    </string>
+    <string name="about_title">About <xliff:g id="muzei_name">Muzei</xliff:g></string>
     <string name="about_body"><![CDATA[
         Made by Roman Nurik and Ian Lake, with major contributions from
         the <a href="http://code.muzei.co">open source community</a>.
@@ -206,13 +167,9 @@
         &bull; <b><a href="http://square.github.io/okhttp/">OkHttp</a> and <a href="http://square.github.io/picasso/">Picasso</a></b> by Square<br>
         &bull; <b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a></b> by Robert Green, Mark F. Guerra, and others
     ]]></string>
-    <string name="about_version_template">
-        v<xliff:g id="version_number" example="3.3.0 Beta">%1$s</xliff:g>
-    </string>
-    <string name="app_author">
-        <xliff:g id="roman_nurik">Roman Nurik</xliff:g> and
-        <xliff:g id="ian_lake">Ian Lake</xliff:g>
-    </string>
+    <string name="about_version_template">v<xliff:g id="version_number" example="3.3.0 Beta">%1$s</xliff:g></string>
+    <string name="app_author"><xliff:g id="roman_nurik">Roman Nurik</xliff:g> and
+        <xliff:g id="ian_lake">Ian Lake</xliff:g></string>
     <string name="app_context_description">A living museum for your home screen</string>
     <string name="app_context_uri" translatable="false">http://www.muzei.co/</string>
 </resources>
