@@ -15,10 +15,5 @@
   -->
 
 <resources>
-    <string name="legacy_source_warning_message">There are known issues with Legacy Sources on your device.
-        You must disable Battery Optimizations on any Legacy Source you select to ensure it can
-        load wallpapers. This may cause additional battery drain.\n\n
-        In addition, Legacy Sources load on their own schedule and don\'t use Auto Advance.
-        This may lead to additional data usage if the Legacy Source does not have its own WiFi
-        only setting.</string>
+    <string name="legacy_source_warning_message">There are known issues with Legacy Sources on your device. You must disable Battery Optimizations on any Legacy Source you select to ensure it can load wallpapers. This may cause additional battery drain.\n\n In addition, Legacy Sources load on their own schedule and don\'t use Auto Advance. This may lead to additional data usage if the Legacy Source does not have its own WiFi only setting.</string>
 </resources>

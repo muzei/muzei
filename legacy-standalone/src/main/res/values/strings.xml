@@ -19,9 +19,7 @@
     <string name="legacy_source_provider_name">Legacy Sources</string>
 
     <string name="legacy_source_warning_title">Activate a Legacy Source?</string>
-    <string name="legacy_source_warning_message">Legacy Sources load on their own schedule and don\'t
-        use Auto Advance. This may lead to additional data usage if the Legacy Source does not
-        have its own WiFi only setting.</string>
+    <string name="legacy_source_warning_message">Legacy Sources load on their own schedule and don\'t use Auto Advance. This may lead to additional data usage if the Legacy Source does not have its own WiFi only setting.</string>
     <string name="legacy_source_warning_positive">Continue</string>
     <string name="legacy_source_warning_learn_more">Learn more</string>
     <string name="legacy_source_warning_negative">Cancel</string>
@@ -32,12 +30,8 @@
     <string name="legacy_source_unavailable">Your selected source is unavailable. Switching to the default source.</string>
 
     <string name="legacy_source_target_too_high_title">This source is disabled</string>
-    <string name="legacy_source_target_too_high_message"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g>
-        is incompatible with <xliff:g id="muzei_name">Muzei</xliff:g>\'s API. To use this source,
-        the developer must change their <xliff:g id="targetSdkVersion">targetSdkVersion</xliff:g>
-        to 25 or lower.</string>
-    <string name="legacy_source_target_too_high_send_feedback">Send
-        <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> feedback</string>
+    <string name="legacy_source_target_too_high_message"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> is incompatible with <xliff:g id="muzei_name">Muzei</xliff:g>\'s API. To use this source, the developer must change their <xliff:g id="targetSdkVersion">targetSdkVersion</xliff:g> to 25 or lower.</string>
+    <string name="legacy_source_target_too_high_send_feedback">Send <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> feedback</string>
     <string name="legacy_source_target_too_high_learn_more">Learn more</string>
     <string name="legacy_source_target_too_high_dismiss">Got it</string>
 </resources>

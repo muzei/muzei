@@ -15,8 +15,7 @@
   -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name"><xliff:g id="unsplash_name">Unsplash</xliff:g>
-        (Example <xliff:g id="muzei_name">Muzei</xliff:g> Source)</string>
+    <string name="app_name"><xliff:g id="unsplash_name">Unsplash</xliff:g> (Example <xliff:g id="muzei_name">Muzei</xliff:g> Source)</string>
     <string name="name"><xliff:g id="unsplash_name">Unsplash</xliff:g> (Example)</string>
     <string name="description">Popular photos from <xliff:g id="unsplash_name">Unsplash</xliff:g></string>
     <string name="attribution">Photo on <xliff:g id="unsplash_name">Unsplash</xliff:g></string>
