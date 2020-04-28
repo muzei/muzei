@@ -76,8 +76,8 @@ dokka {
             suppress = true
         }
 
-        // Add package level documentation
-        includes = ['package.md']
+        // Add module and package level documentation
+        includes = ['module.md', 'package.md']
     }
 
     doLast {
@@ -108,8 +108,8 @@ task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
             suppress = true
         }
 
-        // Add package level documentation
-        includes = ['package.md']
+        // Add module and package level documentation
+        includes = ['module.md', 'package.md']
     }
 }
 
