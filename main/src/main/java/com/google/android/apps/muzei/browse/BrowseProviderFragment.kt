@@ -88,7 +88,7 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
         val adapter = Adapter()
         binding.list.adapter = adapter
 
-        viewModel.setContentUri(args.contentUri)
+        viewModel.contentUri = args.contentUri
         viewModel.artLiveData.observe(viewLifecycleOwner) {
             adapter.submitList(it)
         }
