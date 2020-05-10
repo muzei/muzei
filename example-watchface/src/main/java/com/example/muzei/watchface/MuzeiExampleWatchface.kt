@@ -30,10 +30,12 @@ import android.util.Size
 import android.view.Gravity
 import android.view.SurfaceHolder
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleRegistry
-import androidx.lifecycle.Observer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 /**
  * Simple watchface example which loads and displays Muzei images as the background
@@ -44,18 +46,14 @@ class MuzeiExampleWatchface : CanvasWatchFaceService() {
         return Engine()
     }
 
-    private inner class Engine : CanvasWatchFaceService.Engine(), LifecycleOwner, Observer<Bitmap> {
-        private val lifecycleRegistry = LifecycleRegistry(this)
+    private inner class Engine : CanvasWatchFaceService.Engine() {
+        private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
         private val backgroundPaint: Paint = Paint().apply {
             color = ContextCompat.getColor(this@MuzeiExampleWatchface, android.R.color.black)
         }
-        private val loader: ArtworkImageLoader = ArtworkImageLoader.getInstance(this@MuzeiExampleWatchface)
+        private val loader = ArtworkImageLoader(this@MuzeiExampleWatchface)
         private lateinit var complicationDrawable: ComplicationDrawable
         private var image: Bitmap? = null
-
-        override fun getLifecycle(): Lifecycle {
-            return lifecycleRegistry
-        }
 
         override fun onCreate(holder: SurfaceHolder) {
             super.onCreate(holder)
@@ -74,13 +72,12 @@ class MuzeiExampleWatchface : CanvasWatchFaceService() {
                 setTitleSizeAmbient(resources.getDimensionPixelSize(R.dimen.title_size))
                 setTextSizeAmbient(resources.getDimensionPixelSize(R.dimen.text_size))
             }
-            loader.observe(this, this)
-            lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
-        }
-
-        override fun onChanged(bitmap: Bitmap?) {
-            image = bitmap
-            invalidate()
+            coroutineScope.launch {
+                loader.artworkFlow.collect { bitmap ->
+                    image = bitmap
+                    invalidate()
+                }
+            }
         }
 
         override fun onSurfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
@@ -118,7 +115,7 @@ class MuzeiExampleWatchface : CanvasWatchFaceService() {
 
         override fun onDestroy() {
             super.onDestroy()
-            lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+            coroutineScope.cancel()
         }
     }
 }

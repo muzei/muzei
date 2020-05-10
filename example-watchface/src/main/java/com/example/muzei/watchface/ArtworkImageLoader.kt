@@ -16,90 +16,85 @@
 
 package com.example.muzei.watchface
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.database.ContentObserver
 import android.graphics.Bitmap
 import android.util.Log
 import android.util.Size
-import androidx.lifecycle.MutableLiveData
 import com.google.android.apps.muzei.api.MuzeiContract
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runInterruptible
 import java.io.FileNotFoundException
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import java.util.concurrent.Future
 
 /**
- * AsyncTaskLoader which provides access to the current Muzei artwork image. It also
+ * Class which provides access to the current Muzei artwork image. It also
  * registers a ContentObserver to ensure the image stays up to date
  */
-class ArtworkImageLoader(private val context: Context) : MutableLiveData<Bitmap>() {
+@OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+class ArtworkImageLoader(private val context: Context) {
 
-    companion object {
-        @SuppressLint("StaticFieldLeak")
-        private var instance: ArtworkImageLoader? = null
-
-        fun getInstance(context: Context): ArtworkImageLoader {
-            val applicationContext = context.applicationContext
-            return instance ?: synchronized(this) {
-                instance ?: ArtworkImageLoader(applicationContext)
-            }
-        }
-    }
-
-    private val executor: ExecutorService by lazy {
-        Executors.newSingleThreadExecutor()
-    }
-    private val contentObserver: ContentObserver = object : ContentObserver(null) {
-        override fun onChange(selfChange: Boolean) {
-            loadInBackground()
-        }
-    }
-
-    private var future: Future<*>? = null
-    var requestedSize: Size? = null
+    private val requestedSizeChannel = ConflatedBroadcastChannel<Size?>(null)
+    var requestedSize: Size?
+        get() = requestedSizeChannel.value
         set(value) {
-            field = value
-            if (hasActiveObservers()) {
-                loadInBackground()
-            }
+            requestedSizeChannel.offer(value)
         }
 
-    override fun onActive() {
+    val artworkFlow: Flow<Bitmap> = callbackFlow {
+        // Create a lambda that should be ran to update the artwork
+        val updateArtwork = {
+            launch {
+                try {
+                    val image = runInterruptible(Dispatchers.IO) {
+                        MuzeiContract.Artwork.getCurrentArtworkBitmap(context)
+                    }
+                    if (image != null) {
+                        send(image)
+                    }
+                } catch (e: FileNotFoundException) {
+                    Log.e("ArtworkImageLoader", "Error getting artwork image", e)
+                }
+            }
+        }
+        // Set up a ContentObserver that will update the artwork when it changes
+        val contentObserver: ContentObserver = object : ContentObserver(null) {
+            override fun onChange(selfChange: Boolean) {
+                updateArtwork()
+            }
+        }
         context.contentResolver.registerContentObserver(
                 MuzeiContract.Artwork.CONTENT_URI, true, contentObserver)
-        loadInBackground()
-    }
+        // And update the artwork immediately to ensure we have the
+        // latest artwork
+        updateArtwork()
 
-    fun loadInBackground() {
-        future?.cancel(true)
-        future = executor.submit {
-            try {
-                val size = requestedSize
-                MuzeiContract.Artwork.getCurrentArtworkBitmap(context)?.run {
-                    when {
-                        size == null -> this
-                        width > height -> {
-                            val scalingFactor = size.height * 1f / height
-                            Bitmap.createScaledBitmap(this, (scalingFactor * width).toInt(),
-                                    size.height, true)
-                        }
-                        else -> {
-                            val scalingFactor = size.width * 1f / width
-                            Bitmap.createScaledBitmap(this, size.width,
-                                    (scalingFactor * height).toInt(), true)
-                        }
-                    }?.run {
-                        postValue(this)
-                    }
-                }
-            } catch (e: FileNotFoundException) {
-                Log.e("ArtworkImageLoader", "Error getting artwork image", e)
+        awaitClose {
+            context.contentResolver.unregisterContentObserver(contentObserver)
+        }
+    }.combine(requestedSizeChannel.asFlow().distinctUntilChanged()) { image, size ->
+        // Resize the image to the specified size
+        when {
+            size == null -> image
+            image.width > image.height -> {
+                val scalingFactor = size.height * 1f / image.height
+                Bitmap.createScaledBitmap(image, (scalingFactor * image.width).toInt(),
+                        size.height, true)
+            }
+            else -> {
+                val scalingFactor = size.width * 1f / image.width
+                Bitmap.createScaledBitmap(image, size.width,
+                        (scalingFactor * image.height).toInt(), true)
             }
         }
-    }
-
-    override fun onInactive() {
-        context.contentResolver.unregisterContentObserver(contentObserver)
     }
 }

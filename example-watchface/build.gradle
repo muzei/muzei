@@ -19,8 +19,8 @@ apply plugin: 'kotlin-android'
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion"
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
     compileOnly "com.google.android.wearable:wearable:$wearableVersion"
     implementation "com.google.android.support:wearable:$wearableVersion"
     //implementation "com.google.android.apps.muzei:muzei-api:+"
@@ -34,5 +34,9 @@ android {
     defaultConfig {
         minSdkVersion 24
         targetSdkVersion rootProject.ext.targetSdkVersion
+    }
+
+    kotlinOptions {
+        freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
     }
 }
