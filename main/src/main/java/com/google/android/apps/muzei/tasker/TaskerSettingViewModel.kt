@@ -24,9 +24,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.asLiveData
 import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
-import com.google.android.apps.muzei.room.InstalledProvidersLiveData
+import com.google.android.apps.muzei.room.getInstalledProviders
 import net.nurik.roman.muzei.R
 
 internal data class Action(
@@ -79,8 +79,7 @@ internal class TaskerSettingViewModel(
                 application.getString(R.string.action_next_artwork),
                 NextArtworkAction)
 
-        val installedProvidersLiveData = InstalledProvidersLiveData(application,
-                viewModelScope)
+        val installedProvidersLiveData = getInstalledProviders(application).asLiveData()
         val installedProvidersObserver = Observer<List<ProviderInfo>> { providers ->
             val pm = application.packageManager
             val actionsList = mutableListOf(nextArtworkAction)

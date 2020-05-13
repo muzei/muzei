@@ -23,8 +23,8 @@ import android.graphics.drawable.Drawable
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
-import androidx.lifecycle.viewModelScope
-import com.google.android.apps.muzei.room.InstalledProvidersLiveData
+import androidx.lifecycle.asLiveData
+import com.google.android.apps.muzei.room.getInstalledProviders
 import net.nurik.roman.muzei.BuildConfig.DATA_LAYER_AUTHORITY
 
 data class ProviderInfo(
@@ -70,7 +70,7 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
         p1.title.compareTo(p2.title)
     }
 
-    private val mutableProviders = InstalledProvidersLiveData(application, viewModelScope)
+    private val mutableProviders = getInstalledProviders(application).asLiveData()
 
     val providers : LiveData<List<ProviderInfo>?> = Transformations
             .map(mutableProviders) { providerInfos ->

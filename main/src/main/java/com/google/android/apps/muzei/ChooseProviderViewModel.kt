@@ -27,12 +27,13 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
 import com.google.android.apps.muzei.room.Artwork
-import com.google.android.apps.muzei.room.InstalledProvidersLiveData
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
+import com.google.android.apps.muzei.room.getInstalledProviders
 import com.google.android.apps.muzei.sync.ProviderManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -177,8 +178,7 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
     }
 
     private val mutableProviders : MutableLiveData<List<ProviderInfo>> = object : MutableLiveData<List<ProviderInfo>>() {
-        val allProvidersLiveData = InstalledProvidersLiveData(application,
-                viewModelScope)
+        val allProvidersLiveData = getInstalledProviders(application).asLiveData()
         val allProvidersObserver = Observer<List<android.content.pm.ProviderInfo>> { providerInfos ->
             if (providerInfos != null) {
                 viewModelScope.launch(singleThreadContext) {
