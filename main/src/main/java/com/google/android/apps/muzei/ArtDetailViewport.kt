@@ -17,32 +17,24 @@
 package com.google.android.apps.muzei
 
 import android.graphics.RectF
-import androidx.lifecycle.MutableLiveData
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.asFlow
 
 // Singleton that can be observed
+@OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 object ArtDetailViewport {
     private val viewport0 = RectF()
     private val viewport1 = RectF()
-    private val observers = mutableListOf<(isFromUser: Boolean) -> Unit>()
-    private val changeLiveData = MutableLiveData<Boolean>().apply {
-        GlobalScope.launch(Dispatchers.Main.immediate) {
-            // Make sure we trigger observers on the main thread
-            observeForever { isFromUser ->
-                observers.forEach { it.invoke(isFromUser == true) }
-            }
-        }
-    }
+    private val broadcastChannel = BroadcastChannel<Boolean>(Channel.BUFFERED)
 
-    fun addObserver(observer: (isFromUser: Boolean) -> Unit) {
-        observers.add(observer)
-    }
-
-    fun removeObserver(observer: (isFromUser: Boolean) -> Unit) {
-        observers.remove(observer)
-    }
+    /**
+     * Get a [Flow] for listening for viewport change events. The boolean indicates
+     * whether the change was triggered directly by a user interaction.
+     */
+    fun getChanges() = broadcastChannel.asFlow()
 
     fun getViewport(id: Int): RectF {
         return if (id == 0) viewport0 else viewport1
@@ -62,7 +54,7 @@ object ArtDetailViewport {
             isFromUser: Boolean = false
     ) {
         getViewport(id).set(left, top, right, bottom)
-        changeLiveData.postValue(isFromUser)
+        broadcastChannel.offer(isFromUser)
     }
 
     fun setDefaultViewport(
@@ -83,7 +75,7 @@ object ArtDetailViewport {
                     1f,
                     0.5f + bitmapAspectRatio / screenAspectRatio / 2f)
         }
-        changeLiveData.postValue(false)
+        broadcastChannel.offer(false)
         return this
     }
 }

@@ -66,6 +66,7 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import net.rbgrn.android.glwallpaperservice.GLWallpaperService
 
@@ -138,8 +139,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             LifecycleOwner,
             DefaultLifecycleObserver,
             RenderController.Callbacks,
-            MuzeiBlurRenderer.Callbacks,
-            (Boolean) -> Unit {
+            MuzeiBlurRenderer.Callbacks {
 
         private lateinit var renderer: MuzeiBlurRenderer
         private lateinit var renderController: RenderController
@@ -221,7 +221,12 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                 cancelDelayedBlur()
                 queueEvent { renderer.setIsBlurred(!isArtDetailOpened, true) }
             }
-            ArtDetailViewport.addObserver(this)
+
+            lifecycleScope.launch {
+                ArtDetailViewport.getChanges().collect {
+                    requestRender()
+                }
+            }
         }
 
         override fun getLifecycle(): Lifecycle {
@@ -259,7 +264,6 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         }
 
         override fun onDestroy() {
-            ArtDetailViewport.removeObserver(this)
             if (!isPreview) {
                 lifecycle.removeObserver(this)
             }
@@ -268,10 +272,6 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                 renderer.destroy()
             }
             super<GLEngine>.onDestroy()
-        }
-
-        override fun invoke(isFromUser: Boolean) {
-            requestRender()
         }
 
         fun lockScreenVisibleChanged(isLockScreenVisible: Boolean) {

@@ -69,6 +69,7 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.R
@@ -85,7 +86,7 @@ private fun TextView.setTextOrGone(text: String?) {
     }
 }
 
-class ArtDetailFragment : Fragment(R.layout.art_detail_fragment), (Boolean) -> Unit {
+class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
 
     companion object {
         private const val KEY_IMAGE_VIEW_STATE = "IMAGE_VIEW_STATE"
@@ -282,7 +283,15 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment), (Boolean) -> U
             resetProxyViewport()
         }
 
-        ArtDetailViewport.addObserver(this)
+        viewLifecycleOwner.lifecycleScope.launch {
+            ArtDetailViewport.getChanges().collect { isFromUser ->
+                if (!isFromUser) {
+                    guardViewportChangeListener = true
+                    binding.panScaleProxy.setViewport(ArtDetailViewport.getViewport(currentViewportId))
+                    guardViewportChangeListener = false
+                }
+            }
+        }
 
         SwitchingPhotosLiveData.observe(viewLifecycleOwner) { switchingPhotos ->
             currentViewportId = switchingPhotos.viewportId
@@ -391,11 +400,6 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment), (Boolean) -> U
         ArtDetailOpenLiveData.value = true
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        ArtDetailViewport.removeObserver(this)
-    }
-
     private fun showHideChrome(show: Boolean) {
         requireActivity().window.decorView.apply {
             var flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
@@ -448,14 +452,6 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment), (Boolean) -> U
         }
 
         binding.panScaleProxy.relativeAspectRatio = artworkAspectRatio / wallpaperAspectRatio
-    }
-
-    override fun invoke(isFromUser: Boolean) {
-        if (!isFromUser) {
-            guardViewportChangeListener = true
-            binding.panScaleProxy.setViewport(ArtDetailViewport.getViewport(currentViewportId))
-            guardViewportChangeListener = false
-        }
     }
 
     override fun onStop() {
