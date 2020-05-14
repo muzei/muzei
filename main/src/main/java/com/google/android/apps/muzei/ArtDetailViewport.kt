@@ -21,6 +21,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 
 // Singleton that can be observed
@@ -31,10 +32,10 @@ object ArtDetailViewport {
     private val broadcastChannel = BroadcastChannel<Boolean>(Channel.BUFFERED)
 
     /**
-     * Get a [Flow] for listening for viewport change events. The boolean indicates
-     * whether the change was triggered directly by a user interaction.
+     * Get a [Flow] for listening for viewport change events.
+     * The boolean indicates whether the change was triggered directly by a user interaction.
      */
-    fun getChanges() = broadcastChannel.asFlow()
+    fun getChanges(): Flow<Boolean> = broadcastChannel.asFlow()
 
     fun getViewport(id: Int): RectF {
         return if (id == 0) viewport0 else viewport1
