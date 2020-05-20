@@ -1,0 +1,78 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>ProviderClient - muzei-api</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">muzei-api</a>&nbsp;/&nbsp;<a href="../index.html">com.google.android.apps.muzei.api.provider</a>&nbsp;/&nbsp;<a href="./index.html">ProviderClient</a><br/>
+<br/>
+<h1>ProviderClient</h1>
+<code><span class="keyword">interface </span><span class="identifier">ProviderClient</span></code>
+<p>Interface for interacting with a <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a>. Methods of this interface can
+be used directly within a <code>MuzeiArtProvider</code> or you can get an instance via
+<a href="../-provider-contract/get-provider-client.html">ProviderContract.getProviderClient</a>.</p>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="content-uri.html">contentUri</a></h4>
+</td>
+<td>
+<p>Retrieve the content URI for the <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a>, allowing you to build
+custom queries, inserts, updates, and deletes using a <a href="https://developer.android.com/reference/android/content/ContentResolver.html">ContentResolver</a>.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">val </span><span class="identifier">contentUri</span><span class="symbol">: </span><a href="https://developer.android.com/reference/android/net/Uri.html"><span class="identifier">Uri</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="last-added-artwork.html">lastAddedArtwork</a></h4>
+</td>
+<td>
+<p>Retrieve the last added artwork from the <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a>.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">val </span><span class="identifier">lastAddedArtwork</span><span class="symbol">: </span><a href="../-artwork/index.html"><span class="identifier">Artwork</span></a><span class="symbol">?</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="add-artwork.html">addArtwork</a></h4>
+</td>
+<td>
+<p>Add a new piece of artwork to the <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a>.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">addArtwork</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.ProviderClient$addArtwork(com.google.android.apps.muzei.api.provider.Artwork)/artwork">artwork</span><span class="symbol">:</span>&nbsp;<a href="../-artwork/index.html"><span class="identifier">Artwork</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://developer.android.com/reference/android/net/Uri.html"><span class="identifier">Uri</span></a><span class="symbol">?</span></code>
+<p>Add multiple artwork as a batch operation to the <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a>.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">addArtwork</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.ProviderClient$addArtwork(kotlin.collections.Iterable((com.google.android.apps.muzei.api.provider.Artwork)))/artwork">artwork</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-iterable/index.html"><span class="identifier">Iterable</span></a><span class="symbol">&lt;</span><a href="../-artwork/index.html"><span class="identifier">Artwork</span></a><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html"><span class="identifier">List</span></a><span class="symbol">&lt;</span><a href="https://developer.android.com/reference/android/net/Uri.html"><span class="identifier">Uri</span></a><span class="symbol">&gt;</span></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="set-artwork.html">setArtwork</a></h4>
+</td>
+<td>
+<p>Set the <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a> to only show the given artwork, deleting any other
+artwork previously added. Only in the cases where the artwork is successfully inserted
+will the other artwork be removed.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">setArtwork</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.ProviderClient$setArtwork(com.google.android.apps.muzei.api.provider.Artwork)/artwork">artwork</span><span class="symbol">:</span>&nbsp;<a href="../-artwork/index.html"><span class="identifier">Artwork</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://developer.android.com/reference/android/net/Uri.html"><span class="identifier">Uri</span></a><span class="symbol">?</span></code><br/>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">setArtwork</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.ProviderClient$setArtwork(kotlin.collections.Iterable((com.google.android.apps.muzei.api.provider.Artwork)))/artwork">artwork</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-iterable/index.html"><span class="identifier">Iterable</span></a><span class="symbol">&lt;</span><a href="../-artwork/index.html"><span class="identifier">Artwork</span></a><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html"><span class="identifier">List</span></a><span class="symbol">&lt;</span><a href="https://developer.android.com/reference/android/net/Uri.html"><span class="identifier">Uri</span></a><span class="symbol">&gt;</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Inheritors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a></h4>
+</td>
+<td>
+<p>Base class for a Muzei Live Wallpaper artwork provider. Art providers are a way for other apps to
+feed wallpapers (called <a href="../-artwork/index.html">artworks</a>) to Muzei Live Wallpaper.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">MuzeiArtProvider</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/content/ContentProvider.html"><span class="identifier">ContentProvider</span></a><span class="symbol">, </span><a href="./index.html"><span class="identifier">ProviderClient</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

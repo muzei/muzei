@@ -1,0 +1,27 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>ProviderContract.getContentUri - muzei-api</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">muzei-api</a>&nbsp;/&nbsp;<a href="../index.html">com.google.android.apps.muzei.api.provider</a>&nbsp;/&nbsp;<a href="index.html">ProviderContract</a>&nbsp;/&nbsp;<a href="./get-content-uri.html">getContentUri</a><br/>
+<br/>
+<h1>getContentUri</h1>
+<a name="com.google.android.apps.muzei.api.provider.ProviderContract$getContentUri(kotlin.String)"></a>
+<code><span class="identifier">@JvmStatic</span> <span class="keyword">fun </span><span class="identifier">getContentUri</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.ProviderContract$getContentUri(kotlin.String)/authority">authority</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://developer.android.com/reference/android/net/Uri.html"><span class="identifier">Uri</span></a></code>
+<p>Retrieve the content URI for the given <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a>, allowing you to build
+custom queries, inserts, updates, and deletes using a <a href="https://developer.android.com/reference/android/content/ContentResolver.html">ContentResolver</a>.</p>
+<p>This <strong>does not</strong> check for the validity of the MuzeiArtProvider. You can
+use <a href="https://developer.android.com/reference/android/content/pm/PackageManager.html#resolveContentProvider(java.lang.String, int)">PackageManager.resolveContentProvider</a> passing in the
+authority if you need to confirm the authority is valid.</p>
+<h3>Parameters</h3>
+<p><a name="authority"></a>
+<code>authority</code> - The <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a> you need a content URI for</p>
+<p><strong>Return</strong><br/>
+The content URI for the <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a></p>
+<p><strong>See Also</strong><br/>
+<p><a href="../-muzei-art-provider/content-uri.html">MuzeiArtProvider.contentUri</a></p>
+</p>
+</BODY>
+</HTML>

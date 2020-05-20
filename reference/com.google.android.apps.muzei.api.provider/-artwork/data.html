@@ -1,0 +1,23 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>Artwork.data - muzei-api</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">muzei-api</a>&nbsp;/&nbsp;<a href="../index.html">com.google.android.apps.muzei.api.provider</a>&nbsp;/&nbsp;<a href="index.html">Artwork</a>&nbsp;/&nbsp;<a href="./data.html">data</a><br/>
+<br/>
+<h1>data</h1>
+<a name="com.google.android.apps.muzei.api.provider.Artwork$data"></a>
+<code><span class="keyword">val </span><span class="identifier">data</span><span class="symbol">: </span><a href="https://docs.oracle.com/javase/6/docs/api/java/io/File.html"><span class="identifier">File</span></a></code>
+<p>The <a href="https://docs.oracle.com/javase/6/docs/api/java/io/File.html">File</a> where a local copy of this artwork is stored.
+When first inserted, this file most certainly does not exist and will be
+created from the InputStream returned by <a href="../-muzei-art-provider/open-file.html">MuzeiArtProvider.openFile</a>.</p>
+<p>Note: this will only be available if the artwork is retrieved from a
+<a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a>.</p>
+<h3>Exceptions</h3>
+<p><a name="IllegalStateException"></a>
+<code>IllegalStateException</code> - if the Artwork was not retrieved from a
+<a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a></p>
+</BODY>
+</HTML>

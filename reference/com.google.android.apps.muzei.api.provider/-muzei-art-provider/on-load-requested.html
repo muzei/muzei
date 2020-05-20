@@ -1,0 +1,23 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>MuzeiArtProvider.onLoadRequested - muzei-api</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">muzei-api</a>&nbsp;/&nbsp;<a href="../index.html">com.google.android.apps.muzei.api.provider</a>&nbsp;/&nbsp;<a href="index.html">MuzeiArtProvider</a>&nbsp;/&nbsp;<a href="./on-load-requested.html">onLoadRequested</a><br/>
+<br/>
+<h1>onLoadRequested</h1>
+<a name="com.google.android.apps.muzei.api.provider.MuzeiArtProvider$onLoadRequested(kotlin.Boolean)"></a>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">onLoadRequested</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.MuzeiArtProvider$onLoadRequested(kotlin.Boolean)/initial">initial</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Callback method when the user has viewed all of the available artwork. This should be used
+as a cue to load more artwork so that the user has a constant stream of new artwork.</p>
+<p>Muzei will always prefer to show unseen artwork, but will automatically cycle through all
+of the available artwork if no new artwork is found (i.e., if you don't load new artwork
+after receiving this callback).</p>
+<h3>Parameters</h3>
+<p><a name="initial"></a>
+<code>initial</code> - true when there is no artwork available, such as is the case when this is
+the initial load of this MuzeiArtProvider.</p>
+</BODY>
+</HTML>

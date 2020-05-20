@@ -1,0 +1,27 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>MuzeiArtProvider.getCommandActions - muzei-api</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">muzei-api</a>&nbsp;/&nbsp;<a href="../index.html">com.google.android.apps.muzei.api.provider</a>&nbsp;/&nbsp;<a href="index.html">MuzeiArtProvider</a>&nbsp;/&nbsp;<a href="./get-command-actions.html">getCommandActions</a><br/>
+<br/>
+<h1>getCommandActions</h1>
+<a name="com.google.android.apps.muzei.api.provider.MuzeiArtProvider$getCommandActions(com.google.android.apps.muzei.api.provider.Artwork)"></a>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">getCommandActions</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.MuzeiArtProvider$getCommandActions(com.google.android.apps.muzei.api.provider.Artwork)/artwork">artwork</span><span class="symbol">:</span>&nbsp;<a href="../-artwork/index.html"><span class="identifier">Artwork</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html"><span class="identifier">List</span></a><span class="symbol">&lt;</span><a href="https://developer.android.com/reference/androidx/core/app/RemoteActionCompat.html"><span class="identifier">RemoteActionCompat</span></a><span class="symbol">&gt;</span></code>
+<p>Retrieve the list of commands available for the given artwork. Each action should have
+an icon 24x24dp. Muzei respects the <a href="https://developer.android.com/reference/androidx/core/app/RemoteActionCompat.html#setShouldShowIcon(boolean)">RemoteActionCompat.setShouldShowIcon</a> to determine
+when to show the action as an icon (assuming there is enough space). Actions with a
+blank title will be ignored by Muzei.</p>
+<p>Each action triggers a <a href="https://developer.android.com/reference/android/app/PendingIntent.html">PendingIntent</a>. This can directly open an Activity for sending
+the user to an external app / website or can point to a <a href="https://developer.android.com/reference/android/content/BroadcastReceiver.html">android.content.BroadcastReceiver</a>
+for doing a small amount of background work.</p>
+<h3>Parameters</h3>
+<p><a name="artwork"></a>
+<code>artwork</code> - The associated artwork that can be used to customize the list of available
+commands.</p>
+<p><strong>Return</strong><br/>
+A List of <a href="https://developer.android.com/reference/androidx/core/app/RemoteActionCompat.html">commands</a> that the user can trigger.</p>
+</BODY>
+</HTML>

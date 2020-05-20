@@ -1,0 +1,296 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>MuzeiArtProvider - muzei-api</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">muzei-api</a>&nbsp;/&nbsp;<a href="../index.html">com.google.android.apps.muzei.api.provider</a>&nbsp;/&nbsp;<a href="./index.html">MuzeiArtProvider</a><br/>
+<br/>
+<h1>MuzeiArtProvider</h1>
+<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">MuzeiArtProvider</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/content/ContentProvider.html"><span class="identifier">ContentProvider</span></a><span class="symbol">, </span><a href="../-provider-client/index.html"><span class="identifier">ProviderClient</span></a></code>
+<p>Base class for a Muzei Live Wallpaper artwork provider. Art providers are a way for other apps to
+feed wallpapers (called <a href="../-artwork/index.html">artworks</a>) to Muzei Live Wallpaper.</p>
+<h3>Subclassing <a href="./index.html">MuzeiArtProvider</a></h3>
+<p>Subclasses must implement at least the <a href="on-load-requested.html">onLoadRequested</a> callback
+method, which is called whenever Muzei has displayed all available artwork from your provider.
+It is strongly recommended to load new artwork at this point and add it via
+<a href="add-artwork.html">addArtwork</a> so that users can continue to move to the next artwork.</p>
+<p>All artwork added via <a href="add-artwork.html">addArtwork</a> is available to Muzei. Muzei controls how
+often the artwork changes and the order that it proceeds through the artwork. As a
+convenience, you can use <a href="set-artwork.html">setArtwork</a> to remove all artwork and set just a
+single new <a href="../-artwork/index.html">Artwork</a>. You can use <a href="https://developer.android.com/reference/android/content/ContentResolver.html#delete(android.net.Uri, java.lang.String, java.lang.String[])">ContentResolver.delete</a> with <a href="content-uri.html">contentUri</a> to delete
+specific artwork based on criteria of your choosing.</p>
+<p>Many operations are also available in <a href="../-provider-contract/-artwork/index.html">ProviderContract.Artwork</a>, allowing you to add,
+update, delete, and query for artwork from anywhere in your app.</p>
+<h3>Registering your provider</h3>
+<p>Each provider must be added to your application's <code>AndroidManifest.xml</code> file via a
+<code>&lt;provider&gt;</code> element.</p>
+<p>The Muzei app discover available providers using Android's <a href="https://developer.android.com/reference/android/content/Intent.html">Intent</a> mechanism. Ensure
+that your <code>provider</code> definition includes an <code>&lt;intent-filter&gt;</code> with
+an action of <a href="-a-c-t-i-o-n_-m-u-z-e-i_-a-r-t_-p-r-o-v-i-d-e-r.html">ACTION_MUZEI_ART_PROVIDER</a>. It is strongly recommended to protect access
+to your provider's data by adding the <a href="-a-c-c-e-s-s_-p-e-r-m-i-s-s-i-o-n.html">ACCESS_PERMISSION</a>, which will
+ensure that only your app and Muzei can access your data.</p>
+<p>Lastly, there are a few <code>&lt;meta-data&gt;</code> elements that you should add to your
+provider definition:</p>
+<ul><li><code>settingsActivity</code> (optional): if present, should be the qualified
+component name for a configuration activity in the provider's package that Muzei can offer
+to the user for customizing the extension. This activity must be exported.</li>
+<li><code>setupActivity</code> (optional): if present, should be the qualified
+component name for an initial setup activity that must be ran before the provider can be
+activated. It will be started with <a href="https://developer.android.com/reference/android/app/Activity.html#startActivityForResult(android.content.Intent, int)">android.app.Activity.startActivityForResult</a> and must
+return <a href="https://developer.android.com/reference/android/app/Activity.html#RESULT_OK">android.app.Activity.RESULT_OK</a> for the provider to be activated. This activity
+must be exported.</li>
+</ul>
+<h3>Example</h3>
+<p>Below is an example provider declaration in the manifest:</p>
+<pre><code>&lt;provider android:name=".ExampleArtProvider"
+  android:authority="com.example.artprovider"
+  android:label="@string/source_title"
+  android:description="@string/source_description"
+  android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER"&gt;
+  &lt;intent-filter&gt;
+    &lt;action android:name="com.google.android.apps.muzei.api.MuzeiArtProvider" /&gt;
+  &lt;/intent-filter&gt;
+  &lt;!-- A settings activity is optional --&gt;
+  &lt;meta-data android:name="settingsActivity"
+    android:value=".ExampleSettingsActivity" /&gt;
+&lt;/provider&gt;
+</code></pre>
+<p>If a <code>settingsActivity</code> meta-data element is present, an activity with the given
+component name should be defined and exported in the application's manifest as well. Muzei
+will set the <a href="-e-x-t-r-a_-f-r-o-m_-m-u-z-e-i.html">EXTRA_FROM_MUZEI</a> extra to true in the launch intent for this
+activity. An example is shown below:</p>
+<pre><code>&lt;activity android:name=".ExampleSettingsActivity"
+  android:label="@string/title_settings"
+  android:exported="true" /&gt;
+</code></pre>
+<p>Finally, below is a simple example <a href="./index.html">MuzeiArtProvider</a> subclass that publishes a single,
+static artwork:</p>
+<pre><code>class ExampleArtProvider : MuzeiArtProvider() {
+  override fun onLoadRequested(initial: Boolean) {
+    if (initial) {
+      setArtwork(Artwork(
+          title = "Example image",
+          byline = "Unknown person, c. 1980",
+          persistentUri = Uri.parse("http://example.com/image.jpg"),
+          webUri = Uri.parse("http://example.com/imagedetails.html")))
+    }
+  }
+}
+</code></pre>
+<p>As onLoadRequested can be called at any time (including when offline), it is
+strongly recommended to use the callback of onLoadRequested to kick off
+a load operation using <code>WorkManager</code>, <code>JobScheduler</code>, or a comparable API. These
+other components can then use a <a href="../-provider-client/index.html">ProviderClient</a> and
+<a href="../-provider-client/add-artwork.html">ProviderClient.addArtwork</a> to add Artwork to the MuzeiArtProvider.</p>
+<h3>Additional notes</h3>
+<p>Providers can also expose additional user-facing commands (such as 'Share artwork') by
+returning one or more <a href="https://developer.android.com/reference/androidx/core/app/RemoteActionCompat.html">RemoteActionCompat</a> instances from <a href="get-command-actions.html">getCommandActions</a>.</p>
+<p>Providers can provide a dynamic description of the current configuration (e.g.
+'Popular photos tagged "landscape"'), by overriding <a href="get-description.html">getDescription</a>. By default,
+the <code>android:description</code> element of the provider element in the manifest will be
+used.</p>
+<p>All artwork should support opening an Activity to view more details about the artwork.
+You can provider your own functionality by overriding <a href="get-artwork-info.html">getArtworkInfo</a>.</p>
+<p>If custom behavior is needed to retrieve the artwork's binary data (for example,
+authentication with a remote server), this behavior can be added to
+<a href="open-file.html">openFile</a>. If you already have binary data available locally for your
+artwork, you can also write it directly via <a href="https://developer.android.com/reference/android/content/ContentResolver.html#openOutputStream(android.net.Uri)">ContentResolver.openOutputStream</a>.</p>
+<p>MuzeiArtProvider respects <a href="https://developer.android.com/reference/android/util/Log.html#isLoggable(java.lang.String, int)">Log.isLoggable</a> for debug logging, allowing you to
+use <code>adb shell setprop log.tag.MuzeiArtProvider VERBOSE</code> to enable logging of the
+communications between Muzei and your MuzeiArtProvider.</p>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="-init-.html">&lt;init&gt;</a></h4>
+</td>
+<td>
+<p>Base class for a Muzei Live Wallpaper artwork provider. Art providers are a way for other apps to
+feed wallpapers (called <a href="../-artwork/index.html">artworks</a>) to Muzei Live Wallpaper.</p>
+<code><span class="identifier">MuzeiArtProvider</span><span class="symbol">(</span><span class="symbol">)</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="content-uri.html">contentUri</a></h4>
+</td>
+<td>
+<p>Retrieve the content URI for the <a href="./index.html">MuzeiArtProvider</a>, allowing you to build
+custom queries, inserts, updates, and deletes using a <a href="https://developer.android.com/reference/android/content/ContentResolver.html">ContentResolver</a>.</p>
+<code><span class="keyword">val </span><span class="identifier">contentUri</span><span class="symbol">: </span><a href="https://developer.android.com/reference/android/net/Uri.html"><span class="identifier">Uri</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="last-added-artwork.html">lastAddedArtwork</a></h4>
+</td>
+<td>
+<p>Retrieve the last added artwork from the <a href="./index.html">MuzeiArtProvider</a>.</p>
+<code><span class="keyword">val </span><span class="identifier">lastAddedArtwork</span><span class="symbol">: </span><a href="../-artwork/index.html"><span class="identifier">Artwork</span></a><span class="symbol">?</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="add-artwork.html">addArtwork</a></h4>
+</td>
+<td>
+<p>Add a new piece of artwork to the <a href="./index.html">MuzeiArtProvider</a>.</p>
+<code><span class="keyword">fun </span><span class="identifier">addArtwork</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.MuzeiArtProvider$addArtwork(com.google.android.apps.muzei.api.provider.Artwork)/artwork">artwork</span><span class="symbol">:</span>&nbsp;<a href="../-artwork/index.html"><span class="identifier">Artwork</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://developer.android.com/reference/android/net/Uri.html"><span class="identifier">Uri</span></a><span class="symbol">?</span></code>
+<p>Add multiple artwork as a batch operation to the <a href="./index.html">MuzeiArtProvider</a>.</p>
+<code><span class="keyword">fun </span><span class="identifier">addArtwork</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.MuzeiArtProvider$addArtwork(kotlin.collections.Iterable((com.google.android.apps.muzei.api.provider.Artwork)))/artwork">artwork</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-iterable/index.html"><span class="identifier">Iterable</span></a><span class="symbol">&lt;</span><a href="../-artwork/index.html"><span class="identifier">Artwork</span></a><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html"><span class="identifier">List</span></a><span class="symbol">&lt;</span><a href="https://developer.android.com/reference/android/net/Uri.html"><span class="identifier">Uri</span></a><span class="symbol">&gt;</span></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="get-artwork-info.html">getArtworkInfo</a></h4>
+</td>
+<td>
+<p>Callback when the user wishes to see more information about the given artwork. The default
+implementation constructs a <a href="https://developer.android.com/reference/android/app/PendingIntent.html">PendingIntent</a> to the
+<a href="../-provider-contract/-artwork/-w-e-b_-u-r-i.html">web uri</a> of the artwork.</p>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">getArtworkInfo</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.MuzeiArtProvider$getArtworkInfo(com.google.android.apps.muzei.api.provider.Artwork)/artwork">artwork</span><span class="symbol">:</span>&nbsp;<a href="../-artwork/index.html"><span class="identifier">Artwork</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://developer.android.com/reference/android/app/PendingIntent.html"><span class="identifier">PendingIntent</span></a><span class="symbol">?</span></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="get-command-actions.html">getCommandActions</a></h4>
+</td>
+<td>
+<p>Retrieve the list of commands available for the given artwork. Each action should have
+an icon 24x24dp. Muzei respects the <a href="https://developer.android.com/reference/androidx/core/app/RemoteActionCompat.html#setShouldShowIcon(boolean)">RemoteActionCompat.setShouldShowIcon</a> to determine
+when to show the action as an icon (assuming there is enough space). Actions with a
+blank title will be ignored by Muzei.</p>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">getCommandActions</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.MuzeiArtProvider$getCommandActions(com.google.android.apps.muzei.api.provider.Artwork)/artwork">artwork</span><span class="symbol">:</span>&nbsp;<a href="../-artwork/index.html"><span class="identifier">Artwork</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html"><span class="identifier">List</span></a><span class="symbol">&lt;</span><a href="https://developer.android.com/reference/androidx/core/app/RemoteActionCompat.html"><span class="identifier">RemoteActionCompat</span></a><span class="symbol">&gt;</span></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="get-commands.html">getCommands</a></h4>
+</td>
+<td>
+<p>Retrieve the list of commands available for the given artwork.</p>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><s><span class="identifier">getCommands</span></s><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.MuzeiArtProvider$getCommands(com.google.android.apps.muzei.api.provider.Artwork)/artwork">artwork</span><span class="symbol">:</span>&nbsp;<a href="../-artwork/index.html"><span class="identifier">Artwork</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html"><span class="identifier">List</span></a><span class="symbol">&lt;</span><a href="../../com.google.android.apps.muzei.api/-user-command/index.html"><span class="identifier">UserCommand</span></a><span class="symbol">&gt;</span></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="get-description.html">getDescription</a></h4>
+</td>
+<td>
+<p>The longer description for the current state of this MuzeiArtProvider. For example,
+'Popular photos tagged "landscape"'). The default implementation returns the
+<code>android:description</code> element of the provider element in the manifest.</p>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">getDescription</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="is-artwork-valid.html">isArtworkValid</a></h4>
+</td>
+<td>
+<p>Called every time an image is loaded (even if there is a cached
+image available). This gives you an opportunity to circumvent the
+typical loading process and remove previously cached artwork on
+demand. The default implementation always returns <code>true</code>.</p>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">isArtworkValid</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.MuzeiArtProvider$isArtworkValid(com.google.android.apps.muzei.api.provider.Artwork)/artwork">artwork</span><span class="symbol">:</span>&nbsp;<a href="../-artwork/index.html"><span class="identifier">Artwork</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="on-command.html">onCommand</a></h4>
+</td>
+<td>
+<p>Callback method indicating that the user has selected a command returned by
+<a href="get-commands.html">getCommands</a>.</p>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><s><span class="identifier">onCommand</span></s><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.MuzeiArtProvider$onCommand(com.google.android.apps.muzei.api.provider.Artwork, kotlin.Int)/artwork">artwork</span><span class="symbol">:</span>&nbsp;<a href="../-artwork/index.html"><span class="identifier">Artwork</span></a><span class="symbol">, </span><span class="identifier" id="com.google.android.apps.muzei.api.provider.MuzeiArtProvider$onCommand(com.google.android.apps.muzei.api.provider.Artwork, kotlin.Int)/id">id</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="on-invalid-artwork.html">onInvalidArtwork</a></h4>
+</td>
+<td>
+<p>Called when Muzei failed to load the given artwork, usually due to an incompatibility
+in supported image format. The default behavior is to delete the artwork.</p>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">onInvalidArtwork</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.MuzeiArtProvider$onInvalidArtwork(com.google.android.apps.muzei.api.provider.Artwork)/artwork">artwork</span><span class="symbol">:</span>&nbsp;<a href="../-artwork/index.html"><span class="identifier">Artwork</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="on-load-requested.html">onLoadRequested</a></h4>
+</td>
+<td>
+<p>Callback method when the user has viewed all of the available artwork. This should be used
+as a cue to load more artwork so that the user has a constant stream of new artwork.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">onLoadRequested</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.MuzeiArtProvider$onLoadRequested(kotlin.Boolean)/initial">initial</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="open-artwork-info.html">openArtworkInfo</a></h4>
+</td>
+<td>
+<p>Callback when the user wishes to see more information about the given artwork. The default
+implementation opens the <a href="../-provider-contract/-artwork/-w-e-b_-u-r-i.html">web uri</a> of the artwork.</p>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><s><span class="identifier">openArtworkInfo</span></s><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.MuzeiArtProvider$openArtworkInfo(com.google.android.apps.muzei.api.provider.Artwork)/artwork">artwork</span><span class="symbol">:</span>&nbsp;<a href="../-artwork/index.html"><span class="identifier">Artwork</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="open-file.html">openFile</a></h4>
+</td>
+<td>
+<p>Provide an InputStream to the binary data associated with artwork that has not yet been
+cached. The default implementation retrieves the image from the
+<a href="../-artwork/persistent-uri.html">persistent URI</a> and supports URI schemes in the following
+formats:</p>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">openFile</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.MuzeiArtProvider$openFile(com.google.android.apps.muzei.api.provider.Artwork)/artwork">artwork</span><span class="symbol">:</span>&nbsp;<a href="../-artwork/index.html"><span class="identifier">Artwork</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://docs.oracle.com/javase/6/docs/api/java/io/InputStream.html"><span class="identifier">InputStream</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="set-artwork.html">setArtwork</a></h4>
+</td>
+<td>
+<p>Set the <a href="./index.html">MuzeiArtProvider</a> to only show the given artwork, deleting any other
+artwork previously added. Only in the cases where the artwork is successfully inserted
+will the other artwork be removed.</p>
+<code><span class="keyword">fun </span><span class="identifier">setArtwork</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.MuzeiArtProvider$setArtwork(com.google.android.apps.muzei.api.provider.Artwork)/artwork">artwork</span><span class="symbol">:</span>&nbsp;<a href="../-artwork/index.html"><span class="identifier">Artwork</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://developer.android.com/reference/android/net/Uri.html"><span class="identifier">Uri</span></a><span class="symbol">?</span></code><br/>
+<code><span class="keyword">fun </span><span class="identifier">setArtwork</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.MuzeiArtProvider$setArtwork(kotlin.collections.Iterable((com.google.android.apps.muzei.api.provider.Artwork)))/artwork">artwork</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-iterable/index.html"><span class="identifier">Iterable</span></a><span class="symbol">&lt;</span><a href="../-artwork/index.html"><span class="identifier">Artwork</span></a><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html"><span class="identifier">List</span></a><span class="symbol">&lt;</span><a href="https://developer.android.com/reference/android/net/Uri.html"><span class="identifier">Uri</span></a><span class="symbol">&gt;</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Companion Object Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="-a-c-c-e-s-s_-p-e-r-m-i-s-s-i-o-n.html">ACCESS_PERMISSION</a></h4>
+</td>
+<td>
+<p>Permission that can be used with your <a href="./index.html">MuzeiArtProvider</a> to ensure that only your app
+and Muzei can read and write its data.</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">ACCESS_PERMISSION</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-a-c-t-i-o-n_-m-u-z-e-i_-a-r-t_-p-r-o-v-i-d-e-r.html">ACTION_MUZEI_ART_PROVIDER</a></h4>
+</td>
+<td>
+<p>The <a href="https://developer.android.com/reference/android/content/Intent.html">Intent</a> action representing a Muzei art provider. This provider should
+declare an <code>&lt;intent-filter&gt;</code> for this action in order to register with
+Muzei.</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">ACTION_MUZEI_ART_PROVIDER</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-e-x-t-r-a_-f-r-o-m_-m-u-z-e-i.html">EXTRA_FROM_MUZEI</a></h4>
+</td>
+<td>
+<p>Boolean extra that will be set to true when Muzei starts provider settings and setup
+activities.</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">EXTRA_FROM_MUZEI</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

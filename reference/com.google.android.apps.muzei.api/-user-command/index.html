@@ -1,0 +1,80 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>UserCommand - muzei-api</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">muzei-api</a>&nbsp;/&nbsp;<a href="../index.html">com.google.android.apps.muzei.api</a>&nbsp;/&nbsp;<a href="./index.html">UserCommand</a><br/>
+<br/>
+<h1>UserCommand</h1>
+<code><span class="keyword">data</span> <span class="keyword">class </span><s><span class="identifier">UserCommand</span></s></code><br/>
+<strong>Deprecated:</strong> The UserCommand class have been replaced with RemoteActionCompat, see getCommandActions().<br/>
+<br/>
+<p>Data class representing a user-visible command.</p>
+<p><strong>See Also</strong><br/>
+<p><a href="../../com.google.android.apps.muzei.api.provider/-muzei-art-provider/get-commands.html">MuzeiArtProvider.getCommands</a></p>
+</p>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="-init-.html">&lt;init&gt;</a></h4>
+</td>
+<td>
+<p>Data class representing a user-visible command.</p>
+<code><span class="identifier">UserCommand</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.UserCommand$<init>(kotlin.Int, kotlin.String)/id">id</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a><span class="symbol">, </span><span class="identifier" id="com.google.android.apps.muzei.api.UserCommand$<init>(kotlin.Int, kotlin.String)/title">title</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="id.html">id</a></h4>
+</td>
+<td>
+<p>The unique ID for this user command</p>
+<code><span class="keyword">val </span><span class="identifier">id</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="title.html">title</a></h4>
+</td>
+<td>
+<p>The user-visible title text, or null if none is provided. When none is provided,
+a default will be used if available</p>
+<code><span class="keyword">val </span><span class="identifier">title</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="serialize.html">serialize</a></h4>
+</td>
+<td>
+<p>Returns a serialized version of this user command.</p>
+<code><span class="keyword">fun </span><s><span class="identifier">serialize</span></s><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Companion Object Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="deserialize.html">deserialize</a></h4>
+</td>
+<td>
+<p>Deserializes a user command from the given string.</p>
+<code><span class="keyword">fun </span><s><span class="identifier">deserialize</span></s><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.UserCommand.Companion$deserialize(kotlin.String)/serialized">serialized</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">UserCommand</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

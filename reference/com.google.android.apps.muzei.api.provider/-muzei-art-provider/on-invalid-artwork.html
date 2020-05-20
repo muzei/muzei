@@ -1,0 +1,22 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>MuzeiArtProvider.onInvalidArtwork - muzei-api</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">muzei-api</a>&nbsp;/&nbsp;<a href="../index.html">com.google.android.apps.muzei.api.provider</a>&nbsp;/&nbsp;<a href="index.html">MuzeiArtProvider</a>&nbsp;/&nbsp;<a href="./on-invalid-artwork.html">onInvalidArtwork</a><br/>
+<br/>
+<h1>onInvalidArtwork</h1>
+<a name="com.google.android.apps.muzei.api.provider.MuzeiArtProvider$onInvalidArtwork(com.google.android.apps.muzei.api.provider.Artwork)"></a>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">onInvalidArtwork</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.MuzeiArtProvider$onInvalidArtwork(com.google.android.apps.muzei.api.provider.Artwork)/artwork">artwork</span><span class="symbol">:</span>&nbsp;<a href="../-artwork/index.html"><span class="identifier">Artwork</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Called when Muzei failed to load the given artwork, usually due to an incompatibility
+in supported image format. The default behavior is to delete the artwork.</p>
+<p>If you only support a single artwork, you should use this callback as an opportunity
+to provide an alternate version of the artwork or a backup image to avoid repeatedly
+loading the same artwork, just to mark it as invalid and be left with no valid artwork.</p>
+<h3>Parameters</h3>
+<p><a name="artwork"></a>
+<code>artwork</code> - Artwork that Muzei has failed to load</p>
+</BODY>
+</HTML>

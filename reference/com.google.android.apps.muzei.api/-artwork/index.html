@@ -1,0 +1,82 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>Artwork - muzei-api</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">muzei-api</a>&nbsp;/&nbsp;<a href="../index.html">com.google.android.apps.muzei.api</a>&nbsp;/&nbsp;<a href="./index.html">Artwork</a><br/>
+<br/>
+<h1>Artwork</h1>
+<code><span class="keyword">class </span><span class="identifier">Artwork</span></code>
+<p>An object representing a single artwork retrieved from the <a href="../-muzei-contract/-artwork/index.html">MuzeiContract.Artwork</a> table.</p>
+<p>Instances of this should only be created by using <a href="from-cursor.html">Artwork.fromCursor</a>.</p>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="attribution.html">attribution</a></h4>
+</td>
+<td>
+<p>The user-visible attribution text of the artwork.</p>
+<code><span class="keyword">val </span><span class="identifier">attribution</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="byline.html">byline</a></h4>
+</td>
+<td>
+<p>The user-visible byline, usually containing the author and date, of the artwork.</p>
+<code><span class="keyword">val </span><span class="identifier">byline</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="date-added.html">dateAdded</a></h4>
+</td>
+<td>
+<p>When this artwork was added to Muzei.</p>
+<code><span class="keyword">val </span><span class="identifier">dateAdded</span><span class="symbol">: </span><a href="https://docs.oracle.com/javase/6/docs/api/java/util/Date.html"><span class="identifier">Date</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="image-uri.html">imageUri</a></h4>
+</td>
+<td>
+<p>The image URI of the artwork.</p>
+<code><span class="keyword">val </span><span class="identifier">imageUri</span><span class="symbol">: </span><a href="https://developer.android.com/reference/android/net/Uri.html"><span class="identifier">Uri</span></a><span class="symbol">?</span></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="provider-authority.html">providerAuthority</a></h4>
+</td>
+<td>
+<p>The authority of the <a href="../../com.google.android.apps.muzei.api.provider/-muzei-art-provider/index.html">MuzeiArtProvider</a> providing this artwork.</p>
+<code><span class="keyword">val </span><span class="identifier">providerAuthority</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="title.html">title</a></h4>
+</td>
+<td>
+<p>The user-visible title of the artwork.</p>
+<code><span class="keyword">val </span><span class="identifier">title</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Companion Object Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="from-cursor.html">fromCursor</a></h4>
+</td>
+<td>
+<p>Deserializes an artwork object from a <a href="https://developer.android.com/reference/android/database/Cursor.html">Cursor</a> retrieved from
+<a href="../-muzei-contract/-artwork/-c-o-n-t-e-n-t_-u-r-i.html">MuzeiContract.Artwork.CONTENT_URI</a>.</p>
+<code><span class="keyword">fun </span><span class="identifier">fromCursor</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.Artwork.Companion$fromCursor(android.database.Cursor)/cursor">cursor</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/database/Cursor.html"><span class="identifier">Cursor</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">Artwork</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

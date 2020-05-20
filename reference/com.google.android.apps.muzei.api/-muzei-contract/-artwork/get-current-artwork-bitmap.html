@@ -1,0 +1,26 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>MuzeiContract.Artwork.getCurrentArtworkBitmap - muzei-api</title>
+<link rel="stylesheet" href="../../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../../index.html">muzei-api</a>&nbsp;/&nbsp;<a href="../../index.html">com.google.android.apps.muzei.api</a>&nbsp;/&nbsp;<a href="../index.html">MuzeiContract</a>&nbsp;/&nbsp;<a href="index.html">Artwork</a>&nbsp;/&nbsp;<a href="./get-current-artwork-bitmap.html">getCurrentArtworkBitmap</a><br/>
+<br/>
+<h1>getCurrentArtworkBitmap</h1>
+<a name="com.google.android.apps.muzei.api.MuzeiContract.Artwork$getCurrentArtworkBitmap(android.content.Context)"></a>
+<code><span class="identifier">@JvmStatic</span> <span class="identifier">@WorkerThread</span> <span class="keyword">fun </span><span class="identifier">getCurrentArtworkBitmap</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.MuzeiContract.Artwork$getCurrentArtworkBitmap(android.content.Context)/context">context</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/content/Context.html"><span class="identifier">Context</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://developer.android.com/reference/android/graphics/Bitmap.html"><span class="identifier">Bitmap</span></a><span class="symbol">?</span></code>
+<p>Naively gets the current artwork image without any subsampling or optimization for output size</p>
+<p>Note that this may return a very large Bitmap so following the
+<a href="http://developer.android.com/training/displaying-bitmaps/index.html">Displaying Bitmaps Efficiently training</a>
+is highly recommended.</p>
+<h3>Parameters</h3>
+<p><a name="context"></a>
+<code>context</code> - the context to retrieve a ContentResolver.</p>
+<h3>Exceptions</h3>
+<p><a name="FileNotFoundException"></a>
+<code>FileNotFoundException</code> - If no cached artwork image was found.</p>
+<p><strong>Return</strong><br/>
+A Bitmap of the current artwork or null if the image could not be decoded.</p>
+</BODY>
+</HTML>

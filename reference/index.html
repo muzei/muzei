@@ -1,28 +1,76 @@
-<!doctype html>
-<html>
-<!--
-    Copyright 2014 Google Inc.
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>muzei-api</title>
+<link rel="stylesheet" href="../style.css">
+</HEAD>
+<BODY>
+<a href="./index.html">muzei-api</a><br/>
+<br/>
+<p>Muzei offers two API surfaces:</p>
+<ol><li>An API that allows you to build your own wallpaper source via the classes in the
+ <a href="com.google.android.apps.muzei.api.provider/index.html">com.google.android.apps.muzei.api.provider</a> package.</li>
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-        http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
--->
-<head>
-<meta http-equiv="refresh" content="0;URL='com/google/android/apps/muzei/api/package-summary.html'">
-</head>
-<body>
-
-Redirecting you to the
-<a href="com/google/android/apps/muzei/api/package-summary.html">com.google.android.apps.muzei.api</a>
-package summary&hellip;
-
-</body>
-</html>
+<li>A content provider contract that allows you to read current artwork data. This is the focus of
+ the <a href="com.google.android.apps.muzei.api/index.html">com.google.android.apps.muzei.api</a> package.</li>
+</ol>
+<h3>Building your own wallpaper source (API 3.2+)</h3>
+<p>Muzei itself is responsible for displaying wallpaper images, or <code>Artwork</code>, but even its built
+in wallpaper sources are all built with the same
+<a href="com.google.android.apps.muzei.api.provider/-muzei-art-provider/index.html">com.google.android.apps.muzei.api.provider.MuzeiArtProvider</a> API, which makes it possible
+for any app to provide wallpapers to Muzei via just a few steps:</p>
+<ol><li>Add the following Maven coordinates as a dependency:
+   <strong><code>com.google.android.apps.muzei:muzei-api:3.2.0</code></strong>.</li>
+<li>Create a new provider that extends
+   <a href="com.google.android.apps.muzei.api.provider/-muzei-art-provider/index.html">com.google.android.apps.muzei.api.provider.MuzeiArtProvider</a>.</li>
+<li>Add the corresponding <code>&lt;provider&gt;</code> tag to your <code>AndroidManifest.xml</code> file and add the required
+    <code>&lt;intent-filter&gt;</code> and <code>&lt;meta-data&gt;</code> elements.</li>
+</ol>
+<p>Once you have both Muzei and your custom source installed, you should be able to choose your source
+from the 'Sources' screen in Muzei.</p>
+<p>A deeper discussion of the API, along with code snippets, is available in the
+<a href="com.google.android.apps.muzei.api.provider/-muzei-art-provider/index.html">com.google.android.apps.muzei.api.provider.MuzeiArtProvider</a> class reference.</p>
+<h4>Sample code</h4>
+<p>A complete example is available in the
+<a href="https://github.com/romannurik/muzei/tree/master/example-unsplash">example-unsplash</a> directory.</p>
+<h3>Accessing current wallpaper information (API 2.0+)</h3>
+<p>You can access the current wallpaper on Android phones and tablets, or on Wear OS, while Muzei is
+the active wallpaper.</p>
+<ol><li>Add the following Maven coordinates as a dependency:
+   <strong><code>com.google.android.apps.muzei:muzei-api:2.+</code></strong>.</li>
+<li>Use either
+   <a href="com.google.android.apps.muzei.api/-muzei-contract/-artwork/get-current-artwork-bitmap.html">com.google.android.apps.muzei.api.MuzeiContract.Artwork.getCurrentArtworkBitmap</a>
+   to get the current artwork as a bitmap, or access more information about the artwork by querying
+   <a href="com.google.android.apps.muzei.api/-muzei-contract/-artwork/-c-o-n-t-e-n-t_-u-r-i.html">com.google.android.apps.muzei.api.MuzeiContract.Artwork.CONTENT_URI</a>
+   with a <code>ContentResolver</code>.</li>
+</ol>
+<p>A deeper discussion of the API, along with code snippets, is available in the
+<a href="com.google.android.apps.muzei.api/index.html">com.google.android.apps.muzei.api</a> package reference docs.</p>
+<h4>Sample code</h4>
+<p>Complete examples are available in the
+<a href="https://github.com/romannurik/muzei/tree/master/example-watchface">example-watchface</a> directory.</p>
+<h3>Packages</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="com.google.android.apps.muzei.api/index.html">com.google.android.apps.muzei.api</a></h4>
+</td>
+<td>
+<p>Contains the <a href="com.google.android.apps.muzei.api/-muzei-contract/index.html">MuzeiContract</a> APIs to get the current artwork from Muzei.</p>
+</td>
+</tr>
+<tr>
+<td>
+<h4><a href="com.google.android.apps.muzei.api.provider/index.html">com.google.android.apps.muzei.api.provider</a></h4>
+</td>
+<td>
+<p>Contains the APIs needed to build a custom source using a <a href="com.google.android.apps.muzei.api.provider/-muzei-art-provider/index.html">MuzeiArtProvider</a>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Index</h3>
+<a href="alltypes/index.html">All Types</a>
+</BODY>
+</HTML>

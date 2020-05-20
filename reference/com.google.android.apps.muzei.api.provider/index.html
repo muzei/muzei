@@ -1,0 +1,62 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>com.google.android.apps.muzei.api.provider - muzei-api</title>
+<link rel="stylesheet" href="../../style.css">
+</HEAD>
+<BODY>
+<a href="../index.html">muzei-api</a>&nbsp;/&nbsp;<a href="./index.html">com.google.android.apps.muzei.api.provider</a><br/>
+<br/>
+<h2>Package com.google.android.apps.muzei.api.provider</h2>
+<p>Contains the APIs needed to build a custom source using a <a href="-muzei-art-provider/index.html">MuzeiArtProvider</a>.</p>
+<p>While Muzei comes with a number of built in sources, the <a href="-muzei-art-provider/index.html">MuzeiArtProvider</a> is the key for
+building your own wallpaper source, providing wallpaper from any source you want. Each
+<a href="-muzei-art-provider/index.html">MuzeiArtProvider</a> serves as the entry point for Muzei to communicate with your app and retrieve
+wallpapers you make available.</p>
+<p>While your <a href="-muzei-art-provider/index.html">MuzeiArtProvider</a> is based on an <a href="https://developer.android.com/reference/android/content/ContentProvider.html">android.content.ContentProvider</a> and that level of
+API <strong>is</strong> available for you through the columns by the <a href="-provider-contract/index.html">ProviderContract</a>, it is strongly
+recommended to add artwork via the APIs provided by the <a href="-provider-client/index.html">ProviderClient</a> which can be retrieved
+via the <a href="-provider-contract/get-provider-client.html">ProviderContract.getProviderClient</a> methods.</p>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="-artwork/index.html">Artwork</a></h4>
+</td>
+<td>
+<p>Artwork associated with a <a href="-muzei-art-provider/index.html">MuzeiArtProvider</a>.</p>
+<code><span class="keyword">class </span><span class="identifier">Artwork</span></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-muzei-art-provider/index.html">MuzeiArtProvider</a></h4>
+</td>
+<td>
+<p>Base class for a Muzei Live Wallpaper artwork provider. Art providers are a way for other apps to
+feed wallpapers (called <a href="-artwork/index.html">artworks</a>) to Muzei Live Wallpaper.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">MuzeiArtProvider</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/content/ContentProvider.html"><span class="identifier">ContentProvider</span></a><span class="symbol">, </span><a href="-provider-client/index.html"><span class="identifier">ProviderClient</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-provider-client/index.html">ProviderClient</a></h4>
+</td>
+<td>
+<p>Interface for interacting with a <a href="-muzei-art-provider/index.html">MuzeiArtProvider</a>. Methods of this interface can
+be used directly within a <code>MuzeiArtProvider</code> or you can get an instance via
+<a href="-provider-contract/get-provider-client.html">ProviderContract.getProviderClient</a>.</p>
+<code><span class="keyword">interface </span><span class="identifier">ProviderClient</span></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-provider-contract/index.html">ProviderContract</a></h4>
+</td>
+<td>
+<p>Contract between Muzei and Muzei Art Providers, containing the definitions for all supported
+URIs and columns as well as helper methods to make it easier to work with the provided data.</p>
+<code><span class="keyword">object </span><span class="identifier">ProviderContract</span></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

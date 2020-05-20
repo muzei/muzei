@@ -1,1 +1,5 @@
+$dokka.format:html
+$dokka.linkExtension:html
+
 com.google.android.apps.muzei.api
+com.google.android.apps.muzei.api.provider

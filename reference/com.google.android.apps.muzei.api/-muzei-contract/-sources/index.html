@@ -1,0 +1,101 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>MuzeiContract.Sources - muzei-api</title>
+<link rel="stylesheet" href="../../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../../index.html">muzei-api</a>&nbsp;/&nbsp;<a href="../../index.html">com.google.android.apps.muzei.api</a>&nbsp;/&nbsp;<a href="../index.html">MuzeiContract</a>&nbsp;/&nbsp;<a href="./index.html">Sources</a><br/>
+<br/>
+<h1>Sources</h1>
+<code><span class="keyword">object </span><span class="identifier">Sources</span></code>
+<p>Constants and helper methods for the Sources table, providing access to sources' information.</p>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="_-i-d.html">_ID</a></h4>
+</td>
+<td>
+<p>The unique ID of the Source, suitable for use with <a href="https://developer.android.com/reference/android/content/ContentUris.html#withAppendedId(android.net.Uri, long)">ContentUris.withAppendedId</a>.</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">_ID</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-a-c-t-i-o-n_-s-o-u-r-c-e_-c-h-a-n-g-e-d.html">ACTION_SOURCE_CHANGED</a></h4>
+</td>
+<td>
+<p>Intent action that will be broadcast when the source info is changed. This happens
+immediately after the ContentProvider is updated with data and should be considered
+the signal that you can retrieve the new source info.</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><s><span class="identifier">ACTION_SOURCE_CHANGED</span></s><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-c-o-l-u-m-n_-n-a-m-e_-a-u-t-h-o-r-i-t-y.html">COLUMN_NAME_AUTHORITY</a></h4>
+</td>
+<td>
+<p>Column name for the authority of the provider for this artwork.</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">COLUMN_NAME_AUTHORITY</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-c-o-l-u-m-n_-n-a-m-e_-d-e-s-c-r-i-p-t-i-o-n.html">COLUMN_NAME_DESCRIPTION</a></h4>
+</td>
+<td>
+<p>Column name for the source's description.</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">COLUMN_NAME_DESCRIPTION</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-c-o-l-u-m-n_-n-a-m-e_-s-u-p-p-o-r-t-s_-n-e-x-t_-a-r-t-w-o-r-k_-c-o-m-m-a-n-d.html">COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND</a></h4>
+</td>
+<td>
+<p>Column name for the flag indicating if the source supports a 'Next Artwork' action</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-c-o-n-t-e-n-t_-i-t-e-m_-t-y-p-e.html">CONTENT_ITEM_TYPE</a></h4>
+</td>
+<td>
+<p>The MIME type of <a href="-c-o-n-t-e-n-t_-u-r-i.html">CONTENT_URI</a> providing a single source.</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">CONTENT_ITEM_TYPE</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-c-o-n-t-e-n-t_-t-y-p-e.html">CONTENT_TYPE</a></h4>
+</td>
+<td>
+<p>The MIME type of <a href="-c-o-n-t-e-n-t_-u-r-i.html">CONTENT_URI</a> providing sources.</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">CONTENT_TYPE</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-c-o-n-t-e-n-t_-u-r-i.html">CONTENT_URI</a></h4>
+</td>
+<td>
+<p>The content:// style URL for this table.</p>
+<code><span class="keyword">val </span><span class="identifier">CONTENT_URI</span><span class="symbol">: </span><a href="https://developer.android.com/reference/android/net/Uri.html"><span class="identifier">Uri</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-d-e-f-a-u-l-t_-s-o-r-t_-o-r-d-e-r.html">DEFAULT_SORT_ORDER</a></h4>
+</td>
+<td>
+<p>The default sort order for this table</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">DEFAULT_SORT_ORDER</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-t-a-b-l-e_-n-a-m-e.html">TABLE_NAME</a></h4>
+</td>
+<td>
+<p>The table name offered by this provider.</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">TABLE_NAME</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

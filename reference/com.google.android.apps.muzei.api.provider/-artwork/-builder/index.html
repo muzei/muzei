@@ -1,0 +1,112 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>Artwork.Builder - muzei-api</title>
+<link rel="stylesheet" href="../../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../../index.html">muzei-api</a>&nbsp;/&nbsp;<a href="../../index.html">com.google.android.apps.muzei.api.provider</a>&nbsp;/&nbsp;<a href="../index.html">Artwork</a>&nbsp;/&nbsp;<a href="./index.html">Builder</a><br/>
+<br/>
+<h1>Builder</h1>
+<code><span class="keyword">class </span><span class="identifier">Builder</span></code>
+<p>A <a href="http://en.wikipedia.org/wiki/Builder_pattern">builder</a>-style,
+<a href="http://en.wikipedia.org/wiki/Fluent_interface">fluent interface</a> for creating
+<a href="../index.html">Artwork</a> objects.</p>
+<p>For example:</p>
+<pre><code>Artwork artwork = new Artwork.Builder()
+  .persistentUri(Uri.parse("http://example.com/image.jpg"))
+  .title("Example image")
+  .byline("Unknown person, c. 1980")
+  .attribution("Copyright (C) Unknown person, 1980")
+  .build()
+</code></pre>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="-init-.html">&lt;init&gt;</a></h4>
+</td>
+<td>
+<p>A <a href="http://en.wikipedia.org/wiki/Builder_pattern">builder</a>-style,
+<a href="http://en.wikipedia.org/wiki/Fluent_interface">fluent interface</a> for creating
+<a href="../index.html">Artwork</a> objects.</p>
+<code><span class="identifier">Builder</span><span class="symbol">(</span><span class="symbol">)</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="attribution.html">attribution</a></h4>
+</td>
+<td>
+<p>Sets the artwork's user-visible attribution text.</p>
+<code><span class="keyword">fun </span><span class="identifier">attribution</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.Artwork.Builder$attribution(kotlin.String)/attribution">attribution</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Builder</span></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="build.html">build</a></h4>
+</td>
+<td>
+<p>Creates and returns the final Artwork object. Once this method is called, it is not
+valid to further use this <a href="./index.html">Artwork.Builder</a> object.</p>
+<code><span class="keyword">fun </span><span class="identifier">build</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="../index.html"><span class="identifier">Artwork</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="byline.html">byline</a></h4>
+</td>
+<td>
+<p>Sets the artwork's user-visible byline, usually containing the author and date.</p>
+<code><span class="keyword">fun </span><span class="identifier">byline</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.Artwork.Builder$byline(kotlin.String)/byline">byline</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Builder</span></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="metadata.html">metadata</a></h4>
+</td>
+<td>
+<p>Sets the provider specific metadata about the artwork.</p>
+<code><span class="keyword">fun </span><span class="identifier">metadata</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.Artwork.Builder$metadata(kotlin.String)/metadata">metadata</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Builder</span></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="persistent-uri.html">persistentUri</a></h4>
+</td>
+<td>
+<p>Sets the artwork's persistent URI, which must resolve to a JPEG or PNG image, ideally
+under 5MB.</p>
+<code><span class="keyword">fun </span><span class="identifier">persistentUri</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.Artwork.Builder$persistentUri(android.net.Uri)/persistentUri">persistentUri</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.html"><span class="identifier">Uri</span></a><span class="symbol">?</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Builder</span></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="title.html">title</a></h4>
+</td>
+<td>
+<p>Sets the artwork's user-visible title.</p>
+<code><span class="keyword">fun </span><span class="identifier">title</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.Artwork.Builder$title(kotlin.String)/title">title</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Builder</span></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="token.html">token</a></h4>
+</td>
+<td>
+<p>Sets the artwork's opaque application-specific identifier.</p>
+<code><span class="keyword">fun </span><span class="identifier">token</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.Artwork.Builder$token(kotlin.String)/token">token</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Builder</span></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="web-uri.html">webUri</a></h4>
+</td>
+<td>
+<p>Sets the artwork's web URI. This is used by default in
+<a href="../../-muzei-art-provider/get-artwork-info.html">MuzeiArtProvider.getArtworkInfo</a>
+to allow the user to view more details about the artwork.</p>
+<code><span class="keyword">fun </span><span class="identifier">webUri</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.Artwork.Builder$webUri(android.net.Uri)/webUri">webUri</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.html"><span class="identifier">Uri</span></a><span class="symbol">?</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Builder</span></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

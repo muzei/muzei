@@ -1,0 +1,24 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>Artwork.fromCursor - muzei-api</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">muzei-api</a>&nbsp;/&nbsp;<a href="../index.html">com.google.android.apps.muzei.api.provider</a>&nbsp;/&nbsp;<a href="index.html">Artwork</a>&nbsp;/&nbsp;<a href="./from-cursor.html">fromCursor</a><br/>
+<br/>
+<h1>fromCursor</h1>
+<a name="com.google.android.apps.muzei.api.provider.Artwork.Companion$fromCursor(android.database.Cursor)"></a>
+<code><span class="identifier">@JvmStatic</span> <span class="keyword">fun </span><span class="identifier">fromCursor</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.Artwork.Companion$fromCursor(android.database.Cursor)/data">data</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/database/Cursor.html"><span class="identifier">Cursor</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="index.html"><span class="identifier">Artwork</span></a></code>
+<p>Converts the current row of the given Cursor to an Artwork object. The
+assumption is that this Cursor was retrieve from a <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a>
+and has the columns listed in <a href="../-provider-contract/-artwork/index.html">ProviderContract.Artwork</a>.</p>
+<h3>Parameters</h3>
+<p><a name="data"></a>
+<code>data</code> - A Cursor retrieved from a <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a>, already
+positioned at the correct row you wish to convert.</p>
+<p><strong>Return</strong><br/>
+a valid Artwork with values filled in from the
+<a href="../-provider-contract/-artwork/index.html">ProviderContract.Artwork</a> columns.</p>
+</BODY>
+</HTML>

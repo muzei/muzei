@@ -1,0 +1,58 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>com.google.android.apps.muzei.api - muzei-api</title>
+<link rel="stylesheet" href="../../style.css">
+</HEAD>
+<BODY>
+<a href="../index.html">muzei-api</a>&nbsp;/&nbsp;<a href="./index.html">com.google.android.apps.muzei.api</a><br/>
+<br/>
+<h2>Package com.google.android.apps.muzei.api</h2>
+<p>Contains the <a href="-muzei-contract/index.html">MuzeiContract</a> APIs to get the current artwork from Muzei.</p>
+<p>The <a href="-muzei-contract/index.html">MuzeiContract</a> provides access to information about the current wallpaper via
+<a href="-muzei-contract/-artwork/index.html">MuzeiContract.Artwork</a> and about the current source via <a href="-muzei-contract/-sources/index.html">MuzeiContract.Sources</a>.</p>
+<p>Each of these contracts provide only read access to Muzei's <a href="https://developer.android.com/reference/android/content/ContentProvider.html">android.content.ContentProvider</a> and
+therefore provide you with a content URI and set of columns for working directly with the
+underlying tables via a <a href="https://developer.android.com/reference/android/content/ContentResolver.html">android.content.ContentResolver</a>.</p>
+<h2>Listening for changes</h2>
+<p>It is strongly recommended to listen for changes rather than repeatedly query Muzei's API. If you
+only need to listen for changes while your process is alive, you can use
+<a href="https://developer.android.com/reference/android/content/Context.html#registerReceiver(android.content.BroadcastReceiver, android.content.IntentFilter)">android.content.Context.registerReceiver</a> with either of the <code>CONTENT_URI</code> Uris.</p>
+<p>If you instead need to continually monitor Muzei for changes even while your app is in the
+background or not in memory, you must use an alternate approach. On API 24 and higher devices,
+you should use <code>WorkManager</code> and <code>addContentUriTrigger()</code> to trigger your work when Muzei updates.</p>
+<p>To support devices running API 23 or earlier (where listening for content URIs in the background
+is not possible), Muzei provides an <code>ACTION_</code> constant for each table that allows you register a
+<a href="https://developer.android.com/reference/android/content/BroadcastReceiver.html">android.content.BroadcastReceiver</a> that will be triggered every time Muzei changes.</p>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="-artwork/index.html">Artwork</a></h4>
+</td>
+<td>
+<p>An object representing a single artwork retrieved from the <a href="-muzei-contract/-artwork/index.html">MuzeiContract.Artwork</a> table.</p>
+<code><span class="keyword">class </span><span class="identifier">Artwork</span></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-muzei-contract/index.html">MuzeiContract</a></h4>
+</td>
+<td>
+<p>Contract between Muzei and applications, containing the definitions for all supported URIs and
+columns as well as helper methods to make it easier to work with the provided data.</p>
+<code><span class="keyword">object </span><span class="identifier">MuzeiContract</span></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-user-command/index.html">UserCommand</a></h4>
+</td>
+<td>
+<p>Data class representing a user-visible command.</p>
+<code><span class="keyword">data</span> <span class="keyword">class </span><s><span class="identifier">UserCommand</span></s></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

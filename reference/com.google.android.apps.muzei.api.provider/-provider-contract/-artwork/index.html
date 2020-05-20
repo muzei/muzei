@@ -1,0 +1,112 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>ProviderContract.Artwork - muzei-api</title>
+<link rel="stylesheet" href="../../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../../index.html">muzei-api</a>&nbsp;/&nbsp;<a href="../../index.html">com.google.android.apps.muzei.api.provider</a>&nbsp;/&nbsp;<a href="../index.html">ProviderContract</a>&nbsp;/&nbsp;<a href="./index.html">Artwork</a><br/>
+<br/>
+<h1>Artwork</h1>
+<code><span class="keyword">object </span><span class="identifier">Artwork</span></code>
+<p>Constants and helper methods for working with the
+<a href="../../-artwork/index.html">Artwork</a> associated
+with a <a href="../../-muzei-art-provider/index.html">MuzeiArtProvider</a>.</p>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="_-i-d.html">_ID</a></h4>
+</td>
+<td>
+<p>The unique ID of the Artwork, suitable for use with <a href="https://developer.android.com/reference/android/content/ContentUris.html#withAppendedId(android.net.Uri, long)">ContentUris.withAppendedId</a>.</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">_ID</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-a-t-t-r-i-b-u-t-i-o-n.html">ATTRIBUTION</a></h4>
+</td>
+<td>
+<p>The attribution info for the artwork</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">ATTRIBUTION</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-b-y-l-i-n-e.html">BYLINE</a></h4>
+</td>
+<td>
+<p>The artwork's byline (such as author and date). This is generally used as a secondary
+source of information after the <a href="-t-i-t-l-e.html">TITLE</a>.</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">BYLINE</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-d-a-t-a.html">DATA</a></h4>
+</td>
+<td>
+<p>Path to the file on disk.</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">DATA</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-d-a-t-e_-a-d-d-e-d.html">DATE_ADDED</a></h4>
+</td>
+<td>
+<p>The time the file was added to the provider.</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">DATE_ADDED</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-d-a-t-e_-m-o-d-i-f-i-e-d.html">DATE_MODIFIED</a></h4>
+</td>
+<td>
+<p>The time the file was last modified.</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">DATE_MODIFIED</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-m-e-t-a-d-a-t-a.html">METADATA</a></h4>
+</td>
+<td>
+<p>The provider specific metadata about the artwork</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">METADATA</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-p-e-r-s-i-s-t-e-n-t_-u-r-i.html">PERSISTENT_URI</a></h4>
+</td>
+<td>
+<p>The persistent URI of the artwork</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">PERSISTENT_URI</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-t-i-t-l-e.html">TITLE</a></h4>
+</td>
+<td>
+<p>The user-visible title of the artwork</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">TITLE</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-t-o-k-e-n.html">TOKEN</a></h4>
+</td>
+<td>
+<p>The token that uniquely defines the artwork. Any inserts using the same non-null token
+will be considered updates to the existing artwork. Therefore there will always be at
+most one artwork with the same non-null token.</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">TOKEN</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-w-e-b_-u-r-i.html">WEB_URI</a></h4>
+</td>
+<td>
+<p>The web URI of the artwork</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">WEB_URI</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

@@ -1,0 +1,55 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>ProviderContract - muzei-api</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">muzei-api</a>&nbsp;/&nbsp;<a href="../index.html">com.google.android.apps.muzei.api.provider</a>&nbsp;/&nbsp;<a href="./index.html">ProviderContract</a><br/>
+<br/>
+<h1>ProviderContract</h1>
+<code><span class="keyword">object </span><span class="identifier">ProviderContract</span></code>
+<p>Contract between Muzei and Muzei Art Providers, containing the definitions for all supported
+URIs and columns as well as helper methods to make it easier to work with the provided data.</p>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="-artwork/index.html">Artwork</a></h4>
+</td>
+<td>
+<p>Constants and helper methods for working with the
+<a href="../-artwork/index.html">Artwork</a> associated
+with a <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a>.</p>
+<code><span class="keyword">object </span><span class="identifier">Artwork</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="get-content-uri.html">getContentUri</a></h4>
+</td>
+<td>
+<p>Retrieve the content URI for the given <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a>, allowing you to build
+custom queries, inserts, updates, and deletes using a <a href="https://developer.android.com/reference/android/content/ContentResolver.html">ContentResolver</a>.</p>
+<code><span class="keyword">fun </span><span class="identifier">getContentUri</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.ProviderContract$getContentUri(kotlin.String)/authority">authority</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://developer.android.com/reference/android/net/Uri.html"><span class="identifier">Uri</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="get-provider-client.html">getProviderClient</a></h4>
+</td>
+<td>
+<p>Creates a new <a href="../-provider-client/index.html">ProviderClient</a> for accessing the given <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a>
+from anywhere in your application.</p>
+<code><span class="keyword">fun </span><span class="identifier">getProviderClient</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.ProviderContract$getProviderClient(android.content.Context, java.lang.Class((com.google.android.apps.muzei.api.provider.MuzeiArtProvider)))/context">context</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/content/Context.html"><span class="identifier">Context</span></a><span class="symbol">, </span><span class="identifier" id="com.google.android.apps.muzei.api.provider.ProviderContract$getProviderClient(android.content.Context, java.lang.Class((com.google.android.apps.muzei.api.provider.MuzeiArtProvider)))/provider">provider</span><span class="symbol">:</span>&nbsp;<a href="https://docs.oracle.com/javase/6/docs/api/java/lang/Class.html"><span class="identifier">Class</span></a><span class="symbol">&lt;</span><span class="keyword">out</span>&nbsp;<a href="../-muzei-art-provider/index.html"><span class="identifier">MuzeiArtProvider</span></a><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><a href="../-provider-client/index.html"><span class="identifier">ProviderClient</span></a></code><br/>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">Provider</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../-muzei-art-provider/index.html"><span class="identifier">MuzeiArtProvider</span></a><span class="symbol">&gt;</span> <span class="identifier">getProviderClient</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.ProviderContract$getProviderClient(android.content.Context)/context">context</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/content/Context.html"><span class="identifier">Context</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../-provider-client/index.html"><span class="identifier">ProviderClient</span></a></code><br/>
+<code><span class="keyword">fun </span><span class="identifier">getProviderClient</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.ProviderContract$getProviderClient(android.content.Context, kotlin.String)/context">context</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/content/Context.html"><span class="identifier">Context</span></a><span class="symbol">, </span><span class="identifier" id="com.google.android.apps.muzei.api.provider.ProviderContract$getProviderClient(android.content.Context, kotlin.String)/authority">authority</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../-provider-client/index.html"><span class="identifier">ProviderClient</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

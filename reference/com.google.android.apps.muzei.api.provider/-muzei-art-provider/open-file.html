@@ -1,0 +1,35 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>MuzeiArtProvider.openFile - muzei-api</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">muzei-api</a>&nbsp;/&nbsp;<a href="../index.html">com.google.android.apps.muzei.api.provider</a>&nbsp;/&nbsp;<a href="index.html">MuzeiArtProvider</a>&nbsp;/&nbsp;<a href="./open-file.html">openFile</a><br/>
+<br/>
+<h1>openFile</h1>
+<a name="com.google.android.apps.muzei.api.provider.MuzeiArtProvider$openFile(com.google.android.apps.muzei.api.provider.Artwork)"></a>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">openFile</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.MuzeiArtProvider$openFile(com.google.android.apps.muzei.api.provider.Artwork)/artwork">artwork</span><span class="symbol">:</span>&nbsp;<a href="../-artwork/index.html"><span class="identifier">Artwork</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://docs.oracle.com/javase/6/docs/api/java/io/InputStream.html"><span class="identifier">InputStream</span></a></code>
+<p>Provide an InputStream to the binary data associated with artwork that has not yet been
+cached. The default implementation retrieves the image from the
+<a href="../-artwork/persistent-uri.html">persistent URI</a> and supports URI schemes in the following
+formats:</p>
+<ul><li><code>content://...</code>.</li>
+<li><code>android.resource://...</code>.</li>
+<li><code>file://...</code>.</li>
+<li><code>file:///android_asset/...</code>.</li>
+<li><code>http://...</code> or <code>https://...</code>.</li>
+</ul>
+<p>Throwing any exception other than an <a href="https://docs.oracle.com/javase/6/docs/api/java/io/IOException.html">IOException</a> will be considered a permanent
+error that will result in a call to <a href="on-invalid-artwork.html">onInvalidArtwork</a>.</p>
+<h3>Parameters</h3>
+<p><a name="artwork"></a>
+<code>artwork</code> - The Artwork to open</p>
+<h3>Exceptions</h3>
+<p><a name="IOException"></a>
+<code>IOException</code> - if an error occurs while opening the image. The request will be retried
+automatically.</p>
+<p><strong>Return</strong><br/>
+A valid <a href="https://docs.oracle.com/javase/6/docs/api/java/io/InputStream.html">InputStream</a> for the artwork's image</p>
+</BODY>
+</HTML>

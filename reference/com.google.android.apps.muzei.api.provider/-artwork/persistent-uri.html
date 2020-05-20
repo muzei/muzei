@@ -1,0 +1,26 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>Artwork.persistentUri - muzei-api</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">muzei-api</a>&nbsp;/&nbsp;<a href="../index.html">com.google.android.apps.muzei.api.provider</a>&nbsp;/&nbsp;<a href="index.html">Artwork</a>&nbsp;/&nbsp;<a href="./persistent-uri.html">persistentUri</a><br/>
+<br/>
+<h1>persistentUri</h1>
+<a name="com.google.android.apps.muzei.api.provider.Artwork$persistentUri"></a>
+<code><span class="keyword">val </span><span class="identifier">persistentUri</span><span class="symbol">: </span><a href="https://developer.android.com/reference/android/net/Uri.html"><span class="identifier">Uri</span></a><span class="symbol">?</span></code>
+<p>The artwork's persistent URI, which must resolve to a JPEG or PNG image, ideally
+under 5MB. Your app should have long-lived access to this URI.</p>
+<p>When a persistent URI is present, your <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a> will store
+downloaded images in the <a href="https://developer.android.com/reference/android/content/Context.html#getCacheDir()">cache directory</a> and automatically
+re-download the image as needed. If it is not present, then you must write the image
+directly to the <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a> with
+<a href="https://developer.android.com/reference/android/content/ContentResolver.html#openOutputStream(android.net.Uri)">ContentResolver.openOutputStream</a>
+and the images will be stored in the <a href="https://developer.android.com/reference/android/content/Context.html#getFilesDir()">Context.getFilesDir</a> as it assumed
+that there is no way to re-download the artwork.</p>
+<p><strong>See Also</strong><br/>
+<p><a href="../-muzei-art-provider/open-file.html">MuzeiArtProvider.openFile</a></p>
+</p>
+</BODY>
+</HTML>

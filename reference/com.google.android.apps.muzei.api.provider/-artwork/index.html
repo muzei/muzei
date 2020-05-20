@@ -1,0 +1,163 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>Artwork - muzei-api</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">muzei-api</a>&nbsp;/&nbsp;<a href="../index.html">com.google.android.apps.muzei.api.provider</a>&nbsp;/&nbsp;<a href="./index.html">Artwork</a><br/>
+<br/>
+<h1>Artwork</h1>
+<code><span class="keyword">class </span><span class="identifier">Artwork</span></code>
+<p>Artwork associated with a <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a>.</p>
+<p>Artwork can be constructed using the empty constructor and the setter
+methods found on the Artwork object itself or by using the <a href="-builder/index.html">Builder</a>.</p>
+<p>Artwork can then be added to a <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a> by calling
+<a href="../-muzei-art-provider/add-artwork.html">addArtwork(Artwork)</a> directly
+from within a MuzeiArtProvider or by creating a <a href="../-provider-client/index.html">ProviderClient</a> and calling
+<a href="../-provider-client/add-artwork.html">ProviderClient.addArtwork</a> from anywhere in your application.</p>
+<p>The static <a href="from-cursor.html">Artwork.fromCursor</a> method allows you to convert
+a row retrieved from a <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a> into Artwork instance.</p>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="-builder/index.html">Builder</a></h4>
+</td>
+<td>
+<p>A <a href="http://en.wikipedia.org/wiki/Builder_pattern">builder</a>-style,
+<a href="http://en.wikipedia.org/wiki/Fluent_interface">fluent interface</a> for creating
+<a href="./index.html">Artwork</a> objects.</p>
+<code><span class="keyword">class </span><span class="identifier">Builder</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="-init-.html">&lt;init&gt;</a></h4>
+</td>
+<td>
+<p>Construct a new <a href="./index.html">Artwork</a>.</p>
+<code><span class="identifier">Artwork</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.Artwork$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.String, android.net.Uri, android.net.Uri, kotlin.String)/title">title</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span><span class="symbol">, </span><span class="identifier" id="com.google.android.apps.muzei.api.provider.Artwork$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.String, android.net.Uri, android.net.Uri, kotlin.String)/byline">byline</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="com.google.android.apps.muzei.api.provider.Artwork$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.String, android.net.Uri, android.net.Uri, kotlin.String)/attribution">attribution</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="com.google.android.apps.muzei.api.provider.Artwork$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.String, android.net.Uri, android.net.Uri, kotlin.String)/token">token</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="com.google.android.apps.muzei.api.provider.Artwork$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.String, android.net.Uri, android.net.Uri, kotlin.String)/persistentUri">persistentUri</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.html"><span class="identifier">Uri</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="com.google.android.apps.muzei.api.provider.Artwork$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.String, android.net.Uri, android.net.Uri, kotlin.String)/webUri">webUri</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.html"><span class="identifier">Uri</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="com.google.android.apps.muzei.api.provider.Artwork$<init>(kotlin.String, kotlin.String, kotlin.String, kotlin.String, android.net.Uri, android.net.Uri, kotlin.String)/metadata">metadata</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="attribution.html">attribution</a></h4>
+</td>
+<td>
+<p>The artwork's user-visible attribution text.</p>
+<code><span class="keyword">val </span><span class="identifier">attribution</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="byline.html">byline</a></h4>
+</td>
+<td>
+<p>The artwork's user-visible byline, usually containing the author and date.</p>
+<code><span class="keyword">val </span><span class="identifier">byline</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="data.html">data</a></h4>
+</td>
+<td>
+<p>The <a href="https://docs.oracle.com/javase/6/docs/api/java/io/File.html">File</a> where a local copy of this artwork is stored.
+When first inserted, this file most certainly does not exist and will be
+created from the InputStream returned by <a href="../-muzei-art-provider/open-file.html">MuzeiArtProvider.openFile</a>.</p>
+<code><span class="keyword">val </span><span class="identifier">data</span><span class="symbol">: </span><a href="https://docs.oracle.com/javase/6/docs/api/java/io/File.html"><span class="identifier">File</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="date-added.html">dateAdded</a></h4>
+</td>
+<td>
+<p>The date this artwork was initially added to its <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a>.</p>
+<code><span class="keyword">val </span><span class="identifier">dateAdded</span><span class="symbol">: </span><a href="https://docs.oracle.com/javase/6/docs/api/java/util/Date.html"><span class="identifier">Date</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="date-modified.html">dateModified</a></h4>
+</td>
+<td>
+<p>The date of the last modification of the artwork (i.e., the last time it was
+updated). This will initially be equal to the <a href="date-added.html">dateAdded</a>.</p>
+<code><span class="keyword">val </span><span class="identifier">dateModified</span><span class="symbol">: </span><a href="https://docs.oracle.com/javase/6/docs/api/java/util/Date.html"><span class="identifier">Date</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="id.html">id</a></h4>
+</td>
+<td>
+<p>The ID assigned to this Artwork by its <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a>.</p>
+<code><span class="keyword">val </span><span class="identifier">id</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-long/index.html"><span class="identifier">Long</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="metadata.html">metadata</a></h4>
+</td>
+<td>
+<p>The provider specific metadata about the artwork.</p>
+<code><span class="keyword">val </span><span class="identifier">metadata</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="persistent-uri.html">persistentUri</a></h4>
+</td>
+<td>
+<p>The artwork's persistent URI, which must resolve to a JPEG or PNG image, ideally
+under 5MB. Your app should have long-lived access to this URI.</p>
+<code><span class="keyword">val </span><span class="identifier">persistentUri</span><span class="symbol">: </span><a href="https://developer.android.com/reference/android/net/Uri.html"><span class="identifier">Uri</span></a><span class="symbol">?</span></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="title.html">title</a></h4>
+</td>
+<td>
+<p>The artwork's user-visible title.</p>
+<code><span class="keyword">val </span><span class="identifier">title</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="token.html">token</a></h4>
+</td>
+<td>
+<p>The token that uniquely defines the artwork.</p>
+<code><span class="keyword">val </span><span class="identifier">token</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="web-uri.html">webUri</a></h4>
+</td>
+<td>
+<p>The artwork's web URI. This is used by default in <a href="../-muzei-art-provider/get-artwork-info.html">MuzeiArtProvider.getArtworkInfo</a> to
+allow the user to view more details about the artwork.</p>
+<code><span class="keyword">val </span><span class="identifier">webUri</span><span class="symbol">: </span><a href="https://developer.android.com/reference/android/net/Uri.html"><span class="identifier">Uri</span></a><span class="symbol">?</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Companion Object Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="from-cursor.html">fromCursor</a></h4>
+</td>
+<td>
+<p>Converts the current row of the given Cursor to an Artwork object. The
+assumption is that this Cursor was retrieve from a <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a>
+and has the columns listed in <a href="../-provider-contract/-artwork/index.html">ProviderContract.Artwork</a>.</p>
+<code><span class="keyword">fun </span><span class="identifier">fromCursor</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.Artwork.Companion$fromCursor(android.database.Cursor)/data">data</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/database/Cursor.html"><span class="identifier">Cursor</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">Artwork</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

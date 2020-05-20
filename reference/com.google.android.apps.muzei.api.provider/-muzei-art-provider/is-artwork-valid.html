@@ -1,0 +1,29 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>MuzeiArtProvider.isArtworkValid - muzei-api</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">muzei-api</a>&nbsp;/&nbsp;<a href="../index.html">com.google.android.apps.muzei.api.provider</a>&nbsp;/&nbsp;<a href="index.html">MuzeiArtProvider</a>&nbsp;/&nbsp;<a href="./is-artwork-valid.html">isArtworkValid</a><br/>
+<br/>
+<h1>isArtworkValid</h1>
+<a name="com.google.android.apps.muzei.api.provider.MuzeiArtProvider$isArtworkValid(com.google.android.apps.muzei.api.provider.Artwork)"></a>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">isArtworkValid</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.provider.MuzeiArtProvider$isArtworkValid(com.google.android.apps.muzei.api.provider.Artwork)/artwork">artwork</span><span class="symbol">:</span>&nbsp;<a href="../-artwork/index.html"><span class="identifier">Artwork</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
+<p>Called every time an image is loaded (even if there is a cached
+image available). This gives you an opportunity to circumvent the
+typical loading process and remove previously cached artwork on
+demand. The default implementation always returns <code>true</code>.</p>
+<p>In most cases, you should proactively delete Artwork that you know
+is not valid rather than wait for this callback since at this point
+the user is specifically waiting for the image to appear.</p>
+<p>The MuzeiArtProvider will call <a href="on-invalid-artwork.html">onInvalidArtwork</a> for you
+if you return <code>false</code> - there is no need to call this
+manually from within this method.</p>
+<h3>Parameters</h3>
+<p><a name="artwork"></a>
+<code>artwork</code> - The Artwork to confirm</p>
+<p><strong>Return</strong><br/>
+Whether the Artwork is valid and should be loaded</p>
+</BODY>
+</HTML>

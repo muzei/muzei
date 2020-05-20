@@ -1,0 +1,184 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>MuzeiContract.Artwork - muzei-api</title>
+<link rel="stylesheet" href="../../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../../index.html">muzei-api</a>&nbsp;/&nbsp;<a href="../../index.html">com.google.android.apps.muzei.api</a>&nbsp;/&nbsp;<a href="../index.html">MuzeiContract</a>&nbsp;/&nbsp;<a href="./index.html">Artwork</a><br/>
+<br/>
+<h1>Artwork</h1>
+<code><span class="keyword">object </span><span class="identifier">Artwork</span></code>
+<p>Constants and helper methods for the Artwork table, providing access to the current artwork.</p>
+<p>The Artwork table contains the details of the artwork that has been loaded by Muzei.
+It also provides direct access to the cached image already downloaded by Muzei,
+ensuring that you do not need to do additional networks requests or have internet access
+when retrieving previously loaded artwork.</p>
+<h3>Working with the Artwork table</h3>
+<p>Querying <a href="-c-o-n-t-e-n-t_-u-r-i.html">CONTENT_URI</a> will return either zero rows (in cases where the user has never
+activated Muzei before) or a row for each previously loaded artwork with all of the
+details needed to create an <a href="../../-artwork/index.html">Artwork</a> object.
+The helper method <a href="get-current-artwork.html">getCurrentArtwork</a> builds an Artwork object for the most recent
+artwork, although you can certainly query the <a href="-c-o-n-t-e-n-t_-u-r-i.html">CONTENT_URI</a> directly and either
+use the columns directly or use
+<a href="../../-artwork/from-cursor.html">Artwork.fromCursor</a>
+to parse the Cursor for you.</p>
+<p>If instead you use <a href="https://developer.android.com/reference/android/content/ContentResolver.html#openInputStream(android.net.Uri)">ContentResolver.openInputStream</a>, you'll get an InputStream for the
+cached image Bitmap. This can then be passed to <a href="https://developer.android.com/reference/android/graphics/BitmapFactory.html#decodeStream(java.io.InputStream, android.graphics.Rect, android.graphics.BitmapFactory.Options)">BitmapFactory.decodeStream</a> or
+similar methods to retrieve the Bitmap itself. The helper method <a href="get-current-artwork-bitmap.html">getCurrentArtworkBitmap</a>
+does this operation, although note that this may return a very large Bitmap so following the
+<a href="https://developer.android.com/topic/performance/graphics">Handling Bitmaps documentation</a>
+advice is highly suggested.</p>
+<h3>Listening for changes</h3>
+<p>Just like any <a href="https://developer.android.com/reference/android/content/ContentProvider.html">ContentProvider</a>, listening for changes can be done by implementing a
+<a href="https://developer.android.com/reference/android/database/ContentObserver.html">ContentObserver</a> on <a href="-c-o-n-t-e-n-t_-u-r-i.html">CONTENT_URI</a> to listen for updates.</p>
+<p>On API 24+ devices, it is strongly recommended to use <code>WorkManager</code> or
+<code>JobScheduler</code> to listen for content URI changes in the background without
+maintaining a constantly running <a href="https://developer.android.com/reference/android/database/ContentObserver.html">ContentObserver</a>.</p>
+<p>To support earlier versions of Android, you can listen for the
+<a href="-a-c-t-i-o-n_-a-r-t-w-o-r-k_-c-h-a-n-g-e-d.html">ACTION_ARTWORK_CHANGED</a> broadcast, sent out immediately after an update is made:</p>
+<pre><code>&lt;receiver android:name=".ExampleArtworkUpdateReceiver"&gt;
+  &lt;intent-filter&gt;
+    &lt;action android:name="com.google.android.apps.muzei.ACTION_ARTWORK_CHANGED" /&gt;
+  &lt;/intent-filter&gt;
+&lt;/receiver&gt;
+</code></pre>
+<p>No data is sent alongside the broadcast, but this can be used to kick off
+background processing to retrieve the latest artwork or start other processing.</p>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="_-i-d.html">_ID</a></h4>
+</td>
+<td>
+<p>The unique ID of the Artwork, suitable for use with <a href="https://developer.android.com/reference/android/content/ContentUris.html#withAppendedId(android.net.Uri, long)">ContentUris.withAppendedId</a>.</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">_ID</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-a-c-t-i-o-n_-a-r-t-w-o-r-k_-c-h-a-n-g-e-d.html">ACTION_ARTWORK_CHANGED</a></h4>
+</td>
+<td>
+<p>Intent action that will be broadcast when the artwork is changed. This happens
+immediately after the ContentProvider is updated with data and should be considered
+the signal that you can retrieve the new artwork.</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><s><span class="identifier">ACTION_ARTWORK_CHANGED</span></s><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-c-o-l-u-m-n_-n-a-m-e_-a-t-t-r-i-b-u-t-i-o-n.html">COLUMN_NAME_ATTRIBUTION</a></h4>
+</td>
+<td>
+<p>Column name for the artwork's attribution info.</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">COLUMN_NAME_ATTRIBUTION</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-c-o-l-u-m-n_-n-a-m-e_-b-y-l-i-n-e.html">COLUMN_NAME_BYLINE</a></h4>
+</td>
+<td>
+<p>Column name for the artwork's byline (such as author and date).</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">COLUMN_NAME_BYLINE</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-c-o-l-u-m-n_-n-a-m-e_-d-a-t-e_-a-d-d-e-d.html">COLUMN_NAME_DATE_ADDED</a></h4>
+</td>
+<td>
+<p>Column name for when this artwork was added.</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">COLUMN_NAME_DATE_ADDED</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-c-o-l-u-m-n_-n-a-m-e_-i-m-a-g-e_-u-r-i.html">COLUMN_NAME_IMAGE_URI</a></h4>
+</td>
+<td>
+<p>Column name of the artwork image URI. In almost all cases you should use
+<a href="https://developer.android.com/reference/android/content/ContentResolver.html#openInputStream(android.net.Uri)">ContentResolver.openInputStream(CONTENT_URI)</a>
+to retrieve the already downloaded artwork.</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">COLUMN_NAME_IMAGE_URI</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-c-o-l-u-m-n_-n-a-m-e_-p-r-o-v-i-d-e-r_-a-u-t-h-o-r-i-t-y.html">COLUMN_NAME_PROVIDER_AUTHORITY</a></h4>
+</td>
+<td>
+<p>Column name for the authority of the provider for this artwork.</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">COLUMN_NAME_PROVIDER_AUTHORITY</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-c-o-l-u-m-n_-n-a-m-e_-t-i-t-l-e.html">COLUMN_NAME_TITLE</a></h4>
+</td>
+<td>
+<p>Column name for the artwork's title.</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">COLUMN_NAME_TITLE</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-c-o-n-t-e-n-t_-i-t-e-m_-t-y-p-e.html">CONTENT_ITEM_TYPE</a></h4>
+</td>
+<td>
+<p>The MIME type of <a href="-c-o-n-t-e-n-t_-u-r-i.html">CONTENT_URI</a> providing a single piece of artwork.</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">CONTENT_ITEM_TYPE</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-c-o-n-t-e-n-t_-t-y-p-e.html">CONTENT_TYPE</a></h4>
+</td>
+<td>
+<p>The MIME type of <a href="-c-o-n-t-e-n-t_-u-r-i.html">CONTENT_URI</a> providing artwork.</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">CONTENT_TYPE</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-c-o-n-t-e-n-t_-u-r-i.html">CONTENT_URI</a></h4>
+</td>
+<td>
+<p>The content:// style URL for this table. This is the main entry point for queries and for
+opening an <a href="https://docs.oracle.com/javase/6/docs/api/java/io/InputStream.html">InputStream</a> to the current artwork's image.</p>
+<code><span class="keyword">val </span><span class="identifier">CONTENT_URI</span><span class="symbol">: </span><a href="https://developer.android.com/reference/android/net/Uri.html"><span class="identifier">Uri</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-d-e-f-a-u-l-t_-s-o-r-t_-o-r-d-e-r.html">DEFAULT_SORT_ORDER</a></h4>
+</td>
+<td>
+<p>The default sort order for this table</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">DEFAULT_SORT_ORDER</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="-t-a-b-l-e_-n-a-m-e.html">TABLE_NAME</a></h4>
+</td>
+<td>
+<p>The table name offered by this provider.</p>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">TABLE_NAME</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="get-current-artwork.html">getCurrentArtwork</a></h4>
+</td>
+<td>
+<p>Returns the current Muzei <a href="../../-artwork/index.html">Artwork</a>.</p>
+<code><span class="keyword">fun </span><span class="identifier">getCurrentArtwork</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.MuzeiContract.Artwork$getCurrentArtwork(android.content.Context)/context">context</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/content/Context.html"><span class="identifier">Context</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../../-artwork/index.html"><span class="identifier">Artwork</span></a><span class="symbol">?</span></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="get-current-artwork-bitmap.html">getCurrentArtworkBitmap</a></h4>
+</td>
+<td>
+<p>Naively gets the current artwork image without any subsampling or optimization for output size</p>
+<code><span class="keyword">fun </span><span class="identifier">getCurrentArtworkBitmap</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api.MuzeiContract.Artwork$getCurrentArtworkBitmap(android.content.Context)/context">context</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/content/Context.html"><span class="identifier">Context</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://developer.android.com/reference/android/graphics/Bitmap.html"><span class="identifier">Bitmap</span></a><span class="symbol">?</span></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>
