@@ -24,7 +24,6 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import androidx.activity.invoke
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
@@ -59,7 +58,7 @@ class SourceSetupActivity : AppCompatActivity() {
                                         MuzeiArtProvider.EXTRA_FROM_MUZEI, false)) {
                             intent.putExtra(MuzeiArtProvider.EXTRA_FROM_MUZEI, true)
                         }
-                        startSettings(intent)
+                        startSettings.launch(intent)
                     }
                 }
             }
@@ -74,7 +73,7 @@ class SourceSetupActivity : AppCompatActivity() {
         }
     }
 
-    private val startSettings = prepareCall(StartActivityForResult()) { result ->
+    private val startSettings = registerForActivityResult(StartActivityForResult()) { result ->
         // Pass on the resultCode from the SourceSettingsActivity onto Muzei
         setResult(result.resultCode)
         finish()

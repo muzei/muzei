@@ -21,10 +21,9 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.invoke
-import androidx.activity.prepareCall
-import androidx.activity.result.contract.ActivityResultContracts.RequestPermissions
+import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.activity.result.registerForActivityResult
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.observe
@@ -57,7 +56,9 @@ class GallerySetupActivity : FragmentActivity() {
         }
     }
 
-    private val requestStoragePermission = prepareCall(RequestPermissions(), permissions) { results ->
+    private val requestStoragePermission = registerForActivityResult(
+            RequestMultiplePermissions(), permissions) {
+        results ->
         if (results.getOrElse(Manifest.permission.READ_EXTERNAL_STORAGE) { false }) {
             GalleryScanWorker.enqueueRescan(this)
             setResult(RESULT_OK)
@@ -65,7 +66,7 @@ class GallerySetupActivity : FragmentActivity() {
         } else {
             // Push the user to the GallerySettingsActivity to see inline rationale or just
             // select individual photos
-            startSettings(Intent(this, GallerySettingsActivity::class.java).apply {
+            startSettings.launch(Intent(this, GallerySettingsActivity::class.java).apply {
                 if (intent.getBooleanExtra(MuzeiArtProvider.EXTRA_FROM_MUZEI, false)) {
                     putExtra(MuzeiArtProvider.EXTRA_FROM_MUZEI, true)
                 }
@@ -73,7 +74,7 @@ class GallerySetupActivity : FragmentActivity() {
         }
     }
 
-    private val startSettings = prepareCall(StartActivityForResult()) { result ->
+    private val startSettings = registerForActivityResult(StartActivityForResult()) { result ->
         // Pass on the resultCode from the GallerySettingsActivity onto Muzei
         setResult(result.resultCode)
         finish()

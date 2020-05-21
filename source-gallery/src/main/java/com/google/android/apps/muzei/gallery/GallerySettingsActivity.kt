@@ -41,8 +41,8 @@ import android.view.ViewAnimationUtils
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.Toast
-import androidx.activity.prepareCall
-import androidx.activity.result.contract.ActivityResultContracts.RequestPermissions
+import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
+import androidx.activity.result.registerForActivityResult
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -111,7 +111,8 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
     }
 
-    private val requestStoragePermission = prepareCall(RequestPermissions(), permissions) {
+    private val requestStoragePermission = registerForActivityResult(
+            RequestMultiplePermissions(), permissions) {
         onDataSetChanged()
     }
 
