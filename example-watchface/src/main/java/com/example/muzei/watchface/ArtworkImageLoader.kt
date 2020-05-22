@@ -22,18 +22,16 @@ import android.graphics.Bitmap
 import android.util.Log
 import android.util.Size
 import com.google.android.apps.muzei.api.MuzeiContract
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runInterruptible
 import java.io.FileNotFoundException
 
 /**
@@ -50,20 +48,15 @@ class ArtworkImageLoader(private val context: Context) {
             requestedSizeChannel.offer(value)
         }
 
-    val artworkFlow: Flow<Bitmap> = callbackFlow {
+    private val unsizedArtworkFlow: Flow<Bitmap> = callbackFlow {
         // Create a lambda that should be ran to update the artwork
         val updateArtwork = {
-            launch {
-                try {
-                    val image = runInterruptible(Dispatchers.IO) {
-                        MuzeiContract.Artwork.getCurrentArtworkBitmap(context)
-                    }
-                    if (image != null) {
-                        send(image)
-                    }
-                } catch (e: FileNotFoundException) {
-                    Log.e("ArtworkImageLoader", "Error getting artwork image", e)
+            try {
+                MuzeiContract.Artwork.getCurrentArtworkBitmap(context)?.run {
+                    sendBlocking(this)
                 }
+            } catch (e: FileNotFoundException) {
+                Log.e("ArtworkImageLoader", "Error getting artwork image", e)
             }
         }
         // Set up a ContentObserver that will update the artwork when it changes
@@ -81,7 +74,11 @@ class ArtworkImageLoader(private val context: Context) {
         awaitClose {
             context.contentResolver.unregisterContentObserver(contentObserver)
         }
-    }.combine(requestedSizeChannel.asFlow().distinctUntilChanged()) { image, size ->
+    }
+
+    val artworkFlow = unsizedArtworkFlow.combine(
+            requestedSizeChannel.asFlow().distinctUntilChanged()
+    ) { image, size ->
         // Resize the image to the specified size
         when {
             size == null -> image

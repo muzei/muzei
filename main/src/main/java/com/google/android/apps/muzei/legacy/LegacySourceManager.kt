@@ -36,6 +36,7 @@ import com.google.android.apps.muzei.sync.ProviderManager
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
 suspend fun Provider?.allowsNextArtwork(context: Context): Boolean {
@@ -71,7 +72,7 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
         }
     }
 
-    private fun getService() = callbackFlow {
+    private fun getService(): Flow<ComponentName?> = callbackFlow {
         val pm = applicationContext.packageManager
         // Create an IntentFilter for package change events
         val packageChangeFilter = IntentFilter().apply {
