@@ -25,69 +25,69 @@ import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asLiveData
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 
 /**
  * ViewModel responsible for handling the list of ACTION_GET_CONTENT activities across configuration
  * changes.
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 class GallerySettingsViewModel(application: Application) : AndroidViewModel(application) {
     internal val chosenPhotos: LiveData<PagedList<ChosenPhoto>> = LivePagedListBuilder(
             GalleryDatabase.getInstance(application).chosenPhotoDao().chosenPhotosPaged,
             24).build()
-    internal val getContentActivityInfoList: LiveData<List<ActivityInfo>>
+    internal val getContentActivityInfoList = getContentActivityInfos().asLiveData()
 
-    init {
-        getContentActivityInfoList = object : MutableLiveData<List<ActivityInfo>>() {
-            private val packagesChangedReceiver = object : BroadcastReceiver() {
-                override fun onReceive(context: Context, intent: Intent) {
-                    refreshList()
-                }
+    private fun getContentActivityInfos(): Flow<List<ActivityInfo>> = callbackFlow {
+        val refreshList = {
+            val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                type = "image/*"
+                addCategory(Intent.CATEGORY_OPENABLE)
             }
-
-            override fun onActive() {
-                val packageChangeIntentFilter = IntentFilter().apply {
-                    addAction(Intent.ACTION_PACKAGE_ADDED)
-                    addAction(Intent.ACTION_PACKAGE_CHANGED)
-                    addAction(Intent.ACTION_PACKAGE_REPLACED)
-                    addAction(Intent.ACTION_PACKAGE_REMOVED)
-                    addDataScheme("package")
-                }
-                getApplication<Application>().registerReceiver(packagesChangedReceiver,
-                        packageChangeIntentFilter)
-                // Refresh the list to get any changes since we were last active
+            val packageManager = getApplication<Application>().packageManager
+            val packageName = getApplication<Application>().packageName
+            sendBlocking(packageManager.queryIntentActivities(intent, 0).asSequence().map {
+                it.activityInfo
+            }.filter {
+                // Filter out the default system UI
+                it.packageName != "com.android.documentsui"
+                        && it.packageName != "com.google.android.documentsui"
+            }.filter {
+                // Only show exported activities
+                it.exported
+            }.filter {
+                // Only show activities that have no permissions or permissions we hold
+                it.permission?.isEmpty() != false ||
+                        packageManager.checkPermission(it.permission, packageName) ==
+                        PackageManager.PERMISSION_GRANTED
+            }.toList())
+        }
+        val packagesChangedReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
                 refreshList()
             }
+        }
+        val packageChangeIntentFilter = IntentFilter().apply {
+            addAction(Intent.ACTION_PACKAGE_ADDED)
+            addAction(Intent.ACTION_PACKAGE_CHANGED)
+            addAction(Intent.ACTION_PACKAGE_REPLACED)
+            addAction(Intent.ACTION_PACKAGE_REMOVED)
+            addDataScheme("package")
+        }
+        getApplication<Application>().registerReceiver(packagesChangedReceiver,
+                packageChangeIntentFilter)
+        // Refresh the list to get any changes since we were last active
+        refreshList()
 
-            override fun onInactive() {
-                getApplication<Application>().unregisterReceiver(packagesChangedReceiver)
-            }
-
-            private fun refreshList() {
-                val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
-                    type = "image/*"
-                    addCategory(Intent.CATEGORY_OPENABLE)
-                }
-                val packageManager = getApplication<Application>().packageManager
-                val packageName = getApplication<Application>().packageName
-                value = packageManager.queryIntentActivities(intent, 0).asSequence().map {
-                    it.activityInfo
-                }.filter {
-                    // Filter out the default system UI
-                    it.packageName != "com.android.documentsui"
-                            && it.packageName != "com.google.android.documentsui"
-                }.filter {
-                    // Only show exported activities
-                    it.exported
-                }.filter {
-                    // Only show activities that have no permissions or permissions we hold
-                    it.permission?.isEmpty() != false ||
-                            packageManager.checkPermission(it.permission, packageName) ==
-                            PackageManager.PERMISSION_GRANTED
-                }.toList()
-            }
+        awaitClose {
+            getApplication<Application>().unregisterReceiver(packagesChangedReceiver)
         }
     }
 }
