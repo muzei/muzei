@@ -21,6 +21,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.content.pm.ProviderInfo
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -37,7 +38,7 @@ private fun getProviders(context: Context, packageName: String? = null): List<Pr
         queryIntent.`package` = packageName
     }
     val pm = context.packageManager
-    return pm.queryIntentContentProviders(queryIntent, 0).filterNotNull().map {
+    return pm.queryIntentContentProviders(queryIntent, PackageManager.GET_META_DATA).filterNotNull().map {
         it.providerInfo
     }.filter {
         it.enabled
