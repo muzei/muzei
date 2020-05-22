@@ -18,6 +18,8 @@ package com.google.android.apps.muzei
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Rect
@@ -28,6 +30,7 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.core.view.GravityCompat
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
@@ -63,11 +66,18 @@ import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.ChooseProviderFragmentBinding
 import net.nurik.roman.muzei.databinding.ChooseProviderItemBinding
 
+private class StartActivityFromSettings : ActivityResultContract<ComponentName, Boolean>() {
+    override fun createIntent(context: Context, input: ComponentName): Intent =
+            Intent().setComponent(input)
+                    .putExtra(MuzeiArtProvider.EXTRA_FROM_MUZEI, true)
+
+    override fun parseResult(resultCode: Int, intent: Intent?): Boolean =
+            resultCode == Activity.RESULT_OK
+}
+
 class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
     companion object {
         private const val TAG = "ChooseProviderFragment"
-        private const val REQUEST_EXTENSION_SETUP = 1
-        private const val REQUEST_EXTENSION_SETTINGS = 2
         private const val START_ACTIVITY_PROVIDER = "startActivityProvider"
 
         private const val PAYLOAD_HEADER = "HEADER"
@@ -83,6 +93,27 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
     private val viewModel: ChooseProviderViewModel by viewModels()
 
     private var startActivityProvider: String? = null
+    private val providerSetup = registerForActivityResult(StartActivityFromSettings()) { success ->
+        val provider = startActivityProvider
+        if (success && provider != null) {
+            val context = requireContext()
+            GlobalScope.launch {
+                Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                    param(FirebaseAnalytics.Param.ITEM_LIST_ID, provider)
+                    param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
+                    param(FirebaseAnalytics.Param.CONTENT_TYPE, "after_setup")
+                }
+                ProviderManager.select(context, provider)
+            }
+        }
+        startActivityProvider = null
+    }
+    private val providerSettings = registerForActivityResult(StartActivityFromSettings()) {
+        startActivityProvider?.let { authority ->
+            viewModel.refreshDescription(authority)
+        }
+        startActivityProvider = null
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -198,10 +229,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
     private fun launchProviderSetup(provider: ProviderInfo) {
         try {
             startActivityProvider = provider.authority
-            val setupIntent = Intent()
-                    .setComponent(provider.setupActivity)
-                    .putExtra(MuzeiArtProvider.EXTRA_FROM_MUZEI, true)
-            startActivityForResult(setupIntent, REQUEST_EXTENSION_SETUP)
+            providerSetup.launch(provider.setupActivity)
         } catch (e: ActivityNotFoundException) {
             Log.e(TAG, "Can't launch provider setup.", e)
         } catch (e: SecurityException) {
@@ -212,40 +240,11 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
     private fun launchProviderSettings(provider: ProviderInfo) {
         try {
             startActivityProvider = provider.authority
-            val settingsIntent = Intent()
-                    .setComponent(provider.settingsActivity)
-                    .putExtra(MuzeiArtProvider.EXTRA_FROM_MUZEI, true)
-            startActivityForResult(settingsIntent, REQUEST_EXTENSION_SETTINGS)
+            providerSettings.launch(provider.settingsActivity)
         } catch (e: ActivityNotFoundException) {
             Log.e(TAG, "Can't launch provider settings.", e)
         } catch (e: SecurityException) {
             Log.e(TAG, "Can't launch provider settings.", e)
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        when (requestCode) {
-            REQUEST_EXTENSION_SETUP -> {
-                val provider = startActivityProvider
-                if (resultCode == Activity.RESULT_OK && provider != null) {
-                    val context = requireContext()
-                    GlobalScope.launch {
-                        Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
-                            param(FirebaseAnalytics.Param.ITEM_LIST_ID, provider)
-                            param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
-                            param(FirebaseAnalytics.Param.CONTENT_TYPE, "after_setup")
-                        }
-                        ProviderManager.select(context, provider)
-                    }
-                }
-                startActivityProvider = null
-            }
-            REQUEST_EXTENSION_SETTINGS -> {
-                startActivityProvider?.let { authority ->
-                    viewModel.refreshDescription(authority)
-                }
-            }
-            else -> super.onActivityResult(requestCode, resultCode, data)
         }
     }
 
