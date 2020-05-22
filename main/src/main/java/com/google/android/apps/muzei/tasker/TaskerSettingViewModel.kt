@@ -17,16 +17,12 @@
 package com.google.android.apps.muzei.tasker
 
 import android.app.Application
-import android.content.pm.ProviderInfo
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
-import androidx.lifecycle.asLiveData
 import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
 import com.google.android.apps.muzei.room.getInstalledProviders
+import kotlinx.coroutines.flow.map
 import net.nurik.roman.muzei.R
 
 internal data class Action(
@@ -71,36 +67,26 @@ internal class TaskerSettingViewModel(
         a1.text.compareTo(a2.text)
     }
 
-    val actions : LiveData<List<Action>> = object : MutableLiveData<List<Action>>() {
-        val nextArtworkAction = Action(
-                ContextCompat.getDrawable(application, R.drawable.ic_launcher_next_artwork)!!.apply {
-                    setBounds(0, 0, imageSize, imageSize)
-                },
-                application.getString(R.string.action_next_artwork),
-                NextArtworkAction)
+    private val nextArtworkAction = Action(
+            ContextCompat.getDrawable(application, R.drawable.ic_launcher_next_artwork)!!.apply {
+                setBounds(0, 0, imageSize, imageSize)
+            },
+            application.getString(R.string.action_next_artwork),
+            NextArtworkAction)
 
-        val installedProvidersLiveData = getInstalledProviders(application).asLiveData()
-        val installedProvidersObserver = Observer<List<ProviderInfo>> { providers ->
-            val pm = application.packageManager
-            val actionsList = mutableListOf(nextArtworkAction)
-            providers?.forEach { providerInfo ->
-                actionsList.add(Action(
-                        providerInfo.loadIcon(pm).apply {
-                            setBounds(0, 0, imageSize, imageSize)
-                        },
-                        application.getString(R.string.tasker_action_select_provider,
-                                providerInfo.loadLabel(pm)),
-                        SelectProviderAction(providerInfo.authority)))
-            }
-            value = actionsList.sortedWith(comparator)
+    fun getActions() = getInstalledProviders(getApplication()).map { providers ->
+        val application = getApplication<Application>()
+        val pm = application.packageManager
+        val actionsList = mutableListOf(nextArtworkAction)
+        providers.forEach { providerInfo ->
+            actionsList.add(Action(
+                    providerInfo.loadIcon(pm).apply {
+                        setBounds(0, 0, imageSize, imageSize)
+                    },
+                    application.getString(R.string.tasker_action_select_provider,
+                            providerInfo.loadLabel(pm)),
+                    SelectProviderAction(providerInfo.authority)))
         }
-
-        override fun onActive() {
-            installedProvidersLiveData.observeForever(installedProvidersObserver)
-        }
-
-        override fun onInactive() {
-            installedProvidersLiveData.removeObserver(installedProvidersObserver)
-        }
+        actionsList.sortedWith(comparator)
     }
 }
