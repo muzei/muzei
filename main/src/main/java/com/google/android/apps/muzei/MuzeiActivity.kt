@@ -28,8 +28,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commit
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.preference.PreferenceManager
 import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
@@ -40,6 +39,12 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.collect
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.MuzeiActivityBinding
@@ -121,15 +126,17 @@ class MuzeiActivity : AppCompatActivity() {
             }
         }
 
-        viewModel.seenTutorialLiveData.observe(this) {
-            val fragment = currentFragment
-            if (!fragment::class.java.isInstance(
-                            supportFragmentManager.findFragmentById(R.id.container))) {
-                // Only replace the Fragment if there was a change
-                supportFragmentManager.commit(allowStateLoss = true) {
-                    replace(R.id.container, fragment)
-                    setPrimaryNavigationFragment(fragment)
-                    setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+        lifecycleScope.launchWhenStarted {
+            viewModel.onSeenTutorial().collect {
+                val fragment = currentFragment
+                if (!fragment::class.java.isInstance(
+                                supportFragmentManager.findFragmentById(R.id.container))) {
+                    // Only replace the Fragment if there was a change
+                    supportFragmentManager.commit {
+                        replace(R.id.container, fragment)
+                        setPrimaryNavigationFragment(fragment)
+                        setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                    }
                 }
             }
         }
@@ -186,24 +193,20 @@ class MuzeiActivity : AppCompatActivity() {
     }
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class MuzeiActivityViewModel(application: Application): AndroidViewModel(application) {
+    private val sp: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(application)
 
-    internal val seenTutorialLiveData : LiveData<Boolean> = object : MutableLiveData<Boolean>(),
-            SharedPreferences.OnSharedPreferenceChangeListener {
-        val sp = PreferenceManager.getDefaultSharedPreferences(application)
-
-        override fun onActive() {
-            sp.registerOnSharedPreferenceChangeListener(this)
-        }
-
-        override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
+    fun onSeenTutorial(): Flow<Boolean> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             if (TutorialFragment.PREF_SEEN_TUTORIAL == key) {
-                value = sp.getBoolean(TutorialFragment.PREF_SEEN_TUTORIAL, false)
+                sendBlocking(sp.getBoolean(TutorialFragment.PREF_SEEN_TUTORIAL, false))
             }
         }
+        sp.registerOnSharedPreferenceChangeListener(listener)
 
-        override fun onInactive() {
-            sp.unregisterOnSharedPreferenceChangeListener(this)
+        awaitClose {
+            sp.unregisterOnSharedPreferenceChangeListener(listener)
         }
     }
 }
