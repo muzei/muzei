@@ -26,13 +26,17 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.observe
 import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.sync.ProviderManager
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.flow.callbackFlow
 
 suspend fun Provider?.allowsNextArtwork(context: Context): Boolean {
     return when {
@@ -46,6 +50,7 @@ suspend fun Provider?.allowsNextArtwork(context: Context): Boolean {
 /**
  * Class responsible for managing interactions with legacy sources.
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 class LegacySourceManager(private val applicationContext: Context) : DefaultLifecycleObserver {
 
     companion object {
@@ -66,7 +71,7 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
         }
     }
 
-    private val serviceLiveData = object : MutableLiveData<ComponentName?>() {
+    private fun getService() = callbackFlow {
         val pm = applicationContext.packageManager
         // Create an IntentFilter for package change events
         val packageChangeFilter = IntentFilter().apply {
@@ -76,6 +81,14 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
             addAction(Intent.ACTION_PACKAGE_REPLACED)
             addAction(Intent.ACTION_PACKAGE_REMOVED)
         }
+        val queryAndSet = {
+            sendBlocking(pm.queryIntentServices(Intent(LegacySourceServiceProtocol.LEGACY_SOURCE_ACTION), 0)
+                    .firstOrNull()
+                    ?.serviceInfo
+                    ?.run {
+                        ComponentName(packageName, name)
+                    })
+        }
         val packageChangeReceiver : BroadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent?) {
                 if (intent?.data == null) {
@@ -84,23 +97,11 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
                 queryAndSet()
             }
         }
+        applicationContext.registerReceiver(packageChangeReceiver, packageChangeFilter)
+        // Set the initial state
+        queryAndSet()
 
-        override fun onActive() {
-            applicationContext.registerReceiver(packageChangeReceiver, packageChangeFilter)
-            // Set the initial state
-            queryAndSet()
-        }
-
-        fun queryAndSet() {
-            value = pm.queryIntentServices(Intent(LegacySourceServiceProtocol.LEGACY_SOURCE_ACTION), 0)
-                    .firstOrNull()
-                    ?.serviceInfo
-                    ?.run {
-                        ComponentName(packageName, name)
-                    }
-        }
-
-        override fun onInactive() {
+        awaitClose {
             applicationContext.unregisterReceiver(packageChangeReceiver)
         }
     }
@@ -112,7 +113,7 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
     val unsupportedSources: LiveData<List<LegacySourceInfo>> = unsupportedSourcesMediator
 
     override fun onCreate(owner: LifecycleOwner) {
-        serviceLiveData.distinctUntilChanged().observe(owner) { componentName ->
+        getService().asLiveData().distinctUntilChanged().observe(owner) { componentName ->
             if (componentName == null) {
                 legacySourcePackageListener.startListening()
                 unsupportedSourcesMediator.addSource(legacySourcePackageListener.unsupportedSources) {
