@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
@@ -45,6 +46,7 @@ import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.MergeAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.api.load
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
@@ -84,6 +86,8 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
         private const val PAYLOAD_DESCRIPTION = "DESCRIPTION"
         private const val PAYLOAD_CURRENT_IMAGE_URI = "CURRENT_IMAGE_URI"
         private const val PAYLOAD_SELECTED = "SELECTED"
+
+        private const val PLAY_STORE_PACKAGE_NAME = "com.android.vending"
     }
 
     private val currentProviderLiveData by lazy {
@@ -181,9 +185,12 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
             }
         })
         val adapter = ProviderListAdapter()
-        binding.list.adapter = adapter
+        val playStoreAdapter = PlayStoreProviderAdapter()
+        binding.list.adapter = MergeAdapter(adapter, playStoreAdapter)
         viewModel.providers.observe(viewLifecycleOwner) {
-            adapter.submitList(it)
+            adapter.submitList(it) {
+                playStoreAdapter.shouldShow = true
+            }
         }
         // Show a SnackBar whenever there are unsupported sources installed
         var snackBar: Snackbar? = null
@@ -254,47 +261,12 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
 
         private var isSelected = false
 
-        fun bind(providerInfo: ProviderInfo) = providerInfo.run {
+        fun bind(
+                providerInfo: ProviderInfo,
+                clickListener: (Boolean) -> Unit
+        ) = providerInfo.run {
             itemView.setOnClickListener {
-                if (isSelected) {
-                    val context = context
-                    val parentFragment = parentFragment?.parentFragment
-                    if (context is Callbacks) {
-                        Firebase.analytics.logEvent("choose_provider_reselected", null)
-                        context.onRequestCloseActivity()
-                    } else if (parentFragment is Callbacks) {
-                        Firebase.analytics.logEvent("choose_provider_reselected", null)
-                        parentFragment.onRequestCloseActivity()
-                    }
-                } else if (setupActivity != null) {
-                    Firebase.analytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
-                        param(FirebaseAnalytics.Param.ITEM_LIST_ID, authority)
-                        param(FirebaseAnalytics.Param.ITEM_NAME, title)
-                        param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
-                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "choose")
-                    }
-                    launchProviderSetup(this)
-                } else if (providerInfo.authority == viewModel.playStoreAuthority) {
-                    Firebase.analytics.logEvent("more_sources_open", null)
-                    try {
-                        startActivity(viewModel.playStoreIntent)
-                    } catch (e: ActivityNotFoundException) {
-                        requireContext().toast(R.string.play_store_not_found, Toast.LENGTH_LONG)
-                    } catch (e: SecurityException) {
-                        requireContext().toast(R.string.play_store_not_found, Toast.LENGTH_LONG)
-                    }
-                } else {
-                    Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
-                        param(FirebaseAnalytics.Param.ITEM_LIST_ID, authority)
-                        param(FirebaseAnalytics.Param.ITEM_NAME, title)
-                        param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
-                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "choose")
-                    }
-                    val context = requireContext()
-                    GlobalScope.launch {
-                        ProviderManager.select(context, authority)
-                    }
-                }
+                clickListener(isSelected)
             }
             itemView.setOnLongClickListener {
                 if (packageName == requireContext().packageName) {
@@ -413,8 +385,42 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                 ProviderViewHolder(ChooseProviderItemBinding.inflate(layoutInflater,
                         parent, false))
 
-        override fun onBindViewHolder(holder: ProviderViewHolder, position: Int) {
-            holder.bind(getItem(position))
+        override fun onBindViewHolder(
+                holder: ProviderViewHolder,
+                position: Int
+        ) = getItem(position).run {
+            holder.bind(this) { isSelected ->
+                if (isSelected) {
+                    val context = context
+                    val parentFragment = parentFragment?.parentFragment
+                    if (context is Callbacks) {
+                        Firebase.analytics.logEvent("choose_provider_reselected", null)
+                        context.onRequestCloseActivity()
+                    } else if (parentFragment is Callbacks) {
+                        Firebase.analytics.logEvent("choose_provider_reselected", null)
+                        parentFragment.onRequestCloseActivity()
+                    }
+                } else if (setupActivity != null) {
+                    Firebase.analytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
+                        param(FirebaseAnalytics.Param.ITEM_LIST_ID, authority)
+                        param(FirebaseAnalytics.Param.ITEM_NAME, title)
+                        param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
+                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "choose")
+                    }
+                    launchProviderSetup(this)
+                } else {
+                    Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                        param(FirebaseAnalytics.Param.ITEM_LIST_ID, authority)
+                        param(FirebaseAnalytics.Param.ITEM_NAME, title)
+                        param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
+                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "choose")
+                    }
+                    val context = requireContext()
+                    GlobalScope.launch {
+                        ProviderManager.select(context, authority)
+                    }
+                }
+            }
         }
 
         override fun onBindViewHolder(
@@ -432,6 +438,74 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
             }
         }
     }
+
+    inner class PlayStoreProviderAdapter : RecyclerView.Adapter<ProviderViewHolder>() {
+        @SuppressLint("InlinedApi")
+        private val playStoreIntent: Intent = Intent(Intent.ACTION_VIEW,
+                Uri.parse("http://play.google.com/store/search?q=Muzei&c=apps" +
+                        "&referrer=utm_source%3Dmuzei" +
+                        "%26utm_medium%3Dapp" +
+                        "%26utm_campaign%3Dget_more_sources"))
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
+                .setPackage(PLAY_STORE_PACKAGE_NAME)
+        private val playStoreComponentName: ComponentName? = playStoreIntent.resolveActivity(
+                requireContext().packageManager)
+        private val playStoreAuthority: String? = if (playStoreComponentName != null) "play_store" else null
+        private val playStoreProviderInfo = if (playStoreComponentName != null && playStoreAuthority != null) {
+            val pm = requireContext().packageManager
+            ProviderInfo(
+                    playStoreAuthority,
+                    playStoreComponentName.packageName,
+                    requireContext().getString(R.string.get_more_sources),
+                    requireContext().getString(R.string.get_more_sources_description),
+                    null,
+                    pm.getActivityLogo(playStoreIntent)
+                            ?: pm.getApplicationIcon(PLAY_STORE_PACKAGE_NAME),
+                    null,
+                    null,
+                    false)
+        } else {
+            null
+        }
+
+        /**
+         * We want to wait for the main list to load before showing our item so that the
+         * RecyclerView doesn't attempt to keep this footer on screen when the other
+         * data loads, so we delay loading until that occurs. Changing this to true is
+         * our signal
+         */
+        var shouldShow = false
+            set(value) {
+                if (field != value) {
+                    field = value
+                    if (value) {
+                        notifyItemInserted(0)
+                    } else {
+                        notifyItemRemoved(0)
+                    }
+                }
+            }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+                ProviderViewHolder(ChooseProviderItemBinding.inflate(layoutInflater,
+                        parent, false))
+
+        override fun getItemCount() = if (shouldShow && playStoreProviderInfo != null) 1 else 0
+
+        override fun onBindViewHolder(holder: ProviderViewHolder, position: Int) {
+            holder.bind(playStoreProviderInfo!!) {
+                Firebase.analytics.logEvent("more_sources_open", null)
+                try {
+                    startActivity(playStoreIntent)
+                } catch (e: ActivityNotFoundException) {
+                    requireContext().toast(R.string.play_store_not_found, Toast.LENGTH_LONG)
+                } catch (e: SecurityException) {
+                    requireContext().toast(R.string.play_store_not_found, Toast.LENGTH_LONG)
+                }
+            }
+        }
+    }
+
 
     interface Callbacks {
         fun onRequestCloseActivity()
