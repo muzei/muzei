@@ -37,7 +37,6 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
@@ -67,15 +66,18 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.ArtDetailFragmentBinding
 
-object ArtDetailOpenLiveData : MutableLiveData<Boolean>()
+@OptIn(ExperimentalCoroutinesApi::class)
+val ArtDetailOpen = MutableStateFlow(false)
 
 private fun TextView.setTextOrGone(text: String?) {
     if (text?.isNotEmpty() == true) {
@@ -86,6 +88,7 @@ private fun TextView.setTextOrGone(text: String?) {
     }
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
 
     companion object {
@@ -397,7 +400,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
 
     override fun onStart() {
         super.onStart()
-        ArtDetailOpenLiveData.value = true
+        ArtDetailOpen.value = true
     }
 
     private fun showHideChrome(show: Boolean) {
@@ -457,7 +460,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
     override fun onStop() {
         super.onStop()
         binding.overflowMenu.hideOverflowMenu()
-        ArtDetailOpenLiveData.value = false
+        ArtDetailOpen.value = false
     }
 
     private fun showFakeLoading() {

@@ -160,7 +160,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             }
 
             override fun onDoubleTap(e: MotionEvent): Boolean {
-                if (ArtDetailOpenLiveData.value == true) {
+                if (ArtDetailOpen.value) {
                     // The main activity is visible, so discard any double touches since focus
                     // should be forced on
                     return true
@@ -221,9 +221,11 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                     renderController.onLockScreen = isEffectsLockScreenOpen
                 }
             }
-            ArtDetailOpenLiveData.observe(this) { isArtDetailOpened ->
-                cancelDelayedBlur()
-                queueEvent { renderer.setIsBlurred(!isArtDetailOpened, true) }
+            lifecycleScope.launchWhenStarted {
+                ArtDetailOpen.collect { isArtDetailOpened ->
+                    cancelDelayedBlur()
+                    queueEvent { renderer.setIsBlurred(!isArtDetailOpened, true) }
+                }
             }
 
             lifecycleScope.launch {
@@ -383,7 +385,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         }
 
         private fun delayedBlur() {
-            if (ArtDetailOpenLiveData.value == true || renderer.isBlurred) {
+            if (ArtDetailOpen.value || renderer.isBlurred) {
                 return
             }
 

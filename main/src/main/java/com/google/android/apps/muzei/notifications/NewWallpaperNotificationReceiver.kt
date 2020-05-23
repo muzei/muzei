@@ -34,7 +34,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.os.bundleOf
 import androidx.preference.PreferenceManager
-import com.google.android.apps.muzei.ArtDetailOpenLiveData
+import com.google.android.apps.muzei.ArtDetailOpen
 import com.google.android.apps.muzei.ArtworkInfoRedirectActivity
 import com.google.android.apps.muzei.legacy.LegacySourceManager
 import com.google.android.apps.muzei.legacy.allowsNextArtwork
@@ -46,8 +46,10 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import net.nurik.roman.muzei.R
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class NewWallpaperNotificationReceiver : BroadcastReceiver() {
 
     companion object {
@@ -102,7 +104,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
         }
 
         suspend fun maybeShowNewArtworkNotification(context: Context) {
-            if (ArtDetailOpenLiveData.value == true) {
+            if (ArtDetailOpen.value) {
                 return
             }
 
