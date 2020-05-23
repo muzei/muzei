@@ -24,10 +24,11 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.observe
+import androidx.lifecycle.lifecycleScope
 import com.google.android.apps.muzei.ArtworkInfoRedirectActivity
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import kotlinx.coroutines.flow.collect
 import net.nurik.roman.muzei.R
 
 /**
@@ -35,8 +36,7 @@ import net.nurik.roman.muzei.R
  */
 @RequiresApi(Build.VERSION_CODES.N_MR1)
 class ArtworkInfoShortcutController(
-        private val context: Context,
-        private val lifecycleOwner: LifecycleOwner
+        private val context: Context
 ) : DefaultLifecycleObserver {
 
     companion object {
@@ -44,9 +44,10 @@ class ArtworkInfoShortcutController(
     }
 
     override fun onCreate(owner: LifecycleOwner) {
-        MuzeiDatabase.getInstance(context).artworkDao()
-                .currentArtworkLiveData.observe(lifecycleOwner) { artwork ->
-            updateShortcut(artwork)
+        owner.lifecycleScope.launchWhenStarted {
+            MuzeiDatabase.getInstance(context).artworkDao().currentArtwork.collect {  artwork ->
+                updateShortcut(artwork)
+            }
         }
     }
 
