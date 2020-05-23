@@ -18,10 +18,11 @@ package com.google.android.apps.muzei.render
 
 import android.content.Context
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.observe
+import androidx.lifecycle.lifecycleScope
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.util.filterNotNull
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filterNotNull
 
 class RealRenderController(
         context: Context,
@@ -29,24 +30,26 @@ class RealRenderController(
         callbacks: Callbacks
 ) : RenderController(context, renderer, callbacks) {
 
-    private val artworkLiveData = MuzeiDatabase.getInstance(context)
-            .artworkDao().currentArtworkLiveData
+    /**
+     * If there's no artwork yet (as is the case when in Direct Boot), then we
+     * use [MuzeiContract.Artwork.CONTENT_URI].
+     */
+    private var currentArtworkUri = MuzeiContract.Artwork.CONTENT_URI
 
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
-        artworkLiveData.filterNotNull().observe(owner) {
-            reloadCurrentArtwork()
+        owner.lifecycleScope.launchWhenStarted {
+            MuzeiDatabase.getInstance(context)
+                    .artworkDao().currentArtwork
+                    .filterNotNull()
+                    .collect { artwork ->
+                        currentArtworkUri = artwork.contentUri
+                        reloadCurrentArtwork()
+                    }
         }
         reloadCurrentArtwork()
     }
 
-    /**
-     * Create a [ImageLoader] for the current artwork. If [artworkLiveData]
-     * doesn't have artwork yet (as is the case when in Direct Boot), then we
-     * use [MuzeiContract.Artwork.CONTENT_URI].
-     */
     override suspend fun openDownloadedCurrentArtwork() =
-            ContentUriImageLoader(context.contentResolver,
-                    artworkLiveData.value?.contentUri
-                            ?: MuzeiContract.Artwork.CONTENT_URI)
+            ContentUriImageLoader(context.contentResolver, currentArtworkUri)
 }
