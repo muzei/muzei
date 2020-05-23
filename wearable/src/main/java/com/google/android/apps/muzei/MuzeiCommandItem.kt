@@ -55,7 +55,7 @@ data class ArtworkCommand(
 }
 
 class MuzeiCommandViewModel(application: Application) : AndroidViewModel(application) {
-    val commandsLiveData = MuzeiDatabase.getInstance(application).artworkDao().currentArtwork.switchMap { artwork ->
+    val commandsLiveData = MuzeiDatabase.getInstance(application).artworkDao().currentArtworkLiveData.switchMap { artwork ->
         liveData {
             if (artwork != null) {
                 emit(artwork.getCommands(getApplication<Application>()).sortedByDescending { command ->

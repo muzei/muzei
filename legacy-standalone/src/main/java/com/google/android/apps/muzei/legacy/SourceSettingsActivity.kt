@@ -76,7 +76,7 @@ class SourceSettingsActivity : AppCompatActivity() {
     }
 
     private val sourcesLiveData: LiveData<List<Source>> by lazy {
-        LegacyDatabase.getInstance(this).sourceDao().sources
+        LegacyDatabase.getInstance(this).sourceDao().sourcesLiveData
     }
 
     private val adapter by lazy {

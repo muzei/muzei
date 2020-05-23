@@ -32,7 +32,7 @@ class NotificationUpdater(private val context: Context) : DefaultLifecycleObserv
 
     override fun onCreate(owner: LifecycleOwner) {
         // Update notifications whenever the artwork changes
-        MuzeiDatabase.getInstance(context).artworkDao().currentArtwork
+        MuzeiDatabase.getInstance(context).artworkDao().currentArtworkLiveData
                 .filterNotNull()
                 .observe(owner) {
             GlobalScope.launch {

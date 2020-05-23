@@ -45,7 +45,7 @@ class SourceSetupActivity : AppCompatActivity() {
     override fun onAttachFragment(fragment: Fragment) {
         if (fragment is SourceWarningDialogFragment) {
             fragment.positiveListener = {
-                LegacyDatabase.getInstance(this).sourceDao().currentSource.observe(this) { source ->
+                LegacyDatabase.getInstance(this).sourceDao().currentSourceLiveData.observe(this) { source ->
                     if (source != null) {
                         setResult(Activity.RESULT_OK)
                         finish()

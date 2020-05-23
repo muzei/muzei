@@ -35,6 +35,7 @@ import com.google.android.apps.muzei.room.getInstalledProviders
 import com.google.android.apps.muzei.sync.ProviderManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.Executors
@@ -107,6 +108,19 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
         p1.title.compareTo(p2.title)
     }
 
+    private val providersFlow = getInstalledProviders(application).map { providerInfos ->
+        val context = getApplication<Application>()
+        val pm = context.packageManager
+        providerInfos.map { providerInfo ->
+            val authority = providerInfo.authority
+            val selected = authority == activeProvider?.authority
+            val description = ProviderManager.getDescription(context, authority)
+            val currentArtwork = MuzeiDatabase.getInstance(context).artworkDao()
+                    .getCurrentArtworkForProvider(authority)
+            ProviderInfo(pm, providerInfo, description, currentArtwork?.imageUri, selected)
+        }.sortedWith(comparator)
+    }
+
     private suspend fun updateProvidersFromInfo(
             providerInfos: List<android.content.pm.ProviderInfo>
     ) {
@@ -148,7 +162,7 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
             }
         }
         val currentProviderLiveData = MuzeiDatabase.getInstance(application).providerDao()
-                .currentProvider
+                .currentProviderLiveData
         val currentProviderObserver = Observer<Provider?> { provider ->
             activeProvider = provider
             if (provider != null) {
@@ -165,7 +179,7 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
             }
         }
         val currentArtworkByProviderLiveData = MuzeiDatabase.getInstance(application).artworkDao()
-                .currentArtworkByProvider
+                .currentArtworkByProviderLiveData
         val currentArtworkByProviderObserver = Observer<List<Artwork>> { artworkByProvider ->
             if (artworkByProvider != null) {
                 viewModelScope.launch(singleThreadContext) {

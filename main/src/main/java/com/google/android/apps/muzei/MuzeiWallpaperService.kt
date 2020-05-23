@@ -203,7 +203,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             engineLifecycle.addObserver(LockscreenObserver(this@MuzeiWallpaperService, this))
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
                 MuzeiDatabase.getInstance(this@MuzeiWallpaperService)
-                        .artworkDao().currentArtwork
+                        .artworkDao().currentArtworkLiveData
                         .filterNotNull()
                         .observe(this) { artwork ->
                             lifecycleScope.launch {

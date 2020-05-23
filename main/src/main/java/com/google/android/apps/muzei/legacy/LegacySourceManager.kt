@@ -128,7 +128,7 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
                 serviceConnection.bindService(componentName)
             }
         }
-        MuzeiDatabase.getInstance(applicationContext).providerDao().currentProvider
+        MuzeiDatabase.getInstance(applicationContext).providerDao().currentProviderLiveData
                 .observe(owner, serviceConnection::onProviderChanged)
     }
 

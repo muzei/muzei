@@ -48,7 +48,7 @@ class WearableController(private val context: Context) : DefaultLifecycleObserve
 
     override fun onCreate(owner: LifecycleOwner) {
         // Update Android Wear whenever the artwork changes
-        MuzeiDatabase.getInstance(context).artworkDao().currentArtwork
+        MuzeiDatabase.getInstance(context).artworkDao().currentArtworkLiveData
                 .filterNotNull()
                 .observe(owner) { artwork ->
                     GlobalScope.launch {

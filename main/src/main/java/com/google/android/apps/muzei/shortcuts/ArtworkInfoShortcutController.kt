@@ -45,7 +45,7 @@ class ArtworkInfoShortcutController(
 
     override fun onCreate(owner: LifecycleOwner) {
         MuzeiDatabase.getInstance(context).artworkDao()
-                .currentArtwork.observe(lifecycleOwner) { artwork ->
+                .currentArtworkLiveData.observe(lifecycleOwner) { artwork ->
             updateShortcut(artwork)
         }
     }

@@ -127,10 +127,10 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
     private var showChrome = true
     private var backgroundImageViewState: ImageViewState? = null
     private val currentProviderLiveData: LiveData<Provider?> by lazy {
-        MuzeiDatabase.getInstance(requireContext()).providerDao().currentProvider
+        MuzeiDatabase.getInstance(requireContext()).providerDao().currentProviderLiveData
     }
     private val currentArtworkLiveData: LiveData<Artwork?> by lazy {
-        MuzeiDatabase.getInstance(requireContext()).artworkDao().currentArtwork
+        MuzeiDatabase.getInstance(requireContext()).artworkDao().currentArtworkLiveData
     }
 
     private var unsetNextFakeLoading: Job? = null

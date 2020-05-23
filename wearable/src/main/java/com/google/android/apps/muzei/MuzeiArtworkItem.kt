@@ -38,7 +38,7 @@ import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.MuzeiArtworkItemBinding
 
 class MuzeiArtworkViewModel(application: Application) : AndroidViewModel(application) {
-    val artworkLiveData = MuzeiDatabase.getInstance(application).artworkDao().currentArtwork
+    val artworkLiveData = MuzeiDatabase.getInstance(application).artworkDao().currentArtworkLiveData
 }
 
 class MuzeiArtworkViewHolder(

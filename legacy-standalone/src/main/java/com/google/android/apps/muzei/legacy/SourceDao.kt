@@ -32,7 +32,7 @@ import androidx.room.Update
 abstract class SourceDao {
 
     @get:Query("SELECT * FROM sources")
-    abstract val sources: LiveData<List<Source>>
+    abstract val sourcesLiveData: LiveData<List<Source>>
 
     @Query("SELECT * FROM sources")
     abstract suspend fun getSources(): List<Source>
@@ -42,7 +42,7 @@ abstract class SourceDao {
     abstract suspend fun getSourceComponentNames(): List<ComponentName>
 
     @get:Query("SELECT * FROM sources WHERE selected=1 ORDER BY component_name")
-    abstract val currentSource: LiveData<Source?>
+    abstract val currentSourceLiveData: LiveData<Source?>
 
     @get:Query("SELECT * FROM sources WHERE selected=1 ORDER BY component_name")
     abstract val currentSourceBlocking: Source?

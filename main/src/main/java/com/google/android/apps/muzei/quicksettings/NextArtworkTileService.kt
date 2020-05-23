@@ -66,7 +66,7 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
         }
         // Start listening for source changes, which will include when a source
         // starts or stops supporting the 'Next Artwork' command
-        providerLiveData = MuzeiDatabase.getInstance(this).providerDao().currentProvider
+        providerLiveData = MuzeiDatabase.getInstance(this).providerDao().currentProviderLiveData
         providerLiveData.observe(this, this::updateTile)
     }
 

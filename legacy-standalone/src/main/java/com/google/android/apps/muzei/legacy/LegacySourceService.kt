@@ -241,7 +241,7 @@ class LegacySourceService : Service(), LifecycleOwner {
 
         init {
             addSource<com.google.android.apps.muzei.legacy.Source>(LegacyDatabase.getInstance(this@LegacySourceService)
-                    .sourceDao().currentSource) { source ->
+                    .sourceDao().currentSourceLiveData) { source ->
                 if (currentSource != null && source != null &&
                         currentSource?.componentName == source.componentName) {
                     // Don't do anything if it is the same Source
@@ -281,7 +281,7 @@ class LegacySourceService : Service(), LifecycleOwner {
             sendSelectedSourceAnalytics(source.componentName)
         }
         var currentSource: Source? = null
-        LegacyDatabase.getInstance(this).sourceDao().currentSource.observe(this) { source ->
+        LegacyDatabase.getInstance(this).sourceDao().currentSourceLiveData.observe(this) { source ->
             if (currentSource != null && source == null) {
                 // The selected source has been removed or was otherwise deselected
                 replyToMessenger?.send(Message.obtain().apply {

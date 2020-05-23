@@ -55,7 +55,7 @@ internal abstract class ChosenPhotoDao {
     internal abstract val chosenPhotosPaged: DataSource.Factory<Int, ChosenPhoto>
 
     @get:Query("SELECT * FROM chosen_photos ORDER BY _id DESC")
-    internal abstract val chosenPhotos: LiveData<List<ChosenPhoto>>
+    internal abstract val chosenPhotosLiveData: LiveData<List<ChosenPhoto>>
 
     @get:Query("SELECT * FROM chosen_photos ORDER BY _id DESC")
     internal abstract val chosenPhotosBlocking: List<ChosenPhoto>

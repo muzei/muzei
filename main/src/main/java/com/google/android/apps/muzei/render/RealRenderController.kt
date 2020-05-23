@@ -30,7 +30,7 @@ class RealRenderController(
 ) : RenderController(context, renderer, callbacks) {
 
     private val artworkLiveData = MuzeiDatabase.getInstance(context)
-            .artworkDao().currentArtwork
+            .artworkDao().currentArtworkLiveData
 
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)

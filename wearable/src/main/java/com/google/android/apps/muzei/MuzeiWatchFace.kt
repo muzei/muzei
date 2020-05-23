@@ -251,7 +251,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
             super.onCreate(holder)
             Firebase.analytics.logEvent("watchface_created", null)
             MuzeiDatabase.getInstance(this@MuzeiWatchFace)
-                    .artworkDao().currentArtwork
+                    .artworkDao().currentArtworkLiveData
                     .observe(this@MuzeiWatchFace, LoadImageObserver())
 
             clockPaint = Paint().apply {

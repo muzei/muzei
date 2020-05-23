@@ -60,7 +60,7 @@ class FullScreenActivity : FragmentActivity(),
         }
 
         MuzeiDatabase.getInstance(this).artworkDao()
-                .currentArtwork.filterNotNull().observe(this) { artwork ->
+                .currentArtworkLiveData.filterNotNull().observe(this) { artwork ->
             lifecycleScope.launch(Dispatchers.Main) {
                 val image = ImageLoader.decode(
                         contentResolver, artwork.contentUri)

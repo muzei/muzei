@@ -33,7 +33,7 @@ abstract class ArtworkDao {
     @get:Query("SELECT artwork.* FROM artwork " +
             "inner join provider on providerAuthority = authority " +
             "ORDER BY date_added DESC")
-    abstract val currentArtwork: LiveData<Artwork?>
+    abstract val currentArtworkLiveData: LiveData<Artwork?>
 
     @get:Query("SELECT artwork.* FROM artwork " +
             "inner join provider on providerAuthority = authority " +
@@ -54,7 +54,7 @@ abstract class ArtworkDao {
     @get:Query("SELECT * FROM artwork art1 WHERE _id IN (" +
             "SELECT _id FROM artwork art2 WHERE art1._id=art2._id " +
             "ORDER BY date_added DESC limit 1)")
-    abstract val currentArtworkByProvider : LiveData<List<Artwork>>
+    abstract val currentArtworkByProviderLiveData : LiveData<List<Artwork>>
 
     @Query("SELECT * FROM artwork WHERE _id=:id")
     internal abstract fun getArtworkByIdBlocking(id: Long): Artwork?

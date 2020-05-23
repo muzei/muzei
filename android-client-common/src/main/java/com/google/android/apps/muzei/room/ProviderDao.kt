@@ -30,7 +30,7 @@ import androidx.room.Update
 @Dao
 abstract class ProviderDao {
     @get:Query("SELECT * FROM provider")
-    abstract val currentProvider: LiveData<Provider?>
+    abstract val currentProviderLiveData: LiveData<Provider?>
 
     @get:Query("SELECT * FROM provider")
     internal abstract val currentProviderBlocking: Provider?

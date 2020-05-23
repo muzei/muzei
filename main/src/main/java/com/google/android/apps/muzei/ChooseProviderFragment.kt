@@ -92,7 +92,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
 
     private val currentProviderLiveData by lazy {
         MuzeiDatabase.getInstance(requireContext()).providerDao()
-                .currentProvider
+                .currentProviderLiveData
     }
     private val viewModel: ChooseProviderViewModel by viewModels()
 

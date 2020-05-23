@@ -41,7 +41,7 @@ class GallerySetupActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         GalleryDatabase.getInstance(this).chosenPhotoDao()
-                .chosenPhotos.observe(this) { chosenUris ->
+                .chosenPhotosLiveData.observe(this) { chosenUris ->
             val numChosenUris = chosenUris.size
             val hasPermission = permissions.all { permission ->
                 ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED

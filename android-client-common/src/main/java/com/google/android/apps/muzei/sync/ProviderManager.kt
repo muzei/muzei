@@ -129,10 +129,10 @@ class ProviderManager private constructor(private val context: Context)
     }
     private val contentObserver: ContentObserver
     private val providerLiveData by lazy {
-        MuzeiDatabase.getInstance(context).providerDao().currentProvider
+        MuzeiDatabase.getInstance(context).providerDao().currentProviderLiveData
     }
     private val artworkLiveData by lazy {
-        MuzeiDatabase.getInstance(context).artworkDao().currentArtwork
+        MuzeiDatabase.getInstance(context).artworkDao().currentArtworkLiveData
     }
     private var nextArtworkJob: Job? = null
     private val artworkObserver = Observer<Artwork?> { artwork ->
