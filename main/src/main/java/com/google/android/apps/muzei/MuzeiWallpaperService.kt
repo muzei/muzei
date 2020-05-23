@@ -50,7 +50,7 @@ import com.google.android.apps.muzei.render.RenderController
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.openArtworkInfo
-import com.google.android.apps.muzei.settings.EffectsLockScreenOpenLiveData
+import com.google.android.apps.muzei.settings.EffectsLockScreenOpen
 import com.google.android.apps.muzei.settings.Prefs
 import com.google.android.apps.muzei.shortcuts.ArtworkInfoShortcutController
 import com.google.android.apps.muzei.sync.ProviderManager
@@ -63,6 +63,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -74,6 +75,7 @@ data class WallpaperSize(val width: Int, val height: Int)
 
 object WallpaperSizeLiveData : MutableLiveData<WallpaperSize>()
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
 
     companion object {
@@ -214,8 +216,10 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             wallpaperLifecycle.addObserver(this)
             setTouchEventsEnabled(true)
             setOffsetNotificationsEnabled(true)
-            EffectsLockScreenOpenLiveData.observe(this) { isEffectsLockScreenOpen ->
-                renderController.onLockScreen = isEffectsLockScreenOpen
+            lifecycleScope.launchWhenStarted {
+                EffectsLockScreenOpen.collect { isEffectsLockScreenOpen ->
+                    renderController.onLockScreen = isEffectsLockScreenOpen
+                }
             }
             ArtDetailOpenLiveData.observe(this) { isArtDetailOpened ->
                 cancelDelayedBlur()
@@ -275,7 +279,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         }
 
         fun lockScreenVisibleChanged(isLockScreenVisible: Boolean) {
-            if (EffectsLockScreenOpenLiveData.value != true) {
+            if (!EffectsLockScreenOpen.value) {
                 renderController.onLockScreen = isLockScreenVisible
             }
         }

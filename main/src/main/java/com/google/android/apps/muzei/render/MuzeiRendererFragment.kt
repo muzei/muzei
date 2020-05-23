@@ -29,16 +29,17 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.observe
+import androidx.lifecycle.lifecycleScope
 import coil.api.load
 import coil.bitmappool.BitmapPool
 import coil.size.Size
 import coil.transform.Transformation
-import com.google.android.apps.muzei.settings.EffectsLockScreenOpenLiveData
+import com.google.android.apps.muzei.settings.EffectsLockScreenOpen
 import com.google.android.apps.muzei.util.ImageBlurrer
 import com.google.android.apps.muzei.util.blur
 import com.google.android.apps.muzei.util.roundMult4
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
 
 class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurRenderer.Callbacks {
@@ -172,9 +173,10 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
             }
             lifecycle.addObserver(renderController)
             if (!demoMode) {
-                EffectsLockScreenOpenLiveData.observe(viewLifecycleOwner) {
-                    isEffectsLockScreenOpen ->
-                    renderController.onLockScreen = isEffectsLockScreenOpen
+                lifecycleScope.launchWhenStarted {
+                    EffectsLockScreenOpen.collect { isEffectsLockScreenOpen ->
+                        renderController.onLockScreen = isEffectsLockScreenOpen
+                    }
                 }
             }
             renderController.visible = true

@@ -23,21 +23,24 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.apps.muzei.isPreviewMode
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer
 import com.google.android.apps.muzei.util.toast
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.EffectsFragmentBinding
 
-object EffectsLockScreenOpenLiveData : MutableLiveData<Boolean>()
+@OptIn(ExperimentalCoroutinesApi::class)
+val EffectsLockScreenOpen = MutableStateFlow(false)
 
 /**
  * Fragment for allowing the user to configure advanced settings.
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 class EffectsFragment : Fragment(R.layout.effects_fragment) {
 
     private lateinit var binding: EffectsFragmentBinding
@@ -169,7 +172,7 @@ class EffectsFragment : Fragment(R.layout.effects_fragment) {
         }.attach()
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                EffectsLockScreenOpenLiveData.value = position == 1
+                EffectsLockScreenOpen.value = position == 1
             }
         })
         Prefs.getSharedPreferences(requireContext())
@@ -179,7 +182,7 @@ class EffectsFragment : Fragment(R.layout.effects_fragment) {
     override fun onStart() {
         super.onStart()
         // Reset the value here to restore the state lost in onStop()
-        EffectsLockScreenOpenLiveData.value = binding.viewPager.currentItem == 1
+        EffectsLockScreenOpen.value = binding.viewPager.currentItem == 1
     }
 
     private fun updateLinkEffectsMenuItem(
@@ -199,7 +202,7 @@ class EffectsFragment : Fragment(R.layout.effects_fragment) {
 
     override fun onStop() {
         // The lock screen effects screen is no longer visible, so set the value to false
-        EffectsLockScreenOpenLiveData.value = false
+        EffectsLockScreenOpen.value = false
         super.onStop()
     }
 
