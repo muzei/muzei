@@ -21,19 +21,18 @@ import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.observe
+import androidx.lifecycle.lifecycleScope
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.util.filterNotNull
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.api.AvailabilityException
 import com.google.android.gms.wearable.Asset
 import com.google.android.gms.wearable.PutDataMapRequest
 import com.google.android.gms.wearable.Wearable
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
 
@@ -48,13 +47,13 @@ class WearableController(private val context: Context) : DefaultLifecycleObserve
 
     override fun onCreate(owner: LifecycleOwner) {
         // Update Android Wear whenever the artwork changes
-        MuzeiDatabase.getInstance(context).artworkDao().currentArtworkLiveData
-                .filterNotNull()
-                .observe(owner) { artwork ->
-                    GlobalScope.launch {
+        owner.lifecycleScope.launchWhenStarted {
+            MuzeiDatabase.getInstance(context).artworkDao().currentArtwork
+                    .filterNotNull()
+                    .collect {  artwork ->
                         updateArtwork(artwork)
                     }
-                }
+        }
     }
 
     private suspend fun updateArtwork(artwork: Artwork) {

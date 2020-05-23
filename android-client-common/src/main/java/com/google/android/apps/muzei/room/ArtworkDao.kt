@@ -20,6 +20,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Dao for Artwork
@@ -29,6 +30,11 @@ abstract class ArtworkDao {
 
     @Query("SELECT * FROM artwork ORDER BY date_added DESC LIMIT 100")
     abstract suspend fun getArtwork(): List<Artwork>
+
+    @get:Query("SELECT artwork.* FROM artwork " +
+            "inner join provider on providerAuthority = authority " +
+            "ORDER BY date_added DESC")
+    abstract val currentArtwork: Flow<Artwork?>
 
     @get:Query("SELECT artwork.* FROM artwork " +
             "inner join provider on providerAuthority = authority " +
