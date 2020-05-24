@@ -17,26 +17,48 @@
 package com.google.android.apps.muzei.gallery
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
-import androidx.activity.result.registerForActivityResult
+import androidx.activity.result.launch
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.observe
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 
-class GallerySetupActivity : FragmentActivity() {
+private val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.ACCESS_MEDIA_LOCATION)
+} else {
+    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+}
+internal class RequestStoragePermissions : ActivityResultContract<Unit, Boolean>() {
+    private val requestMultiplePermissions = RequestMultiplePermissions()
 
-    private val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.ACCESS_MEDIA_LOCATION)
-    } else {
-        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+    override fun createIntent(context: Context, input: Unit?) =
+            requestMultiplePermissions.createIntent(context, permissions)
+
+    override fun getSynchronousResult(
+            context: Context,
+            input: Unit?
+    ) = requestMultiplePermissions.getSynchronousResult(context, permissions)?.let { result ->
+        SynchronousResult(result.value.getOrElse(Manifest.permission.READ_EXTERNAL_STORAGE) { false })
     }
+
+    override fun parseResult(
+            resultCode: Int,
+            intent: Intent?
+    ): Boolean = requestMultiplePermissions.parseResult(resultCode, intent).let { result ->
+        result.getOrElse(Manifest.permission.READ_EXTERNAL_STORAGE) { false }
+    }
+}
+
+class GallerySetupActivity : FragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,15 +73,14 @@ class GallerySetupActivity : FragmentActivity() {
                 setResult(RESULT_OK)
                 finish()
             } else {
-                requestStoragePermission()
+                requestStoragePermission.launch()
             }
         }
     }
 
     private val requestStoragePermission = registerForActivityResult(
-            RequestMultiplePermissions(), permissions) {
-        results ->
-        if (results.getOrElse(Manifest.permission.READ_EXTERNAL_STORAGE) { false }) {
+            RequestStoragePermissions()) { granted ->
+        if (granted) {
             GalleryScanWorker.enqueueRescan(this)
             setResult(RESULT_OK)
             finish()
