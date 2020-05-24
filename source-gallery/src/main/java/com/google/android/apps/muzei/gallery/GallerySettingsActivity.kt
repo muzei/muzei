@@ -261,7 +261,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         }
 
         binding.enableRandom.setOnClickListener {
-            requestStoragePermission()
+            requestStoragePermission.launch()
         }
         binding.editPermissionSettings.setOnClickListener {
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
