@@ -44,8 +44,8 @@ import com.google.android.apps.muzei.api.provider.ProviderClient
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.gallery.BuildConfig.GALLERY_ART_AUTHORITY
 import com.google.android.apps.muzei.util.getString
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.text.ParseException
@@ -214,12 +214,10 @@ class GalleryScanWorker(
         }
     }
 
-    private fun deleteChosenPhoto(chosenPhoto: ChosenPhoto) {
-        GlobalScope.launch {
-            GalleryDatabase.getInstance(applicationContext)
-                    .chosenPhotoDao()
-                    .delete(applicationContext, listOf(chosenPhoto.id))
-        }
+    private suspend fun deleteChosenPhoto(chosenPhoto: ChosenPhoto) = withContext(NonCancellable) {
+        GalleryDatabase.getInstance(applicationContext)
+                .chosenPhotoDao()
+                .delete(applicationContext, listOf(chosenPhoto.id))
     }
 
     @SuppressLint("Recycle")

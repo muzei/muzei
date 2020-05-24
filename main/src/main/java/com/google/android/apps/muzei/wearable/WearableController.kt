@@ -31,9 +31,11 @@ import com.google.android.gms.common.api.AvailabilityException
 import com.google.android.gms.wearable.Asset
 import com.google.android.gms.wearable.PutDataMapRequest
 import com.google.android.gms.wearable.Wearable
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 
 /**
@@ -56,9 +58,9 @@ class WearableController(private val context: Context) : DefaultLifecycleObserve
         }
     }
 
-    private suspend fun updateArtwork(artwork: Artwork) {
+    private suspend fun updateArtwork(artwork: Artwork) = withContext(NonCancellable) {
         if (ConnectionResult.SUCCESS != GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context)) {
-            return
+            return@withContext
         }
         val dataClient = Wearable.getDataClient(context)
         try {
@@ -68,15 +70,15 @@ class WearableController(private val context: Context) : DefaultLifecycleObserve
             if (connectionResult.errorCode != ConnectionResult.API_UNAVAILABLE) {
                 Log.w(TAG, "onConnectionFailed: $connectionResult", e.cause)
             }
-            return
+            return@withContext
         } catch (e: Exception) {
             Log.w(TAG, "Unable to check for Wear API availability", e)
-            return
+            return@withContext
         }
 
         val image: Bitmap = ImageLoader.decode(
                 context.contentResolver, artwork.contentUri,
-                320) ?: return
+                320) ?: return@withContext
 
         val byteStream = ByteArrayOutputStream()
         image.compress(Bitmap.CompressFormat.PNG, 100, byteStream)

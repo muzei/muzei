@@ -49,6 +49,7 @@ import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import androidx.core.view.isVisible
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -56,7 +57,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.legacy.R
 import net.nurik.roman.muzei.legacy.databinding.LegacyChooseSourceItemBinding
@@ -118,7 +119,7 @@ class SourceSettingsActivity : AppCompatActivity() {
                 param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "sources")
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "after_setup")
             }
-            GlobalScope.launch {
+            lifecycleScope.launch(NonCancellable) {
                 LegacySourceService.selectSource(this@SourceSettingsActivity, setupSource)
             }
         }
@@ -244,7 +245,7 @@ class SourceSettingsActivity : AppCompatActivity() {
                 param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "sources")
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "choose")
             }
-            GlobalScope.launch {
+            lifecycleScope.launch(NonCancellable) {
                 LegacySourceService.selectSource(this@SourceSettingsActivity, source.componentName)
             }
         }

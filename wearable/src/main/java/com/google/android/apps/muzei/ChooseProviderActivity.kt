@@ -28,6 +28,7 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.viewModels
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -39,7 +40,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.ChooseProviderActivityBinding
@@ -76,7 +77,7 @@ class ChooseProviderActivity : FragmentActivity() {
                 param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "after_setup")
             }
-            GlobalScope.launch {
+            lifecycleScope.launch(NonCancellable) {
                 ProviderManager.select(this@ChooseProviderActivity, provider)
                 finish()
             }
@@ -133,7 +134,7 @@ class ChooseProviderActivity : FragmentActivity() {
                         param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
                         param(FirebaseAnalytics.Param.CONTENT_TYPE, "choose")
                     }
-                    GlobalScope.launch {
+                    lifecycleScope.launch(NonCancellable) {
                         ProviderManager.select(this@ChooseProviderActivity, providerInfo.authority)
                         finish()
                     }

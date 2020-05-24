@@ -22,7 +22,9 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.withContext
 
 /**
  * LifecycleObserver which updates the widget when the artwork changes
@@ -51,7 +53,7 @@ class WidgetUpdater(private val context: Context) : DefaultLifecycleObserver {
         }
     }
 
-    private suspend fun updateAppWidget() {
+    private suspend fun updateAppWidget() = withContext(NonCancellable) {
         updateAppWidget(context.applicationContext)
     }
 }

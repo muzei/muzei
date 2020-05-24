@@ -62,7 +62,7 @@ import com.google.android.apps.muzei.util.ImageBlurrer
 import com.google.android.apps.muzei.util.blur
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig
@@ -113,7 +113,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
         ProviderManager.getInstance(this).observe(this) { provider ->
             if (provider == null) {
                 val context = this@MuzeiWatchFace
-                GlobalScope.launch {
+                lifecycleScope.launch(NonCancellable) {
                     ProviderManager.select(context, FEATURED_ART_AUTHORITY)
                     ActivateMuzeiIntentService.checkForPhoneApp(context)
                 }

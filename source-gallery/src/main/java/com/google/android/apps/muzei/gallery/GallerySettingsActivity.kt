@@ -73,7 +73,7 @@ import com.google.android.apps.muzei.util.getStringOrNull
 import com.google.android.apps.muzei.util.toast
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import java.util.ArrayList
 import java.util.LinkedList
@@ -368,7 +368,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             }
             R.id.action_clear_photos -> {
                 val context = this
-                GlobalScope.launch {
+                lifecycleScope.launch(NonCancellable) {
                     GalleryDatabase.getInstance(context)
                             .chosenPhotoDao().deleteAll(context)
                 }
@@ -395,7 +395,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                     val removePhotos = ArrayList(
                             multiSelectionController.selection)
 
-                    GlobalScope.launch {
+                    lifecycleScope.launch(NonCancellable) {
                         // Remove chosen URIs
                         GalleryDatabase.getInstance(this@GallerySettingsActivity)
                                 .chosenPhotoDao()
@@ -771,7 +771,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             return
         }
         // Update chosen URIs
-        GlobalScope.launch {
+        lifecycleScope.launch(NonCancellable) {
             GalleryDatabase.getInstance(this@GallerySettingsActivity)
                     .chosenPhotoDao()
                     .insertAll(this@GallerySettingsActivity, uris)

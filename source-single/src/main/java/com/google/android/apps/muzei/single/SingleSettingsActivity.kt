@@ -16,17 +16,18 @@
 
 package com.google.android.apps.muzei.single
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.lifecycle.lifecycleScope
 import com.google.android.apps.muzei.util.toast
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 
 /**
  * Settings Activity which allows users to select a new photo
  */
-class SingleSettingsActivity : Activity() {
+class SingleSettingsActivity : ComponentActivity() {
 
     companion object {
         private const val REQUEST_PHOTO = 1
@@ -51,7 +52,7 @@ class SingleSettingsActivity : Activity() {
         data?.data?.takeIf {
             requestCode == REQUEST_PHOTO && resultCode == RESULT_OK
         }?.also { uri ->
-            GlobalScope.launch {
+            lifecycleScope.launch(NonCancellable) {
                 val success = SingleArtProvider.setArtwork(
                         this@SingleSettingsActivity, uri)
                 setResult(if (success) RESULT_OK else RESULT_CANCELED)

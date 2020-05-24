@@ -42,7 +42,7 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
@@ -119,7 +119,7 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
         qsTile?.run {
             when (state) {
                 Tile.STATE_ACTIVE -> { // Active means we send the 'Next Artwork' command
-                    GlobalScope.launch {
+                    lifecycleScope.launch(NonCancellable) {
                         Firebase.analytics.logEvent("next_artwork") {
                             param(FirebaseAnalytics.Param.CONTENT_TYPE, "tile")
                         }

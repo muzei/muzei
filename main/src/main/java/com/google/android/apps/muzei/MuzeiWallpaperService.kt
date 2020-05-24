@@ -63,8 +63,8 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
@@ -104,7 +104,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         }
         ProviderManager.getInstance(this).observe(this) { provider ->
             if (provider == null) {
-                GlobalScope.launch {
+                lifecycleScope.launch(NonCancellable) {
                     ProviderManager.select(this@MuzeiWallpaperService, FEATURED_ART_AUTHORITY)
                 }
             }
@@ -337,7 +337,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                     }
                 }
                 Prefs.PREF_TAP_ACTION_NEXT -> {
-                    GlobalScope.launch {
+                    lifecycleScope.launch(NonCancellable) {
                         Firebase.analytics.logEvent("next_artwork") {
                             param(FirebaseAnalytics.Param.CONTENT_TYPE, type)
                         }
@@ -345,7 +345,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                     }
                 }
                 Prefs.PREF_TAP_ACTION_VIEW_DETAILS -> {
-                    GlobalScope.launch {
+                    lifecycleScope.launch(NonCancellable) {
                         val artwork = MuzeiDatabase
                                 .getInstance(this@MuzeiWallpaperService)
                                 .artworkDao()

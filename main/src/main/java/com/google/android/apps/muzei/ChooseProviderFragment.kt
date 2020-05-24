@@ -41,6 +41,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.map
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
@@ -62,7 +63,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.ChooseProviderFragmentBinding
@@ -101,7 +102,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
         val provider = startActivityProvider
         if (success && provider != null) {
             val context = requireContext()
-            GlobalScope.launch {
+            lifecycleScope.launch(NonCancellable) {
                 Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
                     param(FirebaseAnalytics.Param.ITEM_LIST_ID, provider)
                     param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
@@ -416,7 +417,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                         param(FirebaseAnalytics.Param.CONTENT_TYPE, "choose")
                     }
                     val context = requireContext()
-                    GlobalScope.launch {
+                    lifecycleScope.launch(NonCancellable) {
                         ProviderManager.select(context, authority)
                     }
                 }

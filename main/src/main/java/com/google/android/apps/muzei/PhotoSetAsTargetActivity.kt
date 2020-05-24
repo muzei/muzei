@@ -18,8 +18,9 @@ package com.google.android.apps.muzei
 
 import android.content.ComponentName
 import android.content.Intent
+import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.FragmentActivity
+import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.android.apps.muzei.single.BuildConfig.SINGLE_AUTHORITY
 import com.google.android.apps.muzei.single.SingleArtProvider
@@ -29,19 +30,22 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
 
-class PhotoSetAsTargetActivity : FragmentActivity() {
+class PhotoSetAsTargetActivity : ComponentActivity() {
 
     companion object {
         private const val TAG = "PhotoSetAsTarget"
     }
 
-    init {
-        lifecycleScope.launchWhenCreated {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        lifecycleScope.launch(NonCancellable) {
             val uri = intent?.data ?: run {
                 finish()
-                return@launchWhenCreated
+                return@launch
             }
             val context = this@PhotoSetAsTargetActivity
             val success = SingleArtProvider.setArtwork(context, uri)
@@ -49,7 +53,7 @@ class PhotoSetAsTargetActivity : FragmentActivity() {
                 Log.e(TAG, "Unable to insert artwork for $uri")
                 toast(R.string.set_as_wallpaper_failed)
                 finish()
-                return@launchWhenCreated
+                return@launch
             }
 
             // If adding the artwork succeeded, select the single artwork provider
