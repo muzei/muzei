@@ -167,7 +167,8 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
             }
         }
         val currentArtworkByProviderLiveData = MuzeiDatabase.getInstance(application).artworkDao()
-                .currentArtworkByProviderLiveData
+                .currentArtworkByProvider
+                .asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
         val currentArtworkByProviderObserver = Observer<List<Artwork>> { artworkByProvider ->
             if (artworkByProvider != null) {
                 viewModelScope.launch(singleThreadContext) {
