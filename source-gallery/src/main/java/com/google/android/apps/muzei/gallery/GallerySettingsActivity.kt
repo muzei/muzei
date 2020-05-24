@@ -19,6 +19,7 @@ package com.google.android.apps.muzei.gallery
 import android.Manifest
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -41,7 +42,10 @@ import android.view.ViewAnimationUtils
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
+import androidx.activity.result.launch
 import androidx.activity.result.registerForActivityResult
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
@@ -74,10 +78,45 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.util.ArrayList
-import java.util.HashSet
 import java.util.LinkedList
 import kotlin.math.hypot
 import kotlin.math.max
+
+private class GetContentsFromActivityInfo : ActivityResultContract<ActivityInfo, List<Uri>>() {
+    private val getMultipleContents = ActivityResultContracts.GetMultipleContents()
+
+    override fun createIntent(context: Context, input: ActivityInfo): Intent =
+            getMultipleContents.createIntent(context, "image/*")
+                    .setClassName(input.packageName, input.name)
+
+    override fun parseResult(resultCode: Int, intent: Intent?): List<Uri> =
+            getMultipleContents.parseResult(resultCode, intent)
+}
+
+private class ChoosePhotos : ActivityResultContract<Unit, List<Uri>>() {
+    private val openMultipleDocuments = ActivityResultContracts.OpenMultipleDocuments()
+
+    @SuppressLint("InlinedApi")
+    override fun createIntent(context: Context, input: Unit?) =
+            openMultipleDocuments.createIntent(context, arrayOf("image/*"))
+                    .addCategory(Intent.CATEGORY_OPENABLE)
+                    .putExtra(DocumentsContract.EXTRA_EXCLUDE_SELF, true)
+
+    override fun parseResult(resultCode: Int, intent: Intent?) =
+            openMultipleDocuments.parseResult(resultCode, intent) ?: emptyList()
+}
+
+private class ChooseFolder : ActivityResultContract<Unit, Uri?>() {
+    private val openDocumentTree = ActivityResultContracts.OpenDocumentTree()
+
+    @SuppressLint("InlinedApi")
+    override fun createIntent(context: Context, input: Unit?) =
+            openDocumentTree.createIntent(context, null)
+                    .putExtra(DocumentsContract.EXTRA_EXCLUDE_SELF, true)
+
+    override fun parseResult(resultCode: Int, intent: Intent?) =
+            openDocumentTree.parseResult(resultCode, intent)
+}
 
 class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPhoto>>,
         GalleryImportPhotosDialogFragment.OnRequestContentListener, MultiSelectionController.Callbacks {
@@ -86,8 +125,6 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         private const val TAG = "GallerySettingsActivity"
         private const val SHARED_PREF_NAME = "GallerySettingsActivity"
         private const val SHOW_INTERNAL_STORAGE_MESSAGE = "show_internal_storage_message"
-        private const val REQUEST_CHOOSE_PHOTOS = 1
-        private const val REQUEST_CHOOSE_FOLDER = 2
 
         internal val CHOSEN_PHOTO_DIFF_CALLBACK: DiffUtil.ItemCallback<ChosenPhoto> = object : DiffUtil.ItemCallback<ChosenPhoto>() {
             override fun areItemsTheSame(oldItem: ChosenPhoto, newItem: ChosenPhoto): Boolean {
@@ -110,10 +147,33 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
     } else {
         arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
     }
-
     private val requestStoragePermission = registerForActivityResult(
             RequestMultiplePermissions(), permissions) {
         onDataSetChanged()
+    }
+
+    /**
+     * Use ACTION_OPEN_DOCUMENT by default for adding photos.
+     * This allows us to use persistent URI permissions to access the underlying photos
+     * meaning we don't need to use additional storage space and will pull in edits automatically
+     * in addition to syncing deletions.
+     *
+     * (There's a separate 'Import photos' option which uses ACTION_GET_CONTENT to support
+     * legacy apps)
+     */
+    private val choosePhotos = registerForActivityResult(ChoosePhotos()) { photos ->
+        processSelectedUris(photos)
+    }
+    private val chooseFolder = registerForActivityResult(ChooseFolder()) { folder ->
+        if (folder != null) {
+            getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE).edit {
+                putBoolean(SHOW_INTERNAL_STORAGE_MESSAGE, false)
+            }
+        }
+        processSelectedUris(listOfNotNull(folder))
+    }
+    private val getContents = registerForActivityResult(GetContentsFromActivityInfo()) { photos ->
+        processSelectedUris(photos)
     }
 
     private val chosenPhotosLiveData: LiveData<PagedList<ChosenPhoto>> by lazy {
@@ -231,11 +291,8 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         }
         binding.addPhotos.setOnClickListener { requestPhotos() }
         binding.addFolder.setOnClickListener {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
-                putExtra(DocumentsContract.EXTRA_EXCLUDE_SELF, true)
-            }
             try {
-                startActivityForResult(intent, REQUEST_CHOOSE_FOLDER)
+                chooseFolder.launch()
                 val preferences = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
                 if (preferences.getBoolean(SHOW_INTERNAL_STORAGE_MESSAGE, true)) {
                     toast(R.string.gallery_internal_storage_message, Toast.LENGTH_LONG)
@@ -252,19 +309,8 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
     }
 
     private fun requestPhotos() {
-        // Use ACTION_OPEN_DOCUMENT by default for adding photos.
-        // This allows us to use persistent URI permissions to access the underlying photos
-        // meaning we don't need to use additional storage space and will pull in edits automatically
-        // in addition to syncing deletions.
-        // (There's a separate 'Import photos' option which uses ACTION_GET_CONTENT to support legacy apps)
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-            type = "image/*"
-            addCategory(Intent.CATEGORY_OPENABLE)
-            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-            putExtra(DocumentsContract.EXTRA_EXCLUDE_SELF, true)
-        }
         try {
-            startActivityForResult(intent, REQUEST_CHOOSE_PHOTOS)
+            choosePhotos.launch()
         } catch (e: ActivityNotFoundException) {
             Snackbar.make(binding.photoGrid, R.string.gallery_add_photos_error,
                     Snackbar.LENGTH_LONG).show()
@@ -342,12 +388,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
     }
 
     override fun requestGetContent(info: ActivityInfo) {
-        startActivityForResult(Intent(Intent.ACTION_GET_CONTENT).apply {
-            type = "image/*"
-            addCategory(Intent.CATEGORY_OPENABLE)
-            setClassName(info.packageName, info.name)
-            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-        }, REQUEST_CHOOSE_PHOTOS)
+        getContents.launch(info)
     }
 
     private fun setupMultiSelect() {
@@ -730,49 +771,10 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         return images
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, result: Intent?) {
-        super.onActivityResult(requestCode, resultCode, result)
-        if (requestCode != REQUEST_CHOOSE_PHOTOS && requestCode != REQUEST_CHOOSE_FOLDER) {
-            return
-        }
-
+    private fun processSelectedUris(uris: List<Uri>) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (!binding.addToolbar.isAttachedToWindow) {
-                // Can't animate detached Views
-                binding.addToolbar.visibility = View.INVISIBLE
-                binding.addFab.visibility = View.VISIBLE
-            } else {
-                hideAddToolbar(true)
-            }
+            hideAddToolbar(true)
         }
-
-        if (resultCode != RESULT_OK) {
-            return
-        }
-
-        if (result == null) {
-            return
-        }
-
-        if (requestCode == REQUEST_CHOOSE_FOLDER) {
-            getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE).edit {
-                putBoolean(SHOW_INTERNAL_STORAGE_MESSAGE, false)
-            }
-        }
-
-        // Add chosen items
-        val uris = HashSet<Uri>()
-        val data = result.data
-        if (data != null) {
-            uris.add(data)
-        }
-        // When selecting multiple images, "Photos" returns the first URI in getData and all URIs
-        // in getClipData.
-        val clipData = result.clipData
-        if (clipData != null) {
-            (0 until clipData.itemCount).mapNotNullTo(uris) { clipData.getItemAt(it).uri }
-        }
-
         if (uris.isEmpty()) {
             // Nothing to do, so we can avoid posting the runnable at all
             return
