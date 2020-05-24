@@ -42,6 +42,7 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.text.bold
@@ -60,6 +61,15 @@ import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.legacy.R
 import net.nurik.roman.muzei.legacy.databinding.LegacyChooseSourceItemBinding
 
+private class SourceSetupFromSettings : ActivityResultContract<Source, Boolean>() {
+    override fun createIntent(context: Context, input: Source): Intent =
+            Intent().setComponent(input.setupActivity)
+                    .putExtra(MuzeiArtProvider.EXTRA_FROM_MUZEI, true)
+
+    override fun parseResult(resultCode: Int, intent: Intent?): Boolean =
+            resultCode == Activity.RESULT_OK
+}
+
 /**
  * Activity for allowing the user to choose the active source.
  */
@@ -71,7 +81,6 @@ class SourceSettingsActivity : AppCompatActivity() {
         private const val ALPHA_DISABLED = 0.2f
         private const val ALPHA_DEFAULT = 1.0f
 
-        private const val REQUEST_EXTENSION_SETUP = 1
         private const val CURRENT_INITIAL_SETUP_SOURCE = "currentInitialSetupSource"
     }
 
@@ -101,6 +110,21 @@ class SourceSettingsActivity : AppCompatActivity() {
     }
 
     private var currentInitialSetupSource: ComponentName? = null
+    private val sourceSetup = registerForActivityResult(SourceSetupFromSettings()) { success ->
+        val setupSource = currentInitialSetupSource
+        if (success && setupSource != null) {
+            Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                param(FirebaseAnalytics.Param.ITEM_LIST_ID, setupSource.flattenToShortString())
+                param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "sources")
+                param(FirebaseAnalytics.Param.CONTENT_TYPE, "after_setup")
+            }
+            GlobalScope.launch {
+                LegacySourceService.selectSource(this@SourceSettingsActivity, setupSource)
+            }
+        }
+
+        currentInitialSetupSource = null
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -241,36 +265,12 @@ class SourceSettingsActivity : AppCompatActivity() {
 
     private fun launchSourceSetup(source: Source) {
         try {
-            val setupIntent = Intent()
-                    .setComponent(source.setupActivity)
-                    .putExtra(MuzeiArtProvider.EXTRA_FROM_MUZEI, true)
-            startActivityForResult(setupIntent, REQUEST_EXTENSION_SETUP)
+            sourceSetup.launch(source)
         } catch (e: ActivityNotFoundException) {
             Log.e(TAG, "Can't launch source setup.", e)
         } catch (e: SecurityException) {
             Log.e(TAG, "Can't launch source setup.", e)
         }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == REQUEST_EXTENSION_SETUP) {
-            val setupSource = currentInitialSetupSource
-            if (resultCode == Activity.RESULT_OK && setupSource != null) {
-                Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
-                    param(FirebaseAnalytics.Param.ITEM_LIST_ID, setupSource.flattenToShortString())
-                    param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "sources")
-                    param(FirebaseAnalytics.Param.CONTENT_TYPE, "after_setup")
-                }
-                GlobalScope.launch {
-                    LegacySourceService.selectSource(this@SourceSettingsActivity, setupSource)
-                }
-            }
-
-            currentInitialSetupSource = null
-            return
-        }
-
-        super.onActivityResult(requestCode, resultCode, data)
     }
 
     private fun generateSourceImage(image: Drawable?): Bitmap {
