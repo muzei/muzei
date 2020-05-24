@@ -29,6 +29,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.get
 import androidx.lifecycle.observe
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -43,6 +44,7 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.map
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.MuzeiCommandItemBinding
+import kotlin.coroutines.EmptyCoroutineContext
 
 data class ArtworkCommand(
         private val artwork: Artwork,
@@ -56,12 +58,12 @@ data class ArtworkCommand(
 
 class MuzeiCommandViewModel(application: Application) : AndroidViewModel(application) {
     val commandsLiveData = MuzeiDatabase.getInstance(application).artworkDao().currentArtwork.map { artwork ->
-        artwork?.getCommands(getApplication<Application>())?.sortedByDescending { command ->
+        artwork?.getCommands(application)?.sortedByDescending { command ->
             command.shouldShowIcon()
         }?.map { command ->
             ArtworkCommand(artwork, command)
         } ?: emptyList()
-    }.asLiveData()
+    }.asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
 }
 
 class MuzeiCommandViewHolder(

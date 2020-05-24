@@ -28,6 +28,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
 import com.google.android.apps.muzei.room.MuzeiDatabase
@@ -38,6 +39,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlin.coroutines.EmptyCoroutineContext
 
 suspend fun Provider?.allowsNextArtwork(context: Context): Boolean {
     return when {
@@ -114,7 +116,9 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
     val unsupportedSources: LiveData<List<LegacySourceInfo>> = unsupportedSourcesMediator
 
     override fun onCreate(owner: LifecycleOwner) {
-        getService().asLiveData().distinctUntilChanged().observe(owner) { componentName ->
+        getService()
+                .asLiveData(owner.lifecycleScope.coroutineContext + EmptyCoroutineContext)
+                .distinctUntilChanged().observe(owner) { componentName ->
             if (componentName == null) {
                 legacySourcePackageListener.startListening()
                 unsupportedSourcesMediator.addSource(legacySourcePackageListener.unsupportedSources) {

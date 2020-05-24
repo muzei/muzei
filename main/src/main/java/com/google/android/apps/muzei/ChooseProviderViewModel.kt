@@ -39,6 +39,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.Executors
+import kotlin.coroutines.EmptyCoroutineContext
 
 data class ProviderInfo(
         val authority: String,
@@ -150,7 +151,8 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
     }
 
     private val mutableProviders : MutableLiveData<List<ProviderInfo>> = object : MutableLiveData<List<ProviderInfo>>() {
-        val allProvidersLiveData = getInstalledProviders(application).asLiveData()
+        val allProvidersLiveData = getInstalledProviders(application)
+                .asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
         val allProvidersObserver = Observer<List<android.content.pm.ProviderInfo>> { providerInfos ->
             if (providerInfos != null) {
                 viewModelScope.launch(singleThreadContext) {

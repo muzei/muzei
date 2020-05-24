@@ -21,11 +21,12 @@ import android.content.ComponentName
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.google.android.apps.muzei.room.getInstalledProviders
+import kotlinx.coroutines.flow.map
 import net.nurik.roman.muzei.BuildConfig.DATA_LAYER_AUTHORITY
+import kotlin.coroutines.EmptyCoroutineContext
 
 data class ProviderInfo(
         val authority: String,
@@ -70,12 +71,9 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
         p1.title.compareTo(p2.title)
     }
 
-    private val mutableProviders = getInstalledProviders(application).asLiveData()
-
-    val providers : LiveData<List<ProviderInfo>?> = Transformations
-            .map(mutableProviders) { providerInfos ->
-                providerInfos.asSequence().map { providerInfo ->
-                    ProviderInfo(application.packageManager, providerInfo)
-                }.sortedWith(comparator).toList()
-            }
+    val providers = getInstalledProviders(application).map { providerInfos ->
+        providerInfos.map { providerInfo ->
+            ProviderInfo(application.packageManager, providerInfo)
+        }.sortedWith(comparator)
+    }.asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
 }

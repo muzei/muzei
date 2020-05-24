@@ -22,6 +22,7 @@ import android.database.ContentObserver
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -35,6 +36,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.coroutines.EmptyCoroutineContext
 
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 class BrowseProviderViewModel(
@@ -95,5 +97,5 @@ class BrowseProviderViewModel(
     val artLiveData = contentUriChannel.asFlow().distinctUntilChanged()
             .flatMapLatest { contentUri ->
                 getProviderArtwork(contentUri)
-            }.asLiveData()
+            }.asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
 }

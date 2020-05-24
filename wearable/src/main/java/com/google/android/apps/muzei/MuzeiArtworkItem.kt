@@ -25,8 +25,10 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.get
 import androidx.lifecycle.observe
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -36,9 +38,11 @@ import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.MuzeiArtworkItemBinding
+import kotlin.coroutines.EmptyCoroutineContext
 
 class MuzeiArtworkViewModel(application: Application) : AndroidViewModel(application) {
-    val artworkLiveData = MuzeiDatabase.getInstance(application).artworkDao().currentArtworkLiveData
+    val artworkLiveData = MuzeiDatabase.getInstance(application).artworkDao().currentArtwork
+            .asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
 }
 
 class MuzeiArtworkViewHolder(

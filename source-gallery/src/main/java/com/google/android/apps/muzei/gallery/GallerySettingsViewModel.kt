@@ -26,6 +26,7 @@ import android.content.pm.PackageManager
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -33,6 +34,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlin.coroutines.EmptyCoroutineContext
 
 /**
  * ViewModel responsible for handling the list of ACTION_GET_CONTENT activities across configuration
@@ -43,7 +45,8 @@ class GallerySettingsViewModel(application: Application) : AndroidViewModel(appl
     internal val chosenPhotos: LiveData<PagedList<ChosenPhoto>> = LivePagedListBuilder(
             GalleryDatabase.getInstance(application).chosenPhotoDao().chosenPhotosPaged,
             24).build()
-    internal val getContentActivityInfoList = getContentActivityInfos().asLiveData()
+    internal val getContentActivityInfoList = getContentActivityInfos()
+            .asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
 
     private fun getContentActivityInfos(): Flow<List<ActivityInfo>> = callbackFlow {
         val refreshList = {
