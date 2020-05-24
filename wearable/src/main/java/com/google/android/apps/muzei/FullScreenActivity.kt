@@ -20,16 +20,16 @@ import android.os.Bundle
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.observe
 import androidx.wear.ambient.AmbientModeSupport
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.util.filterNotNull
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.databinding.FullScreenActivityBinding
@@ -59,16 +59,18 @@ class FullScreenActivity : FragmentActivity(),
             binding.loadingIndicator.isVisible = true
         }
 
-        MuzeiDatabase.getInstance(this).artworkDao()
-                .currentArtworkLiveData.filterNotNull().observe(this) { artwork ->
-            lifecycleScope.launch(Dispatchers.Main) {
-                val image = ImageLoader.decode(
-                        contentResolver, artwork.contentUri)
-                showLoadingIndicator?.cancel()
-                binding.loadingIndicator.isVisible = false
-                binding.panView.isVisible = true
-                binding.panView.setImage(image)
-            }
+        lifecycleScope.launchWhenStarted {
+            MuzeiDatabase.getInstance(this@FullScreenActivity).artworkDao()
+                    .currentArtwork
+                    .filterNotNull()
+                    .collect { artwork ->
+                        val image = ImageLoader.decode(
+                                contentResolver, artwork.contentUri)
+                        showLoadingIndicator?.cancel()
+                        binding.loadingIndicator.isVisible = false
+                        binding.panView.isVisible = true
+                        binding.panView.setImage(image)
+                    }
         }
     }
 

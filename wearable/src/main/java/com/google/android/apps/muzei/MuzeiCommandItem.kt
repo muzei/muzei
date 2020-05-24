@@ -26,10 +26,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.get
-import androidx.lifecycle.liveData
 import androidx.lifecycle.observe
-import androidx.lifecycle.switchMap
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -41,6 +40,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.flow.map
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.MuzeiCommandItemBinding
 
@@ -55,19 +55,13 @@ data class ArtworkCommand(
 }
 
 class MuzeiCommandViewModel(application: Application) : AndroidViewModel(application) {
-    val commandsLiveData = MuzeiDatabase.getInstance(application).artworkDao().currentArtworkLiveData.switchMap { artwork ->
-        liveData {
-            if (artwork != null) {
-                emit(artwork.getCommands(getApplication<Application>()).sortedByDescending { command ->
-                    command.shouldShowIcon()
-                }.map { command ->
-                    ArtworkCommand(artwork, command)
-                })
-            } else {
-                emit(emptyList<ArtworkCommand>())
-            }
-        }
-    }
+    val commandsLiveData = MuzeiDatabase.getInstance(application).artworkDao().currentArtwork.map { artwork ->
+        artwork?.getCommands(getApplication<Application>())?.sortedByDescending { command ->
+            command.shouldShowIcon()
+        }?.map { command ->
+            ArtworkCommand(artwork, command)
+        } ?: emptyList()
+    }.asLiveData()
 }
 
 class MuzeiCommandViewHolder(

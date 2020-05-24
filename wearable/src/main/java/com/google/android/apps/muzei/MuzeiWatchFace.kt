@@ -48,7 +48,6 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.preference.PreferenceManager
@@ -64,6 +63,7 @@ import com.google.android.apps.muzei.util.blur
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
@@ -223,36 +223,35 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
         internal lateinit var tapAction: String
         internal var blurred: Boolean = false
 
-        private inner class LoadImageObserver : Observer<Artwork?> {
-            override fun onChanged(artwork: Artwork?) {
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "Artwork = ${artwork?.contentUri}")
+        private suspend fun loadImage(artwork: Artwork?) {
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Artwork = ${artwork?.contentUri}")
+            }
+            val bitmap: Bitmap? = try {
+                artwork?.run {
+                    ImageLoader.decode(contentResolver, contentUri)
                 }
-                lifecycleScope.launch {
-                    val bitmap: Bitmap? = try {
-                        artwork?.run {
-                            ImageLoader.decode(contentResolver, contentUri)
-                        }
-                    } catch (e: FileNotFoundException) {
-                        Log.w(TAG, "Could not find current artwork image", e)
-                        null
-                    }
+            } catch (e: FileNotFoundException) {
+                Log.w(TAG, "Could not find current artwork image", e)
+                null
+            }
 
-                    if (bitmap != null && !bitmap.sameAs(backgroundBitmap)) {
-                        backgroundBitmap = bitmap
-                        createScaledBitmap()
-                        postInvalidate()
-                    }
-                }
+            if (bitmap != null && !bitmap.sameAs(backgroundBitmap)) {
+                backgroundBitmap = bitmap
+                createScaledBitmap()
+                postInvalidate()
             }
         }
 
         override fun onCreate(holder: SurfaceHolder) {
             super.onCreate(holder)
             Firebase.analytics.logEvent("watchface_created", null)
-            MuzeiDatabase.getInstance(this@MuzeiWatchFace)
-                    .artworkDao().currentArtworkLiveData
-                    .observe(this@MuzeiWatchFace, LoadImageObserver())
+            lifecycleScope.launchWhenStarted {
+                MuzeiDatabase.getInstance(this@MuzeiWatchFace).artworkDao().currentArtwork
+                        .collect {  artwork ->
+                            loadImage(artwork)
+                        }
+            }
 
             clockPaint = Paint().apply {
                 color = Color.WHITE
