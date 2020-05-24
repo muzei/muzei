@@ -36,6 +36,7 @@ import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
@@ -120,6 +121,7 @@ suspend fun updateAppWidget(context: Context) = coroutineScope {
     }
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 private suspend fun createRemoteViews(
         context: Context,
         provider: Provider,
@@ -129,7 +131,7 @@ private suspend fun createRemoteViews(
 ): RemoteViews? {
     val contentDescription = artwork.title ?: artwork.byline ?: ""
     val imageUri = artwork.contentUri
-    val supportsNextArtwork = WallpaperActiveState.value == true &&
+    val supportsNextArtwork = WallpaperActiveState.value &&
             provider.allowsNextArtwork(context)
 
     // Update the widget(s) with the new artwork information

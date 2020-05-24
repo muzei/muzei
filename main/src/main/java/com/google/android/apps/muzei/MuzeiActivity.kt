@@ -29,12 +29,12 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commit
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.observe
 import androidx.preference.PreferenceManager
 import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
 import com.google.android.apps.muzei.render.MuzeiRendererFragment
 import com.google.android.apps.muzei.settings.EffectsFragment
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
+import com.google.android.apps.muzei.wallpaper.initializeWallpaperActiveState
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
@@ -52,6 +52,7 @@ import net.nurik.roman.muzei.databinding.MuzeiActivityBinding
 private const val PREVIEW_MODE = "android.service.wallpaper.PREVIEW_MODE"
 val Activity.isPreviewMode get() = intent?.extras?.getBoolean(PREVIEW_MODE) == true
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class MuzeiActivity : AppCompatActivity() {
     private lateinit var binding: MuzeiActivityBinding
     private var fadeIn = false
@@ -63,13 +64,13 @@ class MuzeiActivity : AppCompatActivity() {
             val sp = PreferenceManager.getDefaultSharedPreferences(this)
             val seenTutorial = sp.getBoolean(TutorialFragment.PREF_SEEN_TUTORIAL, false)
             return when {
-                WallpaperActiveState.value == true && seenTutorial -> {
+                WallpaperActiveState.value && seenTutorial -> {
                     // The wallpaper is active and they've seen the tutorial
                     Firebase.analytics.setCurrentScreen(this, "Main",
                             MainFragment::class.java.simpleName)
                     MainFragment()
                 }
-                WallpaperActiveState.value == true && !seenTutorial -> {
+                WallpaperActiveState.value && !seenTutorial -> {
                     // They need to see the tutorial after activating Muzei for the first time
                     Firebase.analytics.setCurrentScreen(this, "Tutorial",
                             TutorialFragment::class.java.simpleName)
@@ -106,20 +107,22 @@ class MuzeiActivity : AppCompatActivity() {
                 or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
 
         if (savedInstanceState == null) {
-            WallpaperActiveState.initState(this)
+            initializeWallpaperActiveState(this)
             fadeIn = true
         }
 
-        WallpaperActiveState.observe(this) {
-            val fragment = currentFragment
-            val oldFragment = supportFragmentManager.findFragmentById(R.id.container)
-            if (!fragment::class.java.isInstance(oldFragment)) {
-                // Only replace the Fragment if there was a change
-                supportFragmentManager.commit {
-                    replace(R.id.container, fragment)
-                    setPrimaryNavigationFragment(fragment).apply {
-                        if (oldFragment != null) {
-                            setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+        lifecycleScope.launchWhenStarted {
+            WallpaperActiveState.collect {
+                val fragment = currentFragment
+                val oldFragment = supportFragmentManager.findFragmentById(R.id.container)
+                if (!fragment::class.java.isInstance(oldFragment)) {
+                    // Only replace the Fragment if there was a change
+                    supportFragmentManager.commit {
+                        replace(R.id.container, fragment)
+                        setPrimaryNavigationFragment(fragment).apply {
+                            if (oldFragment != null) {
+                                setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                            }
                         }
                     }
                 }

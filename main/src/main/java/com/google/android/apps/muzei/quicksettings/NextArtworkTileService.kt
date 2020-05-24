@@ -30,6 +30,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import com.google.android.apps.muzei.MuzeiWallpaperService
 import com.google.android.apps.muzei.legacy.LegacySourceManager
@@ -42,7 +43,9 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.nurik.roman.muzei.R
@@ -52,6 +55,7 @@ import net.nurik.roman.muzei.R
  * In cases where Muzei is not activated, the tile also allows users to activate Muzei directly
  * from the tile
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 @RequiresApi(Build.VERSION_CODES.N)
 class NextArtworkTileService : TileService(), LifecycleOwner {
     private val lifecycleRegistry: LifecycleRegistry = LifecycleRegistry(this)
@@ -61,8 +65,10 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
     override fun onCreate() {
         super.onCreate()
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
-        WallpaperActiveState.observe(this) {
-            updateTile(providerLiveData.value)
+        lifecycleScope.launchWhenStarted {
+            WallpaperActiveState.collect {
+                updateTile(providerLiveData.value)
+            }
         }
         // Start listening for source changes, which will include when a source
         // starts or stops supporting the 'Next Artwork' command
@@ -84,9 +90,9 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
 
     private fun updateTile(provider: Provider?) {
         val context = this
-        qsTile?.takeIf { WallpaperActiveState.value != true || provider != null }?.apply {
+        qsTile?.takeIf { !WallpaperActiveState.value || provider != null }?.apply {
             when {
-                WallpaperActiveState.value != true -> {
+                !WallpaperActiveState.value -> {
                     // If the wallpaper isn't active, the quick tile will activate it
                     state = Tile.STATE_INACTIVE
                     label = getString(R.string.action_activate)

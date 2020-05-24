@@ -19,10 +19,12 @@ package com.google.android.apps.muzei.widget
 import android.content.Context
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 /**
@@ -41,8 +43,10 @@ class WidgetUpdater(private val context: Context) : DefaultLifecycleObserver {
         }
         // Update the widget whenever the wallpaper state is changed
         // to ensure the 'Next' button is only shown when the wallpaper is active
-        WallpaperActiveState.observe(owner) {
-            updateAppWidget()
+        owner.lifecycleScope.launchWhenStarted {
+            WallpaperActiveState.collect {
+                updateAppWidget()
+            }
         }
     }
 
