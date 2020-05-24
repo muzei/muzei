@@ -29,9 +29,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.observe
 import com.google.android.apps.muzei.MuzeiWallpaperService
 import com.google.android.apps.muzei.legacy.LegacySourceManager
 import com.google.android.apps.muzei.legacy.allowsNextArtwork
@@ -47,7 +45,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.nurik.roman.muzei.R
 
 /**
@@ -60,20 +57,25 @@ import net.nurik.roman.muzei.R
 class NextArtworkTileService : TileService(), LifecycleOwner {
     private val lifecycleRegistry: LifecycleRegistry = LifecycleRegistry(this)
 
-    private lateinit var providerLiveData: LiveData<Provider?>
+    private var currentProvider: Provider? = null
 
     override fun onCreate() {
         super.onCreate()
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
         lifecycleScope.launchWhenStarted {
             WallpaperActiveState.collect {
-                updateTile(providerLiveData.value)
+                updateTile()
             }
         }
         // Start listening for source changes, which will include when a source
         // starts or stops supporting the 'Next Artwork' command
-        providerLiveData = MuzeiDatabase.getInstance(this).providerDao().currentProviderLiveData
-        providerLiveData.observe(this, this::updateTile)
+        val database = MuzeiDatabase.getInstance(this)
+        lifecycleScope.launchWhenStarted {
+            database.providerDao().currentProvider.collect { provider ->
+                currentProvider = provider
+                updateTile()
+            }
+        }
     }
 
     override fun getLifecycle(): Lifecycle {
@@ -88,9 +90,9 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
     }
 
-    private fun updateTile(provider: Provider?) {
+    private suspend fun updateTile() {
         val context = this
-        qsTile?.takeIf { !WallpaperActiveState.value || provider != null }?.apply {
+        qsTile?.takeIf { !WallpaperActiveState.value || currentProvider != null }?.apply {
             when {
                 !WallpaperActiveState.value -> {
                     // If the wallpaper isn't active, the quick tile will activate it
@@ -98,7 +100,7 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
                     label = getString(R.string.action_activate)
                     icon = Icon.createWithResource(context, R.drawable.ic_stat_muzei)
                 }
-                runBlocking { provider.allowsNextArtwork(context) } -> {
+                currentProvider.allowsNextArtwork(context) -> {
                     state = Tile.STATE_ACTIVE
                     label = getString(R.string.action_next_artwork)
                     icon = Icon.createWithResource(context, R.drawable.ic_notif_next_artwork)

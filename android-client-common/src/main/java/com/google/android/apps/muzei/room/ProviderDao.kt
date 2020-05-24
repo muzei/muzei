@@ -23,12 +23,16 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Dao for Providers
  */
 @Dao
 abstract class ProviderDao {
+    @get:Query("SELECT * FROM provider")
+    abstract val currentProvider: Flow<Provider?>
+
     @get:Query("SELECT * FROM provider")
     abstract val currentProviderLiveData: LiveData<Provider?>
 
