@@ -23,21 +23,17 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.room.getInstalledProviders
 import com.google.android.apps.muzei.sync.ProviderManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.util.concurrent.Executors
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlin.coroutines.EmptyCoroutineContext
 
 data class ProviderInfo(
@@ -54,9 +50,9 @@ data class ProviderInfo(
     constructor(
             packageManager: PackageManager,
             providerInfo: android.content.pm.ProviderInfo,
-            description: String?,
-            currentArtworkUri: Uri?,
-            selected: Boolean
+            description: String? = null,
+            currentArtworkUri: Uri? = null,
+            selected: Boolean = false
     ) : this(
                 providerInfo.authority,
                 providerInfo.packageName,
@@ -73,24 +69,13 @@ data class ProviderInfo(
                 selected)
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class ChooseProviderViewModel(application: Application) : AndroidViewModel(application) {
 
     private val database = MuzeiDatabase.getInstance(application)
 
     val currentProviderLiveData = database.providerDao().currentProvider
             .asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
-
-    private val currentProviders = HashMap<String, ProviderInfo>()
-    private var activeProvider : Provider? = null
-
-    private val singleThreadContext = Executors.newSingleThreadExecutor { target ->
-        Thread(target, "ChooseProvider")
-    }.asCoroutineDispatcher()
-
-    override fun onCleared() {
-        singleThreadContext.close()
-        super.onCleared()
-    }
 
     private val comparator = Comparator<ProviderInfo> { p1, p2 ->
         // The SourceArtProvider should always the last provider listed
@@ -113,113 +98,84 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
         p1.title.compareTo(p2.title)
     }
 
-    private suspend fun updateProvidersFromInfo(
-            providerInfos: List<android.content.pm.ProviderInfo>
-    ) {
-        val context = getApplication<Application>()
-        val pm = context.packageManager
-        val newProviders = HashMap<String, ProviderInfo>().apply {
-            putAll(currentProviders)
+    /**
+     * The set of installed providers, transformed into a list of [ProviderInfo] objects
+     */
+    private val installedProviders = getInstalledProviders(application).map { providerInfos ->
+        val pm = application.packageManager
+        providerInfos.map { providerInfo ->
+            ProviderInfo(pm, providerInfo)
         }
-        val existingProviders = HashSet(currentProviders.values)
-        for (providerInfo in providerInfos) {
+    }
+
+    /**
+     * The authority of the current MuzeiArtProvider
+     */
+    private val currentProvider = database.providerDao().currentProvider.map { provider ->
+        provider?.authority
+    }
+
+    /**
+     * An authority to current artwork URI map
+     */
+    private val currentArtworkByProvider = database.artworkDao().currentArtworkByProvider.map { artworkForProvider ->
+        val artworkMap = mutableMapOf<String, Artwork>()
+        artworkForProvider.forEach {  artwork ->
+            artworkMap[artwork.providerAuthority] = artwork
+        }
+        artworkMap
+    }
+
+    /**
+     * An authority to description map used to avoid querying each
+     * MuzeiArtProvider every time.
+     */
+    private val descriptions = mutableMapOf<String, String>()
+    /**
+     * MutableStateFlow that should be updated with the current nano time
+     * when the descriptions are invalidated.
+     */
+    private val descriptionInvalidationNanoTime = MutableStateFlow(0L)
+
+    /**
+     * Combine all of the separate signals we have into one final set of [ProviderInfo]:
+     * - The set of installed providers
+     * - the currently selected provider
+     * - the current artwork for each provider
+     * - the input signal for when the descriptions have been invalidated (we don't
+     * care about the value, but we do want to recompute the [ProviderInfo] values)
+     */
+    private val providersFlow = combine(
+            installedProviders,
+            currentProvider,
+            currentArtworkByProvider,
+            descriptionInvalidationNanoTime
+    ) { installedProviders, providerAuthority, artworkForProvider, _ ->
+        installedProviders.map { providerInfo ->
             val authority = providerInfo.authority
-            existingProviders.removeAll { it.authority == authority }
-            val selected = authority == activeProvider?.authority
-            val description = ProviderManager.getDescription(context, authority)
-            val currentArtwork = database.artworkDao()
-                    .getCurrentArtworkForProvider(authority)
-            newProviders[authority] = ProviderInfo(pm, providerInfo,
-                    description, currentArtwork?.imageUri, selected)
-        }
-        // Remove providers that weren't found in the providerInfos
-        existingProviders.forEach {
-            newProviders.remove(it.authority)
-        }
-        currentProviders.clear()
-        currentProviders.putAll(newProviders)
-        mutableProviders.postValue(currentProviders.values.sortedWith(comparator))
+            val selected = authority == providerAuthority
+            val description = descriptions[authority] ?: run {
+                // Populate the description if we don't already have one
+                val newDescription = ProviderManager.getDescription(application, authority)
+                descriptions[authority] = newDescription
+                newDescription
+            }
+            val currentArtwork = artworkForProvider[authority]
+            providerInfo.copy(
+                    selected = selected,
+                    description = description,
+                    currentArtworkUri = currentArtwork?.imageUri
+            )
+        }.sortedWith(comparator)
     }
 
-    private val mutableProviders : MutableLiveData<List<ProviderInfo>> = object : MutableLiveData<List<ProviderInfo>>() {
-        val allProvidersLiveData = getInstalledProviders(application)
-                .asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
-        val allProvidersObserver = Observer<List<android.content.pm.ProviderInfo>> { providerInfos ->
-            if (providerInfos != null) {
-                viewModelScope.launch(singleThreadContext) {
-                    updateProvidersFromInfo(providerInfos)
-                    withContext(Dispatchers.Main) {
-                        startObserving()
-                    }
-                }
-            }
-        }
-        val currentProviderLiveData = database.providerDao().currentProvider
-                .asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
-        val currentProviderObserver = Observer<Provider?> { provider ->
-            activeProvider = provider
-            if (provider != null) {
-                viewModelScope.launch(singleThreadContext) {
-                    currentProviders.forEach {
-                        val newlySelected = it.key == provider.authority
-                        if (it.value.selected != newlySelected) {
-                            currentProviders[it.key] = it.value.copy(selected = newlySelected)
-                        }
-                    }
-                    postValue(currentProviders.values.sortedWith(comparator))
-                }
-
-            }
-        }
-        val currentArtworkByProviderLiveData = database.artworkDao().currentArtworkByProvider
-                .asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
-        val currentArtworkByProviderObserver = Observer<List<Artwork>> { artworkByProvider ->
-            if (artworkByProvider != null) {
-                viewModelScope.launch(singleThreadContext) {
-                    val artworkMap = HashMap<String, Uri>()
-                    artworkByProvider.forEach { artwork ->
-                        artworkMap[artwork.providerAuthority] = artwork.imageUri
-                    }
-                    currentProviders.forEach {
-                        currentProviders[it.key] = it.value.copy(currentArtworkUri = artworkMap[it.key])
-                    }
-                    postValue(currentProviders.values.sortedWith(comparator))
-                }
-            }
-        }
-
-        override fun onActive() {
-            allProvidersLiveData.observeForever(allProvidersObserver)
-        }
-
-        fun startObserving() {
-            if (hasActiveObservers() && !currentArtworkByProviderLiveData.hasObservers()) {
-                currentProviderLiveData.observeForever(currentProviderObserver)
-                currentArtworkByProviderLiveData.observeForever(currentArtworkByProviderObserver)
-            }
-        }
-
-        override fun onInactive() {
-            if (currentArtworkByProviderLiveData.hasObservers()) {
-                currentArtworkByProviderLiveData.removeObserver(currentArtworkByProviderObserver)
-                currentProviderLiveData.removeObserver(currentProviderObserver)
-            }
-            allProvidersLiveData.removeObserver(allProvidersObserver)
-        }
-    }
-
-    val providers : LiveData<List<ProviderInfo>> = mutableProviders
+    val providers : LiveData<List<ProviderInfo>> = providersFlow
+            .asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
 
     internal fun refreshDescription(authority: String) {
-        viewModelScope.launch(singleThreadContext) {
-            val updatedDescription = ProviderManager.getDescription(getApplication(), authority)
-            currentProviders[authority]?.let { providerInfo ->
-                if (providerInfo.description != updatedDescription) {
-                    currentProviders[authority] =
-                            providerInfo.copy(description = updatedDescription)
-                    mutableProviders.postValue(currentProviders.values.sortedWith(comparator))
-                }
-            }
-        }
+        // Remove the current description and trigger the invalidation
+        // to recompute the description
+        descriptions.remove(authority)
+        descriptionInvalidationNanoTime.value = System.nanoTime()
     }
 }

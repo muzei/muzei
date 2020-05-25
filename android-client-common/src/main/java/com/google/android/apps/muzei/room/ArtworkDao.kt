@@ -58,8 +58,8 @@ abstract class ArtworkDao {
     abstract suspend fun getCurrentArtworkForProvider(providerAuthority: String): Artwork?
 
     @get:Query("SELECT * FROM artwork art1 WHERE _id IN (" +
-            "SELECT _id FROM artwork art2 WHERE art1._id=art2._id " +
-            "ORDER BY date_added DESC limit 1)")
+            "SELECT _id FROM artwork art2 " +
+            "GROUP BY providerAuthority ORDER BY date_added DESC)")
     abstract val currentArtworkByProvider : Flow<List<Artwork>>
 
     @Query("SELECT * FROM artwork WHERE _id=:id")
