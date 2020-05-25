@@ -82,9 +82,10 @@ internal abstract class ChosenPhotoDao {
     }
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    internal abstract fun insertAllInternal(chosenPhoto: List<ChosenPhoto>): List<Long>
+    internal abstract suspend fun insertAllInternal(chosenPhoto: List<ChosenPhoto>): List<Long>
 
-    fun insertAll(context: Context, uris: Collection<Uri>) {
+    @Transaction
+    open suspend fun insertAll(context: Context, uris: Collection<Uri>) {
         insertAllInternal(uris
                 .map { ChosenPhoto(it) }
                 .filter { persistUriAccess(context, it) }
