@@ -17,13 +17,13 @@
 package com.google.android.apps.muzei.legacy
 
 import android.content.ComponentName
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.TypeConverters
 import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Dao for Sources
@@ -32,7 +32,7 @@ import androidx.room.Update
 abstract class SourceDao {
 
     @get:Query("SELECT * FROM sources")
-    abstract val sourcesLiveData: LiveData<List<Source>>
+    abstract val sources: Flow<List<Source>>
 
     @Query("SELECT * FROM sources")
     abstract suspend fun getSources(): List<Source>
@@ -42,7 +42,7 @@ abstract class SourceDao {
     abstract suspend fun getSourceComponentNames(): List<ComponentName>
 
     @get:Query("SELECT * FROM sources WHERE selected=1 ORDER BY component_name")
-    abstract val currentSourceLiveData: LiveData<Source?>
+    abstract val currentSource: Flow<Source?>
 
     @get:Query("SELECT * FROM sources WHERE selected=1 ORDER BY component_name")
     abstract val currentSourceBlocking: Source?

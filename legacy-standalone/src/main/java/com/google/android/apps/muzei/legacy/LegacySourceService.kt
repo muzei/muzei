@@ -36,18 +36,19 @@ import android.widget.Toast
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.observe
 import androidx.room.withTransaction
 import com.google.android.apps.muzei.sources.SourceSubscriberService
 import com.google.android.apps.muzei.util.goAsync
 import com.google.android.apps.muzei.util.toastFromBackground
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.legacy.BuildConfig
 import net.nurik.roman.muzei.legacy.R
@@ -57,6 +58,7 @@ import java.util.concurrent.Executors
 /**
  * Class responsible for managing interactions with sources such as subscribing, unsubscribing, and sending actions.
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 class LegacySourceService : Service(), LifecycleOwner {
 
     companion object {
@@ -236,30 +238,25 @@ class LegacySourceService : Service(), LifecycleOwner {
         }
     }
 
-    private inner class SubscriberLiveData internal constructor() : MediatorLiveData<Source>() {
-        private var currentSource: com.google.android.apps.muzei.legacy.Source? = null
+    private fun getSubscribedSource() = callbackFlow {
+        var currentSource: Source? = null
 
-        init {
-            addSource<com.google.android.apps.muzei.legacy.Source>(LegacyDatabase.getInstance(this@LegacySourceService)
-                    .sourceDao().currentSourceLiveData) { source ->
-                if (currentSource != null && source != null &&
-                        currentSource?.componentName == source.componentName) {
-                    // Don't do anything if it is the same Source
-                    return@addSource
-                }
-                lifecycleScope.launch(Dispatchers.Main) {
-                    currentSource?.unsubscribe()
-                    currentSource = source
-                    if (source != null) {
-                        source.subscribe()
-                        postValue(source)
-                    }
-                }
+        val database = LegacyDatabase.getInstance(this@LegacySourceService)
+        database.sourceDao().currentSource.collect { source ->
+            if (currentSource != null && source != null &&
+                    currentSource?.componentName == source.componentName) {
+                // Don't do anything if it is the same Source
+                return@collect
+            }
+            currentSource?.unsubscribe()
+            currentSource = source
+            if (source != null) {
+                source.subscribe()
+                send(source)
             }
         }
 
-        override fun onInactive() {
-            super.onInactive()
+        awaitClose {
             currentSource?.unsubscribe()
         }
     }
@@ -277,18 +274,24 @@ class LegacySourceService : Service(), LifecycleOwner {
     override fun onCreate() {
         super.onCreate()
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
-        SubscriberLiveData().observe(this) { source ->
-            sendSelectedSourceAnalytics(source.componentName)
-        }
-        var currentSource: Source? = null
-        LegacyDatabase.getInstance(this).sourceDao().currentSourceLiveData.observe(this) { source ->
-            if (currentSource != null && source == null) {
-                // The selected source has been removed or was otherwise deselected
-                replyToMessenger?.send(Message.obtain().apply {
-                    what = LegacySourceServiceProtocol.WHAT_REPLY_TO_NO_SELECTED_SOURCE
-                })
+        lifecycleScope.launchWhenStarted {
+            getSubscribedSource().collect {  source ->
+                sendSelectedSourceAnalytics(source.componentName)
             }
-            currentSource = source
+        }
+
+        val database = LegacyDatabase.getInstance(this)
+        lifecycleScope.launchWhenStarted {
+            var currentSource: Source? = null
+            database.sourceDao().currentSource.collect { source ->
+                if (currentSource != null && source == null) {
+                    // The selected source has been removed or was otherwise deselected
+                    replyToMessenger?.send(Message.obtain().apply {
+                        what = LegacySourceServiceProtocol.WHAT_REPLY_TO_NO_SELECTED_SOURCE
+                    })
+                }
+                currentSource = source
+            }
         }
         // Register for package change events
         val packageChangeFilter = IntentFilter().apply {

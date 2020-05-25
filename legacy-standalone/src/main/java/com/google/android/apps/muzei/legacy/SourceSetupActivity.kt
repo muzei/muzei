@@ -28,9 +28,10 @@ import androidx.activity.result.contract.ActivityResultContracts.StartActivityFo
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.observe
+import androidx.lifecycle.lifecycleScope
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.legacy.R
 
 class SourceSetupActivity : AppCompatActivity() {
@@ -45,7 +46,9 @@ class SourceSetupActivity : AppCompatActivity() {
     override fun onAttachFragment(fragment: Fragment) {
         if (fragment is SourceWarningDialogFragment) {
             fragment.positiveListener = {
-                LegacyDatabase.getInstance(this).sourceDao().currentSourceLiveData.observe(this) { source ->
+                val database = LegacyDatabase.getInstance(this)
+                lifecycleScope.launch {
+                    val source = database.sourceDao().getCurrentSource()
                     if (source != null) {
                         setResult(Activity.RESULT_OK)
                         finish()
