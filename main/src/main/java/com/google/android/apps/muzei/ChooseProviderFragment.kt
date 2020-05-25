@@ -55,7 +55,6 @@ import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
 import com.google.android.apps.muzei.legacy.LegacySourceManager
 import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
-import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.toast
 import com.google.android.material.snackbar.Snackbar
@@ -91,10 +90,6 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
         private const val PLAY_STORE_PACKAGE_NAME = "com.android.vending"
     }
 
-    private val currentProviderLiveData by lazy {
-        MuzeiDatabase.getInstance(requireContext()).providerDao()
-                .currentProviderLiveData
-    }
     private val viewModel: ChooseProviderViewModel by viewModels()
 
     private var startActivityProvider: String? = null
@@ -161,7 +156,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
 
         binding.drawer.setStatusBarBackgroundColor(Color.TRANSPARENT)
         binding.drawer.setScrimColor(Color.argb(68, 0, 0, 0))
-        currentProviderLiveData.observe(viewLifecycleOwner) { provider ->
+        viewModel.currentProviderLiveData.observe(viewLifecycleOwner) { provider ->
             val legacySelected = provider?.authority == LEGACY_AUTHORITY
             binding.toolbar.menu.findItem(R.id.auto_advance_settings).isVisible = !legacySelected
             binding.toolbar.menu.findItem(R.id.auto_advance_disabled).isVisible = legacySelected

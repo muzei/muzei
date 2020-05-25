@@ -75,6 +75,9 @@ data class ProviderInfo(
 
 class ChooseProviderViewModel(application: Application) : AndroidViewModel(application) {
 
+    val currentProviderLiveData = MuzeiDatabase.getInstance(application).providerDao().currentProvider
+            .asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
+
     private val currentProviders = HashMap<String, ProviderInfo>()
     private var activeProvider : Provider? = null
 
