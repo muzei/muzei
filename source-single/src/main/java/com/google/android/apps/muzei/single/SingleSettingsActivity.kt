@@ -16,50 +16,54 @@
 
 package com.google.android.apps.muzei.single
 
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.launch
 import androidx.lifecycle.lifecycleScope
 import com.google.android.apps.muzei.util.toast
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+
+private class GetImage : ActivityResultContract<Unit, Uri?>() {
+    private val getContent = ActivityResultContracts.GetContent()
+
+    override fun createIntent(context: Context, input: Unit?) =
+            getContent.createIntent(context, "image/*")
+
+    override fun parseResult(resultCode: Int, intent: Intent?) =
+            getContent.parseResult(resultCode, intent)
+}
 
 /**
  * Settings Activity which allows users to select a new photo
  */
 class SingleSettingsActivity : ComponentActivity() {
 
-    companion object {
-        private const val REQUEST_PHOTO = 1
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
-            type = "image/*"
-            addCategory(Intent.CATEGORY_OPENABLE)
-        }
-        if (intent.resolveActivity(packageManager) != null) {
-            startActivityForResult(intent, REQUEST_PHOTO)
-        } else {
-            toast(R.string.single_get_content_failure)
-            finish()
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        data?.data?.takeIf {
-            requestCode == REQUEST_PHOTO && resultCode == RESULT_OK
-        }?.also { uri ->
+    private val getImage = registerForActivityResult(GetImage()) { uri ->
+        if (uri != null) {
             lifecycleScope.launch(NonCancellable) {
                 val success = SingleArtProvider.setArtwork(
                         this@SingleSettingsActivity, uri)
                 setResult(if (success) RESULT_OK else RESULT_CANCELED)
                 finish()
             }
-        } ?: run {
+        } else {
             setResult(RESULT_CANCELED)
+            finish()
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        try {
+            getImage.launch()
+        } catch (e: Exception) {
+            toast(R.string.single_get_content_failure)
             finish()
         }
     }
