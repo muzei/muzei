@@ -75,7 +75,9 @@ data class ProviderInfo(
 
 class ChooseProviderViewModel(application: Application) : AndroidViewModel(application) {
 
-    val currentProviderLiveData = MuzeiDatabase.getInstance(application).providerDao().currentProvider
+    private val database = MuzeiDatabase.getInstance(application)
+
+    val currentProviderLiveData = database.providerDao().currentProvider
             .asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
 
     private val currentProviders = HashMap<String, ProviderInfo>()
@@ -125,7 +127,7 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
             existingProviders.removeAll { it.authority == authority }
             val selected = authority == activeProvider?.authority
             val description = ProviderManager.getDescription(context, authority)
-            val currentArtwork = MuzeiDatabase.getInstance(context).artworkDao()
+            val currentArtwork = database.artworkDao()
                     .getCurrentArtworkForProvider(authority)
             newProviders[authority] = ProviderInfo(pm, providerInfo,
                     description, currentArtwork?.imageUri, selected)
@@ -152,8 +154,8 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
                 }
             }
         }
-        val currentProviderLiveData = MuzeiDatabase.getInstance(application).providerDao()
-                .currentProviderLiveData
+        val currentProviderLiveData = database.providerDao().currentProvider
+                .asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
         val currentProviderObserver = Observer<Provider?> { provider ->
             activeProvider = provider
             if (provider != null) {
@@ -169,8 +171,7 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
 
             }
         }
-        val currentArtworkByProviderLiveData = MuzeiDatabase.getInstance(application).artworkDao()
-                .currentArtworkByProvider
+        val currentArtworkByProviderLiveData = database.artworkDao().currentArtworkByProvider
                 .asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
         val currentArtworkByProviderObserver = Observer<List<Artwork>> { artworkByProvider ->
             if (artworkByProvider != null) {
