@@ -22,7 +22,6 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
@@ -169,7 +168,7 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
         }.sortedWith(comparator)
     }
 
-    val providers : LiveData<List<ProviderInfo>> = providersFlow
+    val providers = providersFlow
             .asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
 
     internal fun refreshDescription(authority: String) {
