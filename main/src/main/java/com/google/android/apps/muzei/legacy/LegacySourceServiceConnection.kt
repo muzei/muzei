@@ -78,6 +78,7 @@ internal class LegacySourceServiceConnection(
     private var registered = false
 
     fun onProviderChanged(provider: Provider?) {
+        currentProvider = provider
         if (provider?.authority == LEGACY_AUTHORITY) {
             register()
         } else {
