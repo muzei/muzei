@@ -238,7 +238,8 @@ class LegacySourceService : Service(), LifecycleOwner {
         }
     }
 
-    private fun getSubscribedSource() = callbackFlow {
+    @Suppress("RemoveExplicitTypeArguments")
+    private fun getSubscribedSource() = callbackFlow<Source> {
         var currentSource: Source? = null
 
         val database = LegacyDatabase.getInstance(this@LegacySourceService)
@@ -275,7 +276,7 @@ class LegacySourceService : Service(), LifecycleOwner {
         super.onCreate()
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
         lifecycleScope.launchWhenStarted {
-            getSubscribedSource().collect {  source ->
+            getSubscribedSource().collect { source ->
                 sendSelectedSourceAnalytics(source.componentName)
             }
         }
