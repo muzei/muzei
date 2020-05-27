@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.legacy
 
+import android.app.Application
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
@@ -24,7 +25,11 @@ import android.view.ViewGroup
 import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.observe
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -37,8 +42,16 @@ import com.google.firebase.ktx.Firebase
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.LegacySourceInfoFragmentBinding
 import net.nurik.roman.muzei.databinding.LegacySourceInfoItemBinding
+import kotlin.coroutines.EmptyCoroutineContext
+
+class LegacySourceInfoViewModel(application: Application) : AndroidViewModel(application) {
+    val unsupportedSources = LegacySourceManager.getInstance(application).unsupportedSources
+            .asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
+}
 
 class LegacySourceInfoFragment : Fragment(R.layout.legacy_source_info_fragment) {
+
+    private val viewModel: LegacySourceInfoViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = LegacySourceInfoFragmentBinding.bind(view)
@@ -58,7 +71,7 @@ class LegacySourceInfoFragment : Fragment(R.layout.legacy_source_info_fragment) 
         }
         val adapter = LegacySourceListAdapter()
         binding.list.adapter = adapter
-        LegacySourceManager.getInstance(requireContext()).unsupportedSources.observe(viewLifecycleOwner) {
+        viewModel.unsupportedSources.observe(viewLifecycleOwner) {
             if (it.isEmpty()) {
                 requireContext().toast(R.string.legacy_source_all_uninstalled)
                 findNavController().popBackStack()

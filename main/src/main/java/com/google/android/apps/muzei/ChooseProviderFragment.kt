@@ -53,7 +53,6 @@ import coil.api.load
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
-import com.google.android.apps.muzei.legacy.LegacySourceManager
 import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.toast
@@ -190,7 +189,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
         }
         // Show a SnackBar whenever there are unsupported sources installed
         var snackBar: Snackbar? = null
-        LegacySourceManager.getInstance(requireContext()).unsupportedSources.map { it.size }
+        viewModel.unsupportedSources.map { it.size }
                 .distinctUntilChanged().observe(viewLifecycleOwner) { count ->
             if (count > 0) {
                 snackBar = Snackbar.make(

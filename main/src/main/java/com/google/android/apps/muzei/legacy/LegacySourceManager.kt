@@ -24,12 +24,7 @@ import android.content.IntentFilter
 import androidx.core.net.toUri
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.observe
 import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
@@ -39,7 +34,11 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.onCompletion
 
 suspend fun Provider?.allowsNextArtwork(context: Context): Boolean {
     return when {
@@ -112,28 +111,47 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
     private val legacySourcePackageListener = LegacySourcePackageListener(applicationContext)
     private val serviceConnection = LegacySourceServiceConnection(applicationContext)
 
-    private val unsupportedSourcesMediator = MediatorLiveData<List<LegacySourceInfo>>()
-    val unsupportedSources: LiveData<List<LegacySourceInfo>> = unsupportedSourcesMediator
+    /**
+     * The list of unsupported legacy sources. If the Muzei Legacy app is installed, this will
+     * be an empty list (as those previously unsupported sources are supported via
+     * the Muzei Legacy MuzeiArtProvider).
+     */
+    val unsupportedSources = getService().distinctUntilChanged().flatMapLatest { componentName ->
+        if (componentName == null) {
+            legacySourcePackageListener.unsupportedSources
+        } else {
+            flowOf(emptyList())
+        }
+    }
 
     override fun onCreate(owner: LifecycleOwner) {
-        getService()
-                .asLiveData(owner.lifecycleScope.coroutineContext + EmptyCoroutineContext)
-                .distinctUntilChanged().observe(owner) { componentName ->
-            if (componentName == null) {
-                legacySourcePackageListener.startListening()
-                unsupportedSourcesMediator.addSource(legacySourcePackageListener.unsupportedSources) {
-                    unsupportedSourcesMediator.value = it
-                }
+        owner.lifecycleScope.launchWhenStarted {
+            // Listen for the Muzei Legacy Source becoming available, binding to it
+            // once it becomes available
+            getService().distinctUntilChanged().onCompletion {
                 serviceConnection.unbindService()
-            } else {
-                unsupportedSourcesMediator.removeSource(legacySourcePackageListener.unsupportedSources)
-                unsupportedSourcesMediator.value = emptyList()
-                legacySourcePackageListener.stopListening()
-                serviceConnection.bindService(componentName)
+            }.collect { componentName ->
+                if (componentName == null) {
+                    serviceConnection.unbindService()
+                } else {
+                    serviceConnection.bindService(componentName)
+                }
             }
         }
-        MuzeiDatabase.getInstance(applicationContext).providerDao().currentProviderLiveData
-                .observe(owner, serviceConnection::onProviderChanged)
+
+        owner.lifecycleScope.launchWhenStarted {
+            // Collect on the set of unsupported sources to ensure that we continue
+            // to send unsupported sources notifications for the entire time the
+            // Lifecycle is STARTED
+            unsupportedSources.collect()
+        }
+
+        owner.lifecycleScope.launchWhenStarted {
+            // Forward the selected provider onto the service connection
+            MuzeiDatabase.getInstance(applicationContext).providerDao().currentProvider.collect {
+                serviceConnection.onProviderChanged(it)
+            }
+        }
     }
 
     suspend fun nextArtwork() {
@@ -147,9 +165,4 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
     }
 
     suspend fun allowsNextArtwork() = serviceConnection.allowsNextArtwork()
-
-    override fun onDestroy(owner: LifecycleOwner) {
-        unsupportedSourcesMediator.removeSource(legacySourcePackageListener.unsupportedSources)
-        serviceConnection.unbindService()
-    }
 }

@@ -25,6 +25,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
+import com.google.android.apps.muzei.legacy.LegacySourceManager
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.getInstalledProviders
@@ -74,6 +75,9 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
     private val database = MuzeiDatabase.getInstance(application)
 
     val currentProviderLiveData = database.providerDao().currentProvider
+            .asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
+
+    val unsupportedSources = LegacySourceManager.getInstance(application).unsupportedSources
             .asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
 
     private val comparator = Comparator<ProviderInfo> { p1, p2 ->

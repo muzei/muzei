@@ -38,14 +38,17 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.net.toUri
-import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavDeepLinkBuilder
 import com.google.android.apps.muzei.settings.Prefs
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.map
 import net.nurik.roman.muzei.R
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class LegacySourcePackageListener(
         private val applicationContext: Context
 ) {
@@ -58,44 +61,38 @@ class LegacySourcePackageListener(
         private const val NOTIFICATION_GROUP_KEY = "legacy"
     }
 
-    internal val unsupportedSources: MutableLiveData<List<LegacySourceInfo>> = MutableLiveData()
-
     private val largeIconSize = applicationContext.resources.getDimensionPixelSize(
             android.R.dimen.notification_large_icon_height)
-    private var lastNotifiedSources = mutableSetOf<LegacySourceInfo>()
+    private var lastNotifiedSources = setOf<LegacySourceInfo>()
     private val prefs = Prefs.getSharedPreferences(applicationContext)
 
     init {
-        prefs.getStringSet(PREF_LAST_NOTIFIED, mutableSetOf())?.forEach { packageName ->
-            lastNotifiedSources.add(LegacySourceInfo(packageName))
-        }
-        if (lastNotifiedSources.isNotEmpty()) {
-            GlobalScope.launch(Dispatchers.Main.immediate) {
-                unsupportedSources.value = lastNotifiedSources.toList()
-            }
+        prefs.getStringSet(PREF_LAST_NOTIFIED, mutableSetOf())?.also { packageNames ->
+            lastNotifiedSources = packageNames.map { packageName ->
+                LegacySourceInfo(packageName)
+            }.toSet()
         }
     }
 
-    private var registered = false
-
-    private val sourcePackageChangeReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent?) {
-            if (intent?.data == null) {
-                return
+    /**
+     * A [Flow] that listens for package changes and recomputes all of the
+     * legacy sources found.
+     */
+    private val legacySources: Flow<Set<LegacySourceInfo>> = callbackFlow {
+        val sourcePackageChangeReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent?) {
+                if (intent?.data == null) {
+                    return
+                }
+                val packageName = intent.data?.schemeSpecificPart
+                // Update the sources from the changed package
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "Package $packageName changed")
+                }
+                sendBlocking(queryLegacySources())
             }
-            val packageName = intent.data?.schemeSpecificPart
-            // Update the sources from the changed package
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "Package $packageName changed")
-            }
-            queryLegacySources()
         }
-    }
 
-    fun startListening() {
-        if (registered) {
-            return
-        }
         // Register for package change events
         val packageChangeFilter = IntentFilter().apply {
             addDataScheme("package")
@@ -105,11 +102,14 @@ class LegacySourcePackageListener(
             addAction(Intent.ACTION_PACKAGE_REMOVED)
         }
         applicationContext.registerReceiver(sourcePackageChangeReceiver, packageChangeFilter)
-        registered = true
-        queryLegacySources()
+        send(queryLegacySources())
+
+        awaitClose {
+            applicationContext.unregisterReceiver(sourcePackageChangeReceiver)
+        }
     }
 
-    private fun queryLegacySources() {
+    private fun queryLegacySources(): Set<LegacySourceInfo> {
         val queryIntent = Intent(LegacySourceServiceProtocol.ACTION_MUZEI_ART_SOURCE)
         val pm = applicationContext.packageManager
         val resolveInfos = pm.queryIntentServices(queryIntent,
@@ -132,11 +132,22 @@ class LegacySourcePackageListener(
             }
             legacySources.add(sourceInfo)
         }
-        unsupportedSources.value = legacySources.toList()
-        if (lastNotifiedSources == legacySources) {
-            // Nothing changed, so there's nothing to update
-            return
+        return legacySources
+    }
+
+    /**
+     * A [Flow] that represents the list of unsupported legacy sources.
+     *
+     * Users will be notified when a new unsupported source is found
+     */
+    internal val unsupportedSources = legacySources.map { legacySources ->
+        if (lastNotifiedSources != legacySources) {
+            updateNotifiedSources(legacySources)
         }
+        legacySources.toList()
+    }
+
+    private fun updateNotifiedSources(legacySources: Set<LegacySourceInfo>) {
         val additions = legacySources - lastNotifiedSources
         val removals = lastNotifiedSources - legacySources
         val notificationManager = applicationContext.getSystemService(
@@ -247,14 +258,6 @@ class LegacySourcePackageListener(
                 applicationContext.getString(R.string.legacy_notification_channel_name),
                 NotificationManager.IMPORTANCE_DEFAULT)
         notificationManager.createNotificationChannel(channel)
-    }
-
-    fun stopListening() {
-        if (!registered) {
-            return
-        }
-        registered = false
-        applicationContext.unregisterReceiver(sourcePackageChangeReceiver)
     }
 }
 
