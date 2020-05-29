@@ -44,7 +44,9 @@ dependencies {
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    viewBinding.enabled = true
+    buildFeatures {
+        viewBinding = true
+    }
 
     defaultConfig {
         minSdkVersion 19
