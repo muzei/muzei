@@ -22,6 +22,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
+import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.single.BuildConfig.SINGLE_AUTHORITY
 import com.google.android.apps.muzei.single.SingleArtProvider
 import com.google.android.apps.muzei.sync.ProviderManager
@@ -57,12 +58,14 @@ class PhotoSetAsTargetActivity : ComponentActivity() {
             }
 
             // If adding the artwork succeeded, select the single artwork provider
-            Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
-                param(FirebaseAnalytics.Param.ITEM_LIST_ID, SINGLE_AUTHORITY)
-                param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
-                param(FirebaseAnalytics.Param.CONTENT_TYPE, "set_as")
+            if (!MuzeiContract.Sources.isProviderSelected(context, SINGLE_AUTHORITY)) {
+                Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                    param(FirebaseAnalytics.Param.ITEM_LIST_ID, SINGLE_AUTHORITY)
+                    param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
+                    param(FirebaseAnalytics.Param.CONTENT_TYPE, "set_as")
+                }
+                ProviderManager.select(context, SINGLE_AUTHORITY)
             }
-            ProviderManager.select(context, SINGLE_AUTHORITY)
             startActivity(Intent.makeMainActivity(ComponentName(
                     context, MuzeiActivity::class.java))
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))

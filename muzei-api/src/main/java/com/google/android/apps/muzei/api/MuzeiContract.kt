@@ -32,6 +32,7 @@ import com.google.android.apps.muzei.api.MuzeiContract.Artwork.ACTION_ARTWORK_CH
 import com.google.android.apps.muzei.api.MuzeiContract.Artwork.CONTENT_URI
 import com.google.android.apps.muzei.api.MuzeiContract.Artwork.getCurrentArtwork
 import com.google.android.apps.muzei.api.MuzeiContract.Artwork.getCurrentArtworkBitmap
+import com.google.android.apps.muzei.api.provider.ProviderClient
 import java.io.FileNotFoundException
 
 /**
@@ -297,5 +298,42 @@ object MuzeiContract {
                 "and higher devices. Use WorkManager or JobScheduler to listen for " +
                 "source change events in the background on API 24+ devices.")
         const val ACTION_SOURCE_CHANGED = "com.google.android.apps.muzei.ACTION_SOURCE_CHANGED"
+
+        /**
+         * Checks the [Sources] table provided by Muzei to determine whether the
+         * [com.google.android.apps.muzei.api.provider.MuzeiArtProvider] associated with the
+         * given [authority] has been selected by the user.
+         *
+         * If Muzei is not installed or Muzei has never been activated, this will return
+         * `false`.
+         */
+        @JvmStatic
+        fun isProviderSelected(context: Context, authority: String) = context.contentResolver.query(
+                CONTENT_URI, arrayOf(COLUMN_NAME_AUTHORITY),
+                "$COLUMN_NAME_AUTHORITY=?", arrayOf(authority),
+                null)?.use { data ->
+            val authorityColumn = data.getColumnIndex(COLUMN_NAME_AUTHORITY)
+            while (data.moveToNext()) {
+                val selectedAuthority = data.getString(authorityColumn)
+                if (selectedAuthority == authority) {
+                    return true
+                }
+            }
+            false
+        } ?: false
+
+        /**
+         * Checks the [Sources] table provided by Muzei to determine whether the
+         * [com.google.android.apps.muzei.api.provider.MuzeiArtProvider] associated with
+         * this [ProviderClient] has been selected by the user. This calls through to
+         * [isProviderSelected] by extracting the `authority` from the
+         * [ProviderClient.contentUri].
+         *
+         * If Muzei is not installed or Muzei has never been activated, this will return
+         * `false`.
+         */
+        @Suppress("unused")
+        fun ProviderClient.isSelected(context: Context) =
+                isProviderSelected(context, contentUri.authority!!)
     }
 }
