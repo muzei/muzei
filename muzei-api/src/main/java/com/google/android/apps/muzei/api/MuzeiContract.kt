@@ -324,20 +324,6 @@ object MuzeiContract {
         } ?: false
 
         /**
-         * Checks the [Sources] table provided by Muzei to determine whether the
-         * [com.google.android.apps.muzei.api.provider.MuzeiArtProvider] associated with
-         * this [ProviderClient] has been selected by the user. This calls through to
-         * [isProviderSelected] by extracting the `authority` from the
-         * [ProviderClient.contentUri].
-         *
-         * If Muzei is not installed or Muzei has never been activated, this will return
-         * `false`.
-         */
-        @Suppress("unused")
-        fun ProviderClient.isSelected(context: Context) =
-                isProviderSelected(context, contentUri.authority!!)
-
-        /**
          * Deep link into Muzei's Sources screen, automatically scrolling
          * to the [com.google.android.apps.muzei.api.provider.MuzeiArtProvider] associated
          * with the given [authority]. If Muzei is not yet activated, users will be asked
@@ -360,6 +346,18 @@ object MuzeiContract {
                 .setData(Uri.parse(BuildConfig.CHOOSE_PROVIDER_URI_PREFIX + authority))
     }
 }
+
+/**
+ * Checks the [MuzeiContract.Sources] table provided by Muzei to determine whether the
+ * [com.google.android.apps.muzei.api.provider.MuzeiArtProvider] associated with
+ * this [ProviderClient] has been selected by the user.
+ *
+ * If Muzei is not installed or Muzei has never been activated, this will return
+ * `false`.
+ */
+@Suppress("unused")
+fun ProviderClient.isSelected(context: Context) =
+        MuzeiContract.Sources.isProviderSelected(context, contentUri.authority!!)
 
 /**
  * Deep link into Muzei's Sources screen, automatically scrolling
