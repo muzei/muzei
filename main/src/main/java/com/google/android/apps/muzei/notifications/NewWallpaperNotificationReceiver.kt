@@ -335,7 +335,12 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                         param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "actions")
                         param(FirebaseAnalytics.Param.CONTENT_TYPE, "notification")
                     }
-                    actionIntent.send()
+                    try {
+                        actionIntent.send()
+                    } catch (e: PendingIntent.CanceledException) {
+                        // Why do you give us a cancelled PendingIntent.
+                        // We can't do anything with that.
+                    }
                 }
             }
     }

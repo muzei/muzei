@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.browse
 
+import android.app.PendingIntent
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
@@ -145,14 +146,19 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
                     itemView.setOnCreateContextMenuListener { menu, _, _ ->
                         actions.forEachIndexed { index, action ->
                             menu.add(Menu.NONE, index, index, action.title).apply {
-                                    setOnMenuItemClickListener { menuItem ->
-                                        Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
-                                            param(FirebaseAnalytics.Param.ITEM_LIST_ID, artwork.providerAuthority)
-                                            param(FirebaseAnalytics.Param.ITEM_NAME, menuItem.title.toString())
-                                            param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "actions")
-                                            param(FirebaseAnalytics.Param.CONTENT_TYPE, "browse")
-                                        }
-                                    action.actionIntent.send()
+                                setOnMenuItemClickListener { menuItem ->
+                                    Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                                        param(FirebaseAnalytics.Param.ITEM_LIST_ID, artwork.providerAuthority)
+                                        param(FirebaseAnalytics.Param.ITEM_NAME, menuItem.title.toString())
+                                        param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "actions")
+                                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "browse")
+                                    }
+                                    try {
+                                        action.actionIntent.send()
+                                    } catch (e: PendingIntent.CanceledException) {
+                                        // Why do you give us a cancelled PendingIntent.
+                                        // We can't do anything with that.
+                                    }
                                     true
                                 }
                             }

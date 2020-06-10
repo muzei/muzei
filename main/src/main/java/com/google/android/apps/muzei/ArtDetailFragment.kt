@@ -17,6 +17,7 @@
 package com.google.android.apps.muzei
 
 import android.app.Application
+import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -190,7 +191,12 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
                         param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "actions")
                         param(FirebaseAnalytics.Param.CONTENT_TYPE, "art_detail")
                     }
-                    action.actionIntent.send()
+                    try {
+                        action.actionIntent.send()
+                    } catch (e: PendingIntent.CanceledException) {
+                        // Why do you give us a cancelled PendingIntent.
+                        // We can't do anything with that.
+                    }
                 }
                 return@setOnMenuItemClickListener true
             }

@@ -17,6 +17,7 @@
 package com.google.android.apps.muzei
 
 import android.app.Application
+import android.app.PendingIntent
 import android.graphics.Rect
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -86,7 +87,12 @@ class MuzeiCommandViewHolder(
                 param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "actions")
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "wear_activity")
             }
-            artworkCommand.actionIntent.send()
+            try {
+                artworkCommand.actionIntent.send()
+            } catch (e: PendingIntent.CanceledException) {
+                // Why do you give us a cancelled PendingIntent.
+                // We can't do anything with that.
+            }
         }
     }
 }
