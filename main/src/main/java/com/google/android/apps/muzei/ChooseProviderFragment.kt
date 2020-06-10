@@ -45,6 +45,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.map
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.MergeAdapter
@@ -89,6 +90,8 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
         private const val PLAY_STORE_PACKAGE_NAME = "com.android.vending"
     }
 
+    private val args: ChooseProviderFragmentArgs by navArgs()
+    private var scrolledToProvider = false
     private val viewModel: ChooseProviderViewModel by viewModels()
 
     private var startActivityProvider: String? = null
@@ -185,6 +188,16 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
         viewModel.providers.observe(viewLifecycleOwner) {
             adapter.submitList(it) {
                 playStoreAdapter.shouldShow = true
+                if (args.authority != null && !scrolledToProvider) {
+                    val index = it.indexOfFirst { providerInfo ->
+                        providerInfo.authority == args.authority
+                    }
+                    if (index != -1) {
+                        scrolledToProvider = true
+                        requireArguments().remove("authority")
+                        binding.list.smoothScrollToPosition(index)
+                    }
+                }
             }
         }
         // Show a SnackBar whenever there are unsupported sources installed

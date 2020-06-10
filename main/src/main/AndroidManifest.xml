@@ -40,8 +40,7 @@
 
         <activity
             android:name="com.google.android.apps.muzei.MuzeiActivity"
-            android:theme="@style/Theme.MuzeiActivity"
-            android:launchMode="singleTop">
+            android:theme="@style/Theme.MuzeiActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -49,6 +48,7 @@
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES"/>
             </intent-filter>
+            <nav-graph android:value="@navigation/main_navigation"/>
         </activity>
 
         <service

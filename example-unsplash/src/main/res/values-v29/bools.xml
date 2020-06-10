@@ -15,5 +15,5 @@
   -->
 
 <resources>
-    <color name="colorPrimary">#FD9</color>
+    <bool name="enable_launcher">true</bool>
 </resources>

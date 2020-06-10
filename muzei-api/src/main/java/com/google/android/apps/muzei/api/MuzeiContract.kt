@@ -20,6 +20,7 @@ import android.content.ContentProvider
 import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.Context
+import android.content.Intent
 import android.database.ContentObserver
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -335,5 +336,49 @@ object MuzeiContract {
         @Suppress("unused")
         fun ProviderClient.isSelected(context: Context) =
                 isProviderSelected(context, contentUri.authority!!)
+
+        /**
+         * Deep link into Muzei's Sources screen, automatically scrolling
+         * to the [com.google.android.apps.muzei.api.provider.MuzeiArtProvider] associated
+         * with the given [authority]. If Muzei is not yet activated, users will be asked
+         * to activate Muzei before continuing onto the Sources screen.
+         *
+         * Note that users must still manually select your `MuzeiArtProvider`.
+         *
+         * It is strongly recommended in cases where you receive an
+         * [android.content.ActivityNotFoundException] (due to the user having an older version
+         * of Muzei installed or if Muzei is not installed at all) to fall back on:
+         *
+         * 1. [android.content.pm.PackageManager.getLaunchIntentForPackage] with Muzei's
+         * package name, `net.nurik.roman.muzei` to open Muzei and navigate to the
+         * Sources screen themselves.
+         * 2. A link to the Google Play Store with Muzei's package name so that user can
+         * install Muzei.
+         */
+        @JvmStatic
+        fun createChooseProviderIntent(authority: String): Intent = Intent(Intent.ACTION_VIEW)
+                .setData(Uri.parse(BuildConfig.CHOOSE_PROVIDER_URI_PREFIX + authority))
     }
 }
+
+/**
+ * Deep link into Muzei's Sources screen, automatically scrolling
+ * to the [com.google.android.apps.muzei.api.provider.MuzeiArtProvider] associated
+ * with this [ProviderClient]. If Muzei is not yet activated, users will be asked
+ * to activate Muzei before continuing onto the Sources screen.
+ *
+ * Note that users must still manually select your `MuzeiArtProvider`.
+ *
+ * It is strongly recommended in cases where you receive an
+ * [android.content.ActivityNotFoundException] (due to the user having an older version
+ * of Muzei installed or if Muzei is not installed at all) to fall back on:
+ *
+ * 1. [android.content.pm.PackageManager.getLaunchIntentForPackage] with Muzei's
+ * package name, `net.nurik.roman.muzei` to open Muzei and navigate to the
+ * Sources screen themselves.
+ * 2. A link to the Google Play Store with Muzei's package name so that user can
+ * install Muzei.
+ */
+@Suppress("unused")
+fun ProviderClient.createChooseProviderIntent() =
+        MuzeiContract.Sources.createChooseProviderIntent(contentUri.authority!!)

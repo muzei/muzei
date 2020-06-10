@@ -27,6 +27,19 @@
         android:icon="@mipmap/source_ic_launcher"
         tools:ignore="GoogleAppIndexingWarning">
 
+        <activity-alias
+            android:name=".UnsplashLauncherActivity"
+            android:enabled="@bool/enable_launcher"
+            android:targetActivity=".UnsplashRedirectActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity
+            android:name=".UnsplashRedirectActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
         <service
             android:name="com.example.muzei.unsplash.UnsplashExampleArtSource"
             android:exported="false">

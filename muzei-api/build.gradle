@@ -48,6 +48,8 @@ android {
         def apiVersion = versionProps['apiCode'].toInteger()
         manifestPlaceholders = [api_version: apiVersion]
         buildConfigField "int", "API_VERSION", "${apiVersion}"
+
+        buildConfigField "String", "CHOOSE_PROVIDER_URI_PREFIX", "\"muzei://sources/\""
     }
 
     buildTypes {
