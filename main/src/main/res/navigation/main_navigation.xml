@@ -50,6 +50,13 @@
             android:name="com.google.android.apps.muzei.ChooseProviderFragment"
             android:label="@string/section_choose_source"
             tools:layout="@layout/choose_provider_fragment">
+            <argument
+                android:name="authority"
+                app:argType="string"
+                app:nullable="true"
+                android:defaultValue="@null" />
+            <deepLink
+                app:uri="muzei://sources/{authority}" />
             <action
                 android:id="@+id/browse"
                 app:destination="@+id/browse_provider"
