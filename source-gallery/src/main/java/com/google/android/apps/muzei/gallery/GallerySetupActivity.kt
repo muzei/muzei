@@ -22,6 +22,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import androidx.activity.result.component1
+import androidx.activity.result.component2
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
@@ -95,9 +97,9 @@ class GallerySetupActivity : FragmentActivity() {
         }
     }
 
-    private val startSettings = registerForActivityResult(StartActivityForResult()) { result ->
+    private val startSettings = registerForActivityResult(StartActivityForResult()) { (resultCode, _) ->
         // Pass on the resultCode from the GallerySettingsActivity onto Muzei
-        setResult(result.resultCode)
+        setResult(resultCode)
         finish()
     }
 }

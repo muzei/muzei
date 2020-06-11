@@ -19,6 +19,8 @@ package com.google.android.apps.muzei.single
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.result.component1
+import androidx.activity.result.component2
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 
 /**
@@ -26,9 +28,9 @@ import androidx.activity.result.contract.ActivityResultContracts.StartActivityFo
  */
 class SingleSetupActivity : ComponentActivity() {
 
-    private val selectImage = registerForActivityResult(StartActivityForResult()) { result ->
+    private val selectImage = registerForActivityResult(StartActivityForResult()) { (resultCode, _) ->
         // Pass on the resultCode from the SingleSettingsActivity onto Muzei
-        setResult(result.resultCode)
+        setResult(resultCode)
         finish()
     }
 

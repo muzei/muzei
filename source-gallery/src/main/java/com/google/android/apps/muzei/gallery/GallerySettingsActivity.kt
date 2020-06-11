@@ -100,8 +100,8 @@ private class ChoosePhotos : ActivityResultContract<Unit, List<Uri>>() {
                     .addCategory(Intent.CATEGORY_OPENABLE)
                     .putExtra(DocumentsContract.EXTRA_EXCLUDE_SELF, true)
 
-    override fun parseResult(resultCode: Int, intent: Intent?) =
-            openMultipleDocuments.parseResult(resultCode, intent) ?: emptyList()
+    override fun parseResult(resultCode: Int, intent: Intent?): List<Uri> =
+            openMultipleDocuments.parseResult(resultCode, intent)
 }
 
 private class ChooseFolder : ActivityResultContract<Unit, Uri?>() {

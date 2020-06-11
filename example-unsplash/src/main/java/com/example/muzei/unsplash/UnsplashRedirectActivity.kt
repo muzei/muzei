@@ -22,7 +22,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import com.google.android.apps.muzei.api.MuzeiContract
 
 /**
@@ -40,8 +40,7 @@ class UnsplashRedirectActivity : ComponentActivity() {
         private const val PLAY_STORE_LINK = "https://play.google.com/store/apps/details?id=$MUZEI_PACKAGE_NAME"
     }
 
-    private val requestLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()) {
+    private val requestLauncher = registerForActivityResult(StartActivityForResult()) {
         // It doesn't matter what the result is, the important part is that the
         // user hit the back button to return to this activity. Since this activity
         // has no UI of its own, we can simply finish the activity.

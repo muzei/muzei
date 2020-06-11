@@ -16,35 +16,22 @@
 
 package com.google.android.apps.muzei.single
 
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.result.contract.ActivityResultContract
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.activity.result.launch
+import androidx.activity.result.registerForActivityResult
 import androidx.lifecycle.lifecycleScope
 import com.google.android.apps.muzei.util.toast
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
-
-private class GetImage : ActivityResultContract<Unit, Uri?>() {
-    private val getContent = ActivityResultContracts.GetContent()
-
-    override fun createIntent(context: Context, input: Unit?) =
-            getContent.createIntent(context, "image/*")
-
-    override fun parseResult(resultCode: Int, intent: Intent?) =
-            getContent.parseResult(resultCode, intent)
-}
 
 /**
  * Settings Activity which allows users to select a new photo
  */
 class SingleSettingsActivity : ComponentActivity() {
 
-    private val getImage = registerForActivityResult(GetImage()) { uri ->
+    private val getImage = registerForActivityResult(GetContent(), "image/*") { uri ->
         if (uri != null) {
             lifecycleScope.launch(NonCancellable) {
                 val success = SingleArtProvider.setArtwork(
