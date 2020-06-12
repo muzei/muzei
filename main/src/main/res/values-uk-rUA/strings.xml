@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2014 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="settings_home_screen_title">Основний екран</string>
+    <string name="settings_lock_screen_title">Екран блокування</string>
+    <string name="settings_blur_amount_title">Розмивання</string>
+    <string name="notification_new_wallpaper">Новий фон</string>
+    <string name="notification_new_wallpaper_channel_name">Нові шпалери</string>
+    <string name="notification_settings">Параметри сповіщень</string>
+    <string name="notification_settings_done">Готово</string>
+    <string name="notification_settings_moved_title">Налаштування сповіщень переміщено</string>
+    <string name="auto_advance_settings">Налаштування автоперемикання</string>
+    <string name="auto_advance_disabled">Автоперемикання вимкнено</string>
+    <string name="auto_advance_title">Автоматичне перемикання</string>
+    <string name="auto_advance_wifi">Автоперемикання тільки з Wi-Fi</string>
+    <string name="auto_advance_interval">Інтервал</string>
+    <string name="auto_advance_interval_15m">Кожні 15 хвилин</string>
+    <string name="auto_advance_interval_30m">Кожні 30 хвилин</string>
+    <string name="auto_advance_interval_1h">Щогодини</string>
+    <string name="auto_advance_interval_3h">Кожні 3 години</string>
+    <string name="auto_advance_interval_6h">Кожні 6 годин</string>
+    <string name="auto_advance_interval_24h">Кожні 24 години</string>
+    <string name="auto_advance_interval_72h">Кожні 3 дні</string>
+    <string name="auto_advance_interval_never">Не перемикати автоматично</string>
+    <string name="action_activate">Активувати</string>
+    <string name="error_view_details">Не вдалося переглянути деталі картини.</string>
+    <string name="section_choose_source">Джерела</string>
+    <string name="section_effects">Ефекти</string>
+    <string name="action_next_artwork">Наступна робота</string>
+    <string name="action_next_artwork_condensed">Далі</string>
+    <string name="action_user_command">Більше</string>
+    <string name="action_user_command_prompt">Вибрати дію</string>
+    <string name="action_artwork_info">Про картину</string>
+    <string name="action_artwork_info_disabled">Немає інформації про поточну картину.</string>
+    <string name="provider_settings">Налаштування</string>
+    <string name="provider_browse">Огляд</string>
+    <string name="legacy_notification_channel_name">Застарілі джерела</string>
+    <string name="legacy_notification_title"><xliff:g id="source_name" example="Гарні шпалери">%s</xliff:g>
+        більше не підтримується</string>
+    <string name="legacy_action_learn_more">Детальніше</string>
+    <string name="legacy_action_send_feedback">Надіслати відгук</string>
+    <string name="legacy_summary_title">Застарілі джерела більше не підтримуються</string>
+    <string name="legacy_source_info_app_info">Про додаток</string>
+    <string name="legacy_source_info_send_feedback">Надіслати відгук</string>
+    <string name="done">Готово</string>
+    <string name="reset_advanced_settings_defaults">Скинути повзунки</string>
+    <string name="browse_refresh">Оновити</string>
+    <string name="browse_set_wallpaper">Встановити поточні шпалери</string>
+    <string name="browse_set_wallpaper_with_title">Встановити \"<xliff:g id="image_name" example="IMG14227.jpg">%s</xliff:g>\" як поточні шпалери</string>
+    <string name="missing_resources_title">Недопустиме встановлення <xliff:g id="muzei_name">Muzei</xliff:g></string>
+    <string name="missing_resources_open">Відкрити <xliff:g id="google_play">Google Play</xliff:g></string>
+    <string name="missing_resources_quit">Закрити <xliff:g id="muzei_name">Muzei</xliff:g></string>
+    <string name="actions_gestures">Налаштування жестів</string>
+    <string name="gestures_title">Жести</string>
+    <string name="gestures_double_tap_title">Подвійний дотик</string>
+    <string name="gestures_double_tap_description">Двічі торкніться розмитої шпалери на вашому головному екрані
+        щоб виконати дію.</string>
+    <string name="gestures_three_finger_tap_title">Потрійний дотик</string>
+    <string name="gestures_tap_action_next">Наступна робота</string>
+    <string name="gestures_tap_action_none">Нічого</string>
+    <string name="about_title">Про програму <xliff:g id="muzei_name">Muzei</xliff:g></string>
+    <string name="about_version_template">v<xliff:g id="version_number" example="3.3.0 Beta">%1$s</xliff:g></string>
+</resources>

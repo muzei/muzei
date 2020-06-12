@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2014 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_description"><xliff:g id="muzei_name">Muzei</xliff:g> Papel de parede interativo</string>
+    <string name="settings_title"><xliff:g id="muzei_name">Configurações do Muzei</xliff:g></string>
+    <string name="settings_home_screen_title">Tela Inicial</string>
+    <string name="settings_lock_screen_title">Tela de Bloqueio</string>
+    <string name="settings_blur_amount_title">Desfoque</string>
+    <string name="settings_dim_amount_title">Brilho</string>
+    <string name="settings_grey_amount_title">Cor</string>
+    <string name="notification_new_wallpaper">Novo papel de parede</string>
+    <string name="notification_new_wallpaper_channel_name">Novos papéis de parede</string>
+    <string name="notification_settings">Configurações de Notificação</string>
+    <string name="notification_settings_failed">Falha na abertura das configurações de notificação.
+        Por favor, ajuste as configurações de notificação do <xliff:g id="muzei_name">Muzei</xliff:g>
+        no aplicativo de configurações.</string>
+    <string name="notification_settings_done">Concluido</string>
+    <string name="notification_settings_moved_title">As configurações de notificação foram movidas</string>
+    <string name="notification_settings_moved_text">Revise as suas configurações de notificação</string>
+    <string name="auto_advance_settings">Configurações do Avanço Automático</string>
+    <string name="auto_advance_disabled">Avanço Automático desativado</string>
+    <string name="auto_advance_disabled_description">Fontes antigas controlam seu próprio
+        carregamento de papéis de parede e não suportam o Avanço Automático</string>
+    <string name="auto_advance_title">Avanço Automático</string>
+    <string name="auto_advance_description">Controle quando o <xliff:g id="muzei_name">Muzei</xliff:g>
+        avança automaticamente para o próximo papel de parede.</string>
+    <string name="auto_advance_wifi">Avançar automaticamente apenas no Wi-Fi</string>
+    <string name="auto_advance_interval">Intervalo</string>
+    <string name="auto_advance_interval_15m">A cada 15 minutos</string>
+    <string name="auto_advance_interval_30m">A cada 30 minutos</string>
+    <string name="auto_advance_interval_1h">A cada hora</string>
+    <string name="auto_advance_interval_3h">A cada 3 horas</string>
+    <string name="auto_advance_interval_6h">A cada 6 horas</string>
+    <string name="auto_advance_interval_24h">A cada 24 horas</string>
+    <string name="auto_advance_interval_72h">A cada 3 dias</string>
+    <string name="auto_advance_interval_never">Não avance automaticamente</string>
+    <string name="auto_advance_tasker">Para controle exato sobre o que faz seu papel de parede mudar
+        use a função \'Próxima obra\' disponível em
+        <xliff:g id="tasker_name">Tasker</xliff:g> no Plugin -&gt;
+        <xliff:g id="muzei_name">Muzei</xliff:g> e desative o avanço automático aqui.</string>
+    <string name="action_activate">Ativar</string>
+    <string name="error_view_details">Não foi possível visualizar os detalhes da obra.</string>
+    <string name="error_wallpaper_chooser">Não foi possível iniciar o seletor de papel de parede. Você ainda pode
+        ativar <xliff:g id="muzei_name">Muzei</xliff:g> escolhendo
+        \'Live Wallpapers\' em seu seletor de plano de fundo da tela inicial.</string>
+    <string name="section_choose_source">Fontes</string>
+    <string name="section_effects">Efeitos</string>
+    <string name="action_next_artwork">Próxima arte</string>
+    <string name="action_next_artwork_condensed">Avançar</string>
+    <string name="action_user_command">Mais</string>
+    <string name="action_user_command_prompt">Escolher ação</string>
+    <string name="action_artwork_info">Informações da arte</string>
+    <string name="action_artwork_info_disabled">Não há informações sobre a obra de arte atual.</string>
+    <string name="provider_settings">Configurações</string>
+    <string name="provider_browse">Navegar</string>
+    <string name="legacy_notification_channel_name">Fontes Legadas</string>
+    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g>
+        não é mais suportado</string>
+    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> não
+        suporta diretamente fontes construídas com a API Legacy Source.</string>
+    <string name="legacy_action_learn_more">Saiba mais</string>
+    <string name="legacy_action_send_feedback">Enviar feedback</string>
+    <string name="legacy_summary_title">Fontes Legadas não são mais suportadas</string>
+    <string name="legacy_source_info_title">Fontes Legadas</string>
+    <string name="legacy_source_info_app_info">Informações do App</string>
+    <string name="legacy_source_info_send_feedback">Enviar feedback</string>
+    <string name="done">Concluido</string>
+    <string name="get_more_sources">Obter mais fontes</string>
+    <string name="reset_advanced_settings_defaults">Redefinir controles deslizantes</string>
+    <string name="play_store_not_found">Não foi possível abrir
+        <xliff:g id="google_play"> a Google Play Store</xliff:g>.</string>
+    <string name="browse_refresh">Atualizar</string>
+    <string name="browse_set_wallpaper">Definir o papel de parede atual</string>
+    <string name="missing_resources_open">Abrir a <xliff:g id="google_play">Google Play Store</xliff:g></string>
+    <string name="missing_resources_quit">Fechar o <xliff:g id="muzei_name">Muzei</xliff:g></string>
+    <string name="tasker_setting_dialog_title">Selecionar ação</string>
+    <string name="tasker_action_select_provider">Selecionar
+        <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g></string>
+    <string name="actions_gestures">Customizar gestos</string>
+    <string name="gestures_title">Gestos</string>
+    <string name="gestures_double_tap_title">Toque duplo</string>
+    <string name="gestures_double_tap_description">Toque duas vezes no papel de parede desfocado na sua tela inicial
+        para ativar a ação de sua escolha.</string>
+    <string name="gestures_three_finger_tap_title">Toque com três dedos</string>
+    <string name="gestures_tap_action_next">Próxima obra</string>
+</resources>

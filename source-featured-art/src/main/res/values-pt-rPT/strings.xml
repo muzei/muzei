@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="featuredart_source_title">Obra de arte destacada</string>
+    <string name="featuredart_source_description">Um novo quadro diariamente</string>
+    <string name="featuredart_source_action_view_archive">Ver arquivo</string>
+    <string name="featuredart_action_share_artwork">Partilhar obra de arte</string>
+</resources>

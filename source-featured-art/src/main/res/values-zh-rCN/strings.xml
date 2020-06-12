@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="featuredart_source_title">精选艺术品</string>
+    <string name="featuredart_source_description">每天一幅新画</string>
+    <string name="featuredart_source_action_view_archive">查看存档</string>
+    <string name="featuredart_action_share_artwork">分享作品</string>
+</resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="featuredart_source_title">Empfohlene Kunst</string>
+    <string name="featuredart_source_description">Ein neues Gemälde jeden Tag</string>
+    <string name="featuredart_source_action_view_archive">Archiv anzeigen</string>
+    <string name="featuredart_action_share_artwork">Artwork teilen</string>
+</resources>

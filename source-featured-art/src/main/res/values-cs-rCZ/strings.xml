@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="featuredart_source_title">Vybrané umění</string>
+    <string name="featuredart_source_description">Nový obraz každý den</string>
+    <string name="featuredart_source_action_view_archive">Zobrazit archiv</string>
+    <string name="featuredart_action_share_artwork">Sdílet obrázek</string>
+</resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="featuredart_source_title">Изабрано уметничко дело</string>
+    <string name="featuredart_source_description">Нова слика сваки дан</string>
+    <string name="featuredart_source_action_view_archive">Погледај архиву</string>
+    <string name="featuredart_action_share_artwork">Подели уметничко дело</string>
+</resources>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2014 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="settings_home_screen_title">Domovská obrazovka</string>
+    <string name="settings_lock_screen_title">Zamykací obrazovka</string>
+    <string name="settings_blur_amount_title">Rozostření</string>
+    <string name="settings_dim_amount_title">Ztmavení</string>
+    <string name="settings_grey_amount_title">Šedá</string>
+    <string name="notification_new_wallpaper">Nová tapeta</string>
+    <string name="notification_new_wallpaper_channel_name">Nové tapety</string>
+    <string name="notification_settings">Nastavení oznámení</string>
+    <string name="notification_settings_done">Hotovo</string>
+    <string name="auto_advance_settings">Nastavení automatického pokračování</string>
+    <string name="auto_advance_disabled">Automatické pokračování je vypnuté</string>
+    <string name="auto_advance_disabled_description">Starší zdroje zpracovávají načítání tapet samostatně a nepodporují Automatické pokračování</string>
+    <string name="auto_advance_title">Automatické pokračování</string>
+    <string name="auto_advance_wifi">Automaticky pokračovat pouze na Wi-Fi</string>
+    <string name="auto_advance_interval">Interval</string>
+    <string name="auto_advance_interval_15m">Každých 15 minut</string>
+    <string name="auto_advance_interval_30m">Každých 30 minut</string>
+    <string name="auto_advance_interval_1h">Každou hodinu</string>
+    <string name="auto_advance_interval_3h">Každé 3 hodiny</string>
+    <string name="auto_advance_interval_6h">Každé 6 hodiny</string>
+    <string name="auto_advance_interval_24h">Každých 24 hodin</string>
+    <string name="auto_advance_interval_72h">Kažné 3 dny</string>
+    <string name="auto_advance_interval_never">Nepokračovat automaticky</string>
+    <string name="action_activate">Aktivovat</string>
+    <string name="error_view_details">Detaily obrázku se nepodařilo zobrazit.</string>
+    <string name="section_choose_source">Zdroje</string>
+    <string name="section_effects">Efekty</string>
+    <string name="action_next_artwork">Další obrázek</string>
+    <string name="action_next_artwork_condensed">Další</string>
+    <string name="action_user_command">Více</string>
+    <string name="action_user_command_prompt">Vybrat akci</string>
+    <string name="action_artwork_info">Informace o obrázku</string>
+    <string name="action_artwork_info_disabled">Nejsou k dispozici žádné informace o aktuálním obrázku.</string>
+    <string name="provider_settings">Nastavení</string>
+    <string name="provider_browse">Procházet</string>
+    <string name="legacy_notification_channel_name">Starší zdroje</string>
+    <string name="legacy_action_learn_more">Zjistit více</string>
+    <string name="legacy_action_send_feedback">Zpětná vazba</string>
+    <string name="legacy_summary_title">Starší zdroje již nejsou podporovány</string>
+    <string name="legacy_source_info_title">Starší zdroje</string>
+    <string name="legacy_source_info_app_info">Informace o aplikaci</string>
+    <string name="legacy_source_info_send_feedback">Zpětná vazba</string>
+    <string name="legacy_source_all_uninstalled">Všechny starší zdroje byly odinstalovány</string>
+    <string name="done">Hotovo</string>
+    <string name="set_as_wallpaper_failed">Obrázek nelze načíst</string>
+    <string name="tutorial_subtitle">Dvojím klepnutím na rozmazanou tapetu ji na chvíli zaostříte</string>
+    <string name="get_more_sources">Získat další zdroje</string>
+    <string name="toast_link_effects">Efekty domovské &amp; zamykací obrazovky jsou nyní propojeny</string>
+    <string name="action_link_effects_off">Domovská &amp; zamykací obrazovka jsou oddělené</string>
+    <string name="toast_link_effects_off">Efekty domovské &amp; zamykací obrazovky už nejsou propojeny</string>
+    <string name="reset_advanced_settings_defaults">Resetovat posuvníky</string>
+    <string name="browse_refresh">Obnovit</string>
+    <string name="browse_set_wallpaper">Nastavit aktuální tapetu</string>
+    <string name="tasker_setting_dialog_title">Zvolte akci</string>
+    <string name="actions_gestures">Přizpůsobit gesta</string>
+    <string name="gestures_title">Gesta</string>
+    <string name="gestures_double_tap_title">Dvojité klepnutí</string>
+    <string name="gestures_double_tap_description">Dvakrát klepněte na rozmazanou tapetu na domovské obrazovce pro vyvolání vybrané akce.</string>
+    <string name="gestures_three_finger_tap_title">Klepnutí třemi prsty</string>
+    <string name="gestures_three_finger_tap_description">Klepněte třemi prsty na rozmazanou tapetu na domovské obrazovce pro vyvolání vybrané akce.</string>
+    <string name="gestures_tap_action_temporary_disable">Dočasně vypnout efekty</string>
+    <string name="gestures_tap_action_next">Další obrázek</string>
+    <string name="gestures_tap_action_view_details">Zobrazit podrobnosti o obrázku</string>
+    <string name="gestures_tap_action_none">Nic</string>
+    <string name="actions_always_dark">Vždy tmavé</string>
+    <string name="about_body"><![CDATA[Vytvořili Roman Nurik a Ian Lake, se zásadním přispěním
+        <a href="http://code.muzei.co">open source komunity</a>.
+        <i>Muzei</i> je přepis ruského slova
+        <a href="http://translate.google.com/#en/ru/museum"><i>музей</i></a>, které znamená
+        &#8220;muzeum.&#8221;<br><br>
+
+        Copyright 2013&ndash;2018 Google Inc. Všechna práva vyhrazena.
+        <a href="http://m.google.com/utos">Podmínky služby</a>,
+        <a href="http://www.google.com/policies/privacy/">Ochrana soukromí</a>&nbsp;<br><br>
+
+        Mnohokrát děkujeme:<br>
+        &bull; <b><a href="http://square.github.io/okhttp/">OkHttp</a> a <a href="http://square.github.io/picasso/">Picasso</a></b> od Square<br>
+        &bull; <b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a></b> od Robert Green, Mark F. Guerra a dalších
+    ]]></string>
+    <string name="app_context_description">Živé muzeum na vaši domovskou obrazovku</string>
+</resources>

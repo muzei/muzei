@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2014 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="settings_home_screen_title">Pantalla de Inicio</string>
+    <string name="settings_lock_screen_title">Pantalla de Bloqueo</string>
+    <string name="settings_blur_amount_title">Desenfoque</string>
+    <string name="settings_dim_amount_title">Dimerizar</string>
+    <string name="settings_grey_amount_title">Gris</string>
+    <string name="notification_new_wallpaper">Nuevo fondo de pantalla</string>
+    <string name="notification_new_wallpaper_channel_name">Nuevos fondos de pantalla</string>
+    <string name="notification_settings">Ajustes de notificaciones</string>
+    <string name="notification_settings_failed">Abrir los ajustes de las notificaciones falló,
+        por favor cambie la configuración de <xliff:g id="muzei_name">Muzei</xliff:g>en la aplicación 
+        de configuración.</string>
+    <string name="notification_settings_done">Hecho</string>
+    <string name="notification_settings_moved_title">Los ajustes de notificación se han movido</string>
+    <string name="notification_settings_moved_text">Revisa tus ajustes de notificación</string>
+    <string name="auto_advance_settings">Ajustes de Avance Automático</string>
+    <string name="auto_advance_disabled">Avance automático desactivado</string>
+    <string name="auto_advance_title">Avance Automático</string>
+    <string name="auto_advance_wifi">Avance automático sólo en Wi-Fi</string>
+    <string name="auto_advance_interval">Intervalo</string>
+    <string name="auto_advance_interval_15m">Cada 15 minutos</string>
+    <string name="auto_advance_interval_30m">Cada 30 minutos</string>
+    <string name="auto_advance_interval_1h">Cada hora</string>
+    <string name="auto_advance_interval_3h">Cada 3 horas</string>
+    <string name="auto_advance_interval_6h">Cada 6 horas</string>
+    <string name="auto_advance_interval_24h">Cada 24 horas</string>
+    <string name="auto_advance_interval_72h">Cada 3 días</string>
+    <string name="auto_advance_interval_never">No avanzar automáticamente</string>
+    <string name="action_activate">Activar</string>
+    <string name="error_view_details">No fue posible ver los detalles de la obra.</string>
+    <string name="section_choose_source">Fuentes</string>
+    <string name="section_effects">Efectos</string>
+    <string name="action_next_artwork">Siguiente arte</string>
+    <string name="action_next_artwork_condensed">Siguiente</string>
+    <string name="action_user_command">Más</string>
+    <string name="action_user_command_prompt">Elegir acción</string>
+    <string name="action_artwork_info">Información de la obra</string>
+    <string name="provider_settings">Configuraciones</string>
+    <string name="provider_browse">Navegar</string>
+    <string name="legacy_notification_channel_name">Fuentes Antiguas</string>
+    <string name="legacy_action_learn_more">Aprende más</string>
+    <string name="legacy_action_send_feedback">Dinos tu opinión</string>
+    <string name="legacy_source_info_title">Fuentes Antiguas</string>
+    <string name="legacy_source_info_app_info">Información de la aplicación</string>
+    <string name="legacy_source_info_send_feedback">Enviar feedback</string>
+    <string name="legacy_source_all_uninstalled">Todas las fuentes antiguas han sido desinstaladas</string>
+    <string name="done">Hecho</string>
+    <string name="set_as_wallpaper_using_muzei">Fondo de pantalla (usando <xliff:g id="muzei_name">Muzei</xliff:g>)</string>
+    <string name="set_as_wallpaper_failed">No se puede leer el diseño</string>
+    <string name="action_link_effects">Inicio 🔗 Bloqueo</string>
+    <string name="reset_advanced_settings_defaults">Restablecer sliders</string>
+    <string name="browse_refresh">Actualizar</string>
+    <string name="browse_set_wallpaper">Establecer fondo de pantalla actual</string>
+    <string name="tasker_setting_dialog_title">Seleccionar acción</string>
+    <string name="actions_gestures">Personalizar gestos</string>
+    <string name="gestures_title">Gestos</string>
+    <string name="gestures_double_tap_title">Doble Toque</string>
+    <string name="gestures_three_finger_tap_title">Toque con tres dedos</string>
+    <string name="gestures_tap_action_temporary_disable">Desactivar los efectos temporalmente</string>
+    <string name="gestures_tap_action_next">Siguiente Diseño</string>
+    <string name="gestures_tap_action_view_details">Ver detalles del diseño</string>
+    <string name="gestures_tap_action_none">Ninguno</string>
+    <string name="actions_always_dark">Siempre Oscuro</string>
+    <string name="about_title">Acerca de <xliff:g id="muzei_name">Muzei</xliff:g></string>
+    <string name="about_body"><![CDATA[        Hecho por Roman Nurik e Ian Lake, con importantes contribuciones de
+        la comunidad <a href="http://code.muzei.co">de código abierto</a>.
+        <i>Muzei</i> es una transcripción de la palabra rusa
+        <a href="http://translate.google.com/#en/ru/museum"><i>музеим</i></a>, que significa
+        &#8220;museo.&#8221;<br><br>
+
+        Copyright 2013&ndash;2018 Google Inc. Todos los derechos reservados.
+        <a href="http://m.google.com/utos">Términos de servicio</a>,
+        <a href="http://www.google.com/policies/privacy/">Política de Privacidad</a>&nbsp;<br><br>
+
+        Muchas gracias a estos proyectos de código abierto:<br>
+        &bull; <b><a href="http://square.github.io/okhttp/">OkHttp</a> y <a href="http://square.github.io/picasso/">Picasso</a></b> by Square<br>
+        &bull; <b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a></b> de Robert Green, Marca F. Guerra, y otros
+    ]]></string>
+    <string name="about_version_template">v<xliff:g id="version_number" example="3.3.0 Beta">%1$s</xliff:g></string>
+    <string name="app_author"><xliff:g id="roman_nurik">Roman Nurik</xliff:g> y
+        <xliff:g id="ian_lake">Lago Ian</xliff:g></string>
+    <string name="app_context_description">Un museo viviente para tu pantalla de inicio</string>
+</resources>

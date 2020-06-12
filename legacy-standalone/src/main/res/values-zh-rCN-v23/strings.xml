@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2018 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<resources>
+    <string name="legacy_source_warning_message">旧版源在您的设备上存在已知的问题。您必须在您选择的任何旧版源上禁用电池优化，以确保它能够加载壁纸。这可能造成额外电池消耗。\n\n此外，旧版源会根据自己的计划加载，不会使用自动前进。 如果旧版源没有自己的 WiFi 设置可能会导致额外的数据使用。</string>
+</resources>

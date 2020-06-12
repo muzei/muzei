@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2014 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="gallery_add_fab">Dodaj zdjęcia</string>
+    <string name="gallery_add_photos">Dodaj zdjęcia</string>
+    <string name="gallery_add_folder">Importuj zdjęcia z <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
+    <string name="gallery_internal_storage_message">Niczego nie widzisz? Spróbuj włączyć pamięć wewnętrzną w menu rozwijanym</string>
+    <string name="gallery_add_photos_error">Twoje urządzenie nie obsługuje dodawania zdjęć.\nSkontaktuj się z producentem.</string>
+    <string name="gallery_add_folder_error">Twoje urządzenie nie obsługuje dodawania folderów.\nSkontaktuj się z producentem.</string>
+    <string name="gallery_action_clear_photos">Usuń wszystkie zdjęcia</string>
+    <string name="gallery_action_import_photos">Importuj zdjęcia…</string>
+    <string name="gallery_action_import_photos_from">Importuj zdjęcia z <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
+    <string name="gallery_import_dialog_title">Importuj zdjęcia z</string>
+    <string name="gallery_action_remove">Usuń</string>
+    <string name="gallery_title">Moje zdjęcia</string>
+    <string name="gallery_description">Losowe zdjęcia z aparatu</string>
+    <plurals name="gallery_description_choice_template">
+        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> zdjęcie</item>
+        <item quantity="few"><xliff:g id="quantity" example="2">%1$d</xliff:g> zdjęcia</item>
+        <item quantity="many"><xliff:g id="quantity" example="5">%1$d</xliff:g> zdjęć</item>
+        <item quantity="other"><xliff:g id="quantity" example="5">%1$d</xliff:g> zdjęć</item>
+    </plurals>
+    <string name="gallery_empty">Losowe zdjęcia z aparatu</string>
+    <string name="gallery_empty_subtitle">Zamiast tego wybierz konkretne zdjęcia</string>
+    <string name="gallery_from_gallery">Z galerii</string>
+    <string name="gallery_touch_to_view">Dotknij, aby wyświetlić</string>
+    <string name="gallery_shared_from">Udostępnione z <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
+    <plurals name="gallery_add_photos_success">
+        <item quantity="one">Pomyślnie dodano obraz\ndo źródła \"Moje zdjęcia\"</item>
+        <item quantity="few">Pomyślnie dodano <xliff:g id="quantity" example="2">%d</xliff:g> obrazy\ndo źródła \"Moje zdjęcia\"</item>
+        <item quantity="many">Pomyślnie dodano <xliff:g id="quantity" example="5">%d</xliff:g> obrazów\ndo źródła \"Moje zdjęcia\"</item>
+        <item quantity="other">Pomyślnie dodano <xliff:g id="quantity" example="5">%d</xliff:g> obrazów\ndo źródła \"Moje zdjęcia\"</item>
+    </plurals>
+    <plurals name="gallery_add_photos_failure">
+        <item quantity="one">Nie można dodać obrazu\ndo źródła \"Moje Zdjęcia\"</item>
+        <item quantity="few">Nie można dodać <xliff:g id="quantity" example="2">%d</xliff:g> obrazów\ndo źródła \"Moje zdjęcia\"</item>
+        <item quantity="many">Nie można dodać <xliff:g id="quantity" example="2">%d</xliff:g> obrazów\ndo źródła \"Moje zdjęcia\"</item>
+        <item quantity="other">Nie można dodać <xliff:g id="quantity" example="2">%d</xliff:g> obrazów\ndo źródła \"Moje zdjęcia\"</item>
+    </plurals>
+    <string name="gallery_enable_random">Włącz losowe zdjęcia z aparatu</string>
+    <string name="gallery_permission_rationale">Zezwól na dostęp pamięci, aby wyświetlać losowe zdjęcia jako tło.</string>
+    <string name="gallery_edit_settings">Edytuj uprawnienia aplikacji</string>
+    <string name="gallery_denied_explanation">Musisz włączyć uprawnienie <b>Pamięć</b>, aby używać losowych zdjęć jako tła.</string>
+</resources>

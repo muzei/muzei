@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="featuredart_source_title">Wyróżniona grafika</string>
+    <string name="featuredart_source_description">Codziennie nowy obraz</string>
+    <string name="featuredart_source_action_view_archive">Pokaż archiwum</string>
+    <string name="featuredart_action_share_artwork">Udostępnij grafikę</string>
+</resources>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2014 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="settings_home_screen_title">Почетни екран</string>
+    <string name="settings_lock_screen_title">Закључани екран</string>
+    <string name="settings_blur_amount_title">Замагљење</string>
+    <string name="settings_dim_amount_title">Затамљење</string>
+    <string name="settings_grey_amount_title">Сиво</string>
+    <string name="notification_new_wallpaper">Нова позадина</string>
+    <string name="notification_new_wallpaper_channel_name">Нове позадине</string>
+    <string name="notification_settings">Поставке обавештења</string>
+    <string name="auto_advance_interval_15m">Сваких 15 минута</string>
+    <string name="auto_advance_interval_30m">Сваких 30 минута</string>
+    <string name="auto_advance_interval_1h">Сваки сат</string>
+    <string name="auto_advance_interval_3h">Свака 3 сата</string>
+    <string name="auto_advance_interval_6h">Сваких 6 сати</string>
+    <string name="auto_advance_interval_24h">Свака 24 сата</string>
+    <string name="auto_advance_interval_72h">Свака 3 дана</string>
+    <string name="section_choose_source">Извори</string>
+    <string name="section_effects">Ефекти</string>
+    <string name="action_next_artwork">Следеће уметничко дело</string>
+    <string name="action_next_artwork_condensed">Следеће</string>
+    <string name="action_user_command">Више</string>
+    <string name="action_user_command_prompt">Одабери акцију</string>
+    <string name="action_artwork_info">Информације о уметничком делу</string>
+    <string name="provider_settings">Подешавања</string>
+    <string name="provider_browse">Претражити</string>
+    <string name="legacy_action_learn_more">Сазнајте више</string>
+    <string name="legacy_source_info_app_info">Информације о апликацији</string>
+    <string name="browse_refresh">Освежи</string>
+    <string name="browse_set_wallpaper">Постави позадину</string>
+</resources>

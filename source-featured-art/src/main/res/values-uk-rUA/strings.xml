@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="featuredart_source_title">Рекомендоване мистецтво</string>
+    <string name="featuredart_source_description">Нова картина щодня</string>
+    <string name="featuredart_source_action_view_archive">Переглянути архів</string>
+    <string name="featuredart_action_share_artwork">Поділитися мистецькою роботою</string>
+</resources>

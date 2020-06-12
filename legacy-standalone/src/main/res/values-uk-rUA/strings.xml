@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2019 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="legacy_source_provider_name">Застарілі джерела</string>
+    <string name="legacy_source_warning_positive">Продовжити</string>
+    <string name="legacy_source_warning_learn_more">Детальніше</string>
+    <string name="legacy_source_warning_negative">Скасувати</string>
+    <string name="legacy_source_settings">Вибір джерела</string>
+    <string name="legacy_source_selection_done">Готово</string>
+    <string name="legacy_action_next_artwork">Наступна робота</string>
+    <string name="legacy_source_unavailable">Ваше джерело недоступне. Перемикання на джерело за замовчуванням.</string>
+    <string name="legacy_source_target_too_high_title">Це джерело вимкнене</string>
+    <string name="legacy_source_target_too_high_message"><xliff:g id="source_name" example="Гарні шпалери">%s</xliff:g> несумісний з <xliff:g id="muzei_name">Muzei</xliff:g> API. Щоб використовувати це джерело, розробник повинен змінити <xliff:g id="targetSdkVersion">targetSdkVersion</xliff:g> на 25 або нижче.</string>
+    <string name="legacy_source_target_too_high_send_feedback">Надіслати відгук <xliff:g id="source_name" example="Гарні шпалери">%s</xliff:g></string>
+    <string name="legacy_source_target_too_high_learn_more">Детальніше</string>
+    <string name="legacy_source_target_too_high_dismiss">Зрозуміло</string>
+</resources>

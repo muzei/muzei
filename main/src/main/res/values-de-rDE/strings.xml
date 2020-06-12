@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2014 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_description"><xliff:g id="muzei_name">Muzei</xliff:g> Live-Hintergrund</string>
+    <string name="settings_title"><xliff:g id="muzei_name">Muzei</xliff:g> Einstellungen</string>
+    <string name="settings_home_screen_title">Startbildschirm</string>
+    <string name="settings_lock_screen_title">Sperrbildschirm</string>
+    <string name="settings_blur_amount_title">Weichzeichnen</string>
+    <string name="settings_dim_amount_title">Dimmen</string>
+    <string name="settings_grey_amount_title">Grau</string>
+    <string name="notification_new_wallpaper">Neues Hintergrundbild</string>
+    <string name="notification_new_wallpaper_channel_name">Neue Hintergrundbilder</string>
+    <string name="notification_settings">Benachrichtigungseinstellungen</string>
+    <string name="notification_settings_failed">Öffnen der Benachrichtigungseinstellungen fehlgeschlagen.
+        Bitte passen Sie die <xliff:g id="muzei_name">Muzei</xliff:g>Benachrichtigungseinstellungen
+        in den Einstellungen an.</string>
+    <string name="notification_settings_done">Fertig</string>
+    <string name="notification_settings_moved_title">Benachrichtigungseinstellungen wurden verschoben</string>
+    <string name="notification_settings_moved_text">Benachrichtigungseinstellungen verwalten</string>
+    <string name="auto_advance_settings">Einstellungen für Auto-Wechsel</string>
+    <string name="auto_advance_disabled">Auto-Wechsel deaktiviert</string>
+    <string name="auto_advance_disabled_description">Legacy-Quellen verwalten ihr eigenes Laden der Wallpaper und unterstützen Auto-Wechsel nicht</string>
+    <string name="auto_advance_title">Auto-Wechsel</string>
+    <string name="auto_advance_description">Kontrollieren Sie, wann <xliff:g id="muzei_name">Muzei</xliff:g>
+        automatisch zum nächsten Hintergrund wechselt.</string>
+    <string name="auto_advance_wifi">Auto-Wechsel nur mit WiFi</string>
+    <string name="auto_advance_interval">Intervall</string>
+    <string name="auto_advance_interval_15m">Alle 15 Minuten</string>
+    <string name="auto_advance_interval_30m">Alle 30 Minuten</string>
+    <string name="auto_advance_interval_1h">Stündlich</string>
+    <string name="auto_advance_interval_3h">Alle 3 Stunden</string>
+    <string name="auto_advance_interval_6h">Alle 6 Stunden</string>
+    <string name="auto_advance_interval_24h">Alle 24 Stunden</string>
+    <string name="auto_advance_interval_72h">Alle 3 Tage</string>
+    <string name="auto_advance_interval_never">Kwin Auto-Wechsel</string>
+    <string name="action_activate">Aktivieren</string>
+    <string name="error_view_details">Konnte die Details des Artworks nicht anzeigen.</string>
+    <string name="error_wallpaper_chooser">Konnte die Auswahl des Hintergrundbildes nicht starten. Sie können
+        trotzdem <xliff:g id="muzei_name">Muzei</xliff:g> aktivieren, indem Sie
+        \'Live-Hintergrundbilder\' in Ihrem Bildschirmhintergrund wählen.</string>
+    <string name="section_choose_source">Quellen</string>
+    <string name="section_effects">Effekte</string>
+    <string name="action_next_artwork">Nächstes Artwork</string>
+    <string name="action_next_artwork_condensed">Weiter</string>
+    <string name="action_user_command">Mehr</string>
+    <string name="action_user_command_prompt">Aktion auswählen</string>
+    <string name="action_artwork_info">Artwork-Info</string>
+    <string name="action_artwork_info_disabled">Es gibt keine Artwork-info für das aktuelle Artwork.</string>
+    <string name="provider_settings">Einstellungen</string>
+    <string name="provider_browse">Durchsuchen</string>
+    <string name="legacy_notification_channel_name">Legacy-Quellen</string>
+    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g>
+        wird nicht mehr unterstützt</string>
+    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> unterstützt nicht direkt
+        Quellen, die mit der Legacy-Quell-API erstellt wurden.</string>
+    <string name="legacy_action_learn_more">Weitere Informationen</string>
+    <string name="legacy_action_send_feedback">Feedback senden</string>
+    <string name="legacy_summary_title">Legacy-Quellen werden nicht mehr unterstützt</string>
+    <plurals name="legacy_summary_text">
+        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> Legacy-Quelle gefunden</item>
+        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> Legacy-Quellen gefunden</item>
+    </plurals>
+</resources>

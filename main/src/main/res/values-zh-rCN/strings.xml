@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2014 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_description"><xliff:g id="muzei_name">Muzei</xliff:g> 动态壁纸</string>
+    <string name="settings_title"><xliff:g id="muzei_name">Muzei</xliff:g> 设置</string>
+    <string name="settings_home_screen_title">主屏幕</string>
+    <string name="settings_lock_screen_title">锁定屏幕</string>
+    <string name="settings_blur_amount_title">模糊</string>
+    <string name="settings_dim_amount_title">变暗</string>
+    <string name="settings_grey_amount_title">灰度</string>
+    <string name="notification_new_wallpaper">新壁纸</string>
+    <string name="notification_new_wallpaper_channel_name">新壁纸</string>
+    <string name="notification_settings">通知设置</string>
+    <string name="notification_settings_failed">打开通知设置失败，请在设置应用中调整 <xliff:g id="muzei_name">Muzei</xliff:g> 的通知设置。</string>
+    <string name="notification_settings_done">完成</string>
+    <string name="notification_settings_moved_title">通知设置已移动</string>
+    <string name="notification_settings_moved_text">查看您的通知设置</string>
+    <string name="auto_advance_settings">自动前进设置</string>
+    <string name="auto_advance_disabled">自动前进已禁用</string>
+    <string name="auto_advance_disabled_description">旧版源自己处理壁纸加载，不支持自动前进</string>
+    <string name="auto_advance_title">自动前进</string>
+    <string name="auto_advance_description">控制 <xliff:g id="muzei_name">Muzei</xliff:g> 何时自动切换下一张壁纸。</string>
+    <string name="auto_advance_wifi">仅在 Wi-Fi 上自动前进</string>
+    <string name="auto_advance_interval">时间间隔</string>
+    <string name="auto_advance_interval_15m">每 15 分钟</string>
+    <string name="auto_advance_interval_30m">每 30 分钟</string>
+    <string name="auto_advance_interval_1h">每 1 小时</string>
+    <string name="auto_advance_interval_3h">每 3 小时</string>
+    <string name="auto_advance_interval_6h">每 6 小时</string>
+    <string name="auto_advance_interval_24h">每 24 小时</string>
+    <string name="auto_advance_interval_72h">每 3 天</string>
+    <string name="auto_advance_interval_never">不要自动前进</string>
+    <string name="auto_advance_tasker">若要精确控制触发壁纸更改，使用<xliff:g id="tasker_name">任务栏</xliff:g>中插件-&gt; <xliff:g id="muzei_name">Muzei</xliff:g> 下面的‘下一个作品’动作并禁用自动前进。</string>
+    <string name="action_activate">启用</string>
+    <string name="error_view_details">无法查看作品详情</string>
+    <string name="error_wallpaper_chooser">无法启动壁纸选择器。您仍然可以通过在主屏幕壁纸选择器中选择‘动态壁纸’启用 <xliff:g id="muzei_name">Muzei</xliff:g>。</string>
+    <string name="section_choose_source">源</string>
+    <string name="section_effects">效果</string>
+    <string name="action_next_artwork">下一个作品</string>
+    <string name="action_next_artwork_condensed">下一个</string>
+    <string name="action_user_command">更多</string>
+    <string name="action_user_command_prompt">选择动作</string>
+    <string name="action_artwork_info">作品信息</string>
+    <string name="action_artwork_info_disabled">当前作品没有作品信息。</string>
+    <string name="provider_settings">设置</string>
+    <string name="provider_browse">浏览</string>
+    <string name="legacy_notification_channel_name">旧版源</string>
+    <string name="legacy_notification_title">不再支持 <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g></string>
+    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> 不直接支持使用旧版源 API 构建的源。</string>
+    <string name="legacy_action_learn_more">了解详情</string>
+    <string name="legacy_action_send_feedback">发送反馈</string>
+    <string name="legacy_summary_title">不再支持旧版源</string>
+    <plurals name="legacy_summary_text">
+        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> 发现旧版源</item>
+    </plurals>
+    <plurals name="legacy_unsupported_text">
+        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> 发现不支持的源</item>
+    </plurals>
+    <string name="legacy_source_info_title">旧版源</string>
+    <string name="legacy_source_info_subtitle">构建在旧版源 API 上的源不再直接被 <xliff:g id="muzei_name">Muzei</xliff:g> 支持。</string>
+    <string name="legacy_source_info_app_info">应用信息</string>
+    <string name="legacy_source_info_send_feedback">发送反馈</string>
+    <string name="legacy_source_all_uninstalled">所有旧版源已卸载</string>
+    <string name="done">完成</string>
+    <string name="set_as_wallpaper_using_muzei">壁纸（使用 <xliff:g id="muzei_name">Muzei</xliff:g>）</string>
+    <string name="set_as_wallpaper_failed">无法读取作品</string>
+    <string name="tutorial_main">打开 <xliff:g id="muzei_name">Muzei</xliff:g> 应用查看您的壁纸</string>
+    <string name="tutorial_subtitle">双击您主屏幕上模糊的壁纸以暂时对焦</string>
+    <string name="get_more_sources">获取更多源</string>
+    <string name="get_more_sources_description">使用其他从 <xliff:g id="google_play">Google Play</xliff:g> Store 安装的源完全更改您的壁纸</string>
+    <string name="action_link_effects">主屏幕 🔗 锁定屏幕</string>
+    <string name="toast_link_effects">主屏幕 &amp; 锁定屏幕效果现在已被连接</string>
+    <string name="action_link_effects_off">主屏幕 &amp; 锁定屏幕未连接</string>
+    <string name="toast_link_effects_off">主屏幕 &amp; 锁定屏幕效果不再连接</string>
+    <string name="reset_advanced_settings_defaults">重置滑块</string>
+    <string name="play_store_not_found">无法打开 <xliff:g id="google_play">Google Play</xliff:g> Store。</string>
+    <string name="browse_refresh">刷新</string>
+    <string name="browse_set_wallpaper">设置当前壁纸</string>
+    <string name="browse_set_wallpaper_with_title">将当前壁纸设为 \"<xliff:g id="image_name" example="IMG14227.jpg">%s</xliff:g>\"</string>
+    <string name="missing_resources_title">无效的 <xliff:g id="muzei_name">Muzei</xliff:g> 安装</string>
+    <string name="missing_resources_message"><xliff:g id="muzei_name">Muzei</xliff:g> 处于无效状态。请卸载 <xliff:g id="muzei_name">Muzei</xliff:g> 并从 <xliff:g id="google_play">Google Play</xliff:g> Store 安装已修复您的安装。</string>
+    <string name="missing_resources_open">打开 <xliff:g id="google_play">Google Play</xliff:g> Store</string>
+    <string name="missing_resources_quit">关闭 <xliff:g id="muzei_name">Muzei</xliff:g></string>
+    <string name="tasker_setting_dialog_title">选择动作</string>
+    <string name="tasker_action_select_provider">选择 <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g></string>
+    <string name="actions_gestures">自定义手势</string>
+    <string name="gestures_title">手势</string>
+    <string name="gestures_double_tap_title">双击</string>
+    <string name="gestures_double_tap_description">双击主屏幕上模糊的壁纸触发您选择的动作。</string>
+    <string name="gestures_three_finger_tap_title">三指点按</string>
+    <string name="gestures_three_finger_tap_description">点按主屏幕上模糊的壁纸触发您选择的动作。</string>
+    <string name="gestures_tap_action_temporary_disable">暂时禁用效果</string>
+    <string name="gestures_tap_action_next">下一个作品</string>
+    <string name="gestures_tap_action_view_details">查看作品详情</string>
+    <string name="gestures_tap_action_none">无</string>
+    <string name="actions_always_dark">总是暗色</string>
+    <string name="about_title">关于 <xliff:g id="muzei_name">Muzei</xliff:g></string>
+    <string name="about_body"><![CDATA[        由 Roman Nurik 和 Ian Lake 以及来自<a href="http://code.muzei.co">开源社区</a>的重要贡献制作。
+        <i>Muzei</i> 是俄语词<a href="http://translate.google.com/#en/ru/museum"><i>музей</i></a>的转写，意为&#8220;博物馆&#8221;<br><br>。
+
+        版权所有 2013&ndash;2018 Google Inc。保留所有权利。
+        <a href="http://m.google.com/utos">服务条款</a>，
+        <a href="http://www.google.com/policies/privacy/">隐私政策</a>&nbsp;<br><br>
+
+        非常感谢这些开源项目：<br>
+        &bull; <b><a href="http://square.github.io/okhttp/">OkHttp</a> and <a href="http://square.github.io/picasso/">Picasso</a></b> by Square<br>
+        &bull; <b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a></b> by Robert Green, Mark F. Guerra, and others]]></string>
+    <string name="about_version_template">v<xliff:g id="version_number" example="3.3.0 Beta">%1$s</xliff:g></string>
+    <string name="app_author"><xliff:g id="roman_nurik">Roman Nurik</xliff:g> 与 <xliff:g id="ian_lake">Ian Lake</xliff:g></string>
+    <string name="app_context_description">您主屏幕上的动态博物馆。</string>
+</resources>

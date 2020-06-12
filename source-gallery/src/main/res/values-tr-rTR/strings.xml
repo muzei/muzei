@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2014 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="gallery_add_fab">Fotoğraf ekle</string>
+    <string name="gallery_add_photos">Fotoğraf ekle</string>
+    <string name="gallery_add_folder"><xliff:g id="app_name" example="Gallery">%s</xliff:g>\'den fotoğrafları içe aktar</string>
+    <string name="gallery_internal_storage_message">Hiçbir şey görmüyor musunuz? Üst menüden dahili depolamayı etkinleştirmeyi deneyin</string>
+    <string name="gallery_add_photos_error">Cihazınız fotoğraf eklemeye izin vermiyor.\nLütfen cihaz üreticisine ulaşın.</string>
+    <string name="gallery_add_folder_error">Cihazınız klasör eklemeye izin vermiyor.\nLütfen cihaz üreticisine ulaşın.</string>
+    <string name="gallery_action_clear_photos">Tüm fotoğrafları kaldır</string>
+    <string name="gallery_action_import_photos">Fotoğrafları içe aktar…</string>
+    <string name="gallery_action_import_photos_from"><xliff:g id="app_name" example="Gallery">%s</xliff:g>\'den fotoğrafları içe aktar</string>
+    <string name="gallery_import_dialog_title">Fotoğrafları içe aktar</string>
+    <string name="gallery_action_remove">Kaldır</string>
+    <string name="gallery_title">Fotoğraflarım</string>
+    <string name="gallery_description">Rastgele fotoğraflar</string>
+    <plurals name="gallery_description_choice_template">
+        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> fotoğraf</item>
+        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> fotoğraflar</item>
+    </plurals>
+    <string name="gallery_empty">Rastgele fotoğraflar</string>
+    <string name="gallery_empty_subtitle">Bunun yerine belirli fotoğrafları seçin</string>
+    <string name="gallery_from_gallery">Galerinizden</string>
+    <string name="gallery_shared_from">Tarafından paylaşıldı <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
+    <plurals name="gallery_add_photos_success">
+        <item quantity="one">Resim başarıyla eklendi\niçine \"Benim fotoğraflarım\" kaynak</item>
+        <item quantity="other">Başarıyla eklendi <xliff:g id="quantity" example="2">%d</xliff:g> resim\niçine \"Benim fotoğraflarım\" kaynak</item>
+    </plurals>
+    <plurals name="gallery_add_photos_failure">
+        <item quantity="one">Resim eklenemedi\niçine \"Benim fotoğraflarım\" kaynak</item>
+        <item quantity="other">Eklenemedi <xliff:g id="quantity" example="2">%d</xliff:g> resim\niçine \"Benim fotoğraflarım\" kaynak</item>
+    </plurals>
+    <string name="gallery_enable_random">Rastgele kamera fotoğraflarını etkinleştir</string>
+    <string name="gallery_permission_rationale">Depolama alanı izninin rastgele fotoğrafları arka plan olarak göstermesine izin verin.</string>
+    <string name="gallery_edit_settings">Uygulama İzinlerini Düzenle</string>
+    <string name="gallery_denied_explanation">Arka plan olarak rastgele fotoğraflar kullanmak için <b> Depolama </b> iznini etkinleştirmeniz gerekir.</string>
+</resources>

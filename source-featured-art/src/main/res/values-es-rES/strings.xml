@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="featuredart_source_title">Arte destacado</string>
+    <string name="featuredart_source_description">Una nueva pintura cada día</string>
+    <string name="featuredart_source_action_view_archive">Ver archivo</string>
+    <string name="featuredart_action_share_artwork">Compartir arte</string>
+</resources>

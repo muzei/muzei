@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2014 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="settings_home_screen_title">Aloitusnäyttö</string>
+    <string name="settings_lock_screen_title">Lukitusnäyttö</string>
+    <string name="settings_blur_amount_title">Sumenna</string>
+    <string name="settings_dim_amount_title">Himmennä</string>
+    <string name="auto_advance_interval_15m">15 minuutin välein</string>
+    <string name="auto_advance_interval_1h">Tunnin välein</string>
+    <string name="action_activate">Ota käyttöön</string>
+    <string name="legacy_source_info_app_info">Sovelluksen tiedot</string>
+    <string name="legacy_source_info_send_feedback">Anna palautetta</string>
+    <string name="done">Valmis</string>
+    <string name="reset_advanced_settings_defaults">Nollaa säätimet</string>
+    <string name="browse_refresh">Päivitä</string>
+    <string name="browse_set_wallpaper">Aseta taustakuvaksi</string>
+    <string name="tasker_setting_dialog_title">Valitse toiminto</string>
+    <string name="gestures_double_tap_title">Kaksoisnapsautus</string>
+    <string name="gestures_double_tap_description">Käynnistä valitsemasi toiminto kaksoisnapauttamalla sumennettua taustakuvaa.</string>
+    <string name="gestures_tap_action_view_details">Näytä teoksen tiedot</string>
+    <string name="gestures_tap_action_none">Ei mitään</string>
+    <string name="actions_always_dark">Aina tumma</string>
+</resources>

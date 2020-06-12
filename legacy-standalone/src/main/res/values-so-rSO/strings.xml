@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2019 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="legacy_app_name"><xliff:g id="muzei_name">Muzei</xliff:g> Legacy</string>
+    <string name="legacy_source_warning_positive">Sii wad</string>
+    <string name="legacy_source_warning_learn_more">Wax dheeri ah baro</string>
+    <string name="legacy_source_warning_negative">Ka noqo</string>
+    <string name="legacy_source_settings">Habee isha</string>
+    <string name="legacy_source_selection_done">Dhameeyay</string>
+    <string name="legacy_action_next_artwork">Farshaxanka xigga</string>
+    <string name="legacy_source_unavailable">Meesha aad dooratay lama heli karo. U beddelo isha asalka ah.</string>
+    <string name="legacy_source_target_too_high_title">Xogtan waala xanibey</string>
+    <string name="legacy_source_target_too_high_message"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> Ma waafaqsana <xliff:g id="muzei_name">Muzei</xliff:g>\'s API. Si loo isticmaalo ishan, horumiyaha waa inuu beddelaa <xliff:g id="targetSdkVersion">targetSdkVersion</xliff:g> 25 ama ka hooseeya.</string>
+    <string name="legacy_source_target_too_high_send_feedback">Dir Falcelinta <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g></string>
+    <string name="legacy_source_target_too_high_learn_more">Wax dheeri ah baro</string>
+    <string name="legacy_source_target_too_high_dismiss">Helay</string>
+</resources>

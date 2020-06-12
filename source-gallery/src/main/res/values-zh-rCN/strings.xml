@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2014 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="gallery_add_fab">添加照片</string>
+    <string name="gallery_add_photos">添加照片</string>
+    <string name="gallery_add_folder">从 <xliff:g id="app_name" example="Gallery">%s</xliff:g> 导入照片</string>
+    <string name="gallery_internal_storage_message">看不到任何东西？试着在下拉菜单中启用内部存储</string>
+    <string name="gallery_add_photos_error">您的设备不支持添加图片。\n请联系您的制造商。</string>
+    <string name="gallery_add_folder_error">您的设备不支持添加图片。\n请联系您的制造商。</string>
+    <string name="gallery_action_clear_photos">移除所有照片</string>
+    <string name="gallery_action_import_photos">导入照片…</string>
+    <string name="gallery_action_import_photos_from">从 <xliff:g id="app_name" example="Gallery">%s</xliff:g> 导入照片</string>
+    <string name="gallery_import_dialog_title">从…导入照片</string>
+    <string name="gallery_action_remove">移除</string>
+    <string name="gallery_title">我的照片</string>
+    <string name="gallery_description">随机相机照片</string>
+    <plurals name="gallery_description_choice_template">
+        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> 张照片</item>
+    </plurals>
+    <string name="gallery_empty">随机相机照片</string>
+    <string name="gallery_empty_subtitle">选择指定照片</string>
+    <string name="gallery_from_gallery">从相册中选择</string>
+    <string name="gallery_touch_to_view">触摸查看</string>
+    <string name="gallery_shared_from">分享自 <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
+    <plurals name="gallery_add_photos_success">
+        <item quantity="other">成功将 <xliff:g id="quantity" example="2">%d</xliff:g> 照片添加到“我的照片”源中</item>
+    </plurals>
+    <plurals name="gallery_add_photos_failure">
+        <item quantity="other">无法添加 <xliff:g id="quantity" example="2">%d</xliff:g> 照片到”我的照片“源</item>
+    </plurals>
+    <string name="gallery_enable_random">启用随机相机照片</string>
+    <string name="gallery_permission_rationale">允许存储权限以显示随机照片作为您的背景。</string>
+    <string name="gallery_edit_settings">编辑应用权限</string>
+    <string name="gallery_denied_explanation">您必须启用 <b>存储</b> 权限以使用随机照片作为您的背景。</string>
+</resources>

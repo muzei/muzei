@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2014 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="gallery_add_fab">Adicionar fotos</string>
+    <string name="gallery_add_photos">Adicionar fotos</string>
+    <string name="gallery_action_import_photos">Importar fotos…</string>
+    <string name="gallery_import_dialog_title">Importar fotos</string>
+    <string name="gallery_action_remove">Remover</string>
+    <string name="gallery_title">Minhas Fotos</string>
+    <string name="gallery_description">Fotos aleatórias da câmera</string>
+    <string name="gallery_empty">Fotos aleatórias da câmera</string>
+    <string name="gallery_from_gallery">Da Galeria</string>
+    <string name="gallery_touch_to_view">Toque para visualizar</string>
+    <string name="gallery_enable_random">Habilitar fotos aleatórias da câmera</string>
+    <string name="gallery_edit_settings">Editar Permissões do App</string>
+</resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="featuredart_source_title">Öne çıkan eserler</string>
+    <string name="featuredart_source_description">Her gün yeni bir tablo</string>
+    <string name="featuredart_source_action_view_archive">Arşivi gör</string>
+    <string name="featuredart_action_share_artwork">Sanat eserini paylaş</string>
+</resources>

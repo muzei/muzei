@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2014 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="gallery_add_fab">Fotos hinzufügen</string>
+    <string name="gallery_add_photos">Fotos hinzufügen</string>
+    <string name="gallery_add_folder">Importiere Fotos von <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
+    <string name="gallery_internal_storage_message">Nichts zu sehen? Versuchen Sie den internen Speicher im Überlaufmenü zu aktivieren</string>
+    <string name="gallery_add_photos_error">Ihr Gerät unterstützt das Hinzufügen von Bildern nicht.\nBitte kontaktieren Sie Ihren Hersteller.</string>
+    <string name="gallery_add_folder_error">Ihr Gerät unterstützt das Hinzufügen von Ordnern nicht.\nBitte kontaktieren Sie Ihren Hersteller.</string>
+    <string name="gallery_action_clear_photos">Alle Fotos entfernen</string>
+    <string name="gallery_action_import_photos">Fotos importieren…</string>
+    <string name="gallery_action_import_photos_from">Importiere Fotos von <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
+    <string name="gallery_import_dialog_title">Importiere Fotos von</string>
+    <string name="gallery_action_remove">Entfernen</string>
+    <string name="gallery_title">Meine Fotos</string>
+    <string name="gallery_description">Zufällige Kamerafotos</string>
+    <string name="gallery_empty">Zufällige Kamerafotos</string>
+    <string name="gallery_empty_subtitle">Wählen Sie stattdessen bestimmte Fotos</string>
+    <string name="gallery_from_gallery">Aus der Galerie</string>
+    <string name="gallery_touch_to_view">Zum Anzeigen berühren</string>
+</resources>
