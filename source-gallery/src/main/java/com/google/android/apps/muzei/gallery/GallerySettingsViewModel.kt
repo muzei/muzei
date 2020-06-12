@@ -29,6 +29,9 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.sendBlocking
@@ -42,9 +45,11 @@ import kotlin.coroutines.EmptyCoroutineContext
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class GallerySettingsViewModel(application: Application) : AndroidViewModel(application) {
-    internal val chosenPhotos: LiveData<PagedList<ChosenPhoto>> = LivePagedListBuilder(
-            GalleryDatabase.getInstance(application).chosenPhotoDao().chosenPhotosPaged,
-            24).build()
+    internal val chosenPhotos = Pager(
+            PagingConfig(24, 12)
+    ) {
+        GalleryDatabase.getInstance(application).chosenPhotoDao().chosenPhotosPaged
+    }.flow.cachedIn(viewModelScope)
     internal val getContentActivityInfoList = getContentActivityInfos()
             .asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
 

@@ -25,7 +25,7 @@ import android.os.Build
 import android.provider.DocumentsContract
 import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.paging.DataSource
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -52,7 +52,7 @@ internal abstract class ChosenPhotoDao {
     }
 
     @get:Query("SELECT * FROM chosen_photos ORDER BY _id DESC")
-    internal abstract val chosenPhotosPaged: DataSource.Factory<Int, ChosenPhoto>
+    internal abstract val chosenPhotosPaged: PagingSource<Int, ChosenPhoto>
 
     @get:Query("SELECT * FROM chosen_photos ORDER BY _id DESC")
     internal abstract val chosenPhotosLiveData: LiveData<List<ChosenPhoto>>

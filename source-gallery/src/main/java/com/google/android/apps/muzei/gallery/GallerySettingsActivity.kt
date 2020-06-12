@@ -56,11 +56,10 @@ import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
-import androidx.paging.PagedList
-import androidx.paging.PagedListAdapter
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
@@ -75,6 +74,7 @@ import com.google.android.apps.muzei.util.toast
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.ArrayList
 import java.util.LinkedList
@@ -117,7 +117,7 @@ private class ChooseFolder : ActivityResultContract<Unit, Uri?>() {
             openDocumentTree.parseResult(resultCode, intent)
 }
 
-class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPhoto>>,
+class GallerySettingsActivity : AppCompatActivity(),
         GalleryImportPhotosDialogFragment.OnRequestContentListener, MultiSelectionController.Callbacks {
 
     companion object {
@@ -168,10 +168,6 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
         processSelectedUris(photos)
     }
 
-    private val chosenPhotosLiveData: LiveData<PagedList<ChosenPhoto>> by lazy {
-        viewModel.chosenPhotos
-    }
-
     private lateinit var binding: GalleryActivityBinding
 
     private var itemSize = 10
@@ -195,6 +191,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
 
     private val chosenPhotosAdapter = GalleryAdapter()
 
+    @ExperimentalPagingApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = GalleryActivityBinding.inflate(layoutInflater)
@@ -238,7 +235,6 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
 
                 // Complete setup
                 gridLayoutManager.spanCount = numColumns
-                chosenPhotosAdapter.setHasStableIds(true)
                 binding.photoGrid.adapter = chosenPhotosAdapter
 
                 binding.photoGrid.viewTreeObserver.removeOnGlobalLayoutListener(this)
@@ -295,7 +291,16 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                 hideAddToolbar(true)
             }
         }
-        chosenPhotosLiveData.observe(this, this)
+        lifecycleScope.launchWhenStarted {
+            viewModel.chosenPhotos.collect {
+                chosenPhotosAdapter.submitData(it)
+            }
+        }
+        lifecycleScope.launchWhenStarted {
+            chosenPhotosAdapter.dataRefreshFlow.collect {
+                onDataSetChanged()
+            }
+        }
         getContentActivitiesLiveData.observe(this) { invalidateOptionsMenu() }
         GalleryScanWorker.enqueueRescan(this)
     }
@@ -575,8 +580,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
     }
 
     private fun onDataSetChanged() {
-        val chosenPhotos = chosenPhotosLiveData.value
-        if (chosenPhotos != null && !chosenPhotos.isEmpty()) {
+        if (chosenPhotosAdapter.itemCount != 0) {
             binding.empty.visibility = View.GONE
             // We have at least one image, so consider the Gallery source properly setup
             setResult(RESULT_OK)
@@ -617,7 +621,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                 binding.thumbnail4)
     }
 
-    private inner class GalleryAdapter internal constructor() : PagedListAdapter<ChosenPhoto, PhotoViewHolder>(CHOSEN_PHOTO_DIFF_CALLBACK) {
+    private inner class GalleryAdapter internal constructor() : PagingDataAdapter<ChosenPhoto, PhotoViewHolder>(CHOSEN_PHOTO_DIFF_CALLBACK) {
         private val handler by lazy { Handler(Looper.getMainLooper()) }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoViewHolder {
@@ -638,7 +642,8 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             binding.root.setOnClickListener {
                 updatePosition = vh.bindingAdapterPosition
                 if (updatePosition != RecyclerView.NO_POSITION) {
-                    multiSelectionController.toggle(getItemId(updatePosition), true)
+                    val chosenPhoto = getItem(updatePosition)
+                    multiSelectionController.toggle(chosenPhoto?.id ?: -1, true)
                 }
             }
 
@@ -718,11 +723,6 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             maxDistance = max(maxDistance, hypot((x - right).toDouble(), (y - bottom).toDouble()).toFloat())
             return maxDistance
         }
-
-        override fun getItemId(position: Int): Long {
-            val chosenPhoto = getItem(position)
-            return chosenPhoto?.id ?: -1
-        }
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -784,10 +784,5 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
                     .chosenPhotoDao()
                     .insertAll(this@GallerySettingsActivity, uris)
         }
-    }
-
-    override fun onChanged(chosenPhotos: PagedList<ChosenPhoto>?) {
-        chosenPhotosAdapter.submitList(chosenPhotos)
-        onDataSetChanged()
     }
 }
