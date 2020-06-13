@@ -24,7 +24,7 @@ buildscript {
         archCoreVersion = '2.1.0'
         browserVersion = '1.2.0'
         coilVersion = '0.11.0'
-        constraintLayoutVersion = '2.0.0-beta6'
+        constraintLayoutVersion = '2.0.0-beta7'
         coreVersion = '1.4.0-alpha01'
         coroutinesVersion = '1.3.6'
         dokkaVersion = '0.10.0'
