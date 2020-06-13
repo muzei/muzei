@@ -764,7 +764,13 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
 
     private fun processSelectedUris(uris: List<Uri>) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            hideAddToolbar(true)
+            if (!binding.addToolbar.isAttachedToWindow) {
+                // Can't animate detached Views
+                binding.addToolbar.visibility = View.INVISIBLE
+                binding.addFab.visibility = View.VISIBLE
+            } else {
+                hideAddToolbar(true)
+            }
         }
         if (uris.isEmpty()) {
             // Nothing to do, so we can avoid posting the runnable at all
