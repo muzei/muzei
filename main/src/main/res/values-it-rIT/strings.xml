@@ -14,4 +14,29 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="settings_home_screen_title">Schermata principale</string>
+    <string name="settings_lock_screen_title">Blocco Schermo</string>
+    <string name="settings_blur_amount_title">Sfocatura</string>
+    <string name="settings_grey_amount_title">Grigio</string>
+    <string name="notification_new_wallpaper">Nuovo sfondo</string>
+    <string name="notification_new_wallpaper_channel_name">Nuovi Sfondi</string>
+    <string name="notification_settings">Impostazioni Notifiche</string>
+    <string name="notification_settings_done">Fatto</string>
+    <string name="notification_settings_moved_title">Le impostazioni di notifica sono state spostate</string>
+    <string name="auto_advance_settings">Impostazioni Avanzamento Automatico</string>
+    <string name="auto_advance_disabled">Avanzamento Automatico disabilitato</string>
+    <string name="auto_advance_title">Avanzamento Automatico</string>
+    <string name="auto_advance_wifi">Avanzamento Automatico solo su Wi-Fi</string>
+    <string name="auto_advance_interval">Intervallo</string>
+    <string name="auto_advance_interval_15m">Ogni 15 minuti</string>
+    <string name="auto_advance_interval_30m">Ogni 30 minuti</string>
+    <string name="auto_advance_interval_1h">Ogni ora</string>
+    <string name="auto_advance_interval_3h">Ogni 3 ore</string>
+    <string name="auto_advance_interval_6h">Ogni 6 ore</string>
+    <string name="auto_advance_interval_24h">Ogni 24 ore</string>
+    <string name="auto_advance_interval_72h">Ogni 3 giorni</string>
+    <string name="auto_advance_interval_never">Non avanzare automaticamente</string>
+    <string name="action_activate">Attiva</string>
+    <string name="error_view_details">Impossibile visualizzare i dettagli dell\'opera.</string>
+</resources>

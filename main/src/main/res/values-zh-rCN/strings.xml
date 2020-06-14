@@ -45,6 +45,7 @@
     <string name="auto_advance_interval_72h">每 3 天</string>
     <string name="auto_advance_interval_never">不要自动前进</string>
     <string name="auto_advance_tasker">若要精确控制触发壁纸更改，使用<xliff:g id="tasker_name">任务栏</xliff:g>中插件-&gt; <xliff:g id="muzei_name">Muzei</xliff:g> 下面的‘下一个作品’动作并禁用自动前进。</string>
+    <string name="auto_advance_tasker_name"><xliff:g id="tasker_name">任务栏</xliff:g></string>
     <string name="action_activate">启用</string>
     <string name="error_view_details">无法查看作品详情</string>
     <string name="error_wallpaper_chooser">无法启动壁纸选择器。您仍然可以通过在主屏幕壁纸选择器中选择‘动态壁纸’启用 <xliff:g id="muzei_name">Muzei</xliff:g>。</string>

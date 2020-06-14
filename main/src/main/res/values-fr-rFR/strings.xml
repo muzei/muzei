@@ -52,6 +52,7 @@
         à changer, utilisez l\'action \'Œuvre suivante\' disponible dans
         <xliff:g id="tasker_name">Tasker</xliff:g> sous Plugin -&gt;
         <xliff:g id="muzei_name">Muzei</xliff:g> et désactivez l\'avancemenent automatique ici.</string>
+    <string name="auto_advance_tasker_name"><xliff:g id="tasker_name">Tasker</xliff:g></string>
     <string name="action_activate">Activer</string>
     <string name="error_view_details">Impossible de voir les détails de l\'œuvre.</string>
     <string name="section_choose_source">Sources</string>

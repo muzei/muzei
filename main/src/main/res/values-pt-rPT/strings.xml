@@ -51,6 +51,7 @@
          use a secção \"Próxima obra de arte\" que se encontra em
         <xliff:g id="tasker_name">Tasker</xliff:g> em Plugin -&gt;
         <xliff:g id="muzei_name">Muzei</xliff:g> e desative o avanço automático aqui.</string>
+    <string name="auto_advance_tasker_name"><xliff:g id="tasker_name">Tasker</xliff:g></string>
     <string name="action_activate">Ativar</string>
     <string name="error_view_details">Não foi possível ver os detalhes da obra de arte.</string>
     <string name="error_wallpaper_chooser">Não foi possível abrir o selecionador de imagens de fundo. Ainda pode

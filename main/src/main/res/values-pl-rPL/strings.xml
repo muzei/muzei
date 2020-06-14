@@ -52,6 +52,7 @@
         Twoja tapeta się zmienia, użyj akcji \'Następna grafika\' dostępnej w
         <xliff:g id="tasker_name">Tasker</xliff:g> we wtyczce -&gt;
         <xliff:g id="muzei_name">Muzei</xliff:g> i wyłącz tam automatyczne przełączanie.</string>
+    <string name="auto_advance_tasker_name"><xliff:g id="tasker_name">Tasker</xliff:g></string>
     <string name="action_activate">Aktywuj</string>
     <string name="error_view_details">Nie można wyświetlić szczegółów grafiki.</string>
     <string name="error_wallpaper_chooser">Nie można uruchomić wyboru tapety. Nadal możesz

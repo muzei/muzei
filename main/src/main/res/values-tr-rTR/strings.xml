@@ -48,6 +48,7 @@
          değiştirmek için şu sayfada bulunan \'Sonraki resim\' eylemini kullanın
          Eklenti altında <xliff:g id="tasker_name">kılıf</xliff:g> -&gt;
          <xliff:g id="muzei_name">Muzei</xliff:g> ve burada otomatik ilerlemeyi devre dışı bırak.</string>
+    <string name="auto_advance_tasker_name"><xliff:g id="tasker_name">kılıf</xliff:g></string>
     <string name="action_activate">Etkinleştir</string>
     <string name="error_view_details">Sanat eseri detayları görüntülenemiyor.</string>
     <string name="error_wallpaper_chooser">Arkaplan seçici başlatılamadı. Ana ekranda canlı arkaplan menüsünü seçerek, <xliff:g id="muzei_name">Muzei</xliff:g>\'yi aktifleştirebilirsiniz.</string>

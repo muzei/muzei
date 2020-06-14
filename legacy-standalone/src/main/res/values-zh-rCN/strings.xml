@@ -15,7 +15,7 @@
   limitations under the License.
   -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="legacy_app_name"><xliff:g id="muzei_name">Muzei</xliff:g> Legacy</string>
+    <string name="legacy_app_name"><xliff:g id="muzei_name">Muzei</xliff:g> 旧版</string>
     <string name="legacy_source_provider_name">旧版源</string>
     <string name="legacy_source_warning_title">启用旧版源？</string>
     <string name="legacy_source_warning_message">旧版源根据自己的计划加载，不使用自动前进功能。 如果旧版源没有自己的 WiFi 设置可能会导致额外的数据使用。</string>

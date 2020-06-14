@@ -20,5 +20,7 @@
     <string name="provider_title">当前源</string>
     <string name="provider_settings">源设置</string>
     <string name="config_show_date_title">日期</string>
+    <string name="config_top_complication_title">表盘顶部组件</string>
+    <string name="config_bottom_complication_title">表盘底部组件</string>
     <string name="config_tap_title">点击动作</string>
 </resources>
