@@ -1,0 +1,28 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>createChooseProviderIntent - muzei-api</title>
+<link rel="stylesheet" href="../../style.css">
+</HEAD>
+<BODY>
+<a href="../index.html">muzei-api</a>&nbsp;/&nbsp;<a href="index.html">com.google.android.apps.muzei.api</a>&nbsp;/&nbsp;<a href="./create-choose-provider-intent.html">createChooseProviderIntent</a><br/>
+<br/>
+<h1>createChooseProviderIntent</h1>
+<a name="com.google.android.apps.muzei.api$createChooseProviderIntent(com.google.android.apps.muzei.api.provider.ProviderClient)"></a>
+<code><span class="keyword">fun </span><a href="../com.google.android.apps.muzei.api.provider/-provider-client/index.html"><span class="identifier">ProviderClient</span></a><span class="symbol">.</span><span class="identifier">createChooseProviderIntent</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://developer.android.com/reference/android/content/Intent.html"><span class="identifier">Intent</span></a></code>
+<p>Deep link into Muzei's Sources screen, automatically scrolling
+to the <a href="../com.google.android.apps.muzei.api.provider/-muzei-art-provider/index.html">com.google.android.apps.muzei.api.provider.MuzeiArtProvider</a> associated
+with this <a href="../com.google.android.apps.muzei.api.provider/-provider-client/index.html">ProviderClient</a>. If Muzei is not yet activated, users will be asked
+to activate Muzei before continuing onto the Sources screen.</p>
+<p>Note that users must still manually select your <code>MuzeiArtProvider</code>.</p>
+<p>It is strongly recommended in cases where you receive an
+<a href="https://developer.android.com/reference/android/content/ActivityNotFoundException.html">android.content.ActivityNotFoundException</a> (due to the user having an older version
+of Muzei installed or if Muzei is not installed at all) to fall back on:</p>
+<ol><li><a href="https://developer.android.com/reference/android/content/pm/PackageManager.html#getLaunchIntentForPackage(java.lang.String)">android.content.pm.PackageManager.getLaunchIntentForPackage</a> with Muzei's
+package name, <code>net.nurik.roman.muzei</code> to open Muzei and navigate to the
+Sources screen themselves.</li>
+<li>A link to the Google Play Store with Muzei's package name so that user can
+install Muzei.</li>
+</ol>
+</BODY>
+</HTML>

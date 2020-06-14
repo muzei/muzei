@@ -54,5 +54,31 @@ columns as well as helper methods to make it easier to work with the provided da
 </tr>
 </tbody>
 </table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="create-choose-provider-intent.html">createChooseProviderIntent</a></h4>
+</td>
+<td>
+<p>Deep link into Muzei's Sources screen, automatically scrolling
+to the <a href="../com.google.android.apps.muzei.api.provider/-muzei-art-provider/index.html">com.google.android.apps.muzei.api.provider.MuzeiArtProvider</a> associated
+with this <a href="../com.google.android.apps.muzei.api.provider/-provider-client/index.html">ProviderClient</a>. If Muzei is not yet activated, users will be asked
+to activate Muzei before continuing onto the Sources screen.</p>
+<code><span class="keyword">fun </span><a href="../com.google.android.apps.muzei.api.provider/-provider-client/index.html"><span class="identifier">ProviderClient</span></a><span class="symbol">.</span><span class="identifier">createChooseProviderIntent</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://developer.android.com/reference/android/content/Intent.html"><span class="identifier">Intent</span></a></code></td>
+</tr>
+<tr>
+<td>
+<h4><a href="is-selected.html">isSelected</a></h4>
+</td>
+<td>
+<p>Checks the <a href="-muzei-contract/-sources/index.html">MuzeiContract.Sources</a> table provided by Muzei to determine whether the
+<a href="../com.google.android.apps.muzei.api.provider/-muzei-art-provider/index.html">com.google.android.apps.muzei.api.provider.MuzeiArtProvider</a> associated with
+this <a href="../com.google.android.apps.muzei.api.provider/-provider-client/index.html">ProviderClient</a> has been selected by the user.</p>
+<code><span class="keyword">fun </span><a href="../com.google.android.apps.muzei.api.provider/-provider-client/index.html"><span class="identifier">ProviderClient</span></a><span class="symbol">.</span><span class="identifier">isSelected</span><span class="symbol">(</span><span class="identifier" id="com.google.android.apps.muzei.api$isSelected(com.google.android.apps.muzei.api.provider.ProviderClient, android.content.Context)/context">context</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/content/Context.html"><span class="identifier">Context</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
+</tr>
+</tbody>
+</table>
 </BODY>
 </HTML>
