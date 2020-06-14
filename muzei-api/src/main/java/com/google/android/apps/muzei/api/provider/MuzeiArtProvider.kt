@@ -298,19 +298,14 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
                     .withValues(art.toContentValues())
                     .build())
         }
-        val resultUris = ArrayList<Uri>(operations.size)
-        try {
-            val results = applyBatch(operations)
-            for (result in results) {
-                resultUris.add(result.uri)
-            }
+        return try {
+            applyBatch(operations).mapNotNull { result -> result.uri }
         } catch (e: OperationApplicationException) {
             if (Log.isLoggable(TAG, Log.INFO)) {
                 Log.i(TAG, "addArtwork failed", e)
             }
+            emptyList()
         }
-
-        return resultUris
     }
 
     final override fun setArtwork(artwork: Artwork): Uri? {
@@ -343,10 +338,7 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
         val currentTime = System.currentTimeMillis()
         val resultUris = ArrayList<Uri>(operations.size)
         try {
-            val results = applyBatch(operations)
-            for (result in results) {
-                resultUris.add(result.uri)
-            }
+            resultUris.addAll(applyBatch(operations).mapNotNull { result -> result.uri })
             val deleteOperations = ArrayList<ContentProviderOperation>()
             query(
                     contentUri,

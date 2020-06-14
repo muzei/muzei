@@ -144,18 +144,14 @@ object ProviderContract {
                             .withValues(art.toContentValues())
                             .build())
                 }
-                val resultUris = ArrayList<Uri>(operations.size)
-                try {
-                    val results = contentResolver.applyBatch(
-                            authority, operations)
-                    for (result in results) {
-                        resultUris.add(result.uri)
-                    }
+                return try {
+                    val results = contentResolver.applyBatch(authority, operations)
+                    results.mapNotNull { result -> result.uri }
                 } catch (ignored: OperationApplicationException) {
+                    emptyList()
                 } catch (ignored: RemoteException) {
+                    emptyList()
                 }
-
-                return resultUris
             }
 
             override fun setArtwork(
@@ -192,11 +188,8 @@ object ProviderContract {
                 val currentTime = System.currentTimeMillis()
                 val resultUris = ArrayList<Uri>(operations.size)
                 try {
-                    val results = contentResolver.applyBatch(
-                            authority, operations)
-                    for (result in results) {
-                        resultUris.add(result.uri)
-                    }
+                    val results = contentResolver.applyBatch(authority, operations)
+                    resultUris.addAll(results.mapNotNull { result -> result.uri })
                     val deleteOperations = ArrayList<ContentProviderOperation>()
                     context.contentResolver.query(
                             contentUri,

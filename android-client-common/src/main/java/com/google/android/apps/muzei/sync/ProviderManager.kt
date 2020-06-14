@@ -179,7 +179,7 @@ class ProviderManager private constructor(private val context: Context)
 
     init {
         contentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
-            override fun onChange(selfChange: Boolean, uri: Uri) {
+            override fun onChange(selfChange: Boolean, uri: Uri?) {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "onChange for $uri")
                 }
