@@ -32,6 +32,7 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.os.Message
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.SystemProviders
@@ -184,7 +185,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
          * Handler to update the time periodically in interactive mode.
          */
         internal val updateTimeHandler: Handler = @SuppressLint("HandlerLeak")
-        object : Handler() {
+        object : Handler(Looper.getMainLooper()) {
             override fun handleMessage(message: Message) {
                 when (message.what) {
                     MSG_UPDATE_TIME -> {

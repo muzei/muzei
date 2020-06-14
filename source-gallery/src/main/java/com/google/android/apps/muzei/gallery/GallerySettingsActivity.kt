@@ -30,6 +30,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.provider.DocumentsContract
 import android.provider.Settings
 import android.util.Log
@@ -617,6 +618,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
     }
 
     private inner class GalleryAdapter internal constructor() : PagedListAdapter<ChosenPhoto, PhotoViewHolder>(CHOSEN_PHOTO_DIFF_CALLBACK) {
+        private val handler by lazy { Handler(Looper.getMainLooper()) }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoViewHolder {
             val binding = GalleryChosenPhotoItemBinding.inflate(
@@ -671,7 +673,7 @@ class GallerySettingsActivity : AppCompatActivity(), Observer<PagedList<ChosenPh
             val checked = multiSelectionController.isSelected(chosenPhoto.id)
             vh.itemView.setTag(R.id.gallery_viewtag_position, position)
             if (lastTouchPosition == vh.bindingAdapterPosition && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                Handler().post {
+                handler.post {
                     if (!vh.binding.checkedOverlay.isAttachedToWindow) {
                         // Can't animate detached Views
                         vh.binding.checkedOverlay.visibility = if (checked) View.VISIBLE else View.GONE

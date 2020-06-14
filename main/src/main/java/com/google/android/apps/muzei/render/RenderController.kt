@@ -19,6 +19,7 @@ package com.google.android.apps.muzei.render
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Handler
+import android.os.Looper
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -98,10 +99,10 @@ abstract class RenderController(
     }
 
     private val throttledForceReloadHandler by lazy {
-        Handler(Handler.Callback {
+        Handler(Looper.getMainLooper()) {
             reloadCurrentArtwork()
             true
-        })
+        }
     }
 
     override fun onCreate(owner: LifecycleOwner) {

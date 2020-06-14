@@ -29,6 +29,7 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.os.Message
 import android.os.Messenger
 import android.util.Log
@@ -115,7 +116,7 @@ class LegacySourceService : Service(), LifecycleOwner {
     private var replyToMessenger: Messenger? = null
 
     private val messenger by lazy {
-        Messenger(Handler { message ->
+        Messenger(Handler(Looper.getMainLooper()) { message ->
             when (message.what) {
                 LegacySourceServiceProtocol.WHAT_REGISTER_REPLY_TO -> {
                     if (BuildConfig.DEBUG) {
