@@ -38,11 +38,11 @@ class CapabilityListenerService : WearableListenerService() {
                     ComponentName(this, DataLayerArtProvider::class.java),
                     PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
                     PackageManager.DONT_KILL_APP)
-            if (ActivateMuzeiIntentService.hasPendingInstall(this)) {
+            if (ActivateMuzeiReceiver.hasPendingInstall(this)) {
                 val context = this
                 GlobalScope.launch {
                     ProviderManager.select(context, DATA_LAYER_AUTHORITY)
-                    ActivateMuzeiIntentService.resetPendingInstall(context)
+                    ActivateMuzeiReceiver.resetPendingInstall(context)
                 }
             }
         }

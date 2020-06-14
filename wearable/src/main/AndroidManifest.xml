@@ -146,7 +146,7 @@
         </activity>
         <activity android:name="android.support.wearable.complications.ComplicationHelperActivity"/>
 
-        <service android:name="com.google.android.apps.muzei.datalayer.ActivateMuzeiIntentService"/>
+        <receiver android:name="com.google.android.apps.muzei.datalayer.ActivateMuzeiReceiver"/>
 
         <service
             android:name="com.google.android.apps.muzei.datalayer.CapabilityListenerService"

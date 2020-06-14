@@ -30,7 +30,7 @@ import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.google.android.apps.muzei.FullScreenActivity
 import com.google.android.apps.muzei.ProviderChangedReceiver
-import com.google.android.apps.muzei.datalayer.ActivateMuzeiIntentService
+import com.google.android.apps.muzei.datalayer.ActivateMuzeiReceiver
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.sync.ProviderChangedWorker
@@ -131,7 +131,7 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
                     Log.d(TAG, "Update no provider for $complicationId")
                 }
                 ProviderManager.select(applicationContext, FEATURED_ART_AUTHORITY)
-                ActivateMuzeiIntentService.checkForPhoneApp(applicationContext)
+                ActivateMuzeiReceiver.checkForPhoneApp(applicationContext)
                 complicationManager.updateComplicationData(complicationId,
                         ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build())
                 return@launch

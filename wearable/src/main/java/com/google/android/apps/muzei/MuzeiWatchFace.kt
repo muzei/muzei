@@ -52,7 +52,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.preference.PreferenceManager
 import com.google.android.apps.muzei.complications.ArtworkComplicationProviderService
-import com.google.android.apps.muzei.datalayer.ActivateMuzeiIntentService
+import com.google.android.apps.muzei.datalayer.ActivateMuzeiReceiver
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.Artwork
@@ -115,7 +115,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                 val context = this@MuzeiWatchFace
                 lifecycleScope.launch(NonCancellable) {
                     ProviderManager.select(context, FEATURED_ART_AUTHORITY)
-                    ActivateMuzeiIntentService.checkForPhoneApp(context)
+                    ActivateMuzeiReceiver.checkForPhoneApp(context)
                 }
             }
         }

@@ -40,7 +40,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.widget.RoundedDrawable
-import com.google.android.apps.muzei.datalayer.ActivateMuzeiIntentService
+import com.google.android.apps.muzei.datalayer.ActivateMuzeiReceiver
 import com.google.android.apps.muzei.featuredart.BuildConfig
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.sync.ProviderManager
@@ -78,7 +78,7 @@ class MuzeiProviderViewModel(application: Application) : AndroidViewModel(applic
             } else {
                 viewModelScope.launch(NonCancellable) {
                     ProviderManager.select(app, BuildConfig.FEATURED_ART_AUTHORITY)
-                    ActivateMuzeiIntentService.checkForPhoneApp(app)
+                    ActivateMuzeiReceiver.checkForPhoneApp(app)
                 }
             }
         }

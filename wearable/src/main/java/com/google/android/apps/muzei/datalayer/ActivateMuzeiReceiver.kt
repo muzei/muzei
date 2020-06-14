@@ -16,10 +16,10 @@
 
 package com.google.android.apps.muzei.datalayer
 
-import android.app.IntentService
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -52,10 +52,10 @@ import net.nurik.roman.muzei.R
 import java.util.TreeSet
 import java.util.concurrent.TimeoutException
 
-class ActivateMuzeiIntentService : IntentService(TAG) {
+class ActivateMuzeiReceiver : BroadcastReceiver() {
 
     companion object {
-        private const val TAG = "ActivateMuzeiService"
+        private const val TAG = "ActivateMuzeiReceiver"
         private const val NOTIFICATION_CHANNEL = "activate_muzei"
         private const val INSTALL_NOTIFICATION_ID = 3113
         private const val ACTIVATE_NOTIFICATION_ID = 3114
@@ -146,15 +146,15 @@ class ActivateMuzeiIntentService : IntentService(TAG) {
                     .setAutoCancel(true)
                     .setContentTitle(context.getString(R.string.datalayer_install_title))
                     .setContentText(context.getString(R.string.datalayer_install_text))
-            val deleteIntent = Intent(context, ActivateMuzeiIntentService::class.java).apply {
+            val deleteIntent = Intent(context, ActivateMuzeiReceiver::class.java).apply {
                 action = ACTION_MARK_NOTIFICATION_READ
             }
-            builder.setDeleteIntent(PendingIntent.getService(context, 0, deleteIntent, 0))
+            builder.setDeleteIntent(PendingIntent.getBroadcast(context, 0, deleteIntent, 0))
 
-            val installMuzeiIntent = Intent(context, ActivateMuzeiIntentService::class.java).apply {
+            val installMuzeiIntent = Intent(context, ActivateMuzeiReceiver::class.java).apply {
                 action = ACTION_REMOTE_INSTALL_MUZEI
             }
-            val pendingIntent = PendingIntent.getService(context, 0, installMuzeiIntent, 0)
+            val pendingIntent = PendingIntent.getBroadcast(context, 0, installMuzeiIntent, 0)
             builder.addAction(NotificationCompat.Action.Builder(R.drawable.open_on_phone,
                     context.getString(R.string.datalayer_install_action), pendingIntent)
                     .extend(NotificationCompat.Action.WearableExtender()
@@ -187,7 +187,7 @@ class ActivateMuzeiIntentService : IntentService(TAG) {
         }
     }
 
-    override fun onHandleIntent(intent: Intent?) {
+    override fun onReceive(context: Context, intent: Intent?) = with(context) {
         when (intent?.action) {
             ACTION_MARK_NOTIFICATION_READ -> {
                 resetPendingInstall(this)
