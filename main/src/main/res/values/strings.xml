@@ -48,6 +48,7 @@
     <string name="auto_advance_interval_72h">Every 3 days</string>
     <string name="auto_advance_interval_never">Don\'t auto advance</string>
     <string name="auto_advance_tasker">For exact control over what triggers your wallpaper to change, use the \'Next artwork\' action available in <xliff:g id="tasker_name">Tasker</xliff:g> under Plugin -> <xliff:g id="muzei_name">Muzei</xliff:g> and disable auto advance here.</string>
+    <string name="auto_advance_tasker_name"><xliff:g id="tasker_name">Tasker</xliff:g></string>
 
     <string name="action_activate">Activate</string>
     <string name="error_view_details">Couldn\'t view artwork details.</string>

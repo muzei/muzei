@@ -86,9 +86,12 @@ class AutoAdvanceFragment : Fragment(R.layout.auto_advance_fragment) {
         }
 
         val text = binding.tasker.text.toSpannable()
-        val taskerIndex = text.indexOf("Tasker")
-        text[taskerIndex, taskerIndex + 6] = UnderlineSpan()
-        binding.tasker.text = text
+        val taskerName = getString(R.string.auto_advance_tasker_name)
+        val taskerIndex = text.indexOf(taskerName)
+        if (taskerIndex > 0) {
+            text[taskerIndex, taskerIndex + taskerName.length] = UnderlineSpan()
+            binding.tasker.text = text
+        }
         val context = requireContext()
         binding.tasker.setOnClickListener {
             try {
