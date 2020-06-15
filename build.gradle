@@ -37,7 +37,7 @@ buildscript {
         kotlinVersion = '1.3.72'
         lifecycleVersion = '2.3.0-alpha04'
         localeVersion = '1.0.4'
-        materialVersion = '1.1.0'
+        materialVersion = '1.3.0-alpha01'
         multidexVersion = '2.0.1'
         navigationVersion = '2.3.0-rc01'
         okhttpVersion = '3.12.12'

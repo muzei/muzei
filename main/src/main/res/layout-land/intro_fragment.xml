@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"/>
 
-        <com.google.android.apps.muzei.IntroButton
+        <Button
             android:id="@+id/activate_muzei"
             style="@style/Widget.Muzei.IntroButton"
             android:background="@drawable/white_circle_button"
