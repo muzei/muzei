@@ -109,7 +109,7 @@ dependencies {
     kapt "androidx.room:room-compiler:$roomVersion"
     implementation "com.google.android.material:material:$materialVersion"
     implementation "com.google.firebase:firebase-analytics-ktx:$firebaseAnalyticsVersion"
-    api "com.google.firebase:firebase-crashlytics:$firebaseCrashlyticsVersion"
+    api "com.google.firebase:firebase-crashlytics-ktx:$firebaseCrashlyticsVersion"
     implementation "com.google.firebase:firebase-perf:$firebasePerfVersion"
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
     implementation project(':muzei-api')
