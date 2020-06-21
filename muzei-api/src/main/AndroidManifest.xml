@@ -17,6 +17,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.google.android.apps.muzei.api" >
 
+    <queries>
+        <!-- Used to query the Muzei ContentProvider -->
+        <package android:name="net.nurik.roman.muzei" />
+    </queries>
+
     <application>
         <meta-data
             android:name="com.google.android.apps.muzei.api.VERSION"

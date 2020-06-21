@@ -32,6 +32,18 @@
         android:protectionLevel="signature"/>
     <uses-permission android:name="com.google.android.apps.muzei.WRITE_PROVIDER"/>
 
+    <queries>
+        <!-- Used to migrate legacy sources to their replacement MuzeiArtProvider -->
+        <intent>
+            <action android:name="com.google.android.apps.muzei.api.MuzeiArtSource"/>
+        </intent>
+
+        <!-- Used to build the list of installed providers -->
+        <intent>
+            <action android:name="com.google.android.apps.muzei.api.MuzeiArtProvider" />
+        </intent>
+    </queries>
+
     <application>
         <provider
             android:name="com.google.android.apps.muzei.provider.MuzeiProvider"
