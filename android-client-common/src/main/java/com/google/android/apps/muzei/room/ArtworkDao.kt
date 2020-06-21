@@ -57,9 +57,9 @@ abstract class ArtworkDao {
     @Query("SELECT * FROM artwork WHERE providerAuthority = :providerAuthority ORDER BY date_added DESC")
     abstract suspend fun getCurrentArtworkForProvider(providerAuthority: String): Artwork?
 
-    @get:Query("SELECT * FROM artwork art1 WHERE _id IN (" +
-            "SELECT _id FROM artwork art2 " +
-            "GROUP BY providerAuthority ORDER BY date_added DESC)")
+    @get:Query("SELECT * FROM artwork art1," +
+            "(SELECT _id, max(date_added) FROM artwork GROUP BY providerAuthority) as art2 " +
+            "WHERE art1._id=art2._id")
     abstract val currentArtworkByProvider : Flow<List<Artwork>>
 
     @Query("SELECT * FROM artwork WHERE _id=:id")
