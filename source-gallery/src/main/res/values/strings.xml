@@ -42,11 +42,11 @@
     <string name="gallery_touch_to_view">Touch to view</string>
     <string name="gallery_shared_from">Shared from <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
     <plurals name="gallery_add_photos_success">
-        <item quantity="one">Successfully added the image\nto the \"My Photos\" source</item>
+        <item quantity="one">Successfully added <xliff:g id="quantity" example="1">%d</xliff:g> image\nto the \"My Photos\" source</item>
         <item quantity="other">Successfully added <xliff:g id="quantity" example="2">%d</xliff:g> images\nto the \"My Photos\" source</item>
     </plurals>
     <plurals name="gallery_add_photos_failure">
-        <item quantity="one">Unable to add the image\nto the \"My Photos\" source</item>
+        <item quantity="one">Unable to add <xliff:g id="quantity" example="1">%d</xliff:g> image\nto the \"My Photos\" source</item>
         <item quantity="other">Unable to add <xliff:g id="quantity" example="2">%d</xliff:g> images\nto the \"My Photos\" source</item>
     </plurals>
 
