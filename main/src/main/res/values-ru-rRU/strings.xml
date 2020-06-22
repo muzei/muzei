@@ -14,4 +14,34 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_description">Живые обои <xliff:g id="muzei_name">Muzei</xliff:g></string>
+    <string name="settings_title">Настройки <xliff:g id="muzei_name">Muzei</xliff:g></string>
+    <string name="settings_home_screen_title">Домашний экран</string>
+    <string name="settings_lock_screen_title">Экран блокировки</string>
+    <string name="settings_blur_amount_title">Размытие</string>
+    <string name="settings_dim_amount_title">Затемнение</string>
+    <string name="settings_grey_amount_title">Обесцвечивание</string>
+    <string name="notification_new_wallpaper">Новые обои</string>
+    <string name="notification_new_wallpaper_channel_name">Новые обои</string>
+    <string name="notification_settings">Настройки уведомлений</string>
+    <string name="notification_settings_failed">Не удалось открыть настройки уведомлений, пожалуйста, измените настройки уведомлений <xliff:g id="muzei_name">Muzei</xliff:g>в приложении настоек.</string>
+    <string name="notification_settings_done">Готово</string>
+    <string name="notification_settings_moved_title">Настройки уведомлений переехали</string>
+    <string name="notification_settings_moved_text">Просмотрите свои настройки уведомлений</string>
+    <string name="auto_advance_settings">Настройки автоматического перехода</string>
+    <string name="auto_advance_disabled">Автопереход отключён</string>
+    <string name="auto_advance_disabled_description">Устаревшие источники самостоятельно загружают обои и не поддерживают автопереход</string>
+    <string name="auto_advance_title">Автопереход</string>
+    <string name="auto_advance_description">Управлять, когда <xliff:g id="muzei_name">Muzei</xliff:g> автоматически переходит к следующим обоям.</string>
+    <string name="auto_advance_wifi">Автопереход только по Wi-Fi</string>
+    <string name="auto_advance_interval">Интервал</string>
+    <string name="auto_advance_interval_15m">Каждые 15 минут</string>
+    <string name="auto_advance_interval_30m">Каждые 30 минут</string>
+    <string name="auto_advance_interval_1h">Каждый час</string>
+    <string name="auto_advance_interval_3h">Каждые 3 часа</string>
+    <string name="auto_advance_interval_6h">Каждые 6 часа</string>
+    <string name="auto_advance_interval_24h">Каждые 24 часа</string>
+    <string name="auto_advance_interval_72h">Каждые 3 дня</string>
+    <string name="auto_advance_interval_never">Не переходить автоматически</string>
+</resources>

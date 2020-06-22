@@ -14,4 +14,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="gallery_add_fab">Добавить фото</string>
+    <string name="gallery_add_photos">Добавить фото</string>
+    <string name="gallery_add_folder">Импортировать фото из <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
+</resources>

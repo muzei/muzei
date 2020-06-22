@@ -25,19 +25,15 @@
     <string name="notification_new_wallpaper">Nowa tapeta</string>
     <string name="notification_new_wallpaper_channel_name">Nowe tapety</string>
     <string name="notification_settings">Ustawienia powiadomień</string>
-    <string name="notification_settings_failed">Nie udało się otworzyć ustawień powiadomień,
-        dostosuj ustawienia powiadomień <xliff:g id="muzei_name">Muzei</xliff:g>
-        w aplikacji Ustawienia.</string>
+    <string name="notification_settings_failed">Nie udało się otworzyć ustawień powiadomień, dostosuj ustawienia powiadomień <xliff:g id="muzei_name">Muzei</xliff:g> w aplikacji Ustawienia.</string>
     <string name="notification_settings_done">Gotowe</string>
     <string name="notification_settings_moved_title">Ustawienia powiadomień zostały przeniesione</string>
     <string name="notification_settings_moved_text">Przejrzyj ustawienia powiadomień</string>
     <string name="auto_advance_settings">Ustawienia automatycznego przełączania</string>
     <string name="auto_advance_disabled">Automatyczne przełączanie wyłączone</string>
-    <string name="auto_advance_disabled_description">Starsze źródła same obsługują ładowanie
-        tapet i nie obsługują automatycznego przełączania</string>
+    <string name="auto_advance_disabled_description">Starsze źródła same obsługują ładowanie tapet i nie obsługują automatycznego przełączania</string>
     <string name="auto_advance_title">Automatyczne przełączanie</string>
-    <string name="auto_advance_description">Kontroluj kiedy <xliff:g id="muzei_name">Muzei</xliff:g>
-        automatycznie przejdzie do następnej tapety.</string>
+    <string name="auto_advance_description">Kontroluj kiedy <xliff:g id="muzei_name">Muzei</xliff:g> automatycznie przejdzie do następnej tapety.</string>
     <string name="auto_advance_wifi">Automatyczne przełączanie tylko przez Wi-Fi</string>
     <string name="auto_advance_interval">Interwał</string>
     <string name="auto_advance_interval_15m">Co 15 minut</string>
@@ -48,16 +44,11 @@
     <string name="auto_advance_interval_24h">Co 24 godziny</string>
     <string name="auto_advance_interval_72h">Co 3 dni</string>
     <string name="auto_advance_interval_never">Nie przełączaj automatycznie</string>
-    <string name="auto_advance_tasker">Aby uzyskać dokładną kontrolę nad tym, co sprawia, że
-        Twoja tapeta się zmienia, użyj akcji \'Następna grafika\' dostępnej w
-        <xliff:g id="tasker_name">Tasker</xliff:g> we wtyczce -&gt;
-        <xliff:g id="muzei_name">Muzei</xliff:g> i wyłącz tam automatyczne przełączanie.</string>
+    <string name="auto_advance_tasker">Aby uzyskać dokładną kontrolę nad tym, co sprawia, że Twoja tapeta się zmienia, użyj akcji \'Następna grafika\' dostępnej w <xliff:g id="tasker_name">Tasker</xliff:g> we wtyczce -&gt; <xliff:g id="muzei_name">Muzei</xliff:g> i wyłącz tam automatyczne przełączanie.</string>
     <string name="auto_advance_tasker_name"><xliff:g id="tasker_name">Tasker</xliff:g></string>
     <string name="action_activate">Aktywuj</string>
     <string name="error_view_details">Nie można wyświetlić szczegółów grafiki.</string>
-    <string name="error_wallpaper_chooser">Nie można uruchomić wyboru tapety. Nadal możesz
-        aktywować <xliff:g id="muzei_name">Muzei</xliff:g> wybierając
-        \'Tapety na żywo\' na ekranie głównym.</string>
+    <string name="error_wallpaper_chooser">Nie można uruchomić wyboru tapety. Nadal możesz aktywować <xliff:g id="muzei_name">Muzei</xliff:g> wybierając \'Tapety na żywo\' na ekranie głównym.</string>
     <string name="section_choose_source">Źródła</string>
     <string name="section_effects">Efekty</string>
     <string name="action_next_artwork">Następna grafika</string>
@@ -69,10 +60,8 @@
     <string name="provider_settings">Ustawienia</string>
     <string name="provider_browse">Przeglądaj</string>
     <string name="legacy_notification_channel_name">Starsze źródła</string>
-    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g>
-        nie jest już obsługiwane</string>
-    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> bezpośrednio
-        nie obsługuje źródeł stworzonych w oparciu o starsze API.</string>
+    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> nie jest już obsługiwane</string>
+    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> bezpośrednio nie obsługuje źródeł stworzonych w oparciu o starsze API.</string>
     <string name="legacy_action_learn_more">Więcej informacji</string>
     <string name="legacy_action_send_feedback">Prześlij opinię</string>
     <string name="legacy_summary_title">Starsze źródła nie są już obsługiwane</string>
@@ -89,47 +78,38 @@
         <item quantity="other"><xliff:g id="quantity" example="5">%1$d</xliff:g> Niewspieranych źródeł odnaleziono</item>
     </plurals>
     <string name="legacy_source_info_title">Starsze źródła</string>
-    <string name="legacy_source_info_subtitle">Źródła zbudowane w oparciu o starsze API
-        nie są już bezpośrednio obsługiwane przez <xliff:g id="muzei_name">Muzei</xliff:g>.</string>
+    <string name="legacy_source_info_subtitle">Źródła zbudowane w oparciu o starsze API nie są już bezpośrednio obsługiwane przez <xliff:g id="muzei_name">Muzei</xliff:g>.</string>
     <string name="legacy_source_info_app_info">Informacje o aplikacji</string>
     <string name="legacy_source_info_send_feedback">Prześlij opinię</string>
     <string name="legacy_source_all_uninstalled">Wszystkie starsze źródła zostały odinstalowane</string>
     <string name="done">Gotowe</string>
     <string name="set_as_wallpaper_using_muzei">Tapeta (przy użyciu <xliff:g id="muzei_name">Muzei</xliff:g>)</string>
     <string name="set_as_wallpaper_failed">Nie można odczytać grafiki</string>
-    <string name="tutorial_main">Otwórz aplikację <xliff:g id="muzei_name">Muzei</xliff:g>, aby zobaczyć
-        swoją tapetę</string>
+    <string name="tutorial_main">Otwórz aplikację <xliff:g id="muzei_name">Muzei</xliff:g>, aby zobaczyć swoją tapetę</string>
     <string name="tutorial_subtitle">Kliknij dwukrotnie na rozmytą tapetę na ekranie głównym, aby chwilowo ją wyostrzyć</string>
     <string name="get_more_sources">Pobierz więcej źródeł</string>
-    <string name="get_more_sources_description">Całkowicie odmień swoją tapetę dzięki dodatkowym
-        źródłom zainstalowanym ze sklepu <xliff:g id="google_play">Google Play</xliff:g></string>
+    <string name="get_more_sources_description">Całkowicie odmień swoją tapetę dzięki dodatkowym źródłom zainstalowanym ze sklepu <xliff:g id="google_play">Google Play</xliff:g></string>
     <string name="action_link_effects">Strona główna 🔗 Blokada</string>
     <string name="toast_link_effects">Strona główna &amp; efekty ekranu blokady są teraz połączone</string>
     <string name="action_link_effects_off">Strona główna &amp; ekran blokady nie są ze sobą połączone</string>
     <string name="toast_link_effects_off">Strona główna &amp; efekty ekranu blokady nie są już połączone</string>
     <string name="reset_advanced_settings_defaults">Zresetuj suwaki</string>
-    <string name="play_store_not_found">Nie można otworzyć sklepu
-        <xliff:g id="google_play">Google Play</xliff:g>.</string>
+    <string name="play_store_not_found">Nie można otworzyć sklepu <xliff:g id="google_play">Google Play</xliff:g>.</string>
     <string name="browse_refresh">Odśwież</string>
     <string name="browse_set_wallpaper">Ustaw bieżącą tapetę</string>
-    <string name="browse_set_wallpaper_with_title">Ustaw bieżącą tapetę na
-        \"<xliff:g id="image_name" example="IMG14227.jpg">%s</xliff:g>\"</string>
+    <string name="browse_set_wallpaper_with_title">Ustaw bieżącą tapetę na \"<xliff:g id="image_name" example="IMG14227.jpg">%s</xliff:g>\"</string>
     <string name="missing_resources_title">Niepoprawna instalacja <xliff:g id="muzei_name">Muzei</xliff:g></string>
-    <string name="missing_resources_message"><xliff:g id="muzei_name">Muzei</xliff:g> jest w
-        nieprawidłowym stanie. W celu naprawy Twojej instalacji, proszę odinstaluj <xliff:g id="muzei_name">Muzei</xliff:g> i zainstaluj ponownie ze sklepu <xliff:g id="google_play">Google Play</xliff:g>.</string>
+    <string name="missing_resources_message"><xliff:g id="muzei_name">Muzei</xliff:g> jest w nieprawidłowym stanie. W celu naprawy Twojej instalacji, proszę odinstaluj <xliff:g id="muzei_name">Muzei</xliff:g> i zainstaluj ponownie ze sklepu <xliff:g id="google_play">Google Play</xliff:g>.</string>
     <string name="missing_resources_open">Nie można otworzyć sklepu <xliff:g id="google_play">Google Play</xliff:g></string>
     <string name="missing_resources_quit">Zamknij <xliff:g id="muzei_name">Muzei</xliff:g></string>
     <string name="tasker_setting_dialog_title">Wybierz akcję</string>
-    <string name="tasker_action_select_provider">Wybierz
-        <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g></string>
+    <string name="tasker_action_select_provider">Wybierz <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g></string>
     <string name="actions_gestures">Dostosuj gesty</string>
     <string name="gestures_title">Gesty</string>
     <string name="gestures_double_tap_title">Podwójne kliknięcie</string>
-    <string name="gestures_double_tap_description">Dwukrotnie kliknij rozmytą tapetę na ekranie głównym
-        aby uruchomić wybraną akcję.</string>
+    <string name="gestures_double_tap_description">Dwukrotnie kliknij rozmytą tapetę na ekranie głównym aby uruchomić wybraną akcję.</string>
     <string name="gestures_three_finger_tap_title">Kliknięcie trzema palcami</string>
-    <string name="gestures_three_finger_tap_description">Kliknij rozmytą tapetę na ekranie głównym
-        trzema palcami, aby uruchomić wybraną akcję.</string>
+    <string name="gestures_three_finger_tap_description">Kliknij rozmytą tapetę na ekranie głównym trzema palcami, aby uruchomić wybraną akcję.</string>
     <string name="gestures_tap_action_temporary_disable">Tymczasowo wyłącz efekty</string>
     <string name="gestures_tap_action_next">Następna grafika</string>
     <string name="gestures_tap_action_view_details">Zobacz szczegóły grafiki</string>
@@ -152,7 +132,6 @@
     
     ]]></string>
     <string name="about_version_template">v<xliff:g id="version_number" example="3.3.0 Beta">%1$s</xliff:g></string>
-    <string name="app_author"><xliff:g id="roman_nurik">Roman Nurik</xliff:g> and
-        <xliff:g id="ian_lake">Ian Lake</xliff:g></string>
+    <string name="app_author"><xliff:g id="roman_nurik">Roman Nurik</xliff:g> and <xliff:g id="ian_lake">Ian Lake</xliff:g></string>
     <string name="app_context_description">Żyjące muzeum na Twoim ekranie głównym</string>
 </resources>

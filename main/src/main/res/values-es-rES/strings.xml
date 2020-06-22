@@ -23,9 +23,7 @@
     <string name="notification_new_wallpaper">Nuevo fondo de pantalla</string>
     <string name="notification_new_wallpaper_channel_name">Nuevos fondos de pantalla</string>
     <string name="notification_settings">Ajustes de notificaciones</string>
-    <string name="notification_settings_failed">Abrir los ajustes de las notificaciones falló,
-        por favor cambie la configuración de <xliff:g id="muzei_name">Muzei</xliff:g>en la aplicación 
-        de configuración.</string>
+    <string name="notification_settings_failed">Abrir los ajustes de las notificaciones falló, por favor cambie la configuración de <xliff:g id="muzei_name">Muzei</xliff:g>en la aplicación de configuración.</string>
     <string name="notification_settings_done">Hecho</string>
     <string name="notification_settings_moved_title">Los ajustes de notificación se han movido</string>
     <string name="notification_settings_moved_text">Revisa tus ajustes de notificación</string>
@@ -93,7 +91,6 @@
         &bull; <b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a></b> de Robert Green, Marca F. Guerra, y otros
     ]]></string>
     <string name="about_version_template">v<xliff:g id="version_number" example="3.3.0 Beta">%1$s</xliff:g></string>
-    <string name="app_author"><xliff:g id="roman_nurik">Roman Nurik</xliff:g> y
-        <xliff:g id="ian_lake">Lago Ian</xliff:g></string>
+    <string name="app_author"><xliff:g id="roman_nurik">Roman Nurik</xliff:g> y <xliff:g id="ian_lake">Ian Lake</xliff:g></string>
     <string name="app_context_description">Un museo viviente para tu pantalla de inicio</string>
 </resources>

@@ -99,13 +99,9 @@ desteklenmeyen kaynak bulundu</item>
     <string name="play_store_not_found"><xliff:g id="google_play">Google Play</xliff:g> mağaza.</string>
     <string name="browse_refresh">Yenile</string>
     <string name="browse_set_wallpaper">Geçerli duvar kağıdını ayarla</string>
-    <string name="browse_set_wallpaper_with_title">Geçerli duvar kağıtları
-        \"<xliff:g id="image_name" example="IMG14227.jpg">%s</xliff:g>\" olarak ayarla</string>
+    <string name="browse_set_wallpaper_with_title">Geçerli duvar kağıtları \"<xliff:g id="image_name" example="IMG14227.jpg">%s</xliff:g>\" olarak ayarla</string>
     <string name="missing_resources_title">Geçersiz <xliff:g id="muzei_name">Muzei</xliff:g> Kurulum</string>
-    <string name="missing_resources_message"><xliff:g id="muzei_name">Muzei</xliff:g> içinde
-        geçersiz durum. Lütfen kaldırın <xliff:g id="muzei_name">Muzei</xliff:g> ve yükle
-         itibaren <xliff:g id="google_play">Google Play</xliff:g> Onarım için saklayın 
-        Kurulum.</string>
+    <string name="missing_resources_message"><xliff:g id="muzei_name">Muzei</xliff:g> içinde geçersiz durum. Lütfen kaldırın <xliff:g id="muzei_name">Muzei</xliff:g> ve yükle itibaren <xliff:g id="google_play">Google Play</xliff:g> Onarım için saklayın Kurulum.</string>
     <string name="missing_resources_open"><xliff:g id="google_play">Google Play</xliff:g> mağazasını aç</string>
     <string name="missing_resources_quit"><xliff:g id="muzei_name">Muzei</xliff:g>\'yi kapat</string>
     <string name="tasker_setting_dialog_title">Eylem seçin</string>
@@ -135,7 +131,6 @@ Bu açık kaynaklı projelere çok teşekkürler: <br>
 • <b> <a href="http://square.github.io/okhttp/"> OkHttp </a> ve <a href="http://square.github.io/picasso/"> Picasso <  / a> </b> tarafından Square <br>
 • Robert Green, Mark F. Guerra ve diğerleri tarafından <b> <a href="https://github.com/GLWallpaperService/GLWallpaperService"> GLWallpaperService </a> </b>]]></string>
     <string name="about_version_template">v<xliff:g id="version_number" example="3.3.0 Beta">%1$s</xliff:g></string>
-    <string name="app_author"><xliff:g id="roman_nurik">Roman Nurik</xliff:g> and
-        <xliff:g id="ian_lake">Ian Lake</xliff:g></string>
+    <string name="app_author"><xliff:g id="roman_nurik">Roman Nurik</xliff:g> and <xliff:g id="ian_lake">Ian Lake</xliff:g></string>
     <string name="app_context_description">Ana ekranınız için yaşayan bir müze</string>
 </resources>

@@ -14,4 +14,21 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="legacy_app_name"><xliff:g id="muzei_name">Muzei</xliff:g> Verouderd</string>
+    <string name="legacy_source_provider_name">Verouderde bronnen</string>
+    <string name="legacy_source_warning_title">Verouderde bron activeren?</string>
+    <string name="legacy_source_warning_message">Verouderde bronnen laden volgens hun eigen schema en gaan niet automatisch verder. Dit kan leiden tot bijkomend datagebruik als de verouderde bron geen optie heeft om alleen WiFi te gebruiken.</string>
+    <string name="legacy_source_warning_positive">Verdergaan</string>
+    <string name="legacy_source_warning_learn_more">Meer informatie</string>
+    <string name="legacy_source_warning_negative">Annuleren</string>
+    <string name="legacy_source_settings">Bron aanpassen</string>
+    <string name="legacy_source_selection_done">Klaar</string>
+    <string name="legacy_action_next_artwork">Volgende kunstwerk</string>
+    <string name="legacy_source_unavailable">Uw gekozen bron is niet beschikbaar. De standaardbron zal gebruikt worden.</string>
+    <string name="legacy_source_target_too_high_title">Deze bron is uitgeschakeld</string>
+    <string name="legacy_source_target_too_high_message"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> is niet compatibel met <xliff:g id="muzei_name">Muzei</xliff:g>\'s API. Om deze bron te gebruiken moet de ontwikkelaar hun <xliff:g id="targetSdkVersion">targetSdkVersion</xliff:g> op 25 of lager zetten.</string>
+    <string name="legacy_source_target_too_high_send_feedback">Feedback sturen naar <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g></string>
+    <string name="legacy_source_target_too_high_learn_more">Meer informatie</string>
+    <string name="legacy_source_target_too_high_dismiss">Ik snap het</string>
+</resources>

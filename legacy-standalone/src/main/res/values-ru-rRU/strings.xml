@@ -14,4 +14,20 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="legacy_source_provider_name">Устаревшие источники</string>
+    <string name="legacy_source_warning_title">Активировать устаревший источник?</string>
+    <string name="legacy_source_warning_message">Устаревшие источники загружаются по собственному графику и не используют автопереход. Это может привести к дополнительному использованию данных, если у устаревшего источника нет настройки \"только WiFi\".</string>
+    <string name="legacy_source_warning_positive">Продолжить</string>
+    <string name="legacy_source_warning_learn_more">Подробнее</string>
+    <string name="legacy_source_warning_negative">Отмена</string>
+    <string name="legacy_source_settings">Настроить источник</string>
+    <string name="legacy_source_selection_done">Готово</string>
+    <string name="legacy_action_next_artwork">Следующий рисунок</string>
+    <string name="legacy_source_unavailable">Выбранный источник недоступен. Переключение на источник по-умолчанию.</string>
+    <string name="legacy_source_target_too_high_title">Этот источник отключён</string>
+    <string name="legacy_source_target_too_high_message"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> не совместим с API <xliff:g id="muzei_name">Muzei</xliff:g>. Чтобы использовать этот источник, разработчик должен изменить <xliff:g id="targetSdkVersion">targetSdkVersion</xliff:g> на 25 или ниже.</string>
+    <string name="legacy_source_target_too_high_send_feedback">Отправить <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> отзыв</string>
+    <string name="legacy_source_target_too_high_learn_more">Подробнее</string>
+    <string name="legacy_source_target_too_high_dismiss">Понятно</string>
+</resources>

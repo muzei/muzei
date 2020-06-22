@@ -14,4 +14,15 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="gallery_action_import_photos_from">Importa foto da <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
+    <string name="gallery_import_dialog_title">Importa foto da</string>
+    <string name="gallery_action_remove">Rimuovi</string>
+    <string name="gallery_title">Le mie foto</string>
+    <string name="gallery_description">Foto della fotocamera casuali</string>
+    <string name="gallery_empty">Foto della fotocamera casuali</string>
+    <string name="gallery_empty_subtitle">Scegli foto specifiche</string>
+    <string name="gallery_from_gallery">Dalla tua galleria</string>
+    <string name="gallery_touch_to_view">Tocca per visualizzare</string>
+    <string name="gallery_shared_from">Condiviso da <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
+</resources>

@@ -14,4 +14,112 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_description">Live achtergronden met <xliff:g id="muzei_name">Muzei</xliff:g></string>
+    <string name="settings_title"><xliff:g id="muzei_name">Muzei</xliff:g>-instellingen</string>
+    <string name="settings_home_screen_title">Startscherm</string>
+    <string name="settings_lock_screen_title">Schermvergrendeling</string>
+    <string name="settings_blur_amount_title">Vervagen</string>
+    <string name="settings_dim_amount_title">Dimmen</string>
+    <string name="settings_grey_amount_title">Grijs</string>
+    <string name="notification_new_wallpaper">Nieuwe achtergrond</string>
+    <string name="notification_new_wallpaper_channel_name">Nieuwe achtergronden</string>
+    <string name="notification_settings">Instellingen voor meldingen</string>
+    <string name="notification_settings_failed">Instellingen voor meldingen openen mislukt, gelieve de instellingen voor <xliff:g id="muzei_name">Muzei</xliff:g>\'s meldingen aan te passen via de Instellingen-app.</string>
+    <string name="notification_settings_done">Klaar</string>
+    <string name="notification_settings_moved_title">Instellingen voor meldingen zijn verplaatst</string>
+    <string name="notification_settings_moved_text">Controleer uw instellingen voor meldingen</string>
+    <string name="auto_advance_settings">Instellingen voor automatisch verdergaan</string>
+    <string name="auto_advance_disabled">Automatisch verdergaan uitgeschakeld</string>
+    <string name="auto_advance_disabled_description">Verouderde bronnen zijn zelf verantwoordelijk voor het laden van hun achtergronden en ondersteunen automatisch verdergaan niet</string>
+    <string name="auto_advance_title">Automatisch verdergaan</string>
+    <string name="auto_advance_description">Controleer wanneer <xliff:g id="muzei_name">Muzei</xliff:g> automatisch verdergaat naar de volgende achtergrond.</string>
+    <string name="auto_advance_wifi">Enkel automatisch verdergaan bij Wi-Fi</string>
+    <string name="auto_advance_interval">Interval</string>
+    <string name="auto_advance_interval_15m">Elk kwartier</string>
+    <string name="auto_advance_interval_30m">Elk halfuur</string>
+    <string name="auto_advance_interval_1h">Elk uur</string>
+    <string name="auto_advance_interval_3h">Elke 3 uur</string>
+    <string name="auto_advance_interval_6h">Elke 6 uur</string>
+    <string name="auto_advance_interval_24h">Elke 24 uur</string>
+    <string name="auto_advance_interval_72h">Elke 3 dagen</string>
+    <string name="auto_advance_interval_never">Niet automatisch verdergaan</string>
+    <string name="auto_advance_tasker">Gebruik van de actie \'Volgend kunstwerk\' beschikbaar in <xliff:g id="tasker_name">Tasker</xliff:g> onder Plugin &gt; <xliff:g id="muzei_name">Muzei</xliff:g> en schakel automatisch verdergaan hier uit voor exacte controle over wat ervoor zorgt dat de achtergrond wijzigt.</string>
+    <string name="auto_advance_tasker_name"><xliff:g id="tasker_name">Tasker</xliff:g></string>
+    <string name="action_activate">Activeren</string>
+    <string name="error_view_details">Kon details over het kunstwerk niet bekijken.</string>
+    <string name="error_wallpaper_chooser">Kon achtergrondkiezer niet openen. U kan <xliff:g id="muzei_name">Muzei</xliff:g> toch activeren door \'Live achtergronden\' te selecteren bij de keuze voor een achtergrond van uw startscherm.</string>
+    <string name="section_choose_source">Bronnen</string>
+    <string name="section_effects">Effecten</string>
+    <string name="action_next_artwork">Volgend kunstwerk</string>
+    <string name="action_next_artwork_condensed">Volgende</string>
+    <string name="action_user_command">Meer</string>
+    <string name="action_user_command_prompt">Kies actie</string>
+    <string name="action_artwork_info">Informatie over kunstwerk</string>
+    <string name="action_artwork_info_disabled">Er is geen informatie voor het huidige kunstwerk.</string>
+    <string name="provider_settings">Instellingen</string>
+    <string name="provider_browse">Bladeren</string>
+    <string name="legacy_notification_channel_name">Verouderde bronnen</string>
+    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> wordt niet meer ondersteund</string>
+    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> ondersteunt bronnen die de verouderde bronnen-API gebruiken niet rechtstreeks.</string>
+    <string name="legacy_action_learn_more">Meer informatie</string>
+    <string name="legacy_action_send_feedback">Feedback sturen</string>
+    <string name="legacy_summary_title">Verouderde bronnen worden niet meer ondersteund</string>
+    <plurals name="legacy_summary_text">
+        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> verouderde bron gevonden</item>
+        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> verouderde bronnen gevonden</item>
+    </plurals>
+    <plurals name="legacy_unsupported_text">
+        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> niet-ondersteunde bron gevonden</item>
+        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> niet-ondersteunde bronnen gevonden</item>
+    </plurals>
+    <string name="legacy_source_info_title">Verouderde bronnen</string>
+    <string name="legacy_source_info_subtitle">Bronnen die de verouderde bronnen-API gebruiken worden niet meer rechtstreeks ondersteund door <xliff:g id="muzei_name">Muzei</xliff:g>.</string>
+    <string name="legacy_source_info_app_info">App-info</string>
+    <string name="legacy_source_info_send_feedback">Feedback sturen</string>
+    <string name="legacy_source_all_uninstalled">Alle verouderde bronnen zijn verwijderd</string>
+    <string name="done">Klaar</string>
+    <string name="set_as_wallpaper_using_muzei">Achtergrond (gebruikt <xliff:g id="muzei_name">Muzei</xliff:g>)</string>
+    <string name="set_as_wallpaper_failed">Kon kunstwerk niet lezen</string>
+    <string name="tutorial_main">Open de app <xliff:g id="muzei_name">Muzei</xliff:g> om uw achtergrond te bekijken</string>
+    <string name="tutorial_subtitle">Druk tweemaal op de vervaagde achtergrond om tijdelijk te focussen</string>
+    <string name="get_more_sources">Vind meer bronnen</string>
+    <string name="get_more_sources_description">Verander uw achtergrond volledig met bijkomende bronnen geïnstalleerd uit de <xliff:g id="google_play">Google Play</xliff:g> Store</string>
+    <string name="action_link_effects">Start 🔗 Vergrendel</string>
+    <string name="toast_link_effects">Effecten voor startscherm en schermvergrendeling zijn nu gekoppeld</string>
+    <string name="action_link_effects_off">Startscherm en schermvergrendeling zijn niet gekoppeld</string>
+    <string name="toast_link_effects_off">Effecten voor startscherm en schermvergrendeling zijn niet meer gekoppeld</string>
+    <string name="reset_advanced_settings_defaults">Schuifregelaars resetten</string>
+    <string name="play_store_not_found">Kon <xliff:g id="google_play">Google Play</xliff:g> Store niet openen.</string>
+    <string name="browse_refresh">Vernieuwen</string>
+    <string name="browse_set_wallpaper">Stel de huidige achtergrond in</string>
+    <string name="browse_set_wallpaper_with_title">Stel de huidige achtergrond in op \"<xliff:g id="image_name" example="IMG14227.jpg">%s</xliff:g>\"</string>
+    <string name="missing_resources_title">Ongeldige installatie van <xliff:g id="muzei_name">Muzei</xliff:g></string>
+    <string name="missing_resources_message"><xliff:g id="muzei_name">Muzei</xliff:g> is in een ongeldige toestand. Gelieve <xliff:g id="muzei_name">Muzei</xliff:g> te verwijderen en opnieuw te installeren vanuit de <xliff:g id="google_play">Google Play</xliff:g> Store om uw installatie te repareren.</string>
+    <string name="missing_resources_open"><xliff:g id="google_play">Google Play</xliff:g> Store openen</string>
+    <string name="missing_resources_quit"><xliff:g id="muzei_name">Muzei</xliff:g> sluiten</string>
+    <string name="tasker_setting_dialog_title">Kies actie</string>
+    <string name="tasker_action_select_provider">Selecteer <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g></string>
+    <string name="actions_gestures">Gebaren aanpassen</string>
+    <string name="gestures_title">Gebaren</string>
+    <string name="gestures_double_tap_title">Tweemaal drukken</string>
+    <string name="gestures_double_tap_description">Druk tweemaal op de vervaagde achtergrond om een actie naar keuze uit te voeren.</string>
+    <string name="gestures_three_finger_tap_title">Drievingerige druk</string>
+    <string name="gestures_three_finger_tap_description">Druk met drie vingers op uw startscherm om een actie naar keuze uit te voeren.</string>
+    <string name="gestures_tap_action_temporary_disable">Effecten tijdelijk uitschakelen</string>
+    <string name="gestures_tap_action_next">Volgend kunstwerk</string>
+    <string name="gestures_tap_action_view_details">Details over kunstwerk bekijken</string>
+    <string name="gestures_tap_action_none">Geen</string>
+    <string name="actions_always_dark">Altijd donker</string>
+    <string name="about_title">Over <xliff:g id="muzei_name">Muzei</xliff:g></string>
+    <string name="about_body"><![CDATA[Gemaakt door Roman Nurik en Ian Lake, met grote bijdragen van de <a href="http://code.muzei.co">openbrongemeenschap</a>.<i>Muzei</i> is een transliteratie van het Russische woord <a href="http://translate.google.com/#en/ru/museum">музей</i></a>, dat &#8220;museum&#8221; betekent.<br><br>
+
+Copyright 2013&ndash;2018 Google Inc. Alle rechten voorbehouden. <a href="http://m.google.com/utos">Servicevoorwaarden</a>, <a href="http://www.google.com/policies/privacy/">Privacybeleid</a>&nbsp;<br><br>
+
+Veel dank aan deze openbronprojecten:<br>
+&bull;<b><a href="http://square.github.io/okhttp/">OkHttp</a> en <a href="http://square.github.io/picasso/">Picasso</a></b> door Square<br>
+&bull;<b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a></b> door Robert Green, Mark F. Guerrar, en anderen]]></string>
+    <string name="about_version_template">v<xliff:g id="version_number" example="3.3.0 Beta">%1$s</xliff:g></string>
+    <string name="app_author"><xliff:g id="roman_nurik">Roman Nurik</xliff:g> en <xliff:g id="ian_lake">Ian Lake</xliff:g></string>
+    <string name="app_context_description">Een levend museum voor uw startscherm</string>
+</resources>

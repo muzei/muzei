@@ -15,18 +15,25 @@
   limitations under the License.
   -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_description"><xliff:g id="muzei_name">Muzei</xliff:g> Live Wallpaper</string>
+    <string name="settings_title">Impostazioni <xliff:g id="muzei_name">Muzei</xliff:g></string>
     <string name="settings_home_screen_title">Schermata principale</string>
     <string name="settings_lock_screen_title">Blocco Schermo</string>
     <string name="settings_blur_amount_title">Sfocatura</string>
+    <string name="settings_dim_amount_title">Dim</string>
     <string name="settings_grey_amount_title">Grigio</string>
     <string name="notification_new_wallpaper">Nuovo sfondo</string>
     <string name="notification_new_wallpaper_channel_name">Nuovi Sfondi</string>
     <string name="notification_settings">Impostazioni Notifiche</string>
+    <string name="notification_settings_failed">Apertura delle impostazioni di notifica non riuscita, si prega di regolare le impostazioni di notifica di <xliff:g id="muzei_name">Muzei</xliff:g>dall\'app Impostazioni.</string>
     <string name="notification_settings_done">Fatto</string>
     <string name="notification_settings_moved_title">Le impostazioni di notifica sono state spostate</string>
+    <string name="notification_settings_moved_text">Controlla le impostazioni di notifica</string>
     <string name="auto_advance_settings">Impostazioni Avanzamento Automatico</string>
     <string name="auto_advance_disabled">Avanzamento Automatico disabilitato</string>
+    <string name="auto_advance_disabled_description">Le fonti legacy gestiscono autonomamente il proprio caricamento dello sfondo e non supportano l\'avanzamento automatico</string>
     <string name="auto_advance_title">Avanzamento Automatico</string>
+    <string name="auto_advance_description">Controlla quando <xliff:g id="muzei_name">Muzei</xliff:g> passa automaticamente allo sfondo successivo.</string>
     <string name="auto_advance_wifi">Avanzamento Automatico solo su Wi-Fi</string>
     <string name="auto_advance_interval">Intervallo</string>
     <string name="auto_advance_interval_15m">Ogni 15 minuti</string>
@@ -37,6 +44,31 @@
     <string name="auto_advance_interval_24h">Ogni 24 ore</string>
     <string name="auto_advance_interval_72h">Ogni 3 giorni</string>
     <string name="auto_advance_interval_never">Non avanzare automaticamente</string>
+    <string name="auto_advance_tasker">Per il controllo preciso su ciò che innesca il cambio dello sfondo, usa l\'azione \'Next artwork\' disponibile in <xliff:g id="tasker_name">Tasker</xliff:g> nella sezione Plugin -&gt; <xliff:g id="muzei_name">Muzei</xliff:g> e disabilita l\'avanzamento automatico qui.</string>
+    <string name="auto_advance_tasker_name"><xliff:g id="tasker_name">Tasker</xliff:g></string>
     <string name="action_activate">Attiva</string>
     <string name="error_view_details">Impossibile visualizzare i dettagli dell\'opera.</string>
+    <string name="error_wallpaper_chooser">Impossibile avviare il selettore di sfondi. Puoi ancora attivare <xliff:g id="muzei_name">Muzei</xliff:g> scegliendo \'Live Wallpapers\' nella schermata iniziale del selettore di sfondi.</string>
+    <string name="section_choose_source">Sorgenti</string>
+    <string name="section_effects">Effetti</string>
+    <string name="action_next_artwork">Opera successiva</string>
+    <string name="action_next_artwork_condensed">Successiva</string>
+    <string name="action_user_command">Altro</string>
+    <string name="action_user_command_prompt">Scegli un\'azione</string>
+    <string name="action_artwork_info">Informazioni sull\'opera</string>
+    <string name="action_artwork_info_disabled">Non ci sono informazioni per l\'opera attuale.</string>
+    <string name="provider_settings">Impostazioni</string>
+    <string name="provider_browse">Sfoglia</string>
+    <string name="legacy_notification_channel_name">Sorgenti Legacy</string>
+    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> non è più supportato</string>
+    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> non supporta direttamente le sorgenti programmate con l\'API Legacy Source.</string>
+    <string name="legacy_action_learn_more">Altre informazioni</string>
+    <string name="legacy_action_send_feedback">Invia feedback</string>
+    <string name="legacy_summary_title">Le sorgenti legacy non sono più supportate</string>
+    <string name="legacy_source_info_title">Sorgenti Legacy</string>
+    <string name="legacy_source_info_subtitle">Le sorgenti programmate con l\'API Legacy Source non sono più supportate direttamente da <xliff:g id="muzei_name">Muzei</xliff:g>.</string>
+    <string name="legacy_source_info_app_info">Informazioni applicazione</string>
+    <string name="legacy_source_info_send_feedback">Invia feedback</string>
+    <string name="legacy_source_all_uninstalled">Tutte le sorgenti legacy sono state disinstallate</string>
+    <string name="done">Fatto</string>
 </resources>

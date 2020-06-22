@@ -14,4 +14,9 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources></resources>
+<resources>
+    <string name="single_title">Opera Singola</string>
+    <string name="single_description">Mostra una singola immagine a tua scelta</string>
+    <string name="single_get_content_failure">Impossibile aprire il selettore di immagini</string>
+    <string name="single_default_artwork_title">La tua opera</string>
+</resources>

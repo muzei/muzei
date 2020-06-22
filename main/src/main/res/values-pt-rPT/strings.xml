@@ -25,18 +25,15 @@
     <string name="notification_new_wallpaper">Novo fundo</string>
     <string name="notification_new_wallpaper_channel_name">Novos fundos</string>
     <string name="notification_settings">Configurações de Notificações</string>
-    <string name="notification_settings_failed">Não foi possível abrir as configurações de notificações.
-        Por favor ajuste as configurações de notificações de <xliff:g id="muzei_name">Muzei</xliff:g> na aplicação de Definições.</string>
+    <string name="notification_settings_failed">Não foi possível abrir as configurações de notificações. Por favor ajuste as configurações de notificações de <xliff:g id="muzei_name">Muzei</xliff:g> na aplicação de Definições.</string>
     <string name="notification_settings_done">Concluído</string>
     <string name="notification_settings_moved_title">As configurações de notificações mudaram de sítio</string>
     <string name="notification_settings_moved_text">Rever configurações de notificações</string>
     <string name="auto_advance_settings">Definições do Avanço Automático</string>
     <string name="auto_advance_disabled">Avanço Automático desativado</string>
-    <string name="auto_advance_disabled_description">As Fontes Antigas gerem o seu próprio carregamento de fundos
-        e não suportam Avanço Automático</string>
+    <string name="auto_advance_disabled_description">As Fontes Antigas gerem o seu próprio carregamento de fundos e não suportam Avanço Automático</string>
     <string name="auto_advance_title">Avanço Automático</string>
-    <string name="auto_advance_description">Controle quando o <xliff:g id="muzei_name">Muzei</xliff:g>
-        avança automaticamente para o próximo fundo.</string>
+    <string name="auto_advance_description">Controle quando o <xliff:g id="muzei_name">Muzei</xliff:g> avança automaticamente para o próximo fundo.</string>
     <string name="auto_advance_wifi">Avançar automaticamente só em Wi-Fi</string>
     <string name="auto_advance_interval">Intervalo</string>
     <string name="auto_advance_interval_15m">A cada 15 minutos</string>
@@ -47,16 +44,11 @@
     <string name="auto_advance_interval_24h">A cada 24 horas</string>
     <string name="auto_advance_interval_72h">A cada 3 dias</string>
     <string name="auto_advance_interval_never">Não avançar automaticamente</string>
-    <string name="auto_advance_tasker">Para um controlo mais preciso do que faz a sua imagem de fundo mudar,
-         use a secção \"Próxima obra de arte\" que se encontra em
-        <xliff:g id="tasker_name">Tasker</xliff:g> em Plugin -&gt;
-        <xliff:g id="muzei_name">Muzei</xliff:g> e desative o avanço automático aqui.</string>
+    <string name="auto_advance_tasker">Para um controlo mais preciso do que faz a sua imagem de fundo mudar, use a secção \"Próxima obra de arte\" que se encontra em <xliff:g id="tasker_name">Tasker</xliff:g> em Plugin -&gt; <xliff:g id="muzei_name">Muzei</xliff:g> e desative o avanço automático aqui.</string>
     <string name="auto_advance_tasker_name"><xliff:g id="tasker_name">Tasker</xliff:g></string>
     <string name="action_activate">Ativar</string>
     <string name="error_view_details">Não foi possível ver os detalhes da obra de arte.</string>
-    <string name="error_wallpaper_chooser">Não foi possível abrir o selecionador de imagens de fundo. Ainda pode
-        ativar o <xliff:g id="muzei_name">Muzei</xliff:g> ao escolher
-        \'Live Wallpapers\' na opção de imagens de fundo do ecrã principal.</string>
+    <string name="error_wallpaper_chooser">Não foi possível abrir o selecionador de imagens de fundo. Ainda pode ativar o <xliff:g id="muzei_name">Muzei</xliff:g> ao escolher \'Live Wallpapers\' na opção de imagens de fundo do ecrã principal.</string>
     <string name="section_choose_source">Fontes</string>
     <string name="section_effects">Efeitos</string>
     <string name="action_next_artwork">Próxima obra de arte</string>
@@ -68,10 +60,8 @@
     <string name="provider_settings">Definições</string>
     <string name="provider_browse">Explorar</string>
     <string name="legacy_notification_channel_name">Fontes Antigas</string>
-    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g>
-        já não é suportado</string>
-    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> não suporta diretamente
-       fontes desenvolvidas com a API de Fontes Antigas.</string>
+    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> já não é suportado</string>
+    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> não suporta diretamente fontes desenvolvidas com a API de Fontes Antigas.</string>
     <string name="legacy_action_learn_more">Saber mais</string>
     <string name="legacy_action_send_feedback">Enviar comentários</string>
     <string name="legacy_summary_title">As Fontes Antigas já não são suportadas</string>
@@ -84,49 +74,38 @@
         <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> fontes não suportadas foram encontradas</item>
     </plurals>
     <string name="legacy_source_info_title">Fontes Antigas</string>
-    <string name="legacy_source_info_subtitle">Fontes desenvolvidas com a API de Fontes Antigas
-        já não são diretamente suportadas pelo <xliff:g id="muzei_name">Muzei</xliff:g>.</string>
+    <string name="legacy_source_info_subtitle">Fontes desenvolvidas com a API de Fontes Antigas já não são diretamente suportadas pelo <xliff:g id="muzei_name">Muzei</xliff:g>.</string>
     <string name="legacy_source_info_app_info">Informações da aplicação</string>
     <string name="legacy_source_info_send_feedback">Enviar comentários</string>
     <string name="legacy_source_all_uninstalled">Todas as Fontes Antigas foram desinstaladas</string>
     <string name="done">Concluído</string>
     <string name="set_as_wallpaper_using_muzei">Imagem de fundo (usando o <xliff:g id="muzei_name">Muzei</xliff:g>)</string>
     <string name="set_as_wallpaper_failed">Não foi possível ler a obra de arte</string>
-    <string name="tutorial_main">Abra a aplicação <xliff:g id="muzei_name">Muzei</xliff:g> para ver
-        a sua imagem de fundo</string>
+    <string name="tutorial_main">Abra a aplicação <xliff:g id="muzei_name">Muzei</xliff:g> para ver a sua imagem de fundo</string>
     <string name="tutorial_subtitle">Toque duas vezes na imagem de fundo desfocada no seu ecrã principal para focar temporiamente</string>
     <string name="get_more_sources">Obter mais fontes</string>
-    <string name="get_more_sources_description">Mude a sua imagem de fundo com fontes adicionais instaladas
-        a partir de <xliff:g id="google_play">Google Play</xliff:g> Store</string>
+    <string name="get_more_sources_description">Mude a sua imagem de fundo com fontes adicionais instaladas a partir de <xliff:g id="google_play">Google Play</xliff:g> Store</string>
     <string name="action_link_effects">Principal 🔗 Bloqueio</string>
     <string name="toast_link_effects">Os efeitos no ecrã principal &amp; bloqueio estão agora ligados entre si</string>
     <string name="action_link_effects_off">Ecrã principal &amp; bloqueio não estão ligados entre si</string>
     <string name="toast_link_effects_off">Os efeitos no ecrã principal &amp; bloqueio já não estão ligados entre si</string>
     <string name="reset_advanced_settings_defaults">Redefinir controlos</string>
-    <string name="play_store_not_found">Não foi possível abrir
-        <xliff:g id="google_play">Google Play</xliff:g> Store.</string>
+    <string name="play_store_not_found">Não foi possível abrir <xliff:g id="google_play">Google Play</xliff:g> Store.</string>
     <string name="browse_refresh">Atualizar</string>
     <string name="browse_set_wallpaper">Escolher a imagem de fundo atual</string>
-    <string name="browse_set_wallpaper_with_title">Definir como imagem de fundo atual
-        \"<xliff:g id="image_name" example="IMG14227.jpg">%s</xliff:g>\"</string>
+    <string name="browse_set_wallpaper_with_title">Definir como imagem de fundo atual \"<xliff:g id="image_name" example="IMG14227.jpg">%s</xliff:g>\"</string>
     <string name="missing_resources_title">Instalação inválida de <xliff:g id="muzei_name">Muzei</xliff:g></string>
-    <string name="missing_resources_message"><xliff:g id="muzei_name">Muzei</xliff:g> encontra-se num estado inválido. 
-        Por favor, desinstale <xliff:g id="muzei_name">Muzei</xliff:g> e instale novamente
-        a partir de <xliff:g id="google_play">Google Play</xliff:g> Store para reparar
-        a instalação.</string>
+    <string name="missing_resources_message"><xliff:g id="muzei_name">Muzei</xliff:g> encontra-se num estado inválido. Por favor, desinstale <xliff:g id="muzei_name">Muzei</xliff:g> e instale novamente a partir de <xliff:g id="google_play">Google Play</xliff:g> Store para reparar a instalação.</string>
     <string name="missing_resources_open">Abrir <xliff:g id="google_play">Google Play</xliff:g> Store</string>
     <string name="missing_resources_quit">Fechar <xliff:g id="muzei_name">Muzei</xliff:g></string>
     <string name="tasker_setting_dialog_title">Selecionar ação</string>
-    <string name="tasker_action_select_provider">Selecionar
-        <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g></string>
+    <string name="tasker_action_select_provider">Selecionar <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g></string>
     <string name="actions_gestures">Customizar Gestos</string>
     <string name="gestures_title">Gestos</string>
     <string name="gestures_double_tap_title">Duplo toque</string>
-    <string name="gestures_double_tap_description">Toque duas vezes na imagem de fundo desfocada do seu ecrã principal
-        para ativar uma ação à sua escolha.</string>
+    <string name="gestures_double_tap_description">Toque duas vezes na imagem de fundo desfocada do seu ecrã principal para ativar uma ação à sua escolha.</string>
     <string name="gestures_three_finger_tap_title">Toque com 3 dedos</string>
-    <string name="gestures_three_finger_tap_description">Toque com três dedos na imagem de fundo desfocada
-        do seu ecrã principal para ativar uma ação à sua escolha.</string>
+    <string name="gestures_three_finger_tap_description">Toque com três dedos na imagem de fundo desfocada do seu ecrã principal para ativar uma ação à sua escolha.</string>
     <string name="gestures_tap_action_temporary_disable">Desativar efeitos temporariamente</string>
     <string name="gestures_tap_action_next">Próxima obra de arte</string>
     <string name="gestures_tap_action_view_details">Ver detalhes da obra de arte</string>
@@ -148,7 +127,6 @@
         &bull; <b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a></b> de Robert Green, Mark F. Guerra, e outros
     ]]></string>
     <string name="about_version_template">v<xliff:g id="version_number" example="3.3.0 Beta">%1$s</xliff:g></string>
-    <string name="app_author"><xliff:g id="roman_nurik">Roman Nurik</xliff:g> e
-        <xliff:g id="ian_lake">Ian Lake</xliff:g></string>
+    <string name="app_author"><xliff:g id="roman_nurik">Roman Nurik</xliff:g> e <xliff:g id="ian_lake">Ian Lake</xliff:g></string>
     <string name="app_context_description">Um museu vivo no seu ecrã principal</string>
 </resources>

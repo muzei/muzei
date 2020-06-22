@@ -14,4 +14,39 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="gallery_add_fab">Foto\'s toevoegen</string>
+    <string name="gallery_add_photos">Foto\'s toevoegen</string>
+    <string name="gallery_add_folder">Foto\'s importeren uit <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
+    <string name="gallery_internal_storage_message">Ziet u niets? Probeer interne opslag in te schakelen in het menu</string>
+    <string name="gallery_add_photos_error">Uw toestel ondersteunt het toevoegen van afbeeldingen niet.\nNeem contact op met de fabrikant.</string>
+    <string name="gallery_add_folder_error">Uw toestel ondersteunt het toevoegen van mappen niet.\nNeem contact op met de fabrikant.</string>
+    <string name="gallery_action_clear_photos">Alle foto\'s verwijderen</string>
+    <string name="gallery_action_import_photos">Foto\'s importeren…</string>
+    <string name="gallery_action_import_photos_from">Foto\'s importeren uit <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
+    <string name="gallery_import_dialog_title">Foto\'s importeren uit</string>
+    <string name="gallery_action_remove">Verwijderen</string>
+    <string name="gallery_title">Mijn foto\'s</string>
+    <string name="gallery_description">Willekeurige camerafoto\'s</string>
+    <plurals name="gallery_description_choice_template">
+        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> foto</item>
+        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> foto\'s</item>
+    </plurals>
+    <string name="gallery_empty">Willekeurige camerafoto\'s</string>
+    <string name="gallery_empty_subtitle">Specifieke foto\'s kiezen</string>
+    <string name="gallery_from_gallery">Uit uw galerij</string>
+    <string name="gallery_touch_to_view">Druk om te bekijken</string>
+    <string name="gallery_shared_from">Gedeeld uit <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
+    <plurals name="gallery_add_photos_success">
+        <item quantity="one">Afbeelding met succes toegevoegd\naan de bron \"Mijn foto\'s\"</item>
+        <item quantity="other"><xliff:g id="quantity" example="2">%d</xliff:g> afbeeldingen met succes toegevoegd\naan de bron \"Mijn foto\'s\"</item>
+    </plurals>
+    <plurals name="gallery_add_photos_failure">
+        <item quantity="one">Kon afbeelding niet toevoegen\naan de bron \"Mijn foto\'s\"</item>
+        <item quantity="other">Kon <xliff:g id="quantity" example="2">%d</xliff:g> afbeeldingen niet toevoegen\naan de bron \"Mijn foto\'s\"</item>
+    </plurals>
+    <string name="gallery_enable_random">Willekeurige camerafoto\'s inschakelen</string>
+    <string name="gallery_permission_rationale">Sta de opslagmachtiging toe om willekeurige foto\'s te tonen als uw achtergrond.</string>
+    <string name="gallery_edit_settings">App-machtigingen bewerken</string>
+    <string name="gallery_denied_explanation">U moet de machtiging <b>Opslagruimte</b> toestaan om willekeurige foto\'s te gebruiken als achtergrond.</string>
+</resources>

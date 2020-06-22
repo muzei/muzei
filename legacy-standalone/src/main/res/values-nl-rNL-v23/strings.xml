@@ -14,4 +14,6 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources></resources>
+<resources>
+    <string name="legacy_source_warning_message">Er zijn gekende problemen met verouderde bronnen op uw toestel. U moet Batterijoptimalisatie uitschakelen voor alle verouderde bronnen die u wilt gebruiken om zeker te zijn dat achtergronden geladen worden. Dit kan een hoger batterijverbruik veroorzaken.\n\n Bovendien laden verouderde bronnen volgens hun eigen tijdschema en gaan ze niet automatisch verder. Dit kan leiden tot bijkomend datagebruik als de verouderde bon geen optie heeft om alleen WiFi te gebruiken.</string>
+</resources>

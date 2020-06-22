@@ -14,4 +14,6 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_author"><xliff:g id="roman_nurik">Roman Nurik</xliff:g> și <xliff:g id="ian_lake">Ian Lake</xliff:g></string>
+</resources>

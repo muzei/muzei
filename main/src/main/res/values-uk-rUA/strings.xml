@@ -49,8 +49,7 @@
     <string name="provider_settings">Налаштування</string>
     <string name="provider_browse">Огляд</string>
     <string name="legacy_notification_channel_name">Застарілі джерела</string>
-    <string name="legacy_notification_title"><xliff:g id="source_name" example="Гарні шпалери">%s</xliff:g>
-        більше не підтримується</string>
+    <string name="legacy_notification_title"><xliff:g id="source_name" example="Гарні шпалери">%s</xliff:g> більше не підтримується</string>
     <string name="legacy_action_learn_more">Детальніше</string>
     <string name="legacy_action_send_feedback">Надіслати відгук</string>
     <string name="legacy_summary_title">Застарілі джерела більше не підтримуються</string>
@@ -67,8 +66,7 @@
     <string name="actions_gestures">Налаштування жестів</string>
     <string name="gestures_title">Жести</string>
     <string name="gestures_double_tap_title">Подвійний дотик</string>
-    <string name="gestures_double_tap_description">Двічі торкніться розмитої шпалери на вашому головному екрані
-        щоб виконати дію.</string>
+    <string name="gestures_double_tap_description">Двічі торкніться розмитої шпалери на вашому головному екрані щоб виконати дію.</string>
     <string name="gestures_three_finger_tap_title">Потрійний дотик</string>
     <string name="gestures_tap_action_next">Наступна робота</string>
     <string name="gestures_tap_action_none">Нічого</string>

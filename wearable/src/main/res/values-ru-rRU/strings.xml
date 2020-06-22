@@ -14,4 +14,11 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources></resources>
+<resources>
+    <string name="complication_artwork_label">Рисунок</string>
+    <string name="next_artwork">Следующий</string>
+    <string name="provider_title">Текущий источник</string>
+    <string name="provider_settings">Настройки источника</string>
+    <string name="config_show_date_title">Дата</string>
+    <string name="config_tap_title">Действие при нажатии</string>
+</resources>
