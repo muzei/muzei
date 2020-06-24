@@ -46,9 +46,9 @@ import androidx.lifecycle.map
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.MergeAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.api.load
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
@@ -184,7 +184,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
         })
         val adapter = ProviderListAdapter()
         val playStoreAdapter = PlayStoreProviderAdapter()
-        binding.list.adapter = MergeAdapter(adapter, playStoreAdapter)
+        binding.list.adapter = ConcatAdapter(adapter, playStoreAdapter)
         viewModel.providers.observe(viewLifecycleOwner) {
             adapter.submitList(it) {
                 playStoreAdapter.shouldShow = true

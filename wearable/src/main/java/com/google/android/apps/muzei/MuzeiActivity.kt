@@ -21,7 +21,7 @@ import android.os.Bundle
 import android.text.format.DateFormat
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
-import androidx.recyclerview.widget.MergeAdapter
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.wear.ambient.AmbientModeSupport
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
@@ -84,7 +84,7 @@ class MuzeiActivity : FragmentActivity(),
         val commandArtworkAdapter = MuzeiCommandAdapter(this)
         val providerAdapter = MuzeiProviderAdapter(this)
 
-        binding.recyclerView.adapter = MergeAdapter(
+        binding.recyclerView.adapter = ConcatAdapter(
                 artworkAdapter,
                 nextArtworkAdapter,
                 commandArtworkAdapter,
