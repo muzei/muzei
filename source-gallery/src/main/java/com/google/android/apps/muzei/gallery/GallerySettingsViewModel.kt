@@ -45,9 +45,7 @@ import kotlin.coroutines.EmptyCoroutineContext
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class GallerySettingsViewModel(application: Application) : AndroidViewModel(application) {
-    internal val chosenPhotos = Pager(
-            PagingConfig(24, 12)
-    ) {
+    internal val chosenPhotos = Pager(PagingConfig(48)) {
         GalleryDatabase.getInstance(application).chosenPhotoDao().chosenPhotosPaged
     }.flow.cachedIn(viewModelScope)
     internal val getContentActivityInfoList = getContentActivityInfos()
