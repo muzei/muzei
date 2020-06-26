@@ -29,7 +29,7 @@
         android:layout_marginBottom="16dp"
         android:text="@string/settings_blur_amount_title"
         app:layout_constraintBottom_toTopOf="@+id/dim_amount_title"
-        app:layout_constraintEnd_toEndOf="@+id/dim_amount_title"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <SeekBar
@@ -37,6 +37,7 @@
         style="@style/Settings.Widget.SeekBar.BlurAmount"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/settings_seek_bar_margin"
         android:max="500"
         app:layout_constraintBottom_toBottomOf="@+id/blur_amount_title"
         app:layout_constraintEnd_toEndOf="parent"
@@ -51,7 +52,7 @@
         android:layout_marginBottom="16dp"
         android:text="@string/settings_dim_amount_title"
         app:layout_constraintBottom_toTopOf="@+id/grey_amount_title"
-        app:layout_constraintEnd_toEndOf="@+id/grey_amount_title"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/blur_amount_title"/>
 
     <SeekBar
@@ -59,6 +60,7 @@
         style="@style/Settings.Widget.SeekBar.DimAmount"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/settings_seek_bar_margin"
         android:max="255"
         app:layout_constraintBottom_toBottomOf="@+id/dim_amount_title"
         app:layout_constraintEnd_toEndOf="parent"
@@ -80,6 +82,7 @@
         style="@style/Settings.Widget.SeekBar.GreyAmount"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/settings_seek_bar_margin"
         android:max="500"
         app:layout_constraintBottom_toBottomOf="@+id/grey_amount_title"
         app:layout_constraintEnd_toEndOf="parent"
