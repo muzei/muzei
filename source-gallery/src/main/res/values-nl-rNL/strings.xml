@@ -38,11 +38,11 @@
     <string name="gallery_touch_to_view">Druk om te bekijken</string>
     <string name="gallery_shared_from">Gedeeld uit <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
     <plurals name="gallery_add_photos_success">
-        <item quantity="one">Afbeelding met succes toegevoegd\naan de bron \"Mijn foto\'s\"</item>
+        <item quantity="one"><xliff:g id="quantity" example="1">%d</xliff:g> afbeelding met succes toegevoegd\naan de bron \"Mijn foto\'s\"</item>
         <item quantity="other"><xliff:g id="quantity" example="2">%d</xliff:g> afbeeldingen met succes toegevoegd\naan de bron \"Mijn foto\'s\"</item>
     </plurals>
     <plurals name="gallery_add_photos_failure">
-        <item quantity="one">Kon afbeelding niet toevoegen\naan de bron \"Mijn foto\'s\"</item>
+        <item quantity="one">Kon <xliff:g id="quantity" example="1">%d</xliff:g> afbeelding niet toevoegen\naan de bron \"Mijn foto\'s\"</item>
         <item quantity="other">Kon <xliff:g id="quantity" example="2">%d</xliff:g> afbeeldingen niet toevoegen\naan de bron \"Mijn foto\'s\"</item>
     </plurals>
     <string name="gallery_enable_random">Willekeurige camerafoto\'s inschakelen</string>

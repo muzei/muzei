@@ -25,19 +25,15 @@
     <string name="notification_new_wallpaper">Nouveau fond d\'écran</string>
     <string name="notification_new_wallpaper_channel_name">Nouveaux fonds d\'écran</string>
     <string name="notification_settings">Paramètres de notification</string>
-    <string name="notification_settings_failed">L\'ouverture des paramètres de notification a échoué,
-        veuillez ajuster les paramètres de notification de <xliff:g id="muzei_name">Muzei</xliff:g>
-        depuis l\'application Paramètres.</string>
+    <string name="notification_settings_failed">L\'ouverture des paramètres de notification a échoué, veuillez ajuster les paramètres de notification de <xliff:g id="muzei_name">Muzei</xliff:g> depuis l\'application Paramètres.</string>
     <string name="notification_settings_done">Terminer</string>
     <string name="notification_settings_moved_title">Les paramètres de notification ont été déplacés</string>
     <string name="notification_settings_moved_text">Vérifiez vos paramètres de notification</string>
     <string name="auto_advance_settings">Paramètres d\'Avancement Automatique</string>
     <string name="auto_advance_disabled">Avancement Automatique désactivé</string>
-    <string name="auto_advance_disabled_description">Les Anciennes Sources gèrent leur propre
-        chargement de fond d\'écran et ne prennent pas en charge l\'Avancement Automatique</string>
+    <string name="auto_advance_disabled_description">Les Anciennes Sources gèrent leur propre chargement de fond d\'écran et ne prennent pas en charge l\'Avancement Automatique</string>
     <string name="auto_advance_title">Avance Automatique</string>
-    <string name="auto_advance_description">Contrôle lorsque <xliff:g id="muzei_name">Muzei</xliff:g>
-        passe automatiquement au fond d\'écran suivant.</string>
+    <string name="auto_advance_description">Contrôle lorsque <xliff:g id="muzei_name">Muzei</xliff:g> passe automatiquement au fond d\'écran suivant.</string>
     <string name="auto_advance_wifi">Avancement Automatiquement uniquement en Wi-Fi</string>
     <string name="auto_advance_interval">Intervalle</string>
     <string name="auto_advance_interval_15m">Toutes les 15 minutes</string>
@@ -48,10 +44,7 @@
     <string name="auto_advance_interval_24h">Toutes les 24 heures</string>
     <string name="auto_advance_interval_72h">Tous les 3 jours</string>
     <string name="auto_advance_interval_never">Ne pas avancer automatiquement</string>
-    <string name="auto_advance_tasker">Pour un contrôle précis sur ce qui pousse votre fond d\'écran
-        à changer, utilisez l\'action \'Œuvre suivante\' disponible dans
-        <xliff:g id="tasker_name">Tasker</xliff:g> sous Plugin -&gt;
-        <xliff:g id="muzei_name">Muzei</xliff:g> et désactivez l\'avancemenent automatique ici.</string>
+    <string name="auto_advance_tasker">Pour un contrôle précis sur ce qui pousse votre fond d\'écran à changer, utilisez l\'action \'Œuvre suivante\' disponible dans <xliff:g id="tasker_name">Tasker</xliff:g> sous Plugin -&gt; <xliff:g id="muzei_name">Muzei</xliff:g> et désactivez l\'avancemenent automatique ici.</string>
     <string name="auto_advance_tasker_name"><xliff:g id="tasker_name">Tasker</xliff:g></string>
     <string name="action_activate">Activer</string>
     <string name="error_view_details">Impossible de voir les détails de l\'œuvre.</string>
@@ -66,10 +59,8 @@
     <string name="provider_settings">Paramètres</string>
     <string name="provider_browse">Parcourir</string>
     <string name="legacy_notification_channel_name">Anciennes sources</string>
-    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g>
-        n\'est plus pris en charge</string>
-    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> ne prend pas
-        directement en charge les sources construites avec l’API Legacy Source.</string>
+    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> n\'est plus pris en charge</string>
+    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> ne prend pas directement en charge les sources construites avec l’API Legacy Source.</string>
     <string name="legacy_action_learn_more">En savoir plus</string>
     <string name="legacy_action_send_feedback">Envoyer un commentaire</string>
     <string name="legacy_summary_title">Les Anciennes Sources ne sont plus prises en charge</string>

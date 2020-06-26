@@ -25,9 +25,7 @@
     <string name="notification_new_wallpaper">Neues Hintergrundbild</string>
     <string name="notification_new_wallpaper_channel_name">Neue Hintergrundbilder</string>
     <string name="notification_settings">Benachrichtigungseinstellungen</string>
-    <string name="notification_settings_failed">Öffnen der Benachrichtigungseinstellungen fehlgeschlagen.
-        Bitte passen Sie die <xliff:g id="muzei_name">Muzei</xliff:g>Benachrichtigungseinstellungen
-        in den Einstellungen an.</string>
+    <string name="notification_settings_failed">Öffnen der Benachrichtigungseinstellungen fehlgeschlagen. Bitte passen Sie die <xliff:g id="muzei_name">Muzei</xliff:g>Benachrichtigungseinstellungen in den Einstellungen an.</string>
     <string name="notification_settings_done">Fertig</string>
     <string name="notification_settings_moved_title">Benachrichtigungseinstellungen wurden verschoben</string>
     <string name="notification_settings_moved_text">Benachrichtigungseinstellungen verwalten</string>
@@ -35,8 +33,7 @@
     <string name="auto_advance_disabled">Auto-Wechsel deaktiviert</string>
     <string name="auto_advance_disabled_description">Legacy-Quellen verwalten ihr eigenes Laden der Wallpaper und unterstützen Auto-Wechsel nicht</string>
     <string name="auto_advance_title">Auto-Wechsel</string>
-    <string name="auto_advance_description">Kontrollieren Sie, wann <xliff:g id="muzei_name">Muzei</xliff:g>
-        automatisch zum nächsten Hintergrund wechselt.</string>
+    <string name="auto_advance_description">Kontrollieren Sie, wann <xliff:g id="muzei_name">Muzei</xliff:g> automatisch zum nächsten Hintergrund wechselt.</string>
     <string name="auto_advance_wifi">Auto-Wechsel nur mit WiFi</string>
     <string name="auto_advance_interval">Intervall</string>
     <string name="auto_advance_interval_15m">Alle 15 Minuten</string>
@@ -49,9 +46,7 @@
     <string name="auto_advance_interval_never">Kwin Auto-Wechsel</string>
     <string name="action_activate">Aktivieren</string>
     <string name="error_view_details">Konnte die Details des Artworks nicht anzeigen.</string>
-    <string name="error_wallpaper_chooser">Konnte die Auswahl des Hintergrundbildes nicht starten. Sie können
-        trotzdem <xliff:g id="muzei_name">Muzei</xliff:g> aktivieren, indem Sie
-        \'Live-Hintergrundbilder\' in Ihrem Bildschirmhintergrund wählen.</string>
+    <string name="error_wallpaper_chooser">Konnte die Auswahl des Hintergrundbildes nicht starten. Sie können trotzdem <xliff:g id="muzei_name">Muzei</xliff:g> aktivieren, indem Sie \'Live-Hintergrundbilder\' in Ihrem Bildschirmhintergrund wählen.</string>
     <string name="section_choose_source">Quellen</string>
     <string name="section_effects">Effekte</string>
     <string name="action_next_artwork">Nächstes Artwork</string>
@@ -63,10 +58,8 @@
     <string name="provider_settings">Einstellungen</string>
     <string name="provider_browse">Durchsuchen</string>
     <string name="legacy_notification_channel_name">Legacy-Quellen</string>
-    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g>
-        wird nicht mehr unterstützt</string>
-    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> unterstützt nicht direkt
-        Quellen, die mit der Legacy-Quell-API erstellt wurden.</string>
+    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> wird nicht mehr unterstützt</string>
+    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> unterstützt nicht direkt Quellen, die mit der Legacy-Quell-API erstellt wurden.</string>
     <string name="legacy_action_learn_more">Weitere Informationen</string>
     <string name="legacy_action_send_feedback">Feedback senden</string>
     <string name="legacy_summary_title">Legacy-Quellen werden nicht mehr unterstützt</string>

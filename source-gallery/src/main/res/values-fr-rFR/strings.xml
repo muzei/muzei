@@ -38,11 +38,11 @@
     <string name="gallery_touch_to_view">Appuyer pour afficher</string>
     <string name="gallery_shared_from">Partagé depuis <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
     <plurals name="gallery_add_photos_success">
-        <item quantity="one">L\'image a été ajoutée avec succès\nà la source \"Mes Photos\"</item>
+        <item quantity="one"><xliff:g id="quantity" example="1">%d</xliff:g> image a été ajoutée avec succès\nà la source \"Mes Photos\"</item>
         <item quantity="other"><xliff:g id="quantity" example="2">%d</xliff:g> images ont été ajoutées avec succès\nà la source \"Mes Photos\"</item>
     </plurals>
     <plurals name="gallery_add_photos_failure">
-        <item quantity="one">Impossible d\'ajouter l\'image\nà la source \"Mes Photos\"</item>
+        <item quantity="one">Impossible d\'ajouter <xliff:g id="quantity" example="1">%d</xliff:g> image\nà la source \"Mes Photos\"</item>
         <item quantity="other">Impossible d\'ajouter <xliff:g id="quantity" example="2">%d</xliff:g> images\nà la source « Mes photos »</item>
     </plurals>
     <string name="gallery_enable_random">Activer les photos aléatoires de l\'appareil photo</string>
