@@ -26,7 +26,7 @@ import androidx.wear.ambient.AmbientModeSupport
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import net.nurik.roman.muzei.BuildConfig
-import net.nurik.roman.muzei.databinding.MuzeiActivityBinding
+import net.nurik.roman.muzei.databinding.MuzeiWearActivityBinding
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -64,14 +64,14 @@ class MuzeiActivity : FragmentActivity(),
             }
     private lateinit var ambientController: AmbientModeSupport.AmbientController
 
-    private lateinit var binding: MuzeiActivityBinding
+    private lateinit var binding: MuzeiWearActivityBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ambientController = AmbientModeSupport.attach(this)
         Firebase.analytics.setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
 
-        binding = MuzeiActivityBinding.inflate(layoutInflater)
+        binding = MuzeiWearActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.recyclerView.requestFocus()
 

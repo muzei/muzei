@@ -44,7 +44,7 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.ChooseProviderActivityBinding
-import net.nurik.roman.muzei.databinding.ChooseProviderItemBinding
+import net.nurik.roman.muzei.databinding.ChooseProviderWearItemBinding
 
 private class StartActivityFromSettings : ActivityResultContract<ComponentName, Boolean>() {
     override fun createIntent(context: Context, input: ComponentName): Intent =
@@ -116,7 +116,7 @@ class ChooseProviderActivity : FragmentActivity() {
     }
 
     inner class ProviderViewHolder(
-            private val binding: ChooseProviderItemBinding
+            private val binding: ChooseProviderWearItemBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         fun setProviderInfo(providerInfo: ProviderInfo) {
             val size = resources.getDimensionPixelSize(R.dimen.choose_provider_image_size)
@@ -153,7 +153,7 @@ class ChooseProviderActivity : FragmentActivity() {
             }
     ) {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-                ProviderViewHolder(ChooseProviderItemBinding.inflate(layoutInflater,
+                ProviderViewHolder(ChooseProviderWearItemBinding.inflate(layoutInflater,
                         parent, false))
 
         override fun onBindViewHolder(holder: ProviderViewHolder, position: Int) {
