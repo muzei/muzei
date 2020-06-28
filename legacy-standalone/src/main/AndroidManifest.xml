@@ -26,6 +26,7 @@
         android:name="androidx.multidex.MultiDexApplication"
         android:icon="@drawable/legacy_source_ic_launcher"
         android:label="@string/legacy_app_name"
+        android:supportsRtl="true"
         tools:ignore="GoogleAppIndexingWarning">
         <provider
             android:name="com.google.android.apps.muzei.legacy.SourceArtProvider"
