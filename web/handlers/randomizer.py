@@ -20,6 +20,8 @@ import re
 import sys
 import random
 
+from google.appengine.api import urlfetch
+
 from handlers import backroomarthelper
 from handlers.common import *
 from models import FeaturedArtwork
@@ -36,7 +38,13 @@ def artwork_key(details_url):
 
 class PickRandomArtworkTaskHandler(BaseHandler):
   def get(self):
-    ARTWORKS = json.loads(open(os.path.join(os.path.split(__file__)[0], 'lt-artworks.json')).read())
+    lt_artworks_url = open(os.path.join(os.path.split(__file__)[0], 'lt-artworks-url.txt')).read()
+    lt_result = urlfetch.fetch(lt_artworks_url)
+    if lt_result.status_code < 200 or lt_result.status_code >= 300:
+      raise IOError('Error downloading latest artworks JSON: HTTP %d.' % lt_result.status_code)
+    lt_artworks_json = lt_result.content
+
+    ARTWORKS = json.loads(lt_artworks_json)
 
     # ARTWORKS = filter(lambda a: '_stars' in a and a['_stars'] >= 1, ARTWORKS)
 
