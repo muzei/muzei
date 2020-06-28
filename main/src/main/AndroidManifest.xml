@@ -49,10 +49,12 @@
 
     <application
         android:name="com.google.android.apps.muzei.MuzeiApplication"
+        android:autoRevokePermissions="discouraged"
         android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        tools:ignore="GoogleAppIndexingWarning">
+        tools:ignore="GoogleAppIndexingWarning"
+        tools:targetApi="30">
 
         <activity
             android:name="com.google.android.apps.muzei.MuzeiActivity"
