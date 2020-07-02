@@ -21,8 +21,14 @@ import android.content.ContentUris
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.pm.ProviderInfo
+import android.content.res.AssetFileDescriptor
 import android.database.Cursor
 import android.database.MatrixCursor
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.graphics.Point
+import android.net.Uri
 import android.os.Binder
 import android.os.Build
 import android.os.CancellationSignal
@@ -31,7 +37,12 @@ import android.provider.DocumentsContract
 import android.provider.DocumentsProvider
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.exifinterface.media.ExifInterface
+import java.io.File
 import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.io.IOException
+import kotlin.math.max
 
 @RequiresApi(Build.VERSION_CODES.KITKAT)
 open class MuzeiDocumentsProvider : DocumentsProvider() {
@@ -189,7 +200,7 @@ open class MuzeiDocumentsProvider : DocumentsProvider() {
             add(DocumentsContract.Document.COLUMN_DISPLAY_NAME, artwork.title)
             add(DocumentsContract.Document.COLUMN_SUMMARY, artwork.byline)
             add(DocumentsContract.Document.COLUMN_MIME_TYPE, "image/png")
-            add(DocumentsContract.Document.COLUMN_FLAGS, 0)
+            add(DocumentsContract.Document.COLUMN_FLAGS, DocumentsContract.Document.FLAG_SUPPORTS_THUMBNAIL)
             add(DocumentsContract.Document.COLUMN_SIZE, null)
             add(DocumentsContract.Document.COLUMN_LAST_MODIFIED, artwork.dateAdded.time)
         }
@@ -216,5 +227,136 @@ open class MuzeiDocumentsProvider : DocumentsProvider() {
         } finally {
             Binder.restoreCallingIdentity(token)
         }
+    }
+
+    @Throws(FileNotFoundException::class)
+    override fun openDocumentThumbnail(
+            documentId: String,
+            sizeHint: Point,
+            signal: CancellationSignal?
+    ): AssetFileDescriptor? {
+        val (authority, id) = documentId.split("/")
+        val tempFile = getThumbnailFile(authority, id)
+        if (tempFile.exists() && tempFile.length() != 0L) {
+            // We already have a cached thumbnail
+            return AssetFileDescriptor(ParcelFileDescriptor.open(tempFile,
+                    ParcelFileDescriptor.MODE_READ_ONLY), 0,
+                    AssetFileDescriptor.UNKNOWN_LENGTH)
+        }
+        // We need to generate a new thumbnail
+        val contentUri = ProviderContract.getContentUri(authority)
+        val uri = ContentUris.withAppendedId(contentUri, id.toLong())
+        val token = Binder.clearCallingIdentity()
+        val bitmap = try {
+            decodeUri(uri,
+                    sizeHint.x / 2, sizeHint.y / 2
+            ) ?: run {
+                throw FileNotFoundException("Unable to generate thumbnail for $uri")
+            }
+        } finally {
+            Binder.restoreCallingIdentity(token)
+        }
+
+        // Write out the thumbnail to a temporary file
+        try {
+            FileOutputStream(tempFile).use { out ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 90, out)
+            }
+        } catch (e: IOException) {
+            Log.e(TAG, "Error writing thumbnail", e)
+            return null
+        }
+
+        return AssetFileDescriptor(ParcelFileDescriptor.open(tempFile, ParcelFileDescriptor.MODE_READ_ONLY), 0,
+                AssetFileDescriptor.UNKNOWN_LENGTH)
+    }
+
+    @Throws(FileNotFoundException::class)
+    private fun getThumbnailFile(authority: String, id: String): File {
+        val context = context ?: throw FileNotFoundException("Unable to create cache directory")
+        val authorityDirectory = File(context.cacheDir, "muzei_$authority")
+        val thumbnailDirectory = File(authorityDirectory, "thumbnails")
+        if (!thumbnailDirectory.exists() && !thumbnailDirectory.mkdirs()) {
+            throw FileNotFoundException("Unable to create thumbnail directory")
+        }
+        return File(thumbnailDirectory, id)
+    }
+
+    private fun decodeUri(uri: Uri, targetWidth: Int, targetHeight: Int): Bitmap? {
+        val context = context ?: return null
+        val openInputStream = {
+            context.contentResolver.openInputStream(uri)
+        }
+        return try {
+            // First we need to get the original width and height of the image
+            val (originalWidth, originalHeight) = openInputStream()?.use { input ->
+                val options = BitmapFactory.Options().apply {
+                    inJustDecodeBounds = true
+                }
+                BitmapFactory.decodeStream(input, null, options)
+                Pair(options.outWidth, options.outHeight)
+            } ?: return null.also {
+                Log.w(TAG, "Unable to get width and height for $uri")
+            }
+            // Then we need to get the rotation of the image
+            val rotation = try {
+                openInputStream()?.use { input ->
+                    val exifInterface = ExifInterface(input)
+                    when (exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                            ExifInterface.ORIENTATION_NORMAL)) {
+                        ExifInterface.ORIENTATION_ROTATE_90 -> 90
+                        ExifInterface.ORIENTATION_ROTATE_180 -> 180
+                        ExifInterface.ORIENTATION_ROTATE_270 -> 270
+                        else -> 0
+                    }
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Couldn't open EXIF interface for ${toString()}", e)
+            } ?: 0
+            // Then we need to swap the width and height depending on the rotation
+            val width = if (rotation == 90 || rotation == 270) originalHeight else originalWidth
+            val height = if (rotation == 90 || rotation == 270) originalWidth else originalHeight
+            // And now get the image, sampling it down to the appropriate size if needed
+            openInputStream()?.use { input ->
+                BitmapFactory.decodeStream(input, null,
+                        BitmapFactory.Options().apply {
+                            inPreferredConfig = Bitmap.Config.ARGB_8888
+                            if (targetWidth != 0) {
+                                inSampleSize = max(
+                                        width.sampleSize(targetWidth),
+                                        height.sampleSize(targetHeight))
+                            }
+                        })
+            }?.run {
+                // Correctly rotate the final, downsampled image
+                when (rotation) {
+                    0 -> this
+                    else -> {
+                        val rotateMatrix = Matrix().apply {
+                            postRotate(rotation.toFloat())
+                        }
+                        Bitmap.createBitmap(
+                                this, 0, 0,
+                                this.width, this.height,
+                                rotateMatrix, true).also { rotatedBitmap ->
+                            if (rotatedBitmap != this) {
+                                recycle()
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Unable to get thumbnail for $uri", e)
+            null
+        }
+    }
+
+    private fun Int.sampleSize(targetSize: Int): Int {
+        var sampleSize = 1
+        while (this / (sampleSize shl 1) > targetSize) {
+            sampleSize = sampleSize shl 1
+        }
+        return sampleSize
     }
 }
