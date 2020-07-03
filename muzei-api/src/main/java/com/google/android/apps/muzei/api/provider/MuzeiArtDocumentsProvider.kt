@@ -74,10 +74,16 @@ open class MuzeiArtDocumentsProvider : DocumentsProvider() {
 
     private lateinit var providerInfos: Map<String, ProviderInfo>
 
-    override fun onCreate() = true
+    /**
+     * @suppress
+     */
+    final override fun onCreate() = true
 
+    /**
+     * @suppress
+     */
     @Suppress("DEPRECATION")
-    override fun attachInfo(context: Context, info: ProviderInfo) {
+    final override fun attachInfo(context: Context, info: ProviderInfo) {
         super.attachInfo(context, info)
         providerInfos = info.authority.split(";").asSequence().filter { authority ->
             val authorityEndsWithDocuments = authority.endsWith(".documents")
@@ -111,9 +117,12 @@ open class MuzeiArtDocumentsProvider : DocumentsProvider() {
         }.toList().toMap()
     }
 
+    /**
+     * @suppress
+     */
     @SuppressLint("InlinedApi")
     @Throws(FileNotFoundException::class)
-    override fun queryRoots(projection: Array<String>?): Cursor {
+    final override fun queryRoots(projection: Array<String>?): Cursor {
         val result = MatrixCursor(projection ?: DEFAULT_ROOT_PROJECTION)
         val context = context ?: return result
         val pm = context.packageManager
@@ -137,7 +146,10 @@ open class MuzeiArtDocumentsProvider : DocumentsProvider() {
         return result
     }
 
-    override fun queryRecentDocuments(
+    /**
+     * @suppress
+     */
+    final override fun queryRecentDocuments(
             authority: String,
             projection: Array<String>?
     ): Cursor {
@@ -161,8 +173,11 @@ open class MuzeiArtDocumentsProvider : DocumentsProvider() {
         return result
     }
 
+    /**
+     * @suppress
+     */
     @Throws(FileNotFoundException::class)
-    override fun queryChildDocuments(
+    final override fun queryChildDocuments(
             authority: String,
             projection: Array<String>?,
             sortOrder: String?
@@ -185,7 +200,11 @@ open class MuzeiArtDocumentsProvider : DocumentsProvider() {
         return result
     }
 
-    override fun queryDocument(documentId: String, projection: Array<String>?): Cursor {
+    /**
+     * @suppress
+     */
+    @Throws(FileNotFoundException::class)
+    final override fun queryDocument(documentId: String, projection: Array<String>?): Cursor {
         val result = MatrixCursor(projection ?: DEFAULT_DOCUMENT_PROJECTION)
         val context = context ?: return result
         if (documentId.contains("/")) {
@@ -232,18 +251,29 @@ open class MuzeiArtDocumentsProvider : DocumentsProvider() {
         }
     }
 
-    override fun isChildDocument(parentDocumentId: String, documentId: String): Boolean {
+    /**
+     * @suppress
+     */
+    final override fun isChildDocument(parentDocumentId: String, documentId: String): Boolean {
         // The only parents are the authorities, the only children are authority/id
         return documentId.startsWith("$parentDocumentId/")
     }
 
+    /**
+     * @suppress
+     */
     @Throws(FileNotFoundException::class)
-    override fun getDocumentType(documentId: String) = if (documentId.contains("/")) {
+    final override fun getDocumentType(
+            documentId: String
+    ) = if (documentId.contains("/")) {
         "image/png"
     } else DocumentsContract.Document.MIME_TYPE_DIR
 
+    /**
+     * @suppress
+     */
     @Throws(FileNotFoundException::class)
-    override fun openDocument(
+    final override fun openDocument(
             documentId: String,
             mode: String,
             signal: CancellationSignal?
@@ -260,8 +290,11 @@ open class MuzeiArtDocumentsProvider : DocumentsProvider() {
         }
     }
 
+    /**
+     * @suppress
+     */
     @Throws(FileNotFoundException::class)
-    override fun openDocumentThumbnail(
+    final override fun openDocumentThumbnail(
             documentId: String,
             sizeHint: Point,
             signal: CancellationSignal?
