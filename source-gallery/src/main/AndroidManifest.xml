@@ -55,7 +55,7 @@
                 android:value="com.google.android.apps.muzei.gallery.GallerySetupActivity" />
         </provider>
         <provider
-            android:name="com.google.android.apps.muzei.api.provider.MuzeiDocumentsProvider"
+            android:name="com.google.android.apps.muzei.api.provider.MuzeiArtDocumentsProvider"
             android:authorities="${galleryArtDocumentsAuthority}"
             android:exported="true"
             android:grantUriPermissions="true"

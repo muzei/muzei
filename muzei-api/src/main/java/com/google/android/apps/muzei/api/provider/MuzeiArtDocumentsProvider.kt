@@ -45,7 +45,7 @@ import java.io.IOException
 import kotlin.math.max
 
 @RequiresApi(Build.VERSION_CODES.KITKAT)
-open class MuzeiDocumentsProvider : DocumentsProvider() {
+open class MuzeiArtDocumentsProvider : DocumentsProvider() {
 
     companion object {
         private const val TAG = "MuzeiDocumentsProvider"
