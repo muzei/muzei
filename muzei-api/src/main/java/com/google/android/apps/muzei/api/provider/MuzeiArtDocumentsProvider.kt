@@ -214,8 +214,8 @@ open class MuzeiArtDocumentsProvider : DocumentsProvider() {
 
     @Throws(FileNotFoundException::class)
     override fun getDocumentType(documentId: String) = if (documentId.contains("/")) {
-        DocumentsContract.Document.MIME_TYPE_DIR
-    } else "image/png"
+        "image/png"
+    } else DocumentsContract.Document.MIME_TYPE_DIR
 
     @Throws(FileNotFoundException::class)
     override fun openDocument(
