@@ -203,7 +203,7 @@ open class MuzeiArtDocumentsProvider : DocumentsProvider() {
             add(DocumentsContract.Document.COLUMN_MIME_TYPE, "image/png")
             add(DocumentsContract.Document.COLUMN_FLAGS, DocumentsContract.Document.FLAG_SUPPORTS_THUMBNAIL)
             add(DocumentsContract.Document.COLUMN_SIZE, null)
-            add(DocumentsContract.Document.COLUMN_LAST_MODIFIED, artwork.dateAdded.time)
+            add(DocumentsContract.Document.COLUMN_LAST_MODIFIED, artwork.dateModified.time)
         }
     }
 
