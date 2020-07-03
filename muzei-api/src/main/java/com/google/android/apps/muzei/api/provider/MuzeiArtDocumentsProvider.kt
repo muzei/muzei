@@ -128,10 +128,35 @@ open class MuzeiArtDocumentsProvider : DocumentsProvider() {
                     add(DocumentsContract.Root.COLUMN_SUMMARY, appName)
                 }
                 add(DocumentsContract.Root.COLUMN_FLAGS,
-                        DocumentsContract.Root.FLAG_SUPPORTS_IS_CHILD)
+                        DocumentsContract.Root.FLAG_SUPPORTS_IS_CHILD or
+                                DocumentsContract.Root.FLAG_SUPPORTS_RECENTS)
                 add(DocumentsContract.Root.COLUMN_MIME_TYPES, "image/png")
                 add(DocumentsContract.Root.COLUMN_DOCUMENT_ID, authority)
             }
+        }
+        return result
+    }
+
+    override fun queryRecentDocuments(
+            authority: String,
+            projection: Array<String>?
+    ): Cursor {
+        val result = MatrixCursor(projection ?: DEFAULT_DOCUMENT_PROJECTION)
+        val context = context ?: return result
+        val contentUri = ProviderContract.getContentUri(authority)
+        val token = Binder.clearCallingIdentity()
+        try {
+            context.contentResolver.query(contentUri,
+                    null, null, null,
+                    "${ProviderContract.Artwork.DATE_MODIFIED} DESC",
+                    null
+            )?.use { data ->
+                while (data.moveToNext() && result.count < 64) {
+                    result.addArtwork(authority, Artwork.fromCursor(data))
+                }
+            }
+        } finally {
+            Binder.restoreCallingIdentity(token)
         }
         return result
     }
