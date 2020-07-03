@@ -127,7 +127,8 @@ open class MuzeiArtDocumentsProvider : DocumentsProvider() {
                 if (title != appName) {
                     add(DocumentsContract.Root.COLUMN_SUMMARY, appName)
                 }
-                add(DocumentsContract.Root.COLUMN_FLAGS, 0)
+                add(DocumentsContract.Root.COLUMN_FLAGS,
+                        DocumentsContract.Root.FLAG_SUPPORTS_IS_CHILD)
                 add(DocumentsContract.Root.COLUMN_MIME_TYPES, "image/png")
                 add(DocumentsContract.Root.COLUMN_DOCUMENT_ID, authority)
             }
@@ -204,6 +205,11 @@ open class MuzeiArtDocumentsProvider : DocumentsProvider() {
             add(DocumentsContract.Document.COLUMN_SIZE, null)
             add(DocumentsContract.Document.COLUMN_LAST_MODIFIED, artwork.dateAdded.time)
         }
+    }
+
+    override fun isChildDocument(parentDocumentId: String, documentId: String): Boolean {
+        // The only parents are the authorities, the only children are authority/id
+        return documentId.startsWith("$parentDocumentId/")
     }
 
     @Throws(FileNotFoundException::class)
