@@ -48,7 +48,7 @@ import kotlin.math.max
 open class MuzeiArtDocumentsProvider : DocumentsProvider() {
 
     companion object {
-        private const val TAG = "MuzeiDocumentsProvider"
+        private const val TAG = "MuzeiArtDocProvider"
         /**
          * Default root projection
          */
