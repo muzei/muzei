@@ -44,6 +44,66 @@ import java.io.FileOutputStream
 import java.io.IOException
 import kotlin.math.max
 
+/**
+ * An implementation of [DocumentsProvider] that provides users direct access to the
+ * images of one or more [MuzeiArtProvider] instances.
+ *
+ * ### Linking a [MuzeiArtProvider] to [MuzeiArtDocumentsProvider]
+ *
+ * Each [MuzeiArtProvider] has an authority associated with it, which uniquely
+ * defines it across all apps. This means it should generally be namespaced similar to
+ * your application ID - i.e., `com.example.artprovider`.
+ *
+ * A [MuzeiArtDocumentsProvider] uses the `android:authorities` assigned to it as the mechanism
+ * for linking it to one (or more) [MuzeiArtProvider] instances from your app - the
+ * authority used **must** be that of a valid [MuzeiArtProvider] plus the suffix
+ * `.documents`. For example, if your [MuzeiArtProvider] had the authority of
+ * `com.example.artprovider`, you would use an authority of `com.example.artprovider.documents`:
+ *
+ * ```
+ * <provider android:name="com.google.android.apps.muzei.api.provider.MuzeiArtDocumentsProvider"
+ *   android:authorities="com.example.artprovider.documents"
+ *   android:exported="true"
+ *   android:grantUriPermissions="true"
+ *   android:permission="android.permission.MANAGE_DOCUMENTS">
+ *   <intent-filter>
+ *       <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
+ *   </intent-filter>
+ * </provider>
+ * ```
+ *
+ * The [MuzeiArtDocumentsProvider] will automatically make the artwork from the
+ * [MuzeiArtProvider] available via the system file picker and Files app.
+ *
+ * ### Supporting multiple [MuzeiArtProvider] instances in a single [MuzeiArtDocumentsProvider]
+ *
+ * A single [MuzeiArtDocumentsProvider] can support multiple [MuzeiArtProvider] instances
+ * from your app. Each will appear as a separate entry in the system file picker.
+ *
+ * To link multiple [MuzeiArtProvider] instances, add multiple authorities to the
+ * `android:authorities`, separating them with a semicolon:
+ *
+ * ```
+ * android:authorities="com.example.simpleart.documents;com.example.fancyart.documents"
+ * ```
+ *
+ * Each authority must still have the suffix of `.documents`.
+ *
+ * ### Adding multiple [MuzeiArtDocumentsProvider] instances to your app
+ *
+ * As an alternative to using a single [MuzeiArtDocumentsProvider] for your entire app,
+ * you can create multiple empty subclasses of [MuzeiArtDocumentsProvider] and add each
+ * to your manifest separately. This works around the limitation of Android that a single
+ * `android:name` can only be present at most once in the manifest.
+ *
+ * From the user's perspective, this appears exactly the same as if you used a single
+ * [MuzeiArtDocumentsProvider], but allows you to build completely independent, non-overlapping
+ * modules (e.g., if you were providing a [MuzeiArtProvider] as part of a library and wanted
+ * to ensure that the [MuzeiArtDocumentsProvider] would not conflict with an application's own
+ * instance).
+ *
+ * @constructor Constructs a `MuzeiArtDocumentsProvider`.
+ */
 @RequiresApi(Build.VERSION_CODES.KITKAT)
 open class MuzeiArtDocumentsProvider : DocumentsProvider() {
 
