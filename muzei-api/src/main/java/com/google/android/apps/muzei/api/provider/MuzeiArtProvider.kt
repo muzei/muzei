@@ -137,7 +137,7 @@ import java.util.HashSet
  * Below is an example provider declaration in the manifest:
  * ```
  * <provider android:name=".ExampleArtProvider"
- *   android:authority="com.example.artprovider"
+ *   android:authorities="com.example.artprovider"
  *   android:label="@string/source_title"
  *   android:description="@string/source_description"
  *   android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER">
