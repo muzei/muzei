@@ -190,12 +190,19 @@ open class MuzeiArtDocumentsProvider : DocumentsProvider() {
         providerInfos.forEach { (authority, providerInfo) ->
             val title = providerInfo.loadLabel(pm).toString()
             val appName = providerInfo.applicationInfo.loadLabel(pm).toString()
+            val providerIcon = providerInfo.icon
+            val appIcon = providerInfo.applicationInfo.icon
             result.newRow().apply {
                 add(DocumentsContract.Root.COLUMN_ROOT_ID, authority)
-                add(DocumentsContract.Root.COLUMN_ICON, providerInfo.icon)
-                add(DocumentsContract.Root.COLUMN_TITLE, title)
-                if (title != appName) {
-                    add(DocumentsContract.Root.COLUMN_SUMMARY, appName)
+                add(DocumentsContract.Root.COLUMN_ICON,
+                        if (providerIcon != 0) providerIcon else appIcon)
+                if (title.isNotBlank()) {
+                    add(DocumentsContract.Root.COLUMN_TITLE, title)
+                    if (title != appName) {
+                        add(DocumentsContract.Root.COLUMN_SUMMARY, appName)
+                    }
+                } else {
+                    add(DocumentsContract.Root.COLUMN_TITLE, appName)
                 }
                 add(DocumentsContract.Root.COLUMN_FLAGS,
                         DocumentsContract.Root.FLAG_SUPPORTS_IS_CHILD or
