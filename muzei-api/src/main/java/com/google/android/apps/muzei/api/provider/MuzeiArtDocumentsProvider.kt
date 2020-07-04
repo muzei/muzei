@@ -231,6 +231,8 @@ open class MuzeiArtDocumentsProvider : DocumentsProvider() {
         } finally {
             Binder.restoreCallingIdentity(token)
         }
+        result.setNotificationUri(context.contentResolver,
+                DocumentsContract.buildRecentDocumentsUri(authority, authority))
         return result
     }
 
@@ -258,6 +260,8 @@ open class MuzeiArtDocumentsProvider : DocumentsProvider() {
         } finally {
             Binder.restoreCallingIdentity(token)
         }
+        result.setNotificationUri(context.contentResolver,
+            DocumentsContract.buildChildDocumentsUri(authority, authority))
         return result
     }
 
@@ -285,6 +289,8 @@ open class MuzeiArtDocumentsProvider : DocumentsProvider() {
             } finally {
                 Binder.restoreCallingIdentity(token)
             }
+            result.setNotificationUri(context.contentResolver,
+                    DocumentsContract.buildDocumentUri(authority, documentId))
         } else {
             // This is the root item for the MuzeiArtProvider
             val providerInfo = providerInfos[documentId] ?: return result
@@ -296,6 +302,8 @@ open class MuzeiArtDocumentsProvider : DocumentsProvider() {
                 add(DocumentsContract.Document.COLUMN_FLAGS, DocumentsContract.Document.FLAG_DIR_PREFERS_GRID or DocumentsContract.Document.FLAG_DIR_PREFERS_LAST_MODIFIED)
                 add(DocumentsContract.Document.COLUMN_SIZE, null)
             }
+            result.setNotificationUri(context.contentResolver,
+                    DocumentsContract.buildDocumentUri(documentId, documentId))
         }
         return result
     }
