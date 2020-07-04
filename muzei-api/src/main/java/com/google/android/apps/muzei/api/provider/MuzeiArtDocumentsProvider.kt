@@ -56,6 +56,7 @@ open class MuzeiArtDocumentsProvider : DocumentsProvider() {
                 DocumentsContract.Root.COLUMN_ROOT_ID,
                 DocumentsContract.Root.COLUMN_ICON,
                 DocumentsContract.Root.COLUMN_TITLE,
+                DocumentsContract.Root.COLUMN_SUMMARY,
                 DocumentsContract.Root.COLUMN_FLAGS,
                 DocumentsContract.Root.COLUMN_MIME_TYPES,
                 DocumentsContract.Root.COLUMN_DOCUMENT_ID)
