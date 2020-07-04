@@ -156,11 +156,7 @@ open class MuzeiArtDocumentsProvider : DocumentsProvider() {
             authority.substringBeforeLast(".documents")
         }.mapNotNull { authority ->
             val pm = context.packageManager
-            try {
-                pm.resolveContentProvider(authority, PackageManager.GET_DISABLED_COMPONENTS)
-            } catch (e: PackageManager.NameNotFoundException) {
-                null
-            }.also { providerInfo ->
+            pm.resolveContentProvider(authority, PackageManager.GET_DISABLED_COMPONENTS).also { providerInfo ->
                 if (providerInfo == null) {
                     Log.e(TAG, "Could not find MuzeiArtProvider " +
                             "associated with authority $authority")
