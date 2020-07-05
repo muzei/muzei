@@ -31,6 +31,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.OperationApplicationException
 import android.content.pm.PackageManager
+import android.content.pm.ProviderInfo
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
@@ -41,6 +42,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.ParcelFileDescriptor
 import android.provider.BaseColumns
+import android.provider.DocumentsContract
 import android.util.Log
 import androidx.annotation.CallSuper
 import androidx.annotation.RequiresApi
@@ -199,6 +201,9 @@ import java.util.HashSet
  * [openFile]. If you already have binary data available locally for your
  * artwork, you can also write it directly via [ContentResolver.openOutputStream].
  *
+ * It is strongly recommended to add a [MuzeiArtDocumentsProvider] to your manifest to make
+ * artwork from your MuzeiArtProvider available via the default file picker and Files app.
+ *
  * MuzeiArtProvider respects [Log.isLoggable] for debug logging, allowing you to
  * use `adb shell setprop log.tag.MuzeiArtProvider VERBOSE` to enable logging of the
  * communications between Muzei and your MuzeiArtProvider.
@@ -258,6 +263,7 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
 
     private lateinit var databaseHelper: DatabaseHelper
     private lateinit var authority: String
+    private var hasDocumentsProvider = false
     final override val contentUri: Uri by lazy {
         val context = context
                 ?: throw IllegalStateException("getContentUri() should not be called before onCreate()")
@@ -665,6 +671,18 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
     /**
      * @suppress
      */
+    @CallSuper
+    override fun attachInfo(context: Context, info: ProviderInfo) {
+        super.attachInfo(context, info)
+        val documentsAuthority = "$authority.documents"
+        val pm = context.packageManager
+        hasDocumentsProvider = pm.resolveContentProvider(documentsAuthority,
+                PackageManager.GET_DISABLED_COMPONENTS) != null
+    }
+
+    /**
+     * @suppress
+     */
     override fun query(uri: Uri,
             projection: Array<String>?,
             selection: String?,
@@ -839,13 +857,21 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
         db.endTransaction()
         // Creates a URI with the artwork ID pattern and the new row ID appended to it.
         val artworkUri = ContentUris.withAppendedId(contentUri, rowId)
+        val documentUri = DocumentsContract.buildDocumentUri(
+                "$authority.documents", "$authority/$rowId")
         if (applyingBatch()) {
             changedUris.get()!!.add(artworkUri)
+            if (hasDocumentsProvider) {
+                changedUris.get()!!.add(documentUri)
+            }
         } else {
             if (Log.isLoggable(TAG, Log.VERBOSE)) {
                 Log.v(TAG, "Notified for insert on $artworkUri")
             }
             context.contentResolver.notifyChange(artworkUri, null)
+            if (hasDocumentsProvider) {
+                context.contentResolver.notifyChange(documentUri, null)
+            }
         }
         return artworkUri
     }
@@ -887,13 +913,21 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
         count = db.delete(TABLE_NAME, finalWhere, selectionArgs)
         val context = context ?: return count
         if (count > 0) {
+            val documentUri = DocumentsContract.buildChildDocumentsUri(
+                    "$authority.documents", authority)
             if (applyingBatch()) {
                 changedUris.get()!!.add(uri)
+                if (hasDocumentsProvider) {
+                    changedUris.get()!!.add(documentUri)
+                }
             } else {
                 if (Log.isLoggable(TAG, Log.VERBOSE)) {
                     Log.v(TAG, "Notified for delete on $uri")
                 }
                 context.contentResolver.notifyChange(uri, null)
+                if (hasDocumentsProvider) {
+                    context.contentResolver.notifyChange(documentUri, null)
+                }
             }
         }
         return count
@@ -930,13 +964,21 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
         count = db.update(TABLE_NAME, values, finalWhere, selectionArgs)
         val context = context ?: return count
         if (count > 0) {
+            val documentUri = DocumentsContract.buildChildDocumentsUri(
+                    "$authority.documents", authority)
             if (applyingBatch()) {
                 changedUris.get()!!.add(uri)
+                if (hasDocumentsProvider) {
+                    changedUris.get()!!.add(documentUri)
+                }
             } else {
                 if (Log.isLoggable(TAG, Log.VERBOSE)) {
                     Log.v(TAG, "Notified for update on $uri")
                 }
                 context.contentResolver.notifyChange(uri, null)
+                if (hasDocumentsProvider) {
+                    context.contentResolver.notifyChange(documentUri, null)
+                }
             }
         }
         return count
