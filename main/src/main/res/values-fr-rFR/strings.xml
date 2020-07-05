@@ -20,8 +20,8 @@
     <string name="settings_home_screen_title">Écran d’accueil</string>
     <string name="settings_lock_screen_title">Écran de verrouillage</string>
     <string name="settings_blur_amount_title">Flou</string>
-    <string name="settings_dim_amount_title">Assombrir</string>
-    <string name="settings_grey_amount_title">Gris</string>
+    <string name="settings_dim_amount_title">Luminosité</string>
+    <string name="settings_grey_amount_title">Noir &amp; blanc</string>
     <string name="notification_new_wallpaper">Nouveau fond d\'écran</string>
     <string name="notification_new_wallpaper_channel_name">Nouveaux fonds d\'écran</string>
     <string name="notification_settings">Paramètres de notification</string>
@@ -29,12 +29,12 @@
     <string name="notification_settings_done">Terminer</string>
     <string name="notification_settings_moved_title">Les paramètres de notification ont été déplacés</string>
     <string name="notification_settings_moved_text">Vérifiez vos paramètres de notification</string>
-    <string name="auto_advance_settings">Paramètres d\'Avancement Automatique</string>
-    <string name="auto_advance_disabled">Avancement Automatique désactivé</string>
-    <string name="auto_advance_disabled_description">Les Anciennes Sources gèrent leur propre chargement de fond d\'écran et ne prennent pas en charge l\'Avancement Automatique</string>
+    <string name="auto_advance_settings">Paramètres d\'Avance Automatique</string>
+    <string name="auto_advance_disabled">Avance Automatique désactivée</string>
+    <string name="auto_advance_disabled_description">Les Anciennes Sources gèrent leur propre chargement de fond d\'écran et ne prennent pas en charge l\'Avance Automatique</string>
     <string name="auto_advance_title">Avance Automatique</string>
     <string name="auto_advance_description">Contrôle lorsque <xliff:g id="muzei_name">Muzei</xliff:g> passe automatiquement au fond d\'écran suivant.</string>
-    <string name="auto_advance_wifi">Avancement Automatiquement uniquement en Wi-Fi</string>
+    <string name="auto_advance_wifi">Avance Automatique uniquement en Wi-Fi</string>
     <string name="auto_advance_interval">Intervalle</string>
     <string name="auto_advance_interval_15m">Toutes les 15 minutes</string>
     <string name="auto_advance_interval_30m">Toutes les 30 minutes</string>
@@ -44,7 +44,7 @@
     <string name="auto_advance_interval_24h">Toutes les 24 heures</string>
     <string name="auto_advance_interval_72h">Tous les 3 jours</string>
     <string name="auto_advance_interval_never">Ne pas avancer automatiquement</string>
-    <string name="auto_advance_tasker">Pour un contrôle précis sur ce qui pousse votre fond d\'écran à changer, utilisez l\'action \'Œuvre suivante\' disponible dans <xliff:g id="tasker_name">Tasker</xliff:g> sous Plugin -&gt; <xliff:g id="muzei_name">Muzei</xliff:g> et désactivez l\'avancemenent automatique ici.</string>
+    <string name="auto_advance_tasker">Pour un contrôle précis sur ce qui pousse votre fond d\'écran à changer, utilisez l\'action \'Œuvre suivante\' disponible dans <xliff:g id="tasker_name">Tasker</xliff:g> sous Plugin -&gt; <xliff:g id="muzei_name">Muzei</xliff:g> et désactivez l\'avance automatique ici.</string>
     <string name="auto_advance_tasker_name"><xliff:g id="tasker_name">Tasker</xliff:g></string>
     <string name="action_activate">Activer</string>
     <string name="error_view_details">Impossible de voir les détails de l\'œuvre.</string>
@@ -68,4 +68,18 @@
         <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> Ancienne Source trouvée</item>
         <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> Anciennes sources trouvées</item>
     </plurals>
+    <string name="legacy_source_info_app_info">Infos sur l\'appli</string>
+    <string name="legacy_source_info_send_feedback">Envoyer des commentaires</string>
+    <string name="get_more_sources">Obtenir d\'autres sources</string>
+    <string name="reset_advanced_settings_defaults">Réinitialiser les réglages</string>
+    <string name="play_store_not_found">Impossible d\'ouvrir le <xliff:g id="google_play">Google Play</xliff:g> Store.</string>
+    <string name="browse_refresh">Rafraîchir</string>
+    <string name="actions_gestures">Personnaliser les gestes</string>
+    <string name="gestures_title">Gestes</string>
+    <string name="gestures_tap_action_temporary_disable">Désactiver les effets temporairement</string>
+    <string name="gestures_tap_action_next">Œuvre suivante</string>
+    <string name="gestures_tap_action_view_details">Voir les détails de l\'œuvre</string>
+    <string name="gestures_tap_action_none">Aucun</string>
+    <string name="actions_always_dark">Thème sombre</string>
+    <string name="about_title">À propos de <xliff:g id="muzei_name">Muzei</xliff:g></string>
 </resources>
