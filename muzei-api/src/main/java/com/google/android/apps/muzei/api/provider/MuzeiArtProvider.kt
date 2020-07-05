@@ -201,6 +201,9 @@ import java.util.HashSet
  * [openFile]. If you already have binary data available locally for your
  * artwork, you can also write it directly via [ContentResolver.openOutputStream].
  *
+ * It is strongly recommended to add a [MuzeiArtDocumentsProvider] to your manifest to make
+ * artwork from your MuzeiArtProvider available via the default file picker and Files app.
+ *
  * MuzeiArtProvider respects [Log.isLoggable] for debug logging, allowing you to
  * use `adb shell setprop log.tag.MuzeiArtProvider VERBOSE` to enable logging of the
  * communications between Muzei and your MuzeiArtProvider.
