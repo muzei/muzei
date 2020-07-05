@@ -54,10 +54,8 @@ android {
 
         def galleryAuthorityValue = "com.google.android.apps.muzei.gallery"
         def galleryArtAuthorityValue = "com.google.android.apps.muzei.gallery.art"
-        def galleryArtDocumentsAuthorityValue = galleryArtAuthorityValue + ".documents"
         manifestPlaceholders = [galleryAuthority: galleryAuthorityValue,
-                                galleryArtAuthority: galleryArtAuthorityValue,
-                                galleryArtDocumentsAuthority: galleryArtDocumentsAuthorityValue]
+                                galleryArtAuthority: galleryArtAuthorityValue]
         buildConfigField "String", "GALLERY_AUTHORITY", "\"${galleryAuthorityValue}\""
         buildConfigField "String", "GALLERY_ART_AUTHORITY", "\"${galleryArtAuthorityValue}\""
 

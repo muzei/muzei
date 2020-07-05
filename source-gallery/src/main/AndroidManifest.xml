@@ -56,7 +56,7 @@
         </provider>
         <provider
             android:name="com.google.android.apps.muzei.api.provider.MuzeiArtDocumentsProvider"
-            android:authorities="${galleryArtDocumentsAuthority}"
+            android:authorities="${galleryArtAuthority}.documents"
             android:exported="true"
             android:grantUriPermissions="true"
             android:permission="android.permission.MANAGE_DOCUMENTS">
