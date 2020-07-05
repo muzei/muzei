@@ -55,7 +55,7 @@ import kotlin.math.max
  * your application ID - i.e., `com.example.artprovider`.
  *
  * A [MuzeiArtDocumentsProvider] uses the `android:authorities` assigned to it as the mechanism
- * for linking it to one (or more) [MuzeiArtProvider] instances from your app - the
+ * for linking it to a single [MuzeiArtProvider] instances from your app - the
  * authority used **must** be that of a valid [MuzeiArtProvider] plus the suffix
  * `.documents`. For example, if your [MuzeiArtProvider] had the authority of
  * `com.example.artprovider`, you would use an authority of `com.example.artprovider.documents`:
@@ -75,32 +75,29 @@ import kotlin.math.max
  * The [MuzeiArtDocumentsProvider] will automatically make the artwork from the
  * [MuzeiArtProvider] available via the system file picker and Files app.
  *
- * ### Supporting multiple [MuzeiArtProvider] instances in a single [MuzeiArtDocumentsProvider]
+ * ### Subclassing [MuzeiArtDocumentsProvider]
  *
- * A single [MuzeiArtDocumentsProvider] can support multiple [MuzeiArtProvider] instances
- * from your app. Each will appear as a separate entry in the system file picker.
+ * Android enforces that a single `android:name` can only be present at most once in the manifest.
+ * While in most cases this is not an issue, it does mean that only a single
+ * [MuzeiArtDocumentsProvider] class can be added to the final merged application manifest.
  *
- * To link multiple [MuzeiArtProvider] instances, add multiple authorities to the
- * `android:authorities`, separating them with a semicolon:
+ * Therefore in cases where you do not control the final application manifest (e.g., when
+ * providing a [MuzeiArtProvider] and [MuzeiArtDocumentsProvider] pair as part of a library),
+ * it is strongly recommended to subclass [MuzeiArtDocumentsProvider], ensuring that the
+ * `android:name` in the manifest is unique.
  *
  * ```
- * android:authorities="com.example.simpleart.documents;com.example.fancyart.documents"
+ * class MyArtDocumentsProvider : MuzeiArtDocumentsProvider()
  * ```
  *
- * Each authority must still have the suffix of `.documents`.
+ * It is not necessary to override any methods in [MuzeiArtDocumentsProvider].
  *
- * ### Adding multiple [MuzeiArtDocumentsProvider] instances to your app
+ * ### Supporting multiple [MuzeiArtProvider] instances in your app
  *
- * As an alternative to using a single [MuzeiArtDocumentsProvider] for your entire app,
- * you can create multiple empty subclasses of [MuzeiArtDocumentsProvider] and add each
- * to your manifest separately. This works around the limitation of Android that a single
- * `android:name` can only be present at most once in the manifest.
- *
- * From the user's perspective, this appears exactly the same as if you used a single
- * [MuzeiArtDocumentsProvider], but allows you to build completely independent, non-overlapping
- * modules (e.g., if you were providing a [MuzeiArtProvider] as part of a library and wanted
- * to ensure that the [MuzeiArtDocumentsProvider] would not conflict with an application's own
- * instance).
+ * Each [MuzeiArtDocumentsProvider] is associated with a single [MuzeiArtProvider] via the
+ * `android:authorities` attribute. To support multiple [MuzeiArtProvider] instances in your
+ * app, you must subclass [MuzeiArtDocumentsProvider] (as described above) and add each
+ * separate instance to your manifest, each with the appropriate authority.
  *
  * @constructor Constructs a `MuzeiArtDocumentsProvider`.
  */
@@ -146,7 +143,14 @@ open class MuzeiArtDocumentsProvider : DocumentsProvider() {
     @Suppress("DEPRECATION")
     final override fun attachInfo(context: Context, info: ProviderInfo) {
         super.attachInfo(context, info)
-        providerInfos = info.authority.split(";").asSequence().filter { authority ->
+        val authorities = info.authority.split(";")
+        if (authorities.size > 1) {
+            Log.w(TAG, "There are known issues with OEMs not supporting multiple " +
+                    "authorities in a single DocumentsProvider. It is recommended to subclass " +
+                    "MuzeiArtDocumentsProvider and use a single authority for each. " +
+                    "Received $authorities")
+        }
+        providerInfos = authorities.asSequence().filter { authority ->
             val authorityEndsWithDocuments = authority.endsWith(".documents")
             if (!authorityEndsWithDocuments) {
                 Log.e(TAG, "Authority $authority must end in \".documents\"")
