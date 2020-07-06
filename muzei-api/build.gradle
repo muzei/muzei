@@ -35,9 +35,9 @@ allprojects { ext."signing.password" = props["signing.password"] }
 allprojects { ext."signing.secretKeyRingFile" = props["signing.secretKeyRingFile"] }
 
 dependencies {
+    api "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     api "androidx.core:core:1.1.0"
     implementation "androidx.exifinterface:exifinterface:1.2.0"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
 }
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
