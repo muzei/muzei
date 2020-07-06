@@ -1,0 +1,66 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>MuzeiArtDocumentsProvider - muzei-api</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">muzei-api</a>&nbsp;/&nbsp;<a href="../index.html">com.google.android.apps.muzei.api.provider</a>&nbsp;/&nbsp;<a href="./index.html">MuzeiArtDocumentsProvider</a><br/>
+<br/>
+<h1>MuzeiArtDocumentsProvider</h1>
+<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">MuzeiArtDocumentsProvider</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/provider/DocumentsProvider.html"><span class="identifier">DocumentsProvider</span></a></code>
+<p>An implementation of <a href="https://developer.android.com/reference/android/provider/DocumentsProvider.html">DocumentsProvider</a> that provides users direct access to the
+images of one or more <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a> instances.</p>
+<h3>Linking a <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a> to <a href="./index.html">MuzeiArtDocumentsProvider</a></h3>
+<p>Each <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a> has an authority associated with it, which uniquely
+defines it across all apps. This means it should generally be namespaced similar to
+your application ID - i.e., <code>com.example.artprovider</code>.</p>
+<p>A <a href="./index.html">MuzeiArtDocumentsProvider</a> uses the <code>android:authorities</code> assigned to it as the mechanism
+for linking it to a single <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a> instances from your app - the
+authority used <strong>must</strong> be that of a valid <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a> plus the suffix
+<code>.documents</code>. For example, if your <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a> had the authority of
+<code>com.example.artprovider</code>, you would use an authority of <code>com.example.artprovider.documents</code>:</p>
+<pre><code>&lt;provider android:name="com.google.android.apps.muzei.api.provider.MuzeiArtDocumentsProvider"
+  android:authorities="com.example.artprovider.documents"
+  android:exported="true"
+  android:grantUriPermissions="true"
+  android:permission="android.permission.MANAGE_DOCUMENTS"&gt;
+  &lt;intent-filter&gt;
+      &lt;action android:name="android.content.action.DOCUMENTS_PROVIDER" /&gt;
+  &lt;/intent-filter&gt;
+&lt;/provider&gt;
+</code></pre>
+<p>The <a href="./index.html">MuzeiArtDocumentsProvider</a> will automatically make the artwork from the
+<a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a> available via the system file picker and Files app.</p>
+<h3>Subclassing <a href="./index.html">MuzeiArtDocumentsProvider</a></h3>
+<p>Android enforces that a single <code>android:name</code> can only be present at most once in the manifest.
+While in most cases this is not an issue, it does mean that only a single
+<a href="./index.html">MuzeiArtDocumentsProvider</a> class can be added to the final merged application manifest.</p>
+<p>Therefore in cases where you do not control the final application manifest (e.g., when
+providing a <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a> and <a href="./index.html">MuzeiArtDocumentsProvider</a> pair as part of a library),
+it is strongly recommended to subclass <a href="./index.html">MuzeiArtDocumentsProvider</a>, ensuring that the
+<code>android:name</code> in the manifest is unique.</p>
+<pre><code>class MyArtDocumentsProvider : MuzeiArtDocumentsProvider()
+</code></pre>
+<p>It is not necessary to override any methods in <a href="./index.html">MuzeiArtDocumentsProvider</a>.</p>
+<h3>Supporting multiple <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a> instances in your app</h3>
+<p>Each <a href="./index.html">MuzeiArtDocumentsProvider</a> is associated with a single <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a> via the
+<code>android:authorities</code> attribute. To support multiple <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a> instances in your
+app, you must subclass <a href="./index.html">MuzeiArtDocumentsProvider</a> (as described above) and add each
+separate instance to your manifest, each with the appropriate authority.</p>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<h4><a href="-init-.html">&lt;init&gt;</a></h4>
+</td>
+<td>
+<p>An implementation of <a href="https://developer.android.com/reference/android/provider/DocumentsProvider.html">DocumentsProvider</a> that provides users direct access to the
+images of one or more <a href="../-muzei-art-provider/index.html">MuzeiArtProvider</a> instances.</p>
+<code><span class="identifier">MuzeiArtDocumentsProvider</span><span class="symbol">(</span><span class="symbol">)</span></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

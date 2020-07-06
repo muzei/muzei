@@ -45,7 +45,7 @@ must be exported.</li>
 <h3>Example</h3>
 <p>Below is an example provider declaration in the manifest:</p>
 <pre><code>&lt;provider android:name=".ExampleArtProvider"
-  android:authority="com.example.artprovider"
+  android:authorities="com.example.artprovider"
   android:label="@string/source_title"
   android:description="@string/source_description"
   android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER"&gt;
@@ -97,6 +97,8 @@ You can provider your own functionality by overriding <a href="get-artwork-info.
 authentication with a remote server), this behavior can be added to
 <a href="open-file.html">openFile</a>. If you already have binary data available locally for your
 artwork, you can also write it directly via <a href="https://developer.android.com/reference/android/content/ContentResolver.html#openOutputStream(android.net.Uri)">ContentResolver.openOutputStream</a>.</p>
+<p>It is strongly recommended to add a <a href="../-muzei-art-documents-provider/index.html">MuzeiArtDocumentsProvider</a> to your manifest to make
+artwork from your MuzeiArtProvider available via the default file picker and Files app.</p>
 <p>MuzeiArtProvider respects <a href="https://developer.android.com/reference/android/util/Log.html#isLoggable(java.lang.String, int)">Log.isLoggable</a> for debug logging, allowing you to
 use <code>adb shell setprop log.tag.MuzeiArtProvider VERBOSE</code> to enable logging of the
 communications between Muzei and your MuzeiArtProvider.</p>
