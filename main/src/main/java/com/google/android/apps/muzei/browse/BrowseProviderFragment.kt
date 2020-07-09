@@ -127,6 +127,8 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
                         param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "actions")
                         param(FirebaseAnalytics.Param.CONTENT_TYPE, "browse")
                     }
+                    // Ensure the date added is set to the current time
+                    artwork.dateAdded.time = System.currentTimeMillis()
                     MuzeiDatabase.getInstance(context).artworkDao()
                             .insert(artwork)
                     context.toast(if (artwork.title.isNullOrBlank()) {
