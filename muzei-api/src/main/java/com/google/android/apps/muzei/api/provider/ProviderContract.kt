@@ -185,30 +185,18 @@ object ProviderContract {
                             .withValues(art.toContentValues())
                             .build())
                 }
+                val artworkCount = operations.size
+                val resultUris = ArrayList<Uri>(artworkCount)
+
+                // Delete any artwork that was not inserted/update in the above operations
                 val currentTime = System.currentTimeMillis()
-                val resultUris = ArrayList<Uri>(operations.size)
+                operations.add(ContentProviderOperation.newDelete(contentUri)
+                        .withSelection("${Artwork.DATE_MODIFIED} < ?",
+                                arrayOf(currentTime.toString()))
+                        .build())
                 try {
                     val results = contentResolver.applyBatch(authority, operations)
-                    resultUris.addAll(results.mapNotNull { result -> result.uri })
-                    val deleteOperations = ArrayList<ContentProviderOperation>()
-                    context.contentResolver.query(
-                            contentUri,
-                            arrayOf(BaseColumns._ID),
-                            "${Artwork.DATE_MODIFIED} < ?",
-                            arrayOf(currentTime.toString()), null)?.use { data ->
-                        while (data.moveToNext()) {
-                            val artworkUri = ContentUris.withAppendedId(contentUri,
-                                    data.getLong(0))
-                            if (!resultUris.contains(artworkUri)) {
-                                deleteOperations.add(ContentProviderOperation
-                                        .newDelete(artworkUri)
-                                        .build())
-                            }
-                        }
-                    }
-                    if (deleteOperations.isNotEmpty()) {
-                        contentResolver.applyBatch(authority, deleteOperations)
-                    }
+                    resultUris.addAll(results.take(artworkCount).mapNotNull { result -> result.uri })
                 } catch (ignored: OperationApplicationException) {
                 } catch (ignored: RemoteException) {
                 }

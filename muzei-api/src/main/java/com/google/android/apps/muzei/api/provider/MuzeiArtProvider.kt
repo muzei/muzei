@@ -342,29 +342,18 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
                     .withValues(art.toContentValues())
                     .build())
         }
+        val artworkCount = operations.size
+        val resultUris = ArrayList<Uri>(artworkCount)
+
+        // Delete any artwork that was not inserted/update in the above operations
         val currentTime = System.currentTimeMillis()
-        val resultUris = ArrayList<Uri>(operations.size)
+        operations.add(ContentProviderOperation.newDelete(contentUri)
+                .withSelection("${ProviderContract.Artwork.DATE_MODIFIED} < ?",
+                        arrayOf(currentTime.toString()))
+                .build())
         try {
-            resultUris.addAll(applyBatch(operations).mapNotNull { result -> result.uri })
-            val deleteOperations = ArrayList<ContentProviderOperation>()
-            query(
-                    contentUri,
-                    arrayOf(BaseColumns._ID),
-                    ProviderContract.Artwork.DATE_MODIFIED + "<?",
-                    arrayOf(currentTime.toString()), null).use { data ->
-                while (data.moveToNext()) {
-                    val artworkUri = ContentUris.withAppendedId(contentUri,
-                            data.getLong(0))
-                    if (!resultUris.contains(artworkUri)) {
-                        deleteOperations.add(ContentProviderOperation
-                                .newDelete(artworkUri)
-                                .build())
-                    }
-                }
-            }
-            if (deleteOperations.isNotEmpty()) {
-                applyBatch(deleteOperations)
-            }
+            val results = applyBatch(operations)
+            resultUris.addAll(results.take(artworkCount).mapNotNull { result -> result.uri })
         } catch (e: OperationApplicationException) {
             if (Log.isLoggable(TAG, Log.INFO)) {
                 Log.i(TAG, "setArtwork failed", e)
