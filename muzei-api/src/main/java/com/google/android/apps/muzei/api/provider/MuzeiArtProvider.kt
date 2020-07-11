@@ -41,6 +41,7 @@ import android.os.Binder
 import android.os.Build
 import android.os.Bundle
 import android.os.ParcelFileDescriptor
+import android.os.Trace
 import android.provider.BaseColumns
 import android.provider.DocumentsContract
 import android.util.Log
@@ -733,6 +734,7 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
         val results: Array<ContentProviderResult>
         db.beginTransaction()
         try {
+            Trace.beginSection("applyBatch")
             applyingBatch.set(true)
             results = super.applyBatch(operations)
             db.setTransactionSuccessful()
@@ -740,6 +742,7 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
             db.endTransaction()
             applyingBatch.set(false)
             onOperationComplete()
+            Trace.endSection()
         }
         return results
     }
@@ -753,6 +756,7 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
         val numberInserted: Int
         db.beginTransaction()
         try {
+            Trace.beginSection("bulkInsert")
             applyingBatch.set(true)
             numberInserted = super.bulkInsert(uri, values)
             db.setTransactionSuccessful()
@@ -760,6 +764,7 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
             db.endTransaction()
             applyingBatch.set(false)
             onOperationComplete()
+            Trace.endSection()
         }
         return numberInserted
     }
