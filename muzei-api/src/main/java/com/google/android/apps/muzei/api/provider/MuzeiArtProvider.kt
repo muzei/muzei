@@ -862,11 +862,13 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
         db.endTransaction()
         // Creates a URI with the artwork ID pattern and the new row ID appended to it.
         val artworkUri = ContentUris.withAppendedId(contentUri, rowId)
-        val documentUri = DocumentsContract.buildDocumentUri(
-                "$authority.documents", "$authority/$rowId")
         if (applyingBatch()) {
-            changedUris.get()!!.add(artworkUri)
+            // Only notify changes on the root contentUri for batch operations
+            // to avoid overloading ContentObservers
+            changedUris.get()!!.add(contentUri)
             if (hasDocumentsProvider) {
+                val documentUri = DocumentsContract.buildChildDocumentsUri(
+                        "$authority.documents", authority)
                 changedUris.get()!!.add(documentUri)
             }
         } else {
@@ -875,6 +877,8 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
             }
             context.contentResolver.notifyChange(artworkUri, null)
             if (hasDocumentsProvider) {
+                val documentUri = DocumentsContract.buildDocumentUri(
+                        "$authority.documents", "$authority/$rowId")
                 context.contentResolver.notifyChange(documentUri, null)
             }
         }
@@ -921,7 +925,9 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
             val documentUri = DocumentsContract.buildChildDocumentsUri(
                     "$authority.documents", authority)
             if (applyingBatch()) {
-                changedUris.get()!!.add(uri)
+                // Only notify changes on the root contentUri for batch operations
+                // to avoid overloading ContentObservers
+                changedUris.get()!!.add(contentUri)
                 if (hasDocumentsProvider) {
                     changedUris.get()!!.add(documentUri)
                 }
@@ -972,7 +978,9 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
             val documentUri = DocumentsContract.buildChildDocumentsUri(
                     "$authority.documents", authority)
             if (applyingBatch()) {
-                changedUris.get()!!.add(uri)
+                // Only notify changes on the root contentUri for batch operations
+                // to avoid overloading ContentObservers
+                changedUris.get()!!.add(contentUri)
                 if (hasDocumentsProvider) {
                     changedUris.get()!!.add(documentUri)
                 }
