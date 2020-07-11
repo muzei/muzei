@@ -14,4 +14,11 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="legacy_source_warning_learn_more">Weitere Informationen</string>
+    <string name="legacy_source_warning_negative">Abbrechen</string>
+    <string name="legacy_source_selection_done">Fertig</string>
+    <string name="legacy_source_target_too_high_title">Diese Quelle ist deaktiviert</string>
+    <string name="legacy_source_target_too_high_learn_more">Weitere Informationen</string>
+    <string name="legacy_source_target_too_high_dismiss">Verstanden</string>
+</resources>
