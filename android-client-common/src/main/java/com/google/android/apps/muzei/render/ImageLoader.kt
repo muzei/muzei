@@ -147,10 +147,13 @@ sealed class ImageLoader {
                 ExifInterface.ORIENTATION_ROTATE_270 -> 270
                 else -> 0
             }
-        }
+        } ?: 0
     } catch (e: Exception) {
-        Log.w(TAG, "Couldn't open EXIF interface for ${toString()}", e)
-    } ?: 0
+        if (BuildConfig.DEBUG) {
+            Log.w(TAG, "Couldn't open EXIF interface for ${toString()}", e)
+        }
+        0
+    }
 
     abstract fun openInputStream() : InputStream?
 }
