@@ -305,7 +305,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
             resetProxyViewport()
         }
 
-        viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             ArtDetailViewport.getChanges().collect { isFromUser ->
                 if (!isFromUser) {
                     guardViewportChangeListener = true
