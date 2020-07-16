@@ -17,7 +17,11 @@
 package com.google.android.apps.muzei
 
 import android.app.Application
+import android.content.BroadcastReceiver
 import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -105,9 +109,9 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
      * The set of installed providers, transformed into a list of [ProviderInfo] objects
      */
     private val installedProviders = getInstalledProviders(application).map { providerInfos ->
-        val pm = application.packageManager
+        val packageManager = application.packageManager
         providerInfos.map { providerInfo ->
-            ProviderInfo(pm, providerInfo)
+            ProviderInfo(packageManager, providerInfo)
         }
     }
 
@@ -180,5 +184,25 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
         // to recompute the description
         descriptions.remove(authority)
         descriptionInvalidationNanoTime.value = System.nanoTime()
+    }
+
+    private val localeChangeReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            // Our cached descriptions need to be invalidated when the locale changes
+            // so that we re-query for descriptions in the new language
+            descriptions.clear()
+            descriptionInvalidationNanoTime.value = System.nanoTime()
+        }
+    }
+
+    init {
+        application.registerReceiver(localeChangeReceiver, IntentFilter().apply {
+            addAction(Intent.ACTION_LOCALE_CHANGED)
+        })
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        getApplication<Application>().unregisterReceiver(localeChangeReceiver)
     }
 }
