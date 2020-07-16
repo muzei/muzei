@@ -74,6 +74,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.R
@@ -288,13 +289,15 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
             }
         }
 
-        WallpaperSizeLiveData.observe(viewLifecycleOwner) { size ->
-            wallpaperAspectRatio = if (size.height > 0) {
-                size.width * 1f / size.height
-            } else {
-                binding.panScaleProxy.width * 1f / binding.panScaleProxy.height
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            WallpaperSizeStateFlow.filterNotNull().collect { size ->
+                wallpaperAspectRatio = if (size.height > 0) {
+                    size.width * 1f / size.height
+                } else {
+                    binding.panScaleProxy.width * 1f / binding.panScaleProxy.height
+                }
+                resetProxyViewport()
             }
-            resetProxyViewport()
         }
 
         ArtworkSizeLiveData.observe(viewLifecycleOwner) { size ->

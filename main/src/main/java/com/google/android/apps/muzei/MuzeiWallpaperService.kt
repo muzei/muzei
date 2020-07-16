@@ -37,7 +37,6 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
@@ -66,6 +65,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
@@ -73,7 +73,8 @@ import net.rbgrn.android.glwallpaperservice.GLWallpaperService
 
 data class WallpaperSize(val width: Int, val height: Int)
 
-object WallpaperSizeLiveData : MutableLiveData<WallpaperSize>()
+@OptIn(ExperimentalCoroutinesApi::class)
+val WallpaperSizeStateFlow = MutableStateFlow<WallpaperSize?>(null)
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
@@ -264,7 +265,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         override fun onSurfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
             super.onSurfaceChanged(holder, format, width, height)
             if (!isPreview) {
-                WallpaperSizeLiveData.value = WallpaperSize(width, height)
+                WallpaperSizeStateFlow.value = WallpaperSize(width, height)
             }
             renderController.reloadCurrentArtwork()
         }
