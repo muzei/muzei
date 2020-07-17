@@ -52,11 +52,11 @@ import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.api.internal.RemoteActionBroadcastReceiver
 import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
 import com.google.android.apps.muzei.notifications.NewWallpaperNotificationReceiver
-import com.google.android.apps.muzei.render.ArtworkSizeLiveData
+import com.google.android.apps.muzei.render.ArtworkSizeStateFlow
 import com.google.android.apps.muzei.render.ContentUriImageLoader
 import com.google.android.apps.muzei.render.SwitchingPhotosDone
 import com.google.android.apps.muzei.render.SwitchingPhotosInProgress
-import com.google.android.apps.muzei.render.SwitchingPhotosLiveData
+import com.google.android.apps.muzei.render.SwitchingPhotosStateFlow
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.getCommands
 import com.google.android.apps.muzei.room.openArtworkInfo
@@ -299,10 +299,10 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
             resetProxyViewport()
         }.launchWhenStartedIn(viewLifecycleOwner)
 
-        ArtworkSizeLiveData.observe(viewLifecycleOwner) { size ->
+        ArtworkSizeStateFlow.filterNotNull().onEach { size ->
             artworkAspectRatio = size.width * 1f / size.height
             resetProxyViewport()
-        }
+        }.launchWhenStartedIn(viewLifecycleOwner)
 
         ArtDetailViewport.getChanges().onEach { isFromUser ->
             if (!isFromUser) {
@@ -312,14 +312,14 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
             }
         }.launchWhenStartedIn(viewLifecycleOwner)
 
-        SwitchingPhotosLiveData.observe(viewLifecycleOwner) { switchingPhotos ->
+        SwitchingPhotosStateFlow.filterNotNull().onEach { switchingPhotos ->
             currentViewportId = switchingPhotos.viewportId
             binding.panScaleProxy.panScaleEnabled = switchingPhotos is SwitchingPhotosDone
             // Process deferred artwork size change when done switching
             if (switchingPhotos is SwitchingPhotosDone && deferResetViewport) {
                 resetProxyViewport()
             }
-        }
+        }.launchWhenStartedIn(viewLifecycleOwner)
 
         viewModel.currentProviderLiveData.observe(viewLifecycleOwner) { provider ->
             val supportsNextArtwork = provider?.supportsNextArtwork == true
@@ -465,7 +465,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
         }
 
         deferResetViewport = false
-        if (SwitchingPhotosLiveData.value is SwitchingPhotosInProgress) {
+        if (SwitchingPhotosStateFlow.value is SwitchingPhotosInProgress) {
             deferResetViewport = true
             return
         }

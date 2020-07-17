@@ -27,7 +27,6 @@ import android.opengl.Matrix
 import android.util.Log
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.annotation.Keep
-import androidx.lifecycle.MutableLiveData
 import com.google.android.apps.muzei.ArtDetailViewport
 import com.google.android.apps.muzei.settings.Prefs
 import com.google.android.apps.muzei.util.ImageBlurrer
@@ -37,6 +36,8 @@ import com.google.android.apps.muzei.util.floorEven
 import com.google.android.apps.muzei.util.interpolate
 import com.google.android.apps.muzei.util.roundMult4
 import com.google.android.apps.muzei.util.uninterpolate
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.math.ceil
@@ -49,12 +50,15 @@ sealed class SwitchingPhotos(val viewportId: Int)
 data class SwitchingPhotosInProgress(private val currentId: Int) : SwitchingPhotos(currentId)
 data class SwitchingPhotosDone(private val currentId: Int) : SwitchingPhotos(currentId)
 
-object SwitchingPhotosLiveData : MutableLiveData<SwitchingPhotos>()
+@OptIn(ExperimentalCoroutinesApi::class)
+val SwitchingPhotosStateFlow = MutableStateFlow<SwitchingPhotos?>(null)
 
 data class ArtworkSize(val width: Int, val height: Int)
 
-object ArtworkSizeLiveData : MutableLiveData<ArtworkSize>()
+@OptIn(ExperimentalCoroutinesApi::class)
+val ArtworkSizeStateFlow = MutableStateFlow<ArtworkSize?>(null)
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class MuzeiBlurRenderer(
         private val context: Context,
         private val callbacks: Callbacks,
@@ -272,8 +276,8 @@ class MuzeiBlurRenderer(
         }
 
         if (!demoMode && !preview) {
-            SwitchingPhotosLiveData.postValue(SwitchingPhotosInProgress(nextGLPictureSet.id))
-            ArtworkSizeLiveData.postValue(ArtworkSize(width, height))
+            SwitchingPhotosStateFlow.value = SwitchingPhotosInProgress(nextGLPictureSet.id)
+            ArtworkSizeStateFlow.value = ArtworkSize(width, height)
             ArtDetailViewport.setDefaultViewport(nextGLPictureSet.id,
                     width * 1f / height,
                     aspectRatio)
@@ -289,7 +293,7 @@ class MuzeiBlurRenderer(
             callbacks.requestRender()
             oldGLPictureSet.destroyPictures()
             if (!demoMode) {
-                SwitchingPhotosLiveData.postValue(SwitchingPhotosDone(currentGLPictureSet.id))
+                SwitchingPhotosStateFlow.value = SwitchingPhotosDone(currentGLPictureSet.id)
             }
             System.gc()
             val loader = queuedNextImageLoader
