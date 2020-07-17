@@ -14,4 +14,6 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources></resources>
+<resources>
+    <string name="legacy_source_warning_message">Det finns kända problem med äldre källor på din enhet. Du måste inaktivera Batterioptimering för alla äldre källor du väljer för att se till att den kan ladda bakgrundsbilder. Detta kan orsaka extra batteriförbrukning.\n\n Dessutom laddas äldre källor enligt sitt eget schema och använder inte Auto Advance. Detta kan leda till ytterligare dataanvändning om äldre den källan inte har en egen inställning för att endast använda WiFi.</string>
+</resources>

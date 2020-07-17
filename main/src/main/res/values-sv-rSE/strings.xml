@@ -14,4 +14,15 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_description"><xliff:g id="muzei_name">Muzei</xliff:g> Live Wallpaper</string>
+    <string name="settings_title"><xliff:g id="muzei_name">Muzei</xliff:g> inställningar</string>
+    <string name="settings_home_screen_title">Startskärm</string>
+    <string name="settings_lock_screen_title">Låsskärm</string>
+    <string name="settings_blur_amount_title">Oskärpa</string>
+    <string name="settings_dim_amount_title">Dämpa</string>
+    <string name="settings_grey_amount_title">Grå</string>
+    <string name="notification_new_wallpaper">Ny bakgrundsbild</string>
+    <string name="notification_new_wallpaper_channel_name">Nya bakgrundsbilder</string>
+    <string name="notification_settings">Notifieringsinställningar</string>
+</resources>

@@ -15,6 +15,8 @@
   limitations under the License.
   -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_description"><xliff:g id="muzei_name">Muzei</xliff:g> Live Wallpaper</string>
+    <string name="settings_title">Nastavení <xliff:g id="muzei_name">Muzei</xliff:g></string>
     <string name="settings_home_screen_title">Domovská obrazovka</string>
     <string name="settings_lock_screen_title">Zamykací obrazovka</string>
     <string name="settings_blur_amount_title">Rozostření</string>
@@ -23,11 +25,15 @@
     <string name="notification_new_wallpaper">Nová tapeta</string>
     <string name="notification_new_wallpaper_channel_name">Nové tapety</string>
     <string name="notification_settings">Nastavení oznámení</string>
+    <string name="notification_settings_failed">Nepodařilo se otevřít nastavení oznámení, upravte prosím nastavení oznámení <xliff:g id="muzei_name">Muzei</xliff:g> v aplikaci Nastavení.</string>
     <string name="notification_settings_done">Hotovo</string>
+    <string name="notification_settings_moved_title">Nastavení oznámení bylo přesunuto</string>
+    <string name="notification_settings_moved_text">Spravujte vaše nastavení oznámení</string>
     <string name="auto_advance_settings">Nastavení automatického pokračování</string>
     <string name="auto_advance_disabled">Automatické pokračování je vypnuté</string>
     <string name="auto_advance_disabled_description">Starší zdroje zpracovávají načítání tapet samostatně a nepodporují Automatické pokračování</string>
     <string name="auto_advance_title">Automatické pokračování</string>
+    <string name="auto_advance_description">Nastavte kdy <xliff:g id="muzei_name">Muzei</xliff:g> automaticky přejde na další tapetu.</string>
     <string name="auto_advance_wifi">Automaticky pokračovat pouze na Wi-Fi</string>
     <string name="auto_advance_interval">Interval</string>
     <string name="auto_advance_interval_15m">Každých 15 minut</string>
@@ -38,8 +44,11 @@
     <string name="auto_advance_interval_24h">Každých 24 hodin</string>
     <string name="auto_advance_interval_72h">Kažné 3 dny</string>
     <string name="auto_advance_interval_never">Nepokračovat automaticky</string>
+    <string name="auto_advance_tasker">Pro přesnou kontrolu toho, co způsobí změnu vaší tapety, použijte akci \'Další obrázek\' dostupnou v <xliff:g id="tasker_name">Taskeru</xliff:g> v rámci Plugin -&gt; <xliff:g id="muzei_name">Muzei</xliff:g> a zde deaktivujte automatické pokračování.</string>
+    <string name="auto_advance_tasker_name"><xliff:g id="tasker_name">Tasker</xliff:g></string>
     <string name="action_activate">Aktivovat</string>
     <string name="error_view_details">Detaily obrázku se nepodařilo zobrazit.</string>
+    <string name="error_wallpaper_chooser">Nepodařilo se spustit výběr tapety. Stále můžete aktivovat <xliff:g id="muzei_name">Muzei</xliff:g> zvolením \"Živé tapety\" ve výběru tapety domovské obrazovky.</string>
     <string name="section_choose_source">Zdroje</string>
     <string name="section_effects">Efekty</string>
     <string name="action_next_artwork">Další obrázek</string>
@@ -51,24 +60,50 @@
     <string name="provider_settings">Nastavení</string>
     <string name="provider_browse">Procházet</string>
     <string name="legacy_notification_channel_name">Starší zdroje</string>
+    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> už není podporováno</string>
+    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> přímo nepodporuje zdroje vytvořené s původním API.</string>
     <string name="legacy_action_learn_more">Zjistit více</string>
     <string name="legacy_action_send_feedback">Zpětná vazba</string>
     <string name="legacy_summary_title">Starší zdroje již nejsou podporovány</string>
+    <plurals name="legacy_summary_text">
+        <item quantity="one">Nalezen <xliff:g id="quantity" example="1">%1$d</xliff:g> starší zdroj</item>
+        <item quantity="few">Nalezeny <xliff:g id="quantity" example="2">%1$d</xliff:g> starší zdroje</item>
+        <item quantity="many">Nalezeno <xliff:g id="quantity" example="5">%1$d</xliff:g> starších zdrojů</item>
+        <item quantity="other">Nalezeno <xliff:g id="quantity" example="100">%1$d</xliff:g> starších zdrojů</item>
+    </plurals>
+    <plurals name="legacy_unsupported_text">
+        <item quantity="one">Nalezen <xliff:g id="quantity" example="1">%1$d</xliff:g> nepodporovaný zdroj</item>
+        <item quantity="few">Nalezeny <xliff:g id="quantity" example="2">%1$d</xliff:g> nepodporované zdroje</item>
+        <item quantity="many">Nalezeno <xliff:g id="quantity" example="5">%1$d</xliff:g> nepodporovaných zdrojů</item>
+        <item quantity="other">Nalezeno <xliff:g id="quantity" example="100">%1$d</xliff:g> nepodporovaných zdrojů</item>
+    </plurals>
     <string name="legacy_source_info_title">Starší zdroje</string>
+    <string name="legacy_source_info_subtitle">Zdroje používající původní API již <xliff:g id="muzei_name">Muzei</xliff:g> přímo nepodporuje.</string>
     <string name="legacy_source_info_app_info">Informace o aplikaci</string>
     <string name="legacy_source_info_send_feedback">Zpětná vazba</string>
     <string name="legacy_source_all_uninstalled">Všechny starší zdroje byly odinstalovány</string>
     <string name="done">Hotovo</string>
+    <string name="set_as_wallpaper_using_muzei">Tapetu (použít <xliff:g id="muzei_name">Muzei</xliff:g>)</string>
     <string name="set_as_wallpaper_failed">Obrázek nelze načíst</string>
+    <string name="tutorial_main">Pro zobrazení vaší tapety otevřete aplikaci <xliff:g id="muzei_name">Muzei</xliff:g></string>
     <string name="tutorial_subtitle">Dvojím klepnutím na rozmazanou tapetu ji na chvíli zaostříte</string>
     <string name="get_more_sources">Získat další zdroje</string>
+    <string name="get_more_sources_description">Změňte vaši tapetu s doplňkovými zdroji nainstalovanými z obchodu <xliff:g id="google_play">Google Play</xliff:g></string>
+    <string name="action_link_effects">Domovská 🔗 Zamykací</string>
     <string name="toast_link_effects">Efekty domovské &amp; zamykací obrazovky jsou nyní propojeny</string>
     <string name="action_link_effects_off">Domovská &amp; zamykací obrazovka jsou oddělené</string>
     <string name="toast_link_effects_off">Efekty domovské &amp; zamykací obrazovky už nejsou propojeny</string>
     <string name="reset_advanced_settings_defaults">Resetovat posuvníky</string>
+    <string name="play_store_not_found">Nelze otevřít obchod <xliff:g id="google_play">Google Play</xliff:g>.</string>
     <string name="browse_refresh">Obnovit</string>
     <string name="browse_set_wallpaper">Nastavit aktuální tapetu</string>
+    <string name="browse_set_wallpaper_with_title">Nastavit aktuální tapetu na \"<xliff:g id="image_name" example="IMG14227.jpg">%s</xliff:g>\"</string>
+    <string name="missing_resources_title">Chybná instalace <xliff:g id="muzei_name">Muzei</xliff:g></string>
+    <string name="missing_resources_message"><xliff:g id="muzei_name">Muzei</xliff:g> je v chybném stavu. Odinstalujte prosím aplikaci <xliff:g id="muzei_name">Muzei</xliff:g> a nainstalujte ji z obchodu <xliff:g id="google_play">Google Play</xliff:g> pro opravení instalace.</string>
+    <string name="missing_resources_open">Otevřít obchod <xliff:g id="google_play">Google Play</xliff:g></string>
+    <string name="missing_resources_quit">Zavřít <xliff:g id="muzei_name">Muzei</xliff:g></string>
     <string name="tasker_setting_dialog_title">Zvolte akci</string>
+    <string name="tasker_action_select_provider">Vybrat <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g></string>
     <string name="actions_gestures">Přizpůsobit gesta</string>
     <string name="gestures_title">Gesta</string>
     <string name="gestures_double_tap_title">Dvojité klepnutí</string>
@@ -80,6 +115,7 @@
     <string name="gestures_tap_action_view_details">Zobrazit podrobnosti o obrázku</string>
     <string name="gestures_tap_action_none">Nic</string>
     <string name="actions_always_dark">Vždy tmavé</string>
+    <string name="about_title">O <xliff:g id="muzei_name">Muzei</xliff:g></string>
     <string name="about_body"><![CDATA[Vytvořili Roman Nurik a Ian Lake, se zásadním přispěním
         <a href="http://code.muzei.co">open source komunity</a>.
         <i>Muzei</i> je přepis ruského slova
@@ -94,5 +130,7 @@
         &bull; <b><a href="http://square.github.io/okhttp/">OkHttp</a> a <a href="http://square.github.io/picasso/">Picasso</a></b> od Square<br>
         &bull; <b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a></b> od Robert Green, Mark F. Guerra a dalších
     ]]></string>
+    <string name="about_version_template">v<xliff:g id="version_number" example="3.3.0 Beta">%1$s</xliff:g></string>
+    <string name="app_author"><xliff:g id="roman_nurik">Roman Nurik</xliff:g> a <xliff:g id="ian_lake">Ian Lake</xliff:g></string>
     <string name="app_context_description">Živé muzeum na vaši domovskou obrazovku</string>
 </resources>

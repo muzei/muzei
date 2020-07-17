@@ -20,5 +20,7 @@
     <string name="provider_title">Source actuelle</string>
     <string name="provider_settings">Paramètres de la source</string>
     <string name="config_show_date_title">Date </string>
-    <string name="config_tap_title">Action à l\'Appui</string>
+    <string name="config_top_complication_title">Complication supérieure</string>
+    <string name="config_bottom_complication_title">Complication inférieure</string>
+    <string name="config_tap_title">Action sur appui</string>
 </resources>

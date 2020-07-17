@@ -14,4 +14,6 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources></resources>
+<resources>
+    <string name="legacy_source_warning_message">Il existe des problèmes connus avec les anciennes sources sur votre appareil. Vous devez désactiver les optimisations de la batterie pour toute ancienne source que vous sélectionnez pour permettre le chargement des fonds d\'écran. Cela peut entraîner une consommation de batterie supplémentaire.\n\n De plus, les anciennes sources se mettent à jour selon leur propre calendrier et n\'utilisent pas l\'avance automatique. Cela peut conduire à une utilisation supplémentaire des données si l\'ancienne source n\'a pas son propre paramètre WiFi.</string>
+</resources>

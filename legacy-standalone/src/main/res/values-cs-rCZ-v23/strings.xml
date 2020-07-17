@@ -14,4 +14,6 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources></resources>
+<resources>
+    <string name="legacy_source_warning_message">Jsou známé problémy se staršími zdroji na vašem zařízení. Je třeba vypnout Optimalizaci baterie pro každý vybraný starší zdroj, abyste zajistili, že může načítat tapety. To může způsobit rychlejší vybíjení baterie.\n\n Kromě toho se starší zdroje načítají podle vlastního rozvrhu a nepoužívají automatické posouvání. To může vést k vyššímu využití dat, pokud starší zdroj nemá vlastní nastavení stahování pouze přes WiFi.</string>
+</resources>
