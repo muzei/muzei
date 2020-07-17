@@ -62,6 +62,7 @@ import com.google.android.apps.muzei.room.getCommands
 import com.google.android.apps.muzei.room.openArtworkInfo
 import com.google.android.apps.muzei.settings.AboutActivity
 import com.google.android.apps.muzei.sync.ProviderManager
+import com.google.android.apps.muzei.util.launchWhenStartedIn
 import com.google.android.apps.muzei.util.makeCubicGradientScrimDrawable
 import com.google.android.apps.muzei.widget.showWidgetPreview
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -73,8 +74,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.R
@@ -289,31 +290,27 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
             }
         }
 
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            WallpaperSizeStateFlow.filterNotNull().collect { size ->
-                wallpaperAspectRatio = if (size.height > 0) {
-                    size.width * 1f / size.height
-                } else {
-                    binding.panScaleProxy.width * 1f / binding.panScaleProxy.height
-                }
-                resetProxyViewport()
+        WallpaperSizeStateFlow.filterNotNull().onEach { size ->
+            wallpaperAspectRatio = if (size.height > 0) {
+                size.width * 1f / size.height
+            } else {
+                binding.panScaleProxy.width * 1f / binding.panScaleProxy.height
             }
-        }
+            resetProxyViewport()
+        }.launchWhenStartedIn(viewLifecycleOwner)
 
         ArtworkSizeLiveData.observe(viewLifecycleOwner) { size ->
             artworkAspectRatio = size.width * 1f / size.height
             resetProxyViewport()
         }
 
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            ArtDetailViewport.getChanges().collect { isFromUser ->
-                if (!isFromUser) {
-                    guardViewportChangeListener = true
-                    binding.panScaleProxy.setViewport(ArtDetailViewport.getViewport(currentViewportId))
-                    guardViewportChangeListener = false
-                }
+        ArtDetailViewport.getChanges().onEach { isFromUser ->
+            if (!isFromUser) {
+                guardViewportChangeListener = true
+                binding.panScaleProxy.setViewport(ArtDetailViewport.getViewport(currentViewportId))
+                guardViewportChangeListener = false
             }
-        }
+        }.launchWhenStartedIn(viewLifecycleOwner)
 
         SwitchingPhotosLiveData.observe(viewLifecycleOwner) { switchingPhotos ->
             currentViewportId = switchingPhotos.viewportId

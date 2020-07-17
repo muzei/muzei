@@ -24,11 +24,11 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
 import com.google.android.apps.muzei.ArtworkInfoRedirectActivity
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import kotlinx.coroutines.flow.collect
+import com.google.android.apps.muzei.util.launchWhenStartedIn
+import kotlinx.coroutines.flow.onEach
 import net.nurik.roman.muzei.R
 
 /**
@@ -44,11 +44,10 @@ class ArtworkInfoShortcutController(
     }
 
     override fun onCreate(owner: LifecycleOwner) {
-        owner.lifecycleScope.launchWhenStarted {
-            MuzeiDatabase.getInstance(context).artworkDao().currentArtwork.collect {  artwork ->
-                updateShortcut(artwork)
-            }
-        }
+        val database = MuzeiDatabase.getInstance(context)
+        database.artworkDao().currentArtwork.onEach { artwork ->
+            updateShortcut(artwork)
+        }.launchWhenStartedIn(owner)
     }
 
     private fun updateShortcut(artwork: Artwork?) {

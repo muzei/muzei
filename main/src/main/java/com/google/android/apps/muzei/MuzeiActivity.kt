@@ -28,11 +28,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commit
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
 import com.google.android.apps.muzei.render.MuzeiRendererFragment
 import com.google.android.apps.muzei.settings.EffectsFragment
+import com.google.android.apps.muzei.util.launchWhenStartedIn
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import com.google.android.apps.muzei.wallpaper.initializeWallpaperActiveState
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -44,7 +44,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.MuzeiActivityBinding
@@ -111,38 +111,34 @@ class MuzeiActivity : AppCompatActivity() {
             fadeIn = true
         }
 
-        lifecycleScope.launchWhenStarted {
-            WallpaperActiveState.collect {
-                val fragment = currentFragment
-                val oldFragment = supportFragmentManager.findFragmentById(R.id.container)
-                if (!fragment::class.java.isInstance(oldFragment)) {
-                    // Only replace the Fragment if there was a change
-                    supportFragmentManager.commit {
-                        replace(R.id.container, fragment)
-                        setPrimaryNavigationFragment(fragment).apply {
-                            if (oldFragment != null) {
-                                setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                            }
+        WallpaperActiveState.onEach {
+            val fragment = currentFragment
+            val oldFragment = supportFragmentManager.findFragmentById(R.id.container)
+            if (!fragment::class.java.isInstance(oldFragment)) {
+                // Only replace the Fragment if there was a change
+                supportFragmentManager.commit {
+                    replace(R.id.container, fragment)
+                    setPrimaryNavigationFragment(fragment).apply {
+                        if (oldFragment != null) {
+                            setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                         }
                     }
                 }
             }
-        }
+        }.launchWhenStartedIn(this)
 
-        lifecycleScope.launchWhenStarted {
-            viewModel.onSeenTutorial().collect {
-                val fragment = currentFragment
-                if (!fragment::class.java.isInstance(
-                                supportFragmentManager.findFragmentById(R.id.container))) {
-                    // Only replace the Fragment if there was a change
-                    supportFragmentManager.commit {
-                        replace(R.id.container, fragment)
-                        setPrimaryNavigationFragment(fragment)
-                        setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                    }
+        viewModel.onSeenTutorial().onEach {
+            val fragment = currentFragment
+            if (!fragment::class.java.isInstance(
+                            supportFragmentManager.findFragmentById(R.id.container))) {
+                // Only replace the Fragment if there was a change
+                supportFragmentManager.commit {
+                    replace(R.id.container, fragment)
+                    setPrimaryNavigationFragment(fragment)
+                    setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 }
             }
-        }
+        }.launchWhenStartedIn(this)
         if (intent?.hasCategory(Notification.INTENT_CATEGORY_NOTIFICATION_PREFERENCES) == true) {
             Firebase.analytics.logEvent("notification_settings_open") {
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "intent")

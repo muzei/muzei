@@ -50,13 +50,14 @@ import androidx.core.text.buildSpannedString
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
+import com.google.android.apps.muzei.util.launchWhenStartedIn
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.legacy.R
 import net.nurik.roman.muzei.legacy.databinding.LegacyChooseSourceItemBinding
@@ -140,65 +141,63 @@ class SourceSettingsActivity : AppCompatActivity() {
                 }
                 .create()
         val database = LegacyDatabase.getInstance(this)
-        lifecycleScope.launchWhenStarted {
-            database.sourceDao().sources.collect {  sources ->
-                if (sources.any { it.selected }) {
-                    setResult(RESULT_OK)
-                }
-                val pm = packageManager
-                val sourcesViews = sources.asSequence().filterNot { source ->
-                    source.label.isNullOrEmpty()
-                }.mapNotNull { source ->
-                    try {
-                        source to pm.getServiceInfo(source.componentName, 0)
-                    } catch (e: PackageManager.NameNotFoundException) {
-                        null
-                    }
-                }.map { (source, info) ->
-                    SourceView(source).apply {
-                        icon = BitmapDrawable(resources, generateSourceImage(
-                                info.loadIcon(pm))).apply {
-                            colorFilter = PorterDuffColorFilter(source.color, PorterDuff.Mode.SRC_ATOP)
-                        }
-                    }
-                }.sortedWith(Comparator { sourceView1, sourceView2 ->
-                    val s1 = sourceView1.source
-                    val s2 = sourceView2.source
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        val target1IsO = s1.targetSdkVersion >= Build.VERSION_CODES.O
-                        val target2IsO = s2.targetSdkVersion >= Build.VERSION_CODES.O
-                        if (target1IsO && !target2IsO) {
-                            return@Comparator 1
-                        } else if (!target1IsO && target2IsO) {
-                            return@Comparator -1
-                        }
-                    }
-                    val pn1 = s1.componentName.packageName
-                    val pn2 = s2.componentName.packageName
-                    if (pn1 != pn2) {
-                        if (packageName == pn1) {
-                            return@Comparator -1
-                        } else if (packageName == pn2) {
-                            return@Comparator 1
-                        }
-                    }
-                    // These labels should be non-null with the isNullOrEmpty() check above
-                    val label1 = s1.label
-                            ?: throw IllegalStateException("Found null label for ${s1.componentName}")
-                    val label2 = s2.label
-                            ?: throw IllegalStateException("Found null label for ${s2.componentName}")
-                    label1.compareTo(label2)
-                }).toList()
-                adapter.clear()
-                adapter.addAll(sourcesViews)
-                if (!dialog.isShowing) {
-                    Firebase.analytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST) {
-                        param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "sources")
-                    }
-                    dialog.show()
-                }
+        database.sourceDao().sources.onEach { sources ->
+            if (sources.any { it.selected }) {
+                setResult(RESULT_OK)
             }
-        }
+            val pm = packageManager
+            val sourcesViews = sources.asSequence().filterNot { source ->
+                source.label.isNullOrEmpty()
+            }.mapNotNull { source ->
+                try {
+                    source to pm.getServiceInfo(source.componentName, 0)
+                } catch (e: PackageManager.NameNotFoundException) {
+                    null
+                }
+            }.map { (source, info) ->
+                SourceView(source).apply {
+                    icon = BitmapDrawable(resources, generateSourceImage(
+                            info.loadIcon(pm))).apply {
+                        colorFilter = PorterDuffColorFilter(source.color, PorterDuff.Mode.SRC_ATOP)
+                    }
+                }
+            }.sortedWith(Comparator { sourceView1, sourceView2 ->
+                val s1 = sourceView1.source
+                val s2 = sourceView2.source
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    val target1IsO = s1.targetSdkVersion >= Build.VERSION_CODES.O
+                    val target2IsO = s2.targetSdkVersion >= Build.VERSION_CODES.O
+                    if (target1IsO && !target2IsO) {
+                        return@Comparator 1
+                    } else if (!target1IsO && target2IsO) {
+                        return@Comparator -1
+                    }
+                }
+                val pn1 = s1.componentName.packageName
+                val pn2 = s2.componentName.packageName
+                if (pn1 != pn2) {
+                    if (packageName == pn1) {
+                        return@Comparator -1
+                    } else if (packageName == pn2) {
+                        return@Comparator 1
+                    }
+                }
+                // These labels should be non-null with the isNullOrEmpty() check above
+                val label1 = s1.label
+                        ?: throw IllegalStateException("Found null label for ${s1.componentName}")
+                val label2 = s2.label
+                        ?: throw IllegalStateException("Found null label for ${s2.componentName}")
+                label1.compareTo(label2)
+            }).toList()
+            adapter.clear()
+            adapter.addAll(sourcesViews)
+            if (!dialog.isShowing) {
+                Firebase.analytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST) {
+                    param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "sources")
+                }
+                dialog.show()
+            }
+        }.launchWhenStartedIn(this)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

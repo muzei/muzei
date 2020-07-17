@@ -35,6 +35,7 @@ import com.google.android.apps.muzei.legacy.LegacySourceManager
 import com.google.android.apps.muzei.legacy.allowsNextArtwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
+import com.google.android.apps.muzei.util.launchWhenStartedIn
 import com.google.android.apps.muzei.util.toast
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -43,7 +44,7 @@ import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
 
@@ -62,20 +63,16 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
     override fun onCreate() {
         super.onCreate()
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
-        lifecycleScope.launchWhenStarted {
-            WallpaperActiveState.collect {
-                updateTile()
-            }
-        }
+        WallpaperActiveState.onEach {
+            updateTile()
+        }.launchWhenStartedIn(this)
         // Start listening for source changes, which will include when a source
         // starts or stops supporting the 'Next Artwork' command
         val database = MuzeiDatabase.getInstance(this)
-        lifecycleScope.launchWhenStarted {
-            database.providerDao().currentProvider.collect { provider ->
-                currentProvider = provider
-                updateTile()
-            }
-        }
+        database.providerDao().currentProvider.onEach { provider ->
+            currentProvider = provider
+            updateTile()
+        }.launchWhenStartedIn(this)
     }
 
     override fun getLifecycle(): Lifecycle {

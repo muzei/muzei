@@ -53,6 +53,7 @@ import com.google.android.apps.muzei.settings.EffectsLockScreenOpen
 import com.google.android.apps.muzei.settings.Prefs
 import com.google.android.apps.muzei.shortcuts.ArtworkInfoShortcutController
 import com.google.android.apps.muzei.sync.ProviderManager
+import com.google.android.apps.muzei.util.launchWhenStartedIn
 import com.google.android.apps.muzei.wallpaper.LockscreenObserver
 import com.google.android.apps.muzei.wallpaper.WallpaperAnalytics
 import com.google.android.apps.muzei.wearable.WearableController
@@ -66,8 +67,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import net.rbgrn.android.glwallpaperservice.GLWallpaperService
 
@@ -203,37 +205,27 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             engineLifecycle.addObserver(WallpaperAnalytics(this@MuzeiWallpaperService))
             engineLifecycle.addObserver(LockscreenObserver(this@MuzeiWallpaperService, this))
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-                lifecycleScope.launchWhenStarted {
-                    MuzeiDatabase.getInstance(this@MuzeiWallpaperService)
-                            .artworkDao().currentArtwork
-                            .filterNotNull()
-                            .collect { artwork ->
-                                updateCurrentArtwork(artwork)
-                            }
-                }
+                val database = MuzeiDatabase.getInstance(this@MuzeiWallpaperService)
+                database.artworkDao().currentArtwork.filterNotNull().onEach { artwork ->
+                    updateCurrentArtwork(artwork)
+                }.launchWhenStartedIn(this)
             }
 
             // Use the MuzeiWallpaperService's lifecycle to wait for the user to unlock
             wallpaperLifecycle.addObserver(this)
             setTouchEventsEnabled(true)
             setOffsetNotificationsEnabled(true)
-            lifecycleScope.launchWhenStarted {
-                EffectsLockScreenOpen.collect { isEffectsLockScreenOpen ->
-                    renderController.onLockScreen = isEffectsLockScreenOpen
-                }
-            }
-            lifecycleScope.launchWhenStarted {
-                ArtDetailOpen.collect { isArtDetailOpened ->
-                    cancelDelayedBlur()
-                    queueEvent { renderer.setIsBlurred(!isArtDetailOpened, true) }
-                }
-            }
+            EffectsLockScreenOpen.onEach { isEffectsLockScreenOpen ->
+                renderController.onLockScreen = isEffectsLockScreenOpen
+            }.launchWhenStartedIn(this)
+            ArtDetailOpen.onEach { isArtDetailOpened ->
+                cancelDelayedBlur()
+                queueEvent { renderer.setIsBlurred(!isArtDetailOpened, true) }
+            }.launchWhenStartedIn(this)
 
-            lifecycleScope.launch {
-                ArtDetailViewport.getChanges().collect {
-                    requestRender()
-                }
-            }
+            ArtDetailViewport.getChanges().onEach {
+                requestRender()
+            }.launchIn(lifecycleScope)
         }
 
         override fun getLifecycle(): Lifecycle {

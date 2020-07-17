@@ -70,11 +70,12 @@ import com.google.android.apps.muzei.gallery.databinding.GalleryChosenPhotoItemB
 import com.google.android.apps.muzei.util.MultiSelectionController
 import com.google.android.apps.muzei.util.getString
 import com.google.android.apps.muzei.util.getStringOrNull
+import com.google.android.apps.muzei.util.launchWhenStartedIn
 import com.google.android.apps.muzei.util.toast
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.ArrayList
 import java.util.LinkedList
@@ -291,16 +292,12 @@ class GallerySettingsActivity : AppCompatActivity(),
                 hideAddToolbar(true)
             }
         }
-        lifecycleScope.launchWhenStarted {
-            viewModel.chosenPhotos.collect {
-                chosenPhotosAdapter.submitData(it)
-            }
-        }
-        lifecycleScope.launchWhenStarted {
-            chosenPhotosAdapter.dataRefreshFlow.collect {
-                onDataSetChanged()
-            }
-        }
+        viewModel.chosenPhotos.onEach {
+            chosenPhotosAdapter.submitData(it)
+        }.launchWhenStartedIn(this)
+        chosenPhotosAdapter.dataRefreshFlow.onEach {
+            onDataSetChanged()
+        }.launchWhenStartedIn(this)
         getContentActivitiesLiveData.observe(this) { invalidateOptionsMenu() }
         GalleryScanWorker.enqueueRescan(this)
     }

@@ -23,13 +23,14 @@ import androidx.lifecycle.lifecycleScope
 import androidx.wear.ambient.AmbientModeSupport
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.util.launchWhenStartedIn
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.databinding.FullScreenActivityBinding
@@ -59,19 +60,15 @@ class FullScreenActivity : FragmentActivity(),
             binding.loadingIndicator.isVisible = true
         }
 
-        lifecycleScope.launchWhenStarted {
-            MuzeiDatabase.getInstance(this@FullScreenActivity).artworkDao()
-                    .currentArtwork
-                    .filterNotNull()
-                    .collect { artwork ->
-                        val image = ImageLoader.decode(
-                                contentResolver, artwork.contentUri)
-                        showLoadingIndicator?.cancel()
-                        binding.loadingIndicator.isVisible = false
-                        binding.panView.isVisible = true
-                        binding.panView.setImage(image)
-                    }
-        }
+        val database = MuzeiDatabase.getInstance(this@FullScreenActivity)
+        database.artworkDao().currentArtwork.filterNotNull().onEach { artwork ->
+            val image = ImageLoader.decode(
+                    contentResolver, artwork.contentUri)
+            showLoadingIndicator?.cancel()
+            binding.loadingIndicator.isVisible = false
+            binding.panView.isVisible = true
+            binding.panView.setImage(image)
+        }.launchWhenStartedIn(this)
     }
 
     override fun getAmbientCallback(): AmbientModeSupport.AmbientCallback {
