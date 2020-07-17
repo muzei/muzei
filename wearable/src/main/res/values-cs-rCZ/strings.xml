@@ -14,4 +14,13 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources></resources>
+<resources>
+    <string name="complication_artwork_label">Obrázek</string>
+    <string name="next_artwork">Další obrázek</string>
+    <string name="provider_title">Aktuální zdroj</string>
+    <string name="provider_settings">Nastavení zdroje</string>
+    <string name="config_show_date_title">Datum</string>
+    <string name="config_top_complication_title">Horní Komplikace</string>
+    <string name="config_bottom_complication_title">Dolní Komplikace</string>
+    <string name="config_tap_title">Akce klepnutím</string>
+</resources>

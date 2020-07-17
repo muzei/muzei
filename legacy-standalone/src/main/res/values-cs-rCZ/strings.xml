@@ -14,4 +14,21 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="legacy_app_name"><xliff:g id="muzei_name">Muzei</xliff:g> Legacy</string>
+    <string name="legacy_source_provider_name">Starší zdroje</string>
+    <string name="legacy_source_warning_title">Aktivovat starší zdroj?</string>
+    <string name="legacy_source_warning_message">Starší zdroje se načítají podle svého vlastního načasování a nepoužívají automatické posouvání. To může vést k většímu využití dat, pokud starší zdroj nemá své vlastní nastavení stahování pouze přes WiFi.</string>
+    <string name="legacy_source_warning_positive">Pokračovat</string>
+    <string name="legacy_source_warning_learn_more">Zjistit více</string>
+    <string name="legacy_source_warning_negative">Zrušit</string>
+    <string name="legacy_source_settings">Nastavení zdroje</string>
+    <string name="legacy_source_selection_done">Hotovo</string>
+    <string name="legacy_action_next_artwork">Další obrázek</string>
+    <string name="legacy_source_unavailable">Váš vybraný zdroj není k dispozici. Přepínám na výchozí zdroj.</string>
+    <string name="legacy_source_target_too_high_title">Tento zdroj je vypnutý</string>
+    <string name="legacy_source_target_too_high_message"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> není kompatibilní s <xliff:g id="muzei_name">Muzei</xliff:g> API. Pro použití tohoto zdroje musí vývojář změnit <xliff:g id="targetSdkVersion">cílovou verzi SDK</xliff:g> na 25 nebo nižší.</string>
+    <string name="legacy_source_target_too_high_send_feedback">Poslat <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> zpětnou vazbu</string>
+    <string name="legacy_source_target_too_high_learn_more">Zjistit více</string>
+    <string name="legacy_source_target_too_high_dismiss">Rozumím</string>
+</resources>

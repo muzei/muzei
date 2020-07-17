@@ -14,4 +14,21 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="legacy_app_name"><xliff:g id="muzei_name">Muzei</xliff:g> Legacy</string>
+    <string name="legacy_source_provider_name">Gamla källor</string>
+    <string name="legacy_source_warning_title">Aktivera en gammal källa?</string>
+    <string name="legacy_source_warning_message">Äldre källor laddar enligt sitt eget schema och använder inte Auto Advance. Detta kan leda till ytterligare dataanvändning om den äldre källan inte har en egen inställning för att endast använda WiFi.</string>
+    <string name="legacy_source_warning_positive">Fortsätt</string>
+    <string name="legacy_source_warning_learn_more">Läs mer</string>
+    <string name="legacy_source_warning_negative">Avbryt</string>
+    <string name="legacy_source_settings">Anpassa källa</string>
+    <string name="legacy_source_selection_done">Klart</string>
+    <string name="legacy_action_next_artwork">Nästa bild</string>
+    <string name="legacy_source_unavailable">Din valda källa är inte tillgänglig. Byter till standardkällan.</string>
+    <string name="legacy_source_target_too_high_title">Denna källa är inaktiverad</string>
+    <string name="legacy_source_target_too_high_message"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> är inkompatibel med <xliff:g id="muzei_name">Muzei</xliff:g>s API. För att använda denna källa måste utvecklaren ändra sin <xliff:g id="targetSdkVersion">targetSdkVersion</xliff:g> till 25 eller lägre.</string>
+    <string name="legacy_source_target_too_high_send_feedback">Skicka <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> feedback</string>
+    <string name="legacy_source_target_too_high_learn_more">Läs mer</string>
+    <string name="legacy_source_target_too_high_dismiss">Förstått</string>
+</resources>

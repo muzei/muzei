@@ -14,4 +14,9 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources></resources>
+<resources>
+    <string name="single_title">Jeden obrázek</string>
+    <string name="single_description">Zobrazit jeden obrázek dle vašeho výběru</string>
+    <string name="single_get_content_failure">Nelze otevřít výběr obrázků</string>
+    <string name="single_default_artwork_title">Váš obrázek</string>
+</resources>

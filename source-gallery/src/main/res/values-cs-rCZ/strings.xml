@@ -15,18 +15,44 @@
   limitations under the License.
   -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="gallery_add_fab">Přidat fotografie</string>
-    <string name="gallery_add_photos">Přidat fotografie</string>
+    <string name="gallery_add_fab">Přidat fotky</string>
+    <string name="gallery_add_photos">Přidat fotky</string>
+    <string name="gallery_add_folder">Nahrát fotky z <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
+    <string name="gallery_internal_storage_message">Nic nevidíte? Zkuste v menu povolit interní úložiště</string>
     <string name="gallery_add_photos_error">Vaše zařízení nepodporuje přidávání obrázků.\nKontaktujte prosím výrobce.</string>
     <string name="gallery_add_folder_error">Vaše zařízení nepodporuje přidávání složek.\nKontaktujte prosím výrobce.</string>
     <string name="gallery_action_clear_photos">Odstranit všechny fotky</string>
     <string name="gallery_action_import_photos">Importovat fotky…</string>
+    <string name="gallery_action_import_photos_from">Nahrát fotky z <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
     <string name="gallery_import_dialog_title">Importovat fotky z</string>
     <string name="gallery_action_remove">Odstranit</string>
     <string name="gallery_title">Moje fotky</string>
     <string name="gallery_description">Náhodné z fotoaparátu</string>
+    <plurals name="gallery_description_choice_template">
+        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> fotka</item>
+        <item quantity="few"><xliff:g id="quantity" example="2">%1$d</xliff:g> fotky</item>
+        <item quantity="many"><xliff:g id="quantity" example="5">%1$d</xliff:g> fotek</item>
+        <item quantity="other"><xliff:g id="quantity" example="100">%1$d</xliff:g> fotek</item>
+    </plurals>
     <string name="gallery_empty">Náhodné z fotoaparátu</string>
     <string name="gallery_empty_subtitle">Vybrat místo toho konkrétní fotky</string>
     <string name="gallery_from_gallery">Z galerie</string>
     <string name="gallery_touch_to_view">Dotykem zobrazte</string>
+    <string name="gallery_shared_from">Sdílené z <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
+    <plurals name="gallery_add_photos_success">
+        <item quantity="one">Úspěšně přidán <xliff:g id="quantity" example="1">%d</xliff:g> obrázek\ndo zdroje \"Moje fotky\"</item>
+        <item quantity="few">Úspěšně přidány <xliff:g id="quantity" example="2">%d</xliff:g> obrázky\ndo zdroje \"Moje fotky\"</item>
+        <item quantity="many">Úspěšně přidáno <xliff:g id="quantity" example="5">%d</xliff:g> obrázků\ndo zdroje \"Moje fotky\"</item>
+        <item quantity="other">Úspěšně přidáno <xliff:g id="quantity" example="100">%d</xliff:g> obrázků\ndo zdroje \"Moje fotky\"</item>
+    </plurals>
+    <plurals name="gallery_add_photos_failure">
+        <item quantity="one">Nelze přidat <xliff:g id="quantity" example="1">%d</xliff:g> obrázek\ndo zdroje \"Moje fotky\"</item>
+        <item quantity="few">Nelze přidat <xliff:g id="quantity" example="2">%d</xliff:g> obrázky\ndo zdroje \"Moje fotografie\"</item>
+        <item quantity="many">Nelze přidat <xliff:g id="quantity" example="5">%d</xliff:g> obrázků\ndo zdroje \"Moje fotografie\"</item>
+        <item quantity="other">Nelze přidat <xliff:g id="quantity" example="100">%d</xliff:g> obrázků\ndo zdroje \"Moje fotografie\"</item>
+    </plurals>
+    <string name="gallery_enable_random">Zapnout náhodné z fotoaparátu</string>
+    <string name="gallery_permission_rationale">Povolte přístup k úložišti pro zobrazení náhodných fotek jako pozadí.</string>
+    <string name="gallery_edit_settings">Upravit oprávnění</string>
+    <string name="gallery_denied_explanation">Musíte povolit oprávnění <b>Úložiště</b> pro použití náhodných fotografií jako pozadí.</string>
 </resources>
