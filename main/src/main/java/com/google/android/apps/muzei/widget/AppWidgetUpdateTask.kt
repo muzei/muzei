@@ -80,7 +80,11 @@ suspend fun showWidgetPreview(context: Context) {
 suspend fun updateAppWidget(context: Context) = coroutineScope {
     val widget = ComponentName(context, MuzeiAppWidgetProvider::class.java)
     val appWidgetManager = AppWidgetManager.getInstance(context) ?: return@coroutineScope
-    val appWidgetIds = appWidgetManager.getAppWidgetIds(widget)
+    val appWidgetIds = try {
+        appWidgetManager.getAppWidgetIds(widget)
+    } catch (e: Exception) {
+        intArrayOf()
+    }
     if (appWidgetIds.isEmpty()) {
         // No app widgets, nothing to do
         return@coroutineScope
