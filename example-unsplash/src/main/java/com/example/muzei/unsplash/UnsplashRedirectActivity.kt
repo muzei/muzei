@@ -82,6 +82,7 @@ class UnsplashRedirectActivity : ComponentActivity() {
         if (!success) {
             // Only if all Intents failed do we show a 'everything failed' Toast
             Toast.makeText(this, R.string.toast_play_store_missing_error, Toast.LENGTH_LONG).show()
+            finish()
         }
     }
 }
