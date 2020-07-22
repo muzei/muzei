@@ -49,12 +49,20 @@ class UnsplashRedirectActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // First check whether Unsplash is already selected
+        val launchIntent = packageManager.getLaunchIntentForPackage(MUZEI_PACKAGE_NAME)
+        if (MuzeiContract.Sources.isProviderSelected(this, BuildConfig.UNSPLASH_AUTHORITY)
+                && launchIntent != null) {
+            // Already selected so just open Muzei
+            requestLauncher.launch(launchIntent)
+            return
+        }
         // Build the list of Intents plus the Toast message that should be displayed
         // to users when we successfully launch one of the Intents
         val intents = listOf(
                 MuzeiContract.Sources.createChooseProviderIntent(BuildConfig.UNSPLASH_AUTHORITY)
                         to R.string.toast_enable_unsplash,
-                packageManager.getLaunchIntentForPackage(MUZEI_PACKAGE_NAME)
+                launchIntent
                         to R.string.toast_enable_unsplash_source,
                 Intent(Intent.ACTION_VIEW).setData(Uri.parse(PLAY_STORE_LINK))
                         to R.string.toast_muzei_missing_error)
