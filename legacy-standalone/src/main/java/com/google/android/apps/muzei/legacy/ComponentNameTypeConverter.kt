@@ -22,7 +22,7 @@ import androidx.room.TypeConverter
 /**
  * Converts a [ComponentName] into and from a persisted value
  */
-class ComponentNameTypeConverter {
+object ComponentNameTypeConverter {
     @TypeConverter
     fun fromFlattenedString(flattenedString: String?): ComponentName? {
         return if (flattenedString == null) null else ComponentName.unflattenFromString(flattenedString)

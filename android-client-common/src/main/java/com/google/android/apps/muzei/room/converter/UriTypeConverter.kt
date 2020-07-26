@@ -23,7 +23,7 @@ import androidx.room.TypeConverter
 /**
  * Converts a [Uri] into and from a persisted value
  */
-class UriTypeConverter {
+object UriTypeConverter {
     @TypeConverter
     fun fromString(uriString: String?): Uri? {
         return uriString?.toUri()

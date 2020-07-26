@@ -23,7 +23,7 @@ import java.util.Date
 /**
  * Converts a [Date] into and from a persisted value
  */
-class DateTypeConverter {
+object DateTypeConverter {
     @TypeConverter
     fun fromTimestamp(timestamp: Long?): Date? {
         return if (timestamp == null || timestamp == 0L) null else Date(timestamp)

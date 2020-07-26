@@ -38,7 +38,7 @@ dependencies {
     implementation "androidx.room:room-ktx:$roomVersion"
     implementation "androidx.work:work-runtime-ktx:$workManagerVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
-    implementation "androidx.paging:paging-runtime:$pagingVersion"
+    implementation "androidx.paging:paging-runtime-ktx:$pagingVersion"
 }
 
 android {
@@ -63,7 +63,6 @@ android {
             annotationProcessorOptions {
                 arguments = [
                         "room.schemaLocation":"$projectDir/schemas".toString(),
-                        "room.incremental":"true",
                 ]
             }
         }

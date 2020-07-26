@@ -25,10 +25,8 @@ import java.util.ArrayList
 /**
  * Converts a list of commands into and from a persisted value
  */
-class UserCommandTypeConverter {
-    companion object {
-        private const val TAG = "UserCmdTypeConverter"
-    }
+object UserCommandTypeConverter {
+    private const val TAG = "UserCmdTypeConverter"
 
     @TypeConverter
     fun fromString(commandsString: String): List<String> {
