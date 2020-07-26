@@ -486,10 +486,12 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
             set(value) {
                 if (field != value) {
                     field = value
-                    if (value) {
-                        notifyItemInserted(0)
-                    } else {
-                        notifyItemRemoved(0)
+                    if (playStoreProviderInfo != null) {
+                        if (value) {
+                            notifyItemInserted(0)
+                        } else {
+                            notifyItemRemoved(0)
+                        }
                     }
                 }
             }
