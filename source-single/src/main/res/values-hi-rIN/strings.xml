@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2018 Google Inc.
+  Copyright 2017 Google Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,6 +14,4 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources>
-    <string name="legacy_source_warning_message">Eri kuvalähteitä käytettäessä on akun käytön optimointi kytkettävä pois käytöstä, jotta kuvien lataaminen onnistuu.\n\nLisäksi eri kuvalähteillä voi olla oma ajastus ja ne eivät käytä automaattista kuvan vaihtoa. Tämä voi kasvattaa maksullisen tiedonsiirron määrää, jos kuvalähteellä ei ole \"käytä vain Wifi-yhteyttä\" asetusta.</string>
-</resources>
+<resources></resources>

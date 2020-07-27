@@ -20,6 +20,6 @@
     <string name="gallery_empty_subtitle">Valitse haluamasi kuvat</string>
     <string name="gallery_from_gallery">Omasta galleriasta</string>
     <string name="gallery_touch_to_view">Paina nähdäksesi</string>
-    <string name="gallery_enable_random">Satunnaisia kamerakuvia</string>
+    <string name="gallery_enable_random">Salli satunnaiset kamerakuvat</string>
     <string name="gallery_edit_settings">Muokkaa oikeuksia</string>
 </resources>

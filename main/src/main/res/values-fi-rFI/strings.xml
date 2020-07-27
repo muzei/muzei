@@ -15,12 +15,35 @@
   limitations under the License.
   -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_description"><xliff:g id="muzei_name">Muzei</xliff:g> Elävä taustakuva</string>
+    <string name="settings_title"><xliff:g id="muzei_name">Muzei</xliff:g> Asetukset</string>
     <string name="settings_home_screen_title">Aloitusnäyttö</string>
     <string name="settings_lock_screen_title">Lukitusnäyttö</string>
     <string name="settings_blur_amount_title">Sumenna</string>
     <string name="settings_dim_amount_title">Himmennä</string>
+    <string name="settings_grey_amount_title">Harmaa</string>
+    <string name="notification_new_wallpaper">Uusi taustakuva</string>
+    <string name="notification_new_wallpaper_channel_name">Uudet taustakuvat</string>
+    <string name="notification_settings">Ilmoitusasetukset</string>
+    <string name="notification_settings_failed">Ilmoitusasetusten avaaminen epäonnistui, ole hyvä ja muuta asetuksia <xliff:g id="muzei_name">Muzei</xliff:g>-sovelluksen asetusten kautta.</string>
+    <string name="notification_settings_done">Valmis</string>
+    <string name="notification_settings_moved_title">Ilmoitusten asetukset on siirretty</string>
+    <string name="notification_settings_moved_text">Tarkista ilmoitusasetukset</string>
+    <string name="auto_advance_settings">Automaattivaihdon asetukset</string>
+    <string name="auto_advance_disabled">Automaattinen vaihto ei ole käytössä</string>
+    <string name="auto_advance_disabled_description">Erilliset kuvalähteet hoitavat itse kuvien lataamisen ja ne eivät tue automaattista vaihtoa</string>
+    <string name="auto_advance_title">Autom. vaihto</string>
+    <string name="auto_advance_description">Säädä, milloin <xliff:g id="muzei_name">Muzei</xliff:g> automaattisesti näyttää seuraavan taustakuvan.</string>
+    <string name="auto_advance_wifi">Tee automaattinen vaihto vain Wifi-yhteydellä</string>
+    <string name="auto_advance_interval">Aikaväli</string>
     <string name="auto_advance_interval_15m">15 minuutin välein</string>
+    <string name="auto_advance_interval_30m">Puolen tunnin välein</string>
     <string name="auto_advance_interval_1h">Tunnin välein</string>
+    <string name="auto_advance_interval_3h">Joka kolmas tunti</string>
+    <string name="auto_advance_interval_6h">Joka kuudes tunti</string>
+    <string name="auto_advance_interval_24h">Kerran päivässä</string>
+    <string name="auto_advance_interval_72h">Joka kolmas päivä</string>
+    <string name="auto_advance_interval_never">Älä tee automaattista vaihtoa</string>
     <string name="action_activate">Ota käyttöön</string>
     <string name="legacy_source_info_app_info">Sovelluksen tiedot</string>
     <string name="legacy_source_info_send_feedback">Anna palautetta</string>

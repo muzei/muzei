@@ -14,6 +14,4 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources>
-    <string name="legacy_source_warning_message">Eri kuvalähteitä käytettäessä on akun käytön optimointi kytkettävä pois käytöstä, jotta kuvien lataaminen onnistuu.\n\nLisäksi eri kuvalähteillä voi olla oma ajastus ja ne eivät käytä automaattista kuvan vaihtoa. Tämä voi kasvattaa maksullisen tiedonsiirron määrää, jos kuvalähteellä ei ole \"käytä vain Wifi-yhteyttä\" asetusta.</string>
-</resources>
+<resources></resources>

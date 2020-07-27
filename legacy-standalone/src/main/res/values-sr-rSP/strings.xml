@@ -18,12 +18,13 @@
     <string name="legacy_source_provider_name">Стари извори</string>
     <string name="legacy_source_warning_title">Покрени стари извор?</string>
     <string name="legacy_source_warning_positive">Настави</string>
-    <string name="legacy_source_warning_learn_more">Сазнајте више</string>
+    <string name="legacy_source_warning_learn_more">Сазнај више</string>
     <string name="legacy_source_warning_negative">Откажи</string>
     <string name="legacy_source_settings">Подеси извор</string>
+    <string name="legacy_source_selection_done">Готово</string>
     <string name="legacy_action_next_artwork">Следеће уметничко дело</string>
-    <string name="legacy_source_unavailable">Изабрани извор није доступан. Пребаци на уобичајни извор.</string>
+    <string name="legacy_source_unavailable">Изабрани извор није доступан. Пребаци на подразумевани извор.</string>
     <string name="legacy_source_target_too_high_title">Овај извор није доступан</string>
-    <string name="legacy_source_target_too_high_learn_more">Сазнајте више</string>
+    <string name="legacy_source_target_too_high_learn_more">Сазнај више</string>
     <string name="legacy_source_target_too_high_dismiss">Схватам</string>
 </resources>
