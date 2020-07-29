@@ -58,7 +58,7 @@ class DataLayerArtProvider : MuzeiArtProvider() {
                 IconCompat.createWithResource(context, R.drawable.open_on_phone_button),
                 title,
                 title,
-                PendingIntent.getActivity(context, 0, intent,
+                PendingIntent.getBroadcast(context, 0, intent,
                         PendingIntent.FLAG_UPDATE_CURRENT))
     }
 
