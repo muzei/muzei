@@ -85,8 +85,12 @@ class ProviderManager private constructor(private val context: Context)
         }
 
         suspend fun requestLoad(context: Context, contentUri: Uri) {
-            ContentProviderClientCompat.getClient(context, contentUri)?.call(
-                    ProtocolConstants.METHOD_REQUEST_LOAD)
+            try {
+                ContentProviderClientCompat.getClient(context, contentUri)?.call(
+                        ProtocolConstants.METHOD_REQUEST_LOAD)
+            } catch (e: RemoteException) {
+                Log.i(TAG, "Provider ${contentUri.authority} crashed while requesting load", e)
+            }
         }
 
         suspend fun getDescription(context: Context, authority: String): String {
