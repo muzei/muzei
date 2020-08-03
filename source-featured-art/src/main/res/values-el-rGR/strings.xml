@@ -1,2 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="featuredart_source_title">Προτεινόμενη τέχνη</string>
+    <string name="featuredart_source_description">Ένας νέος πίνακας κάθε μέρα</string>
+    <string name="featuredart_source_action_view_archive">Προβολή αρχείου</string>
+    <string name="featuredart_action_share_artwork">Κοινοποίηση έργου τέχνης</string>
+</resources>

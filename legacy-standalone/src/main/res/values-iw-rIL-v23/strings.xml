@@ -14,4 +14,6 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources></resources>
+<resources>
+    <string name="legacy_source_warning_message">ישנה בעיה ידועה עם מקורות ישנים על מכשירכם. הינכם נדרשים לנטרל את אופטימיזציית הסוללה על כל מקור ישן נבחר כדי להבטיח שיהיה ניתן לטעון רקעים. זה עלול לגרום לריקון סוללה נוסף.\n\nבנוסף, מקורות ישנים נטענים בתזמון משלהם ולא משתמשים בהתקדמות אוטומטית. זה עלול להוביל לצריכת נתונים נוספת אם למקור הישן אין הגדרה משלו ל- WiFi בלבד.</string>
+</resources>

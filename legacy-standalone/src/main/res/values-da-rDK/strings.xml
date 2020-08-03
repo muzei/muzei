@@ -14,4 +14,14 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="legacy_source_warning_positive">Fortsæt</string>
+    <string name="legacy_source_warning_learn_more">Få mere at vide</string>
+    <string name="legacy_source_warning_negative">Annullér</string>
+    <string name="legacy_source_settings">Tilpas kilde</string>
+    <string name="legacy_source_selection_done">Udfør</string>
+    <string name="legacy_action_next_artwork">Næste kunstværk</string>
+    <string name="legacy_source_target_too_high_title">Denne kilde er deaktiveret</string>
+    <string name="legacy_source_target_too_high_learn_more">Få mere at vide</string>
+    <string name="legacy_source_target_too_high_dismiss">Forstået</string>
+</resources>

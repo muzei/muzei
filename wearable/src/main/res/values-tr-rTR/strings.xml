@@ -17,10 +17,10 @@
 <resources>
     <string name="complication_artwork_label">Albüm kapağı</string>
     <string name="next_artwork">Sonraki resimler</string>
-    <string name="provider_title">Akım kaynagı</string>
+    <string name="provider_title">Mevcut kaynak</string>
     <string name="provider_settings">Kaynak Ayarları</string>
     <string name="config_show_date_title">Tarih</string>
     <string name="config_top_complication_title">En İyi alternatif</string>
     <string name="config_bottom_complication_title">Alt alternatifler</string>
-    <string name="config_tap_title">Tuşa dokunun</string>
+    <string name="config_tap_title">Dokunma aksiyonu</string>
 </resources>

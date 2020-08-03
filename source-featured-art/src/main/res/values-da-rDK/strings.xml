@@ -1,2 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="featuredart_source_title">Fremhævet kunstværk</string>
+    <string name="featuredart_source_description">Et nyt maleri hver dag</string>
+    <string name="featuredart_source_action_view_archive">Vis arkiv</string>
+    <string name="featuredart_action_share_artwork">Del kunstværk</string>
+</resources>

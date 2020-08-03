@@ -14,4 +14,25 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="gallery_add_fab">Προσθήκη φωτογραφιών</string>
+    <string name="gallery_add_photos">Προσθήκη φωτογραφιών</string>
+    <string name="gallery_add_folder">Εισαγωγή φωτογραφιών από <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
+    <string name="gallery_add_photos_error">Η συσκευή σας δεν υποστηρίζει την προσθήκη εικόνων.\nΠαρακαλώ επικοινωνήστε με τον κατασκευαστή της.</string>
+    <string name="gallery_add_folder_error">Η συσκευή σας δεν υποστηρίζει την προσθήκη φακέλων.\nΠαρακαλώ επικοινωνήστε με τον κατασκευαστή της.</string>
+    <string name="gallery_action_clear_photos">Κατάργηση όλων των φωτογραφιών</string>
+    <string name="gallery_action_import_photos">Εισαγωγή φωτογραφιών…</string>
+    <string name="gallery_action_import_photos_from">Εισαγωγή φωτογραφιών από <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
+    <string name="gallery_import_dialog_title">Εισαγωγή φωτογραφιών από</string>
+    <string name="gallery_action_remove">Κατάργηση</string>
+    <string name="gallery_title">Οι Φωτογραφίες μου</string>
+    <string name="gallery_description">Τυχαίες φωτογραφίες</string>
+    <plurals name="gallery_description_choice_template">
+        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> φωτογραφία</item>
+        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> φωτογραφίες</item>
+    </plurals>
+    <string name="gallery_empty">Τυχαίες εικόνες φωτογραφικής μηχανής</string>
+    <string name="gallery_from_gallery">Από τη συλλογή</string>
+    <string name="gallery_touch_to_view">Αγγίξτε για προβολή</string>
+    <string name="gallery_edit_settings">Επεξεργασία Δικαιωμάτων Εφαρμογής</string>
+</resources>

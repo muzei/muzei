@@ -35,6 +35,7 @@
     <string name="gallery_empty">Rastgele fotoğraflar</string>
     <string name="gallery_empty_subtitle">Bunun yerine belirli fotoğrafları seçin</string>
     <string name="gallery_from_gallery">Galerinizden</string>
+    <string name="gallery_touch_to_view">Görüntülemek için dokunun</string>
     <string name="gallery_shared_from">Tarafından paylaşıldı <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
     <plurals name="gallery_add_photos_success">
         <item quantity="one"><xliff:g id="quantity" example="1">%d</xliff:g> resim başarıyla eklendi\niçine \"Benim fotoğraflarım\" kaynak</item>

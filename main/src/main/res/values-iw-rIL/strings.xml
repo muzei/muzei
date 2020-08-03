@@ -14,4 +14,70 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_description"><xliff:g id="muzei_name">Muzei</xliff:g> רקעים חיים</string>
+    <string name="settings_title"><xliff:g id="muzei_name">Muzei</xliff:g> הגדרות</string>
+    <string name="settings_home_screen_title">מסך בית</string>
+    <string name="settings_lock_screen_title">מסך נעילה</string>
+    <string name="settings_blur_amount_title">טשטוש</string>
+    <string name="settings_dim_amount_title">המעום</string>
+    <string name="settings_grey_amount_title">אפור</string>
+    <string name="notification_new_wallpaper">רקע חדש</string>
+    <string name="notification_new_wallpaper_channel_name">רקעים חדשים</string>
+    <string name="notification_settings">הגדרות התראה</string>
+    <string name="notification_settings_failed">פתיחת הגדרות התראה נכשלה, אנא שנו את הגדרות ההתראה של <xliff:g id="muzei_name">Muzei</xliff:g> דרך אפליקציית ההגדרות.</string>
+    <string name="notification_settings_done">סיום</string>
+    <string name="notification_settings_moved_title">הגדרות ההתראה הוזזו</string>
+    <string name="notification_settings_moved_text">סקירת הגדרות ההתראה שלכם</string>
+    <string name="auto_advance_settings">הגדרות התקדמות אוטומטית</string>
+    <string name="auto_advance_disabled">התקדמות אוטומטית מנוטרלת</string>
+    <string name="auto_advance_disabled_description">מקורות ישנים מנהלים בעצמם את טעינת הרקע ולא תומכים בהתקדמות אוטומטית</string>
+    <string name="auto_advance_title">התקדמות אוטומטית</string>
+    <string name="auto_advance_description">שולט מתי <xliff:g id="muzei_name">Muzei</xliff:g> מתקדם אוטומטית לרקע הבא.</string>
+    <string name="auto_advance_wifi">התקדמות אוטומטית רק ב-WiFi</string>
+    <string name="auto_advance_interval">מרווח</string>
+    <string name="auto_advance_interval_15m">כל 15 דקות</string>
+    <string name="auto_advance_interval_30m">כל 30 דקות</string>
+    <string name="auto_advance_interval_1h">כל שעה</string>
+    <string name="auto_advance_interval_3h">כל 3 שעות</string>
+    <string name="auto_advance_interval_6h">כל 6 שעות</string>
+    <string name="auto_advance_interval_24h">כל 24 שעות</string>
+    <string name="auto_advance_interval_72h">כל 3 ימים</string>
+    <string name="auto_advance_interval_never">לא להתקדם אוטומטית</string>
+    <string name="auto_advance_tasker">לשליטה מדוייקת על הפעולות לשינוי הרקע, השתמשו בפעולת \'היצירה הבאה\' שזמינה ב- <xliff:g id="tasker_name">Tasker</xliff:g> תחת ההרחבה &gt; <xliff:g id="muzei_name">Muzei</xliff:g> ובטלו כאן את ההתקדמות האוטומטית.</string>
+    <string name="auto_advance_tasker_name"><xliff:g id="tasker_name">Tasker</xliff:g></string>
+    <string name="action_activate">הפעלה</string>
+    <string name="error_view_details">לא ניתן להציג פרטי היצירה.</string>
+    <string name="section_choose_source">מקורות</string>
+    <string name="section_effects">אפקטים</string>
+    <string name="action_next_artwork">היצירה הבאה</string>
+    <string name="action_next_artwork_condensed">הבא</string>
+    <string name="action_user_command">עוד</string>
+    <string name="action_user_command_prompt">בחירת פעולה</string>
+    <string name="action_artwork_info">נתוני יצירה</string>
+    <string name="provider_settings">הגדרות</string>
+    <string name="provider_browse">דפדוף</string>
+    <string name="legacy_notification_channel_name">מקורות ישנים</string>
+    <string name="legacy_notification_title"><xliff:g id="source_name" example="רקעים נחמדים">%s</xliff:g> אינם נתמכים יותר</string>
+    <string name="legacy_action_learn_more">מידע נוסף</string>
+    <string name="legacy_action_send_feedback">שליחת משוב</string>
+    <string name="legacy_summary_title">מקורות ישנים אינם נתמכים יותר</string>
+    <string name="legacy_source_info_title">מקורות ישנים</string>
+    <string name="legacy_source_info_send_feedback">שליחת משוב</string>
+    <string name="legacy_source_all_uninstalled">כל המקורות הישנים הוסרו</string>
+    <string name="done">סיום</string>
+    <string name="set_as_wallpaper_failed">לא ניתן לקרא את היצירה</string>
+    <string name="get_more_sources">הצגת מקורות נוספים</string>
+    <string name="browse_refresh">רענון</string>
+    <string name="browse_set_wallpaper">קביעת הרקע הנוכחי</string>
+    <string name="tasker_setting_dialog_title">בחירת פעולה</string>
+    <string name="gestures_title">מחוות</string>
+    <string name="gestures_double_tap_title">לחיצה כפולה</string>
+    <string name="gestures_double_tap_description">לחיצה כפולה על הרקע המטושטש במסך הבית להפעלת פעולה לבחירתכם.</string>
+    <string name="gestures_three_finger_tap_title">לחיצת שלוש אצבעות</string>
+    <string name="gestures_tap_action_next">היצירה הבאה</string>
+    <string name="gestures_tap_action_view_details">הצגת פרטי יצירה</string>
+    <string name="gestures_tap_action_none">כלום</string>
+    <string name="actions_always_dark">תמיד כהה</string>
+    <string name="about_title">אודות <xliff:g id="muzei_name">Muzei</xliff:g></string>
+</resources>

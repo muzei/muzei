@@ -14,4 +14,11 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources></resources>
+<resources>
+    <string name="complication_artwork_label">Kunstværk</string>
+    <string name="next_artwork">Næste kunstværk</string>
+    <string name="provider_title">Nuværende kilde</string>
+    <string name="provider_settings">Kildeindstillinger</string>
+    <string name="config_show_date_title">Dato</string>
+    <string name="config_tap_title">Handling ved tryk</string>
+</resources>

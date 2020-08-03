@@ -14,4 +14,15 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="legacy_source_warning_positive">Συνέχεια</string>
+    <string name="legacy_source_warning_learn_more">Μάθετε περισσότερα</string>
+    <string name="legacy_source_warning_negative">Άκυρο</string>
+    <string name="legacy_source_selection_done">Τέλος</string>
+    <string name="legacy_action_next_artwork">Επόμενο έργο τέχνης</string>
+    <string name="legacy_source_unavailable">Η επιλεγμένη σας πηγή δεν είναι διαθέσιμη. Θα γίνει επαναφορά στην προεπιλεγμένη.</string>
+    <string name="legacy_source_target_too_high_message"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> δεν είναι συμβατό με το <xliff:g id="muzei_name">Muzei</xliff:g> API. Για να χρησιμοποιήσετε αυτή την πηγή, ο προγραμματιστής της θα πρέπει να αλλάξει το <xliff:g id="targetSdkVersion">targetSdkVersion</xliff:g> σε 25 ή μικρότερο.</string>
+    <string name="legacy_source_target_too_high_send_feedback">Αποστολή <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> σχολίων</string>
+    <string name="legacy_source_target_too_high_learn_more">Μάθετε περισσότερα</string>
+    <string name="legacy_source_target_too_high_dismiss">Το κατάλαβα</string>
+</resources>

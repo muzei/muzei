@@ -14,4 +14,57 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_description"><xliff:g id="muzei_name">Muzei</xliff:g> Live Wallpaper</string>
+    <string name="settings_title"><xliff:g id="muzei_name">Muzei</xliff:g>-indstillinger</string>
+    <string name="settings_home_screen_title">Startskærm</string>
+    <string name="settings_lock_screen_title">Låseskærm</string>
+    <string name="settings_blur_amount_title">Sløring</string>
+    <string name="settings_dim_amount_title">Dæmp</string>
+    <string name="settings_grey_amount_title">Grå</string>
+    <string name="notification_new_wallpaper">Nyt baggrundsbillede</string>
+    <string name="notification_new_wallpaper_channel_name">Nye baggrundsbilleder</string>
+    <string name="notification_settings">Notifikationsindstillinger</string>
+    <string name="notification_settings_done">Udfør</string>
+    <string name="auto_advance_interval">Interval</string>
+    <string name="auto_advance_interval_15m">Hvert 15. minut</string>
+    <string name="auto_advance_interval_30m">Hvert 30. minut</string>
+    <string name="auto_advance_interval_1h">Hver time</string>
+    <string name="auto_advance_interval_3h">Hver 3. time</string>
+    <string name="auto_advance_interval_6h">Hver 6. time</string>
+    <string name="auto_advance_interval_24h">Hver 24. time</string>
+    <string name="auto_advance_interval_72h">Hver 3. døgn</string>
+    <string name="auto_advance_tasker_name"><xliff:g id="tasker_name">Tasker</xliff:g></string>
+    <string name="action_activate">Aktivér</string>
+    <string name="error_view_details">Kan ikke vise detajler om kunstværk.</string>
+    <string name="section_choose_source">Kilder</string>
+    <string name="action_next_artwork">Næste kunstværk</string>
+    <string name="action_next_artwork_condensed">Næste</string>
+    <string name="action_user_command">Mere</string>
+    <string name="action_user_command_prompt">Vælg handling</string>
+    <string name="action_artwork_info">Info om kunstværk</string>
+    <string name="action_artwork_info_disabled">Der er ingen infomationer om det nuværende kunstværk.</string>
+    <string name="provider_settings">Indstillinger</string>
+    <string name="provider_browse">Gennemse</string>
+    <string name="legacy_action_learn_more">Få mere at vide</string>
+    <string name="legacy_action_send_feedback">Send feedback</string>
+    <string name="legacy_source_info_app_info">App-info</string>
+    <string name="legacy_source_info_send_feedback">Send feedback</string>
+    <string name="done">Udfør</string>
+    <string name="set_as_wallpaper_using_muzei">Baggrundsbillede (ved hjælp af <xliff:g id="muzei_name">Muzei</xliff:g>)</string>
+    <string name="get_more_sources">Få flere kilder</string>
+    <string name="browse_refresh">Opdatér</string>
+    <string name="missing_resources_open">Åben <xliff:g id="google_play">Google Play</xliff:g> Store</string>
+    <string name="missing_resources_quit">Luk <xliff:g id="muzei_name">Muzei</xliff:g></string>
+    <string name="tasker_setting_dialog_title">Vælg handling</string>
+    <string name="tasker_action_select_provider">Vælg <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g></string>
+    <string name="gestures_title">Bevægelser</string>
+    <string name="gestures_double_tap_title">Dobbelttryk</string>
+    <string name="gestures_three_finger_tap_title">Trefingertryk</string>
+    <string name="gestures_tap_action_next">Næste kunstværk</string>
+    <string name="gestures_tap_action_view_details">Vis detajler om kunstværk</string>
+    <string name="gestures_tap_action_none">Ingen</string>
+    <string name="about_title">Om <xliff:g id="muzei_name">Muzei</xliff:g></string>
+    <string name="about_version_template">v<xliff:g id="version_number" example="3.3.0 Beta">%1$s</xliff:g></string>
+    <string name="app_author"><xliff:g id="roman_nurik">Roman Nurik</xliff:g> og <xliff:g id="ian_lake">Ian Lake</xliff:g></string>
+</resources>

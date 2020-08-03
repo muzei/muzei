@@ -14,4 +14,6 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources></resources>
+<resources>
+    <string name="legacy_source_warning_message">Hay errores previamente conocidos relacionados con las Fuentes Antiguas en tu dispositivo. Debes desactivar las Optimizaciones de la batería en cualquier Fuente Antigua que selecciones para asegurar que esta pueda cargar imágenes de fondo. Esto puede ocasionar un desgaste de batería adicional.\n\n Además, las Fuentes Antiguas cargan imágenes en su propio horario y no usan el Avance Automático. Esto puede ocasionar un mayor uso de datos móviles, sí la Fuente Antigua no tiene su propia configuración de uso de WiFi.</string>
+</resources>

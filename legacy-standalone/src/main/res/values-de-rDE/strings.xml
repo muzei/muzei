@@ -15,6 +15,9 @@
   limitations under the License.
   -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="legacy_app_name"><xliff:g id="muzei_name">Muzei</xliff:g> Veraltet</string>
+    <string name="legacy_source_provider_name">Veraltete Quellen</string>
+    <string name="legacy_source_warning_title">Veraltete Quelle aktivieren?</string>
     <string name="legacy_source_warning_learn_more">Weitere Informationen</string>
     <string name="legacy_source_warning_negative">Abbrechen</string>
     <string name="legacy_source_selection_done">Fertig</string>

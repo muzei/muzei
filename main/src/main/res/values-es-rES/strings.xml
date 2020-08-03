@@ -15,6 +15,7 @@
   limitations under the License.
   -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_description"><xliff:g id="muzei_name">Muzei</xliff:g> Fondo de Pantalla Animado</string>
     <string name="settings_home_screen_title">Pantalla de Inicio</string>
     <string name="settings_lock_screen_title">Pantalla de Bloqueo</string>
     <string name="settings_blur_amount_title">Desenfoque</string>
@@ -29,6 +30,7 @@
     <string name="notification_settings_moved_text">Revisa tus ajustes de notificación</string>
     <string name="auto_advance_settings">Ajustes de Avance Automático</string>
     <string name="auto_advance_disabled">Avance automático desactivado</string>
+    <string name="auto_advance_disabled_description">Las Fuentes Antiguas manejan su propio tiempo de carga y no son compatibles con el avance automático</string>
     <string name="auto_advance_title">Avance Automático</string>
     <string name="auto_advance_wifi">Avance automático sólo en Wi-Fi</string>
     <string name="auto_advance_interval">Intervalo</string>

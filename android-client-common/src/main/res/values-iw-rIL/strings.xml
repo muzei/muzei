@@ -14,4 +14,6 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources></resources>
+<resources>
+    <string name="error_view_details">לא ניתן לראות את פרטי היצירה.</string>
+</resources>

@@ -14,4 +14,21 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="legacy_app_name"><xliff:g id="muzei_name">Muzei</xliff:g> ישן</string>
+    <string name="legacy_source_provider_name">מקורות ישנים</string>
+    <string name="legacy_source_warning_title">הפעלת מקור ישן?</string>
+    <string name="legacy_source_warning_message">מקורות ישנים נטענים בתזמון משלהם ולא משתמשים בהתקדמות אוטומטית. זה עלול להוביל לצריכת נתונים נוספת אם למקור הישן אין הגדרת WiFi בלבד משלו.</string>
+    <string name="legacy_source_warning_positive">המשך</string>
+    <string name="legacy_source_warning_learn_more">מידע נוסף</string>
+    <string name="legacy_source_warning_negative">ביטול</string>
+    <string name="legacy_source_settings">התאמה אישית למקור</string>
+    <string name="legacy_source_selection_done">סיום</string>
+    <string name="legacy_action_next_artwork">יצירה הבאה</string>
+    <string name="legacy_source_unavailable">המקור הנבחר לא זמין. מעבר למקור ברירת מחדל.</string>
+    <string name="legacy_source_target_too_high_title">המקור מנוטרל</string>
+    <string name="legacy_source_target_too_high_message"><xliff:g id="source_name" example="רקעים נחמדים">%s</xliff:g> אינם נתמכים על ידי ה-API של <xliff:g id="muzei_name">Muzei</xliff:g>. כדי להשתמש במקור זה, המפתחים נדרשים לשנות את ה-<xliff:g id="targetSdkVersion">targetSdkVersion</xliff:g> ל-25 ומטה.</string>
+    <string name="legacy_source_target_too_high_send_feedback">שליחת משוב ל- <xliff:g id="source_name" example="רקעים נחמדים">%s</xliff:g></string>
+    <string name="legacy_source_target_too_high_learn_more">מידע נוסף</string>
+    <string name="legacy_source_target_too_high_dismiss">הבנתי</string>
+</resources>
