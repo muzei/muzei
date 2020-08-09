@@ -266,9 +266,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         }
 
         override fun onDestroy() {
-            if (!isPreview) {
-                lifecycle.removeObserver(this)
-            }
+            wallpaperLifecycle.removeObserver(this)
             engineLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
             queueEvent {
                 renderer.destroy()
