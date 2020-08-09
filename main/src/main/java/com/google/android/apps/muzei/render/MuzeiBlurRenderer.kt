@@ -104,6 +104,8 @@ class MuzeiBlurRenderer(
 
     @Volatile
     private var normalOffsetX: Float = 0f
+    @Volatile
+    private var zoomAmount: Float = 0f
     private val currentViewport = RectF() // [-1, -1] to [1, 1], flipped
 
     var isBlurred = true
@@ -124,6 +126,7 @@ class MuzeiBlurRenderer(
         currentGLPictureSet = GLPictureSet(0)
         nextGLPictureSet = GLPictureSet(1) // for transitioning to next pictures
         setNormalOffsetX(0f)
+        setZoom(0f)
         recomputeMaxPrescaledBlurPixels()
         recomputeMaxDimAmount()
         recomputeGreyAmount()
@@ -244,6 +247,11 @@ class MuzeiBlurRenderer(
     @Keep
     fun setNormalOffsetX(x: Float) {
         normalOffsetX = x.constrain(0f, 1f)
+        onViewportChanged()
+    }
+
+    fun setZoom(zoom: Float) {
+        zoomAmount = 1f + zoom.constrain(0f, 1f) / 5f
         onViewportChanged()
     }
 
@@ -423,7 +431,7 @@ class MuzeiBlurRenderer(
             }
 
             // Ensure the bitmap is as wide as the screen by applying zoom if necessary
-            val zoom = max(1f, screenToBitmapAspectRatio)
+            val zoom = max(1f, screenToBitmapAspectRatio) * zoomAmount
 
             // Total scale factors in both zoom and scale due to aspect ratio.
             val scaledBitmapToScreenAspectRatio = zoom / screenToBitmapAspectRatio
