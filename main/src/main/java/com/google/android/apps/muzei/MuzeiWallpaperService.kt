@@ -219,6 +219,9 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                 renderController.onLockScreen = isEffectsLockScreenOpen
             }.launchWhenStartedIn(this)
             ArtDetailOpen.onEach { isArtDetailOpened ->
+                if (isArtDetailOpened) {
+                    renderer.setZoom(0f)
+                }
                 cancelDelayedBlur()
                 queueEvent { renderer.setIsBlurred(!isArtDetailOpened, true) }
             }.launchWhenStartedIn(this)
@@ -294,6 +297,11 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             super.onOffsetsChanged(xOffset, yOffset, xOffsetStep, yOffsetStep, xPixelOffset,
                     yPixelOffset)
             renderer.setNormalOffsetX(xOffset)
+        }
+
+        override fun onZoomChanged(zoom: Float) {
+            super.onZoomChanged(zoom)
+            renderer.setZoom(zoom)
         }
 
         override fun onCommand(
