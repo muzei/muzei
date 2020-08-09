@@ -295,7 +295,7 @@ class GallerySettingsActivity : AppCompatActivity(),
         viewModel.chosenPhotos.onEach {
             chosenPhotosAdapter.submitData(it)
         }.launchWhenStartedIn(this)
-        chosenPhotosAdapter.dataRefreshFlow.onEach {
+        chosenPhotosAdapter.loadStateFlow.onEach {
             onDataSetChanged()
         }.launchWhenStartedIn(this)
         getContentActivitiesLiveData.observe(this) { invalidateOptionsMenu() }
