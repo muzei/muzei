@@ -254,8 +254,9 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
                     animateChromeVisibility(showChrome)
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    val scope = viewLifecycleOwner.lifecycleScope
                     setOnLongClickListener {
-                        lifecycleScope.launch {
+                        scope.launch {
                             showWidgetPreview(requireContext().applicationContext)
                         }
                         true
