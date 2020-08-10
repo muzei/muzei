@@ -129,8 +129,8 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
     }
 
     override fun onDestroy() {
-        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         super.onDestroy()
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     }
 
     private inner class Engine : CanvasWatchFaceService.Engine() {
