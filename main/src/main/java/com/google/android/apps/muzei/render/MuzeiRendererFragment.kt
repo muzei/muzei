@@ -156,7 +156,7 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
 
     private inner class MuzeiView(context: Context) : GLTextureView(context) {
         private val renderer = MuzeiBlurRenderer(getContext(), this@MuzeiRendererFragment, demoMode)
-        internal val renderController: RenderController
+        val renderController: RenderController
 
         init {
             setEGLContextClientVersion(2)

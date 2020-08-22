@@ -33,7 +33,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.get
 import androidx.lifecycle.liveData
-import androidx.lifecycle.observe
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil

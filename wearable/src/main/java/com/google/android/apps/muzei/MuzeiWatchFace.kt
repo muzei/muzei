@@ -50,7 +50,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.observe
 import androidx.preference.PreferenceManager
 import com.google.android.apps.muzei.complications.ArtworkComplicationProviderService
 import com.google.android.apps.muzei.datalayer.ActivateMuzeiReceiver
@@ -134,42 +133,42 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
     }
 
     private inner class Engine : CanvasWatchFaceService.Engine() {
-        internal val timeZoneReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        val timeZoneReceiver: BroadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 calendar.timeZone = TimeZone.getDefault()
                 invalidate()
             }
         }
-        internal val localeChangedReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        val localeChangedReceiver: BroadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 recomputeDateFormat()
                 invalidate()
             }
         }
 
-        internal var registeredTimeZoneReceiver = false
-        internal var registeredLocaleChangedReceiver = false
-        internal val backgroundPaint: Paint = Paint().apply {
+        var registeredTimeZoneReceiver = false
+        var registeredLocaleChangedReceiver = false
+        val backgroundPaint: Paint = Paint().apply {
             color = Color.BLACK
         }
-        internal val heavyTypeface: Typeface? by lazy {
+        val heavyTypeface: Typeface? by lazy {
             ResourcesCompat.getFont(this@MuzeiWatchFace, R.font.nunito_clock_bold)
         }
-        internal val lightTypeface: Typeface? by lazy {
+        val lightTypeface: Typeface? by lazy {
             ResourcesCompat.getFont(this@MuzeiWatchFace, R.font.nunito_clock_regular)
         }
         val densityMultiplier = resources.displayMetrics.density
-        internal lateinit var clockPaint: Paint
-        internal lateinit var clockAmbientShadowPaint: Paint
-        internal var clockTextHeight: Float = 0f
-        internal lateinit var datePaint: Paint
-        internal lateinit var dateAmbientShadowPaint: Paint
-        internal var dateTextHeight: Float = 0f
-        internal lateinit var timeFormat12h: SimpleDateFormat
-        internal lateinit var timeFormat24h: SimpleDateFormat
-        internal lateinit var dateFormat: SimpleDateFormat
-        internal var topComplication: ComplicationDrawable? = null
-        internal var bottomComplication: ComplicationDrawable? = null
+        lateinit var clockPaint: Paint
+        lateinit var clockAmbientShadowPaint: Paint
+        var clockTextHeight: Float = 0f
+        lateinit var datePaint: Paint
+        lateinit var dateAmbientShadowPaint: Paint
+        var dateTextHeight: Float = 0f
+        lateinit var timeFormat12h: SimpleDateFormat
+        lateinit var timeFormat24h: SimpleDateFormat
+        lateinit var dateFormat: SimpleDateFormat
+        var topComplication: ComplicationDrawable? = null
+        var bottomComplication: ComplicationDrawable? = null
         private val drawableCallback = object : Drawable.Callback {
             override fun invalidateDrawable(who: Drawable) {
                 invalidate()
@@ -185,7 +184,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
         /**
          * Handler to update the time periodically in interactive mode.
          */
-        internal val updateTimeHandler: Handler = @SuppressLint("HandlerLeak")
+        val updateTimeHandler: Handler = @SuppressLint("HandlerLeak")
         object : Handler(Looper.getMainLooper()) {
             override fun handleMessage(message: Message) {
                 when (message.what) {
@@ -200,30 +199,30 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                 }
             }
         }
-        internal var backgroundScaledBlurredBitmap: Bitmap? = null
-        internal var backgroundScaledBitmap: Bitmap? = null
-        internal var backgroundBitmap: Bitmap? = null
-        internal val clockMargin: Float by lazy {
+        var backgroundScaledBlurredBitmap: Bitmap? = null
+        var backgroundScaledBitmap: Bitmap? = null
+        var backgroundBitmap: Bitmap? = null
+        val clockMargin: Float by lazy {
             resources.getDimension(R.dimen.clock_margin)
         }
-        internal val dateMinAvailableMargin: Float by lazy {
+        val dateMinAvailableMargin: Float by lazy {
             resources.getDimension(R.dimen.date_min_available_margin)
         }
-        internal val complicationMaxHeight: Float by lazy {
+        val complicationMaxHeight: Float by lazy {
             resources.getDimension(R.dimen.complication_max_height)
         }
-        internal var ambient: Boolean = false
-        internal val calendar: Calendar = Calendar.getInstance()
-        internal var cardBounds = Rect()
-        internal var currentWidth = 0
-        internal var currentHeight = 0
+        var ambient: Boolean = false
+        val calendar: Calendar = Calendar.getInstance()
+        var cardBounds = Rect()
+        var currentWidth = 0
+        var currentHeight = 0
         /**
          * Whether the display supports fewer bits for each color in ambient mode. When true, we
          * disable anti-aliasing in ambient mode.
          */
-        internal var lowBitAmbient: Boolean = false
-        internal lateinit var tapAction: String
-        internal var blurred: Boolean = false
+        var lowBitAmbient: Boolean = false
+        lateinit var tapAction: String
+        var blurred: Boolean = false
 
         private suspend fun loadImage(artwork: Artwork?) {
             if (BuildConfig.DEBUG) {

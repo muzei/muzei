@@ -185,7 +185,7 @@ class AnimatedMuzeiLogoView @JvmOverloads constructor(context: Context, attrs: A
     }
 
     private data class GlyphData(val path: Path, val paint: Paint) {
-        internal val length: Float
+        val length: Float
 
         init {
             val pm = PathMeasure(path, true)

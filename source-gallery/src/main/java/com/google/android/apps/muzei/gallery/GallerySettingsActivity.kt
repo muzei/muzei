@@ -57,7 +57,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.observe
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DefaultItemAnimator
@@ -618,7 +617,7 @@ class GallerySettingsActivity : AppCompatActivity(),
                 binding.thumbnail4)
     }
 
-    private inner class GalleryAdapter internal constructor() : PagingDataAdapter<ChosenPhoto, PhotoViewHolder>(CHOSEN_PHOTO_DIFF_CALLBACK) {
+    private inner class GalleryAdapter : PagingDataAdapter<ChosenPhoto, PhotoViewHolder>(CHOSEN_PHOTO_DIFF_CALLBACK) {
         private val handler by lazy { Handler(Looper.getMainLooper()) }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoViewHolder {

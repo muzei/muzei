@@ -230,7 +230,7 @@ abstract class MuzeiDatabase : RoomDatabase() {
          * Skip directly from version 6 to 8, avoiding the intermediate database version
          * 7 which used the provider's ComponentName as the key.
          */
-        private class Migration6to8 internal constructor(private val context: Context) : Migration(6, 8) {
+        private class Migration6to8(private val context: Context) : Migration(6, 8) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 // Handle Provider
                 database.execSQL("CREATE TABLE provider ("
@@ -294,7 +294,7 @@ abstract class MuzeiDatabase : RoomDatabase() {
          * Handle the migration from the intermediate database version 7, which
          * used the ComponentName of the provider as the unique key
          */
-        private class Migration7to8 internal constructor(private val context: Context) :
+        private class Migration7to8(private val context: Context) :
                 Migration(7, 8) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 // Handle Provider

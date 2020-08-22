@@ -335,7 +335,7 @@ class SourceSettingsActivity : AppCompatActivity() {
         }
     }
 
-    internal inner class SourceView(var source: Source) {
+    internal class SourceView(var source: Source) {
         lateinit var icon: Drawable
 
         fun toCharSequence() = buildSpannedString {

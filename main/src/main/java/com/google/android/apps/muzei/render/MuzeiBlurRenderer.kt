@@ -313,15 +313,15 @@ class MuzeiBlurRenderer(
         callbacks.requestRender()
     }
 
-    private inner class GLPictureSet internal constructor(internal val id: Int) {
+    private inner class GLPictureSet(val id: Int) {
         private val projectionMatrix = FloatArray(16)
         private val mvpMatrix = FloatArray(16)
         private val pictures = arrayOfNulls<GLPicture>(blurKeyframes + 1)
         private var hasBitmap = false
         private var bitmapAspectRatio = 1f
-        internal var dimAmount = 0
+        var dimAmount = 0
 
-        internal fun load(imageLoader: ImageLoader) {
+        fun load(imageLoader: ImageLoader) {
             val (width, height) = imageLoader.getSize()
             hasBitmap = width != 0 && height != 0
             bitmapAspectRatio = if (hasBitmap)
@@ -424,7 +424,7 @@ class MuzeiBlurRenderer(
             callbacks.requestRender()
         }
 
-        internal fun recomputeTransformMatrices() {
+        fun recomputeTransformMatrices() {
             val screenToBitmapAspectRatio = aspectRatio / bitmapAspectRatio
             if (screenToBitmapAspectRatio == 0f) {
                 return
@@ -492,7 +492,7 @@ class MuzeiBlurRenderer(
                     1f, 10f)
         }
 
-        internal fun drawFrame(globalAlpha: Float) {
+        fun drawFrame(globalAlpha: Float) {
             if (!hasBitmap) {
                 return
             }
@@ -546,7 +546,7 @@ class MuzeiBlurRenderer(
             }
         }
 
-        internal fun destroyPictures() {
+        fun destroyPictures() {
             for (i in pictures.indices) {
                 if (pictures[i] != null) {
                     pictures[i]?.destroy()

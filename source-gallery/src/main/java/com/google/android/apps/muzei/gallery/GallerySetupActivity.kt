@@ -30,7 +30,6 @@ import androidx.activity.result.contract.ActivityResultContracts.StartActivityFo
 import androidx.activity.result.launch
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.observe
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 
 private val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
