@@ -72,7 +72,7 @@ class GalleryImportPhotosDialogFragment : DialogFragment() {
         }
     }
 
-    interface OnRequestContentListener {
+    fun interface OnRequestContentListener {
         fun requestGetContent(info: ActivityInfo)
     }
 }

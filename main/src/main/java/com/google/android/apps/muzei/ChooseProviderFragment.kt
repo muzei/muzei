@@ -516,7 +516,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
     }
 
 
-    interface Callbacks {
+    fun interface Callbacks {
         fun onRequestCloseActivity()
     }
 }

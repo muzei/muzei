@@ -83,7 +83,7 @@ class MultiSelectionController(
         return selection.contains(item)
     }
 
-    interface Callbacks {
+    fun interface Callbacks {
         fun onSelectionChanged(restored: Boolean, fromUser: Boolean)
     }
 }

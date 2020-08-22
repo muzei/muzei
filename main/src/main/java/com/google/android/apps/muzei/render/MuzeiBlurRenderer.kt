@@ -578,7 +578,7 @@ class MuzeiBlurRenderer(
         callbacks.requestRender()
     }
 
-    interface Callbacks {
+    fun interface Callbacks {
         fun requestRender()
     }
 }
