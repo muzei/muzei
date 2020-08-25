@@ -66,26 +66,38 @@ class MuzeiActivity : AppCompatActivity() {
             return when {
                 WallpaperActiveState.value && seenTutorial -> {
                     // The wallpaper is active and they've seen the tutorial
-                    Firebase.analytics.setCurrentScreen(this, "Main",
-                            MainFragment::class.java.simpleName)
+                    Firebase.analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW) {
+                        param(FirebaseAnalytics.Param.SCREEN_NAME, "Main")
+                        param(FirebaseAnalytics.Param.SCREEN_CLASS,
+                                MainFragment::class.java.simpleName)
+                    }
                     MainFragment()
                 }
                 WallpaperActiveState.value && !seenTutorial -> {
                     // They need to see the tutorial after activating Muzei for the first time
-                    Firebase.analytics.setCurrentScreen(this, "Tutorial",
-                            TutorialFragment::class.java.simpleName)
+                    Firebase.analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW) {
+                        param(FirebaseAnalytics.Param.SCREEN_NAME, "Tutorial")
+                        param(FirebaseAnalytics.Param.SCREEN_CLASS,
+                                TutorialFragment::class.java.simpleName)
+                    }
                     TutorialFragment()
                 }
                 isPreviewMode -> {
                     // We're previewing the wallpaper and want to adjust its settings
-                    Firebase.analytics.setCurrentScreen(this, "Effects",
-                            EffectsFragment::class.java.simpleName)
+                    Firebase.analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW) {
+                        param(FirebaseAnalytics.Param.SCREEN_NAME, "Effects")
+                        param(FirebaseAnalytics.Param.SCREEN_CLASS,
+                                EffectsFragment::class.java.simpleName)
+                    }
                     EffectsFragment()
                 }
                 else -> {
                     // Show the intro fragment to have them activate Muzei
-                    Firebase.analytics.setCurrentScreen(this, "Intro",
-                            IntroFragment::class.java.simpleName)
+                    Firebase.analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW) {
+                        param(FirebaseAnalytics.Param.SCREEN_NAME, "Intro")
+                        param(FirebaseAnalytics.Param.SCREEN_CLASS,
+                                IntroFragment::class.java.simpleName)
+                    }
                     IntroFragment()
                 }
             }.also {

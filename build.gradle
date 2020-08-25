@@ -30,7 +30,7 @@ buildscript {
         dokkaVersion = '0.10.0'
         drawerLayoutVersion = '1.1.0'
         exifInterfaceVersion = '1.2.0'
-        firebaseAnalyticsVersion = '17.4.4'
+        firebaseAnalyticsVersion = '17.5.0'
         firebaseCrashlyticsVersion = '17.1.1'
         firebasePerfVersion = '19.0.8'
         fragmentVersion = '1.3.0-alpha07'
