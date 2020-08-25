@@ -29,8 +29,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import coil.api.load
-import coil.bitmappool.BitmapPool
+import coil.bitmap.BitmapPool
+import coil.load
 import coil.size.Size
 import coil.transform.Transformation
 import com.google.android.apps.muzei.settings.EffectsLockScreenOpen

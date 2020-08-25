@@ -49,7 +49,7 @@ import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import coil.api.load
+import coil.load
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
@@ -335,14 +335,12 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
 
         fun setImage(providerInfo: ProviderInfo) = providerInfo.run {
             binding.artwork.isVisible = currentArtworkUri != null
-            if (currentArtworkUri != null) {
-                binding.artwork.load(currentArtworkUri) {
-                    lifecycle(viewLifecycleOwner)
-                    listener(
-                            onError = { _, _ -> binding.artwork.isVisible = false },
-                            onSuccess = { _, _ -> binding.artwork.isVisible = true }
-                    )
-                }
+            binding.artwork.load(currentArtworkUri) {
+                lifecycle(viewLifecycleOwner)
+                listener(
+                        onError = { _, _ -> binding.artwork.isVisible = false },
+                        onSuccess = { _, _ -> binding.artwork.isVisible = true }
+                )
             }
         }
 

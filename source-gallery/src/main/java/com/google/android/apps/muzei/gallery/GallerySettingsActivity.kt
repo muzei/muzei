@@ -63,7 +63,8 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import coil.api.load
+import coil.clear
+import coil.load
 import com.google.android.apps.muzei.gallery.databinding.GalleryActivityBinding
 import com.google.android.apps.muzei.gallery.databinding.GalleryChosenPhotoItemBinding
 import com.google.android.apps.muzei.util.MultiSelectionController
@@ -669,6 +670,7 @@ class GallerySettingsActivity : AppCompatActivity(),
                 // Show either just the one image or all the images even if
                 // they are just placeholders
                 thumbView.visibility = if (numImages <= 1) View.GONE else View.VISIBLE
+                thumbView.clear()
                 thumbView.setImageDrawable(placeholderDrawable)
             }
             val checked = multiSelectionController.isSelected(chosenPhoto.id)

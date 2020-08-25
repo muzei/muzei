@@ -32,7 +32,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.widget.RoundedDrawable
-import coil.api.load
+import coil.load
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import net.nurik.roman.muzei.R
