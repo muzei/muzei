@@ -19,11 +19,15 @@ package com.google.android.apps.muzei
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
+import androidx.annotation.experimental.UseExperimental
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentStateManagerControl
 import androidx.multidex.MultiDexApplication
 import com.google.android.apps.muzei.settings.Prefs
 
+@UseExperimental(markerClass = FragmentStateManagerControl::class)
 class MuzeiApplication : MultiDexApplication(), SharedPreferences.OnSharedPreferenceChangeListener {
 
     companion object {
@@ -37,6 +41,10 @@ class MuzeiApplication : MultiDexApplication(), SharedPreferences.OnSharedPrefer
 
         fun getAlwaysDark(context: Context) =
                 Prefs.getSharedPreferences(context).getBoolean(ALWAYS_DARK_KEY, false)
+    }
+
+    init {
+        FragmentManager.enableNewStateManager(false)
     }
 
     override fun onCreate() {
