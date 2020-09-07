@@ -267,13 +267,13 @@ class MuzeiBlurRenderer(
         return maxPrescaledBlurPixels * blurInterpolator.getInterpolation(f / blurKeyframes)
     }
 
-    fun setAndConsumeImageLoader(imageLoader: ImageLoader) {
+    fun setAndConsumeImageLoader(imageLoader: ImageLoader, immediate: Boolean = false) {
         if (!surfaceCreated) {
             queuedNextImageLoader = imageLoader
             return
         }
 
-        if (crossfadeAnimator.isRunning) {
+        if (crossfadeAnimator.isRunning && !immediate) {
             queuedNextImageLoader = imageLoader
             return
         }
@@ -293,7 +293,7 @@ class MuzeiBlurRenderer(
 
         nextGLPictureSet.load(imageLoader)
 
-        crossfadeAnimator.start(0, 1) {
+        crossfadeAnimator.start(if (immediate) 1 else 0, 1) {
             // swap current and next picturesets
             val oldGLPictureSet = currentGLPictureSet
             currentGLPictureSet = nextGLPictureSet

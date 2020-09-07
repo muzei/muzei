@@ -58,7 +58,8 @@ abstract class RenderController(
                         if (value) Prefs.PREF_LOCK_DIM_AMOUNT else Prefs.PREF_DIM_AMOUNT)
                 renderer.recomputeGreyAmount(
                         if (value) Prefs.PREF_LOCK_GREY_AMOUNT else Prefs.PREF_GREY_AMOUNT)
-                reloadCurrentArtwork()
+                // Switch immediately if we're transitioning to the lock screen
+                reloadCurrentArtwork(immediate = value)
             }
         }
     private lateinit var coroutineScope: CoroutineScope
@@ -125,7 +126,7 @@ abstract class RenderController(
 
     protected abstract suspend fun openDownloadedCurrentArtwork(): ImageLoader
 
-    fun reloadCurrentArtwork() {
+    fun reloadCurrentArtwork(immediate: Boolean = false) {
         if (destroyed) {
             // Don't reload artwork for destroyed RenderControllers
             return
@@ -134,8 +135,8 @@ abstract class RenderController(
             val imageLoader = openDownloadedCurrentArtwork()
 
             callbacks.queueEventOnGlThread {
-                if (visible) {
-                    renderer.setAndConsumeImageLoader(imageLoader)
+                if (visible || immediate) {
+                    renderer.setAndConsumeImageLoader(imageLoader, immediate)
                 } else {
                     queuedImageLoader = imageLoader
                 }
