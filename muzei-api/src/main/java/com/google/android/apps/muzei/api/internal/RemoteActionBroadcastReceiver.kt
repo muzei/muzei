@@ -37,8 +37,8 @@ import com.google.android.apps.muzei.api.provider.ProviderContract
  * [com.google.android.apps.muzei.api.provider.MuzeiArtProvider.getCommandActions].
  */
 @RequiresApi(Build.VERSION_CODES.KITKAT)
-class RemoteActionBroadcastReceiver : BroadcastReceiver() {
-    companion object {
+public class RemoteActionBroadcastReceiver : BroadcastReceiver() {
+    public companion object {
         /**
          * Construct a [PendingIntent] suitable for passing to
          * [androidx.core.app.RemoteActionCompat] that will trigger the
@@ -52,7 +52,7 @@ class RemoteActionBroadcastReceiver : BroadcastReceiver() {
          * through the inefficiency of starting this receiver just to trigger
          * your [com.google.android.apps.muzei.api.provider.MuzeiArtProvider].
          */
-        fun createPendingIntent(
+        public fun createPendingIntent(
                 context: Context,
                 authority: String,
                 artworkId: Long,

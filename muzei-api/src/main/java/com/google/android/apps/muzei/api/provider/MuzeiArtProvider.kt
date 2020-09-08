@@ -212,9 +212,9 @@ import java.util.HashSet
  * @constructor Constructs a `MuzeiArtProvider`.
  */
 @RequiresApi(Build.VERSION_CODES.KITKAT)
-abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
+public abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
 
-    companion object {
+    public companion object {
         private const val TAG = "MuzeiArtProvider"
         private const val MAX_RECENT_ARTWORK = 100
         /**
@@ -224,13 +224,13 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
          * This is a signature permission that only Muzei can hold.
          */
         @Suppress("unused")
-        const val ACCESS_PERMISSION = "com.google.android.apps.muzei.api.ACCESS_PROVIDER"
+        public const val ACCESS_PERMISSION: String = "com.google.android.apps.muzei.api.ACCESS_PROVIDER"
         /**
          * The [Intent] action representing a Muzei art provider. This provider should
          * declare an `<intent-filter>` for this action in order to register with
          * Muzei.
          */
-        const val ACTION_MUZEI_ART_PROVIDER = "com.google.android.apps.muzei.api.MuzeiArtProvider"
+        public const val ACTION_MUZEI_ART_PROVIDER: String = "com.google.android.apps.muzei.api.MuzeiArtProvider"
         /**
          * Boolean extra that will be set to true when Muzei starts provider settings and setup
          * activities.
@@ -238,7 +238,7 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
          * Check for this extra in your activity if you need to adjust your UI depending on
          * whether or not the user came from Muzei.
          */
-        const val EXTRA_FROM_MUZEI = "com.google.android.apps.muzei.api.extra.FROM_MUZEI_SETTINGS"
+        public const val EXTRA_FROM_MUZEI: String = "com.google.android.apps.muzei.api.extra.FROM_MUZEI_SETTINGS"
         private const val PREF_MAX_LOADED_ARTWORK_ID = "maxLoadedArtworkId"
         private const val PREF_LAST_LOADED_TIME = "lastLoadTime"
         private const val PREF_RECENT_ARTWORK_IDS = "recentArtworkIds"
@@ -507,7 +507,7 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
      * @param initial true when there is no artwork available, such as is the case when this is
      * the initial load of this MuzeiArtProvider.
      */
-    abstract fun onLoadRequested(initial: Boolean)
+    public abstract fun onLoadRequested(initial: Boolean)
 
     /**
      * Called when Muzei failed to load the given artwork, usually due to an incompatibility
@@ -519,7 +519,7 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
      *
      * @param artwork Artwork that Muzei has failed to load
      */
-    open fun onInvalidArtwork(artwork: Artwork) {
+    public open fun onInvalidArtwork(artwork: Artwork) {
         val artworkUri = ContentUris.withAppendedId(contentUri, artwork.id)
         delete(artworkUri, null, null)
     }
@@ -531,7 +531,7 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
      *
      * @return A longer description to be displayed alongside the label of the provider.
      */
-    open fun getDescription(): String {
+    public open fun getDescription(): String {
         val context = context ?: return ""
         return try {
             @SuppressLint("InlinedApi")
@@ -556,7 +556,7 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
             "that should be triggered. This method will still be called on devices that " +
             "have an older version of Muzei installed.",
             replaceWith = ReplaceWith("getCommandActions(artwork)"))
-    open fun getCommands(artwork: Artwork): List<UserCommand> {
+    public open fun getCommands(artwork: Artwork): List<UserCommand> {
         return ArrayList()
     }
 
@@ -571,7 +571,7 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
     @Deprecated("Provide your own PendingIntent for each RemoteActionCompat returned " +
             "by getCommandActions(). This method will still be called on devices that " +
             "have an older version of Muzei installed if you continue to override getCommands().")
-    open fun onCommand(artwork: Artwork, id: Int) {
+    public open fun onCommand(artwork: Artwork, id: Int) {
     }
 
     /**
@@ -588,7 +588,7 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
      * commands.
      * @return A List of [commands][RemoteActionCompat] that the user can trigger.
      */
-    open fun getCommandActions(artwork: Artwork) : List<RemoteActionCompat> {
+    public open fun getCommandActions(artwork: Artwork) : List<RemoteActionCompat> {
         val context = context ?: return listOf()
         return getCommands(artwork).map { command ->
             RemoteActionCompat(
@@ -613,7 +613,7 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
     @Deprecated("Override getArtworkInfo to return a PendingIntent that starts " +
             "your artwork info. This method will still be called on devices that " +
             "have an older version of Muzei installed.")
-    open fun openArtworkInfo(artwork: Artwork): Boolean {
+    public open fun openArtworkInfo(artwork: Artwork): Boolean {
         val context = context ?: return false
         if (artwork.webUri != null) {
             try {
@@ -639,7 +639,7 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
      * @return A [PendingIntent] generally constructed with
      * [PendingIntent.getActivity].
      */
-    open fun getArtworkInfo(artwork: Artwork): PendingIntent? {
+    public open fun getArtworkInfo(artwork: Artwork): PendingIntent? {
         if (artwork.webUri != null && context != null) {
             val intent = Intent(Intent.ACTION_VIEW, artwork.webUri)
             return PendingIntent.getActivity(context, 0, intent, 0)
@@ -1016,7 +1016,7 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
      * @param artwork The Artwork to confirm
      * @return Whether the Artwork is valid and should be loaded
      */
-    open fun isArtworkValid(artwork: Artwork): Boolean {
+    public open fun isArtworkValid(artwork: Artwork): Boolean {
         return true
     }
 
@@ -1041,7 +1041,7 @@ abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
      * automatically.
      */
     @Throws(IOException::class)
-    open fun openFile(artwork: Artwork): InputStream {
+    public open fun openFile(artwork: Artwork): InputStream {
         val context = context ?: throw IOException()
         val persistentUri = artwork.persistentUri
                 ?: throw IllegalStateException("Got null persistent URI for $artwork. " +

@@ -22,14 +22,14 @@ import java.util.ArrayDeque
 /**
  * Save the given [ids] into [SharedPreferences] for later retrieval via [getRecentIds].
  */
-fun SharedPreferences.Editor.putRecentIds(key: String, ids: ArrayDeque<Long>) {
+public fun SharedPreferences.Editor.putRecentIds(key: String, ids: ArrayDeque<Long>) {
     putString(key, ids.joinToString(","))
 }
 
 /**
  * Gets the recent ids out of a [SharedPreferences].
  */
-fun SharedPreferences.getRecentIds(key: String): ArrayDeque<Long> {
+public fun SharedPreferences.getRecentIds(key: String): ArrayDeque<Long> {
     val idsString = getString(key, null) ?: ""
     return idsString.toRecentIds()
 }
@@ -37,7 +37,7 @@ fun SharedPreferences.getRecentIds(key: String): ArrayDeque<Long> {
 /**
  * Gets the recent ids out of a [Bundle].
  */
-fun Bundle.getRecentIds(key: String) = getString(key, "").toRecentIds()
+public fun Bundle.getRecentIds(key: String): ArrayDeque<Long> = getString(key, "").toRecentIds()
 
 private fun String.toRecentIds(): ArrayDeque<Long> {
     val ids = ArrayDeque<Long>()

@@ -19,30 +19,30 @@ package com.google.android.apps.muzei.api.internal
 /**
  * Internal intent constants for sources.
  */
-object ProtocolConstants {
+public object ProtocolConstants {
     private const val PREFIX = "com.google.android.apps.muzei.api."
-    const val METHOD_GET_VERSION = PREFIX + "GET_VERSION"
-    const val KEY_VERSION = PREFIX + "VERSION"
-    const val DEFAULT_VERSION = 310000
-    const val METHOD_REQUEST_LOAD = PREFIX + "REQUEST_LOAD"
-    const val METHOD_MARK_ARTWORK_INVALID = PREFIX + "MARK_ARTWORK_INVALID"
-    const val METHOD_MARK_ARTWORK_LOADED = PREFIX + "MARK_ARTWORK_LOADED"
-    const val METHOD_GET_LOAD_INFO = PREFIX + "GET_LOAD_INFO"
-    const val KEY_MAX_LOADED_ARTWORK_ID = PREFIX + "MAX_LOADED_ARTWORK_ID"
-    const val KEY_LAST_LOADED_TIME = PREFIX + "LAST_LOAD_TIME"
-    const val KEY_RECENT_ARTWORK_IDS = PREFIX + "RECENT_ARTWORK_IDS"
-    const val METHOD_GET_DESCRIPTION = PREFIX + "GET_DESCRIPTION"
-    const val KEY_DESCRIPTION = PREFIX + "DESCRIPTION"
-    const val METHOD_GET_COMMANDS = PREFIX + "GET_COMMANDS"
-    const val GET_COMMAND_ACTIONS_MIN_VERSION = 340000
-    const val KEY_COMMANDS = PREFIX + "COMMANDS"
-    const val METHOD_TRIGGER_COMMAND = PREFIX + "TRIGGER_COMMAND"
-    const val KEY_COMMAND_AUTHORITY = PREFIX + "AUTHORITY"
-    const val KEY_COMMAND_ARTWORK_ID = PREFIX + "ARTWORK_ID"
-    const val KEY_COMMAND = PREFIX + "COMMAND"
-    const val METHOD_OPEN_ARTWORK_INFO = PREFIX + "OPEN_ARTWORK_INFO"
-    const val KEY_OPEN_ARTWORK_INFO_SUCCESS = PREFIX + "ARTWORK_INFO_SUCCESS"
-    const val GET_ARTWORK_INFO_MIN_VERSION = 320000
-    const val METHOD_GET_ARTWORK_INFO = PREFIX + "GET_ARTWORK_INFO"
-    const val KEY_GET_ARTWORK_INFO = PREFIX + "ARTWORK_INFO"
+    public const val METHOD_GET_VERSION: String = PREFIX + "GET_VERSION"
+    public const val KEY_VERSION: String = PREFIX + "VERSION"
+    public const val DEFAULT_VERSION: Int = 310000
+    public const val METHOD_REQUEST_LOAD: String = PREFIX + "REQUEST_LOAD"
+    public const val METHOD_MARK_ARTWORK_INVALID: String = PREFIX + "MARK_ARTWORK_INVALID"
+    public const val METHOD_MARK_ARTWORK_LOADED: String = PREFIX + "MARK_ARTWORK_LOADED"
+    public const val METHOD_GET_LOAD_INFO: String = PREFIX + "GET_LOAD_INFO"
+    public const val KEY_MAX_LOADED_ARTWORK_ID: String = PREFIX + "MAX_LOADED_ARTWORK_ID"
+    public const val KEY_LAST_LOADED_TIME: String = PREFIX + "LAST_LOAD_TIME"
+    public const val KEY_RECENT_ARTWORK_IDS: String = PREFIX + "RECENT_ARTWORK_IDS"
+    public const val METHOD_GET_DESCRIPTION: String = PREFIX + "GET_DESCRIPTION"
+    public const val KEY_DESCRIPTION: String = PREFIX + "DESCRIPTION"
+    public const val METHOD_GET_COMMANDS: String = PREFIX + "GET_COMMANDS"
+    public const val GET_COMMAND_ACTIONS_MIN_VERSION: Int = 340000
+    public const val KEY_COMMANDS: String = PREFIX + "COMMANDS"
+    public const val METHOD_TRIGGER_COMMAND: String = PREFIX + "TRIGGER_COMMAND"
+    public const val KEY_COMMAND_AUTHORITY: String = PREFIX + "AUTHORITY"
+    public const val KEY_COMMAND_ARTWORK_ID: String = PREFIX + "ARTWORK_ID"
+    public const val KEY_COMMAND: String = PREFIX + "COMMAND"
+    public const val METHOD_OPEN_ARTWORK_INFO: String = PREFIX + "OPEN_ARTWORK_INFO"
+    public const val KEY_OPEN_ARTWORK_INFO_SUCCESS: String = PREFIX + "ARTWORK_INFO_SUCCESS"
+    public const val GET_ARTWORK_INFO_MIN_VERSION: Int = 320000
+    public const val METHOD_GET_ARTWORK_INFO: String = PREFIX + "GET_ARTWORK_INFO"
+    public const val KEY_GET_ARTWORK_INFO: String = PREFIX + "ARTWORK_INFO"
 }

@@ -33,32 +33,32 @@ import java.util.Date
  *
  *  Instances of this should only be created by using [Artwork.fromCursor].
  */
-class Artwork private constructor(
+public class Artwork private constructor(
         /**
          * The authority of the [MuzeiArtProvider] providing this artwork.
          */
-        val providerAuthority: String,
+        public val providerAuthority: String,
         /**
          * When this artwork was added to Muzei.
          */
-        val dateAdded: Date,
+        public val dateAdded: Date,
         /**
          * The user-visible title of the artwork.
          */
-        val title: String?,
+        public val title: String?,
         /**
          * The user-visible byline, usually containing the author and date, of the artwork.
          *
          * This is generally used as a secondary source of information after the [title].
          */
-        val byline: String?,
+        public val byline: String?,
         /**
          * The user-visible attribution text of the artwork.
          *
          * This is generally used as a tertiary source of information after the
          * [title] and the [byline].
          */
-        val attribution: String?,
+        public val attribution: String?,
         /**
          * The image URI of the artwork.
          *
@@ -66,9 +66,9 @@ class Artwork private constructor(
          * [ContentResolver.openInputStream(CONTENT_URI)][ContentResolver.openInputStream]
          * to retrieve the already downloaded artwork.
          */
-        val imageUri: Uri?
+        public val imageUri: Uri?
 ) {
-    companion object {
+    public companion object {
 
         /**
          * Deserializes an artwork object from a [Cursor] retrieved from
@@ -80,7 +80,7 @@ class Artwork private constructor(
          * @return the artwork from the current position of the Cursor.
          */
         @JvmStatic
-        fun fromCursor(cursor: Cursor): Artwork {
+        public fun fromCursor(cursor: Cursor): Artwork {
             val componentNameColumnIndex = cursor.getColumnIndex(COLUMN_NAME_PROVIDER_AUTHORITY)
             val dateAddedColumnIndex = cursor.getColumnIndex(COLUMN_NAME_DATE_ADDED)
             val titleColumnIndex = cursor.getColumnIndex(COLUMN_NAME_TITLE)

@@ -102,9 +102,9 @@ import kotlin.math.max
  * @constructor Constructs a `MuzeiArtDocumentsProvider`.
  */
 @RequiresApi(Build.VERSION_CODES.KITKAT)
-open class MuzeiArtDocumentsProvider : DocumentsProvider() {
+public open class MuzeiArtDocumentsProvider : DocumentsProvider() {
 
-    companion object {
+    public companion object {
         private const val TAG = "MuzeiArtDocProvider"
         /**
          * Default root projection
@@ -135,7 +135,7 @@ open class MuzeiArtDocumentsProvider : DocumentsProvider() {
     /**
      * @suppress
      */
-    final override fun onCreate() = true
+    final override fun onCreate(): Boolean = true
 
     /**
      * @suppress
@@ -341,7 +341,7 @@ open class MuzeiArtDocumentsProvider : DocumentsProvider() {
     @Throws(FileNotFoundException::class)
     final override fun getDocumentType(
             documentId: String
-    ) = if (documentId.contains("/")) {
+    ): String = if (documentId.contains("/")) {
         "image/png"
     } else DocumentsContract.Document.MIME_TYPE_DIR
 

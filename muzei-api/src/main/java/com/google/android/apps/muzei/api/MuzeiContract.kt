@@ -40,16 +40,16 @@ import java.io.FileNotFoundException
  * Contract between Muzei and applications, containing the definitions for all supported URIs and
  * columns as well as helper methods to make it easier to work with the provided data.
  */
-object MuzeiContract {
+public object MuzeiContract {
     /**
      * Only Muzei can write to the Muzei ContentProvider - this is a signature permission that no
      * other app can hold.
      */
-    const val WRITE_PERMISSION = "com.google.android.apps.muzei.WRITE_PROVIDER"
+    public const val WRITE_PERMISSION: String = "com.google.android.apps.muzei.WRITE_PROVIDER"
     /**
      * Base authority for this content provider
      */
-    const val AUTHORITY = "com.google.android.apps.muzei"
+    public const val AUTHORITY: String = "com.google.android.apps.muzei"
     /**
      * The scheme part for this provider's URI
      */
@@ -104,18 +104,18 @@ object MuzeiContract {
      * No data is sent alongside the broadcast, but this can be used to kick off
      * background processing to retrieve the latest artwork or start other processing.
      */
-    object Artwork {
+    public object Artwork {
         /**
          * The unique ID of the Artwork, suitable for use with [ContentUris.withAppendedId].
          */
         @Suppress("unused", "ObjectPropertyName")
-        const val _ID = BaseColumns._ID
+        public const val _ID: String = BaseColumns._ID
         /**
          * Column name for the authority of the provider for this artwork.
          *
          * Type: TEXT
          */
-        const val COLUMN_NAME_PROVIDER_AUTHORITY = "sourceComponentName"
+        public const val COLUMN_NAME_PROVIDER_AUTHORITY: String = "sourceComponentName"
         /**
          * Column name of the artwork image URI. In almost all cases you should use
          * [ContentResolver.openInputStream(CONTENT_URI)][ContentResolver.openInputStream]
@@ -123,48 +123,48 @@ object MuzeiContract {
          *
          * Type: TEXT (URI)
          */
-        const val COLUMN_NAME_IMAGE_URI = "imageUri"
+        public const val COLUMN_NAME_IMAGE_URI: String = "imageUri"
         /**
          * Column name for the artwork's title.
          *
          * Type: TEXT
          */
-        const val COLUMN_NAME_TITLE = "title"
+        public const val COLUMN_NAME_TITLE: String = "title"
         /**
          * Column name for the artwork's byline (such as author and date).
          *
          * Type: TEXT
          */
-        const val COLUMN_NAME_BYLINE = "byline"
+        public const val COLUMN_NAME_BYLINE: String = "byline"
         /**
          * Column name for the artwork's attribution info.
          *
          * Type: TEXT
          */
-        const val COLUMN_NAME_ATTRIBUTION = "attribution"
+        public const val COLUMN_NAME_ATTRIBUTION: String = "attribution"
         /**
          * Column name for when this artwork was added.
          *
          * Type: LONG (in milliseconds)
          */
-        const val COLUMN_NAME_DATE_ADDED = "date_added"
+        public const val COLUMN_NAME_DATE_ADDED: String = "date_added"
         /**
          * The MIME type of [CONTENT_URI] providing artwork.
          */
-        const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.android.apps.muzei.artwork"
+        public const val CONTENT_TYPE: String = "vnd.android.cursor.dir/vnd.google.android.apps.muzei.artwork"
         /**
          * The MIME type of [CONTENT_URI] providing a single piece of artwork.
          */
-        const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.google.android.apps.muzei.artwork"
+        public const val CONTENT_ITEM_TYPE: String = "vnd.android.cursor.item/vnd.google.android.apps.muzei.artwork"
         /**
          * The default sort order for this table
          */
         @Suppress("unused")
-        const val DEFAULT_SORT_ORDER = "$COLUMN_NAME_DATE_ADDED DESC"
+        public const val DEFAULT_SORT_ORDER: String = "$COLUMN_NAME_DATE_ADDED DESC"
         /**
          * The table name offered by this provider.
          */
-        const val TABLE_NAME = "artwork"
+        public const val TABLE_NAME: String = "artwork"
 
         /**
          * The content:// style URL for this table. This is the main entry point for queries and for
@@ -179,7 +179,7 @@ object MuzeiContract {
         @JvmStatic
         @get:JvmName("getContentUri")
         @RequiresPermission.Write(RequiresPermission(WRITE_PERMISSION))
-        val CONTENT_URI: Uri = Uri.parse("$SCHEME$AUTHORITY/$TABLE_NAME")
+        public val CONTENT_URI: Uri = Uri.parse("$SCHEME$AUTHORITY/$TABLE_NAME")
         /**
          * Intent action that will be broadcast when the artwork is changed. This happens
          * immediately after the ContentProvider is updated with data and should be considered
@@ -188,7 +188,7 @@ object MuzeiContract {
         @Deprecated("This broadcast cannot be received on Build.VERSION_CODES.O " +
                 "and higher devices. Use WorkManager or JobScheduler to listen for " +
                 "artwork change events in the background on API 24+ devices.")
-        const val ACTION_ARTWORK_CHANGED = "com.google.android.apps.muzei.ACTION_ARTWORK_CHANGED"
+        public const val ACTION_ARTWORK_CHANGED: String = "com.google.android.apps.muzei.ACTION_ARTWORK_CHANGED"
 
         /**
          * Returns the current Muzei [Artwork][com.google.android.apps.muzei.api.Artwork].
@@ -199,7 +199,7 @@ object MuzeiContract {
          * or null if one could not be found.
          */
         @JvmStatic
-        fun getCurrentArtwork(context: Context): com.google.android.apps.muzei.api.Artwork? {
+        public fun getCurrentArtwork(context: Context): com.google.android.apps.muzei.api.Artwork? {
             val contentResolver = context.contentResolver
             return contentResolver.query(CONTENT_URI, null, null, null, null)?.use { cursor ->
                 if (cursor.moveToFirst()) {
@@ -226,7 +226,7 @@ object MuzeiContract {
         @JvmStatic
         @WorkerThread
         @Throws(FileNotFoundException::class)
-        fun getCurrentArtworkBitmap(context: Context): Bitmap? {
+        public fun getCurrentArtworkBitmap(context: Context): Bitmap? {
             check(Looper.myLooper() != Looper.getMainLooper()) {
                 "getCurrentArtworkBitmap cannot be called on the main thread"
             }
@@ -238,47 +238,47 @@ object MuzeiContract {
     /**
      * Constants and helper methods for the Sources table, providing access to sources' information.
      */
-    object Sources {
+    public object Sources {
         /**
          * The unique ID of the Source, suitable for use with [ContentUris.withAppendedId].
          */
         @Suppress("unused", "ObjectPropertyName")
-        const val _ID = BaseColumns._ID
+        public const val _ID: String = BaseColumns._ID
         /**
          * Column name for the authority of the provider for this artwork.
          *
          * Type: TEXT
          */
-        const val COLUMN_NAME_AUTHORITY = "component_name"
+        public const val COLUMN_NAME_AUTHORITY: String = "component_name"
         /**
          * Column name for the source's description.
          *
          * Type: TEXT
          */
-        const val COLUMN_NAME_DESCRIPTION = "description"
+        public const val COLUMN_NAME_DESCRIPTION: String = "description"
         /**
          * Column name for the flag indicating if the source supports a 'Next Artwork' action
          *
          * Type: INTEGER (boolean)
          */
-        const val COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND = "supports_next_artwork"
+        public const val COLUMN_NAME_SUPPORTS_NEXT_ARTWORK_COMMAND: String = "supports_next_artwork"
         /**
          * The MIME type of [CONTENT_URI] providing sources.
          */
-        const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.android.apps.muzei.source"
+        public const val CONTENT_TYPE: String = "vnd.android.cursor.dir/vnd.google.android.apps.muzei.source"
         /**
          * The MIME type of [CONTENT_URI] providing a single source.
          */
-        const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.google.android.apps.muzei.source"
+        public const val CONTENT_ITEM_TYPE: String = "vnd.android.cursor.item/vnd.google.android.apps.muzei.source"
         /**
          * The default sort order for this table
          */
         @Suppress("unused")
-        const val DEFAULT_SORT_ORDER = COLUMN_NAME_AUTHORITY
+        public const val DEFAULT_SORT_ORDER: String = COLUMN_NAME_AUTHORITY
         /**
          * The table name offered by this provider.
          */
-        const val TABLE_NAME = "sources"
+        public const val TABLE_NAME: String = "sources"
 
         /**
          * The content:// style URL for this table.
@@ -289,7 +289,7 @@ object MuzeiContract {
         @JvmStatic
         @get:JvmName("getContentUri")
         @RequiresPermission.Write(RequiresPermission(WRITE_PERMISSION))
-        val CONTENT_URI: Uri = Uri.parse("$SCHEME$AUTHORITY/$TABLE_NAME")
+        public val CONTENT_URI: Uri = Uri.parse("$SCHEME$AUTHORITY/$TABLE_NAME")
         /**
          * Intent action that will be broadcast when the source info is changed. This happens
          * immediately after the ContentProvider is updated with data and should be considered
@@ -298,7 +298,7 @@ object MuzeiContract {
         @Deprecated("This broadcast cannot be received on Build.VERSION_CODES.O " +
                 "and higher devices. Use WorkManager or JobScheduler to listen for " +
                 "source change events in the background on API 24+ devices.")
-        const val ACTION_SOURCE_CHANGED = "com.google.android.apps.muzei.ACTION_SOURCE_CHANGED"
+        public const val ACTION_SOURCE_CHANGED: String = "com.google.android.apps.muzei.ACTION_SOURCE_CHANGED"
 
         /**
          * Checks the [Sources] table provided by Muzei to determine whether the
@@ -309,7 +309,7 @@ object MuzeiContract {
          * `false`.
          */
         @JvmStatic
-        fun isProviderSelected(context: Context, authority: String) = context.contentResolver.query(
+        public fun isProviderSelected(context: Context, authority: String): Boolean = context.contentResolver.query(
                 CONTENT_URI, arrayOf(COLUMN_NAME_AUTHORITY),
                 "$COLUMN_NAME_AUTHORITY=?", arrayOf(authority),
                 null)?.use { data ->
@@ -342,7 +342,7 @@ object MuzeiContract {
          * install Muzei.
          */
         @JvmStatic
-        fun createChooseProviderIntent(authority: String): Intent = Intent(Intent.ACTION_VIEW)
+        public fun createChooseProviderIntent(authority: String): Intent = Intent(Intent.ACTION_VIEW)
                 .setData(Uri.parse(BuildConfig.CHOOSE_PROVIDER_URI_PREFIX + authority))
     }
 }
@@ -356,7 +356,7 @@ object MuzeiContract {
  * `false`.
  */
 @Suppress("unused")
-fun ProviderClient.isSelected(context: Context) =
+public fun ProviderClient.isSelected(context: Context): Boolean =
         MuzeiContract.Sources.isProviderSelected(context, contentUri.authority!!)
 
 /**
@@ -378,5 +378,5 @@ fun ProviderClient.isSelected(context: Context) =
  * install Muzei.
  */
 @Suppress("unused")
-fun ProviderClient.createChooseProviderIntent() =
+public fun ProviderClient.createChooseProviderIntent(): Intent =
         MuzeiContract.Sources.createChooseProviderIntent(contentUri.authority!!)

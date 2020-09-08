@@ -33,7 +33,7 @@ import java.util.ArrayList
  * Contract between Muzei and Muzei Art Providers, containing the definitions for all supported
  * URIs and columns as well as helper methods to make it easier to work with the provided data.
  */
-object ProviderContract {
+public object ProviderContract {
     /**
      * Retrieve the content URI for the given [MuzeiArtProvider], allowing you to build
      * custom queries, inserts, updates, and deletes using a [ContentResolver].
@@ -47,7 +47,7 @@ object ProviderContract {
      * @see MuzeiArtProvider.contentUri
      */
     @JvmStatic
-    fun getContentUri(authority: String): Uri {
+    public fun getContentUri(authority: String): Uri {
         return Uri.Builder()
                 .scheme(ContentResolver.SCHEME_CONTENT)
                 .authority(authority)
@@ -64,9 +64,10 @@ object ProviderContract {
      */
     @JvmStatic
     @RequiresApi(Build.VERSION_CODES.KITKAT)
-    fun getProviderClient(
+    public fun getProviderClient(
             context: Context,
-            provider: Class<out MuzeiArtProvider>): ProviderClient {
+            provider: Class<out MuzeiArtProvider>
+    ): ProviderClient {
         val componentName = ComponentName(context, provider)
         val pm = context.packageManager
         val authority: String
@@ -90,7 +91,7 @@ object ProviderContract {
      * @return a [ProviderClient] suitable for accessing the [MuzeiArtProvider].
      */
     @RequiresApi(Build.VERSION_CODES.KITKAT)
-    inline fun <reified Provider : MuzeiArtProvider> getProviderClient(
+    public inline fun <reified Provider : MuzeiArtProvider> getProviderClient(
             context: Context): ProviderClient {
         return getProviderClient(context, Provider::class.java)
     }
@@ -105,7 +106,7 @@ object ProviderContract {
      */
     @JvmStatic
     @RequiresApi(Build.VERSION_CODES.KITKAT)
-    fun getProviderClient(
+    public fun getProviderClient(
             context: Context,
             authority: String): ProviderClient {
         val contentUri = Uri.Builder()
@@ -211,12 +212,12 @@ object ProviderContract {
      * [Artwork][com.google.android.apps.muzei.api.provider.Artwork] associated
      * with a [MuzeiArtProvider].
      */
-    object Artwork {
+    public object Artwork {
         /**
          * The unique ID of the Artwork, suitable for use with [ContentUris.withAppendedId].
          */
         @Suppress("unused", "ObjectPropertyName")
-        const val _ID = BaseColumns._ID
+        public const val _ID: String = BaseColumns._ID
         /**
          * The token that uniquely defines the artwork. Any inserts using the same non-null token
          * will be considered updates to the existing artwork. Therefore there will always be at
@@ -226,44 +227,44 @@ object ProviderContract {
          *
          * Type: TEXT
          */
-        const val TOKEN = "token"
+        public const val TOKEN: String = "token"
         /**
          * The user-visible title of the artwork
          *
          * Type: TEXT
          */
-        const val TITLE = "title"
+        public const val TITLE: String = "title"
         /**
          * The artwork's byline (such as author and date). This is generally used as a secondary
          * source of information after the [TITLE].
          *
          * Type: TEXT
          */
-        const val BYLINE = "byline"
+        public const val BYLINE: String = "byline"
         /**
          * The attribution info for the artwork
          *
          * Type: TEXT
          */
-        const val ATTRIBUTION = "attribution"
+        public const val ATTRIBUTION: String = "attribution"
         /**
          * The persistent URI of the artwork
          *
          * Type: TEXT (Uri)
          */
-        const val PERSISTENT_URI = "persistent_uri"
+        public const val PERSISTENT_URI: String = "persistent_uri"
         /**
          * The web URI of the artwork
          *
          * Type: TEXT (Uri)
          */
-        const val WEB_URI = "web_uri"
+        public const val WEB_URI: String = "web_uri"
         /**
          * The provider specific metadata about the artwork
          *
          * Type: TEXT
          */
-        const val METADATA = "metadata"
+        public const val METADATA: String = "metadata"
         /**
          * Path to the file on disk.
          *
@@ -274,18 +275,18 @@ object ProviderContract {
          *
          * Type: TEXT
          */
-        const val DATA = "_data"
+        public const val DATA: String = "_data"
         /**
          * The time the file was added to the provider.
          *
          * Type: LONG (in milliseconds)
          */
-        const val DATE_ADDED = "date_added"
+        public const val DATE_ADDED: String = "date_added"
         /**
          * The time the file was last modified.
          *
          * Type: LONG (in milliseconds)
          */
-        const val DATE_MODIFIED = "date_modified"
+        public const val DATE_MODIFIED: String = "date_modified"
     }
 }

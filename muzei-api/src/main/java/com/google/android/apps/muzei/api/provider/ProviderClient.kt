@@ -23,21 +23,21 @@ import android.net.Uri
  * be used directly within a `MuzeiArtProvider` or you can get an instance via
  * [ProviderContract.getProviderClient].
  */
-interface ProviderClient {
+public interface ProviderClient {
     /**
      * Retrieve the content URI for the [MuzeiArtProvider], allowing you to build
      * custom queries, inserts, updates, and deletes using a [ContentResolver].
      *
      * @return The content URI for the [MuzeiArtProvider]
      */
-    val contentUri: Uri
+    public val contentUri: Uri
 
     /**
      * Retrieve the last added artwork from the [MuzeiArtProvider].
      *
      * @return The last added Artwork, or null if no artwork has been added
      */
-    val lastAddedArtwork: Artwork?
+    public val lastAddedArtwork: Artwork?
 
     /**
      * Add a new piece of artwork to the [MuzeiArtProvider].
@@ -45,7 +45,7 @@ interface ProviderClient {
      * @param artwork The artwork to add
      * @return The URI of the newly added artwork or null if the insert failed
      */
-    fun addArtwork(artwork: Artwork): Uri?
+    public fun addArtwork(artwork: Artwork): Uri?
 
     /**
      * Add multiple artwork as a batch operation to the [MuzeiArtProvider].
@@ -53,7 +53,7 @@ interface ProviderClient {
      * @param artwork The artwork to add
      * @return The URIs of the newly added artwork or an empty List if the insert failed.
      */
-    fun addArtwork(artwork: Iterable<Artwork>): List<Uri>
+    public fun addArtwork(artwork: Iterable<Artwork>): List<Uri>
 
     /**
      * Set the [MuzeiArtProvider] to only show the given artwork, deleting any other
@@ -63,7 +63,7 @@ interface ProviderClient {
      * @param artwork The artwork to set
      * @return The URI of the newly set artwork or null if the insert failed
      */
-    fun setArtwork(artwork: Artwork): Uri?
+    public fun setArtwork(artwork: Artwork): Uri?
 
     /**
      * Set the [MuzeiArtProvider] to only show the given artwork, deleting any other
@@ -73,5 +73,5 @@ interface ProviderClient {
      * @param artwork The artwork to set
      * @return The URIs of the newly set artwork or an empty List if the inserts failed.
      */
-    fun setArtwork(artwork: Iterable<Artwork>): List<Uri>
+    public fun setArtwork(artwork: Iterable<Artwork>): List<Uri>
 }

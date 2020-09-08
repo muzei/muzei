@@ -50,7 +50,7 @@ import java.util.Date
  * The static [Artwork.fromCursor] method allows you to convert
  * a row retrieved from a [MuzeiArtProvider] into Artwork instance.
  */
-class Artwork private constructor(
+public class Artwork private constructor(
         private val _id: Long,
         private val _data: File?,
         private val _dateAdded: Date?,
@@ -58,25 +58,25 @@ class Artwork private constructor(
         /**
          * The artwork's user-visible title.
          */
-        val title: String?,
+        public val title: String?,
         /**
          * The artwork's user-visible byline, usually containing the author and date.
          *
          * This is generally used as a secondary source of information after the
          * [title].
          */
-        val byline: String? = null,
+        public val byline: String? = null,
         /**
          * The artwork's user-visible attribution text.
          *
          * This is generally used as a tertiary source of information after the
          * [title] and the [byline].
          */
-        val attribution: String? = null,
+        public val attribution: String? = null,
         /**
          * The token that uniquely defines the artwork.
          */
-        val token: String? = null,
+        public val token: String? = null,
         /**
          * The artwork's persistent URI, which must resolve to a JPEG or PNG image, ideally
          * under 5MB. Your app should have long-lived access to this URI.
@@ -91,19 +91,19 @@ class Artwork private constructor(
          *
          * @see MuzeiArtProvider.openFile
          */
-        val persistentUri: Uri? = null,
+        public val persistentUri: Uri? = null,
         /**
          * The artwork's web URI. This is used by default in [MuzeiArtProvider.getArtworkInfo] to
          * allow the user to view more details about the artwork.
          */
-        val webUri: Uri? = null,
+        public val webUri: Uri? = null,
         /**
          * The provider specific metadata about the artwork.
          *
          * This is not used by Muzei at all, so can contain any data that makes it easier to query
          * or otherwise work with your Artwork.
          */
-        val metadata: String? = null
+        public val metadata: String? = null
 ) {
     /**
      * Construct a new [Artwork].
@@ -117,7 +117,7 @@ class Artwork private constructor(
      * @param webUri The artwork's web URI.
      * @param metadata The provider specific metadata about the artwork.
      */
-    constructor(
+    public constructor(
             title: String?,
             byline: String? = null,
             attribution: String? = null,
@@ -128,7 +128,7 @@ class Artwork private constructor(
     ) : this(0, null, null, null,
             title, byline, attribution, token, persistentUri, webUri, metadata)
 
-    companion object {
+    public companion object {
         private val DATE_FORMAT: DateFormat by lazy {
             SimpleDateFormat.getDateTimeInstance()
         }
@@ -144,7 +144,7 @@ class Artwork private constructor(
          * [ProviderContract.Artwork] columns.
          */
         @JvmStatic
-        fun fromCursor(data: Cursor) = Artwork(
+        public fun fromCursor(data: Cursor): Artwork = Artwork(
                 data.getLong(data.getColumnIndex(BaseColumns._ID)),
                 File(data.getString(data.getColumnIndex(DATA))),
                 Date(data.getLong(data.getColumnIndex(DATE_ADDED))),
@@ -168,7 +168,7 @@ class Artwork private constructor(
      * Note: this will only be available if the artwork is retrieved from a
      * [MuzeiArtProvider].
      */
-    val id get() = _id
+    public val id: Long get() = _id
 
     /**
      * The [File] where a local copy of this artwork is stored.
@@ -181,7 +181,7 @@ class Artwork private constructor(
      * @throws IllegalStateException if the Artwork was not retrieved from a
      * [MuzeiArtProvider]
      */
-    val data get() = _data ?: throw IllegalStateException(
+    public val data: File get() = _data ?: throw IllegalStateException(
             "Only Artwork retrieved from a MuzeiArtProvider has a data File")
 
     /**
@@ -193,7 +193,7 @@ class Artwork private constructor(
      * @throws IllegalStateException if the Artwork was not retrieved from a
      * [MuzeiArtProvider]
      */
-    val dateAdded get() = _dateAdded ?: throw IllegalStateException(
+    public val dateAdded: Date get() = _dateAdded ?: throw IllegalStateException(
             "Only Artwork retrieved from a MuzeiArtProvider has a date added")
 
     /**
@@ -207,7 +207,7 @@ class Artwork private constructor(
      * [MuzeiArtProvider]
      */
     @Suppress("unused")
-    val dateModified get() = _dateModified ?: throw IllegalStateException(
+    public val dateModified: Date get() = _dateModified ?: throw IllegalStateException(
             "Only Artwork retrieved from a MuzeiArtProvider has a date modified")
 
     /**
@@ -305,7 +305,7 @@ class Artwork private constructor(
      *   .build()
      * ```
      */
-    class Builder {
+    public class Builder {
         private var token: String? = null
         private var title: String? = null
         private var byline: String? = null
@@ -320,7 +320,7 @@ class Artwork private constructor(
          * @param token the artwork's opaque application-specific identifier.
          * @return this [Builder].
          */
-        fun token(token: String?): Builder {
+        public fun token(token: String?): Builder {
             this.token = token
             return this
         }
@@ -331,7 +331,7 @@ class Artwork private constructor(
          * @param title the artwork's user-visible title.
          * @return this [Builder].
          */
-        fun title(title: String?): Builder {
+        public fun title(title: String?): Builder {
             this.title = title
             return this
         }
@@ -344,7 +344,7 @@ class Artwork private constructor(
          * @param byline the artwork's user-visible byline.
          * @return this [Builder].
          */
-        fun byline(byline: String?): Builder {
+        public fun byline(byline: String?): Builder {
             this.byline = byline
             return this
         }
@@ -358,7 +358,7 @@ class Artwork private constructor(
          * @param attribution the artwork's user-visible attribution text.
          * @return this [Builder].
          */
-        fun attribution(attribution: String?): Builder {
+        public fun attribution(attribution: String?): Builder {
             this.attribution = attribution
             return this
         }
@@ -380,7 +380,7 @@ class Artwork private constructor(
          * @return this [Builder].
          * @see MuzeiArtProvider.openFile
          */
-        fun persistentUri(persistentUri: Uri?): Builder {
+        public fun persistentUri(persistentUri: Uri?): Builder {
             this.persistentUri = persistentUri
             return this
         }
@@ -394,7 +394,7 @@ class Artwork private constructor(
          * @return this [Builder].
          * @see MuzeiArtProvider.getArtworkInfo
          */
-        fun webUri(webUri: Uri?): Builder {
+        public fun webUri(webUri: Uri?): Builder {
             this.webUri = webUri
             return this
         }
@@ -408,7 +408,7 @@ class Artwork private constructor(
          * @param metadata any provider specific data associated with the artwork
          * @return this [Builder].
          */
-        fun metadata(metadata: String?): Builder {
+        public fun metadata(metadata: String?): Builder {
             this.metadata = metadata
             return this
         }
@@ -419,7 +419,7 @@ class Artwork private constructor(
          *
          * @return the final constructed [Artwork].
          */
-        fun build(): Artwork {
+        public fun build(): Artwork {
             return Artwork(title, byline, attribution, token, persistentUri, webUri, metadata)
         }
     }
