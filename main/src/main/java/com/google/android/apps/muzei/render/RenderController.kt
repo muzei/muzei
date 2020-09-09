@@ -28,6 +28,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+sealed class ReloadType
+object ReloadWhenVisible : ReloadType()
+object ReloadDespiteInvisible : ReloadType()
+object ReloadImmediate : ReloadType()
+
 abstract class RenderController(
         protected var context: Context,
         protected var renderer: MuzeiBlurRenderer,
@@ -59,7 +64,7 @@ abstract class RenderController(
                 renderer.recomputeGreyAmount(
                         if (value) Prefs.PREF_LOCK_GREY_AMOUNT else Prefs.PREF_GREY_AMOUNT)
                 // Switch immediately if we're transitioning to the lock screen
-                reloadCurrentArtwork(immediate = value)
+                reloadCurrentArtwork(if (value) ReloadImmediate else ReloadDespiteInvisible)
             }
         }
     private lateinit var coroutineScope: CoroutineScope
@@ -126,7 +131,7 @@ abstract class RenderController(
 
     protected abstract suspend fun openDownloadedCurrentArtwork(): ImageLoader
 
-    fun reloadCurrentArtwork(immediate: Boolean = false) {
+    fun reloadCurrentArtwork(reloadType: ReloadType = ReloadWhenVisible) {
         if (destroyed) {
             // Don't reload artwork for destroyed RenderControllers
             return
@@ -135,8 +140,9 @@ abstract class RenderController(
             val imageLoader = openDownloadedCurrentArtwork()
 
             callbacks.queueEventOnGlThread {
-                if (visible || immediate) {
-                    renderer.setAndConsumeImageLoader(imageLoader, immediate)
+                if (visible || reloadType != ReloadWhenVisible) {
+                    renderer.setAndConsumeImageLoader(imageLoader,
+                    reloadType == ReloadImmediate || !visible)
                 } else {
                     queuedImageLoader = imageLoader
                 }

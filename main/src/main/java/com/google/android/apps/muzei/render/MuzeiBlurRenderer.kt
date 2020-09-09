@@ -283,6 +283,11 @@ class MuzeiBlurRenderer(
             return
         }
 
+        if (immediate) {
+            // Stop any running cross fade if we're immediately switching to this new image
+            crossfadeAnimator.finish()
+        }
+
         if (!demoMode && !preview) {
             SwitchingPhotosStateFlow.value = SwitchingPhotosInProgress(nextGLPictureSet.id)
             ArtworkSizeStateFlow.value = ArtworkSize(width, height)
@@ -307,7 +312,7 @@ class MuzeiBlurRenderer(
             val loader = queuedNextImageLoader
             if (loader != null) {
                 queuedNextImageLoader = null
-                setAndConsumeImageLoader(loader)
+                setAndConsumeImageLoader(loader, immediate)
             }
         }
         callbacks.requestRender()
