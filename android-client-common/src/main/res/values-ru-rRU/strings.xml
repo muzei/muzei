@@ -15,5 +15,5 @@
   limitations under the License.
   -->
 <resources>
-    <string name="error_view_details">Не удаётся просмотреть информацию о рисунке.</string>
+    <string name="error_view_details">Не удалось просмотреть детали изображения.</string>
 </resources>
