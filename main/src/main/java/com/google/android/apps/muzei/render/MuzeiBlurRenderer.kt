@@ -27,6 +27,7 @@ import android.opengl.Matrix
 import android.util.Log
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.annotation.Keep
+import com.google.android.apps.muzei.ArtDetailOpen
 import com.google.android.apps.muzei.ArtDetailViewport
 import com.google.android.apps.muzei.settings.Prefs
 import com.google.android.apps.muzei.util.ImageBlurrer
@@ -105,7 +106,7 @@ class MuzeiBlurRenderer(
     @Volatile
     private var normalOffsetX: Float = 0f
     @Volatile
-    private var zoomAmount: Float = 0f
+    private var zoomAmount: Float = 1f
     private val currentViewport = RectF() // [-1, -1] to [1, 1], flipped
 
     var isBlurred = true
@@ -251,7 +252,7 @@ class MuzeiBlurRenderer(
     }
 
     fun setZoom(zoom: Float) {
-        zoomAmount = 1f + zoom.constrain(0f, 1f) / 5f
+        zoomAmount = interpolate(1f, 1.1f, 1 - zoom.constrain(0f, 1f))
         onViewportChanged()
     }
 
@@ -436,7 +437,9 @@ class MuzeiBlurRenderer(
             }
 
             // Ensure the bitmap is as wide as the screen by applying zoom if necessary
-            val zoom = max(1f, screenToBitmapAspectRatio) * zoomAmount
+            // ignoring any system wide zoom requests while the Art Detail screen is open
+            val zoom = max(1f, screenToBitmapAspectRatio) *
+                    (if (ArtDetailOpen.value) 1f else zoomAmount)
 
             // Total scale factors in both zoom and scale due to aspect ratio.
             val scaledBitmapToScreenAspectRatio = zoom / screenToBitmapAspectRatio
