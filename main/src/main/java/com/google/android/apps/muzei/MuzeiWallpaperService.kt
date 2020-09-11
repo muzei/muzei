@@ -218,9 +218,6 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                 renderController.onLockScreen = isEffectsLockScreenOpen
             }.launchWhenStartedIn(this)
             ArtDetailOpen.onEach { isArtDetailOpened ->
-                if (isArtDetailOpened) {
-                    renderer.setZoom(0f)
-                }
                 cancelDelayedBlur()
                 queueEvent { renderer.setIsBlurred(!isArtDetailOpened, true) }
             }.launchWhenStartedIn(this)
