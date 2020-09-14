@@ -127,7 +127,7 @@ class MuzeiBlurRenderer(
         currentGLPictureSet = GLPictureSet(0)
         nextGLPictureSet = GLPictureSet(1) // for transitioning to next pictures
         setNormalOffsetX(0f)
-        setZoom(0f)
+        setZoom(1f)
         recomputeMaxPrescaledBlurPixels()
         recomputeMaxDimAmount()
         recomputeGreyAmount()
