@@ -18,8 +18,6 @@
 
 package com.google.android.apps.muzei.legacy
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.ComponentName
@@ -30,9 +28,8 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -150,8 +147,7 @@ class LegacySourcePackageListener(
     private fun updateNotifiedSources(legacySources: Set<LegacySourceInfo>) {
         val additions = legacySources - lastNotifiedSources
         val removals = lastNotifiedSources - legacySources
-        val notificationManager = applicationContext.getSystemService(
-                Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager = NotificationManagerCompat.from(applicationContext)
         // Cancel the notification associated with sources that have since been removed
         removals.forEach {
             notificationManager.cancel(it.packageName, NOTIFICATION_ID)
@@ -164,9 +160,11 @@ class LegacySourcePackageListener(
             // If there's no Legacy Sources, cancel any summary notification still present
             notificationManager.cancel(NOTIFICATION_SUMMARY_TAG, NOTIFICATION_ID)
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                createNotificationChannel()
-            }
+            val channel = NotificationChannelCompat.Builder(NOTIFICATION_CHANNEL,
+                    NotificationManagerCompat.IMPORTANCE_DEFAULT)
+                    .setName(applicationContext.getString(R.string.legacy_notification_channel_name))
+                    .build()
+            notificationManager.createNotificationChannel(channel)
             val contentIntent = NavDeepLinkBuilder(applicationContext)
                     .setGraph(R.navigation.main_navigation)
                     .setDestination(R.id.legacy_source_info)
@@ -249,15 +247,6 @@ class LegacySourcePackageListener(
             image.setBounds(0, 0, largeIconSize, largeIconSize)
             image.draw(canvas)
         }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun createNotificationChannel() {
-        val notificationManager = NotificationManagerCompat.from(applicationContext)
-        val channel = NotificationChannel(NOTIFICATION_CHANNEL,
-                applicationContext.getString(R.string.legacy_notification_channel_name),
-                NotificationManager.IMPORTANCE_DEFAULT)
-        notificationManager.createNotificationChannel(channel)
     }
 }
 

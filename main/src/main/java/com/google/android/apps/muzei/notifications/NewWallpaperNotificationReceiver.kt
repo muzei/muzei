@@ -16,8 +16,6 @@
 
 package com.google.android.apps.muzei.notifications
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -26,7 +24,7 @@ import android.content.res.Resources
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
-import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.RemoteInput
@@ -92,11 +90,10 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                     // we've also posted the 'Review your settings' notification
                     return false
                 }
-                val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
-                        ?: return false
+                val notificationManager = NotificationManagerCompat.from(context)
                 val channel = notificationManager
-                        .getNotificationChannel(NOTIFICATION_CHANNEL)
-                return channel != null && channel.importance != NotificationManager.IMPORTANCE_NONE
+                        .getNotificationChannelCompat(NOTIFICATION_CHANNEL)
+                return channel != null && channel.importance != NotificationManagerCompat.IMPORTANCE_NONE
             }
             // Prior to O, we maintain our own preference
             val sp = PreferenceManager.getDefaultSharedPreferences(context)
@@ -136,9 +133,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
             val largeIcon = imageLoader.decode(largeIconHeight) ?: return
             val bigPicture = imageLoader.decode(400) ?: return
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                createNotificationChannel(context)
-            }
+            createNotificationChannel(context)
 
             try {
                 ContextCompat.getDrawable(context, R.drawable.ic_stat_muzei)
@@ -254,27 +249,25 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
          * @return False only in the case where the user had wallpapers disabled in-app, but has not
          * yet seen the 'Review your notification settings' notification
          */
-        @RequiresApi(Build.VERSION_CODES.O)
         internal fun createNotificationChannel(context: Context): Boolean {
-            val notificationManager = context.getSystemService(NotificationManager::class.java)
-                    ?: return false
+            val notificationManager = NotificationManagerCompat.from(context)
             val sp = PreferenceManager.getDefaultSharedPreferences(context)
             // On O+ devices, we want to push users to change the system notification setting
             // but we'll use their current value to set the default importance
             val defaultImportance = if (sp.getBoolean(PREF_ENABLED, true))
-                NotificationManager.IMPORTANCE_MIN
+                NotificationManagerCompat.IMPORTANCE_MIN
             else
-                NotificationManager.IMPORTANCE_NONE
-            if (sp.contains(PREF_ENABLED)) {
+                NotificationManagerCompat.IMPORTANCE_NONE
+            if (sp.contains(PREF_ENABLED) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 sp.edit { remove(PREF_ENABLED) }
-                if (defaultImportance == NotificationManager.IMPORTANCE_NONE) {
+                if (defaultImportance == NotificationManagerCompat.IMPORTANCE_NONE) {
                     // Check to see if there was already a channel and give users an
                     // easy way to review their notification settings if they had
                     // previously disabled notifications but have not yet disabled
                     // the channel
                     val existingChannel = notificationManager
-                            .getNotificationChannel(NOTIFICATION_CHANNEL)
-                    if (existingChannel != null && existingChannel.importance != NotificationManager.IMPORTANCE_NONE) {
+                            .getNotificationChannelCompat(NOTIFICATION_CHANNEL)
+                    if (existingChannel != null && existingChannel.importance != NotificationManagerCompat.IMPORTANCE_NONE) {
                         // Construct an Intent to get to the notification settings screen
                         val settingsIntent = Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
                         settingsIntent.putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
@@ -296,10 +289,11 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                     }
                 }
             }
-            val channel = NotificationChannel(NOTIFICATION_CHANNEL,
-                    context.getString(R.string.notification_new_wallpaper_channel_name),
+            val channel = NotificationChannelCompat.Builder(NOTIFICATION_CHANNEL,
                     defaultImportance)
-            channel.setShowBadge(false)
+                    .setName(context.getString(R.string.notification_new_wallpaper_channel_name))
+                    .setShowBadge(false)
+                    .build()
             notificationManager.createNotificationChannel(channel)
             return true
         }
