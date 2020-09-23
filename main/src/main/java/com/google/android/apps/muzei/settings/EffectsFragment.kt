@@ -128,12 +128,14 @@ class EffectsFragment : Fragment(R.layout.effects_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding = EffectsFragmentBinding.bind(view)
         if (requireActivity().isPreviewMode) {
-            binding.toolbar.setNavigationIcon(R.drawable.ic_ab_done)
-            binding.toolbar.navigationContentDescription = getString(R.string.done)
-            binding.toolbar.setNavigationOnClickListener {
-                requireActivity().run {
-                    setResult(Activity.RESULT_OK)
-                    finish()
+            with(binding.toolbar) {
+                setNavigationIcon(R.drawable.ic_ab_done)
+                navigationContentDescription = getString(R.string.done)
+                setNavigationOnClickListener {
+                    requireActivity().run {
+                        setResult(Activity.RESULT_OK)
+                        finish()
+                    }
                 }
             }
         }
@@ -189,15 +191,16 @@ class EffectsFragment : Fragment(R.layout.effects_fragment) {
             effectsLinked: Boolean = Prefs.getSharedPreferences(requireContext())
                     .getBoolean(Prefs.PREF_LINK_EFFECTS, false)
     ) {
-        val menuItem = binding.toolbar.menu.findItem(R.id.action_link_effects)
-        menuItem.setIcon(if (effectsLinked)
-            R.drawable.ic_action_link_effects
-        else
-            R.drawable.ic_action_link_effects_off)
-        menuItem.title = if (effectsLinked)
-            getString(R.string.action_link_effects)
-        else
-            getString(R.string.action_link_effects_off)
+        with(binding.toolbar.menu.findItem(R.id.action_link_effects)) {
+            setIcon(if (effectsLinked)
+                R.drawable.ic_action_link_effects
+            else
+                R.drawable.ic_action_link_effects_off)
+            title = if (effectsLinked)
+                getString(R.string.action_link_effects)
+            else
+                getString(R.string.action_link_effects_off)
+        }
     }
 
     override fun onStop() {
