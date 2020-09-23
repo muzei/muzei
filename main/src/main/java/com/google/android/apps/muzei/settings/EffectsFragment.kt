@@ -191,17 +191,15 @@ class EffectsFragment : Fragment(R.layout.effects_fragment) {
             effectsLinked: Boolean = Prefs.getSharedPreferences(requireContext())
                     .getBoolean(Prefs.PREF_LINK_EFFECTS, false)
     ) {
-        binding.toolbar.menu.findItem(R.id.action_link_effects).apply {
-            title = when (effectsLinked) {
-                true -> {
-                    setIcon(R.drawable.ic_action_link_effects)
-                    getString(R.string.action_link_effects)
-                }
-                false -> {
-                    setIcon(R.drawable.ic_action_link_effects_off)
-                    getString(R.string.action_link_effects_off)
-                }
-            }
+        with(binding.toolbar.menu.findItem(R.id.action_link_effects)) {
+            setIcon(if (effectsLinked)
+                R.drawable.ic_action_link_effects
+            else
+                R.drawable.ic_action_link_effects_off)
+            title = if (effectsLinked)
+                getString(R.string.action_link_effects)
+            else
+                getString(R.string.action_link_effects_off)
         }
     }
 
