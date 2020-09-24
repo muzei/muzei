@@ -275,9 +275,8 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
                 }
             }
             onSingleTapUp = {
-                val window = activity?.window
-                if (window != null) {
-                    showHideChrome(window.decorView.systemUiVisibility and
+                activity?.window?.let {
+                    showHideChrome(it.decorView.systemUiVisibility and
                             View.SYSTEM_UI_FLAG_LOW_PROFILE != 0)
                 }
             }

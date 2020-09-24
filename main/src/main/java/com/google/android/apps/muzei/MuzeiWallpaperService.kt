@@ -96,13 +96,15 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
     @SuppressLint("InlinedApi")
     override fun onCreate() {
         super.onCreate()
-        wallpaperLifecycle.addObserver(WorkManagerInitializer.initializeObserver(this))
-        wallpaperLifecycle.addObserver(LegacySourceManager.getInstance(this))
-        wallpaperLifecycle.addObserver(NotificationUpdater(this))
-        wallpaperLifecycle.addObserver(WearableController(this))
-        wallpaperLifecycle.addObserver(WidgetUpdater(this))
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-            wallpaperLifecycle.addObserver(ArtworkInfoShortcutController(this))
+        with(wallpaperLifecycle) {
+            addObserver(WorkManagerInitializer.initializeObserver(this@MuzeiWallpaperService))
+            addObserver(LegacySourceManager.getInstance(this@MuzeiWallpaperService))
+            addObserver(NotificationUpdater(this@MuzeiWallpaperService))
+            addObserver(WearableController(this@MuzeiWallpaperService))
+            addObserver(WidgetUpdater(this@MuzeiWallpaperService))
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                addObserver(ArtworkInfoShortcutController(this@MuzeiWallpaperService))
+            }
         }
         ProviderManager.getInstance(this).observe(this) { provider ->
             if (provider == null) {
