@@ -34,6 +34,10 @@ android {
     }
     dexOptions.preDexLibraries true
 
+    configurations.all {
+        resolutionStrategy.force "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
+    }
+
     defaultConfig {
         applicationId "net.nurik.roman.muzei"
         minSdkVersion 19
