@@ -69,6 +69,7 @@
             android:id="@+id/artwork"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_marginBottom="16dp"
             android:cropToPadding="false"
             android:scaleType="centerCrop"
             android:adjustViewBounds="true"
@@ -79,6 +80,13 @@
             app:layout_constraintTop_toBottomOf="@+id/header"
             app:srcCompat="@mipmap/ic_launcher" />
 
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/artwork_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="artwork" />
+
         <TextView
             android:id="@+id/description"
             android:layout_width="0dp"
@@ -86,12 +94,11 @@
             android:layout_marginBottom="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
             app:layout_constraintBottom_toTopOf="@+id/button_bar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/artwork"
+            app:layout_constraintTop_toBottomOf="@+id/artwork_barrier"
             tools:text="Description" />
 
         <androidx.constraintlayout.widget.Barrier
