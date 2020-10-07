@@ -50,7 +50,7 @@ buildscript {
         subsamplingVersion = '3.10.0'
         swipeRefreshLayoutVersion = '1.1.0'
         viewPager2Version = '1.1.0-alpha01'
-        wearableVersion = '2.7.0'
+        wearableVersion = '2.8.1'
         wearVersion = '1.1.0-rc03'
         workManagerVersion = '2.5.0-alpha02'
     }

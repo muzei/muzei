@@ -107,9 +107,7 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview:$recyclerViewVersion"
     implementation "androidx.wear:wear:$wearVersion"
     compileOnly "com.google.android.wearable:wearable:$wearableVersion"
-    implementation ("com.google.android.support:wearable:$wearableVersion") {
-        exclude module: 'legacy-support-v4'
-    }
+    implementation "com.google.android.support:wearable:$wearableVersion"
 
     implementation "com.google.android.gms:play-services-wearable:$playServicesWearableVersion"
 
