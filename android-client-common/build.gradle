@@ -35,7 +35,7 @@ dependencies {
     kapt "androidx.room:room-compiler:$roomVersion"
     api "com.google.firebase:firebase-analytics-ktx:$firebaseAnalyticsVersion"
     api "com.google.firebase:firebase-crashlytics-ktx:$firebaseCrashlyticsVersion"
-    api "com.google.firebase:firebase-perf:$firebasePerfVersion"
+    api "com.google.firebase:firebase-perf-ktx:$firebasePerfVersion"
     api "com.google.android.gms:play-services-wearable:$playServicesWearableVersion"
 }
 
