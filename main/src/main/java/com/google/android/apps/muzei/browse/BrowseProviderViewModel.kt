@@ -28,9 +28,9 @@ import com.google.android.apps.muzei.util.ContentProviderClientCompat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
@@ -43,11 +43,13 @@ class BrowseProviderViewModel(
         application: Application
 ): AndroidViewModel(application) {
 
-    private val contentUriChannel = ConflatedBroadcastChannel<Uri>()
+    private val contentUriSharedFlow = MutableSharedFlow<Uri>(
+            replay = 1,
+            onBufferOverflow = BufferOverflow.DROP_OLDEST)
     var contentUri: Uri
-        get() = contentUriChannel.value
+        get() = contentUriSharedFlow.replayCache.first()
         set(value) {
-            contentUriChannel.offer(value)
+            contentUriSharedFlow.tryEmit(value)
         }
 
     private fun getProviderArtwork(contentUri: Uri) = callbackFlow {
@@ -94,7 +96,7 @@ class BrowseProviderViewModel(
         }
     }
 
-    val artLiveData = contentUriChannel.asFlow().distinctUntilChanged()
+    val artLiveData = contentUriSharedFlow.distinctUntilChanged()
             .flatMapLatest { contentUri ->
                 getProviderArtwork(contentUri)
             }.asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)

@@ -24,11 +24,11 @@ import android.util.Size
 import com.google.android.apps.muzei.api.MuzeiContract
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -41,11 +41,13 @@ import java.io.FileNotFoundException
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 class ArtworkImageLoader(private val context: Context) {
 
-    private val requestedSizeChannel = ConflatedBroadcastChannel<Size?>(null)
+    private val requestSizeSharedFlow = MutableSharedFlow<Size?>(
+            replay = 1,
+            onBufferOverflow = BufferOverflow.DROP_OLDEST)
     var requestedSize: Size?
-        get() = requestedSizeChannel.value
+        get() = requestSizeSharedFlow.replayCache.firstOrNull()
         set(value) {
-            requestedSizeChannel.offer(value)
+            requestSizeSharedFlow.tryEmit(value)
         }
 
     private val unsizedArtworkFlow: Flow<Bitmap> = callbackFlow {
@@ -77,7 +79,7 @@ class ArtworkImageLoader(private val context: Context) {
     }
 
     val artworkFlow = unsizedArtworkFlow.combine(
-            requestedSizeChannel.asFlow().distinctUntilChanged()
+            requestSizeSharedFlow.distinctUntilChanged()
     ) { image, size ->
         // Resize the image to the specified size
         when {

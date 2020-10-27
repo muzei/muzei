@@ -19,23 +19,24 @@ package com.google.android.apps.muzei
 import android.graphics.RectF
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.channels.BroadcastChannel
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 // Singleton that can be observed
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 object ArtDetailViewport {
     private val viewport0 = RectF()
     private val viewport1 = RectF()
-    private val broadcastChannel = BroadcastChannel<Boolean>(Channel.BUFFERED)
+    private val changes = MutableSharedFlow<Boolean>(
+            extraBufferCapacity = 1,
+            onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
     /**
      * Get a [Flow] for listening for viewport change events.
      * The boolean indicates whether the change was triggered directly by a user interaction.
      */
-    fun getChanges(): Flow<Boolean> = broadcastChannel.asFlow()
+    fun getChanges(): Flow<Boolean> = changes
 
     fun getViewport(id: Int): RectF {
         return if (id == 0) viewport0 else viewport1
@@ -55,7 +56,7 @@ object ArtDetailViewport {
             isFromUser: Boolean = false
     ) {
         getViewport(id).set(left, top, right, bottom)
-        broadcastChannel.offer(isFromUser)
+        changes.tryEmit(isFromUser)
     }
 
     fun setDefaultViewport(
@@ -76,7 +77,7 @@ object ArtDetailViewport {
                     1f,
                     0.5f + bitmapAspectRatio / screenAspectRatio / 2f)
         }
-        broadcastChannel.offer(false)
+        changes.tryEmit(false)
         return this
     }
 }
