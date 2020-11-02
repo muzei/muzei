@@ -40,7 +40,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
@@ -73,13 +72,14 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.ArtDetailFragmentBinding
-import kotlin.coroutines.EmptyCoroutineContext
 
 @OptIn(ExperimentalCoroutinesApi::class)
 val ArtDetailOpen = MutableStateFlow(false)
@@ -97,11 +97,11 @@ class ArtDetailViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val database = MuzeiDatabase.getInstance(application)
 
-    val currentProviderLiveData = database.providerDao().currentProvider
-            .asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
+    val currentProvider = database.providerDao().currentProvider
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), null)
 
-    val currentArtworkLiveData = database.artworkDao().currentArtwork
-            .asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
+    val currentArtwork = database.artworkDao().currentArtwork
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), null)
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -185,7 +185,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
             val context = context ?: return@setOnMenuItemClickListener false
             val action = overflowSourceActionMap.get(menuItem.itemId)
             if (action != null) {
-                viewModel.currentArtworkLiveData.value?.run {
+                viewModel.currentArtwork.value?.run {
                     Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
                         param(FirebaseAnalytics.Param.ITEM_LIST_ID, providerAuthority)
                         param(FirebaseAnalytics.Param.ITEM_NAME, menuItem.title.toString())
@@ -321,12 +321,12 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
             }
         }.launchWhenStartedIn(viewLifecycleOwner)
 
-        viewModel.currentProviderLiveData.observe(viewLifecycleOwner) { provider ->
+        viewModel.currentProvider.onEach { provider ->
             val supportsNextArtwork = provider?.supportsNextArtwork == true
             binding.nextArtwork.isVisible = supportsNextArtwork
-        }
+        }.launchWhenStartedIn(viewLifecycleOwner)
 
-        viewModel.currentArtworkLiveData.observe(viewLifecycleOwner) { currentArtwork ->
+        viewModel.currentArtwork.onEach { currentArtwork ->
             binding.title.setTextOrGone(currentArtwork?.title)
             binding.byline.setTextOrGone(currentArtwork?.byline)
             binding.attribution.setTextOrGone(currentArtwork?.attribution)
@@ -337,7 +337,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
                     Firebase.analytics.logEvent("artwork_info_open") {
                         param(FirebaseAnalytics.Param.CONTENT_TYPE, "art_detail")
                     }
-                    viewModel.currentArtworkLiveData.value?.openArtworkInfo(context)
+                    viewModel.currentArtwork.value?.openArtworkInfo(context)
                 }
             }
 
@@ -363,7 +363,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
             lifecycleScope.launch(Dispatchers.Main) {
                 val commands = context?.run {
                     currentArtwork?.getCommands(this) ?: run {
-                        if (viewModel.currentProviderLiveData.value?.authority == LEGACY_AUTHORITY) {
+                        if (viewModel.currentProvider.value?.authority == LEGACY_AUTHORITY) {
                             listOf(RemoteActionCompat(
                                     IconCompat.createWithResource(context, R.drawable.ic_next_artwork),
                                     getString(R.string.action_next_artwork),
@@ -401,7 +401,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
             }
             showFakeLoading = false
             updateLoadingSpinnerVisibility()
-        }
+        }.launchWhenStartedIn(viewLifecycleOwner)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

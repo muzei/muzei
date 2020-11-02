@@ -21,7 +21,6 @@ import android.content.ContentUris
 import android.database.ContentObserver
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
@@ -31,12 +30,13 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlin.coroutines.EmptyCoroutineContext
 
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 class BrowseProviderViewModel(
@@ -96,8 +96,8 @@ class BrowseProviderViewModel(
         }
     }
 
-    val artLiveData = contentUriSharedFlow.distinctUntilChanged()
+    val artwork = contentUriSharedFlow.distinctUntilChanged()
             .flatMapLatest { contentUri ->
                 getProviderArtwork(contentUri)
-            }.asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
+            }.shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), 1)
 }

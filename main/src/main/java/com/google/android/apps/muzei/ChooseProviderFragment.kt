@@ -40,9 +40,7 @@ import androidx.core.view.updatePadding
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.map
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ConcatAdapter
@@ -55,6 +53,7 @@ import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
 import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
 import com.google.android.apps.muzei.sync.ProviderManager
+import com.google.android.apps.muzei.util.launchWhenStartedIn
 import com.google.android.apps.muzei.util.toast
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -62,6 +61,9 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.ChooseProviderFragmentBinding
@@ -157,7 +159,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
 
         binding.drawer.setStatusBarBackgroundColor(Color.TRANSPARENT)
         binding.drawer.setScrimColor(Color.argb(68, 0, 0, 0))
-        viewModel.currentProviderLiveData.observe(viewLifecycleOwner) { provider ->
+        viewModel.currentProvider.onEach { provider ->
             val legacySelected = provider?.authority == LEGACY_AUTHORITY
             binding.toolbar.menu.findItem(R.id.auto_advance_settings).isVisible = !legacySelected
             binding.toolbar.menu.findItem(R.id.auto_advance_disabled).isVisible = legacySelected
@@ -168,7 +170,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                 binding.drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED,
                         GravityCompat.END)
             }
-        }
+        }.launchWhenStartedIn(viewLifecycleOwner)
 
         val spacing = resources.getDimensionPixelSize(R.dimen.provider_padding)
         binding.list.addItemDecoration(object : RecyclerView.ItemDecoration() {
@@ -184,7 +186,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
         val adapter = ProviderListAdapter()
         val playStoreAdapter = PlayStoreProviderAdapter()
         binding.list.adapter = ConcatAdapter(adapter, playStoreAdapter)
-        viewModel.providers.observe(viewLifecycleOwner) {
+        viewModel.providers.onEach {
             adapter.submitList(it) {
                 playStoreAdapter.shouldShow = true
                 if (args.authority != null && !scrolledToProvider) {
@@ -198,11 +200,11 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                     }
                 }
             }
-        }
+        }.launchWhenStartedIn(viewLifecycleOwner)
         // Show a SnackBar whenever there are unsupported sources installed
         var snackBar: Snackbar? = null
         viewModel.unsupportedSources.map { it.size }
-                .distinctUntilChanged().observe(viewLifecycleOwner) { count ->
+                .distinctUntilChanged().onEach { count ->
             if (count > 0) {
                 snackBar = Snackbar.make(
                         binding.providerLayout,
@@ -232,7 +234,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                 // dismiss any SnackBar that is being shown
                 snackBar?.dismiss()
             }
-        }
+        }.launchWhenStartedIn(viewLifecycleOwner)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

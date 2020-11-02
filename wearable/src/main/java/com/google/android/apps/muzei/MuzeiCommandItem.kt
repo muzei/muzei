@@ -27,7 +27,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.get
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
@@ -37,14 +36,17 @@ import androidx.wear.widget.RoundedDrawable
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.getCommands
+import com.google.android.apps.muzei.util.launchWhenStartedIn
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.shareIn
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.MuzeiCommandItemBinding
-import kotlin.coroutines.EmptyCoroutineContext
 
 data class ArtworkCommand(
         private val artwork: Artwork,
@@ -57,13 +59,13 @@ data class ArtworkCommand(
 }
 
 class MuzeiCommandViewModel(application: Application) : AndroidViewModel(application) {
-    val commandsLiveData = MuzeiDatabase.getInstance(application).artworkDao().currentArtwork.map { artwork ->
+    val commands = MuzeiDatabase.getInstance(application).artworkDao().currentArtwork.map { artwork ->
         artwork?.getCommands(application)?.sortedByDescending { command ->
             command.shouldShowIcon()
         }?.map { command ->
             ArtworkCommand(artwork, command)
         } ?: emptyList()
-    }.asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
+    }.shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), 1)
 }
 
 class MuzeiCommandViewHolder(
@@ -111,9 +113,9 @@ class MuzeiCommandAdapter<O>(owner: O) : ListAdapter<ArtworkCommand, MuzeiComman
 ) where O : LifecycleOwner, O : ViewModelStoreOwner {
     init {
         val viewModel: MuzeiCommandViewModel = ViewModelProvider(owner).get()
-        viewModel.commandsLiveData.observe(owner) { commands ->
+        viewModel.commands.onEach { commands ->
             submitList(commands)
-        }
+        }.launchWhenStartedIn(owner)
     }
 
     override fun onCreateViewHolder(

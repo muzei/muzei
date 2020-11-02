@@ -35,11 +35,13 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.widget.WearableLinearLayoutManager
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.sync.ProviderManager
+import com.google.android.apps.muzei.util.launchWhenStartedIn
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.ChooseProviderActivityBinding
@@ -93,9 +95,9 @@ class ChooseProviderActivity : FragmentActivity() {
         binding.list.layoutManager = WearableLinearLayoutManager(this)
         binding.list.adapter = adapter
 
-        viewModel.providers.observe(this) { providers ->
+        viewModel.providers.onEach { providers ->
             adapter.submitList(providers)
-        }
+        }.launchWhenStartedIn(this)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

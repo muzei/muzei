@@ -21,10 +21,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -32,9 +30,9 @@ import androidx.paging.cachedIn
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.sendBlocking
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.callbackFlow
-import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.flow.stateIn
 
 /**
  * ViewModel responsible for handling the list of ACTION_GET_CONTENT activities across configuration
@@ -45,10 +43,8 @@ class GallerySettingsViewModel(application: Application) : AndroidViewModel(appl
     internal val chosenPhotos = Pager(PagingConfig(48)) {
         GalleryDatabase.getInstance(application).chosenPhotoDao().chosenPhotosPaged
     }.flow.cachedIn(viewModelScope)
-    internal val getContentActivityInfoList = getContentActivityInfos()
-            .asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
 
-    private fun getContentActivityInfos(): Flow<List<ActivityInfo>> = callbackFlow {
+    internal val getContentActivityInfoList = callbackFlow {
         val refreshList = {
             val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
                 type = "image/*"
@@ -92,5 +88,5 @@ class GallerySettingsViewModel(application: Application) : AndroidViewModel(appl
         awaitClose {
             getApplication<Application>().unregisterReceiver(packagesChangedReceiver)
         }
-    }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), listOf())
 }

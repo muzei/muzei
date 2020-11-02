@@ -25,7 +25,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.get
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
@@ -35,13 +34,16 @@ import androidx.wear.widget.RoundedDrawable
 import coil.load
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.util.launchWhenStartedIn
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.shareIn
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.MuzeiArtworkItemBinding
-import kotlin.coroutines.EmptyCoroutineContext
 
 class MuzeiArtworkViewModel(application: Application) : AndroidViewModel(application) {
-    val artworkLiveData = MuzeiDatabase.getInstance(application).artworkDao().currentArtwork
-            .asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
+    val currentArtwork = MuzeiDatabase.getInstance(application).artworkDao().currentArtwork
+            .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), 1)
 }
 
 class MuzeiArtworkViewHolder(
@@ -94,9 +96,9 @@ class MuzeiArtworkAdapter<O>(owner: O) : ListAdapter<Artwork, MuzeiArtworkViewHo
 ) where O : LifecycleOwner, O : ViewModelStoreOwner {
     init {
         val viewModel: MuzeiArtworkViewModel = ViewModelProvider(owner).get()
-        viewModel.artworkLiveData.observe(owner) { artwork ->
+        viewModel.currentArtwork.onEach { artwork ->
             submitList(listOfNotNull(artwork))
-        }
+        }.launchWhenStartedIn(owner)
     }
 
     override fun onCreateViewHolder(

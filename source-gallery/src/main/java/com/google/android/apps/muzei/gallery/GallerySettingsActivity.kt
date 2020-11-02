@@ -55,7 +55,6 @@ import androidx.core.content.edit
 import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.PagingDataAdapter
@@ -75,6 +74,8 @@ import com.google.android.apps.muzei.util.toast
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.ArrayList
@@ -178,10 +179,6 @@ class GallerySettingsActivity : AppCompatActivity(),
     private val placeholderDrawable: ColorDrawable by lazy {
         ColorDrawable(ContextCompat.getColor(this,
                 R.color.gallery_chosen_photo_placeholder))
-    }
-
-    private val getContentActivitiesLiveData: LiveData<List<ActivityInfo>> by lazy {
-        viewModel.getContentActivityInfoList
     }
 
     private var updatePosition = -1
@@ -298,7 +295,11 @@ class GallerySettingsActivity : AppCompatActivity(),
         chosenPhotosAdapter.loadStateFlow.onEach {
             onDataSetChanged()
         }.launchWhenStartedIn(this)
-        getContentActivitiesLiveData.observe(this) { invalidateOptionsMenu() }
+        viewModel.getContentActivityInfoList.map {
+            it.size
+        }.distinctUntilChanged().onEach {
+            invalidateOptionsMenu()
+        }.launchWhenStartedIn(this)
         GalleryScanWorker.enqueueRescan(this)
     }
 
@@ -333,16 +334,14 @@ class GallerySettingsActivity : AppCompatActivity(),
         // 0 = hide the MenuItem
         // 1 = show 'Import photos from APP_NAME' to go to the one app that exists
         // 2 = show 'Import photos...' to have the user pick which app to import photos from
-        val getContentActivites = getContentActivitiesLiveData.value
-                ?: // We'll get another chance when the list is populated
-                return false
+        val getContentActivities = viewModel.getContentActivityInfoList.value
         // Hide the 'Import photos' action if there are no activities found
         val importPhotosMenuItem = menu.findItem(R.id.action_import_photos)
-        importPhotosMenuItem.isVisible = getContentActivites.isNotEmpty()
+        importPhotosMenuItem.isVisible = getContentActivities.isNotEmpty()
         // If there's only one app that supports ACTION_GET_CONTENT, tell the user what that app is
-        if (getContentActivites.size == 1) {
+        if (getContentActivities.size == 1) {
             importPhotosMenuItem.title = getString(R.string.gallery_action_import_photos_from,
-                    getContentActivites[0].loadLabel(packageManager))
+                    getContentActivities.first().loadLabel(packageManager))
         } else {
             importPhotosMenuItem.setTitle(R.string.gallery_action_import_photos)
         }
@@ -352,19 +351,17 @@ class GallerySettingsActivity : AppCompatActivity(),
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_import_photos -> {
-                getContentActivitiesLiveData.value?.run {
-                    when (size) {
-                        0 -> {
-                            // Ignore
-                        }
-                        1 -> {
-                            // Just start the one ACTION_GET_CONTENT app
-                            requestGetContent(this[0])
-                        }
-                        else -> {
-                            // Let the user pick which app they want to import photos from
-                            GalleryImportPhotosDialogFragment.show(supportFragmentManager)
-                        }
+                when (viewModel.getContentActivityInfoList.value.size) {
+                    0 -> {
+                        // Ignore
+                    }
+                    1 -> {
+                        // Just start the one ACTION_GET_CONTENT app
+                        requestGetContent(viewModel.getContentActivityInfoList.value.first())
+                    }
+                    else -> {
+                        // Let the user pick which app they want to import photos from
+                        GalleryImportPhotosDialogFragment.show(supportFragmentManager)
                     }
                 }
                 return true

@@ -21,12 +21,12 @@ import android.content.ComponentName
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.apps.muzei.room.getInstalledProviders
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import net.nurik.roman.muzei.BuildConfig.DATA_LAYER_AUTHORITY
-import kotlin.coroutines.EmptyCoroutineContext
 
 data class ProviderInfo(
         val authority: String,
@@ -75,5 +75,5 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
         providerInfos.map { providerInfo ->
             ProviderInfo(application.packageManager, providerInfo)
         }.sortedWith(comparator)
-    }.asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
+    }.shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), 1)
 }

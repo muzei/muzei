@@ -10,7 +10,9 @@ import androidx.core.content.withStyledAttributes
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
+import com.google.android.apps.muzei.util.launchWhenStartedIn
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.flow.onEach
 
 class GalleryImportPhotosDialogFragment : DialogFragment() {
 
@@ -32,13 +34,13 @@ class GalleryImportPhotosDialogFragment : DialogFragment() {
             @LayoutRes val listItemLayout = getResourceId(R.styleable.AlertDialog_listItemLayout, 0)
             adapter = ArrayAdapter(requireContext(), listItemLayout)
         }
-        viewModel.getContentActivityInfoList.observe(this) { getContentActivities ->
+        viewModel.getContentActivityInfoList.onEach { getContentActivities ->
             if (getContentActivities.isEmpty()) {
                 dismiss()
             } else {
                 updateAdapter(getContentActivities)
             }
-        }
+        }.launchWhenStartedIn(this)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -46,7 +48,7 @@ class GalleryImportPhotosDialogFragment : DialogFragment() {
                 R.style.Theme_MaterialComponents_DayNight_Dialog_Alert)
                 .setTitle(R.string.gallery_import_dialog_title)
                 .setAdapter(adapter) { _, which ->
-                    viewModel.getContentActivityInfoList.value?.run {
+                    viewModel.getContentActivityInfoList.value.run {
                         listener?.requestGetContent(get(which))
                     }
                 }.create()

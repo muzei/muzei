@@ -26,7 +26,6 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
 import com.google.android.apps.muzei.legacy.LegacySourceManager
@@ -36,9 +35,10 @@ import com.google.android.apps.muzei.room.getInstalledProviders
 import com.google.android.apps.muzei.sync.ProviderManager
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.flow.shareIn
 
 data class ProviderInfo(
         val authority: String,
@@ -78,11 +78,11 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
 
     private val database = MuzeiDatabase.getInstance(application)
 
-    val currentProviderLiveData = database.providerDao().currentProvider
-            .asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
+    val currentProvider = database.providerDao().currentProvider
+            .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), 1)
 
     val unsupportedSources = LegacySourceManager.getInstance(application).unsupportedSources
-            .asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
+            .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), 1)
 
     private val comparator = Comparator<ProviderInfo> { p1, p2 ->
         // The SourceArtProvider should always the last provider listed
@@ -118,7 +118,7 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
     /**
      * The authority of the current MuzeiArtProvider
      */
-    private val currentProvider = database.providerDao().currentProvider.map { provider ->
+    private val currentProviderAuthority = database.providerDao().currentProvider.map { provider ->
         provider?.authority
     }
 
@@ -152,9 +152,9 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
      * - the input signal for when the descriptions have been invalidated (we don't
      * care about the value, but we do want to recompute the [ProviderInfo] values)
      */
-    private val providersFlow = combine(
+    val providers = combine(
             installedProviders,
-            currentProvider,
+            currentProviderAuthority,
             currentArtworkByProvider,
             descriptionInvalidationNanoTime
     ) { installedProviders, providerAuthority, artworkForProvider, _ ->
@@ -174,10 +174,7 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
                     currentArtworkUri = currentArtwork?.imageUri
             )
         }.sortedWith(comparator)
-    }
-
-    val providers = providersFlow
-            .asLiveData(viewModelScope.coroutineContext + EmptyCoroutineContext)
+    }.shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), 1)
 
     internal fun refreshDescription(authority: String) {
         // Remove the current description and trigger the invalidation
