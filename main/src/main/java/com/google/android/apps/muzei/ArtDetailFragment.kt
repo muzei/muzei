@@ -43,6 +43,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
+import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.ImageViewState
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
@@ -141,7 +142,6 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
     private var loadingSpinnerShown = false
     private var showFakeLoading = false
     private var showChrome = true
-    private var backgroundImageViewState: ImageViewState? = null
 
     private val viewModel: ArtDetailViewModel by viewModels()
 
@@ -235,8 +235,17 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
         }
         TooltipCompat.setTooltipText(binding.nextArtwork, binding.nextArtwork.contentDescription)
 
-        backgroundImageViewState = savedInstanceState?.getSerializable(
-                KEY_IMAGE_VIEW_STATE) as ImageViewState?
+        // Ensure that when the view state is saved, the SubsamplingScaleImageView also
+        // has its state saved
+        view.findViewTreeSavedStateRegistryOwner()?.savedStateRegistry
+                ?.registerSavedStateProvider(KEY_IMAGE_VIEW_STATE) {
+                    val backgroundImage =
+                            binding.backgroundImageContainer[binding.backgroundImageContainer.displayedChild]
+                                    as SubsamplingScaleImageView
+                    Bundle().apply {
+                        putSerializable(KEY_IMAGE_VIEW_STATE, backgroundImage.state)
+                    }
+                }
         binding.backgroundImageContainer.isVisible = showBackgroundImage
         binding.backgroundImageContainer.children.forEachIndexed { index, img ->
             val backgroundImage = img as SubsamplingScaleImageView
@@ -351,9 +360,15 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
                     val backgroundImage = binding.backgroundImageContainer[nextId]
                             as SubsamplingScaleImageView
                     backgroundImage.orientation = orientation
+                    // Try to restore any saved state of the SubsamplingScaleImageView
+                    // This would normally only be available after onViewStateRestored(), but
+                    // this is within a launchWhenStarted {} collection
+                    val backgroundImageViewState = view.findViewTreeSavedStateRegistryOwner()
+                            ?.savedStateRegistry
+                            ?.consumeRestoredStateForKey(KEY_IMAGE_VIEW_STATE)
+                            ?.getSerializable(KEY_IMAGE_VIEW_STATE) as ImageViewState?
                     backgroundImage.setImage(ImageSource.uri(MuzeiContract.Artwork.CONTENT_URI),
                             backgroundImageViewState)
-                    backgroundImageViewState = null
                     // Set the image to visible since SubsamplingScaleImageView does some of
                     // its processing in onDraw()
                     backgroundImage.isVisible = true
@@ -402,16 +417,6 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
             showFakeLoading = false
             updateLoadingSpinnerVisibility()
         }.launchWhenStartedIn(viewLifecycleOwner)
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        if (view != null) {
-            val backgroundImage =
-                    binding.backgroundImageContainer[binding.backgroundImageContainer.displayedChild]
-                    as SubsamplingScaleImageView
-            outState.putSerializable(KEY_IMAGE_VIEW_STATE, backgroundImage.state)
-        }
     }
 
     override fun onStart() {
