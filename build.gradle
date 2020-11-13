@@ -31,8 +31,8 @@ buildscript {
         drawerLayoutVersion = '1.1.1'
         exifInterfaceVersion = '1.3.1'
         firebaseAnalyticsVersion = '18.0.0'
-        firebaseCrashlyticsVersion = '17.2.2'
-        firebasePerfVersion = '19.0.9'
+        firebaseCrashlyticsVersion = '17.3.0'
+        firebasePerfVersion = '19.0.10'
         fragmentVersion = '1.3.0-beta01'
         kotlinVersion = '1.4.10'
         lifecycleVersion = '2.3.0-beta01'
@@ -62,8 +62,8 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.1'
         classpath "com.google.gms:google-services:4.3.4"
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.3.0'
-        classpath "com.google.firebase:perf-plugin:1.3.3"
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.4.1'
+        classpath "com.google.firebase:perf-plugin:1.3.4"
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$navigationVersion"
