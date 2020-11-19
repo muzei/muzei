@@ -74,6 +74,7 @@ import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
 import java.util.concurrent.TimeUnit
+import kotlin.math.max
 import kotlin.math.min
 
 /**
@@ -384,21 +385,16 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
                 return
             }
             val background = backgroundBitmap ?: return
-            backgroundScaledBitmap = if (background.width > background.height) {
-                val scalingFactor = currentHeight * 1f / background.height
-                Bitmap.createScaledBitmap(
-                        background,
-                        (scalingFactor * background.width).toInt(),
-                        currentHeight,
-                        true /* filter */)
-            } else {
-                val scalingFactor = currentWidth * 1f / background.width
-                Bitmap.createScaledBitmap(
-                        background,
-                        currentWidth,
-                        (scalingFactor * background.height).toInt(),
-                        true /* filter */)
-            }
+            val scaleHeightFactor = currentHeight * 1f / background.height
+            val scaleWidthFactor = currentWidth * 1f / background.width
+            // Use the larger scale factor to ensure that we center crop and don't show any
+            // black bars (rather than use the minimum and scale down to see the whole image)
+            val scalingFactor = max(scaleHeightFactor, scaleWidthFactor)
+            backgroundScaledBitmap = Bitmap.createScaledBitmap(
+                    background,
+                    (scalingFactor * background.width).toInt(),
+                    (scalingFactor * background.height).toInt(),
+                    true /* filter */)
             backgroundScaledBlurredBitmap = backgroundScaledBitmap.blur(this@MuzeiWatchFace,
                     (ImageBlurrer.MAX_SUPPORTED_BLUR_PIXELS / 2).toFloat())
         }

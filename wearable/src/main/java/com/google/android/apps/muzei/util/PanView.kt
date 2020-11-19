@@ -164,15 +164,16 @@ class PanView @JvmOverloads constructor(context: Context, attrs: AttributeSet? =
 
         val width = image.width
         val height = image.height
-        scaledImage = if (width > height) {
-            val scalingFactor = currentHeight * 1f / height
-            val scaledWidth = max(1, (scalingFactor * width).toInt())
-            Bitmap.createScaledBitmap(image, scaledWidth, currentHeight, true)
-        } else {
-            val scalingFactor = currentWidth * 1f / width
-            val scaledHeight = max(1, (scalingFactor * height).toInt())
-            Bitmap.createScaledBitmap(image, currentWidth, scaledHeight, true)
-        }
+        val scaleHeightFactor = currentHeight * 1f / height
+        val scaleWidthFactor = currentWidth * 1f / width
+        // Use the larger scale factor to ensure that we center crop and don't show any
+        // black bars (rather than use the minimum and scale down to see the whole image)
+        val scalingFactor = max(scaleHeightFactor, scaleWidthFactor)
+        scaledImage = Bitmap.createScaledBitmap(
+                image,
+                (scalingFactor * width).toInt(),
+                (scalingFactor * height).toInt(),
+                true /* filter */)
         blurredImage = scaledImage.blur(context)
         scaledImage?.let {
             // Center the image

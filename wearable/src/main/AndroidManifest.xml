@@ -121,6 +121,9 @@
                 android:name="android.service.wallpaper"
                 android:resource="@xml/watch_face"/>
             <meta-data
+                android:name="android.service.wallpaper.square_mode"
+                android:value="false"/>
+            <meta-data
                 android:name="com.google.android.wearable.watchface.preview"
                 android:resource="@drawable/preview"/>
             <meta-data
