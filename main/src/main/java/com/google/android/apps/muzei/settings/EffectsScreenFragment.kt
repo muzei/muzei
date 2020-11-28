@@ -154,12 +154,10 @@ class EffectsScreenFragment : Fragment(R.layout.effects_screen_fragment) {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        val prefs = Prefs.getSharedPreferences(requireContext())
-        prefs.unregisterOnSharedPreferenceChangeListener(
-                blurOnPreferenceChangeListener)
-        prefs.unregisterOnSharedPreferenceChangeListener(
-                dimOnPreferenceChangeListener)
-        prefs.unregisterOnSharedPreferenceChangeListener(
-                greyOnPreferenceChangeListener)
+        Prefs.getSharedPreferences(requireContext()).apply {
+            unregisterOnSharedPreferenceChangeListener(blurOnPreferenceChangeListener)
+            unregisterOnSharedPreferenceChangeListener(dimOnPreferenceChangeListener)
+            unregisterOnSharedPreferenceChangeListener(greyOnPreferenceChangeListener)
+        }
     }
 }
