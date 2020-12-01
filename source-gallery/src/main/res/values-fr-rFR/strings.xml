@@ -33,9 +33,9 @@
         <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> photos</item>
     </plurals>
     <string name="gallery_empty">Photos aléatoires de l\'appareil photo</string>
-    <string name="gallery_empty_subtitle">Choisir des photos spécifiques à la place</string>
+    <string name="gallery_empty_subtitle">Choisir plutôt des photos spécifiques</string>
     <string name="gallery_from_gallery">Depuis votre galerie</string>
-    <string name="gallery_touch_to_view">Appuyer pour afficher</string>
+    <string name="gallery_touch_to_view">Appuyer pour visualiser</string>
     <string name="gallery_shared_from">Partagé depuis <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
     <plurals name="gallery_add_photos_success">
         <item quantity="one"><xliff:g id="quantity" example="1">%d</xliff:g> image a été ajoutée avec succès\nà la source \"Mes Photos\"</item>
@@ -45,8 +45,8 @@
         <item quantity="one">Impossible d\'ajouter <xliff:g id="quantity" example="1">%d</xliff:g> image\nà la source \"Mes Photos\"</item>
         <item quantity="other">Impossible d\'ajouter <xliff:g id="quantity" example="2">%d</xliff:g> images\nà la source « Mes photos »</item>
     </plurals>
-    <string name="gallery_enable_random">Activer les photos aléatoires de l\'appareil photo</string>
-    <string name="gallery_permission_rationale">Autoriser la permission de stockage pour afficher des photos aléatoires comme arrière-plan.</string>
+    <string name="gallery_enable_random">Photos aléatoires de l\'appareil photo</string>
+    <string name="gallery_permission_rationale">Autoriser l\'accès au stockage pour utiliser des photos aléatoires comme fond d\'écran.</string>
     <string name="gallery_edit_settings">Modifier les Autorisations de l\'Application</string>
-    <string name="gallery_denied_explanation">Vous devez activer la permission <b>Stockage</b> pour utiliser des photos aléatoires comme arrière-plan.</string>
+    <string name="gallery_denied_explanation">Vous devez autoriser l\'accès au <b>Stockage</b> pour utiliser des photos aléatoires en tant que fond d\'écran.</string>
 </resources>

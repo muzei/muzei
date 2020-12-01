@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="featuredart_source_title">Art en vedette</string>
-    <string name="featuredart_source_description">Un nouveau tableau chaque jour</string>
+    <string name="featuredart_source_title">Œuvres mises en avant</string>
+    <string name="featuredart_source_description">Une nouvelle peinture chaque jour</string>
     <string name="featuredart_source_action_view_archive">Accéder à l\'archive</string>
     <string name="featuredart_action_share_artwork">Partager l\'œuvre</string>
 </resources>
