@@ -22,6 +22,7 @@ import android.text.method.LinkMovementMethod
 import android.view.View
 import android.view.ViewPropertyAnimator
 import androidx.appcompat.app.AppCompatActivity
+import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
@@ -68,7 +69,9 @@ class AboutActivity : AppCompatActivity() {
         binding.content.androidExperimentLink.setOnClickListener {
             val cti = CustomTabsIntent.Builder()
                     .setShowTitle(true)
-                    .setToolbarColor(ContextCompat.getColor(this, R.color.theme_primary))
+                    .setDefaultColorSchemeParams(CustomTabColorSchemeParams.Builder()
+                            .setToolbarColor(ContextCompat.getColor(this, R.color.theme_primary))
+                            .build())
                     .build()
             try {
                 cti.launchUrl(this,

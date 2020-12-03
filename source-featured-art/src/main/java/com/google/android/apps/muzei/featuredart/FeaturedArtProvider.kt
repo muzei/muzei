@@ -23,6 +23,7 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.BaseColumns
 import android.util.Log
+import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.RemoteActionCompat
 import androidx.core.content.ContextCompat
@@ -108,7 +109,9 @@ class FeaturedArtProvider : MuzeiArtProvider() {
         val title = context.getString(R.string.featuredart_source_action_view_archive)
         val cti = CustomTabsIntent.Builder()
                 .setShowTitle(true)
-                .setToolbarColor(ContextCompat.getColor(context, R.color.featuredart_color))
+                .setDefaultColorSchemeParams(CustomTabColorSchemeParams.Builder()
+                        .setToolbarColor(ContextCompat.getColor(context, R.color.featuredart_color))
+                        .build())
                 .build()
         val intent = cti.intent.apply {
             data = ARCHIVE_URI
