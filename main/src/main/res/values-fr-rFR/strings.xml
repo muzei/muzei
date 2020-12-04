@@ -124,7 +124,7 @@
 
         Nous remercions infiniment ces projets open source :<br>
         &bull; <b><a href="http://square.github.io/okhttp/">OkHttp</a> et <a href="http://square.github.io/picasso/">Picasso</a></b> par Square<br>
-        &bull; <b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a></b> par Robert Green, Mark F. Guerra, et d'autres
+        &bull; <b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a></b> par Robert Green, Mark F. Guerra, et d’autres
     ]]></string>
     <string name="about_version_template">v<xliff:g id="version_number" example="3.3.0 Beta">%1$s</xliff:g></string>
     <string name="app_author"><xliff:g id="roman_nurik">Roman Nurik</xliff:g> et <xliff:g id="ian_lake">Ian Lake</xliff:g></string>
