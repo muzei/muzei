@@ -14,4 +14,11 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources></resources>
+<resources>
+    <string name="complication_artwork_label">Opera d\'arte</string>
+    <string name="next_artwork">Prossima opera d\'arte</string>
+    <string name="provider_title">Fonte in uso</string>
+    <string name="provider_settings">Impostazioni delle fonti</string>
+    <string name="config_show_date_title">Data</string>
+    <string name="config_tap_title">Azione al tocco</string>
+</resources>
