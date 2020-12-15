@@ -31,4 +31,9 @@
     <string name="gallery_empty">Fotos aleatorias de la cámara</string>
     <string name="gallery_empty_subtitle">Elegir fotos específicas</string>
     <string name="gallery_from_gallery">De la galería</string>
+    <string name="gallery_touch_to_view">Toque para ver</string>
+    <string name="gallery_enable_random">Habilitar usar fotos aleatorias de la cámara</string>
+    <string name="gallery_permission_rationale">Debes habilitar el permiso de Almacenamiento para usar fotos aleatorias como tu fondo de pantalla.</string>
+    <string name="gallery_edit_settings">Editar permisos</string>
+    <string name="gallery_denied_explanation">Debes habilitar el permiso de <b>Almacenamiento</b> para usar fotos aleatorias como tu fondo.</string>
 </resources>

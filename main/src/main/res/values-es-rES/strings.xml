@@ -18,16 +18,16 @@
     <string name="app_description"><xliff:g id="muzei_name">Muzei</xliff:g> Fondo de Pantalla Animado</string>
     <string name="settings_home_screen_title">Pantalla de Inicio</string>
     <string name="settings_lock_screen_title">Pantalla de Bloqueo</string>
-    <string name="settings_blur_amount_title">Desenfoque</string>
-    <string name="settings_dim_amount_title">Dimerizar</string>
-    <string name="settings_grey_amount_title">Gris</string>
+    <string name="settings_blur_amount_title">Desenfocar</string>
+    <string name="settings_dim_amount_title">Atenuar</string>
+    <string name="settings_grey_amount_title">Oscurecer</string>
     <string name="notification_new_wallpaper">Nuevo fondo de pantalla</string>
     <string name="notification_new_wallpaper_channel_name">Nuevos fondos de pantalla</string>
     <string name="notification_settings">Ajustes de notificaciones</string>
     <string name="notification_settings_failed">Abrir los ajustes de las notificaciones falló, por favor cambie la configuración de <xliff:g id="muzei_name">Muzei</xliff:g>en la aplicación de configuración.</string>
     <string name="notification_settings_done">Hecho</string>
     <string name="notification_settings_moved_title">Los ajustes de notificación se han movido</string>
-    <string name="notification_settings_moved_text">Revisa tus ajustes de notificación</string>
+    <string name="notification_settings_moved_text">Revisa tus ajustes de notificaciones</string>
     <string name="auto_advance_settings">Ajustes de Avance Automático</string>
     <string name="auto_advance_disabled">Avance automático desactivado</string>
     <string name="auto_advance_disabled_description">Las Fuentes Antiguas manejan su propio tiempo de carga y no son compatibles con el avance automático</string>
@@ -54,6 +54,7 @@
     <string name="provider_settings">Configuraciones</string>
     <string name="provider_browse">Navegar</string>
     <string name="legacy_notification_channel_name">Fuentes Antiguas</string>
+    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> ya no es compatible</string>
     <string name="legacy_action_learn_more">Aprende más</string>
     <string name="legacy_action_send_feedback">Dinos tu opinión</string>
     <string name="legacy_source_info_title">Fuentes Antiguas</string>
@@ -63,6 +64,7 @@
     <string name="done">Hecho</string>
     <string name="set_as_wallpaper_using_muzei">Fondo de pantalla (usando <xliff:g id="muzei_name">Muzei</xliff:g>)</string>
     <string name="set_as_wallpaper_failed">No se puede leer el diseño</string>
+    <string name="get_more_sources_description">Cambia tu fondo de pantalla completamente usando fuentes adicionales instaladas desde <xliff:g id="google_play">Google Play</xliff:g> Store</string>
     <string name="action_link_effects">Inicio 🔗 Bloqueo</string>
     <string name="reset_advanced_settings_defaults">Restablecer sliders</string>
     <string name="browse_refresh">Actualizar</string>
@@ -71,6 +73,7 @@
     <string name="actions_gestures">Personalizar gestos</string>
     <string name="gestures_title">Gestos</string>
     <string name="gestures_double_tap_title">Doble Toque</string>
+    <string name="gestures_double_tap_description">Toque dos veces el fondo de pantalla desenfocado en la pantalla de inicio para activar la acción de su elección.</string>
     <string name="gestures_three_finger_tap_title">Toque con tres dedos</string>
     <string name="gestures_tap_action_temporary_disable">Desactivar los efectos temporalmente</string>
     <string name="gestures_tap_action_next">Siguiente Diseño</string>

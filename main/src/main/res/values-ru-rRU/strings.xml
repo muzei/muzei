@@ -44,4 +44,5 @@
     <string name="auto_advance_interval_24h">Каждые 24 часа</string>
     <string name="auto_advance_interval_72h">Каждые 3 дня</string>
     <string name="auto_advance_interval_never">Не переходить автоматически</string>
+    <string name="auto_advance_tasker">Для точного контроля над тем, что вызывает изменения ваших обоев, используйте действие \'Следующая работа\' в <xliff:g id="tasker_name">Tasker</xliff:g> под Plugin -&gt; <xliff:g id="muzei_name">Muzei</xliff:g> и отключите автоматический переход здесь.</string>
 </resources>
