@@ -59,7 +59,13 @@ class WorkManagerInitializer : ContentProvider() {
             }
 
             try {
-                WorkManager.initialize(context, Configuration.Builder().build())
+                WorkManager.initialize(context, Configuration.Builder()
+                        .apply {
+                            if (BuildConfig.DEBUG) {
+                                setMinimumLoggingLevel(Log.DEBUG)
+                            }
+                        }
+                        .build())
             } catch(e: IllegalStateException) {
                 // Ignore errors arising from multiple initializations
             }
