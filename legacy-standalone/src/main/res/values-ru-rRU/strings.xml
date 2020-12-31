@@ -15,6 +15,7 @@
   limitations under the License.
   -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="legacy_app_name"><xliff:g id="muzei_name">Muzei</xliff:g> Устаревшие</string>
     <string name="legacy_source_provider_name">Устаревшие источники</string>
     <string name="legacy_source_warning_title">Активировать устаревший источник?</string>
     <string name="legacy_source_warning_message">Устаревшие источники загружаются по собственному графику и не используют автопереход. Это может привести к дополнительному использованию данных, если у устаревшего источника нет настройки \"только WiFi\".</string>

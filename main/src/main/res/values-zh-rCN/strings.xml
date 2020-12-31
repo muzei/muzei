@@ -110,8 +110,8 @@
     <string name="gestures_tap_action_none">无</string>
     <string name="actions_always_dark">总是暗色</string>
     <string name="about_title">关于 <xliff:g id="muzei_name">Muzei</xliff:g></string>
-    <string name="about_body"><![CDATA[        由 Roman Nurik 和 Ian Lake 以及来自<a href="http://code.muzei.co">开源社区</a>的重要贡献制作。
-        <i>Muzei</i> 是俄语词<a href="http://translate.google.com/#en/ru/museum"><i>музей</i></a>的转写，意为&#8220;博物馆&#8221;<br><br>。
+    <string name="about_body"><![CDATA[由 Roman Nurik 和 Ian Lake 以及来自<a href="http://code.muzei.co">开源社区</a>的重要贡献制作。
+        <i>Muzei</i> 是俄语词 <a href="http://translate.google.com/#en/ru/museum"><i>музей</i></a> 的转写，意为&#8220;博物馆&#8221;。<br><br>
 
         版权所有 2013&ndash;2018 Google Inc。保留所有权利。
         <a href="http://m.google.com/utos">服务条款</a>，
@@ -119,7 +119,8 @@
 
         非常感谢这些开源项目：<br>
         &bull; <b><a href="http://square.github.io/okhttp/">OkHttp</a> and <a href="http://square.github.io/picasso/">Picasso</a></b> by Square<br>
-        &bull; <b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a></b> by Robert Green, Mark F. Guerra, and others]]></string>
+        &bull; <b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a></b> by Robert Green, Mark F. Guerra, and others
+    ]]></string>
     <string name="about_version_template">v<xliff:g id="version_number" example="3.3.0 Beta">%1$s</xliff:g></string>
     <string name="app_author"><xliff:g id="roman_nurik">Roman Nurik</xliff:g> 与 <xliff:g id="ian_lake">Ian Lake</xliff:g></string>
     <string name="app_context_description">您主屏幕上的动态博物馆。</string>
