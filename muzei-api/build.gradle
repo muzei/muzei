@@ -148,9 +148,9 @@ uploadArchives {
                url 'http://api.muzei.co'
 
                scm {
-                   url 'https://github.com/romannurik/muzei.git'
-                   connection 'scm:git:https://github.com/romannurik/muzei'
-                   developerConnection 'scm:git:https://github.com/romannurik/muzei'
+                   url 'https://github.com/muzei/muzei.git'
+                   connection 'scm:git:https://github.com/muzei/muzei'
+                   developerConnection 'scm:git:https://github.com/muzei/muzei'
                }
 
                licenses {

@@ -32,7 +32,7 @@ A deeper discussion of the API, along with code snippets, is available in the
 #### Sample code
 
 A complete example is available in the
-[example-unsplash](https://github.com/romannurik/muzei/tree/master/example-unsplash) directory.
+[example-unsplash](https://github.com/muzei/muzei/tree/main/example-unsplash) directory.
 
 ### Accessing current wallpaper information (API 2.0+)
 
@@ -53,4 +53,4 @@ A deeper discussion of the API, along with code snippets, is available in the
 #### Sample code
 
 Complete examples are available in the
-[example-watchface](https://github.com/romannurik/muzei/tree/master/example-watchface) directory.
+[example-watchface](https://github.com/muzei/muzei/tree/main/example-watchface) directory.
