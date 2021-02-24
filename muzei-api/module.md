@@ -8,7 +8,6 @@ Muzei offers two API surfaces:
 
 2. A content provider contract that allows you to read current artwork data. This is the focus of
  the [com.google.android.apps.muzei.api] package.
------
 
 ### Building your own wallpaper source (API 3.2+)
 
@@ -23,10 +22,10 @@ for any app to provide wallpapers to Muzei via just a few steps:
    [com.google.android.apps.muzei.api.provider.MuzeiArtProvider].
 3. Add the corresponding `<provider>` tag to your `AndroidManifest.xml` file and add the required
     `<intent-filter>` and `<meta-data>` elements.
-
+####
 Once you have both Muzei and your custom source installed, you should be able to choose your source
 from the 'Sources' screen in Muzei.
-
+####
 A deeper discussion of the API, along with code snippets, is available in the
 [com.google.android.apps.muzei.api.provider.MuzeiArtProvider] class reference.
 
@@ -34,8 +33,6 @@ A deeper discussion of the API, along with code snippets, is available in the
 
 A complete example is available in the
 [example-unsplash](https://github.com/romannurik/muzei/tree/master/example-unsplash) directory.
-
------
 
 ### Accessing current wallpaper information (API 2.0+)
 
@@ -49,7 +46,7 @@ the active wallpaper.
    to get the current artwork as a bitmap, or access more information about the artwork by querying
    [com.google.android.apps.muzei.api.MuzeiContract.Artwork.CONTENT_URI]
    with a `ContentResolver`.
-
+####
 A deeper discussion of the API, along with code snippets, is available in the
 [com.google.android.apps.muzei.api] package reference docs.
 

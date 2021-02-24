@@ -67,55 +67,41 @@ android {
     }
 }
 
-dokka {
-    outputFormat = 'html'
-    outputDirectory = "$buildDir/dokka"
+tasks.withType(org.jetbrains.dokka.gradle.DokkaTask).configureEach {
+    dokkaSourceSets {
+        named("main") {
+            if (it.name.contains("androidTest")) {
+                suppress.set(true)
+            }
 
-    configuration {
-        externalDocumentationLink {
-            url = new URL("https://developer.android.com/reference/")
-            packageListUrl = new URL("https://developer.android.com/reference/androidx/package-list")
-        }
+            externalDocumentationLink {
+                url.set(new URL("https://developer.android.com/reference/"))
+                packageListUrl.set(new URL("https://developer.android.com/reference/androidx/package-list"))
+            }
 
-        perPackageOption {
-            prefix = "com.google.android.apps.muzei.api.internal"
-            suppress = true
-        }
+            perPackageOption {
+                matchingRegex.set(".*\\.internal.*")
+                suppress.set(true)
+            }
 
-        // Add module and package level documentation
-        includes = ['module.md', 'package.md']
-    }
-
-    doLast {
-        copy {
-            from "javadoc-scripts"
-            into new File(outputDirectory)
-            include "style.css"
+            // Add module and package level documentation
+            includes.from(files("module.md", "package.md"))
         }
     }
 }
 
-task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
-    outputFormat = 'javadoc'
-    outputDirectory = "$buildDir/javadoc"
-
-    configuration {
-        externalDocumentationLink {
-            url = new URL("https://developer.android.com/reference/")
-            packageListUrl = new URL("https://developer.android.com/reference/androidx/package-list")
+dokkaHtml.configure {
+    doLast {
+        copy {
+            from "dokka-override"
+            into new File(outputDirectory.get(), "styles")
+            include "style.css"
         }
-
-        perPackageOption {
-            prefix = "com.google.android.apps.muzei.api.internal"
-            suppress = true
+        copy {
+            from "dokka-override"
+            into new File(outputDirectory.get(), "images")
+            include "docs_logo.svg", "logo-icon.svg"
         }
-        perPackageOption {
-            prefix = "com.google.android.apps.muzei.api.BuildConfig"
-            suppress = true
-        }
-
-        // Add module and package level documentation
-        includes = ['module.md', 'package.md']
     }
 }
 
