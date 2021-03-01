@@ -17,7 +17,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'org.jetbrains.dokka'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 Properties versionProps = new Properties()
@@ -120,54 +120,60 @@ artifacts {
     archives javadocJar
 }
 
-// http://jedicoder.blogspot.com/2011/11/automated-gradle-project-deployment-to.html
-// TODO: switch to http://www.gradle.org/docs/current/userguide/publishing_maven.html
-
 signing {
-    required { gradle.taskGraph.hasTask("uploadArchives") }
-    sign configurations.archives
+    sign publishing.publications
 }
+afterEvaluate {
+    publishing {
+        repositories {
+            maven {
+                name = "sonatype"
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+                def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+                def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
 
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: props["sonatypeUsername"], password: props["sonatypePassword"])
+                credentials {
+                    username props["sonatypeUsername"]
+                    password props["sonatypePassword"]
+                }
             }
+        }
 
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: props["sonatypeUsername"], password: props["sonatypePassword"])
+        publications {
+            release(MavenPublication) {
+                from components.release
+
+                artifact sourcesJar
+                artifact javadocJar
+
+                pom {
+                    name = 'Muzei API'
+                    description = 'The Muzei API allows you to extend Muzei with custom sources'
+                    url = 'https://api.muzei.co'
+
+                    scm {
+                        url = 'https://github.com/muzei/muzei.git'
+                        connection = 'scm:git:https://github.com/muzei/muzei'
+                        developerConnection = 'scm:git:https://github.com/muzei/muzei'
+                    }
+
+                    licenses {
+                        license {
+                            name = 'The Apache Software License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                            distribution = 'repo'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id = 'romannurik'
+                            name = 'Roman Nurik'
+                        }
+                    }
+                }
             }
-
-            pom.project {
-               name 'Muzei API'
-               packaging 'aar'
-               description 'The Muzei API allows you to extend Muzei with custom sources'
-               url 'http://api.muzei.co'
-
-               scm {
-                   url 'https://github.com/muzei/muzei.git'
-                   connection 'scm:git:https://github.com/muzei/muzei'
-                   developerConnection 'scm:git:https://github.com/muzei/muzei'
-               }
-
-               licenses {
-                   license {
-                       name 'The Apache Software License, Version 2.0'
-                       url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                       distribution 'repo'
-                   }
-               }
-
-               developers {
-                   developer {
-                       id 'romannurik'
-                       name 'Roman Nurik'
-                   }
-               }
-           }
         }
     }
 }
