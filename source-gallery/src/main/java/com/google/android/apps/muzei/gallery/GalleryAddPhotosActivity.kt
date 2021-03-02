@@ -28,7 +28,7 @@ class GalleryAddPhotosActivity : FragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val intentReader = ShareCompat.IntentReader.from(this)
+        val intentReader = ShareCompat.IntentReader(this)
         if (!intentReader.isShareIntent) {
             finish()
             return
