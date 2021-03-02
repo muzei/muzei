@@ -49,9 +49,6 @@ class Source(
 
     var description: String? = null
 
-    val displayDescription: String?
-        get() = if (description.isNullOrEmpty()) defaultDescription else description
-
     var color: Int = 0
 
     var targetSdkVersion: Int = 0
@@ -69,6 +66,9 @@ class Source(
     @TypeConverters(UserCommandTypeConverter::class)
     var commands: MutableList<String> = ArrayList()
 }
+
+val Source.displayDescription: String?
+    get() = if (description.isNullOrEmpty()) defaultDescription else description
 
 private const val TAG = "Source"
 private const val ACTION_HANDLE_COMMAND = "com.google.android.apps.muzei.api.action.HANDLE_COMMAND"
