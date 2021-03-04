@@ -41,9 +41,6 @@ data class ChosenPhoto(
     @ColumnInfo(name = "_id")
     var id: Long = 0
 
-    internal val contentUri: Uri
-        get() = getContentUri(id)
-
     companion object {
 
         internal fun getContentUri(id: Long): Uri {
@@ -53,3 +50,6 @@ data class ChosenPhoto(
         }
     }
 }
+
+val ChosenPhoto.contentUri: Uri
+    get() = ChosenPhoto.getContentUri(id)

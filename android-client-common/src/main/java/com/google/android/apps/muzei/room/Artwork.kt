@@ -56,9 +56,6 @@ data class Artwork(
     @ColumnInfo(name = "date_added")
     var dateAdded = Date()
 
-    val contentUri: Uri
-        get() = getContentUri(id)
-
     companion object {
 
         fun getContentUri(id: Long): Uri {
@@ -69,3 +66,6 @@ data class Artwork(
         }
     }
 }
+
+val Artwork.contentUri: Uri
+    get() = Artwork.getContentUri(id)

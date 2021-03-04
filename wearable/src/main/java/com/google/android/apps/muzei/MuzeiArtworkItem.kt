@@ -34,6 +34,7 @@ import androidx.wear.widget.RoundedDrawable
 import coil.load
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.room.contentUri
 import com.google.android.apps.muzei.util.launchWhenStartedIn
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onEach

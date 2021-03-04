@@ -20,6 +20,7 @@ import android.content.Context
 import androidx.lifecycle.LifecycleOwner
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.room.contentUri
 import com.google.android.apps.muzei.util.launchWhenStartedIn
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.onEach

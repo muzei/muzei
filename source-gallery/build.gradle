@@ -16,7 +16,7 @@
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
+apply plugin: 'com.google.devtools.ksp'
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
@@ -37,7 +37,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
     implementation "androidx.room:room-ktx:$roomVersion"
     implementation "androidx.work:work-runtime-ktx:$workManagerVersion"
-    kapt "androidx.room:room-compiler:$roomVersion"
+    ksp "androidx.room:room-compiler:$roomVersion"
     implementation "androidx.paging:paging-runtime-ktx:$pagingVersion"
 }
 
@@ -59,12 +59,8 @@ android {
         buildConfigField "String", "GALLERY_AUTHORITY", "\"${galleryAuthorityValue}\""
         buildConfigField "String", "GALLERY_ART_AUTHORITY", "\"${galleryArtAuthorityValue}\""
 
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = [
-                        "room.schemaLocation":"$projectDir/schemas".toString(),
-                ]
-            }
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
         }
     }
 

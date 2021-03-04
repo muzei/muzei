@@ -29,7 +29,7 @@ object UserCommandTypeConverter {
     private const val TAG = "UserCmdTypeConverter"
 
     @TypeConverter
-    fun fromString(commandsString: String): List<String> {
+    fun fromString(commandsString: String): MutableList<String> {
         val commands = ArrayList<String>()
         if (commandsString.isEmpty()) {
             return commands
@@ -47,7 +47,7 @@ object UserCommandTypeConverter {
     }
 
     @TypeConverter
-    fun commandsListToString(commands: List<String>?): String =
+    fun commandsListToString(commands: MutableList<String>?): String =
             JSONArray().apply {
                 commands?.forEach { command -> put(command) }
             }.toString()

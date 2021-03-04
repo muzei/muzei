@@ -23,6 +23,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.wear.ambient.AmbientModeSupport
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.room.contentUri
 import com.google.android.apps.muzei.util.launchWhenStartedIn
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase

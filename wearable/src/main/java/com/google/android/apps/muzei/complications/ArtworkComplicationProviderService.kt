@@ -33,6 +33,7 @@ import com.google.android.apps.muzei.ProviderChangedReceiver
 import com.google.android.apps.muzei.datalayer.ActivateMuzeiReceiver
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.room.contentUri
 import com.google.android.apps.muzei.sync.ProviderChangedWorker
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.firebase.analytics.FirebaseAnalytics

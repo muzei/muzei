@@ -1,3 +1,10 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+    }
+}
+
 include ':muzei-api'
 include ':extensions'
 include ':legacy-common'
