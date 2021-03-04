@@ -100,6 +100,12 @@ android {
     }
 }
 
+repositories {
+    // Required for android-plugin-api-for-locale
+    //noinspection JcenterRepositoryObsolete
+    jcenter()
+}
+
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
