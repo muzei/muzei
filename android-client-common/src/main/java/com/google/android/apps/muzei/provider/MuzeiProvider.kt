@@ -109,7 +109,7 @@ class MuzeiProvider : ContentProvider() {
         throw UnsupportedOperationException("Deletes are not supported")
     }
 
-    override fun getType(uri: Uri): String? {
+    override fun getType(uri: Uri): String {
         // Chooses the MIME type based on the incoming URI pattern
         return when (uriMatcher.match(uri)) {
             ARTWORK ->

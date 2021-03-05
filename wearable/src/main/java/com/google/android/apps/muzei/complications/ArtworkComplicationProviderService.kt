@@ -76,8 +76,8 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
 
     private fun addComplication(complicationId: Int) {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val complications = preferences.getStringSet(KEY_COMPLICATION_IDS,
-                null) ?: TreeSet()
+        val complications = TreeSet(preferences.getStringSet(KEY_COMPLICATION_IDS,
+                null) ?: emptySet())
         complications.add(complicationId.toString())
         preferences.edit { putStringSet(KEY_COMPLICATION_IDS, complications) }
         if (BuildConfig.DEBUG) {
@@ -92,8 +92,8 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
         }
         Firebase.analytics.logEvent("complication_artwork_deactivated", null)
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val complications = preferences.getStringSet(KEY_COMPLICATION_IDS,
-                null) ?: TreeSet()
+        val complications = TreeSet(preferences.getStringSet(KEY_COMPLICATION_IDS,
+                null) ?: emptySet())
         complications.remove(complicationId.toString())
         preferences.edit { putStringSet(KEY_COMPLICATION_IDS, complications) }
         if (BuildConfig.DEBUG) {

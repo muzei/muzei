@@ -83,7 +83,7 @@ class GalleryProvider : ContentProvider() {
         throw UnsupportedOperationException("Deletes are not supported")
     }
 
-    override fun getType(uri: Uri): String? {
+    override fun getType(uri: Uri): String {
         return "vnd.android.cursor.item/vnd.google.android.apps.muzei.gallery.chosen_photos"
     }
 

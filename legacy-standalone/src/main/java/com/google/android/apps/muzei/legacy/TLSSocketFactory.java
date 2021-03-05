@@ -31,7 +31,7 @@ import javax.net.ssl.SSLSocketFactory;
  * Source: http://blog.dev-area.net/2015/08/13/android-4-1-enable-tls-1-1-and-tls-1-2/
  */
 class TLSSocketFactory extends SSLSocketFactory {
-    private SSLSocketFactory delegate;
+    private final SSLSocketFactory delegate;
 
     TLSSocketFactory() throws KeyManagementException, NoSuchAlgorithmException {
         SSLContext context = SSLContext.getInstance("TLS");

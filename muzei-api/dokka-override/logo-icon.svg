@@ -18,7 +18,7 @@
         <circle id="XMLID_9_" cx="24" cy="24" r="22"/>
     </defs>
     <clipPath id="XMLID_34_">
-        <use xlink:href="#XMLID_9_" overflow="visible"/>
+        <use xlink:href="#XMLID_9_"/>
     </clipPath>
     <g id="XMLID_8_" clip-path="url(#XMLID_34_)">
         <g id="XMLID_17_">

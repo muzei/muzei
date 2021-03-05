@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import org.jetbrains.dokka.gradle.DokkaTask
+
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'org.jetbrains.dokka'
@@ -36,6 +38,8 @@ allprojects { ext."signing.secretKeyRingFile" = props["signing.secretKeyRingFile
 
 dependencies {
     api "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
+    // Use the minimum value needed to avoid forcing apps to upgrade
+    //noinspection GradleDependency,KtxExtensionAvailable
     api "androidx.core:core:1.1.0"
     implementation "androidx.exifinterface:exifinterface:1.3.2"
 }
@@ -67,7 +71,7 @@ android {
     }
 }
 
-tasks.withType(org.jetbrains.dokka.gradle.DokkaTask).configureEach {
+tasks.withType(DokkaTask).configureEach {
     dokkaSourceSets {
         named("main") {
             if (it.name.contains("androidTest")) {

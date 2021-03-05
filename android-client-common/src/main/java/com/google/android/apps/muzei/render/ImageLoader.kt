@@ -184,7 +184,7 @@ class AssetImageLoader constructor(
 ) : ImageLoader() {
 
     @Throws(IOException::class)
-    override fun openInputStream(): InputStream? =
+    override fun openInputStream(): InputStream =
             assetManager.open(fileName)
 
     override fun toString(): String {

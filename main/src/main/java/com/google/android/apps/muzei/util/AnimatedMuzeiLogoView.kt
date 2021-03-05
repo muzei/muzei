@@ -200,7 +200,7 @@ class AnimatedMuzeiLogoView @JvmOverloads constructor(context: Context, attrs: A
         }
     }
 
-    public override fun onSaveInstanceState(): Parcelable? {
+    public override fun onSaveInstanceState(): Parcelable {
         val superState = super.onSaveInstanceState()
         return SavedState(superState).apply {
             state = this@AnimatedMuzeiLogoView.state

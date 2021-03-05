@@ -402,7 +402,7 @@ class PanScaleProxyView @JvmOverloads constructor(context: Context, attrs: Attri
     //
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public override fun onSaveInstanceState(): Parcelable? {
+    public override fun onSaveInstanceState(): Parcelable {
         val superState = super.onSaveInstanceState()
         return SavedState(superState).apply { viewport = currentViewport }
     }

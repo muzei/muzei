@@ -385,7 +385,7 @@ class PanView @JvmOverloads constructor(context: Context, attrs: AttributeSet? =
     //
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public override fun onSaveInstanceState(): Parcelable? {
+    public override fun onSaveInstanceState(): Parcelable {
         val superState = super.onSaveInstanceState()
         val ss = SavedState(superState)
         ss.offsetX = offsetX
