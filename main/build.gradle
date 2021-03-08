@@ -29,9 +29,8 @@ android {
     versionProps.load(new FileInputStream(file('../version.properties')))
 
     buildFeatures {
-        viewBinding = true
+        viewBinding true
     }
-    dexOptions.preDexLibraries true
 
     defaultConfig {
         applicationId "net.nurik.roman.muzei"
@@ -90,10 +89,6 @@ android {
         }
     }
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
     kotlinOptions {
         jvmTarget = '1.8'
         freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
