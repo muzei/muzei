@@ -26,6 +26,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commitNow
 import com.google.android.apps.muzei.util.AnimatedMuzeiLogoFragment
+import com.google.android.apps.muzei.util.autoCleared
 import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
@@ -35,7 +36,7 @@ import net.nurik.roman.muzei.databinding.IntroFragmentBinding
 
 class IntroFragment : Fragment(R.layout.intro_fragment) {
 
-    private lateinit var binding: IntroFragmentBinding
+    private var binding: IntroFragmentBinding by autoCleared()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

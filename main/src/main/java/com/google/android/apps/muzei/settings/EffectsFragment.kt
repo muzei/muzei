@@ -27,6 +27,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.apps.muzei.isPreviewMode
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer
+import com.google.android.apps.muzei.util.autoCleared
 import com.google.android.apps.muzei.util.toast
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -43,7 +44,7 @@ val EffectsLockScreenOpen = MutableStateFlow(false)
 @OptIn(ExperimentalCoroutinesApi::class)
 class EffectsFragment : Fragment(R.layout.effects_fragment) {
 
-    private lateinit var binding: EffectsFragmentBinding
+    private var binding: EffectsFragmentBinding by autoCleared()
 
     private val sharedPreferencesListener = SharedPreferences.OnSharedPreferenceChangeListener {
         sp, key ->

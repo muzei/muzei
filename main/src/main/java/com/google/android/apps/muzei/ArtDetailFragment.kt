@@ -61,6 +61,7 @@ import com.google.android.apps.muzei.room.getCommands
 import com.google.android.apps.muzei.room.openArtworkInfo
 import com.google.android.apps.muzei.settings.AboutActivity
 import com.google.android.apps.muzei.sync.ProviderManager
+import com.google.android.apps.muzei.util.autoCleared
 import com.google.android.apps.muzei.util.launchWhenStartedIn
 import com.google.android.apps.muzei.util.makeCubicGradientScrimDrawable
 import com.google.android.apps.muzei.widget.showWidgetPreview
@@ -137,7 +138,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
         TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics)
     }
 
-    private lateinit var binding: ArtDetailFragmentBinding
+    private var binding: ArtDetailFragmentBinding by autoCleared()
     private val overflowSourceActionMap = SparseArray<RemoteActionCompat>()
     private var loadingSpinnerShown = false
     private var showFakeLoading = false
@@ -481,6 +482,12 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
         super.onStop()
         binding.overflowMenu.hideOverflowMenu()
         ArtDetailOpen.value = false
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        unsetNextFakeLoading?.cancel()
+        showLoadingSpinner?.cancel()
     }
 
     private fun showFakeLoading() {

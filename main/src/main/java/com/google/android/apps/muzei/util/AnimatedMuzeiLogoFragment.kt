@@ -27,7 +27,7 @@ import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.AnimatedLogoFragmentBinding
 
 class AnimatedMuzeiLogoFragment : Fragment(R.layout.animated_logo_fragment) {
-    private lateinit var binding: AnimatedLogoFragmentBinding
+    private var binding: AnimatedLogoFragmentBinding by autoCleared()
 
     private val initialLogoOffset: Float by lazy {
         TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16f,

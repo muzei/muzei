@@ -29,6 +29,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.apps.muzei.browse.BrowseProviderFragment
 import com.google.android.apps.muzei.settings.EffectsFragment
+import com.google.android.apps.muzei.util.autoCleared
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
@@ -45,7 +46,7 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
     private val darkStatusBarColor by lazy {
         ContextCompat.getColor(requireContext(), R.color.theme_primary_dark)
     }
-    private lateinit var binding: MainFragmentBinding
+    private var binding: MainFragmentBinding by autoCleared()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         // Set up the container for the child fragments
