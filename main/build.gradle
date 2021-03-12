@@ -63,9 +63,6 @@ android {
 
     buildTypes {
         debug {
-            minifyEnabled true
-            shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), file('proguard-project.txt')
             versionNameSuffix " Debug"
             FirebasePerformance {
                 instrumentationEnabled false
