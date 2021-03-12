@@ -26,8 +26,8 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
-import com.twofortyfouram.locale.api.Intent.ACTION_FIRE_SETTING
-import com.twofortyfouram.locale.api.Intent.EXTRA_BUNDLE
+import com.joaomgcd.taskerpluginlibrary.TaskerPluginConstants.ACTION_FIRE_SETTING
+import com.joaomgcd.taskerpluginlibrary.TaskerPluginConstants.EXTRA_BUNDLE
 
 /**
  * Tasker FIRE_SETTING receiver that fires a [TaskerAction]

@@ -29,8 +29,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.apps.muzei.util.launchWhenStartedIn
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.twofortyfouram.locale.api.Intent.EXTRA_BUNDLE
-import com.twofortyfouram.locale.api.Intent.EXTRA_STRING_BLURB
+import com.joaomgcd.taskerpluginlibrary.TaskerPluginConstants.EXTRA_BUNDLE
+import com.joaomgcd.taskerpluginlibrary.TaskerPluginConstants.EXTRA_STRING_BLURB
 import kotlinx.coroutines.flow.onEach
 import net.nurik.roman.muzei.R
 
