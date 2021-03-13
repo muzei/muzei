@@ -58,6 +58,7 @@
 
         <activity
             android:name="com.google.android.apps.muzei.MuzeiActivity"
+            android:exported="true"
             android:theme="@style/Theme.MuzeiActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -72,6 +73,7 @@
         <service
             android:name="com.google.android.apps.muzei.MuzeiWallpaperService"
             android:directBootAware="true"
+            android:exported="true"
             android:permission="android.permission.BIND_WALLPAPER"
             tools:targetApi="n">
             <intent-filter>
@@ -90,6 +92,7 @@
 
         <activity-alias
             android:name="com.google.android.apps.muzei.settings.NotificationSettings"
+            android:exported="true"
             android:targetActivity="com.google.android.apps.muzei.MuzeiActivity"
             android:enabled="@bool/enable_notification_settings">
             <intent-filter>
@@ -106,6 +109,7 @@
 
         <service
             android:name="com.google.android.apps.muzei.quicksettings.NextArtworkTileService"
+            android:exported="true"
             android:icon="@drawable/ic_notif_next_artwork"
             android:label="@string/action_next_artwork"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
@@ -125,7 +129,9 @@
 
         <!-- AppWidget -->
 
-        <receiver android:name="com.google.android.apps.muzei.widget.MuzeiAppWidgetProvider">
+        <receiver
+            android:name="com.google.android.apps.muzei.widget.MuzeiAppWidgetProvider"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
             </intent-filter>
@@ -138,6 +144,7 @@
 
         <activity
             android:name="com.google.android.apps.muzei.PhotoSetAsTargetActivity"
+            android:exported="true"
             android:theme="@style/Theme.Muzei.Transparent">
             <intent-filter android:label="@string/set_as_wallpaper_using_muzei">
                 <action android:name="android.intent.action.ATTACH_DATA"/>
@@ -160,6 +167,7 @@
         <!-- Activity and receiver which allows Tasker to trigger the 'Next Artwork' action -->
         <activity
             android:name="com.google.android.apps.muzei.tasker.TaskerSettingActivity"
+            android:exported="true"
             android:theme="@style/Theme.Muzei.Dialog">
             <intent-filter>
                 <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING"/>
@@ -167,6 +175,7 @@
         </activity>
         <receiver
             android:name="com.google.android.apps.muzei.tasker.TaskerActionReceiver"
+            android:exported="true"
             tools:ignore="ExportedReceiver">
             <intent-filter>
                 <action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING"/>
@@ -179,6 +188,7 @@
 
         <service
             android:name="com.google.android.apps.muzei.wearable.NotificationOpenListenerService"
+            android:exported="true"
             tools:ignore="ExportedService">
             <intent-filter>
                 <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED"/>

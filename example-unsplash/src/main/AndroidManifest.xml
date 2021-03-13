@@ -30,6 +30,7 @@
         <activity-alias
             android:name=".UnsplashLauncherActivity"
             android:enabled="@bool/enable_launcher"
+            android:exported="true"
             android:targetActivity=".UnsplashRedirectActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -31,6 +31,7 @@
         <service
             android:name=".MuzeiExampleWatchface"
             android:allowEmbedded="true"
+            android:exported="true"
             android:taskAffinity=""
             android:permission="android.permission.BIND_WALLPAPER">
             <meta-data

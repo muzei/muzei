@@ -43,6 +43,7 @@
         <activity
             android:name="com.google.android.apps.muzei.MuzeiActivity"
             android:taskAffinity=":main"
+            android:exported="true"
             android:theme="@style/MuzeiTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -64,6 +65,7 @@
 
         <service
             android:name="com.google.android.apps.muzei.datalayer.ArtworkChangedListenerService"
+            android:exported="true"
             tools:ignore="ExportedService">
             <intent-filter>
                 <action android:name="com.google.android.gms.wearable.DATA_CHANGED"/>
@@ -77,6 +79,7 @@
         <provider
             android:name="com.google.android.apps.muzei.datalayer.DataLayerArtProvider"
             android:authorities="${datalayerAuthority}"
+            android:exported="true"
             android:icon="@drawable/datalayer_ic_launcher"
             android:label="@string/datalayer_source_title"
             android:description="@string/datalayer_source_description"
@@ -99,6 +102,7 @@
 
         <service
             android:name="com.google.android.apps.muzei.complications.ArtworkComplicationProviderService"
+            android:exported="true"
             android:icon="@drawable/ic_complication"
             android:label="@string/complication_artwork_label"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
@@ -116,6 +120,7 @@
 
         <service
             android:name="com.google.android.apps.muzei.MuzeiWatchFace"
+            android:exported="true"
             android:permission="android.permission.BIND_WALLPAPER">
             <meta-data
                 android:name="android.service.wallpaper"
@@ -141,6 +146,7 @@
 
         <activity
             android:name="com.google.android.apps.muzei.ConfigActivity"
+            android:exported="true"
             android:theme="@style/MuzeiTheme">
             <intent-filter>
                 <action android:name="com.google.android.apps.muzei.CONFIG_WATCH_FACE"/>
@@ -155,6 +161,7 @@
 
         <service
             android:name="com.google.android.apps.muzei.datalayer.CapabilityListenerService"
+            android:exported="true"
             tools:ignore="ExportedService">
             <intent-filter>
                 <action android:name="com.google.android.gms.wearable.CAPABILITY_CHANGED" />

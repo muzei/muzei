@@ -52,6 +52,7 @@
 
         <service
             android:name="com.google.android.apps.muzei.legacy.LegacySourceService"
+            android:exported="true"
             android:permission="com.google.android.apps.muzei.api.ACCESS_PROVIDER">
             <intent-filter>
                 <action android:name="com.google.android.apps.muzei.legacy"/>
