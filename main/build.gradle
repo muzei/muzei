@@ -95,12 +95,6 @@ android {
     }
 }
 
-repositories {
-    // Required for taskerpluginlibrary: https://github.com/joaomgcd/TaskerPluginSample/issues/1
-    //noinspection JcenterRepositoryObsolete
-    jcenter()
-}
-
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
@@ -109,7 +103,10 @@ dependencies {
     implementation "androidx.multidex:multidex:$multidexVersion"
     implementation "io.coil-kt:coil:$coilVersion"
     implementation "com.google.android.gms:play-services-wearable:$playServicesWearableVersion"
-    implementation "com.joaomgcd:taskerpluginlibrary:$taskerVersion"
+    implementation ("com.joaomgcd:taskerpluginlibrary:$taskerVersion") {
+        // Exclude required due to https://github.com/joaomgcd/TaskerPluginSample/issues/2
+        exclude module: 'unspecified'
+    }
     implementation "com.davemorrissey.labs:subsampling-scale-image-view-androidx:$subsamplingVersion"
     implementation "androidx.core:core-ktx:$coreVersion"
     implementation "androidx.fragment:fragment-ktx:$fragmentVersion"
