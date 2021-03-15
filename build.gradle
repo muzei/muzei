@@ -49,7 +49,7 @@ buildscript {
         roomVersion = '2.3.0-beta03'
         subsamplingVersion = '3.10.0'
         swipeRefreshLayoutVersion = '1.1.0'
-        taskerVersion = '0.4.0'
+        taskerVersion = '0.4.1'
         viewPager2Version = '1.1.0-alpha01'
         wearableVersion = '2.8.1'
         wearVersion = '1.1.0'
