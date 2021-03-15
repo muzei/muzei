@@ -52,13 +52,13 @@ internal abstract class ChosenPhotoDao {
     }
 
     @get:Query("SELECT * FROM chosen_photos ORDER BY _id DESC")
-    abstract val chosenPhotosPaged: PagingSource<Int, ChosenPhoto>
+    internal abstract val chosenPhotosPaged: PagingSource<Int, ChosenPhoto>
 
     @get:Query("SELECT * FROM chosen_photos ORDER BY _id DESC")
-    abstract val chosenPhotosLiveData: LiveData<List<ChosenPhoto>>
+    internal abstract val chosenPhotosLiveData: LiveData<List<ChosenPhoto>>
 
     @get:Query("SELECT * FROM chosen_photos ORDER BY _id DESC")
-    abstract val chosenPhotosBlocking: List<ChosenPhoto>
+    internal abstract val chosenPhotosBlocking: List<ChosenPhoto>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     internal abstract suspend fun insertInternal(chosenPhoto: ChosenPhoto): Long

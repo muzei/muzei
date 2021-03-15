@@ -47,7 +47,7 @@ abstract class ArtworkDao {
         SELECT artwork.* FROM artwork
         inner join provider on providerAuthority = authority
         ORDER BY date_added DESC""")
-    abstract val currentArtworkBlocking: Artwork?
+    internal abstract val currentArtworkBlocking: Artwork?
 
     @Query("""
         SELECT artwork.* FROM artwork

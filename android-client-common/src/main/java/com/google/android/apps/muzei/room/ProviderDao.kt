@@ -37,7 +37,7 @@ abstract class ProviderDao {
     abstract val currentProviderLiveData: LiveData<Provider?>
 
     @get:Query("SELECT * FROM provider")
-    abstract val currentProviderBlocking: Provider?
+    internal abstract val currentProviderBlocking: Provider?
 
     @Query("SELECT * FROM provider")
     abstract suspend fun getCurrentProvider(): Provider?
