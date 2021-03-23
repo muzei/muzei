@@ -22,16 +22,17 @@ import android.graphics.Bitmap
 import android.util.Log
 import android.util.Size
 import com.google.android.apps.muzei.api.MuzeiContract
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 import java.io.FileNotFoundException
 
 /**
@@ -53,12 +54,14 @@ class ArtworkImageLoader(private val context: Context) {
     private val unsizedArtworkFlow: Flow<Bitmap> = callbackFlow {
         // Create a lambda that should be ran to update the artwork
         val updateArtwork = {
-            try {
-                MuzeiContract.Artwork.getCurrentArtworkBitmap(context)?.run {
-                    sendBlocking(this)
+            launch(Dispatchers.IO) {
+                try {
+                    MuzeiContract.Artwork.getCurrentArtworkBitmap(context)?.run {
+                        send(this)
+                    }
+                } catch (e: FileNotFoundException) {
+                    Log.e("ArtworkImageLoader", "Error getting artwork image", e)
                 }
-            } catch (e: FileNotFoundException) {
-                Log.e("ArtworkImageLoader", "Error getting artwork image", e)
             }
         }
         // Set up a ContentObserver that will update the artwork when it changes
