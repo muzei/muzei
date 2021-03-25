@@ -21,8 +21,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
-    compileOnly "com.google.android.wearable:wearable:$wearableVersion"
-    implementation "com.google.android.support:wearable:$wearableVersion"
+    implementation "androidx.wear:wear-watchface:$wearWatchFaceComplicationVersion"
     //implementation "com.google.android.apps.muzei:muzei-api:+"
     implementation project(':muzei-api')
 }
@@ -32,7 +31,7 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     defaultConfig {
-        minSdkVersion 24
+        minSdkVersion 25
         targetSdkVersion rootProject.ext.targetSdkVersion
 
         versionName '1.0.0'

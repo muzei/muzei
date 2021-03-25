@@ -54,6 +54,7 @@ buildscript {
         viewPager2Version = '1.1.0-beta01'
         wearableVersion = '2.8.1'
         wearVersion = '1.1.0'
+        wearWatchFaceComplicationVersion = '1.0.0-alpha10'
         workManagerVersion = '2.7.0'
     }
 
