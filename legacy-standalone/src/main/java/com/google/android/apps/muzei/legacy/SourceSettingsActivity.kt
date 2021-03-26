@@ -50,14 +50,13 @@ import androidx.core.text.buildSpannedString
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
-import com.google.android.apps.muzei.util.launchWhenStartedIn
+import com.google.android.apps.muzei.util.collectIn
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.legacy.R
 import net.nurik.roman.muzei.legacy.databinding.LegacyChooseSourceItemBinding
@@ -141,7 +140,7 @@ class SourceSettingsActivity : AppCompatActivity() {
                 }
                 .create()
         val database = LegacyDatabase.getInstance(this)
-        database.sourceDao().sources.onEach { sources ->
+        database.sourceDao().sources.collectIn(this) { sources ->
             if (sources.any { it.selected }) {
                 setResult(RESULT_OK)
             }
@@ -197,7 +196,7 @@ class SourceSettingsActivity : AppCompatActivity() {
                 }
                 dialog.show()
             }
-        }.launchWhenStartedIn(this)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

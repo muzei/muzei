@@ -61,11 +61,10 @@ import com.google.android.apps.muzei.room.contentUri
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.ImageBlurrer
 import com.google.android.apps.muzei.util.blur
-import com.google.android.apps.muzei.util.launchWhenStartedIn
+import com.google.android.apps.muzei.util.collectIn
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
@@ -250,9 +249,9 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
             super.onCreate(holder)
             Firebase.analytics.logEvent("watchface_created", null)
             val database = MuzeiDatabase.getInstance(this@MuzeiWatchFace)
-            database.artworkDao().currentArtwork.onEach {  artwork ->
+            database.artworkDao().currentArtwork.collectIn(this@MuzeiWatchFace) { artwork ->
                 loadImage(artwork)
-            }.launchWhenStartedIn(this@MuzeiWatchFace)
+            }
 
             clockPaint = Paint().apply {
                 color = Color.WHITE

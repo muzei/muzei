@@ -28,7 +28,7 @@ import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.sync.ProviderManager
-import com.google.android.apps.muzei.util.launchWhenStartedIn
+import com.google.android.apps.muzei.util.collectIn
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.sendBlocking
@@ -38,7 +38,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onEach
 
 suspend fun Provider?.allowsNextArtwork(context: Context): Boolean {
     return when {
@@ -127,24 +126,23 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
     override fun onCreate(owner: LifecycleOwner) {
         getService().distinctUntilChanged().onCompletion {
             serviceConnection.unbindService()
-        }.onEach { componentName ->
+        }.collectIn(owner) { componentName ->
             if (componentName == null) {
                 serviceConnection.unbindService()
             } else {
                 serviceConnection.bindService(componentName)
             }
-        }.launchWhenStartedIn(owner)
-
+        }
 
         // Collect on the set of unsupported sources to ensure that we continue
         // to send unsupported sources notifications for the entire time the
         // Lifecycle is STARTED
-        unsupportedSources.launchWhenStartedIn(owner)
+        unsupportedSources.collectIn(owner)
 
         val database = MuzeiDatabase.getInstance(applicationContext)
-        database.providerDao().currentProvider.onEach { provider ->
+        database.providerDao().currentProvider.collectIn(owner) { provider ->
             serviceConnection.onProviderChanged(provider)
-        }.launchWhenStartedIn(owner)
+        }
     }
 
     suspend fun nextArtwork() {

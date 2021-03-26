@@ -36,14 +36,13 @@ import androidx.wear.widget.RoundedDrawable
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.getCommands
-import com.google.android.apps.muzei.util.launchWhenStartedIn
+import com.google.android.apps.muzei.util.collectIn
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.MuzeiCommandItemBinding
@@ -113,9 +112,9 @@ class MuzeiCommandAdapter<O>(owner: O) : ListAdapter<ArtworkCommand, MuzeiComman
 ) where O : LifecycleOwner, O : ViewModelStoreOwner {
     init {
         val viewModel: MuzeiCommandViewModel = ViewModelProvider(owner).get()
-        viewModel.commands.onEach { commands ->
+        viewModel.commands.collectIn(owner) { commands ->
             submitList(commands)
-        }.launchWhenStartedIn(owner)
+        }
     }
 
     override fun onCreateViewHolder(

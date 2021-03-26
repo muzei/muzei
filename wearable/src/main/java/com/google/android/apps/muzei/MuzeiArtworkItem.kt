@@ -35,9 +35,8 @@ import coil.load
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.contentUri
-import com.google.android.apps.muzei.util.launchWhenStartedIn
+import com.google.android.apps.muzei.util.collectIn
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.MuzeiArtworkItemBinding
@@ -97,9 +96,9 @@ class MuzeiArtworkAdapter<O>(owner: O) : ListAdapter<Artwork, MuzeiArtworkViewHo
 ) where O : LifecycleOwner, O : ViewModelStoreOwner {
     init {
         val viewModel: MuzeiArtworkViewModel = ViewModelProvider(owner).get()
-        viewModel.currentArtwork.onEach { artwork ->
+        viewModel.currentArtwork.collectIn(owner) { artwork ->
             submitList(listOfNotNull(artwork))
-        }.launchWhenStartedIn(owner)
+        }
     }
 
     override fun onCreateViewHolder(

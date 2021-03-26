@@ -40,8 +40,8 @@ import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.lifecycleScope
 import androidx.room.withTransaction
 import com.google.android.apps.muzei.sources.SourceSubscriberService
+import com.google.android.apps.muzei.util.collectIn
 import com.google.android.apps.muzei.util.goAsync
-import com.google.android.apps.muzei.util.launchWhenStartedIn
 import com.google.android.apps.muzei.util.toastFromBackground
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
@@ -51,7 +51,6 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.legacy.BuildConfig
 import net.nurik.roman.muzei.legacy.R
@@ -278,13 +277,13 @@ class LegacySourceService : Service(), LifecycleOwner {
     override fun onCreate() {
         super.onCreate()
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
-        getSubscribedSource().onEach { source: Source ->
+        getSubscribedSource().collectIn(this) { source ->
             sendSelectedSourceAnalytics(source.componentName)
-        }.launchWhenStartedIn(this)
+        }
 
         val database = LegacyDatabase.getInstance(this)
         var currentSource: Source? = null
-        database.sourceDao().currentSource.onEach { source ->
+        database.sourceDao().currentSource.collectIn(this) { source ->
             if (currentSource != null && source == null) {
                 // The selected source has been removed or was otherwise deselected
                 replyToMessenger?.send(Message.obtain().apply {
@@ -292,7 +291,7 @@ class LegacySourceService : Service(), LifecycleOwner {
                 })
             }
             currentSource = source
-        }.launchWhenStartedIn(this)
+        }
         // Register for package change events
         val packageChangeFilter = IntentFilter().apply {
             addDataScheme("package")

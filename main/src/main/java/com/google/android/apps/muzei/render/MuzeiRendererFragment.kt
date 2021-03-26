@@ -36,10 +36,9 @@ import coil.transform.Transformation
 import com.google.android.apps.muzei.settings.EffectsLockScreenOpen
 import com.google.android.apps.muzei.util.ImageBlurrer
 import com.google.android.apps.muzei.util.blur
-import com.google.android.apps.muzei.util.launchWhenStartedIn
+import com.google.android.apps.muzei.util.collectIn
 import com.google.android.apps.muzei.util.roundMult4
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
 
 class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurRenderer.Callbacks {
@@ -173,9 +172,9 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
             }
             lifecycle.addObserver(renderController)
             if (!demoMode) {
-                EffectsLockScreenOpen.onEach { isEffectsLockScreenOpen ->
+                EffectsLockScreenOpen.collectIn(this@MuzeiRendererFragment) { isEffectsLockScreenOpen ->
                     renderController.onLockScreen = isEffectsLockScreenOpen
-                }.launchWhenStartedIn(this@MuzeiRendererFragment)
+                }
             }
             renderController.visible = true
         }

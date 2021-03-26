@@ -37,7 +37,7 @@ import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.getCommands
 import com.google.android.apps.muzei.sync.ProviderManager
-import com.google.android.apps.muzei.util.launchWhenStartedIn
+import com.google.android.apps.muzei.util.collectIn
 import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
@@ -45,7 +45,6 @@ import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.R
@@ -91,9 +90,9 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
         binding.list.adapter = adapter
 
         viewModel.contentUri = args.contentUri
-        viewModel.artwork.onEach {
+        viewModel.artwork.collectIn(viewLifecycleOwner) {
             adapter.submitList(it)
-        }.launchWhenStartedIn(viewLifecycleOwner)
+        }
     }
 
     private fun refresh(swipeRefreshLayout: SwipeRefreshLayout) {

@@ -67,16 +67,15 @@ import coil.load
 import com.google.android.apps.muzei.gallery.databinding.GalleryActivityBinding
 import com.google.android.apps.muzei.gallery.databinding.GalleryChosenPhotoItemBinding
 import com.google.android.apps.muzei.util.MultiSelectionController
+import com.google.android.apps.muzei.util.collectIn
 import com.google.android.apps.muzei.util.getString
 import com.google.android.apps.muzei.util.getStringOrNull
-import com.google.android.apps.muzei.util.launchWhenStartedIn
 import com.google.android.apps.muzei.util.toast
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.ArrayList
 import java.util.LinkedList
@@ -289,17 +288,17 @@ class GallerySettingsActivity : AppCompatActivity(),
                 hideAddToolbar(true)
             }
         }
-        viewModel.chosenPhotos.onEach {
+        viewModel.chosenPhotos.collectIn(this) {
             chosenPhotosAdapter.submitData(it)
-        }.launchWhenStartedIn(this)
-        chosenPhotosAdapter.loadStateFlow.onEach {
+        }
+        chosenPhotosAdapter.loadStateFlow.collectIn(this) {
             onDataSetChanged()
-        }.launchWhenStartedIn(this)
+        }
         viewModel.getContentActivityInfoList.map {
             it.size
-        }.distinctUntilChanged().onEach {
+        }.distinctUntilChanged().collectIn(this) {
             invalidateOptionsMenu()
-        }.launchWhenStartedIn(this)
+        }
         GalleryScanWorker.enqueueRescan(this)
     }
 

@@ -20,10 +20,9 @@ import android.content.Context
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.google.android.apps.muzei.room.MuzeiDatabase
-import com.google.android.apps.muzei.util.launchWhenStartedIn
+import com.google.android.apps.muzei.util.collectIn
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
 
 /**
@@ -34,17 +33,17 @@ class WidgetUpdater(private val context: Context) : DefaultLifecycleObserver {
     override fun onCreate(owner: LifecycleOwner) {
         // Set up a ContentObserver to update widgets whenever the artwork changes
         val database = MuzeiDatabase.getInstance(context)
-        database.artworkDao().currentArtwork.onEach {
+        database.artworkDao().currentArtwork.collectIn(owner) {
             updateAppWidget()
-        }.launchWhenStartedIn(owner)
-        database.providerDao().currentProvider.onEach {
+        }
+        database.providerDao().currentProvider.collectIn(owner) {
             updateAppWidget()
-        }.launchWhenStartedIn(owner)
+        }
         // Update the widget whenever the wallpaper state is changed
         // to ensure the 'Next' button is only shown when the wallpaper is active
-        WallpaperActiveState.onEach {
+        WallpaperActiveState.collectIn(owner) {
             updateAppWidget()
-        }.launchWhenStartedIn(owner)
+        }
     }
 
     private suspend fun updateAppWidget() = withContext(NonCancellable) {

@@ -21,9 +21,8 @@ import androidx.lifecycle.LifecycleOwner
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.contentUri
-import com.google.android.apps.muzei.util.launchWhenStartedIn
+import com.google.android.apps.muzei.util.collectIn
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.onEach
 
 class RealRenderController(
         context: Context,
@@ -40,10 +39,10 @@ class RealRenderController(
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
         val database = MuzeiDatabase.getInstance(context)
-        database.artworkDao().currentArtwork.filterNotNull().onEach { artwork ->
+        database.artworkDao().currentArtwork.filterNotNull().collectIn(owner) { artwork ->
             currentArtworkUri = artwork.contentUri
             reloadCurrentArtwork()
-        }.launchWhenStartedIn(owner)
+        }
         reloadCurrentArtwork()
     }
 

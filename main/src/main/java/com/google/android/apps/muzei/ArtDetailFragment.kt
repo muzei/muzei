@@ -62,7 +62,7 @@ import com.google.android.apps.muzei.room.openArtworkInfo
 import com.google.android.apps.muzei.settings.AboutActivity
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.autoCleared
-import com.google.android.apps.muzei.util.launchWhenStartedIn
+import com.google.android.apps.muzei.util.collectIn
 import com.google.android.apps.muzei.util.makeCubicGradientScrimDrawable
 import com.google.android.apps.muzei.widget.showWidgetPreview
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -76,7 +76,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -299,43 +298,43 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
             }
         }
 
-        WallpaperSizeStateFlow.filterNotNull().onEach { size ->
+        WallpaperSizeStateFlow.filterNotNull().collectIn(viewLifecycleOwner) { size ->
             wallpaperAspectRatio = if (size.height > 0) {
                 size.width * 1f / size.height
             } else {
                 binding.panScaleProxy.width * 1f / binding.panScaleProxy.height
             }
             resetProxyViewport()
-        }.launchWhenStartedIn(viewLifecycleOwner)
+        }
 
-        ArtworkSizeStateFlow.filterNotNull().onEach { size ->
+        ArtworkSizeStateFlow.filterNotNull().collectIn(viewLifecycleOwner) { size ->
             artworkAspectRatio = size.width * 1f / size.height
             resetProxyViewport()
-        }.launchWhenStartedIn(viewLifecycleOwner)
+        }
 
-        ArtDetailViewport.getChanges().onEach { isFromUser ->
+        ArtDetailViewport.getChanges().collectIn(viewLifecycleOwner) { isFromUser ->
             if (!isFromUser) {
                 guardViewportChangeListener = true
                 binding.panScaleProxy.setViewport(ArtDetailViewport.getViewport(currentViewportId))
                 guardViewportChangeListener = false
             }
-        }.launchWhenStartedIn(viewLifecycleOwner)
+        }
 
-        SwitchingPhotosStateFlow.filterNotNull().onEach { switchingPhotos ->
+        SwitchingPhotosStateFlow.filterNotNull().collectIn(viewLifecycleOwner) { switchingPhotos ->
             currentViewportId = switchingPhotos.viewportId
             binding.panScaleProxy.panScaleEnabled = switchingPhotos is SwitchingPhotosDone
             // Process deferred artwork size change when done switching
             if (switchingPhotos is SwitchingPhotosDone && deferResetViewport) {
                 resetProxyViewport()
             }
-        }.launchWhenStartedIn(viewLifecycleOwner)
+        }
 
-        viewModel.currentProvider.onEach { provider ->
+        viewModel.currentProvider.collectIn(viewLifecycleOwner) { provider ->
             val supportsNextArtwork = provider?.supportsNextArtwork == true
             binding.nextArtwork.isVisible = supportsNextArtwork
-        }.launchWhenStartedIn(viewLifecycleOwner)
+        }
 
-        viewModel.currentArtwork.onEach { currentArtwork ->
+        viewModel.currentArtwork.collectIn(viewLifecycleOwner) { currentArtwork ->
             binding.title.setTextOrGone(currentArtwork?.title)
             binding.byline.setTextOrGone(currentArtwork?.byline)
             binding.attribution.setTextOrGone(currentArtwork?.attribution)
@@ -362,7 +361,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
                     backgroundImage.orientation = orientation
                     // Try to restore any saved state of the SubsamplingScaleImageView
                     // This would normally only be available after onViewStateRestored(), but
-                    // this is within a launchWhenStarted {} collection
+                    // this is within coroutine that is only launched when STARTED
                     val backgroundImageViewState = view.findViewTreeSavedStateRegistryOwner()
                             ?.savedStateRegistry
                             ?.consumeRestoredStateForKey(KEY_IMAGE_VIEW_STATE)
@@ -416,7 +415,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
             }
             showFakeLoading = false
             updateLoadingSpinnerVisibility()
-        }.launchWhenStartedIn(viewLifecycleOwner)
+        }
     }
 
     override fun onStart() {

@@ -27,11 +27,10 @@ import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.apps.muzei.util.launchWhenStartedIn
+import com.google.android.apps.muzei.util.collectIn
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.joaomgcd.taskerpluginlibrary.TaskerPluginConstants.EXTRA_BUNDLE
 import com.joaomgcd.taskerpluginlibrary.TaskerPluginConstants.EXTRA_STRING_BLURB
-import kotlinx.coroutines.flow.onEach
 import net.nurik.roman.muzei.R
 
 /**
@@ -67,13 +66,13 @@ class TaskerSettingActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.getActions().onEach { actions ->
+        viewModel.getActions().collectIn(this) { actions ->
             adapter.clear()
             adapter.addAll(actions)
             if (!dialog.isShowing) {
                 dialog.show()
             }
-        }.launchWhenStartedIn(this)
+        }
     }
 
     override fun onDestroy() {

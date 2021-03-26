@@ -10,9 +10,8 @@ import androidx.core.content.withStyledAttributes
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
-import com.google.android.apps.muzei.util.launchWhenStartedIn
+import com.google.android.apps.muzei.util.collectIn
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.coroutines.flow.onEach
 
 class GalleryImportPhotosDialogFragment : DialogFragment() {
 
@@ -34,13 +33,13 @@ class GalleryImportPhotosDialogFragment : DialogFragment() {
             @LayoutRes val listItemLayout = getResourceId(R.styleable.AlertDialog_listItemLayout, 0)
             adapter = ArrayAdapter(requireContext(), listItemLayout)
         }
-        viewModel.getContentActivityInfoList.onEach { getContentActivities ->
+        viewModel.getContentActivityInfoList.collectIn(this) { getContentActivities ->
             if (getContentActivities.isEmpty()) {
                 dismiss()
             } else {
                 updateAdapter(getContentActivities)
             }
-        }.launchWhenStartedIn(this)
+        }
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
