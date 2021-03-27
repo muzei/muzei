@@ -27,6 +27,7 @@ dependencies {
     implementation project(':muzei-api')
     implementation project(':extensions')
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
+    implementation "ru.gildor.coroutines:kotlin-coroutines-okhttp:$okhttpCoroutinesVersion"
     implementation "androidx.browser:browser:$browserVersion"
 }
 

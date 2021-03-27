@@ -39,6 +39,7 @@ import okhttp3.Request
 import org.json.JSONException
 import org.json.JSONObject
 import org.json.JSONTokener
+import ru.gildor.coroutines.okhttp.await
 import java.io.IOException
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -170,15 +171,15 @@ class FeaturedArtWorker(
     }
 
     @Throws(IOException::class, JSONException::class)
-    private fun fetchJsonObject(url: String): JSONObject {
+    private suspend fun fetchJsonObject(url: String): JSONObject {
         val client = OkHttpClient.Builder().build()
 
         val request = Request.Builder()
                 .url(url)
                 .build()
-        val json = client.newCall(request).execute().body()?.string()
+        @Suppress("BlockingMethodInNonBlockingContext") // Blocked by https://github.com/square/okio/issues/501
+        val json = client.newCall(request).await().body()?.string()
         val tokener = JSONTokener(json)
         return tokener.nextValue() as? JSONObject ?: throw JSONException("Expected JSON object.")
     }
 }
-
