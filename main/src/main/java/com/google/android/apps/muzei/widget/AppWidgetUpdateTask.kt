@@ -152,7 +152,7 @@ private suspend fun createRemoteViews(
             R.dimen.widget_small_height_breakpoint)
     val image = ImageLoader.decode(
             context.contentResolver, imageUri,
-            widgetWidth / 2, widgetHeight / 2) ?: return null
+            widgetWidth, widgetHeight) ?: return null
 
     // Even after using sample size to scale an image down, it might be larger than the
     // maximum bitmap memory usage for widgets
@@ -179,9 +179,34 @@ private fun Bitmap.scale(widgetWidth: Int, widgetHeight: Int): Bitmap? {
             widgetWidth == 0 || widgetHeight == 0) {
         return null
     }
+    val widgetIsLandscape = widgetWidth >= widgetHeight
+    // Crop image first here for highest quality
+    var croppedImage: Bitmap
     val largestDimension = max(widgetWidth, widgetHeight)
     var width = width
     var height = height
+    when {
+        width > height && widgetWidth < widgetHeight -> {
+            croppedImage = Bitmap.createBitmap(
+                 this,
+                 (width - height) / 2,
+                 0,
+                 width - (width - height) / 2,
+                 height);
+        }
+        height > width && widgetWidth > widgetHeight -> {
+            croppedImage = Bitmap.createBitmap(
+                 this,
+                 0,
+                 // Image is portrait, prefer upper part
+                 0,
+                 width,
+                 height - (height - width) / 2);
+        }
+        else -> {
+            croppedImage = this
+        }
+    }
     when {
         width > height -> {
             // landscape
@@ -200,5 +225,5 @@ private fun Bitmap.scale(widgetWidth: Int, widgetHeight: Int): Bitmap? {
             width = largestDimension
         }
     }
-    return Bitmap.createScaledBitmap(this, width, height, true)
+    return Bitmap.createScaledBitmap(croppedImage, width, height, true)
 }
