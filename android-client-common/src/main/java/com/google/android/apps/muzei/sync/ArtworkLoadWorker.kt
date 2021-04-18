@@ -156,10 +156,10 @@ class ArtworkLoadWorker(
                         }
                         // Okay so there's at least some artwork.
                         // Is it just the one artwork we're already showing?
+                        val currentArtwork = database.artworkDao().getCurrentArtwork()
                         if (allArtwork.count == 1 && allArtwork.moveToFirst()) {
                             val artworkId = allArtwork.getLong(BaseColumns._ID)
                             val artworkUri = ContentUris.withAppendedId(contentUri, artworkId)
-                            val currentArtwork = database.artworkDao().getCurrentArtwork()
                             if (artworkUri == currentArtwork?.imageUri) {
                                 if (BuildConfig.DEBUG) {
                                     Log.i(TAG, "Provider $authority only has one artwork")
@@ -168,33 +168,53 @@ class ArtworkLoadWorker(
                             }
                         }
                         // At this point, we know there must be some artwork that isn't the current
-                        // artwork. We want to avoid showing artwork we've recently loaded, but
-                        // don't want to exclude *all* of the current artwork, so we cut down the
-                        // recent list's size to avoid issues where the provider has deleted a
-                        // large percentage of their artwork
-                        while (recentArtworkIds.size > allArtwork.count / 2) {
-                            recentArtworkIds.removeFirst()
-                        }
-                        // Now find a random piece of artwork that isn't in our previous list
+                        // artwork. We want to avoid showing artwork we've recently loaded, so
+                        // we'll generate two sequences - the first being made up of
+                        // non recent artwork, the second being made up of only recent artwork
                         val random = Random()
-                        val randomSequence = generateSequence {
+                        // Build a lambda that checks whether the given position
+                        // represents the current artwork
+                        val isCurrentArtwork: (position: Int) -> Boolean = { position ->
+                            if (allArtwork.moveToPosition(position)) {
+                                val artworkId = allArtwork.getLong(BaseColumns._ID)
+                                val artworkUri = ContentUris.withAppendedId(contentUri, artworkId)
+                                artworkUri == currentArtwork?.imageUri
+                            } else {
+                                false
+                            }
+                        }
+                        // Build a lambda that checks whether the given position
+                        // represents an artwork in the recentArtworkIds
+                        val isRecentArtwork: (position: Int) -> Boolean = { position ->
+                            if (allArtwork.moveToPosition(position)) {
+                                val artworkId = allArtwork.getLong(BaseColumns._ID)
+                                recentArtworkIds.contains(artworkId)
+                            } else {
+                                false
+                            }
+                        }
+                        // Now generate a random sequence for non recent artwork
+                        val nonRecentArtworkSequence = generateSequence {
                             random.nextInt(allArtwork.count)
                         }.distinct().take(allArtwork.count)
+                            .filterNot(isCurrentArtwork)
+                            .filterNot(isRecentArtwork)
+                        // Now generate another sequence for recent artwork
+                        val recentArtworkSequence = generateSequence {
+                            random.nextInt(allArtwork.count)
+                        }.distinct().take(allArtwork.count)
+                            .filterNot(isCurrentArtwork)
+                            .filter(isRecentArtwork)
+                        // And build the final sequence that iterates first through
+                        // non recent artwork, then recent artwork
+                        val randomSequence = nonRecentArtworkSequence + recentArtworkSequence
                         val iterator = randomSequence.iterator()
                         while (iterator.hasNext()) {
                             val position = iterator.next()
                             if (allArtwork.moveToPosition(position)) {
-                                var artworkId = allArtwork.getLong(BaseColumns._ID)
-                                if (recentArtworkIds.contains(artworkId)) {
-                                    if (BuildConfig.DEBUG) {
-                                        Log.v(TAG, "Skipping $artworkId")
-                                    }
-                                    // Skip previously selected artwork
-                                    continue
-                                }
                                 checkForValidArtwork(client, contentUri, allArtwork)?.apply {
                                     providerAuthority = authority
-                                    artworkId = database.artworkDao().insert(this)
+                                    val artworkId = database.artworkDao().insert(this)
                                     if (BuildConfig.DEBUG) {
                                         Log.d(TAG, "Loaded $imageUri into id $artworkId")
                                     }
