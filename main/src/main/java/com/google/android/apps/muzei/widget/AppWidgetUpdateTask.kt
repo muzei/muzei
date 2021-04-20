@@ -179,7 +179,6 @@ private fun Bitmap.scale(widgetWidth: Int, widgetHeight: Int): Bitmap? {
             widgetWidth == 0 || widgetHeight == 0) {
         return null
     }
-    val widgetIsLandscape = widgetWidth >= widgetHeight
     // Crop image first here for highest quality
     var croppedImage: Bitmap
     val largestDimension = max(widgetWidth, widgetHeight)
