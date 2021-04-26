@@ -156,7 +156,7 @@ private suspend fun createRemoteViews(
 
     // Even after using sample size to scale an image down, it might be larger than the
     // maximum bitmap memory usage for widgets
-    val scaledImage = image.scale(widgetWidth, widgetHeight)
+    val scaledImage = image.centerCrop(widgetWidth, widgetHeight).scale(widgetWidth, widgetHeight)
     @LayoutRes val widgetLayout = if (widgetHeight < smallWidgetHeight)
         R.layout.widget_small
     else
@@ -174,19 +174,14 @@ private suspend fun createRemoteViews(
     return remoteViews
 }
 
-private fun Bitmap.scale(widgetWidth: Int, widgetHeight: Int): Bitmap? {
+private fun Bitmap.centerCrop(widgetWidth: Int, widgetHeight: Int): Bitmap {
     if (width == 0 || height == 0 ||
             widgetWidth == 0 || widgetHeight == 0) {
-        return null
+        return this
     }
-    // Crop image first here for highest quality
-    var croppedImage: Bitmap
-    val largestDimension = max(widgetWidth, widgetHeight)
-    var width = width
-    var height = height
-    when {
+    val croppedImage = when {
         width > height && widgetWidth < widgetHeight -> {
-            croppedImage = Bitmap.createBitmap(
+            Bitmap.createBitmap(
                  this,
                  (width - height) / 2,
                  0,
@@ -194,18 +189,29 @@ private fun Bitmap.scale(widgetWidth: Int, widgetHeight: Int): Bitmap? {
                  height);
         }
         height > width && widgetWidth > widgetHeight -> {
-            croppedImage = Bitmap.createBitmap(
+            Bitmap.createBitmap(
                  this,
                  0,
-                 // Image is portrait, prefer upper part
-                 0,
+                 (height - width) / 2,
                  width,
                  height - (height - width) / 2);
         }
         else -> {
-            croppedImage = this
+            this
         }
     }
+    return croppedImage
+}
+
+
+private fun Bitmap.scale(widgetWidth: Int, widgetHeight: Int): Bitmap? {
+    if (width == 0 || height == 0 ||
+            widgetWidth == 0 || widgetHeight == 0) {
+        return null
+    }
+    val largestDimension = max(widgetWidth, widgetHeight)
+    var width = width
+    var height = height
     when {
         width > height -> {
             // landscape
@@ -224,5 +230,5 @@ private fun Bitmap.scale(widgetWidth: Int, widgetHeight: Int): Bitmap? {
             width = largestDimension
         }
     }
-    return Bitmap.createScaledBitmap(croppedImage, width, height, true)
+    return Bitmap.createScaledBitmap(this, width, height, true)
 }
