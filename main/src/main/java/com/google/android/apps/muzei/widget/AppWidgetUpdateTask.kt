@@ -152,11 +152,11 @@ private suspend fun createRemoteViews(
             R.dimen.widget_small_height_breakpoint)
     val image = ImageLoader.decode(
             context.contentResolver, imageUri,
-            widgetWidth / 2, widgetHeight / 2) ?: return null
+            widgetWidth, widgetHeight) ?: return null
 
     // Even after using sample size to scale an image down, it might be larger than the
     // maximum bitmap memory usage for widgets
-    val scaledImage = image.scale(widgetWidth, widgetHeight)
+    val scaledImage = image.centerCrop(widgetWidth, widgetHeight).scale(widgetWidth, widgetHeight)
     @LayoutRes val widgetLayout = if (widgetHeight < smallWidgetHeight)
         R.layout.widget_small
     else
@@ -173,6 +173,36 @@ private suspend fun createRemoteViews(
     }
     return remoteViews
 }
+
+private fun Bitmap.centerCrop(widgetWidth: Int, widgetHeight: Int): Bitmap {
+    if (width == 0 || height == 0 ||
+            widgetWidth == 0 || widgetHeight == 0) {
+        return this
+    }
+    val croppedImage = when {
+        width > height && widgetWidth < widgetHeight -> {
+            Bitmap.createBitmap(
+                 this,
+                 (width - height) / 2,
+                 0,
+                 width - (width - height) / 2,
+                 height);
+        }
+        height > width && widgetWidth > widgetHeight -> {
+            Bitmap.createBitmap(
+                 this,
+                 0,
+                 (height - width) / 2,
+                 width,
+                 height - (height - width) / 2);
+        }
+        else -> {
+            this
+        }
+    }
+    return croppedImage
+}
+
 
 private fun Bitmap.scale(widgetWidth: Int, widgetHeight: Int): Bitmap? {
     if (width == 0 || height == 0 ||
