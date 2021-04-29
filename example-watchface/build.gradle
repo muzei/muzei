@@ -21,7 +21,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
-    implementation "androidx.wear:wear-watchface:$wearWatchFaceComplicationVersion"
+    implementation "androidx.wear:wear-watchface-complications-rendering:$wearWatchFaceComplicationVersion"
     //implementation "com.google.android.apps.muzei:muzei-api:+"
     implementation project(':muzei-api')
 }

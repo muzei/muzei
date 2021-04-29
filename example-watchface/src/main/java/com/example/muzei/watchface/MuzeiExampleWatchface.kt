@@ -29,7 +29,6 @@ import androidx.core.content.ContextCompat
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
-import androidx.wear.watchface.CanvasComplicationDrawable
 import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
@@ -39,8 +38,9 @@ import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
+import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
-import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -59,7 +59,7 @@ class MuzeiExampleWatchface : WatchFaceService() {
         watchState: WatchState
     ): WatchFace {
         // This example uses a single, fixed complication to show the time and date
-        // rather than manually draw the time
+        // rather than manually drawing the time
         val timeComplication = Complication.createBackgroundComplicationBuilder(
             0,
             CanvasComplicationDrawable(ComplicationDrawable(this).apply {
@@ -73,11 +73,11 @@ class MuzeiExampleWatchface : WatchFaceService() {
                 }
             }, watchState),
             listOf(ComplicationType.SHORT_TEXT),
-            DefaultComplicationProviderPolicy(SystemProviders.TIME_AND_DATE)
+            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_TIME_AND_DATE)
         ).setFixedComplicationProvider(true).build()
 
         // Now build the components needed for the WatchFace
-        val userStyleRepository = UserStyleRepository(
+        val userStyleRepository = CurrentUserStyleRepository(
             UserStyleSchema(listOf())
         )
         val complicationsManager = ComplicationsManager(
@@ -106,7 +106,7 @@ class MuzeiExampleWatchface : WatchFaceService() {
 
     private inner class MuzeiExampleRenderer(
         surfaceHolder: SurfaceHolder,
-        userStyleRepository: UserStyleRepository,
+        userStyleRepository: CurrentUserStyleRepository,
         watchState: WatchState,
         private val complicationsManager: ComplicationsManager
     ) : Renderer.CanvasRenderer(
@@ -142,6 +142,9 @@ class MuzeiExampleWatchface : WatchFaceService() {
                 canvas.drawRect(bounds, backgroundPaint)
             }
             complicationsManager[0]?.render(canvas, calendar, renderParameters)
+        }
+
+        override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, calendar: Calendar) {
         }
 
         override fun onDestroy() {
