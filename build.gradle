@@ -43,7 +43,7 @@ buildscript {
         okhttpVersion = '3.12.12'
         okhttpCoroutinesVersion = '1.0'
         pagingVersion = '3.0.0'
-        playServicesWearableVersion = '17.0.0'
+        playServicesWearableVersion = '17.1.0'
         preferenceVersion = '1.1.1'
         recyclerViewVersion = '1.2.0'
         retrofitVersion = '2.9.0'

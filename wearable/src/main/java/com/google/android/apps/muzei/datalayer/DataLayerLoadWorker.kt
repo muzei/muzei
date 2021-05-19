@@ -80,7 +80,7 @@ class DataLayerLoadWorker(
                 return Result.failure()
             }
             val result = dataClient.getFdForAsset(
-                    dataMap.getAsset("image")).await()
+                    dataMap.getAsset("image")!!).await()
             try {
                 result.inputStream.use { input ->
                     FileOutputStream(DataLayerArtProvider.getAssetFile(applicationContext)).use { out ->
@@ -100,7 +100,7 @@ class DataLayerLoadWorker(
                     ComponentName(applicationContext, DataLayerArtProvider::class.java),
                     PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
                     PackageManager.DONT_KILL_APP)
-            val artwork = dataMap.getDataMap("artwork").toArtwork()
+            val artwork = dataMap.getDataMap("artwork")!!.toArtwork()
             val artworkUri = ProviderContract.getProviderClient(applicationContext,
                     DATA_LAYER_AUTHORITY).setArtwork(artwork)
             if (artworkUri != null) {
