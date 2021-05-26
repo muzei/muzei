@@ -27,6 +27,7 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
+import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.SurfaceHolder
@@ -242,6 +243,12 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
 
         @RequiresApi(Build.VERSION_CODES.O_MR1)
         private suspend fun updateCurrentArtwork(artwork: Artwork) {
+            if (Build.ID.contains("SPB1.210331.013")) {
+                Log.w("MuzeiWallpaperService", "Disabling WallpaperColors APIs " +
+                        "on Android 12 Beta 1 due to " +
+                        "https://issuetracker.google.com/issues/188636390")
+                return
+            }
             currentArtwork = ImageLoader.decode(
                     contentResolver, artwork.contentUri,
                     MAX_ARTWORK_SIZE / 2) ?: return
