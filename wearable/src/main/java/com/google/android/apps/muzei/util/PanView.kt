@@ -379,6 +379,13 @@ class PanView @JvmOverloads constructor(context: Context, attrs: AttributeSet? =
         }
     }
 
+    override fun onDetachedFromWindow() {
+        handler?.run {
+            removeCallbacks(animateTickRunnable)
+        }
+        super.onDetachedFromWindow()
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //     Methods and classes related to view state persistence.

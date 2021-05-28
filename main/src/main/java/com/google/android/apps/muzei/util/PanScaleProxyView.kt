@@ -357,6 +357,13 @@ class PanScaleProxyView @JvmOverloads constructor(context: Context, attrs: Attri
         }
     }
 
+    override fun onDetachedFromWindow() {
+        handler?.run {
+            removeCallbacks(animateTickRunnable)
+        }
+        super.onDetachedFromWindow()
+    }
+
     /**
      * Computes the current scrollable surface size, in pixels. For example, if the entire chart
      * area is visible, this is simply the current view width and height. If the chart
