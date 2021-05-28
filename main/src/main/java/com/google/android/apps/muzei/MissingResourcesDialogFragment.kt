@@ -71,4 +71,9 @@ class MissingResourcesDialogFragment : DialogFragment() {
                 }
                 .create()
     }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        requireActivity().finish()
+    }
 }

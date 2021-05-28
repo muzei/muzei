@@ -65,4 +65,9 @@ class Android12Beta1DialogFragment : DialogFragment() {
                 }
                 .create()
     }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        requireActivity().finish()
+    }
 }
