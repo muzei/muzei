@@ -109,6 +109,9 @@ class MuzeiActivity : AppCompatActivity() {
         if (MissingResourcesDialogFragment.showDialogIfNeeded(this)) {
             return
         }
+        if (Android12Beta1DialogFragment.showDialogIfNeeded(this)) {
+            return
+        }
         binding = MuzeiActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
         Firebase.analytics.setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
