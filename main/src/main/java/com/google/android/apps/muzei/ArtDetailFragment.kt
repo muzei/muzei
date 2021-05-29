@@ -28,6 +28,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewPropertyAnimator
 import android.widget.TextView
 import androidx.appcompat.widget.TooltipCompat
 import androidx.core.app.RemoteActionCompat
@@ -72,6 +73,8 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -290,8 +293,9 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
                 }
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val scope = viewLifecycleOwner.lifecycleScope
                 onLongPress = {
-                    lifecycleScope.launch {
+                    scope.launch {
                         showWidgetPreview(requireContext().applicationContext)
                     }
                 }
@@ -350,7 +354,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
             }
 
             if (binding.backgroundImageContainer.isVisible) {
-                lifecycleScope.launch {
+                viewLifecycleOwner.lifecycleScope.launch {
                     val nextId = (binding.backgroundImageContainer.displayedChild + 1) % 2
                     val orientation = withContext(Dispatchers.IO) {
                         ContentUriImageLoader(requireContext().contentResolver,
@@ -374,7 +378,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
                 }
             }
 
-            lifecycleScope.launch(Dispatchers.Main) {
+            viewLifecycleOwner.lifecycleScope.launch {
                 val commands = context?.run {
                     currentArtwork?.getCommands(this) ?: run {
                         if (viewModel.currentProvider.value?.authority == LEGACY_AUTHORITY) {
@@ -483,19 +487,13 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
         ArtDetailOpen.value = false
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        unsetNextFakeLoading?.cancel()
-        showLoadingSpinner?.cancel()
-    }
-
     private fun showFakeLoading() {
         showFakeLoading = true
         // Show a loading spinner for up to 10 seconds. When new artwork is loaded,
         // the loading spinner will go away.
         updateLoadingSpinnerVisibility()
         unsetNextFakeLoading?.cancel()
-        unsetNextFakeLoading = lifecycleScope.launch(Dispatchers.Main) {
+        unsetNextFakeLoading = viewLifecycleOwner.lifecycleScope.launch {
             delay(10000)
             showFakeLoading = false
             updateLoadingSpinnerVisibility()
@@ -510,23 +508,43 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
                 showLoadingSpinner = null
             }
             if (showFakeLoading) {
-                this.showLoadingSpinner = lifecycleScope.launch(Dispatchers.Main) {
+                showLoadingSpinner = viewLifecycleOwner.lifecycleScope.launch {
                     delay(700)
                     binding.imageLoadingIndicator.start()
                     binding.imageLoadingContainer.isVisible = true
-                    binding.imageLoadingContainer.animate()
+                    var animator: ViewPropertyAnimator? = null
+                    try {
+                        animator = binding.imageLoadingContainer.animate()
                             .alpha(1f)
                             .setDuration(300)
-                            .withEndAction(null)
+                            .withEndAction {
+                                showLoadingSpinner = null
+                                animator = null
+                                cancel()
+                            }
+                        awaitCancellation()
+                    } finally {
+                        animator?.cancel()
+                    }
                 }
             } else {
-                binding.imageLoadingContainer.animate()
-                        .alpha(0f)
-                        .setDuration(1000)
-                        .withEndAction {
-                            binding.imageLoadingContainer.isGone = true
-                            binding.imageLoadingIndicator.stop()
-                        }
+                viewLifecycleOwner.lifecycleScope.launch {
+                    var animator: ViewPropertyAnimator? = null
+                    try {
+                        animator = binding.imageLoadingContainer.animate()
+                            .alpha(0f)
+                            .setDuration(10000)
+                            .withEndAction {
+                                binding.imageLoadingContainer.isGone = true
+                                binding.imageLoadingIndicator.stop()
+                                animator = null
+                                cancel()
+                            }
+                        awaitCancellation()
+                    } finally {
+                        animator?.cancel()
+                    }
+                }
             }
         }
     }
