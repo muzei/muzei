@@ -445,26 +445,30 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
     }
 
     private fun animateChromeVisibility(visible: Boolean) {
-        binding.scrim.visibility = View.VISIBLE
-        binding.scrim.animate()
+        with(binding.scrim) {
+            visibility = View.VISIBLE
+            animate()
                 .alpha(if (visible) 1f else 0f)
                 .setDuration(200)
                 .withEndAction {
                     if (!visible) {
-                        binding.scrim.visibility = View.GONE
+                        visibility = View.GONE
                     }
                 }
+        }
 
-        binding.chromeContainer.isVisible = true
-        binding.chromeContainer.animate()
+        with(binding.chromeContainer) {
+            isVisible = true
+            animate()
                 .alpha(if (visible) 1f else 0f)
                 .translationY(if (visible) 0f else metadataSlideDistance)
                 .setDuration(200)
                 .withEndAction {
                     if (!visible) {
-                        binding.chromeContainer.isGone = true
+                        isGone = true
                     }
                 }
+        }
     }
 
     private fun resetProxyViewport() {

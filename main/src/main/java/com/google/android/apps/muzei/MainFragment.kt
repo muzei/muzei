@@ -141,16 +141,18 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
         view.setOnSystemUiVisibilityChangeListener { vis ->
             val visible = vis and View.SYSTEM_UI_FLAG_LOW_PROFILE == 0
 
-            binding.bottomNav.visibility = View.VISIBLE
-            binding.bottomNav.animate()
+            with(binding.bottomNav) {
+                visibility = View.VISIBLE
+                animate()
                     .alpha(if (visible) 1f else 0f)
                     .setDuration(200)
                     .withEndAction {
                         if (!visible) {
-                            binding.bottomNav.visibility = View.GONE
+                            visibility = View.GONE
                         }
                         updateNavigationBarColor()
                     }
+            }
         }
     }
 
