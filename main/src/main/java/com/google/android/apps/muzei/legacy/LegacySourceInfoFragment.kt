@@ -56,7 +56,10 @@ class LegacySourceInfoFragment : Fragment(R.layout.legacy_source_info_fragment) 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = LegacySourceInfoFragmentBinding.bind(view)
         binding.toolbar.setNavigationOnClickListener {
-            findNavController().popBackStack()
+            val navController = findNavController()
+            if (navController.currentDestination?.id == R.id.legacy_source_info) {
+                navController.popBackStack()
+            }
         }
         if (binding.learnMore != null) {
             binding.learnMore.setOnClickListener {

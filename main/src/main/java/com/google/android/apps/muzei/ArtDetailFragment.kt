@@ -207,8 +207,11 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
 
             return@setOnMenuItemClickListener when (menuItem.itemId) {
                 R.id.action_gestures -> {
-                    Firebase.analytics.logEvent("gestures_open", null)
-                    findNavController().navigate(ArtDetailFragmentDirections.gestures())
+                    val navController = findNavController()
+                    if (navController.currentDestination?.id == R.id.main_art_details) {
+                        Firebase.analytics.logEvent("gestures_open", null)
+                        navController.navigate(ArtDetailFragmentDirections.gestures())
+                    }
                     true
                 }
                 R.id.action_always_dark -> {

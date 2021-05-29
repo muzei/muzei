@@ -77,7 +77,10 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
                 progress = 1f
             }
             setNavigationOnClickListener {
-                findNavController().popBackStack()
+                val navController = findNavController()
+                if (navController.currentDestination?.id == R.id.browse_provider) {
+                    navController.popBackStack()
+                }
             }
             title = providerInfo.loadLabel(pm)
             inflateMenu(R.menu.browse_provider_fragment)

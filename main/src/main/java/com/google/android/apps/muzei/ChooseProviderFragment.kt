@@ -220,7 +220,10 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                         }
                     })
                     setAction(R.string.legacy_action_learn_more) {
-                        findNavController().navigate(R.id.legacy_info)
+                        val navController = findNavController()
+                        if (navController.currentDestination?.id == R.id.choose_provider_fragment) {
+                            navController.navigate(R.id.legacy_info)
+                        }
                     }
                     show()
                     // Increase the padding when the SnackBar is shown to avoid
@@ -313,14 +316,19 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                 launchProviderSettings(this)
             }
             binding.browse.setOnClickListener {
-                Firebase.analytics.logEvent("provider_browse_open") {
-                    param(FirebaseAnalytics.Param.ITEM_LIST_ID, authority)
-                    param(FirebaseAnalytics.Param.ITEM_NAME, title)
-                    param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
-                }
-                findNavController().navigate(
+                val navController = findNavController()
+                if (navController.currentDestination?.id == R.id.choose_provider_fragment) {
+                    Firebase.analytics.logEvent("provider_browse_open") {
+                        param(FirebaseAnalytics.Param.ITEM_LIST_ID, authority)
+                        param(FirebaseAnalytics.Param.ITEM_NAME, title)
+                        param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
+                    }
+                    navController.navigate(
                         ChooseProviderFragmentDirections.browse(
-                                ProviderContract.getContentUri(authority)))
+                            ProviderContract.getContentUri(authority)
+                        )
+                    )
+                }
             }
         }
 

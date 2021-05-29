@@ -33,7 +33,10 @@ class GesturesFragment: Fragment(R.layout.gestures_fragment) {
                 progress = 1f
             }
             setNavigationOnClickListener {
-                findNavController().popBackStack()
+                val navController = findNavController()
+                if (navController.currentDestination?.id == R.id.gestures_fragment) {
+                    navController.popBackStack()
+                }
             }
         }
 
