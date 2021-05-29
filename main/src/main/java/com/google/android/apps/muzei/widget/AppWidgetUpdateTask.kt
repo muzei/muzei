@@ -175,32 +175,32 @@ private suspend fun createRemoteViews(
 }
 
 private fun Bitmap.centerCrop(widgetWidth: Int, widgetHeight: Int): Bitmap {
-    if (width == 0 || height == 0 ||
-            widgetWidth == 0 || widgetHeight == 0) {
+    if (width == 0 || height == 0 || widgetWidth == 0 || widgetHeight == 0) {
         return this
     }
-    val croppedImage = when {
+    return when {
         width > height && widgetWidth < widgetHeight -> {
             Bitmap.createBitmap(
-                 this,
-                 (width - height) / 2,
-                 0,
-                 width - (width - height) / 2,
-                 height);
+                this,
+                (width - height) / 2,
+                0,
+                width - (width - height) / 2,
+                height
+            )
         }
         height > width && widgetWidth > widgetHeight -> {
             Bitmap.createBitmap(
-                 this,
-                 0,
-                 (height - width) / 2,
-                 width,
-                 height - (height - width) / 2);
+                this,
+                0,
+                (height - width) / 2,
+                width,
+                height - (height - width) / 2
+            )
         }
         else -> {
             this
         }
     }
-    return croppedImage
 }
 
 
