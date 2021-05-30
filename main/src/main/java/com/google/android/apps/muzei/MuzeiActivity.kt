@@ -126,10 +126,11 @@ class MuzeiActivity : AppCompatActivity() {
 
         WallpaperActiveState.collectIn(this) {
             val fragment = currentFragment
-            val oldFragment = supportFragmentManager.findFragmentById(R.id.container)
+            val oldFragment = binding.container.getFragment<Fragment?>()
             if (!fragment::class.java.isInstance(oldFragment)) {
                 // Only replace the Fragment if there was a change
                 supportFragmentManager.commit {
+                    setReorderingAllowed(true)
                     replace(R.id.container, fragment)
                     setPrimaryNavigationFragment(fragment).apply {
                         if (oldFragment != null) {
@@ -142,10 +143,10 @@ class MuzeiActivity : AppCompatActivity() {
 
         viewModel.onSeenTutorial().collectIn(this) {
             val fragment = currentFragment
-            if (!fragment::class.java.isInstance(
-                            supportFragmentManager.findFragmentById(R.id.container))) {
+            if (!fragment::class.java.isInstance(binding.container.getFragment())) {
                 // Only replace the Fragment if there was a change
                 supportFragmentManager.commit {
+                    setReorderingAllowed(true)
                     replace(R.id.container, fragment)
                     setPrimaryNavigationFragment(fragment)
                     setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
@@ -187,10 +188,11 @@ class MuzeiActivity : AppCompatActivity() {
         this.renderLocally = renderLocally
 
         val fm = supportFragmentManager
-        val localRenderFragment = fm.findFragmentById(R.id.local_render_container)
+        val localRenderFragment = binding.localRenderContainer.getFragment<MuzeiRendererFragment?>()
         if (renderLocally) {
             if (localRenderFragment == null) {
                 fm.commit {
+                    setReorderingAllowed(true)
                     add(R.id.local_render_container,
                             MuzeiRendererFragment.createInstance(false))
                 }
@@ -198,6 +200,7 @@ class MuzeiActivity : AppCompatActivity() {
         } else {
             if (localRenderFragment != null) {
                 fm.commit {
+                    setReorderingAllowed(true)
                     remove(localRenderFragment)
                 }
             }

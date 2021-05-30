@@ -21,8 +21,12 @@ import android.content.SharedPreferences
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
+import androidx.fragment.app.strictmode.FragmentStrictMode
 import androidx.multidex.MultiDexApplication
 import com.google.android.apps.muzei.settings.Prefs
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
+import net.nurik.roman.muzei.BuildConfig
 
 class MuzeiApplication : MultiDexApplication(), SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -41,6 +45,25 @@ class MuzeiApplication : MultiDexApplication(), SharedPreferences.OnSharedPrefer
 
     override fun onCreate() {
         super.onCreate()
+        FragmentStrictMode.setDefaultPolicy(FragmentStrictMode.Policy.Builder()
+            .detectFragmentReuse()
+            .detectFragmentTagUsage()
+            .detectRetainInstanceUsage()
+            .detectSetUserVisibleHint()
+            .detectTargetFragmentUsage()
+            .detectWrongFragmentContainer()
+            .apply {
+                if (BuildConfig.DEBUG) {
+                    // Log locally on debug builds
+                    penaltyLog()
+                } else {
+                    // Log to Crashlytics on release builds
+                    penaltyListener {
+                        Firebase.crashlytics.recordException(it)
+                    }
+                }
+            }
+            .build())
         updateNightMode()
         val sharedPreferences = Prefs.getSharedPreferences(this)
         sharedPreferences.registerOnSharedPreferenceChangeListener(this)

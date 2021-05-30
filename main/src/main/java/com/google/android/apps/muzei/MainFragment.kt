@@ -51,7 +51,7 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         // Set up the container for the child fragments
         binding = MainFragmentBinding.bind(view)
-        val navHostFragment = childFragmentManager.findFragmentById(R.id.container) as NavHostFragment
+        val navHostFragment = binding.container.getFragment<NavHostFragment>()!!
         val navController = navHostFragment.navController
         val navGraph = navController.navInflater.inflate(R.navigation.main_navigation)
         if (requireActivity().isPreviewMode) {

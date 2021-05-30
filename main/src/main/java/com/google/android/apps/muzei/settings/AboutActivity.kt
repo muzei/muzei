@@ -51,6 +51,7 @@ class AboutActivity : AppCompatActivity() {
 
         if (savedInstanceState == null) {
             supportFragmentManager.commit {
+                setReorderingAllowed(true)
                 add(R.id.demo_view_container,
                         MuzeiRendererFragment.createInstance(true))
             }
@@ -92,8 +93,8 @@ class AboutActivity : AppCompatActivity() {
                 .setStartDelay(250)
                 .setDuration(1000)
                 .withEndAction {
-                    val logoFragment = supportFragmentManager.findFragmentById(R.id.animated_logo_fragment)
-                            as? AnimatedMuzeiLogoFragment
+                    val logoFragment = binding.content.animatedLogoFragment
+                        .getFragment<AnimatedMuzeiLogoFragment?>()
                     logoFragment?.start()
                 }
     }

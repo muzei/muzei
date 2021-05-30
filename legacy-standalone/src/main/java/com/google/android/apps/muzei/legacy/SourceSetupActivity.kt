@@ -53,6 +53,7 @@ class SourceSetupActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
             supportFragmentManager.commit {
+                setReorderingAllowed(true)
                 add<SourceWarningDialogFragment>("warning")
             }
         }

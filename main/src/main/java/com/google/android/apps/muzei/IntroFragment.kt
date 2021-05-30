@@ -65,9 +65,10 @@ class IntroFragment : Fragment(R.layout.intro_fragment) {
                 }
             }
         }
-        if (childFragmentManager.findFragmentById(R.id.animated_logo_fragment) == null) {
+        if (binding.animatedLogoFragment.getFragment<Fragment?>() == null) {
             val logoFragment = AnimatedMuzeiLogoFragment()
             childFragmentManager.commitNow {
+                setReorderingAllowed(true)
                 add(R.id.animated_logo_fragment, logoFragment)
             }
 
