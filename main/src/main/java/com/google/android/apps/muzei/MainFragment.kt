@@ -107,7 +107,7 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
                 }
             }
         }
-        binding.bottomNav.setOnNavigationItemReselectedListener { item ->
+        binding.bottomNav.setOnItemReselectedListener { item ->
             if (item.itemId == R.id.main_art_details) {
                 activity?.window?.decorView?.systemUiVisibility = (View.SYSTEM_UI_FLAG_LOW_PROFILE
                         or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
