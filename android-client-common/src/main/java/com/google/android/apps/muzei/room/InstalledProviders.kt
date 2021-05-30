@@ -26,7 +26,6 @@ import android.content.pm.ProviderInfo
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
@@ -73,7 +72,7 @@ fun getInstalledProviders(context: Context): Flow<List<ProviderInfo>> = callback
                     currentProviders.entries.removeAll { it.key.packageName == packageName }
                 }
             }
-            sendBlocking(currentProviders.values.toList())
+            trySend(currentProviders.values.toList())
         }
     }
     val packageChangeFilter = IntentFilter().apply {

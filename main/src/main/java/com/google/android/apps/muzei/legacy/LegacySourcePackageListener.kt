@@ -39,7 +39,6 @@ import androidx.navigation.NavDeepLinkBuilder
 import com.google.android.apps.muzei.settings.Prefs
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
@@ -86,7 +85,7 @@ class LegacySourcePackageListener(
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "Package $packageName changed")
                 }
-                sendBlocking(queryLegacySources())
+                trySend(queryLegacySources())
             }
         }
 

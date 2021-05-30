@@ -26,7 +26,9 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
-import com.google.android.apps.muzei.util.toastFromBackground
+import com.google.android.apps.muzei.util.toast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.legacy.BuildConfig
 import net.nurik.roman.muzei.legacy.R
 import java.util.ArrayList
@@ -86,16 +88,22 @@ suspend fun Source.sendAction(context: Context, id: Int) {
                 .putExtra(EXTRA_COMMAND_ID, id))
     } catch (e: PackageManager.NameNotFoundException) {
         Log.i(TAG, "Sending action $id to $componentName failed as it is no longer available", e)
-        context.toastFromBackground(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
+        withContext(Dispatchers.Main.immediate) {
+            context.toast(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
+        }
         LegacyDatabase.getInstance(context).sourceDao().delete(this)
     } catch (e: IllegalStateException) {
         Log.i(TAG, "Sending action $id to $componentName failed; unselecting it.", e)
-        context.toastFromBackground(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
+        withContext(Dispatchers.Main.immediate) {
+            context.toast(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
+        }
         LegacyDatabase.getInstance(context).sourceDao()
                 .update(apply { selected = false })
     } catch (e: SecurityException) {
         Log.i(TAG, "Sending action $id to $componentName failed; unselecting it.", e)
-        context.toastFromBackground(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
+        withContext(Dispatchers.Main.immediate) {
+            context.toast(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
+        }
         LegacyDatabase.getInstance(context).sourceDao()
                 .update(apply { selected = false })
     }

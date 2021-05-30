@@ -21,6 +21,8 @@ import android.os.Build
 import android.util.Log
 import androidx.core.content.ContextCompat
 import com.google.android.apps.muzei.api.MuzeiContract
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -42,13 +44,14 @@ object DirectBootCache {
 
     private var cacheJob: Job? = null
 
+    @OptIn(DelicateCoroutinesApi::class)
     internal fun onArtworkChanged(context: Context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             // No Direct Boot prior to Android N
             return
         }
         cacheJob?.cancel()
-        cacheJob = GlobalScope.launch {
+        cacheJob = GlobalScope.launch(Dispatchers.IO) {
             delay(DIRECT_BOOT_CACHE_DELAY_MILLIS)
             if (cacheJob?.isCancelled == true) {
                 return@launch

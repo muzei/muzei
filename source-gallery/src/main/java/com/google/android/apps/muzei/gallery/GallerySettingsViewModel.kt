@@ -29,7 +29,6 @@ import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.stateIn
@@ -52,7 +51,7 @@ class GallerySettingsViewModel(application: Application) : AndroidViewModel(appl
             }
             val packageManager = getApplication<Application>().packageManager
             val packageName = getApplication<Application>().packageName
-            sendBlocking(packageManager.queryIntentActivities(intent, 0).asSequence().map {
+            trySend(packageManager.queryIntentActivities(intent, 0).asSequence().map {
                 it.activityInfo
             }.filter {
                 // Filter out the default system UI

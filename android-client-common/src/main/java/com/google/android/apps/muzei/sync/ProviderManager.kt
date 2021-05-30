@@ -40,6 +40,7 @@ import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -139,6 +140,7 @@ class ProviderManager private constructor(private val context: Context)
         MuzeiDatabase.getInstance(context).artworkDao().currentArtworkLiveData
     }
     private var nextArtworkJob: Job? = null
+    @OptIn(DelicateCoroutinesApi::class)
     private val artworkObserver = Observer<Artwork?> { artwork ->
         if (artwork == null) {
             // Can't have no artwork at all,
@@ -213,6 +215,7 @@ class ProviderManager private constructor(private val context: Context)
         startArtworkLoad()
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     private fun runIfValid(provider: Provider?, block: (provider: Provider) -> Unit) {
         if (provider != null) {
             val pm = context.packageManager

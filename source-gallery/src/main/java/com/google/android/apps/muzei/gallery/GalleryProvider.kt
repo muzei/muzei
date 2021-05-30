@@ -24,6 +24,7 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.ParcelFileDescriptor
 import android.util.Log
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.File
@@ -105,6 +106,7 @@ class GalleryProvider : ContentProvider() {
         throw UnsupportedOperationException("Queries are not supported")
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Throws(FileNotFoundException::class)
     override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
         val context: Context = context ?: return null

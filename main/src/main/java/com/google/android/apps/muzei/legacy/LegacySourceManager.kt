@@ -31,7 +31,6 @@ import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.collectIn
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -83,7 +82,7 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
             addAction(Intent.ACTION_PACKAGE_REMOVED)
         }
         val queryAndSet = {
-            sendBlocking(pm.queryIntentServices(Intent(LegacySourceServiceProtocol.LEGACY_SOURCE_ACTION), 0)
+            trySend(pm.queryIntentServices(Intent(LegacySourceServiceProtocol.LEGACY_SOURCE_ACTION), 0)
                     .firstOrNull()
                     ?.serviceInfo
                     ?.run {

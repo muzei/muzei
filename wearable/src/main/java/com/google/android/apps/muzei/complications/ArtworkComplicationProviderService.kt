@@ -40,6 +40,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig
@@ -106,6 +107,7 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onComplicationUpdate(
             complicationId: Int,
             type: Int,

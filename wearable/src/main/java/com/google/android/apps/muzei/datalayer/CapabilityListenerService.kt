@@ -21,6 +21,7 @@ import android.content.pm.PackageManager
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.gms.wearable.CapabilityInfo
 import com.google.android.gms.wearable.WearableListenerService
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig.DATA_LAYER_AUTHORITY
@@ -30,6 +31,7 @@ import net.nurik.roman.muzei.BuildConfig.DATA_LAYER_AUTHORITY
  */
 class CapabilityListenerService : WearableListenerService() {
 
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onCapabilityChanged(capabilityInfo: CapabilityInfo?) {
         val removed = capabilityInfo?.nodes?.isEmpty() ?: false
         if (!removed) {

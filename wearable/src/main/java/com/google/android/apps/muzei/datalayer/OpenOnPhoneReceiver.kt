@@ -23,14 +23,16 @@ import android.support.wearable.activity.ConfirmationActivity
 import android.util.Log
 import androidx.core.net.toUri
 import com.google.android.apps.muzei.util.goAsync
-import com.google.android.apps.muzei.util.toastFromBackground
+import com.google.android.apps.muzei.util.toast
 import com.google.android.gms.wearable.CapabilityClient
 import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.Wearable
 import com.google.android.wearable.intent.RemoteIntent
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.R
 import java.util.TreeSet
 
@@ -53,7 +55,9 @@ class OpenOnPhoneReceiver : BroadcastReceiver() {
             }
 
             if (nodes.isEmpty()) {
-                context.toastFromBackground(R.string.datalayer_open_failed)
+                withContext(Dispatchers.Main.immediate) {
+                    context.toast(R.string.datalayer_open_failed)
+                }
             } else {
                 Firebase.analytics.logEvent("data_layer_open_on_phone", null)
                 // Show the open on phone animation

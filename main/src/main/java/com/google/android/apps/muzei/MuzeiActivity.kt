@@ -41,7 +41,6 @@ import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import net.nurik.roman.muzei.BuildConfig
@@ -213,7 +212,7 @@ class MuzeiActivityViewModel(application: Application): AndroidViewModel(applica
     fun onSeenTutorial(): Flow<Boolean> = callbackFlow {
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             if (TutorialFragment.PREF_SEEN_TUTORIAL == key) {
-                sendBlocking(sp.getBoolean(TutorialFragment.PREF_SEEN_TUTORIAL, false))
+                trySend(sp.getBoolean(TutorialFragment.PREF_SEEN_TUTORIAL, false))
             }
         }
         sp.registerOnSharedPreferenceChangeListener(listener)

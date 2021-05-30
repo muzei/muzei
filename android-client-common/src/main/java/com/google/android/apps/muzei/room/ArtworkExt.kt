@@ -42,7 +42,9 @@ import com.google.android.apps.muzei.api.internal.RemoteActionBroadcastReceiver
 import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
 import com.google.android.apps.muzei.legacy.LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
-import com.google.android.apps.muzei.util.toastFromBackground
+import com.google.android.apps.muzei.util.toast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.androidclientcommon.R
 import org.json.JSONArray
 import org.json.JSONException
@@ -82,7 +84,9 @@ suspend fun Artwork.openArtworkInfo(context: Context) {
         }
     } ?: false
     if (!success) {
-        context.toastFromBackground(R.string.error_view_details)
+        withContext(Dispatchers.Main.immediate) {
+            context.toast(R.string.error_view_details)
+        }
     }
 }
 

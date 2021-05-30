@@ -13,6 +13,7 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.sync.ProviderChangedWorker
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.goAsync
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig
@@ -24,6 +25,7 @@ class ProviderChangedReceiver : BroadcastReceiver() {
         /**
          * Call this when a persistent listener changes visibility
          */
+        @OptIn(DelicateCoroutinesApi::class)
         fun onVisibleChanged(context: Context) {
             GlobalScope.launch {
                 updateBridging(context)

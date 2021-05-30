@@ -31,6 +31,7 @@ import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHOR
 import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.sync.ProviderManager
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig
@@ -50,6 +51,7 @@ internal class LegacySourceServiceConnection(
 
     private var currentProvider: Provider? = null
 
+    @OptIn(DelicateCoroutinesApi::class)
     private val replyToMessenger by lazy {
         Messenger(Handler(Looper.getMainLooper()) { message ->
             when (message.what) {

@@ -42,16 +42,17 @@ import androidx.room.withTransaction
 import com.google.android.apps.muzei.sources.SourceSubscriberService
 import com.google.android.apps.muzei.util.collectIn
 import com.google.android.apps.muzei.util.goAsync
-import com.google.android.apps.muzei.util.toastFromBackground
+import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.legacy.BuildConfig
 import net.nurik.roman.muzei.legacy.R
 import java.util.HashSet
@@ -175,7 +176,7 @@ class LegacySourceService : Service(), LifecycleOwner {
             }
             val packageName = intent.data?.schemeSpecificPart
             // Update the sources from the changed package
-            GlobalScope.launch(singleThreadContext) {
+            lifecycleScope.launch(singleThreadContext) {
                 updateSources(packageName)
             }
             if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
@@ -302,7 +303,7 @@ class LegacySourceService : Service(), LifecycleOwner {
         }
         registerReceiver(sourcePackageChangeReceiver, packageChangeFilter)
         // Update the available sources in case we missed anything while Muzei was disabled
-        GlobalScope.launch(singleThreadContext) {
+        lifecycleScope.launch(singleThreadContext) {
             updateSources()
         }
     }
@@ -446,16 +447,22 @@ class LegacySourceService : Service(), LifecycleOwner {
                     .putExtra(EXTRA_TOKEN, selectedSource.flattenToShortString()))
         } catch (e: PackageManager.NameNotFoundException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
-            toastFromBackground(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
+            withContext(Dispatchers.Main.immediate) {
+                toast(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
+            }
             LegacyDatabase.getInstance(this@LegacySourceService).sourceDao().delete(this)
         } catch (e: IllegalStateException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
-            toastFromBackground(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
+            withContext(Dispatchers.Main.immediate) {
+                toast(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
+            }
             LegacyDatabase.getInstance(this@LegacySourceService).sourceDao()
                     .update(apply { selected = false })
         } catch (e: SecurityException) {
             Log.i(TAG, "Selected source $selectedSource is no longer available; switching to default.", e)
-            toastFromBackground(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
+            withContext(Dispatchers.Main.immediate) {
+                toast(R.string.legacy_source_unavailable, Toast.LENGTH_LONG)
+            }
             LegacyDatabase.getInstance(this@LegacySourceService).sourceDao()
                     .update(apply { selected = false })
         }

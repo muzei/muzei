@@ -27,6 +27,7 @@ import androidx.core.graphics.drawable.IconCompat
 import com.google.android.apps.muzei.api.UserCommand
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.legacy.BuildConfig
@@ -86,6 +87,7 @@ class SourceArtProvider : MuzeiArtProvider() {
         sendAction(id)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     private fun sendAction(id: Int) = GlobalScope.launch {
         val context = context ?: return@launch
         LegacyDatabase.getInstance(context).sourceDao().getCurrentSource()?.sendAction(context, id)
