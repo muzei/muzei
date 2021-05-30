@@ -1,11 +1,7 @@
 package com.google.android.apps.muzei
 
 import android.app.job.JobScheduler
-import android.content.ContentProvider
-import android.content.ContentValues
 import android.content.Context
-import android.database.Cursor
-import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.core.content.edit
@@ -13,11 +9,12 @@ import androidx.core.content.pm.PackageInfoCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.preference.PreferenceManager
+import androidx.startup.Initializer
 import androidx.work.Configuration
 import androidx.work.WorkManager
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 
-class WorkManagerInitializer : ContentProvider() {
+class WorkManagerInitializer : Initializer<Unit> {
 
     companion object {
         private const val TAG = "WorkManagerInitializer"
@@ -72,38 +69,7 @@ class WorkManagerInitializer : ContentProvider() {
         }
     }
 
-    override fun onCreate(): Boolean {
-        val context = context ?: return true
-        safeInitialize(context)
-        return true
-    }
+    override fun create(context: Context) = safeInitialize(context)
 
-    override fun query(uri: Uri,
-            projection: Array<String>?,
-            selection: String?,
-            selectionArgs: Array<String>?,
-            sortOrder: String?): Cursor? {
-        return null
-    }
-
-    override fun getType(uri: Uri): String? {
-        return null
-    }
-
-    override fun insert(uri: Uri, values: ContentValues?): Uri? {
-        return null
-    }
-
-    override fun delete(uri: Uri,
-            selection: String?,
-            selectionArgs: Array<String>?): Int {
-        return 0
-    }
-
-    override fun update(uri: Uri,
-            values: ContentValues?,
-            selection: String?,
-            selectionArgs: Array<String>?): Int {
-        return 0
-    }
+    override fun dependencies() = mutableListOf<Class<out Initializer<*>>>()
 }
