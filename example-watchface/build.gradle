@@ -34,6 +34,9 @@ android {
     defaultConfig {
         minSdkVersion 24
         targetSdkVersion rootProject.ext.targetSdkVersion
+
+        versionName '1.0.0'
+        versionCode 1
     }
 
     kotlinOptions {

@@ -36,6 +36,9 @@ android {
         minSdkVersion 19
         targetSdkVersion rootProject.ext.targetSdkVersion
 
+        versionName '1.0.0'
+        versionCode 1
+
         def unsplashAuthorityValue = "com.example.muzei.exampleunsplash"
         manifestPlaceholders = [unsplashAuthority: unsplashAuthorityValue]
         buildConfigField "String", "UNSPLASH_AUTHORITY", "\"${unsplashAuthorityValue}\""
