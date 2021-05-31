@@ -47,7 +47,7 @@ buildscript {
         preferenceVersion = '1.1.1'
         recyclerViewVersion = '1.2.0'
         retrofitVersion = '2.9.0'
-        roomVersion = '2.3.0'
+        roomVersion = '2.4.0-alpha02'
         subsamplingVersion = '3.10.0'
         swipeRefreshLayoutVersion = '1.1.0'
         taskerVersion = '0.4.1'

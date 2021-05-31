@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.sqlite.SQLiteConstraintException
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.InvalidationTracker
 import androidx.room.Room
@@ -34,7 +35,13 @@ import java.io.File
 /**
  * Room Database for Muzei
  */
-@Database(entities = [(Artwork::class), (Provider::class)], version = 9)
+@Database(
+    entities = [(Artwork::class), (Provider::class)],
+    autoMigrations = [
+        AutoMigration(from = 4, to = 5)
+    ],
+    version = 9
+)
 abstract class MuzeiDatabase : RoomDatabase() {
 
     abstract fun providerDao(): ProviderDao
@@ -54,7 +61,6 @@ abstract class MuzeiDatabase : RoomDatabase() {
                                 MIGRATION_1_2,
                                 MIGRATION_2_3,
                                 MIGRATION_3_4,
-                                MIGRATION_4_5,
                                 MIGRATION_5_6,
                                 Migration6to8(applicationContext),
                                 Migration7to8(applicationContext),
@@ -190,12 +196,6 @@ abstract class MuzeiDatabase : RoomDatabase() {
                 database.execSQL("DROP TABLE artwork")
                 database.execSQL("ALTER TABLE artwork2 RENAME TO artwork")
                 database.execSQL("CREATE INDEX index_Artwork_sourceComponentName " + "ON artwork (sourceComponentName)")
-            }
-        }
-
-        private val MIGRATION_4_5 = object : Migration(4, 5) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                // NO-OP
             }
         }
 
