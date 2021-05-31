@@ -181,6 +181,18 @@
                 <action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING"/>
             </intent-filter>
         </receiver>
+        <receiver
+            android:name="com.joaomgcd.taskerpluginlibrary.action.BroadcastReceiverAction"
+            tools:node="remove"/>
+        <service
+            android:name="com.joaomgcd.taskerpluginlibrary.action.IntentServiceAction"
+            tools:node="remove"/>
+        <receiver
+            android:name="com.joaomgcd.taskerpluginlibrary.condition.BroadcastReceiverCondition"
+            tools:node="remove"/>
+        <service
+            android:name="com.joaomgcd.taskerpluginlibrary.condition.IntentServiceCondition"
+            tools:node="remove"/>
 
         <!-- New wallpaper notification receiver -->
 
