@@ -31,6 +31,9 @@ import com.google.android.apps.muzei.browse.BrowseProviderFragment
 import com.google.android.apps.muzei.settings.EffectsFragment
 import com.google.android.apps.muzei.util.autoCleared
 import com.google.android.apps.muzei.util.collectIn
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.navigation.NavigationBarView
+import com.google.android.material.navigationrail.NavigationRailView
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
@@ -64,7 +67,7 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
         navController.graph = navGraph
 
         // Set up the bottom nav
-        binding.navBar.setupWithNavController(navController)
+        (binding.navBar as NavigationBarView).setupWithNavController(navController)
         // React to the destination changing to update the status bar color
         navController.currentBackStackEntryFlow.map { backStackEntry ->
             backStackEntry.arguments
@@ -113,7 +116,7 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
                 }
             }
         }
-        binding.navBar.setOnItemReselectedListener { item ->
+        (binding.navBar as NavigationBarView).setOnItemReselectedListener { item ->
             if (item.itemId == R.id.main_art_details) {
                 activity?.window?.decorView?.systemUiVisibility = (View.SYSTEM_UI_FLAG_LOW_PROFILE
                         or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
@@ -128,18 +131,33 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
         // Send the correct window insets to each view
         ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
             // Ensure the container gets the appropriate insets
-            ViewCompat.dispatchApplyWindowInsets(binding.container,
+            if (binding.navBar is BottomNavigationView) {
+                ViewCompat.dispatchApplyWindowInsets(binding.container,
                     WindowInsetsCompat.Builder(insets).setSystemWindowInsets(Insets.of(
-                            insets.systemWindowInsetLeft,
-                            insets.systemWindowInsetTop,
-                            insets.systemWindowInsetRight,
-                            0)).build())
-            ViewCompat.dispatchApplyWindowInsets(binding.navBar,
+                        insets.systemWindowInsetLeft,
+                        insets.systemWindowInsetTop,
+                        insets.systemWindowInsetRight,
+                        0)).build())
+                ViewCompat.dispatchApplyWindowInsets(binding.navBar,
                     WindowInsetsCompat.Builder(insets).setSystemWindowInsets(Insets.of(
-                            insets.systemWindowInsetLeft,
-                            0,
-                            insets.systemWindowInsetRight,
-                            insets.systemWindowInsetBottom)).build())
+                        insets.systemWindowInsetLeft,
+                        0,
+                        insets.systemWindowInsetRight,
+                        insets.systemWindowInsetBottom)).build())
+            } else if (binding.navBar is NavigationRailView) {
+                ViewCompat.dispatchApplyWindowInsets(binding.container,
+                    WindowInsetsCompat.Builder(insets).setSystemWindowInsets(Insets.of(
+                        0,
+                        insets.systemWindowInsetTop,
+                        insets.systemWindowInsetRight,
+                        insets.systemWindowInsetBottom)).build())
+                ViewCompat.dispatchApplyWindowInsets(binding.navBar,
+                    WindowInsetsCompat.Builder(insets).setSystemWindowInsets(Insets.of(
+                        insets.systemWindowInsetLeft,
+                        0,
+                        0,
+                        0)).build())
+            }
             insets.consumeSystemWindowInsets().consumeDisplayCutout()
         }
 
@@ -183,6 +201,6 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
     }
 
     override fun onRequestCloseActivity() {
-        binding.navBar.selectedItemId = R.id.main_art_details
+        (binding.navBar as NavigationBarView).selectedItemId = R.id.main_art_details
     }
 }
