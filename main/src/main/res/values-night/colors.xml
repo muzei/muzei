@@ -15,7 +15,7 @@
   -->
 
 <resources>
-    <color name="bottom_nav_background">#000</color>
+    <color name="nav_bar_background">#000</color>
     <color name="art_detail_loading_background">#c000</color>
     <color name="browse_provider_background">#222</color>
 </resources>

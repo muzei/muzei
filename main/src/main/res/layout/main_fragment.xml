@@ -31,10 +31,10 @@
         app:defaultNavHost="true"/>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_nav"
+        android:id="@+id/nav_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/bottom_nav_background"
+        android:background="@color/nav_bar_background"
         android:fitsSystemWindows="true"
         app:menu="@menu/main"/>
 </com.google.android.apps.muzei.util.SmartInsetLinearLayout>

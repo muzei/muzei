@@ -64,7 +64,7 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
         navController.graph = navGraph
 
         // Set up the bottom nav
-        binding.bottomNav.setupWithNavController(navController)
+        binding.navBar.setupWithNavController(navController)
         // React to the destination changing to update the status bar color
         navController.currentBackStackEntryFlow.map { backStackEntry ->
             backStackEntry.arguments
@@ -113,7 +113,7 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
                 }
             }
         }
-        binding.bottomNav.setOnItemReselectedListener { item ->
+        binding.navBar.setOnItemReselectedListener { item ->
             if (item.itemId == R.id.main_art_details) {
                 activity?.window?.decorView?.systemUiVisibility = (View.SYSTEM_UI_FLAG_LOW_PROFILE
                         or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
@@ -134,7 +134,7 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
                             insets.systemWindowInsetTop,
                             insets.systemWindowInsetRight,
                             0)).build())
-            ViewCompat.dispatchApplyWindowInsets(binding.bottomNav,
+            ViewCompat.dispatchApplyWindowInsets(binding.navBar,
                     WindowInsetsCompat.Builder(insets).setSystemWindowInsets(Insets.of(
                             insets.systemWindowInsetLeft,
                             0,
@@ -147,7 +147,7 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
         view.setOnSystemUiVisibilityChangeListener { vis ->
             val visible = vis and View.SYSTEM_UI_FLAG_LOW_PROFILE == 0
 
-            with(binding.bottomNav) {
+            with(binding.navBar) {
                 visibility = View.VISIBLE
                 animate()
                     .alpha(if (visible) 1f else 0f)
@@ -183,6 +183,6 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
     }
 
     override fun onRequestCloseActivity() {
-        binding.bottomNav.selectedItemId = R.id.main_art_details
+        binding.navBar.selectedItemId = R.id.main_art_details
     }
 }
