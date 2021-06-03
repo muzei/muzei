@@ -30,10 +30,12 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.apps.muzei.browse.BrowseProviderFragment
 import com.google.android.apps.muzei.settings.EffectsFragment
 import com.google.android.apps.muzei.util.autoCleared
+import com.google.android.apps.muzei.util.collectIn
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.flow.map
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.MainFragmentBinding
 
@@ -57,26 +59,30 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
         if (requireActivity().isPreviewMode) {
             // Make the Effects screen the start destination when
             // coming from the Settings button on the Live Wallpaper picker
-            navGraph.startDestination = R.id.main_effects
+            navGraph.setStartDestination(R.id.main_effects)
         }
         navController.graph = navGraph
 
         // Set up the bottom nav
         binding.bottomNav.setupWithNavController(navController)
-        // Set up an OnDestinationChangedListener for the status bar color
-        navController.addOnDestinationChangedListener { _, _, args ->
+        // React to the destination changing to update the status bar color
+        navController.currentBackStackEntryFlow.map { backStackEntry ->
+            backStackEntry.arguments
+        }.collectIn(viewLifecycleOwner) { args ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 requireActivity().window.statusBarColor =
-                        if (args?.getBoolean("useDarkStatusBar") == true) {
-                            darkStatusBarColor
-                        } else {
-                            Color.TRANSPARENT
-                        }
+                    if (args?.getBoolean("useDarkStatusBar") == true) {
+                        darkStatusBarColor
+                    } else {
+                        Color.TRANSPARENT
+                    }
             }
         }
-        // Set up an OnDestinationChangedListener for analytics
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            when (destination.id) {
+        // React to the destination changing for analytics
+        navController.currentBackStackEntryFlow.map { backStackEntry ->
+            backStackEntry.destination.id
+        }.collectIn(viewLifecycleOwner) { destinationId ->
+            when (destinationId) {
                 R.id.main_art_details -> {
                     Firebase.analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW) {
                         param(FirebaseAnalytics.Param.SCREEN_NAME, "ArtDetail")

@@ -39,7 +39,7 @@ buildscript {
         lifecycleVersion = '2.4.0-alpha01'
         materialVersion = '1.4.0-beta01'
         multidexVersion = '2.0.1'
-        navigationVersion = '2.3.5'
+        navigationVersion = '2.4.0-alpha02'
         okhttpVersion = '3.12.12'
         okhttpCoroutinesVersion = '1.0'
         pagingVersion = '3.1.0-alpha01'
