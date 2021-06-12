@@ -73,7 +73,7 @@
             tools:targetApi="n"
             tools:node="merge">
             <meta-data
-                android:name="androidx.work.impl.WorkManagerInitializer"
+                android:name="androidx.work.WorkManagerInitializer"
                 android:value="androidx.startup"
                 tools:node="remove" />
             <meta-data
