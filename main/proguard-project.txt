@@ -31,10 +31,3 @@
 -dontwarn org.conscrypt.**
 # A resource is loaded with a relative path so the package of this class must be preserved.
 -keepnames class okhttp3.internal.publicsuffix.PublicSuffixDatabase
-
-# Workaround for Kotlin Safe Args issue
--if public class ** implements androidx.navigation.NavArgs
--keepclassmembers public class <1> {
-    public static ** Companion;
-    ** fromBundle(android.os.Bundle);
-}

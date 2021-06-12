@@ -33,13 +33,13 @@ buildscript {
         firebaseAnalyticsVersion = '19.0.0'
         firebaseCrashlyticsVersion = '18.0.0'
         firebasePerfVersion = '20.0.0'
-        fragmentVersion = '1.4.0-alpha02'
+        fragmentVersion = '1.4.0-SNAPSHOT'
         kotlinVersion = '1.5.10'
         kspVersion = '1.5.0-1.0.0-alpha09'
         lifecycleVersion = '2.4.0-alpha01'
         materialVersion = '1.4.0-beta01'
         multidexVersion = '2.0.1'
-        navigationVersion = '2.4.0-alpha02'
+        navigationVersion = '2.4.0-SNAPSHOT'
         okhttpVersion = '3.12.12'
         okhttpCoroutinesVersion = '1.0'
         pagingVersion = '3.1.0-alpha01'
@@ -60,6 +60,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        maven { url 'https://androidx.dev/snapshots/builds/7444815/artifacts/repository' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:7.0.0-beta03'
@@ -80,5 +81,6 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        maven { url 'https://androidx.dev/snapshots/builds/7444815/artifacts/repository' }
     }
 }
