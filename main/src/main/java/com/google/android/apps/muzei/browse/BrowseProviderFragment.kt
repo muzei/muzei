@@ -62,12 +62,15 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = BrowseProviderFragmentBinding.bind(view)
-        val pm = requireContext().packageManager
-        val providerInfo = pm.resolveContentProvider(args.contentUri.authority!!, 0)
-                ?: run {
-                    findNavController().popBackStack()
-                    return
-                }
+        viewModel.providerInfo.collectIn(viewLifecycleOwner) { providerInfo ->
+            if (providerInfo != null) {
+                val pm = requireContext().packageManager
+                binding.toolbar.title = providerInfo.loadLabel(pm)
+            } else {
+                // The contentUri is no longer valid, so we should pop
+                findNavController().popBackStack()
+            }
+        }
 
         binding.swipeRefresh.setOnRefreshListener {
             refresh(binding.swipeRefresh)
@@ -82,7 +85,6 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
                     navController.popBackStack()
                 }
             }
-            title = providerInfo.loadLabel(pm)
             inflateMenu(R.menu.browse_provider_fragment)
             setOnMenuItemClickListener {
                 refresh(binding.swipeRefresh)
@@ -92,7 +94,6 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
         val adapter = Adapter()
         binding.list.adapter = adapter
 
-        viewModel.contentUri = args.contentUri
         viewModel.artwork.collectIn(viewLifecycleOwner) {
             adapter.submitList(it)
         }

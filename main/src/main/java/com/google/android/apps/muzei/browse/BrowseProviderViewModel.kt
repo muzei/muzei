@@ -20,63 +20,75 @@ import android.app.Application
 import android.content.ContentUris
 import android.database.ContentObserver
 import android.net.Uri
+import android.os.DeadObjectException
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.google.android.apps.muzei.room.Artwork
+import com.google.android.apps.muzei.room.getInstalledProviders
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 class BrowseProviderViewModel(
-        application: Application
+    application: Application,
+    savedStateHandle: SavedStateHandle
 ): AndroidViewModel(application) {
 
-    private val contentUriSharedFlow = MutableSharedFlow<Uri>(
-            replay = 1,
-            onBufferOverflow = BufferOverflow.DROP_OLDEST)
-    var contentUri: Uri
-        get() = contentUriSharedFlow.replayCache.first()
-        set(value) {
-            contentUriSharedFlow.tryEmit(value)
-        }
+    private val args = BrowseProviderFragmentArgs.fromSavedStateHandle(savedStateHandle)
 
-    private fun getProviderArtwork(contentUri: Uri) = callbackFlow {
+    val providerInfo = getInstalledProviders(application).debounce(1000L).map { providers ->
+        providers.firstOrNull { it.authority == args.contentUri.authority }
+    }
+
+    private val client = providerInfo.map { providerInfo ->
+        providerInfo?.let {
+            val context = getApplication<Application>()
+            ContentProviderClientCompat.getClient(context, args.contentUri)
+        }
+    }
+
+    private fun getProviderArtwork(
+        contentProviderClient: ContentProviderClientCompat,
+    ) = callbackFlow {
         val context = getApplication<Application>()
-        val authority: String = contentUri.authority
-                ?: throw IllegalArgumentException("Invalid contentUri $contentUri")
-        val contentProviderClient = ContentProviderClientCompat.getClient(
-                context, contentUri)
+        val authority: String = args.contentUri.authority!!
         var refreshJob: Job? = null
         val refreshArt = {
             refreshJob?.cancel()
             refreshJob = launch {
-                val list = mutableListOf<Artwork>()
-                contentProviderClient?.query(contentUri)?.use { data ->
-                    while(data.moveToNext() && isActive) {
-                        val providerArtwork =
+                try {
+                    val list = mutableListOf<Artwork>()
+                    contentProviderClient.query(args.contentUri)?.use { data ->
+                        while(data.moveToNext() && isActive) {
+                            val providerArtwork =
                                 com.google.android.apps.muzei.api.provider.Artwork.fromCursor(data)
-                        list.add(Artwork(ContentUris.withAppendedId(contentUri,
+                            list.add(Artwork(ContentUris.withAppendedId(args.contentUri,
                                 providerArtwork.id)).apply {
-                            title = providerArtwork.title
-                            byline = providerArtwork.byline
-                            attribution = providerArtwork.attribution
-                            providerAuthority = authority
-                        })
+                                title = providerArtwork.title
+                                byline = providerArtwork.byline
+                                attribution = providerArtwork.attribution
+                                providerAuthority = authority
+                            })
+                        }
                     }
+                    send(list)
+                } catch (e: DeadObjectException) {
+                    // Provider was updated out from underneath us
+                    // so there's nothing more we can do here
                 }
-                send(list)
             }
         }
         val contentObserver = object : ContentObserver(null) {
@@ -85,19 +97,22 @@ class BrowseProviderViewModel(
             }
         }
         context.contentResolver.registerContentObserver(
-                contentUri,
+                args.contentUri,
                 true,
                 contentObserver)
         refreshArt()
 
         awaitClose {
             context.contentResolver.unregisterContentObserver(contentObserver)
-            contentProviderClient?.close()
+            contentProviderClient.close()
         }
     }
 
-    val artwork = contentUriSharedFlow.distinctUntilChanged()
-            .flatMapLatest { contentUri ->
-                getProviderArtwork(contentUri)
-            }.shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), 1)
+    val artwork = client.flatMapLatest { client ->
+        if (client != null) {
+            getProviderArtwork(client) }
+        else {
+            emptyFlow()
+        }
+    }.shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), 1)
 }
