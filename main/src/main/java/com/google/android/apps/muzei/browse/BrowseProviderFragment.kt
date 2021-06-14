@@ -99,7 +99,7 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
     }
 
     private fun refresh(swipeRefreshLayout: SwipeRefreshLayout) {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             ProviderManager.requestLoad(requireContext(), args.contentUri)
             // Show the refresh indicator for some visible amount of time
             // rather than immediately dismissing it. We don't know how long
