@@ -53,7 +53,7 @@ class BrowseProviderViewModel(
         providers.firstOrNull { it.authority == args.contentUri.authority }
     }
 
-    private val client = providerInfo.map { providerInfo ->
+    val client = providerInfo.map { providerInfo ->
         providerInfo?.let {
             val context = getApplication<Application>()
             ContentProviderClientCompat.getClient(context, args.contentUri)

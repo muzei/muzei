@@ -33,10 +33,12 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import coil.load
+import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_MARK_ARTWORK_LOADED
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.getCommands
 import com.google.android.apps.muzei.sync.ProviderManager
+import com.google.android.apps.muzei.util.ContentProviderClientCompat
 import com.google.android.apps.muzei.util.collectIn
 import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -93,6 +95,9 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
         }
         val adapter = Adapter()
         binding.list.adapter = adapter
+        viewModel.client.collectIn(viewLifecycleOwner) {
+            adapter.client = it
+        }
 
         viewModel.artwork.collectIn(viewLifecycleOwner) {
             adapter.submitList(it)
@@ -113,8 +118,9 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
     }
 
     class ArtViewHolder(
-            private val owner: LifecycleOwner,
-            private val binding: BrowseProviderItemBinding
+        private val owner: LifecycleOwner,
+        private val binding: BrowseProviderItemBinding,
+        private val clientProvider: () -> ContentProviderClientCompat?,
     ): RecyclerView.ViewHolder(binding.root) {
 
         fun bind(artwork: Artwork) {
@@ -135,6 +141,7 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
                     artwork.dateAdded.time = System.currentTimeMillis()
                     MuzeiDatabase.getInstance(context).artworkDao()
                             .insert(artwork)
+                    clientProvider.invoke()?.call(METHOD_MARK_ARTWORK_LOADED, artwork.imageUri.toString())
                     context.toast(if (artwork.title.isNullOrBlank()) {
                         context.getString(R.string.browse_set_wallpaper)
                     } else {
@@ -184,9 +191,17 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
                         artwork1 == artwork2
             }
     ) {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-                ArtViewHolder(viewLifecycleOwner,
-                        BrowseProviderItemBinding.inflate(layoutInflater, parent, false))
+        var client: ContentProviderClientCompat? = null
+
+        override fun onCreateViewHolder(
+            parent: ViewGroup,
+            viewType: Int
+        ) = ArtViewHolder(
+            viewLifecycleOwner,
+            BrowseProviderItemBinding.inflate(layoutInflater, parent, false)
+        ) {
+            client
+        }
 
         override fun onBindViewHolder(holder: ArtViewHolder, position: Int) {
             holder.bind(getItem(position))
