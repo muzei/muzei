@@ -291,7 +291,7 @@ class GallerySettingsActivity : AppCompatActivity(),
         viewModel.chosenPhotos.collectIn(this) {
             chosenPhotosAdapter.submitData(it)
         }
-        chosenPhotosAdapter.loadStateFlow.collectIn(this) {
+        chosenPhotosAdapter.onPagesUpdatedFlow.collectIn(this) {
             onDataSetChanged()
         }
         viewModel.getContentActivityInfoList.map {
