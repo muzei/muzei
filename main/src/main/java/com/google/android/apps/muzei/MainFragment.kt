@@ -138,12 +138,6 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
                         insets.systemWindowInsetTop,
                         insets.systemWindowInsetRight,
                         0)).build())
-                ViewCompat.dispatchApplyWindowInsets(binding.navBar,
-                    WindowInsetsCompat.Builder(insets).setSystemWindowInsets(Insets.of(
-                        insets.systemWindowInsetLeft,
-                        0,
-                        insets.systemWindowInsetRight,
-                        insets.systemWindowInsetBottom)).build())
             } else if (binding.navBar is NavigationRailView) {
                 ViewCompat.dispatchApplyWindowInsets(binding.container,
                     WindowInsetsCompat.Builder(insets).setSystemWindowInsets(Insets.of(
@@ -151,13 +145,13 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
                         insets.systemWindowInsetTop,
                         insets.systemWindowInsetRight,
                         insets.systemWindowInsetBottom)).build())
-                ViewCompat.dispatchApplyWindowInsets(binding.navBar,
-                    WindowInsetsCompat.Builder(insets).setSystemWindowInsets(Insets.of(
-                        insets.systemWindowInsetLeft,
-                        0,
-                        0,
-                        0)).build())
             }
+            ViewCompat.dispatchApplyWindowInsets(binding.navBar,
+                WindowInsetsCompat.Builder(insets).setSystemWindowInsets(Insets.of(
+                    insets.systemWindowInsetLeft,
+                    insets.systemWindowInsetTop,
+                    insets.systemWindowInsetRight,
+                    insets.systemWindowInsetBottom)).build())
             insets.consumeSystemWindowInsets().consumeDisplayCutout()
         }
 
