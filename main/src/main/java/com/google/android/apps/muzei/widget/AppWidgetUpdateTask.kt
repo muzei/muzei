@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.widget
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
@@ -126,6 +127,7 @@ suspend fun updateAppWidget(context: Context) = coroutineScope {
     }
 }
 
+@SuppressLint("InlinedApi")
 @OptIn(ExperimentalCoroutinesApi::class)
 private suspend fun createRemoteViews(
         context: Context,
@@ -141,13 +143,15 @@ private suspend fun createRemoteViews(
 
     // Update the widget(s) with the new artwork information
     val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
-    val launchPendingIntent = PendingIntent.getActivity(context,
-            0, launchIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+    val launchPendingIntent = PendingIntent.getActivity(
+        context, 0, launchIntent,
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
     val nextArtworkIntent = Intent(context, MuzeiAppWidgetProvider::class.java).apply {
         action = MuzeiAppWidgetProvider.ACTION_NEXT_ARTWORK
     }
-    val nextArtworkPendingIntent = PendingIntent.getBroadcast(context,
-            0, nextArtworkIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+    val nextArtworkPendingIntent = PendingIntent.getBroadcast(
+        context, 0, nextArtworkIntent,
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
     val smallWidgetHeight = context.resources.getDimensionPixelSize(
             R.dimen.widget_small_height_breakpoint)
     val image = ImageLoader.decode(

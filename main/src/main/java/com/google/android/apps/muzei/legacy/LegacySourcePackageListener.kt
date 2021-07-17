@@ -18,6 +18,7 @@
 
 package com.google.android.apps.muzei.legacy
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.ComponentName
@@ -143,6 +144,7 @@ class LegacySourcePackageListener(
         legacySources.toList()
     }
 
+    @SuppressLint("InlinedApi")
     private fun updateNotifiedSources(legacySources: Set<LegacySourceInfo>) {
         val additions = legacySources - lastNotifiedSources
         val removals = lastNotifiedSources - legacySources
@@ -173,14 +175,14 @@ class LegacySourcePackageListener(
                     Intent(Intent.ACTION_VIEW, LegacySourceManager.LEARN_MORE_LINK).apply {
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     },
-                    0)
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             // Send a notification for each new Legacy Source
             for (info in additions) {
                 val sendFeedbackPendingIntent = PendingIntent.getActivity(
                         applicationContext, 0,
                         Intent(Intent.ACTION_VIEW,
                                 "https://play.google.com/store/apps/details?id=${info.packageName}".toUri()),
-                        0)
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
                 val notification = NotificationCompat.Builder(applicationContext, NOTIFICATION_CHANNEL)
                         .setSmallIcon(R.drawable.ic_stat_muzei)
                         .setColor(ContextCompat.getColor(applicationContext, R.color.notification))

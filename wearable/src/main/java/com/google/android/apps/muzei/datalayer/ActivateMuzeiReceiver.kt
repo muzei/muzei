@@ -149,12 +149,14 @@ class ActivateMuzeiReceiver : BroadcastReceiver() {
             val deleteIntent = Intent(context, ActivateMuzeiReceiver::class.java).apply {
                 action = ACTION_MARK_NOTIFICATION_READ
             }
-            builder.setDeleteIntent(PendingIntent.getBroadcast(context, 0, deleteIntent, 0))
+            builder.setDeleteIntent(PendingIntent.getBroadcast(context, 0, deleteIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
 
             val installMuzeiIntent = Intent(context, ActivateMuzeiReceiver::class.java).apply {
                 action = ACTION_REMOTE_INSTALL_MUZEI
             }
-            val pendingIntent = PendingIntent.getBroadcast(context, 0, installMuzeiIntent, 0)
+            val pendingIntent = PendingIntent.getBroadcast(context, 0, installMuzeiIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             builder.addAction(NotificationCompat.Action.Builder(R.drawable.open_on_phone,
                     context.getString(R.string.datalayer_install_action), pendingIntent)
                     .extend(NotificationCompat.Action.WearableExtender()

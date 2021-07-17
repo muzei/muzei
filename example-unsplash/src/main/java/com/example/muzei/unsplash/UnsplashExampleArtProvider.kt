@@ -16,6 +16,7 @@
 
 package com.example.muzei.unsplash
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -46,6 +47,7 @@ class UnsplashExampleArtProvider : MuzeiArtProvider() {
                 createVisitUnsplashAction(context))
     }
 
+    @SuppressLint("InlinedApi")
     private fun createViewProfileAction(context: Context, artwork: Artwork): RemoteActionCompat? {
         val profileUri = artwork.metadata?.toUri() ?: return null
         val title = context.getString(R.string.action_view_profile, artwork.byline)
@@ -55,9 +57,10 @@ class UnsplashExampleArtProvider : MuzeiArtProvider() {
                 title,
                 title,
                 PendingIntent.getActivity(context, 0, intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT))
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
     }
 
+    @SuppressLint("InlinedApi")
     private fun createVisitUnsplashAction(context: Context): RemoteActionCompat {
         val title = context.getString(R.string.action_visit_unsplash)
         val unsplashUri = context.getString(R.string.unsplash_link) +
@@ -69,7 +72,7 @@ class UnsplashExampleArtProvider : MuzeiArtProvider() {
                 title,
                 title,
                 PendingIntent.getActivity(context, 0, intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT)).apply {
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)).apply {
             setShouldShowIcon(false)
         }
     }

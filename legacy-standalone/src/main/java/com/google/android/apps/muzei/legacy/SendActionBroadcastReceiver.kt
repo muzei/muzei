@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.legacy
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -32,13 +33,14 @@ class SendActionBroadcastReceiver : BroadcastReceiver() {
         private const val TAG = "SendActionReceiver"
         private const val KEY_ID = "id"
 
+        @SuppressLint("InlinedApi")
         fun createPendingIntent(
                 context: Context,
                 id: Int
         ): PendingIntent = PendingIntent.getBroadcast(context, id,
                 Intent(context, SendActionBroadcastReceiver::class.java).apply {
                     putExtra(KEY_ID, id)
-                }, PendingIntent.FLAG_UPDATE_CURRENT)
+                }, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
     }
 
     override fun onReceive(context: Context, intent: Intent) {

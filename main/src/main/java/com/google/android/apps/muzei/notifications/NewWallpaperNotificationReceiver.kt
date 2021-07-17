@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.notifications
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -101,6 +102,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
             return sp.getBoolean(PREF_ENABLED, true)
         }
 
+        @SuppressLint("InlinedApi")
         suspend fun maybeShowNewArtworkNotification(context: Context) {
             if (ArtDetailOpen.value) {
                 return
@@ -156,11 +158,11 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                     .setLargeIcon(largeIcon)
                     .setContentIntent(PendingIntent.getActivity(context, 0,
                             context.packageManager.getLaunchIntentForPackage(context.packageName),
-                            PendingIntent.FLAG_UPDATE_CURRENT))
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
                     .setDeleteIntent(PendingIntent.getBroadcast(context, 0,
                             Intent(context, NewWallpaperNotificationReceiver::class.java)
                                     .setAction(ACTION_MARK_NOTIFICATION_READ),
-                            PendingIntent.FLAG_UPDATE_CURRENT))
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
             val style = NotificationCompat.BigPictureStyle()
                     .bigLargeIcon(null)
                     .setBigContentTitle(title)
@@ -175,7 +177,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                 val nextPendingIntent = PendingIntent.getBroadcast(context, 0,
                         Intent(context, NewWallpaperNotificationReceiver::class.java)
                                 .setAction(ACTION_NEXT_ARTWORK),
-                        PendingIntent.FLAG_UPDATE_CURRENT)
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
                 val nextAction = NotificationCompat.Action.Builder(
                         R.drawable.ic_notif_next_artwork,
                         context.getString(R.string.action_next_artwork_condensed),
@@ -193,7 +195,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                 val userCommandPendingIntent = PendingIntent.getBroadcast(context, 0,
                         Intent(context, NewWallpaperNotificationReceiver::class.java)
                                 .setAction(ACTION_USER_COMMAND),
-                        PendingIntent.FLAG_UPDATE_CURRENT)
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
                 val remoteInput = RemoteInput.Builder(EXTRA_USER_COMMAND)
                         .setAllowFreeFormInput(false)
                         .setLabel(context.getString(R.string.action_user_command_prompt))
@@ -208,7 +210,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
             }
             val viewPendingIntent = PendingIntent.getActivity(context, 0,
                     ArtworkInfoRedirectActivity.getIntent(context, "notification"),
-                    PendingIntent.FLAG_UPDATE_CURRENT)
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             val viewAction = NotificationCompat.Action.Builder(
                     R.drawable.ic_notif_info,
                     context.getString(R.string.action_artwork_info),
@@ -229,11 +231,11 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                     .setContentText(context.getString(R.string.notification_new_wallpaper))
                     .setContentIntent(PendingIntent.getActivity(context, 0,
                             context.packageManager.getLaunchIntentForPackage(context.packageName),
-                            PendingIntent.FLAG_UPDATE_CURRENT))
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
                     .setDeleteIntent(PendingIntent.getBroadcast(context, 0,
                             Intent(context, NewWallpaperNotificationReceiver::class.java)
                                     .setAction(ACTION_MARK_NOTIFICATION_READ),
-                            PendingIntent.FLAG_UPDATE_CURRENT))
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
             nb.setPublicVersion(publicBuilder.build())
 
             val nm = NotificationManagerCompat.from(context)
@@ -282,7 +284,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                                 .setContentText(context.getText(R.string.notification_settings_moved_text))
                                 .setContentIntent(PendingIntent.getActivity(context, 0,
                                         settingsIntent,
-                                        PendingIntent.FLAG_UPDATE_CURRENT))
+                                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
                                 .setStyle(NotificationCompat.BigTextStyle()
                                         .bigText(context.getText(R.string.notification_settings_moved_text)))
                         notificationManager.notify(1, builder.build())

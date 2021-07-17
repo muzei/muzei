@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.api.internal
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.ContentUris
@@ -52,6 +53,7 @@ public class RemoteActionBroadcastReceiver : BroadcastReceiver() {
          * through the inefficiency of starting this receiver just to trigger
          * your [com.google.android.apps.muzei.api.provider.MuzeiArtProvider].
          */
+        @SuppressLint("InlinedApi")
         public fun createPendingIntent(
                 context: Context,
                 authority: String,
@@ -66,7 +68,7 @@ public class RemoteActionBroadcastReceiver : BroadcastReceiver() {
             return PendingIntent.getBroadcast(context,
                     id + 1000 * artworkId.toInt(),
                     intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT)
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         }
     }
 

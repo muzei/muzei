@@ -118,6 +118,7 @@ class SourceArtProvider : MuzeiArtProvider() {
         }
     } ?: super.getCommandActions(artwork)
 
+    @SuppressLint("InlinedApi")
     override fun getArtworkInfo(artwork: Artwork): PendingIntent? {
         val context = context ?: return null
         val webUri = artwork.webUri ?: return null
@@ -129,7 +130,8 @@ class SourceArtProvider : MuzeiArtProvider() {
             Intent.parseUri(webUri.toString(), Intent.URI_INTENT_SCHEME)?.run {
                 // Make sure any data URIs granted to Muzei are passed onto the started Activity
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                return PendingIntent.getActivity(context, 0, this, 0)
+                return PendingIntent.getActivity(context, 0, this,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             }
         } catch (e: URISyntaxException) {
             Log.i(TAG, "Unable to parse viewIntent $artwork", e)
