@@ -19,7 +19,7 @@ buildscript {
         compileSdkVersion = 31
         targetSdkVersion = 30
 
-        activityVersion = '1.2.3'
+        activityVersion = '1.2.4'
         appCompatVersion = '1.4.0-alpha03'
         archCoreVersion = '2.1.0'
         browserVersion = '1.3.0'
@@ -33,16 +33,16 @@ buildscript {
         firebaseAnalyticsVersion = '19.0.0'
         firebaseCrashlyticsVersion = '18.1.0'
         firebasePerfVersion = '20.0.2'
-        fragmentVersion = '1.4.0-alpha04'
+        fragmentVersion = '1.4.0-alpha05'
         kotlinVersion = '1.5.21'
         kspVersion = '1.5.21-1.0.0-beta05'
         lifecycleVersion = '2.4.0-alpha02'
         materialVersion = '1.5.0-alpha01'
         multidexVersion = '2.0.1'
-        navigationVersion = '2.4.0-alpha04'
+        navigationVersion = '2.4.0-alpha05'
         okhttpVersion = '3.12.12'
         okhttpCoroutinesVersion = '1.0'
-        pagingVersion = '3.1.0-alpha02'
+        pagingVersion = '3.1.0-alpha03'
         playServicesWearableVersion = '17.1.0'
         preferenceVersion = '1.1.1'
         recyclerViewVersion = '1.2.1'
@@ -54,7 +54,7 @@ buildscript {
         viewPager2Version = '1.1.0-alpha01'
         wearableVersion = '2.8.1'
         wearVersion = '1.1.0'
-        workManagerVersion = '2.6.0-beta01'
+        workManagerVersion = '2.6.0-beta02'
     }
 
     repositories {
