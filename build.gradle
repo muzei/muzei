@@ -35,7 +35,7 @@ buildscript {
         firebasePerfVersion = '20.0.2'
         fragmentVersion = '1.4.0-alpha08'
         kotlinVersion = '1.5.30'
-        kspVersion = '1.5.30-1.0.0-beta09'
+        kspVersion = '1.5.30-1.0.0'
         lifecycleVersion = '2.4.0-alpha03'
         materialVersion = '1.5.0-alpha01'
         multidexVersion = '2.0.1'
