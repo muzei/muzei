@@ -36,6 +36,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
@@ -53,6 +54,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.graphics.Insets
+import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
@@ -107,19 +109,24 @@ private class ChoosePhotos : ActivityResultContract<Unit, List<Uri>>() {
 }
 
 private class ChooseFolder : ActivityResultContract<Unit, Uri?>() {
+    @RequiresApi(21)
     private val openDocumentTree = ActivityResultContracts.OpenDocumentTree()
 
+    @RequiresApi(21)
     @SuppressLint("InlinedApi")
     override fun createIntent(context: Context, input: Unit?) =
             openDocumentTree.createIntent(context, null)
                     .putExtra(DocumentsContract.EXTRA_EXCLUDE_SELF, true)
 
+    @RequiresApi(21)
     override fun parseResult(resultCode: Int, intent: Intent?) =
             openDocumentTree.parseResult(resultCode, intent)
 }
 
 class GallerySettingsActivity : AppCompatActivity(),
-        GalleryImportPhotosDialogFragment.OnRequestContentListener, MultiSelectionController.Callbacks {
+    GalleryImportPhotosDialogFragment.OnRequestContentListener,
+    MultiSelectionController.Callbacks,
+    MenuProvider {
 
     companion object {
         private const val TAG = "GallerySettingsActivity"
@@ -294,10 +301,11 @@ class GallerySettingsActivity : AppCompatActivity(),
         chosenPhotosAdapter.onPagesUpdatedFlow.collectIn(this) {
             onDataSetChanged()
         }
+        addMenuProvider(this)
         viewModel.getContentActivityInfoList.map {
             it.size
         }.distinctUntilChanged().collectIn(this) {
-            invalidateOptionsMenu()
+            invalidateMenu()
         }
         GalleryScanWorker.enqueueRescan(this)
     }
@@ -320,14 +328,8 @@ class GallerySettingsActivity : AppCompatActivity(),
         onDataSetChanged()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        super.onCreateOptionsMenu(menu)
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.gallery_activity, menu)
-        return true
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        super.onPrepareOptionsMenu(menu)
         // Make sure the 'Import photos' MenuItem is set up properly based on the number of
         // activities that handle ACTION_GET_CONTENT
         // 0 = hide the MenuItem
@@ -344,10 +346,9 @@ class GallerySettingsActivity : AppCompatActivity(),
         } else {
             importPhotosMenuItem.setTitle(R.string.gallery_action_import_photos)
         }
-        return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onMenuItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_import_photos -> {
                 when (viewModel.getContentActivityInfoList.value.size) {

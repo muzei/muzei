@@ -26,6 +26,7 @@ dependencies {
     implementation project(':extensions')
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
     implementation "io.coil-kt:coil:$coilVersion"
+    implementation "androidx.activity:activity-ktx:$activityVersion"
     implementation "androidx.core:core-ktx:$coreVersion"
     implementation "androidx.fragment:fragment-ktx:$fragmentVersion"
     implementation "androidx.appcompat:appcompat:$appCompatVersion"

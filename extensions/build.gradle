@@ -23,6 +23,7 @@ dependencies {
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
     api "androidx.core:core-ktx:$coreVersion"
     api "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion"
+    api "androidx.activity:activity-ktx:$activityVersion"
 }
 
 android {
