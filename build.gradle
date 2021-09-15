@@ -37,7 +37,7 @@ buildscript {
         kotlinVersion = '1.5.30'
         kspVersion = '1.5.30-1.0.0'
         lifecycleVersion = '2.4.0-alpha03'
-        materialVersion = '1.5.0-alpha01'
+        materialVersion = '1.5.0-alpha03'
         multidexVersion = '2.0.1'
         navigationVersion = '2.4.0-alpha08'
         okhttpVersion = '3.12.12'
