@@ -47,7 +47,7 @@ class MuzeiApplication : MultiDexApplication(), SharedPreferences.OnSharedPrefer
 
     override fun onCreate() {
         super.onCreate()
-        FragmentStrictMode.setDefaultPolicy(FragmentStrictMode.Policy.Builder()
+        FragmentStrictMode.defaultPolicy = FragmentStrictMode.Policy.Builder()
             .detectFragmentReuse()
             .detectFragmentTagUsage()
             .detectRetainInstanceUsage()
@@ -69,7 +69,7 @@ class MuzeiApplication : MultiDexApplication(), SharedPreferences.OnSharedPrefer
                     }
                 }
             }
-            .build())
+            .build()
         updateNightMode()
         val sharedPreferences = Prefs.getSharedPreferences(this)
         sharedPreferences.registerOnSharedPreferenceChangeListener(this)

@@ -41,12 +41,12 @@ private val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 internal class RequestStoragePermissions : ActivityResultContract<Unit, Boolean>() {
     private val requestMultiplePermissions = RequestMultiplePermissions()
 
-    override fun createIntent(context: Context, input: Unit?) =
+    override fun createIntent(context: Context, input: Unit) =
             requestMultiplePermissions.createIntent(context, permissions)
 
     override fun getSynchronousResult(
             context: Context,
-            input: Unit?
+            input: Unit
     ) = requestMultiplePermissions.getSynchronousResult(context, permissions)?.let { result ->
         SynchronousResult(result.value.getOrElse(Manifest.permission.READ_EXTERNAL_STORAGE) { false })
     }

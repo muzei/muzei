@@ -99,7 +99,7 @@ private class ChoosePhotos : ActivityResultContract<Unit, List<Uri>>() {
     private val openMultipleDocuments = ActivityResultContracts.OpenMultipleDocuments()
 
     @SuppressLint("InlinedApi")
-    override fun createIntent(context: Context, input: Unit?) =
+    override fun createIntent(context: Context, input: Unit) =
             openMultipleDocuments.createIntent(context, arrayOf("image/*"))
                     .addCategory(Intent.CATEGORY_OPENABLE)
                     .putExtra(DocumentsContract.EXTRA_EXCLUDE_SELF, true)
@@ -114,7 +114,7 @@ private class ChooseFolder : ActivityResultContract<Unit, Uri?>() {
 
     @RequiresApi(21)
     @SuppressLint("InlinedApi")
-    override fun createIntent(context: Context, input: Unit?) =
+    override fun createIntent(context: Context, input: Unit) =
             openDocumentTree.createIntent(context, null)
                     .putExtra(DocumentsContract.EXTRA_EXCLUDE_SELF, true)
 
