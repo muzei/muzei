@@ -69,6 +69,7 @@ import coil.load
 import com.google.android.apps.muzei.gallery.databinding.GalleryActivityBinding
 import com.google.android.apps.muzei.gallery.databinding.GalleryChosenPhotoItemBinding
 import com.google.android.apps.muzei.util.MultiSelectionController
+import com.google.android.apps.muzei.util.addMenuProvider
 import com.google.android.apps.muzei.util.collectIn
 import com.google.android.apps.muzei.util.getString
 import com.google.android.apps.muzei.util.getStringOrNull
@@ -388,24 +389,22 @@ class GallerySettingsActivity : AppCompatActivity(),
             multiSelectionController.reset(true)
         }
 
-        binding.selectionToolbar.inflateMenu(R.menu.gallery_selection)
-        binding.selectionToolbar.setOnMenuItemClickListener { item ->
+        binding.selectionToolbar.addMenuProvider(R.menu.gallery_selection) { item ->
             when (item.itemId) {
                 R.id.action_remove -> {
-                    val removePhotos = ArrayList(
-                            multiSelectionController.selection)
+                    val removePhotos = ArrayList(multiSelectionController.selection)
 
                     lifecycleScope.launch(NonCancellable) {
                         // Remove chosen URIs
                         GalleryDatabase.getInstance(this@GallerySettingsActivity)
-                                .chosenPhotoDao()
-                                .delete(this@GallerySettingsActivity, removePhotos)
+                            .chosenPhotoDao()
+                            .delete(this@GallerySettingsActivity, removePhotos)
                     }
 
                     multiSelectionController.reset(true)
-                    return@setOnMenuItemClickListener true
+                    true
                 }
-                else -> return@setOnMenuItemClickListener false
+                else -> false
             }
         }
 

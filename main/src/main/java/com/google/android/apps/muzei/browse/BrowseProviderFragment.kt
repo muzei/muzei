@@ -39,6 +39,7 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.getCommands
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
+import com.google.android.apps.muzei.util.addMenuProvider
 import com.google.android.apps.muzei.util.collectIn
 import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -87,8 +88,7 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
                     navController.popBackStack()
                 }
             }
-            inflateMenu(R.menu.browse_provider_fragment)
-            setOnMenuItemClickListener {
+            addMenuProvider(R.menu.browse_provider_fragment) {
                 refresh(binding.swipeRefresh)
                 true
             }

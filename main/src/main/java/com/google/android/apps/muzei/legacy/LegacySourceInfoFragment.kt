@@ -32,6 +32,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.apps.muzei.util.addMenuProvider
 import com.google.android.apps.muzei.util.collectIn
 import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -66,8 +67,7 @@ class LegacySourceInfoFragment : Fragment(R.layout.legacy_source_info_fragment) 
                 startActivity(Intent(Intent.ACTION_VIEW, LegacySourceManager.LEARN_MORE_LINK))
             }
         } else {
-            binding.toolbar.inflateMenu(R.menu.legacy_source_info_fragment)
-            binding.toolbar.setOnMenuItemClickListener {
+            binding.toolbar.addMenuProvider(R.menu.legacy_source_info_fragment) {
                 startActivity(Intent(Intent.ACTION_VIEW, LegacySourceManager.LEARN_MORE_LINK))
                 true
             }
