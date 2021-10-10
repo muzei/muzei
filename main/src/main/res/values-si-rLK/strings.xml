@@ -14,4 +14,15 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="settings_home_screen_title">මුල් තිරය</string>
+    <string name="action_next_artwork_condensed">ඊලඟ</string>
+    <string name="action_user_command">තව</string>
+    <string name="provider_settings">සැකසුම්</string>
+    <string name="provider_browse">පිරික්සන්න</string>
+    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> තව දුරටත් සහාය නොදක්වයි</string>
+    <string name="legacy_source_info_app_info">යෙදුමේ තොරතුරු</string>
+    <string name="browse_refresh">නැවුම් කරන්න</string>
+    <string name="about_version_template">අනු.<xliff:g id="version_number" example="3.3.0 Beta">%1$s</xliff:g></string>
+    <string name="app_author"><xliff:g id="roman_nurik">රෝමන් නුරික්</xliff:g> and <xliff:g id="ian_lake">ලැන් ලේක්</xliff:g></string>
+</resources>
