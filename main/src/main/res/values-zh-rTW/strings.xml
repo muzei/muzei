@@ -76,4 +76,35 @@
     <string name="legacy_source_info_app_info">應用程式資訊</string>
     <string name="legacy_source_info_send_feedback">意見回饋</string>
     <string name="legacy_source_all_uninstalled">所有舊有源均已解除安裝</string>
+    <string name="done">完成</string>
+    <string name="set_as_wallpaper_using_muzei">桌布（使用 <xliff:g id="muzei_name">Muzei</xliff:g>）</string>
+    <string name="set_as_wallpaper_failed">無法讀取作品</string>
+    <string name="tutorial_main">開啟 <xliff:g id="muzei_name">Muzei</xliff:g> 應用程式以查看您的桌布</string>
+    <string name="tutorial_subtitle">輕觸兩下主畫面上模糊的桌布以暫時對焦</string>
+    <string name="get_more_sources">取得更多源</string>
+    <string name="get_more_sources_description">使用其它從 <xliff:g id="google_play">Google Play</xliff:g> Store 安装的源完全變更您的桌布</string>
+    <string name="action_link_effects">主畫面 🔗 鎖定螢幕</string>
+    <string name="toast_link_effects">主畫面 &amp; 鎖定螢幕效果現在已被連結</string>
+    <string name="action_link_effects_off">主螢幕 &amp; 鎖定螢幕未連結</string>
+    <string name="toast_link_effects_off">主螢幕 &amp; 鎖定螢幕效果不再連結</string>
+    <string name="reset_advanced_settings_defaults">重設浮動塊</string>
+    <string name="play_store_not_found">無法開啟 <xliff:g id="google_play">Google Play</xliff:g> Store。</string>
+    <string name="browse_refresh">重新整理</string>
+    <string name="browse_set_wallpaper">設定當前桌布</string>
+    <string name="browse_set_wallpaper_with_title">將當前桌布設定為 \"<xliff:g id="image_name" example="IMG14227.jpg">%s</xliff:g>\"</string>
+    <string name="missing_resources_title">無效的 <xliff:g id="muzei_name">Muzei</xliff:g> 安装</string>
+    <string name="missing_resources_message"><xliff:g id="muzei_name">Muzei</xliff:g>處於無效狀態。请解除安裝 <xliff:g id="muzei_name">Muzei</xliff:g> 並從 <xliff:g id="google_play">Google Play</xliff:g> Store 安装以修復您的安裝。</string>
+    <string name="missing_resources_open">開啟 <xliff:g id="google_play">Google Play</xliff:g> Store</string>
+    <string name="missing_resources_quit">關閉 <xliff:g id="muzei_name">Muzei</xliff:g></string>
+    <string name="tasker_setting_dialog_title">選擇動作</string>
+    <string name="tasker_action_select_provider">選擇 <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g></string>
+    <string name="actions_gestures">自訂手勢</string>
+    <string name="gestures_title">手勢</string>
+    <string name="gestures_double_tap_title">輕觸兩下</string>
+    <string name="gestures_double_tap_description">輕觸主畫面上模糊的桌布觸發您選擇的動作。</string>
+    <string name="gestures_three_finger_tap_title">三指輕觸</string>
+    <string name="gestures_three_finger_tap_description">輕觸主畫面上模糊的桌布觸發您選擇的動作。</string>
+    <string name="gestures_tap_action_temporary_disable">暫時禁用效果</string>
+    <string name="gestures_tap_action_next">下一個作品</string>
+    <string name="gestures_tap_action_view_details">查看作品詳細資料</string>
 </resources>
