@@ -14,4 +14,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="legacy_app_name"><xliff:g id="muzei_name">Muzei</xliff:g> 舊有</string>
+    <string name="legacy_source_provider_name">舊有源</string>
+    <string name="legacy_source_warning_title">啟動舊有源？</string>
+</resources>
