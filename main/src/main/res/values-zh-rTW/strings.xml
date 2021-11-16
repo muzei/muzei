@@ -15,6 +15,27 @@
   limitations under the License.
   -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_description"><xliff:g id="muzei_name">Muzei</xliff:g> 動態桌布</string>
+    <string name="settings_title"><xliff:g id="muzei_name">Muzei</xliff:g> 設定</string>
+    <string name="settings_home_screen_title">主畫面</string>
+    <string name="settings_lock_screen_title">螢幕鎖定</string>
+    <string name="settings_blur_amount_title">模糊</string>
+    <string name="settings_dim_amount_title">明暗</string>
+    <string name="settings_grey_amount_title">灰色</string>
+    <string name="notification_new_wallpaper">新桌布</string>
+    <string name="notification_new_wallpaper_channel_name">新桌布</string>
+    <string name="notification_settings">通知設定</string>
+    <string name="notification_settings_failed">開啟通知設定失敗，請在「設定」中變更 <xliff:g id="muzei_name">Muzei</xliff:g> 的通知設定。</string>
+    <string name="notification_settings_done">完成</string>
+    <string name="notification_settings_moved_title">通知設定已移動</string>
+    <string name="notification_settings_moved_text">檢查您的通知設定</string>
+    <string name="auto_advance_settings">自動前進設定</string>
+    <string name="auto_advance_disabled">自動前進已停用</string>
+    <string name="auto_advance_disabled_description">舊有源處理自己的桌布載入，不支援自動前進</string>
+    <string name="auto_advance_title">自動前進</string>
+    <string name="auto_advance_description">控制 <xliff:g id="muzei_name">Muzei</xliff:g> 何時自動更換下一張桌布。</string>
+    <string name="auto_advance_wifi">僅透過 Wi-Fi 使用自動前進</string>
+    <string name="auto_advance_interval">間隔</string>
     <string name="auto_advance_interval_15m">每 15 分鐘</string>
     <string name="auto_advance_interval_30m">每 30 分鐘</string>
     <string name="auto_advance_interval_1h">每小時</string>
@@ -22,4 +43,37 @@
     <string name="auto_advance_interval_6h">每 6 小時</string>
     <string name="auto_advance_interval_24h">每 24 小時</string>
     <string name="auto_advance_interval_72h">每 3 天</string>
+    <string name="auto_advance_interval_never">禁止自動前進</string>
+    <string name="auto_advance_tasker">若要精確控制觸發桌布更改，使用<xliff:g id="tasker_name">工作列</xliff:g>中擴充功能-&gt; <xliff:g id="muzei_name">Muzei</xliff:g> 下面的‘下一個作品’動作並禁用自動前進功能。</string>
+    <string name="auto_advance_tasker_name"><xliff:g id="tasker_name">工作列</xliff:g></string>
+    <string name="action_activate">啟動</string>
+    <string name="error_view_details">無法查看作品詳細資料</string>
+    <string name="error_wallpaper_chooser">無法啟動桌布選擇器。您仍然可以透過在主畫面桌布選擇器中選擇「動態桌布」啟用 <xliff:g id="muzei_name">Muzei</xliff:g>。</string>
+    <string name="section_choose_source">源</string>
+    <string name="section_effects">效果</string>
+    <string name="action_next_artwork">下一個作品</string>
+    <string name="action_next_artwork_condensed">下一個</string>
+    <string name="action_user_command">更多</string>
+    <string name="action_user_command_prompt">選擇動作</string>
+    <string name="action_artwork_info">作品資訊</string>
+    <string name="action_artwork_info_disabled">當前作品沒有作品資訊。</string>
+    <string name="provider_settings">設定</string>
+    <string name="provider_browse">瀏覽</string>
+    <string name="legacy_notification_channel_name">舊有源</string>
+    <string name="legacy_notification_title">不再支援 <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g></string>
+    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> 不直接支援使用舊有源 API 組建的源。</string>
+    <string name="legacy_action_learn_more">瞭解更多</string>
+    <string name="legacy_action_send_feedback">意見回饋</string>
+    <string name="legacy_summary_title">不再支援舊有源</string>
+    <plurals name="legacy_summary_text">
+        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> 發現舊有源</item>
+    </plurals>
+    <plurals name="legacy_unsupported_text">
+        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> 發現未支援的源</item>
+    </plurals>
+    <string name="legacy_source_info_title">舊有源</string>
+    <string name="legacy_source_info_subtitle">組建在舊有源 API 上的源不再直接被 <xliff:g id="muzei_name">Muzei</xliff:g> 支援。</string>
+    <string name="legacy_source_info_app_info">應用程式資訊</string>
+    <string name="legacy_source_info_send_feedback">意見回饋</string>
+    <string name="legacy_source_all_uninstalled">所有舊有源均已解除安裝</string>
 </resources>
