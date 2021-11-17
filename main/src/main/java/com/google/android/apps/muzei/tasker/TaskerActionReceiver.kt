@@ -42,14 +42,18 @@ class TaskerActionReceiver : BroadcastReceiver() {
             when (val selectedAction = TaskerAction.fromBundle(
                     intent.getBundleExtra(EXTRA_BUNDLE))) {
                 is SelectProviderAction -> {
-                    val authority = selectedAction.authority
-                    if (context.packageManager.resolveContentProvider(authority, 0) != null) {
+                    val newAuthority = selectedAction.authority
+                    if (context.packageManager.resolveContentProvider(newAuthority, 0) != null) {
                         Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
-                            param(FirebaseAnalytics.Param.ITEM_LIST_ID, authority)
+                            param(FirebaseAnalytics.Param.ITEM_LIST_ID, newAuthority)
                             param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
                             param(FirebaseAnalytics.Param.CONTENT_TYPE, "tasker")
                         }
-                        ProviderManager.select(context, authority)
+
+                        val existingAuthority = ProviderManager.getInstance(context).value?.authority
+                        if (existingAuthority != newAuthority) {
+                            ProviderManager.select(context, newAuthority)
+                        }
                     }
                 }
                 is NextArtworkAction -> {
