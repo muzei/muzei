@@ -1,2 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="featuredart_source_title">精選藝術品</string>
+    <string name="featuredart_source_description">每日新作</string>
+    <string name="featuredart_source_action_view_archive">檢視歸檔</string>
+    <string name="featuredart_action_share_artwork">共享作品</string>
+</resources>
