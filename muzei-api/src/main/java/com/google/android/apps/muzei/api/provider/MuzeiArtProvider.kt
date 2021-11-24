@@ -642,7 +642,12 @@ public abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
     public open fun getArtworkInfo(artwork: Artwork): PendingIntent? {
         if (artwork.webUri != null && context != null) {
             val intent = Intent(Intent.ACTION_VIEW, artwork.webUri)
-            return PendingIntent.getActivity(context, 0, intent, 0)
+            return PendingIntent.getActivity(
+                context, 
+                0, 
+                intent, 
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+            )
         }
         return null
     }
