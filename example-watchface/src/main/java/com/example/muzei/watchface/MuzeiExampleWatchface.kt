@@ -20,24 +20,24 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
-import android.icu.util.Calendar
 import android.support.wearable.watchface.WatchFaceStyle
 import android.util.Size
 import android.view.Gravity
 import android.view.SurfaceHolder
 import androidx.core.content.ContextCompat
-import androidx.wear.complications.DefaultComplicationProviderPolicy
-import androidx.wear.complications.SystemProviders
-import androidx.wear.complications.data.ComplicationType
+import androidx.wear.watchface.CanvasComplicationFactory
 import androidx.wear.watchface.CanvasType
-import androidx.wear.watchface.Complication
-import androidx.wear.watchface.ComplicationsManager
+import androidx.wear.watchface.ComplicationSlot
+import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
+import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
+import androidx.wear.watchface.complications.SystemDataSources
+import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -48,20 +48,19 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import java.time.ZonedDateTime
 
 /**
  * Simple watchface example which loads and displays Muzei images as the background
  */
 class MuzeiExampleWatchface : WatchFaceService() {
 
-    override suspend fun createWatchFace(
-        surfaceHolder: SurfaceHolder,
-        watchState: WatchState
-    ): WatchFace {
+    override fun createComplicationSlotsManager(
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ): ComplicationSlotsManager {
         // This example uses a single, fixed complication to show the time and date
         // rather than manually drawing the time
-        val timeComplication = Complication.createBackgroundComplicationBuilder(
-            0,
+        val canvasComplicationFactory = CanvasComplicationFactory { watchState, invalidateCallback ->
             CanvasComplicationDrawable(ComplicationDrawable(this).apply {
                 activeStyle.run {
                     titleSize = resources.getDimensionPixelSize(R.dimen.title_size)
@@ -71,30 +70,40 @@ class MuzeiExampleWatchface : WatchFaceService() {
                     titleSize = resources.getDimensionPixelSize(R.dimen.title_size)
                     textSize = resources.getDimensionPixelSize(R.dimen.text_size)
                 }
-            }, watchState),
+            }, watchState, invalidateCallback)
+        }
+        val timeComplication = ComplicationSlot.createBackgroundComplicationSlotBuilder(
+            0,
+            canvasComplicationFactory,
             listOf(ComplicationType.SHORT_TEXT),
-            DefaultComplicationProviderPolicy(SystemProviders.PROVIDER_TIME_AND_DATE)
-        ).setFixedComplicationProvider(true).build()
+            DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_TIME_AND_DATE)
+        ).setFixedComplicationDataSource(true).build()
 
+        return ComplicationSlotsManager(
+            listOf(timeComplication),
+            currentUserStyleRepository
+        )
+    }
+
+    override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState,
+        complicationSlotsManager: ComplicationSlotsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ): WatchFace {
         // Now build the components needed for the WatchFace
         val userStyleRepository = CurrentUserStyleRepository(
             UserStyleSchema(listOf())
-        )
-        val complicationsManager = ComplicationsManager(
-            listOf(timeComplication),
-            userStyleRepository
         )
         val renderer = MuzeiExampleRenderer(
             surfaceHolder,
             userStyleRepository,
             watchState,
-            complicationsManager
+            complicationSlotsManager
         )
         return WatchFace(
             WatchFaceType.DIGITAL,
-            userStyleRepository,
-            renderer,
-            complicationsManager
+            renderer
         ).setLegacyWatchFaceStyle(
             WatchFace.LegacyWatchFaceOverlayStyle(
                 WatchFaceStyle.PROTECT_STATUS_BAR or
@@ -108,7 +117,7 @@ class MuzeiExampleWatchface : WatchFaceService() {
         surfaceHolder: SurfaceHolder,
         userStyleRepository: CurrentUserStyleRepository,
         watchState: WatchState,
-        private val complicationsManager: ComplicationsManager
+        private val complicationSlotsManager: ComplicationSlotsManager
     ) : Renderer.CanvasRenderer(
         surfaceHolder,
         userStyleRepository,
@@ -132,7 +141,7 @@ class MuzeiExampleWatchface : WatchFaceService() {
             }
         }
 
-        override fun render(canvas: Canvas, bounds: Rect, calendar: Calendar) {
+        override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
             loader.requestedSize = Size(canvas.width, canvas.height)
             val isInAmbientMode = renderParameters.drawMode == DrawMode.AMBIENT
             image?.takeUnless { isInAmbientMode }?.let { image ->
@@ -141,10 +150,15 @@ class MuzeiExampleWatchface : WatchFaceService() {
             } ?: run {
                 canvas.drawRect(bounds, backgroundPaint)
             }
-            complicationsManager[0]?.render(canvas, calendar, renderParameters)
+            complicationSlotsManager[0]?.render(canvas, zonedDateTime, renderParameters)
         }
 
-        override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, calendar: Calendar) {
+        override fun renderHighlightLayer(
+            canvas: Canvas,
+            bounds: Rect,
+            zonedDateTime: ZonedDateTime
+        ) {
+            complicationSlotsManager[0]?.renderHighlightLayer(canvas, zonedDateTime, renderParameters)
         }
 
         override fun onDestroy() {
