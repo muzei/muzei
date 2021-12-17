@@ -41,7 +41,7 @@ dependencies {
     // Use the minimum value needed to avoid forcing apps to upgrade
     //noinspection GradleDependency,KtxExtensionAvailable
     api "androidx.core:core:1.1.0"
-    implementation "androidx.exifinterface:exifinterface:1.3.2"
+    implementation "androidx.exifinterface:exifinterface:1.3.3"
 }
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
