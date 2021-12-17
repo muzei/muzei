@@ -91,6 +91,10 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.ArrayList
 import java.util.HashSet
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentMap
+import java.util.concurrent.locks.ReadWriteLock
+import java.util.concurrent.locks.ReentrantReadWriteLock
 
 /**
  * Base class for a Muzei Live Wallpaper artwork provider. Art providers are a way for other apps to
@@ -274,6 +278,23 @@ public abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
     private val applyingBatch = ThreadLocal<Boolean>()
     private val changedUris = ThreadLocal<MutableSet<Uri>>()
 
+    private val lockMap: ConcurrentMap<Long, ReadWriteLock> = ConcurrentHashMap()
+
+    private fun getLock(artworkId: Long): ReadWriteLock {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            lockMap.computeIfAbsent(artworkId) { ReentrantReadWriteLock() }
+        } else {
+            var lock = lockMap[artworkId]
+            if (lock != null) {
+                lock
+            } else {
+                // Might create an extra lock if another thread put first
+                lock = ReentrantReadWriteLock()
+                lockMap.putIfAbsent(artworkId, lock) ?: lock
+            }
+        }
+    }
+
     private fun applyingBatch(): Boolean {
         return applyingBatch.get() != null && applyingBatch.get()!!
     }
@@ -412,7 +433,10 @@ public abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
                     recentArtworkIds.addLast(loadedId)
                     val maxSize = data.count.coerceIn(1, MAX_RECENT_ARTWORK)
                     while (recentArtworkIds.size > maxSize) {
-                        removeAutoCachedFile(recentArtworkIds.removeFirst())
+                        removeAutoCachedFile(recentArtworkIds.removeFirst().also {
+                            // Obsolete lock
+                            lockMap.remove(it)
+                        })
                     }
                     editor.putRecentIds(PREF_RECENT_ARTWORK_IDS, recentArtworkIds)
                     editor.apply()
@@ -1098,38 +1122,59 @@ public abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
             onInvalidArtwork(artwork)
             throw SecurityException("Artwork $artwork was marked as invalid")
         }
+        val lock = getLock(artwork.id)
+        lock.readLock().lock()
         if (!artwork.data.exists() && mode == "r") {
-            // Download the image from the persistent URI for read-only operations
-            // rather than throw a FileNotFoundException
-            val directory = artwork.data.parentFile
-            // Ensure that the parent directory of the artwork exists
-            // as otherwise FileOutputStream will fail
-            if (!directory!!.exists() && !directory.mkdirs()) {
-                throw FileNotFoundException("Unable to create directory $directory for $artwork")
-            }
+            // Must release read lock before acquiring write lock
+            lock.readLock().unlock()
+            lock.writeLock().lock()
             try {
-                openFile(artwork).use { input ->
-                    FileOutputStream(artwork.data).use { output ->
-                        input.copyTo(output)
+                // Recheck state because another thread might have
+                // acquired write lock and changed state before we did
+                if (!artwork.data.exists()) {
+                    // Download the image from the persistent URI for read-only operations
+                    // rather than throw a FileNotFoundException
+                    val directory = artwork.data.parentFile
+                    // Ensure that the parent directory of the artwork exists
+                    // as otherwise FileOutputStream will fail
+                    if (!directory!!.exists() && !directory.mkdirs()) {
+                        throw FileNotFoundException("Unable to create directory $directory for $artwork")
+                    }
+                    try {
+                        openFile(artwork).use { input ->
+                            FileOutputStream(artwork.data).use { output ->
+                                input.copyTo(output)
+                            }
+                        }
+                    } catch (e: Exception) {
+                        if (e !is IOException) {
+                            if (Log.isLoggable(TAG, Log.INFO)) {
+                                Log.i(TAG, "Unable to open artwork $artwork for $uri", e)
+                            }
+                            onInvalidArtwork(artwork)
+                        }
+                        // Delete the file in cases of an error so that we will try again from scratch next time.
+                        if (artwork.data.exists() && !artwork.data.delete()) {
+                            if (Log.isLoggable(TAG, Log.INFO)) {
+                                Log.i(TAG, "Error deleting partially downloaded file after error", e)
+                            }
+                        }
+                        throw FileNotFoundException("Could not download artwork $artwork for $uri: ${e.message}")
                     }
                 }
-            } catch (e: Exception) {
-                if (e !is IOException) {
-                    if (Log.isLoggable(TAG, Log.INFO)) {
-                        Log.i(TAG, "Unable to open artwork $artwork for $uri", e)
-                    }
-                    onInvalidArtwork(artwork)
-                }
-                // Delete the file in cases of an error so that we will try again from scratch next time.
-                if (artwork.data.exists() && !artwork.data.delete()) {
-                    if (Log.isLoggable(TAG, Log.INFO)) {
-                        Log.i(TAG, "Error deleting partially downloaded file after error", e)
-                    }
-                }
-                throw FileNotFoundException("Could not download artwork $artwork for $uri: ${e.message}")
+                // Downgrade by acquiring read lock before releasing write lock
+                lock.readLock().lock()
+            } finally {
+                // Unlock write, still hold read
+                lock.writeLock().unlock()
             }
         }
-        return ParcelFileDescriptor.open(artwork.data, ParcelFileDescriptor.parseMode(mode))
+        try {
+            return ParcelFileDescriptor.open(artwork.data, ParcelFileDescriptor.parseMode(mode))
+        } finally {
+            // Unlock read
+            lock.readLock().unlock()
+        }
     }
 
     /**
