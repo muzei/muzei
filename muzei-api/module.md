@@ -22,10 +22,10 @@ for any app to provide wallpapers to Muzei via just a few steps:
    [com.google.android.apps.muzei.api.provider.MuzeiArtProvider].
 3. Add the corresponding `<provider>` tag to your `AndroidManifest.xml` file and add the required
     `<intent-filter>` and `<meta-data>` elements.
-####
+
 Once you have both Muzei and your custom source installed, you should be able to choose your source
 from the 'Sources' screen in Muzei.
-####
+
 A deeper discussion of the API, along with code snippets, is available in the
 [com.google.android.apps.muzei.api.provider.MuzeiArtProvider] class reference.
 
@@ -46,7 +46,7 @@ the active wallpaper.
    to get the current artwork as a bitmap, or access more information about the artwork by querying
    [com.google.android.apps.muzei.api.MuzeiContract.Artwork.CONTENT_URI]
    with a `ContentResolver`.
-####
+
 A deeper discussion of the API, along with code snippets, is available in the
 [com.google.android.apps.muzei.api] package reference docs.
 
