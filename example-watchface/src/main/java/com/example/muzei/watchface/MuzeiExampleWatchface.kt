@@ -77,7 +77,10 @@ class MuzeiExampleWatchface : WatchFaceService() {
             canvasComplicationFactory,
             listOf(ComplicationType.SHORT_TEXT),
             DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_TIME_AND_DATE)
-        ).setFixedComplicationDataSource(true).build()
+        ).apply {
+            setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
+            setFixedComplicationDataSource(true)
+        }.build()
 
         return ComplicationSlotsManager(
             listOf(timeComplication),
