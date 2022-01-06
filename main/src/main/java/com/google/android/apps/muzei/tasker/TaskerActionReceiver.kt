@@ -58,6 +58,7 @@ class TaskerActionReceiver : BroadcastReceiver() {
                     }
                     LegacySourceManager.getInstance(context).nextArtwork()
                 }
+                is InvalidAction -> {}
             }
         }
     }

@@ -47,7 +47,7 @@ class TutorialFragment : Fragment(R.layout.tutorial_fragment) {
         val binding = TutorialFragmentBinding.bind(view).content
         binding.iconAffordance.setOnClickListener {
             Firebase.analytics.logEvent(FirebaseAnalytics.Event.TUTORIAL_COMPLETE, null)
-            PreferenceManager.getDefaultSharedPreferences(context).edit {
+            PreferenceManager.getDefaultSharedPreferences(requireContext()).edit {
                 putBoolean(PREF_SEEN_TUTORIAL, true)
             }
         }

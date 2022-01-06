@@ -196,7 +196,6 @@ class GallerySettingsActivity : AppCompatActivity(),
 
     private val chosenPhotosAdapter = GalleryAdapter()
 
-    @ExperimentalPagingApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = GalleryActivityBinding.inflate(layoutInflater)
