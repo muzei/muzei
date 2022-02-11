@@ -65,8 +65,7 @@
     <string name="legacy_notification_channel_name">Eski bilgiler</string>
     <string name="legacy_notification_title"><xliff:g id="source_name" example="Güzel Duvar Kağıtları">%s</xliff:g>
          artık desteklenmiyor</string>
-    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> yapmaz
-         Eski Kaynak API\'sı ile oluşturulan kaynakları doğrudan destekleyin.</string>
+    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> Eski Kaynak API\'si ile oluşturulan kaynakları doğrudan desteklemez.</string>
     <string name="legacy_action_learn_more">Daha fazla bilgi edin</string>
     <string name="legacy_action_send_feedback">Geri bildirim gönder</string>
     <string name="legacy_summary_title">Eski kaynaklar artık desteklenmiyor</string>
@@ -80,7 +79,7 @@
 desteklenmeyen kaynak bulundu</item>
     </plurals>
     <string name="legacy_source_info_title">Eski Kaynaklar</string>
-    <string name="legacy_source_info_subtitle">Eski Kaynak API\'sı ile oluşturulan kaynaklar şunlardır artık doğrudan desteklenmiyor <xliff:g id="muzei_name">Muzei</xliff:g> tarafından direkt olarak desteklenmemektedir.</string>
+    <string name="legacy_source_info_subtitle">Eski Kaynak API\'si ile oluşturulan kaynaklar artık doğrudan <xliff:g id="muzei_name">Muzei</xliff:g> tarafından desteklenmiyor.</string>
     <string name="legacy_source_info_app_info">Uygulama bilgisi</string>
     <string name="legacy_source_info_send_feedback">Geri bildirim yolla</string>
     <string name="legacy_source_all_uninstalled">Tüm Eski Kaynaklar kaldırıldı</string>
