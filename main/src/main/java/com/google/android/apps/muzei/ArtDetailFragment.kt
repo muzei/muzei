@@ -386,7 +386,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
                     currentArtwork?.getCommands(this) ?: run {
                         if (viewModel.currentProvider.value?.authority == LEGACY_AUTHORITY) {
                             listOf(RemoteActionCompat(
-                                    IconCompat.createWithResource(context, R.drawable.ic_next_artwork),
+                                    IconCompat.createWithResource(this, R.drawable.ic_next_artwork),
                                     getString(R.string.action_next_artwork),
                                     getString(R.string.action_next_artwork),
                                     RemoteActionBroadcastReceiver.createPendingIntent(

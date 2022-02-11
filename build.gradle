@@ -19,13 +19,13 @@ buildscript {
         compileSdkVersion = 31
         targetSdkVersion = 30
 
-        activityVersion = '1.5.0-alpha01'
+        activityVersion = '1.5.0-alpha02'
         appCompatVersion = '1.4.1'
         archCoreVersion = '2.1.0'
         browserVersion = '1.4.0'
         coilVersion = '1.3.2'
         constraintLayoutVersion = '2.0.4'
-        coreVersion = '1.8.0-alpha03'
+        coreVersion = '1.8.0-alpha04'
         coroutinesVersion = '1.5.1'
         dokkaVersion = '1.6.0'
         drawerLayoutVersion = '1.1.1'
@@ -33,13 +33,13 @@ buildscript {
         firebaseAnalyticsVersion = '19.0.1'
         firebaseCrashlyticsVersion = '18.2.0'
         firebasePerfVersion = '20.0.2'
-        fragmentVersion = '1.5.0-alpha01'
+        fragmentVersion = '1.5.0-alpha02'
         kotlinVersion = '1.6.10'
         kspVersion = '1.6.10-1.0.2'
-        lifecycleVersion = '2.5.0-alpha01'
+        lifecycleVersion = '2.5.0-alpha02'
         materialVersion = '1.5.0-alpha03'
         multidexVersion = '2.0.1'
-        navigationVersion = '2.5.0-alpha01'
+        navigationVersion = '2.5.0-alpha02'
         okhttpVersion = '3.12.12'
         okhttpCoroutinesVersion = '1.0'
         pagingVersion = '3.1.0'
@@ -54,7 +54,7 @@ buildscript {
         viewPager2Version = '1.1.0-beta01'
         wearableVersion = '2.8.1'
         wearVersion = '1.1.0'
-        wearWatchFaceComplicationVersion = '1.0.0'
+        wearWatchFaceComplicationVersion = '1.0.1'
         workManagerVersion = '2.7.1'
     }
 
