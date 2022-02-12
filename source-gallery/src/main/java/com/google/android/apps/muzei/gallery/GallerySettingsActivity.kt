@@ -44,6 +44,7 @@ import android.view.ViewAnimationUtils
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
@@ -181,6 +182,12 @@ class GallerySettingsActivity : AppCompatActivity(),
 
     private val multiSelectionController = MultiSelectionController(this)
 
+    private val addToolbarOnBackPressedCallback = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {
+            hideAddToolbar(true)
+        }
+    }
+
     private val placeholderDrawable: ColorDrawable by lazy {
         ColorDrawable(ContextCompat.getColor(this,
                 R.color.gallery_chosen_photo_placeholder))
@@ -199,6 +206,7 @@ class GallerySettingsActivity : AppCompatActivity(),
         binding = GalleryActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
+        onBackPressedDispatcher.addCallback(this, addToolbarOnBackPressedCallback)
 
         setupMultiSelect()
 
@@ -406,19 +414,12 @@ class GallerySettingsActivity : AppCompatActivity(),
         }
 
         // Set up controller
+        onBackPressedDispatcher.addCallback(multiSelectionController)
         multiSelectionController.callbacks = this
     }
 
     override fun onSelectionChanged(restored: Boolean, fromUser: Boolean) {
         tryUpdateSelection(!restored)
-    }
-
-    override fun onBackPressed() {
-        when {
-            multiSelectionController.selectedCount > 0 -> multiSelectionController.reset(true)
-            binding.addToolbar.visibility == View.VISIBLE -> hideAddToolbar(true)
-            else -> super.onBackPressed()
-        }
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -438,6 +439,7 @@ class GallerySettingsActivity : AppCompatActivity(),
                     binding.addFab.visibility = View.INVISIBLE
                     // Then show the toolbar
                     binding.addToolbar.visibility = View.VISIBLE
+                    addToolbarOnBackPressedCallback.isEnabled = true
                     ViewAnimationUtils.createCircularReveal(
                             binding.addToolbar,
                             binding.addToolbar.width / 2,
@@ -463,6 +465,7 @@ class GallerySettingsActivity : AppCompatActivity(),
         hideAnimator.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator) {
                 binding.addToolbar.visibility = View.INVISIBLE
+                addToolbarOnBackPressedCallback.isEnabled = false
                 if (showAddButton) {
                     binding.addFab.visibility = View.VISIBLE
                     binding.addFab.animate()
@@ -760,6 +763,7 @@ class GallerySettingsActivity : AppCompatActivity(),
             if (!binding.addToolbar.isAttachedToWindow) {
                 // Can't animate detached Views
                 binding.addToolbar.visibility = View.INVISIBLE
+                addToolbarOnBackPressedCallback.isEnabled = false
                 binding.addFab.visibility = View.VISIBLE
             } else {
                 hideAddToolbar(true)

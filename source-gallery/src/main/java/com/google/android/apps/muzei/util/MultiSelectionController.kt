@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.util
 
+import androidx.activity.OnBackPressedCallback
 import androidx.core.os.bundleOf
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -28,7 +29,7 @@ import java.util.HashSet
  */
 class MultiSelectionController(
         savedStateRegistryOwner: SavedStateRegistryOwner
-) : DefaultLifecycleObserver, SavedStateRegistry.SavedStateProvider {
+) : DefaultLifecycleObserver, SavedStateRegistry.SavedStateProvider, OnBackPressedCallback(false) {
 
     companion object {
         private const val STATE_SELECTION = "selection"
@@ -59,7 +60,12 @@ class MultiSelectionController(
             }
         }
 
+        isEnabled = selectedCount > 0
         callbacks?.onSelectionChanged(restored = true, fromUser = false)
+    }
+
+    override fun handleOnBackPressed() {
+        reset(true)
     }
 
     override fun saveState() = bundleOf(STATE_SELECTION to selection.toLongArray())
@@ -71,11 +77,13 @@ class MultiSelectionController(
             selection.add(item)
         }
 
+        isEnabled = selectedCount > 0
         callbacks?.onSelectionChanged(false, fromUser)
     }
 
     fun reset(fromUser: Boolean) {
         selection.clear()
+        isEnabled = false
         callbacks?.onSelectionChanged(false, fromUser)
     }
 
