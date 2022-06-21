@@ -19,10 +19,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/browse_provider_background"
+    android:background="?android:colorBackground"
     android:fitsSystemWindows="true"
     android:theme="@style/ThemeOverlay.Muzei.AccentPrimary"
-    app:statusBarBackground="@color/theme_primary_dark">
+    app:statusBarBackground="?android:colorBackground">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"

@@ -29,9 +29,10 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 
-    <style name="Widget.Muzei.SeekBar" parent="android:Widget.Material.SeekBar">
+    <style name="Widget.Muzei.SeekBar" parent="Widget.Material3.Slider">
         <item name="android:progressDrawable">@drawable/scrubber_progress_horizontal</item>
         <item name="android:indeterminateDrawable">@drawable/scrubber_progress_horizontal</item>
+        <item name="android:thumbTint">#FFF</item>
     </style>
 
 </resources>

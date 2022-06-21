@@ -16,7 +16,9 @@
 
 <resources>
 
-    <style name="ThemeOverlay.Muzei.AutoAdvance" parent="ThemeOverlay.MaterialComponents.Dark">
+    <style name="ThemeOverlay.Muzei.AutoAdvance" parent="ThemeOverlay.Material3.Dark">
+        <item name="colorPrimary">?attr/colorOnSurface</item>
+        <item name="colorOnPrimary">?attr/colorOnSurface</item>
         <item name="android:background">?colorSurface</item>
     </style>
 

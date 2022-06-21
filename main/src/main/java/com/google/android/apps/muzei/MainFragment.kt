@@ -49,7 +49,7 @@ import net.nurik.roman.muzei.databinding.MainFragmentBinding
 class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Callbacks {
 
     private val darkStatusBarColor by lazy {
-        ContextCompat.getColor(requireContext(), R.color.theme_primary_dark)
+        ContextCompat.getColor(requireContext(), R.color.md_theme_background)
     }
     private var binding: MainFragmentBinding by autoCleared()
 

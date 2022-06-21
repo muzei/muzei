@@ -15,9 +15,7 @@
   -->
 
 <resources>
-    <color name="theme_primary">#3c6caf</color>
-    <color name="theme_primary_dark">#00427f</color>
-    <color name="theme_accent">#fff</color>
+    <color name="theme_primary">#3c6cae</color>
 
     <color name="notification">@color/theme_primary</color>
 </resources>

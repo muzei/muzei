@@ -32,10 +32,10 @@
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
-        style="@style/Widget.Design.TabLayout"
+        android:background="@android:color/transparent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"/>
+        android:theme="@style/ThemeOverlay.Muzei.TabLayout"/>
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/view_pager"
