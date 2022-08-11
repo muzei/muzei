@@ -15,5 +15,5 @@
   limitations under the License.
   -->
 <resources>
-    <string name="error_view_details">無法檢視作品詳請</string>
+    <string name="error_view_details">無法檢視 Artwork 詳細資料</string>
 </resources>
