@@ -15,34 +15,34 @@
   limitations under the License.
   -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="gallery_add_fab">添加相片</string>
-    <string name="gallery_add_photos">添加相片</string>
+    <string name="gallery_add_fab">新增相片</string>
+    <string name="gallery_add_photos">新增相片</string>
     <string name="gallery_add_folder">從 <xliff:g id="app_name" example="Gallery">%s</xliff:g> 匯入照片</string>
     <string name="gallery_internal_storage_message">空無一物？試著在溢位選單中启用內部儲存空間</string>
-    <string name="gallery_add_photos_error">您的裝置不支援添加相片。\n請與您的製造商聯絡。</string>
-    <string name="gallery_add_folder_error">您的裝置不支援添加資料夾。\n請與您的製造商聯絡。</string>
+    <string name="gallery_add_photos_error">您的裝置不支援新增圖片。\n請與您的製造商聯絡。</string>
+    <string name="gallery_add_folder_error">您的裝置不支援新增資料夾。\n請與您的製造商聯絡。</string>
     <string name="gallery_action_clear_photos">移除所有相片</string>
     <string name="gallery_action_import_photos">匯入相片…</string>
     <string name="gallery_action_import_photos_from">從 <xliff:g id="app_name" example="Gallery">%s</xliff:g> 匯入相片</string>
-    <string name="gallery_import_dialog_title">從…匯入相片</string>
+    <string name="gallery_import_dialog_title">要從何處匯入？</string>
     <string name="gallery_action_remove">移除</string>
     <string name="gallery_title">我的相片</string>
-    <string name="gallery_description">隨機相機相片</string>
+    <string name="gallery_description">自訂隨機相片</string>
     <plurals name="gallery_description_choice_template">
         <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> 張相片</item>
     </plurals>
-    <string name="gallery_empty">隨機相機相片</string>
+    <string name="gallery_empty">自訂隨機相片</string>
     <string name="gallery_empty_subtitle">選擇特定相片</string>
-    <string name="gallery_from_gallery">自相簿</string>
-    <string name="gallery_touch_to_view">輕觸以查看</string>
-    <string name="gallery_shared_from">共享自 <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
+    <string name="gallery_from_gallery">從相簿</string>
+    <string name="gallery_touch_to_view">輕觸以檢視</string>
+    <string name="gallery_shared_from">從 <xliff:g id="app_name" example="Gallery">%s</xliff:g> 分享</string>
     <plurals name="gallery_add_photos_success">
-        <item quantity="other">成功將 <xliff:g id="quantity" example="2">%d</xliff:g> 相片加入「我的相片」源</item>
+        <item quantity="other">成功將 <xliff:g id="quantity" example="2">%d</xliff:g> 圖像\n加入「我的相片」來源</item>
     </plurals>
     <plurals name="gallery_add_photos_failure">
-        <item quantity="other">無法將 <xliff:g id="quantity" example="2">%d</xliff:g> 相片加入「我的相片」源</item>
+        <item quantity="other">無法將 <xliff:g id="quantity" example="2">%d</xliff:g> 圖像\n加入「我的相片」來源</item>
     </plurals>
-    <string name="gallery_enable_random">啟用隨機相機相片</string>
+    <string name="gallery_enable_random">啟用隨機相片</string>
     <string name="gallery_permission_rationale">允许儲存空間權限以顯示隨機相片作為您的背景。</string>
     <string name="gallery_edit_settings">編輯應用程式權限</string>
     <string name="gallery_denied_explanation">您必須啟用 <b>儲存空間</b> 權限以使用隨機相片作為您的背景。</string>
