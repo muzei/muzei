@@ -25,4 +25,15 @@
     <string name="notification_new_wallpaper">Ny bakgrundsbild</string>
     <string name="notification_new_wallpaper_channel_name">Nya bakgrundsbilder</string>
     <string name="notification_settings">Notifieringsinställningar</string>
+    <string name="notification_settings_done">Klart</string>
+    <string name="notification_settings_moved_title">Aviseringsinställningar har flyttats</string>
+    <string name="notification_settings_moved_text">Granska dina aviseringsinställningar</string>
+    <string name="auto_advance_interval">Intervall</string>
+    <string name="auto_advance_interval_15m">Var 15:e minut</string>
+    <string name="auto_advance_interval_30m">Var 30:e minut</string>
+    <string name="auto_advance_interval_1h">Varje timme</string>
+    <string name="auto_advance_interval_3h">Var 3:e timme</string>
+    <string name="auto_advance_interval_6h">Var 6:e timme</string>
+    <string name="auto_advance_interval_24h">Varje dygn (24 timmar)</string>
+    <string name="auto_advance_interval_72h">Var 3:e dag</string>
 </resources>
