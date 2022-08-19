@@ -19,7 +19,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    app:statusBarBackground="?android:colorBackground">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/photo_grid"
@@ -38,8 +39,7 @@
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar">
+        android:layout_height="wrap_content">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
@@ -136,23 +136,29 @@
         android:orientation="horizontal"
         android:visibility="invisible">
 
-        <ImageButton
+        <Button
             android:id="@+id/add_photos"
-            style="?android:attr/buttonBarButtonStyle"
+            style="@style/Widget.Material3.Button.IconButton"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:contentDescription="@string/gallery_add_photos"
-            android:src="@drawable/gallery_ic_add_photo"/>
+            app:icon="@drawable/gallery_ic_add_photo"
+            app:iconGravity="textStart"
+            app:iconSize="24dp"
+            app:iconTint="@null"/>
 
-        <ImageButton
+        <Button
             android:id="@+id/add_folder"
-            style="?android:attr/buttonBarButtonStyle"
+            style="@style/Widget.Material3.Button.IconButton"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:contentDescription="@string/gallery_add_folder"
-            android:src="@drawable/gallery_ic_add_folder"/>
+            app:icon="@drawable/gallery_ic_add_folder"
+            app:iconGravity="textStart"
+            app:iconSize="24dp"
+            app:iconTint="@null"/>
     </LinearLayout>
 
     <LinearLayout
@@ -162,7 +168,7 @@
         android:orientation="vertical"
         android:visibility="invisible"
         android:elevation="@dimen/gallery_header_elevation"
-        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
+        android:theme="@style/ThemeOverlay.Material3.Dark.ActionBar"
         tools:targetApi="LOLLIPOP">
 
         <androidx.appcompat.widget.Toolbar

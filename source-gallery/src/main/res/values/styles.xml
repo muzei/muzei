@@ -16,13 +16,36 @@
 
 <resources>
 
-    <style name="Theme.Gallery.Base" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.Gallery.Base" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowBackground">@color/gallery_window_background</item>
         <item name="android:windowContentOverlay">@null</item>
 
-        <item name="colorPrimaryDark">@color/gallery_theme_dark</item>
-        <item name="colorPrimary">@color/gallery_theme</item>
-        <item name="colorAccent">@color/gallery_theme</item>
+        <item name="colorPrimary">@color/gallery_theme_primary</item>
+        <item name="colorOnPrimary">@color/gallery_theme_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/gallery_theme_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/gallery_theme_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/gallery_theme_secondary</item>
+        <item name="colorOnSecondary">@color/gallery_theme_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/gallery_theme_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/gallery_theme_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/gallery_theme_tertiary</item>
+        <item name="colorOnTertiary">@color/gallery_theme_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/gallery_theme_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/gallery_theme_onTertiaryContainer</item>
+        <item name="colorError">@color/gallery_theme_error</item>
+        <item name="colorErrorContainer">@color/gallery_theme_errorContainer</item>
+        <item name="colorOnError">@color/gallery_theme_onError</item>
+        <item name="colorOnErrorContainer">@color/gallery_theme_onErrorContainer</item>
+        <item name="android:colorBackground">@color/gallery_theme_background</item>
+        <item name="colorOnBackground">@color/gallery_theme_onBackground</item>
+        <item name="colorSurface">@color/gallery_theme_surface</item>
+        <item name="colorOnSurface">@color/gallery_theme_onSurface</item>
+        <item name="colorSurfaceVariant">@color/gallery_theme_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/gallery_theme_onSurfaceVariant</item>
+        <item name="colorOutline">@color/gallery_theme_outline</item>
+        <item name="colorOnSurfaceInverse">@color/gallery_theme_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/gallery_theme_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/gallery_theme_inversePrimary</item>
     </style>
 
     <style name="Theme.Gallery" parent="Theme.Gallery.Base"> <!-- pre-Lollipop -->
