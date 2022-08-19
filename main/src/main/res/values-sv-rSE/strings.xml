@@ -36,4 +36,16 @@
     <string name="auto_advance_interval_6h">Var 6:e timme</string>
     <string name="auto_advance_interval_24h">Varje dygn (24 timmar)</string>
     <string name="auto_advance_interval_72h">Var 3:e dag</string>
+    <string name="action_activate">Aktivera</string>
+    <string name="action_next_artwork_condensed">Nästa</string>
+    <string name="action_user_command">Mer</string>
+    <string name="action_user_command_prompt">Välj åtgärd</string>
+    <string name="provider_settings">Inställningar</string>
+    <string name="provider_browse">Bläddra</string>
+    <string name="legacy_notification_channel_name">Gamla källor</string>
+    <string name="legacy_action_learn_more">Läs mer</string>
+    <string name="legacy_action_send_feedback">Skicka feedback</string>
+    <string name="legacy_summary_title">Gamla källor stöds inte längre</string>
+    <string name="legacy_source_info_title">Gamla källor</string>
+    <string name="done">Klart</string>
 </resources>
