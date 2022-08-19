@@ -17,7 +17,6 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="gallery_add_fab">添加照片</string>
     <string name="gallery_add_photos">添加照片</string>
-    <string name="gallery_add_folder">从 <xliff:g id="app_name" example="Gallery">%s</xliff:g> 导入照片</string>
     <string name="gallery_internal_storage_message">看不到任何东西？试着在下拉菜单中启用内部存储</string>
     <string name="gallery_add_photos_error">您的设备不支持添加图片。\n请联系您的制造商。</string>
     <string name="gallery_add_folder_error">您的设备不支持添加图片。\n请联系您的制造商。</string>
