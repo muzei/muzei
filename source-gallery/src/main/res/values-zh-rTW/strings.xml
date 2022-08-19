@@ -17,6 +17,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="gallery_add_fab">新增相片</string>
     <string name="gallery_add_photos">新增相片</string>
+    <string name="gallery_add_folder">新增資料夾</string>
     <string name="gallery_internal_storage_message">空無一物？試著在溢位選單中启用內部儲存空間</string>
     <string name="gallery_add_photos_error">您的裝置不支援新增圖片。\n請與您的製造商聯絡。</string>
     <string name="gallery_add_folder_error">您的裝置不支援新增資料夾。\n請與您的製造商聯絡。</string>
