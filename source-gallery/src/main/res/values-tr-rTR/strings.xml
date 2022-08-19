@@ -17,7 +17,6 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="gallery_add_fab">Fotoğraf ekle</string>
     <string name="gallery_add_photos">Fotoğraf ekle</string>
-    <string name="gallery_add_folder"><xliff:g id="app_name" example="Gallery">%s</xliff:g>\'den fotoğrafları içe aktar</string>
     <string name="gallery_internal_storage_message">Hiçbir şey görmüyor musunuz? Üst menüden dahili depolamayı etkinleştirmeyi deneyin</string>
     <string name="gallery_add_photos_error">Cihazınız fotoğraf eklemeye izin vermiyor.\nLütfen cihaz üreticisine ulaşın.</string>
     <string name="gallery_add_folder_error">Cihazınız klasör eklemeye izin vermiyor.\nLütfen cihaz üreticisine ulaşın.</string>
