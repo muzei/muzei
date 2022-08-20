@@ -65,6 +65,7 @@ class SourceArtProvider : MuzeiArtProvider() {
         }
     } ?: ""
 
+    @Deprecated("Overridden for backward compatibility only")
     @Suppress("OverridingDeprecatedMember") /* for backward compatibility */
     @SuppressLint("Range")
     override fun getCommands(artwork: Artwork): List<UserCommand> = context?.let { context ->
@@ -79,6 +80,7 @@ class SourceArtProvider : MuzeiArtProvider() {
         }
     } ?: super.getCommands(artwork)
 
+    @Deprecated("Overridden for backward compatibility only")
     @Suppress("OverridingDeprecatedMember") /* for backward compatibility */
     override fun onCommand(artwork: Artwork, id: Int) {
         if (BuildConfig.DEBUG) {

@@ -32,8 +32,8 @@ import net.nurik.roman.muzei.BuildConfig.DATA_LAYER_AUTHORITY
 class CapabilityListenerService : WearableListenerService() {
 
     @OptIn(DelicateCoroutinesApi::class)
-    override fun onCapabilityChanged(capabilityInfo: CapabilityInfo?) {
-        val removed = capabilityInfo?.nodes?.isEmpty() ?: false
+    override fun onCapabilityChanged(capabilityInfo: CapabilityInfo) {
+        val removed = capabilityInfo.nodes.isEmpty()
         if (!removed) {
             // Muzei's phone app is installed, allow use of the DataLayerArtProvider
             packageManager.setComponentEnabledSetting(

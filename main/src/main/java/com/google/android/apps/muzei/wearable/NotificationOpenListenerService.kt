@@ -20,7 +20,7 @@ import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.WearableListenerService
 
 class NotificationOpenListenerService : WearableListenerService() {
-    override fun onMessageReceived(messageEvent: MessageEvent?) {
+    override fun onMessageReceived(messageEvent: MessageEvent) {
         // Only notification/open actions trigger this WearableListenerService
         val mainIntent = packageManager.getLaunchIntentForPackage(packageName)
         startActivity(mainIntent)
