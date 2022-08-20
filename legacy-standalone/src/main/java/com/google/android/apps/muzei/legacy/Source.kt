@@ -82,6 +82,7 @@ suspend fun Source.sendAction(context: Context, id: Int) {
             Log.d(TAG, "Sending command $id to $this")
         }
         // Ensure that we have a valid service before sending the action
+        @Suppress("DEPRECATION")
         context.packageManager.getServiceInfo(componentName, 0)
         context.startService(Intent(ACTION_HANDLE_COMMAND)
                 .setComponent(componentName)

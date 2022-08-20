@@ -363,6 +363,7 @@ class GalleryScanWorker(
                 exifInterface.latLong?.apply {
                     // Reverse geocode
                     val addresses = try {
+                        @Suppress("DEPRECATION")
                         geocoder.getFromLocation(this[0], this[1], 1)
                     } catch (e: Exception) {
                         Log.w(TAG, "Invalid latitude/longitude, skipping location metadata", e)

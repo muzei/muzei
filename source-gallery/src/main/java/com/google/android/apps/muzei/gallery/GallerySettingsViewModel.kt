@@ -51,6 +51,7 @@ class GallerySettingsViewModel(application: Application) : AndroidViewModel(appl
             }
             val packageManager = getApplication<Application>().packageManager
             val packageName = getApplication<Application>().packageName
+            @Suppress("DEPRECATION")
             trySend(packageManager.queryIntentActivities(intent, 0).asSequence().map {
                 it.activityInfo
             }.filter {

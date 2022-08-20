@@ -72,6 +72,7 @@ public object ProviderContract {
         val pm = context.packageManager
         val authority: String
         try {
+            @Suppress("DEPRECATION")
             val info = pm.getProviderInfo(componentName, 0)
             authority = info.authority
         } catch (e: PackageManager.NameNotFoundException) {

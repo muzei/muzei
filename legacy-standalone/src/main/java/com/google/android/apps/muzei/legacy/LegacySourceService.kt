@@ -185,6 +185,7 @@ class LegacySourceService : Service(), LifecycleOwner {
                             .sourceDao().getCurrentSource()
                     if (source != null && packageName == source.componentName.packageName) {
                         try {
+                            @Suppress("DEPRECATION")
                             context.packageManager.getServiceInfo(source.componentName, 0)
                         } catch (e: PackageManager.NameNotFoundException) {
                             Log.i(TAG, "Selected source ${source.componentName} is no longer available")
@@ -213,6 +214,7 @@ class LegacySourceService : Service(), LifecycleOwner {
                 database.sourceDao().getSourcesComponentNamesByPackageName(packageName)
             else
                 database.sourceDao().getSourceComponentNames())
+            @Suppress("DEPRECATION")
             val resolveInfos = pm.queryIntentServices(queryIntent,
                     PackageManager.GET_META_DATA)
             for (ri in resolveInfos) {
@@ -321,6 +323,7 @@ class LegacySourceService : Service(), LifecycleOwner {
                     // If this is the selected source, switch Muzei to the new MuzeiArtProvider
                     // rather than continue to use the legacy art source
                     metaData.getString("replacement").takeUnless { it.isNullOrEmpty() }?.run {
+                        @Suppress("DEPRECATION")
                         val providerInfo = pm.resolveContentProvider(this, 0)
                                 ?: try {
                                     val replacement = ComponentName(packageName, this)
@@ -439,6 +442,7 @@ class LegacySourceService : Service(), LifecycleOwner {
                 Log.d(TAG, "Subscribing to $selectedSource")
             }
             // Ensure that we have a valid service before subscribing
+            @Suppress("DEPRECATION")
             packageManager.getServiceInfo(selectedSource, 0)
             startService(Intent(ACTION_SUBSCRIBE)
                     .setComponent(selectedSource)
@@ -475,6 +479,7 @@ class LegacySourceService : Service(), LifecycleOwner {
                 Log.d(TAG, "Unsubscribing to $selectedSource")
             }
             // Ensure that we have a valid service before subscribing
+            @Suppress("DEPRECATION")
             packageManager.getServiceInfo(selectedSource, 0)
             startService(Intent(ACTION_SUBSCRIBE)
                     .setComponent(selectedSource)

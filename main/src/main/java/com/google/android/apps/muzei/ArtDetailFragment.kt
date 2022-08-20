@@ -369,6 +369,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
                     // Try to restore any saved state of the SubsamplingScaleImageView
                     // This would normally only be available after onViewStateRestored(), but
                     // this is within coroutine that is only launched when STARTED
+                    @Suppress("DEPRECATION")
                     val backgroundImageViewState = view.findViewTreeSavedStateRegistryOwner()
                             ?.savedStateRegistry
                             ?.consumeRestoredStateForKey(KEY_IMAGE_VIEW_STATE)

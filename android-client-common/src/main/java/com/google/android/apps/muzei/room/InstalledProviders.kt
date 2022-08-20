@@ -37,6 +37,7 @@ private fun getProviders(context: Context, packageName: String? = null): List<Pr
         queryIntent.`package` = packageName
     }
     val pm = context.packageManager
+    @Suppress("DEPRECATION")
     return pm.queryIntentContentProviders(queryIntent, PackageManager.GET_META_DATA).filterNotNull().map {
         it.providerInfo
     }.filter {

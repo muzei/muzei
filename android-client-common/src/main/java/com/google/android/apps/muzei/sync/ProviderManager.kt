@@ -118,6 +118,7 @@ class ProviderManager private constructor(private val context: Context)
             val changedComponents = intent?.getStringArrayExtra(
                     Intent.EXTRA_CHANGED_COMPONENT_NAME_LIST) ?: emptyArray()
             val pm = context.packageManager
+            @Suppress("DEPRECATION")
             @SuppressLint("InlinedApi")
             val providerInfo = pm.resolveContentProvider(provider.authority,
                     PackageManager.MATCH_DISABLED_COMPONENTS)
@@ -219,6 +220,7 @@ class ProviderManager private constructor(private val context: Context)
     private fun runIfValid(provider: Provider?, block: (provider: Provider) -> Unit) {
         if (provider != null) {
             val pm = context.packageManager
+            @Suppress("DEPRECATION")
             if (pm.resolveContentProvider(provider.authority, 0) != null) {
                 // resolveContentProvider succeeded, so it is a valid ContentProvider
                 block(provider)

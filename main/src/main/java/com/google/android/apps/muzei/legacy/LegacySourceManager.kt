@@ -82,6 +82,7 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
             addAction(Intent.ACTION_PACKAGE_REMOVED)
         }
         val queryAndSet = {
+            @Suppress("DEPRECATION")
             trySend(pm.queryIntentServices(Intent(LegacySourceServiceProtocol.LEGACY_SOURCE_ACTION), 0)
                     .firstOrNull()
                     ?.serviceInfo

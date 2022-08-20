@@ -63,6 +63,7 @@ class GalleryAddPhotosActivity : FragmentActivity() {
         return callingPackage?.run {
             return try {
                 val pm = packageManager
+                @Suppress("DEPRECATION")
                 pm.getApplicationLabel(pm.getApplicationInfo(callingPackage, 0)).toString()
             } catch (e: PackageManager.NameNotFoundException) {
                 Log.w(TAG, "Could not retrieve label for package $this", e)

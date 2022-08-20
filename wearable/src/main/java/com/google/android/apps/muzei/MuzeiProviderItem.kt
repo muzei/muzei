@@ -62,6 +62,7 @@ class MuzeiProviderViewModel(application: Application) : AndroidViewModel(applic
             val app = getApplication<Application>()
             if (provider != null) {
                 val pm = app.packageManager
+                @Suppress("DEPRECATION")
                 val providerInfo = pm.resolveContentProvider(provider.authority,
                         PackageManager.GET_META_DATA)
                 if (providerInfo != null) {

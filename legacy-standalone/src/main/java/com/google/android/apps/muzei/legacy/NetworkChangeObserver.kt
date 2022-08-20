@@ -51,6 +51,7 @@ class NetworkChangeObserver internal constructor(private val context: Context) :
                 for (source in sources) {
                     val sourceName = source.componentName
                     try {
+                        @Suppress("DEPRECATION")
                         context.packageManager.getServiceInfo(sourceName, 0)
                         context.startService(Intent(ACTION_NETWORK_AVAILABLE)
                                 .setComponent(sourceName))

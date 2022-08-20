@@ -243,12 +243,14 @@ abstract class MuzeiDatabase : RoomDatabase() {
                         if (selectedSource != null && selectedSource.moveToFirst()) {
                             val componentName = ComponentName.unflattenFromString(
                                     selectedSource.getString(0))!!
+                            @Suppress("DEPRECATION")
                             val info = context.packageManager.getServiceInfo(componentName,
                                     PackageManager.GET_META_DATA)
                             val metadata = info.metaData
                             if (metadata != null) {
                                 val replacement = metadata.getString("replacement")
                                 if (replacement != null && replacement.isNotEmpty()) {
+                                    @Suppress("DEPRECATION")
                                     val providerInfo = context.packageManager
                                             .resolveContentProvider(replacement, 0) ?: run {
                                         ComponentName.unflattenFromString(
@@ -308,6 +310,7 @@ abstract class MuzeiDatabase : RoomDatabase() {
                             val componentName = ComponentName.unflattenFromString(
                                     selectedProvider.getString(0))!!
                             val supportsNextArtwork = selectedProvider.getInt(1)
+                            @Suppress("DEPRECATION")
                             val info = context.packageManager.getProviderInfo(componentName, 0)
                             database.execSQL("INSERT INTO provider2 " +
                                     "(authority, supportsNextArtwork) "
@@ -345,6 +348,7 @@ abstract class MuzeiDatabase : RoomDatabase() {
                         val dateAdded = artwork.getLong(7)
 
                         try {
+                            @Suppress("DEPRECATION")
                             val info = context.packageManager.getProviderInfo(componentName, 0)
                             database.execSQL("INSERT INTO artwork2 " +
                                     "(_id, providerAuthority, imageUri, " +

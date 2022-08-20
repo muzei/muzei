@@ -40,6 +40,7 @@ class WorkManagerInitializer : Initializer<Unit> {
                             Context.JOB_SCHEDULER_SERVICE) as JobScheduler?
                     jobScheduler?.cancelAll()
                     sharedPreferences.edit {
+                        @Suppress("DEPRECATION")
                         putLong(KEY_RESET_VERSION_CODE, context.packageManager.getPackageInfo(context
                                 .packageName, 0)?.run {
                             PackageInfoCompat.getLongVersionCode(this)

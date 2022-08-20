@@ -43,6 +43,7 @@ class TaskerActionReceiver : BroadcastReceiver() {
                     intent.getBundleExtra(EXTRA_BUNDLE))) {
                 is SelectProviderAction -> {
                     val authority = selectedAction.authority
+                    @Suppress("DEPRECATION")
                     if (context.packageManager.resolveContentProvider(authority, 0) != null) {
                         Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
                             param(FirebaseAnalytics.Param.ITEM_LIST_ID, authority)
