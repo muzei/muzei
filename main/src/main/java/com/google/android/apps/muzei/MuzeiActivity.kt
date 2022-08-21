@@ -115,6 +115,7 @@ class MuzeiActivity : AppCompatActivity() {
         setContentView(binding.root)
         Firebase.analytics.setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
 
+        @Suppress("DEPRECATION")
         binding.container.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)

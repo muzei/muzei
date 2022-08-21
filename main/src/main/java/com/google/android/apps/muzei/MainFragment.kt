@@ -118,6 +118,7 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
         }
         (binding.navBar as NavigationBarView).setOnItemReselectedListener { item ->
             if (item.itemId == R.id.main_art_details) {
+                @Suppress("DEPRECATION")
                 activity?.window?.decorView?.systemUiVisibility = (View.SYSTEM_UI_FLAG_LOW_PROFILE
                         or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         or View.SYSTEM_UI_FLAG_FULLSCREEN
@@ -129,6 +130,7 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
         }
 
         // Send the correct window insets to each view
+        @Suppress("DEPRECATION")
         ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
             // Ensure the container gets the appropriate insets
             if (binding.navBar is BottomNavigationView) {
@@ -156,6 +158,7 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
         }
 
         // Listen for visibility changes to know when to hide our views
+        @Suppress("DEPRECATION")
         view.setOnSystemUiVisibilityChangeListener { vis ->
             val visible = vis and View.SYSTEM_UI_FLAG_LOW_PROFILE == 0
 
@@ -184,9 +187,11 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val lightNavigationBar = resources.getBoolean(R.bool.light_navigation_bar)
                 if (lightNavigationBar) {
+                    @Suppress("DEPRECATION")
                     decorView.systemUiVisibility = decorView.systemUiVisibility or
                             View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
                 } else {
+                    @Suppress("DEPRECATION")
                     decorView.systemUiVisibility = decorView.systemUiVisibility xor
                             View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
                 }

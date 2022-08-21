@@ -255,6 +255,7 @@ class GallerySettingsActivity : AppCompatActivity(),
         ViewCompat.setOnApplyWindowInsetsListener(binding.photoGrid) { v, insets ->
             val gridSpacing = resources
                     .getDimensionPixelSize(R.dimen.gallery_chosen_photo_grid_spacing)
+            @Suppress("DEPRECATION")
             ViewCompat.onApplyWindowInsets(v, WindowInsetsCompat.Builder(insets)
                     .setSystemWindowInsets(Insets.of(
                             insets.systemWindowInsetLeft + gridSpacing,

@@ -176,6 +176,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
         binding.chromeContainer.background = makeCubicGradientScrimDrawable(Gravity.BOTTOM, 0xAA,
                 scrimColor, scrimColor, scrimColor)
 
+        @Suppress("DEPRECATION")
         view.setOnSystemUiVisibilityChangeListener { vis ->
             val visible = vis and View.SYSTEM_UI_FLAG_LOW_PROFILE == 0
             animateChromeVisibility(visible)
@@ -291,6 +292,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
             }
             onSingleTapUp = {
                 activity?.window?.let {
+                    @Suppress("DEPRECATION")
                     showHideChrome(it.decorView.systemUiVisibility and
                             View.SYSTEM_UI_FLAG_LOW_PROFILE != 0)
                 }
@@ -432,6 +434,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
     }
 
     private fun showHideChrome(show: Boolean) {
+        @Suppress("DEPRECATION")
         requireActivity().window.decorView.apply {
             var flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                 systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR else 0
