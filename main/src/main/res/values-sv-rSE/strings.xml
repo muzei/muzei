@@ -24,5 +24,109 @@
     <string name="settings_grey_amount_title">Grå</string>
     <string name="notification_new_wallpaper">Ny bakgrundsbild</string>
     <string name="notification_new_wallpaper_channel_name">Nya bakgrundsbilder</string>
-    <string name="notification_settings">Notifieringsinställningar</string>
+    <string name="notification_settings">Aviseringsinställningar</string>
+    <string name="notification_settings_failed">Öppning av aviseringsinställningar misslyckades, vänligen justera <xliff:g id="muzei_name">Muzei</xliff:g>s aviseringsinställningar från appen Inställningar.</string>
+    <string name="notification_settings_done">Klart</string>
+    <string name="notification_settings_moved_title">Aviseringsinställningar har flyttats</string>
+    <string name="notification_settings_moved_text">Granska dina aviseringsinställningar</string>
+    <string name="auto_advance_settings">Inställningar för Auto-avancera</string>
+    <string name="auto_advance_disabled">Auto-avancera inaktiverat</string>
+    <string name="auto_advance_disabled_description">Gamla källor hanterar sin egen laddning av bakgrund och stöder inte Auto-avancera</string>
+    <string name="auto_advance_title">Auto-avancera</string>
+    <string name="auto_advance_description">Kontrollera när <xliff:g id="muzei_name">Muzei</xliff:g> automatiskt går vidare till nästa bakgrundsbild.</string>
+    <string name="auto_advance_wifi">Auto-avancera endast på Wi-Fi</string>
+    <string name="auto_advance_interval">Intervall</string>
+    <string name="auto_advance_interval_15m">Var 15:e minut</string>
+    <string name="auto_advance_interval_30m">Var 30:e minut</string>
+    <string name="auto_advance_interval_1h">Varje timme</string>
+    <string name="auto_advance_interval_3h">Var 3:e timme</string>
+    <string name="auto_advance_interval_6h">Var 6:e timme</string>
+    <string name="auto_advance_interval_24h">Varje dygn (24 timmar)</string>
+    <string name="auto_advance_interval_72h">Var 3:e dag</string>
+    <string name="auto_advance_interval_never">Auto-avancera inte</string>
+    <string name="auto_advance_tasker">För exakt kontroll över vad som utlöser att din bakgrundsbild ändras, använd \"Next artwork\"-åtgärden som finns i <xliff:g id="tasker_name">Tasker</xliff:g> under Plugin -&gt; <xliff:g id="muzei_name">Muzei</xliff:g> och inaktivera Auto-avancera här.</string>
+    <string name="auto_advance_tasker_name"><xliff:g id="tasker_name">Tasker</xliff:g></string>
+    <string name="action_activate">Aktivera</string>
+    <string name="error_view_details">Det gick inte att visa detaljer för bilden.</string>
+    <string name="error_wallpaper_chooser">Det gick inte att starta bakgrundsväljare. Du kan fortfarande aktivera <xliff:g id="muzei_name">Muzei</xliff:g> genom att välja \"Live Wallpapers\" i din bakgrundsbildsväljare på startskärmen.</string>
+    <string name="section_choose_source">Källor</string>
+    <string name="section_effects">Effekter</string>
+    <string name="action_next_artwork">Nästa bild</string>
+    <string name="action_next_artwork_condensed">Nästa</string>
+    <string name="action_user_command">Mer</string>
+    <string name="action_user_command_prompt">Välj åtgärd</string>
+    <string name="action_artwork_info">Information om bild</string>
+    <string name="action_artwork_info_disabled">Det finns ingen information för den aktuella bilden.</string>
+    <string name="provider_settings">Inställningar</string>
+    <string name="provider_browse">Bläddra</string>
+    <string name="legacy_notification_channel_name">Gamla källor</string>
+    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> stöds inte längre</string>
+    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> stöder inte direkt källor som byggts med Legacy Source API.</string>
+    <string name="legacy_action_learn_more">Läs mer</string>
+    <string name="legacy_action_send_feedback">Skicka feedback</string>
+    <string name="legacy_summary_title">Gamla källor stöds inte längre</string>
+    <plurals name="legacy_summary_text">
+        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> Gammal källa hittades</item>
+        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> Gammal källa hittades</item>
+    </plurals>
+    <plurals name="legacy_unsupported_text">
+        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> källa som inte stöds hittad</item>
+        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> källa som inte stöds hittad</item>
+    </plurals>
+    <string name="legacy_source_info_title">Gamla källor</string>
+    <string name="legacy_source_info_subtitle">Källor som byggts med Legacy Source API stöds inte längre direkt av <xliff:g id="muzei_name">Muzei</xliff:g>.</string>
+    <string name="legacy_source_info_app_info">Appinfo</string>
+    <string name="legacy_source_info_send_feedback">Skicka feedback</string>
+    <string name="legacy_source_all_uninstalled">Alla gamla källor har avinstallerats</string>
+    <string name="done">Klart</string>
+    <string name="set_as_wallpaper_using_muzei">Bakgrundsbild (using <xliff:g id="muzei_name">Muzei</xliff:g>)</string>
+    <string name="set_as_wallpaper_failed">Det gick inte att läsa in bilden</string>
+    <string name="tutorial_main">Öppna <xliff:g id="muzei_name">Muzei</xliff:g>-appen för att se din bakgrundsbild</string>
+    <string name="tutorial_subtitle">Dubbeltryck på den suddiga bakgrundsbilden på hemskärmen för att tillfälligt fokusera</string>
+    <string name="get_more_sources">Hämta fler källor</string>
+    <string name="get_more_sources_description">Ändra din bakgrundsbild helt med ytterligare källor installerade från <xliff:g id="google_play">Google Play</xliff:g> Store</string>
+    <string name="action_link_effects">Hem 🔗 Lås</string>
+    <string name="toast_link_effects">Start- &amp; låsskärmseffekter är nu länkade</string>
+    <string name="action_link_effects_off">Start- &amp; låsskärmseffekter är inte länkade</string>
+    <string name="toast_link_effects_off">Start- &amp; låsskärmseffekter är inte längre länkade</string>
+    <string name="reset_advanced_settings_defaults">Återställ reglagen</string>
+    <string name="play_store_not_found">Det gick inte att öppna <xliff:g id="google_play">Google Play</xliff:g> Store.</string>
+    <string name="browse_refresh">Uppdatera</string>
+    <string name="browse_set_wallpaper">Ställ in den aktuella bakgrunden</string>
+    <string name="browse_set_wallpaper_with_title">Ställ in den aktuella bakgrunden till \"<xliff:g id="image_name" example="IMG14227.jpg">%s</xliff:g>\"</string>
+    <string name="missing_resources_title">Ogiltig <xliff:g id="muzei_name">Muzei</xliff:g>-installation</string>
+    <string name="missing_resources_message"><xliff:g id="muzei_name">Muzei</xliff:g> är i ett ogiltigt tillstånd. Vänligen avinstallera <xliff:g id="muzei_name">Muzei</xliff:g> och installera den från <xliff:g id="google_play">Google Play</xliff:g> Store för att reparera din installation.</string>
+    <string name="missing_resources_open">Öppna <xliff:g id="google_play">Google Play</xliff:g> Store</string>
+    <string name="missing_resources_quit">Stäng <xliff:g id="muzei_name">Muzei</xliff:g></string>
+    <string name="tasker_setting_dialog_title">Välj åtgärd</string>
+    <string name="tasker_action_select_provider">Välj <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g></string>
+    <string name="actions_gestures">Anpassa gester</string>
+    <string name="gestures_title">Gester</string>
+    <string name="gestures_double_tap_title">Dubbeltryck</string>
+    <string name="gestures_double_tap_description">Dubbeltryck på den suddiga bakgrundsbilden på startskärmen för att utlösa den åtgärd som du valt.</string>
+    <string name="gestures_three_finger_tap_title">Tre fingertryck</string>
+    <string name="gestures_three_finger_tap_description">Tryck på den suddiga bakgrundsbilden på din startskärm med tre fingrar för att utlösa den åtgärd som du valt.</string>
+    <string name="gestures_tap_action_temporary_disable">Inaktivera effekter tillfälligt</string>
+    <string name="gestures_tap_action_next">Nästa bild</string>
+    <string name="gestures_tap_action_view_details">Visa information om bild</string>
+    <string name="gestures_tap_action_none">Ingen</string>
+    <string name="actions_always_dark">Alltid mörkt</string>
+    <string name="about_title">Om <xliff:g id="muzei_name">Muzei</xliff:g></string>
+    <string name="about_body"><![CDATA[        Skapad av Roman Nurik och Ian Lake, med stora bidrag från
+        <a href="http://code.muzei.co">öppen källkod-gemenskapen</a>.
+        <i>Muzei</i> är en translitteration av det ryska ordet
+        <a href="http://translate.google.com/#sv/ru/museum"><i>музей</i></a>, vilket betyder
+        &#8220;museum.&#8221;<br><br>
+
+        Copyright 2013&ndash;2018 Google Inc. Alla rättigheter förbehålles.
+        <a href="http://m.google.com/utos">Användarvillkor</a>,
+        <a href="http://www.google.com/policies/privacy/">Integritetspolicy</a>&nbsp;<br><br>
+
+        Stort tack till dessa öppen källkod-projekt:<br>
+        &bull; <b><a href="http://square.github.io/okhttp/">OkHttp</a> och <a href="http://square.github.io/picasso/">Picasso</a></b> av Square<br>
+        &bull; <b><a href="https://github.com/GLWallpaperService/GLWallpaperService">GLWallpaperService</a></b> av Robert Green, Mark F. Guerra, och andra
+    ]]></string>
+    <string name="about_version_template">v<xliff:g id="version_number" example="3.3.0 Beta">%1$s</xliff:g></string>
+    <string name="app_author"><xliff:g id="roman_nurik">Roman Nurik</xliff:g> och <xliff:g id="ian_lake">Ian Lake</xliff:g></string>
+    <string name="app_context_description">Ett levande museum för din startskärm</string>
 </resources>

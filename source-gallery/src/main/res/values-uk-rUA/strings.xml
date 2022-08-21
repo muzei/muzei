@@ -17,7 +17,6 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="gallery_add_fab">Додати фото</string>
     <string name="gallery_add_photos">Додати фото</string>
-    <string name="gallery_add_folder">Імпорт фотографій з <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
     <string name="gallery_action_clear_photos">Видалити всі фотографії</string>
     <string name="gallery_action_import_photos">Імпорт фотографій…</string>
     <string name="gallery_action_import_photos_from">Імпорт фотографій з <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>

@@ -17,7 +17,6 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="gallery_add_fab">Foto\'s toevoegen</string>
     <string name="gallery_add_photos">Foto\'s toevoegen</string>
-    <string name="gallery_add_folder">Foto\'s importeren uit <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
     <string name="gallery_internal_storage_message">Ziet u niets? Probeer interne opslag in te schakelen in het menu</string>
     <string name="gallery_add_photos_error">Uw toestel ondersteunt het toevoegen van afbeeldingen niet.\nNeem contact op met de fabrikant.</string>
     <string name="gallery_add_folder_error">Uw toestel ondersteunt het toevoegen van mappen niet.\nNeem contact op met de fabrikant.</string>

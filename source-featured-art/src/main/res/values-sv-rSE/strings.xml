@@ -1,2 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="featuredart_source_title">Utvalda konstverk</string>
+    <string name="featuredart_source_description">En ny målning varje dag</string>
+    <string name="featuredart_source_action_view_archive">Visa arkiv</string>
+    <string name="featuredart_action_share_artwork">Dela konstverk</string>
+</resources>

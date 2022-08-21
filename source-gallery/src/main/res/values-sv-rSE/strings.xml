@@ -14,4 +14,39 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="gallery_add_fab">Lägg till bilder</string>
+    <string name="gallery_add_photos">Lägg till bilder</string>
+    <string name="gallery_add_folder">Lägg till en mapp</string>
+    <string name="gallery_internal_storage_message">Ser du ingenting? Försök att aktivera intern lagring i overflow-menyn</string>
+    <string name="gallery_add_photos_error">Din enhet stöder inte att lägga till bilder.\nKontakta din tillverkare.</string>
+    <string name="gallery_add_folder_error">Din enhet stöder inte att lägga till mappar.\nKontakta din tillverkare.</string>
+    <string name="gallery_action_clear_photos">Ta bort alla bilder</string>
+    <string name="gallery_action_import_photos">Importera bilder…</string>
+    <string name="gallery_action_import_photos_from">Importera bilder från <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
+    <string name="gallery_import_dialog_title">Importera bilder från</string>
+    <string name="gallery_action_remove">Ta bort</string>
+    <string name="gallery_title">Mina bilder</string>
+    <string name="gallery_description">Slumpmässiga kamerabilder</string>
+    <plurals name="gallery_description_choice_template">
+        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> bild</item>
+        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> bilder</item>
+    </plurals>
+    <string name="gallery_empty">Slumpmässiga kamerabilder</string>
+    <string name="gallery_empty_subtitle">Välj specifika bilder istället</string>
+    <string name="gallery_from_gallery">Från ditt galleri</string>
+    <string name="gallery_touch_to_view">Tryck för att visa</string>
+    <string name="gallery_shared_from">Delad från <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
+    <plurals name="gallery_add_photos_success">
+        <item quantity="one">Framgångsrikt lagt till <xliff:g id="quantity" example="1">%d</xliff:g> bild\ntill källan \"Mina bilder\"</item>
+        <item quantity="other">Framgångsrikt lagt till <xliff:g id="quantity" example="2">%d</xliff:g> bilder\ntill källan \"Mina bilder\"</item>
+    </plurals>
+    <plurals name="gallery_add_photos_failure">
+        <item quantity="one">Det gick inte att lägga till <xliff:g id="quantity" example="1">%d</xliff:g> bild\ntill \"Mina bilder\" källan</item>
+        <item quantity="other">Det gick inte att lägga till <xliff:g id="quantity" example="2">%d</xliff:g> bilder\ntill källan \"Mina bilder\"</item>
+    </plurals>
+    <string name="gallery_enable_random">Aktivera slumpmässiga kamerabilder</string>
+    <string name="gallery_permission_rationale">Tillåt åtkomst till lagring för att visa slumpmässiga bilder som bakgrund.</string>
+    <string name="gallery_edit_settings">Redigera behörigheter</string>
+    <string name="gallery_denied_explanation">Du måste aktivera behörigheten <b>Lagring</b> för att använda slumpmässiga bilder som bakgrund.</string>
+</resources>

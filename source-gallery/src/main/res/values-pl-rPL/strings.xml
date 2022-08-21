@@ -17,7 +17,6 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="gallery_add_fab">Dodaj zdjęcia</string>
     <string name="gallery_add_photos">Dodaj zdjęcia</string>
-    <string name="gallery_add_folder">Importuj zdjęcia z <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
     <string name="gallery_internal_storage_message">Niczego nie widzisz? Spróbuj włączyć pamięć wewnętrzną w menu rozwijanym</string>
     <string name="gallery_add_photos_error">Twoje urządzenie nie obsługuje dodawania zdjęć.\nSkontaktuj się z producentem.</string>
     <string name="gallery_add_folder_error">Twoje urządzenie nie obsługuje dodawania folderów.\nSkontaktuj się z producentem.</string>

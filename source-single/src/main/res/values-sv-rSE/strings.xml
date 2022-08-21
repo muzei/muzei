@@ -14,4 +14,9 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources></resources>
+<resources>
+    <string name="single_title">Enskild bild</string>
+    <string name="single_description">Visa en bild som du väljer</string>
+    <string name="single_get_content_failure">Det gick inte att öppna bildväljaren</string>
+    <string name="single_default_artwork_title">Din bild</string>
+</resources>
