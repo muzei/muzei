@@ -240,7 +240,7 @@ abstract class MuzeiDatabase : RoomDatabase() {
                 // by seeing if the current source has a replacement provider available
                 try {
                     database.query("SELECT component_name FROM sources WHERE selected=1").use { selectedSource ->
-                        if (selectedSource != null && selectedSource.moveToFirst()) {
+                        if (selectedSource.moveToFirst()) {
                             val componentName = ComponentName.unflattenFromString(
                                     selectedSource.getString(0))!!
                             @Suppress("DEPRECATION")
@@ -304,7 +304,7 @@ abstract class MuzeiDatabase : RoomDatabase() {
                         + "authority TEXT PRIMARY KEY NOT NULL,"
                         + "supportsNextArtwork INTEGER NOT NULL)")
                 try {
-                    database.query("SELECT componentName, supportsNextArtwork FROM provider")?.use {
+                    database.query("SELECT componentName, supportsNextArtwork FROM provider").use {
                         selectedProvider ->
                         if (selectedProvider.moveToFirst()) {
                             val componentName = ComponentName.unflattenFromString(
@@ -335,7 +335,7 @@ abstract class MuzeiDatabase : RoomDatabase() {
                         + "metaFont TEXT NOT NULL,"
                         + "date_added INTEGER NOT NULL)")
                 database.query("SELECT _id, providerComponentName, imageUri, " +
-                        "title, byline, attribution, metaFont, date_added FROM artwork")?.use{ artwork ->
+                        "title, byline, attribution, metaFont, date_added FROM artwork").use{ artwork ->
                     while (artwork.moveToNext()) {
                         val id = artwork.getLong(0)
                         val componentName = ComponentName.unflattenFromString(

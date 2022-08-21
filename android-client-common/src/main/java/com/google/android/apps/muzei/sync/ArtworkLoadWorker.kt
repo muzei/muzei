@@ -79,7 +79,7 @@ class ArtworkLoadWorker(
                 loadOnWifi: Boolean
         ) {
             val workManager = WorkManager.getInstance(context)
-            workManager.enqueueUniquePeriodicWork(PERIODIC_TAG, ExistingPeriodicWorkPolicy.REPLACE,
+            workManager.enqueueUniquePeriodicWork(PERIODIC_TAG, ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
                     PeriodicWorkRequestBuilder<ArtworkLoadWorker>(
                             loadFrequencySeconds, TimeUnit.SECONDS,
                             loadFrequencySeconds / 10, TimeUnit.SECONDS)
