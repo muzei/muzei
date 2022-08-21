@@ -46,22 +46,18 @@ import com.google.android.apps.muzei.util.toast
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.legacy.BuildConfig
 import net.nurik.roman.muzei.legacy.R
-import java.util.HashSet
 import java.util.concurrent.Executors
 
 /**
  * Class responsible for managing interactions with sources such as subscribing, unsubscribing, and sending actions.
  */
-@OptIn(ExperimentalCoroutinesApi::class)
 class LegacySourceService : Service(), LifecycleOwner {
 
     companion object {

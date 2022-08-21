@@ -42,7 +42,6 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
@@ -52,7 +51,6 @@ import net.nurik.roman.muzei.R
  * In cases where Muzei is not activated, the tile also allows users to activate Muzei directly
  * from the tile
  */
-@OptIn(ExperimentalCoroutinesApi::class)
 @RequiresApi(Build.VERSION_CODES.N)
 class NextArtworkTileService : TileService(), LifecycleOwner {
     private val lifecycleRegistry: LifecycleRegistry = LifecycleRegistry(this)

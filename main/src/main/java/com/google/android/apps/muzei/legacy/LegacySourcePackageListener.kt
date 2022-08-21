@@ -38,14 +38,12 @@ import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.navigation.NavDeepLinkBuilder
 import com.google.android.apps.muzei.settings.Prefs
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 import net.nurik.roman.muzei.R
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class LegacySourcePackageListener(
         private val applicationContext: Context
 ) {

@@ -537,7 +537,7 @@ public class GLTextureView extends TextureView implements TextureView.SurfaceTex
     }
 
     private class DefaultContextFactory implements EGLContextFactory {
-        private int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
+        private final int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
 
         public EGLContext createContext(EGL10 egl, EGLDisplay display, EGLConfig config) {
             int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, mEGLContextClientVersion,
@@ -732,7 +732,7 @@ public class GLTextureView extends TextureView implements TextureView.SurfaceTex
             return defaultValue;
         }
 
-        private int[] mValue;
+        private final int[] mValue;
         // Subclasses can adjust these values:
         protected int mRedSize;
         protected int mGreenSize;
@@ -976,7 +976,7 @@ public class GLTextureView extends TextureView implements TextureView.SurfaceTex
             return function + " failed"; // + EGLLogWrapper.getErrorString(error);
         }
 
-        private WeakReference<GLTextureView> mGLTextureViewWeakRef;
+        private final WeakReference<GLTextureView> mGLTextureViewWeakRef;
         EGL10 mEgl;
         EGLDisplay mEglDisplay;
         EGLSurface mEglSurface;
@@ -1112,8 +1112,7 @@ public class GLTextureView extends TextureView implements TextureView.SurfaceTex
                             // When pausing, optionally release the EGL Context:
                             if (pausing && mHaveEglContext) {
                                 GLTextureView view = mGLTextureViewWeakRef.get();
-                                boolean preserveEglContextOnPause = view == null ?
-                                        false : view.mPreserveEGLContextOnPause;
+                                boolean preserveEglContextOnPause = view != null && view.mPreserveEGLContextOnPause;
                                 if (!preserveEglContextOnPause || sGLThreadManager.shouldReleaseEGLContextWhenPausing()) {
                                     stopEglContextLocked();
                                     if (LOG_SURFACE) {
@@ -1527,7 +1526,7 @@ public class GLTextureView extends TextureView implements TextureView.SurfaceTex
         private int mRenderMode;
         private boolean mRequestRender;
         private boolean mRenderComplete;
-        private ArrayList<Runnable> mEventQueue = new ArrayList<>();
+        private final ArrayList<Runnable> mEventQueue = new ArrayList<>();
         private boolean mSizeChanged = true;
 
         // End of member variables protected by the sGLThreadManager monitor.
@@ -1539,7 +1538,7 @@ public class GLTextureView extends TextureView implements TextureView.SurfaceTex
          * called. This weak reference allows the GLSurfaceView to be garbage collected while
          * the GLThread is still alive.
          */
-        private WeakReference<GLTextureView> mGLTextureViewWeakRef;
+        private final WeakReference<GLTextureView> mGLTextureViewWeakRef;
 
     }
 
@@ -1572,7 +1571,7 @@ public class GLTextureView extends TextureView implements TextureView.SurfaceTex
             }
         }
 
-        private StringBuilder mBuilder = new StringBuilder();
+        private final StringBuilder mBuilder = new StringBuilder();
     }
 
 
@@ -1584,7 +1583,7 @@ public class GLTextureView extends TextureView implements TextureView.SurfaceTex
     }
 
     private static class GLThreadManager {
-        private static String TAG = "GLThreadManager";
+        private static final String TAG = "GLThreadManager";
 
         public synchronized void threadExiting(GLThread thread) {
             if (LOG_THREADS) {
@@ -1713,4 +1712,3 @@ public class GLTextureView extends TextureView implements TextureView.SurfaceTex
     private int mEGLContextClientVersion;
     private boolean mPreserveEGLContextOnPause;
 }
-

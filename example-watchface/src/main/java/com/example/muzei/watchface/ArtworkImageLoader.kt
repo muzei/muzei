@@ -23,8 +23,6 @@ import android.util.Log
 import android.util.Size
 import com.google.android.apps.muzei.api.MuzeiContract
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -39,7 +37,6 @@ import java.io.FileNotFoundException
  * Class which provides access to the current Muzei artwork image. It also
  * registers a ContentObserver to ensure the image stays up to date
  */
-@OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 class ArtworkImageLoader(private val context: Context) {
 
     private val requestSizeSharedFlow = MutableSharedFlow<Size?>(

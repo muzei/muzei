@@ -38,7 +38,6 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.room.contentUri
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
@@ -128,7 +127,6 @@ suspend fun updateAppWidget(context: Context) = coroutineScope {
 }
 
 @SuppressLint("InlinedApi")
-@OptIn(ExperimentalCoroutinesApi::class)
 private suspend fun createRemoteViews(
         context: Context,
         provider: Provider,

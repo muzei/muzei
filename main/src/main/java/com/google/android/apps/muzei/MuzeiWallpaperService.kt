@@ -62,7 +62,6 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
@@ -73,10 +72,8 @@ import net.rbgrn.android.glwallpaperservice.GLWallpaperService
 
 data class WallpaperSize(val width: Int, val height: Int)
 
-@OptIn(ExperimentalCoroutinesApi::class)
 val WallpaperSizeStateFlow = MutableStateFlow<WallpaperSize?>(null)
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
 
     companion object {

@@ -24,7 +24,6 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.pm.ProviderInfo
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -48,7 +47,6 @@ private fun getProviders(context: Context, packageName: String? = null): List<Pr
 /**
  * Get a [Flow] for the list of currently installed [MuzeiArtProvider] instances.
  */
-@OptIn(ExperimentalCoroutinesApi::class)
 fun getInstalledProviders(context: Context): Flow<List<ProviderInfo>> = callbackFlow {
     val currentProviders = HashMap<ComponentName, ProviderInfo>()
     val packageChangeReceiver : BroadcastReceiver = object : BroadcastReceiver() {

@@ -22,18 +22,14 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import net.nurik.roman.muzei.BuildConfig
 
-@OptIn(ExperimentalCoroutinesApi::class)
 private val mutableWallpaperActiveState = MutableStateFlow(false)
-@OptIn(ExperimentalCoroutinesApi::class)
-val WallpaperActiveState: StateFlow<Boolean> = mutableWallpaperActiveState
+val WallpaperActiveState = mutableWallpaperActiveState.asStateFlow()
 
 private var initializedState = false
-@OptIn(ExperimentalCoroutinesApi::class)
 fun initializeWallpaperActiveState(context: Context) {
     if (!initializedState) {
         val wallpaperManager = WallpaperManager.getInstance(context)
@@ -46,7 +42,6 @@ fun initializeWallpaperActiveState(context: Context) {
 /**
  * LifecycleObserver responsible for sending analytics callbacks based on the state of the wallpaper
  */
-@OptIn(ExperimentalCoroutinesApi::class)
 class WallpaperAnalytics(context: Context) : DefaultLifecycleObserver {
 
     init {

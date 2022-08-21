@@ -71,7 +71,6 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
@@ -85,7 +84,6 @@ import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.ArtDetailFragmentBinding
 
-@OptIn(ExperimentalCoroutinesApi::class)
 val ArtDetailOpen = MutableStateFlow(false)
 
 private fun TextView.setTextOrGone(text: String?) {
@@ -108,7 +106,6 @@ class ArtDetailViewModel(application: Application) : AndroidViewModel(applicatio
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), null)
 }
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
 
     companion object {

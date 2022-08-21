@@ -27,7 +27,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.callbackFlow
@@ -37,7 +36,6 @@ import kotlinx.coroutines.flow.stateIn
  * ViewModel responsible for handling the list of ACTION_GET_CONTENT activities across configuration
  * changes.
  */
-@OptIn(ExperimentalCoroutinesApi::class)
 class GallerySettingsViewModel(application: Application) : AndroidViewModel(application) {
     internal val chosenPhotos = Pager(PagingConfig(48)) {
         GalleryDatabase.getInstance(application).chosenPhotoDao().chosenPhotosPaged

@@ -209,7 +209,7 @@ public class GLWallpaperService extends WallpaperService {
 }
 
 class LogWriter extends Writer {
-        private StringBuilder mBuilder = new StringBuilder();
+        private final StringBuilder mBuilder = new StringBuilder();
 
         @Override
         public void close() {
@@ -254,7 +254,7 @@ interface EGLContextFactory extends GLSurfaceView.EGLContextFactory {
 
 class DefaultContextFactory implements GLSurfaceView.EGLContextFactory {
         private static final int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
-        private int eglContextClientVersion;
+        private final int eglContextClientVersion;
 
         DefaultContextFactory(int eglContextClientVersion) {
                 this.eglContextClientVersion = eglContextClientVersion;
@@ -326,10 +326,10 @@ class EglHelper {
         private EGLContext mEglContext;
         EGLConfig mEglConfig;
 
-        private GLSurfaceView.EGLConfigChooser mEGLConfigChooser;
-        private GLSurfaceView.EGLContextFactory mEGLContextFactory;
-        private GLSurfaceView.EGLWindowSurfaceFactory mEGLWindowSurfaceFactory;
-        private GLSurfaceView.GLWrapper mGLWrapper;
+        private final GLSurfaceView.EGLConfigChooser mEGLConfigChooser;
+        private final GLSurfaceView.EGLContextFactory mEGLContextFactory;
+        private final GLSurfaceView.EGLWindowSurfaceFactory mEGLWindowSurfaceFactory;
+        private final GLSurfaceView.GLWrapper mGLWrapper;
 
         public EglHelper(GLSurfaceView.EGLConfigChooser chooser, GLSurfaceView.EGLContextFactory contextFactory,
                         GLSurfaceView.EGLWindowSurfaceFactory surfaceFactory, GLSurfaceView.GLWrapper wrapper) {
@@ -484,10 +484,10 @@ class GLThread extends Thread {
         private final GLThreadManager sGLThreadManager = new GLThreadManager();
         private GLThread mEglOwner;
 
-        private GLSurfaceView.EGLConfigChooser mEGLConfigChooser;
-        private GLSurfaceView.EGLContextFactory mEGLContextFactory;
-        private GLSurfaceView.EGLWindowSurfaceFactory mEGLWindowSurfaceFactory;
-        private GLSurfaceView.GLWrapper mGLWrapper;
+        private final GLSurfaceView.EGLConfigChooser mEGLConfigChooser;
+        private final GLSurfaceView.EGLContextFactory mEGLContextFactory;
+        private final GLSurfaceView.EGLWindowSurfaceFactory mEGLWindowSurfaceFactory;
+        private final GLSurfaceView.GLWrapper mGLWrapper;
 
         public SurfaceHolder mHolder;
         private boolean mSizeChanged = true;
@@ -506,8 +506,8 @@ class GLThread extends Thread {
         private boolean mEventsWaiting;
         // End of member variables protected by the sGLThreadManager monitor.
 
-        private GLSurfaceView.Renderer mRenderer;
-        private ArrayList<Runnable> mEventQueue = new ArrayList<Runnable>();
+        private final GLSurfaceView.Renderer mRenderer;
+        private final ArrayList<Runnable> mEventQueue = new ArrayList<Runnable>();
         private EglHelper mEglHelper;
 
         GLThread(GLSurfaceView.Renderer renderer, GLSurfaceView.EGLConfigChooser chooser, GLSurfaceView.EGLContextFactory contextFactory,
@@ -856,4 +856,3 @@ class GLThread extends Thread {
 @Deprecated
 interface EGLConfigChooser extends GLSurfaceView.EGLConfigChooser {
 }
-

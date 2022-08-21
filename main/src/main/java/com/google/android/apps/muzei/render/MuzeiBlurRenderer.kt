@@ -37,7 +37,6 @@ import com.google.android.apps.muzei.util.floorEven
 import com.google.android.apps.muzei.util.interpolate
 import com.google.android.apps.muzei.util.roundMult4
 import com.google.android.apps.muzei.util.uninterpolate
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -51,15 +50,12 @@ sealed class SwitchingPhotos(val viewportId: Int)
 data class SwitchingPhotosInProgress(private val currentId: Int) : SwitchingPhotos(currentId)
 data class SwitchingPhotosDone(private val currentId: Int) : SwitchingPhotos(currentId)
 
-@OptIn(ExperimentalCoroutinesApi::class)
 val SwitchingPhotosStateFlow = MutableStateFlow<SwitchingPhotos?>(null)
 
 data class ArtworkSize(val width: Int, val height: Int)
 
-@OptIn(ExperimentalCoroutinesApi::class)
 val ArtworkSizeStateFlow = MutableStateFlow<ArtworkSize?>(null)
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class MuzeiBlurRenderer(
         private val context: Context,
         private val callbacks: Callbacks,

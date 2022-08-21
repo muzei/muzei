@@ -30,18 +30,15 @@ import com.google.android.apps.muzei.render.MuzeiBlurRenderer
 import com.google.android.apps.muzei.util.autoCleared
 import com.google.android.apps.muzei.util.toast
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.EffectsFragmentBinding
 
-@OptIn(ExperimentalCoroutinesApi::class)
 val EffectsLockScreenOpen = MutableStateFlow(false)
 
 /**
  * Fragment for allowing the user to configure advanced settings.
  */
-@OptIn(ExperimentalCoroutinesApi::class)
 class EffectsFragment : Fragment(R.layout.effects_fragment) {
 
     private var binding: EffectsFragmentBinding by autoCleared()

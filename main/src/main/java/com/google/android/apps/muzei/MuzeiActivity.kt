@@ -39,7 +39,6 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -50,7 +49,6 @@ import net.nurik.roman.muzei.databinding.MuzeiActivityBinding
 private const val PREVIEW_MODE = "android.service.wallpaper.PREVIEW_MODE"
 val Activity.isPreviewMode get() = intent?.extras?.getBoolean(PREVIEW_MODE) == true
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class MuzeiActivity : AppCompatActivity() {
     private lateinit var binding: MuzeiActivityBinding
     private var fadeIn = false
@@ -209,7 +207,6 @@ class MuzeiActivity : AppCompatActivity() {
     }
 }
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class MuzeiActivityViewModel(application: Application): AndroidViewModel(application) {
     private val sp: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(application)
 

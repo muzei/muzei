@@ -26,7 +26,7 @@ import javax.microedition.khronos.egl.EGLDisplay;
  * Created by romannurik on 11/6/13.
  */
 abstract class BaseConfigChooser implements GLSurfaceView.EGLConfigChooser {
-        private int eglContextClientVersion;
+        private final int eglContextClientVersion;
 
         public BaseConfigChooser(int[] configSpec, int eglContextClientVersion) {
                 this.eglContextClientVersion = eglContextClientVersion;
@@ -126,7 +126,7 @@ abstract class BaseConfigChooser implements GLSurfaceView.EGLConfigChooser {
                         return 0;
                 }
 
-                private int[] mValue;
+                private final int[] mValue;
                 // Subclasses can adjust these values:
                 protected int mRedSize;
                 protected int mGreenSize;

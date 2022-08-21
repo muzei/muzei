@@ -33,7 +33,6 @@ import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.getInstalledProviders
 import com.google.android.apps.muzei.sync.ProviderManager
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -73,7 +72,6 @@ data class ProviderInfo(
                 selected)
 }
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class ChooseProviderViewModel(application: Application) : AndroidViewModel(application) {
 
     private val database = MuzeiDatabase.getInstance(application)

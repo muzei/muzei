@@ -17,14 +17,11 @@
 package com.google.android.apps.muzei
 
 import android.graphics.RectF
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 // Singleton that can be observed
-@OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 object ArtDetailViewport {
     private val viewport0 = RectF()
     private val viewport1 = RectF()
