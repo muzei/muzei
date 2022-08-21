@@ -17,6 +17,7 @@
 package com.google.android.apps.muzei.gallery
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -28,17 +29,31 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.activity.result.launch
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 
-private val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+private val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+    arrayOf(Manifest.permission.READ_MEDIA_IMAGES,
+        Manifest.permission.ACCESS_MEDIA_LOCATION)
+} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
     arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.ACCESS_MEDIA_LOCATION)
 } else {
     arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
 }
 internal class RequestStoragePermissions : ActivityResultContract<Unit, Boolean>() {
+    companion object {
+        fun checkSelfPermission(context: Context) = permissions.map { permission ->
+            ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+        }.all { it }
+
+        fun shouldShowRequestPermissionRationale(
+            activity: Activity
+        ) = ActivityCompat.shouldShowRequestPermissionRationale(activity, permissions.first())
+    }
+
     private val requestMultiplePermissions = RequestMultiplePermissions()
 
     override fun createIntent(context: Context, input: Unit) =
@@ -48,14 +63,14 @@ internal class RequestStoragePermissions : ActivityResultContract<Unit, Boolean>
             context: Context,
             input: Unit
     ) = requestMultiplePermissions.getSynchronousResult(context, permissions)?.let { result ->
-        SynchronousResult(result.value.getOrElse(Manifest.permission.READ_EXTERNAL_STORAGE) { false })
+        SynchronousResult(result.value.all { it.value })
     }
 
     override fun parseResult(
             resultCode: Int,
             intent: Intent?
     ): Boolean = requestMultiplePermissions.parseResult(resultCode, intent).let { result ->
-        result.getOrElse(Manifest.permission.READ_EXTERNAL_STORAGE) { false }
+        result.all { it.value }
     }
 }
 

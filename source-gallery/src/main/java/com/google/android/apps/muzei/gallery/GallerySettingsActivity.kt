@@ -16,7 +16,6 @@
 
 package com.google.android.apps.muzei.gallery
 
-import android.Manifest
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
@@ -24,7 +23,6 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.content.pm.PackageManager
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
@@ -51,7 +49,6 @@ import androidx.activity.result.launch
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.graphics.Insets
@@ -581,7 +578,7 @@ class GallerySettingsActivity : AppCompatActivity(),
         } else {
             // No chosen images, show the empty View
             binding.empty.visibility = View.VISIBLE
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            if (RequestStoragePermissions.checkSelfPermission(this)) {
                 // Permission is granted, we can show the random camera photos image
                 GalleryScanWorker.enqueueRescan(this)
                 binding.emptyAnimator.displayedChild = 0
@@ -590,8 +587,7 @@ class GallerySettingsActivity : AppCompatActivity(),
             } else {
                 // We have no images until they enable the permission
                 setResult(RESULT_CANCELED)
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                                Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                if (RequestStoragePermissions.shouldShowRequestPermissionRationale(this)) {
                     // We should show rationale on why they should enable the storage permission and
                     // random camera photos
                     binding.emptyAnimator.displayedChild = 1
