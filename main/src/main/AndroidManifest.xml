@@ -31,6 +31,8 @@
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="22"/>
 
+    <uses-permission-sdk-23 android:name="android.permission.POST_NOTIFICATIONS"/>
+
     <queries>
         <!-- Used to detect the installation of legacy-standalone -->
         <package android:name="com.google.android.apps.muzei.legacy"/>

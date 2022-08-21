@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei
 
+import android.Manifest
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.graphics.drawable.AnimatedVectorDrawable
@@ -24,6 +25,10 @@ import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
 import android.view.animation.OvershootInterpolator
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.launch
+import androidx.activity.result.registerForActivityResult
+import androidx.annotation.RequiresApi
 import androidx.core.animation.doOnEnd
 import androidx.core.content.edit
 import androidx.core.content.res.ResourcesCompat
@@ -42,6 +47,16 @@ class TutorialFragment : Fragment(R.layout.tutorial_fragment) {
     }
 
     private val runningAnimators = mutableListOf<AnimatorSet>()
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private val notificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+        Manifest.permission.POST_NOTIFICATIONS
+    ) {
+        // We don't actually care if the user disables notifications from Muzei;
+        // they can always re-enable them from the Notification Settings option
+        // on the Sources screen
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = TutorialFragmentBinding.bind(view).content
@@ -106,6 +121,9 @@ class TutorialFragment : Fragment(R.layout.tutorial_fragment) {
                         avd.start()
                     }
                     runningAnimators.remove(this)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        notificationPermissionLauncher.launch()
+                    }
                 }
                 start()
             })
