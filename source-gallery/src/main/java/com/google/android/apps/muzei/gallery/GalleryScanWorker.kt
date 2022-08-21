@@ -260,8 +260,7 @@ class GalleryScanWorker(
 
     @SuppressLint("Recycle")
     private suspend fun addMediaUri(providerClient: ProviderClient): Result {
-        if (ContextCompat.checkSelfPermission(applicationContext,
-                        Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        if (!RequestStoragePermissions.checkSelfPermission(applicationContext)) {
             Log.w(TAG, "Missing read external storage permission.")
             return Result.failure()
         }
