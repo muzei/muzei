@@ -82,7 +82,10 @@ class ProviderManager private constructor(private val context: Context)
                 }
 
         suspend fun select(context: Context, authority: String) {
-            MuzeiDatabase.getInstance(context).providerDao().select(authority)
+            val currentAuthority = getInstance(context).value?.authority
+            if (authority != currentAuthority) {
+                MuzeiDatabase.getInstance(context).providerDao().select(authority)
+            }
         }
 
         suspend fun requestLoad(context: Context, contentUri: Uri) {
