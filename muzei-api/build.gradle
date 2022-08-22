@@ -37,7 +37,6 @@ allprojects { ext."signing.password" = props["signing.password"] }
 allprojects { ext."signing.secretKeyRingFile" = props["signing.secretKeyRingFile"] }
 
 dependencies {
-    api "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     // Use the minimum value needed to avoid forcing apps to upgrade
     //noinspection GradleDependency,KtxExtensionAvailable
     api "androidx.core:core:1.1.0"

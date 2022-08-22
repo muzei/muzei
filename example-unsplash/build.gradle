@@ -18,7 +18,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     implementation "androidx.activity:activity-ktx:$activityVersion"
     implementation "androidx.core:core-ktx:$coreVersion"
     implementation "androidx.work:work-runtime-ktx:$workManagerVersion"
