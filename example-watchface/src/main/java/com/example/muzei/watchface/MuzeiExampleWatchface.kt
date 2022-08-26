@@ -75,11 +75,11 @@ class MuzeiExampleWatchface : WatchFaceService() {
             0,
             canvasComplicationFactory,
             listOf(ComplicationType.SHORT_TEXT),
-            DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_TIME_AND_DATE)
-        ).apply {
-            setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
-            setFixedComplicationDataSource(true)
-        }.build()
+            DefaultComplicationDataSourcePolicy(
+                SystemDataSources.DATA_SOURCE_TIME_AND_DATE,
+                ComplicationType.SHORT_TEXT
+            )
+        ).setFixedComplicationDataSource(true).build()
 
         return ComplicationSlotsManager(
             listOf(timeComplication),
@@ -120,12 +120,13 @@ class MuzeiExampleWatchface : WatchFaceService() {
         userStyleRepository: CurrentUserStyleRepository,
         watchState: WatchState,
         private val complicationSlotsManager: ComplicationSlotsManager
-    ) : Renderer.CanvasRenderer(
+    ) : Renderer.CanvasRenderer2<Renderer.SharedAssets>(
         surfaceHolder,
         userStyleRepository,
         watchState,
         CanvasType.HARDWARE,
-        32 // as a ~static watchface, we don't need 60fps
+        32, // as a ~static watchface, we don't need 60fps
+        false
     ) {
         private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
         private val backgroundPaint: Paint = Paint().apply {
@@ -143,7 +144,17 @@ class MuzeiExampleWatchface : WatchFaceService() {
             }
         }
 
-        override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
+        override suspend fun createSharedAssets(): SharedAssets = object : SharedAssets {
+            override fun onDestroy() {
+            }
+        }
+
+        override fun render(
+            canvas: Canvas,
+            bounds: Rect,
+            zonedDateTime: ZonedDateTime,
+            sharedAssets: SharedAssets
+        ) {
             loader.requestedSize = Size(canvas.width, canvas.height)
             val isInAmbientMode = renderParameters.drawMode == DrawMode.AMBIENT
             image?.takeUnless { isInAmbientMode }?.let { image ->
@@ -158,7 +169,8 @@ class MuzeiExampleWatchface : WatchFaceService() {
         override fun renderHighlightLayer(
             canvas: Canvas,
             bounds: Rect,
-            zonedDateTime: ZonedDateTime
+            zonedDateTime: ZonedDateTime,
+            sharedAssets: SharedAssets
         ) {
             complicationSlotsManager[0]?.renderHighlightLayer(canvas, zonedDateTime, renderParameters)
         }

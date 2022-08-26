@@ -53,8 +53,8 @@ buildscript {
         taskerVersion = '0.4.1'
         viewPager2Version = '1.1.0-beta01'
         wearableVersion = '2.8.1'
-        wearVersion = '1.1.0'
-        wearWatchFaceComplicationVersion = '1.0.1'
+        wearVersion = '1.2.0'
+        wearWatchFaceComplicationVersion = '1.1.1'
         workManagerVersion = '2.8.0-alpha03'
     }
 
