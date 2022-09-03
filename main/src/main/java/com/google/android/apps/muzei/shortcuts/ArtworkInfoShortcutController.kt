@@ -28,6 +28,8 @@ import com.google.android.apps.muzei.ArtworkInfoRedirectActivity
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.util.collectIn
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.R
 
 /**
@@ -49,9 +51,11 @@ class ArtworkInfoShortcutController(
         }
     }
 
-    private fun updateShortcut(artwork: Artwork?) {
+    private suspend fun updateShortcut(artwork: Artwork?) {
         val shortcutManager = context.getSystemService(ShortcutManager::class.java)
-        val dynamicShortcuts = shortcutManager?.dynamicShortcuts ?: return
+        val dynamicShortcuts = withContext(Dispatchers.Default) {
+            shortcutManager?.dynamicShortcuts
+        } ?: return
         var artworkInfoShortcutInfo: ShortcutInfo? = null
         for (shortcutInfo in dynamicShortcuts) {
             if (shortcutInfo.id == ARTWORK_INFO_SHORTCUT_ID) {
