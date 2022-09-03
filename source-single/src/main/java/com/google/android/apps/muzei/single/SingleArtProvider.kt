@@ -81,7 +81,7 @@ class SingleArtProvider : MuzeiArtProvider() {
         private suspend fun writeUriToFile(
                 context: Context, uri:
                 Uri, destFile: File
-        ): File? = withContext(Dispatchers.Default) {
+        ): File? = withContext(Dispatchers.IO) {
             try {
                 context.contentResolver.openInputStream(uri)?.use { input ->
                     FileOutputStream(destFile).use { out ->

@@ -59,7 +59,7 @@ sealed class ImageLoader {
                 uri: Uri,
                 targetWidth: Int = 0,
                 targetHeight: Int = targetWidth
-        ) = withContext(Dispatchers.Default) {
+        ) = withContext(Dispatchers.IO) {
             ContentUriImageLoader(contentResolver, uri)
                     .decode(targetWidth, targetHeight)
         }
