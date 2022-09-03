@@ -32,6 +32,7 @@ import com.google.android.gms.common.api.AvailabilityException
 import com.google.android.gms.wearable.Asset
 import com.google.android.gms.wearable.PutDataMapRequest
 import com.google.android.gms.wearable.Wearable
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.tasks.await
@@ -77,9 +78,11 @@ class WearableController(private val context: Context) : DefaultLifecycleObserve
                 context.contentResolver, artwork.contentUri,
                 320) ?: return@withContext
 
-        val byteStream = ByteArrayOutputStream()
-        image.compress(Bitmap.CompressFormat.PNG, 100, byteStream)
-        val asset = Asset.createFromBytes(byteStream.toByteArray())
+        val asset = withContext(Dispatchers.IO) {
+            val byteStream = ByteArrayOutputStream()
+            image.compress(Bitmap.CompressFormat.PNG, 100, byteStream)
+            Asset.createFromBytes(byteStream.toByteArray())
+        }
         val dataMapRequest = PutDataMapRequest.create("/artwork").apply {
             dataMap.putDataMap("artwork", artwork.toDataMap())
             dataMap.putAsset("image", asset)
