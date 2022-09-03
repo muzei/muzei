@@ -76,8 +76,9 @@ class ArtworkInfoShortcutController(
                     .setShortLabel(context.getString(R.string.action_artwork_info))
                     .setIntent(ArtworkInfoRedirectActivity.getIntent(context, "shortcut"))
                     .build()
-            shortcutManager.addDynamicShortcuts(
-                    listOf(shortcutInfo))
+            withContext(Dispatchers.Default) {
+                shortcutManager.addDynamicShortcuts(listOf(shortcutInfo))
+            }
         } else {
             if (artworkInfoShortcutInfo?.isEnabled == false) {
                 shortcutManager.disableShortcuts(
