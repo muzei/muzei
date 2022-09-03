@@ -129,7 +129,8 @@ class ActivateMuzeiReceiver : BroadcastReceiver() {
                             node.displayName))
                     .setContentIntent(TaskStackBuilder.create(context)
                             .addNextIntentWithParentStack(Intent(context, ChooseProviderActivity::class.java))
-                            .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT))
+                            .getPendingIntent(0,
+                                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
             Firebase.analytics.logEvent("activate_notif_installed", null)
             notificationManager.notify(ACTIVATE_NOTIFICATION_ID, builder.build())
         }

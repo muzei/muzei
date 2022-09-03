@@ -49,13 +49,14 @@ class GalleryArtProvider: MuzeiArtProvider() {
         }
     }
 
+    @SuppressLint("InlinedApi")
     override fun getArtworkInfo(artwork: Artwork): PendingIntent? {
         val context = context ?: return null
         val uri = artwork.webUri ?: artwork.persistentUri ?: return null
         return PendingIntent.getActivity(context, 0, Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(uri, "image/*")
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }, 0)
+        },  PendingIntent.FLAG_IMMUTABLE)
     }
 
     override fun isArtworkValid(artwork: Artwork): Boolean {

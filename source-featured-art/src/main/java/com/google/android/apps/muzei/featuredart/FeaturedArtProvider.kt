@@ -84,6 +84,7 @@ class FeaturedArtProvider : MuzeiArtProvider() {
                 createViewArchiveAction(context))
     }
 
+    @SuppressLint("InlinedApi")
     private fun createShareAction(context: Context, artwork: Artwork) : RemoteActionCompat {
         val title = context.getString(R.string.featuredart_action_share_artwork)
         val artist = artwork.byline
@@ -102,9 +103,10 @@ class FeaturedArtProvider : MuzeiArtProvider() {
                 title,
                 title,
                 PendingIntent.getActivity(context, artwork.id.toInt(), intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT))
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
     }
 
+    @SuppressLint("InlinedApi")
     private fun createViewArchiveAction(context: Context) : RemoteActionCompat {
         val title = context.getString(R.string.featuredart_source_action_view_archive)
         val cti = CustomTabsIntent.Builder()
@@ -122,7 +124,7 @@ class FeaturedArtProvider : MuzeiArtProvider() {
                 title,
                 title,
                 PendingIntent.getActivity(context, 0, intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT)).apply {
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)).apply {
             setShouldShowIcon(false)
         }
     }
