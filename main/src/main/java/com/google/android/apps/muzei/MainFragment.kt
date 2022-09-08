@@ -192,8 +192,8 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
                             View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
                 } else {
                     @Suppress("DEPRECATION")
-                    decorView.systemUiVisibility = decorView.systemUiVisibility xor
-                            View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                    decorView.systemUiVisibility = decorView.systemUiVisibility and
+                            View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv()
                 }
             }
         }
