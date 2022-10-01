@@ -28,6 +28,7 @@ dependencies {
 }
 
 android {
+    namespace 'com.google.android.apps.muzei.single'
     resourcePrefix 'single_'
 
     compileSdkVersion rootProject.ext.compileSdkVersion

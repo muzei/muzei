@@ -17,7 +17,7 @@
 apply plugin: 'com.android.library'
 
 android {
-
+    namespace 'com.google.android.apps.muzei.glwallpaper'
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     defaultConfig {

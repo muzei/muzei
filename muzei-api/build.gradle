@@ -43,6 +43,7 @@ dependencies {
     implementation "androidx.exifinterface:exifinterface:1.3.3"
 }
 android {
+    namespace 'com.google.android.apps.muzei.api'
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     defaultConfig {

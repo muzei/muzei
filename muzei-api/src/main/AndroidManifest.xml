@@ -14,8 +14,8 @@
   limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.google.android.apps.muzei.api" >
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <queries>
         <!-- Used to query the Muzei ContentProvider -->

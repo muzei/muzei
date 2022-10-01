@@ -28,6 +28,7 @@ dependencies {
 
 
 android {
+    namespace 'com.example.muzei.watchface'
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     defaultConfig {

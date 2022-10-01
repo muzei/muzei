@@ -16,8 +16,7 @@
 
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="net.nurik.roman.muzei.androidclientcommon">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Used to restart jobs listening for MuzeiArtProvider changes on boot -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>

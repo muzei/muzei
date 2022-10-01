@@ -29,6 +29,7 @@ dependencies {
 }
 
 android {
+    namespace 'com.example.muzei.unsplash'
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     defaultConfig {

@@ -18,6 +18,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
+    namespace 'com.google.android.apps.muzei.legacy'
     resourcePrefix 'legacy_'
 
     compileSdkVersion rootProject.ext.compileSdkVersion

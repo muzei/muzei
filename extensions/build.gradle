@@ -26,6 +26,7 @@ dependencies {
 }
 
 android {
+    namespace 'net.nurik.roman.muzei.extensions'
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     defaultConfig {

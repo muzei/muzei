@@ -24,6 +24,7 @@ apply plugin: 'androidx.navigation.safeargs.kotlin'
 project.archivesBaseName = "muzei"
 
 android {
+    namespace 'net.nurik.roman.muzei'
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     Properties versionProps = new Properties()
