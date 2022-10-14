@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
-
 package com.google.android.apps.muzei.provider
 
 import android.content.ContentProvider
@@ -186,7 +184,9 @@ class MuzeiProvider : ContentProvider() {
             finalSelection = DatabaseUtils.concatenateWhere(selection,
                     "${BaseColumns._ID} = ${uri.lastPathSegment}")
         }
-        qb.selection(finalSelection, selectionArgs)
+        // Convert from an Array<String>? to an Array<Any?>?
+        // https://issuetracker.google.com/issues/253531073
+        qb.selection(finalSelection, selectionArgs?.toList()?.toTypedArray())
         qb.orderBy(sortOrder ?: "date_added DESC")
         return ensureBackground {
             MuzeiDatabase.getInstance(context).query(qb.create())
@@ -220,7 +220,7 @@ class MuzeiProvider : ContentProvider() {
     }
 
     private fun computeColumns(projectionIn: Array<String>?, projectionMap: Map<String, String>): Array<String> {
-        if (projectionIn != null && projectionIn.isNotEmpty()) {
+        if (!projectionIn.isNullOrEmpty()) {
             return projectionIn.map { userColumn ->
                 val column = projectionMap[userColumn]
                 when {
