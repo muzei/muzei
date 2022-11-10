@@ -184,9 +184,7 @@ class MuzeiProvider : ContentProvider() {
             finalSelection = DatabaseUtils.concatenateWhere(selection,
                     "${BaseColumns._ID} = ${uri.lastPathSegment}")
         }
-        // Convert from an Array<String>? to an Array<Any?>?
-        // https://issuetracker.google.com/issues/253531073
-        qb.selection(finalSelection, selectionArgs?.toList()?.toTypedArray())
+        qb.selection(finalSelection, selectionArgs)
         qb.orderBy(sortOrder ?: "date_added DESC")
         return ensureBackground {
             MuzeiDatabase.getInstance(context).query(qb.create())
