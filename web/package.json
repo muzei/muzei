@@ -4,7 +4,7 @@
     "babel-plugin-es6-promise": "^1.1.1",
     "babel-preset-es2015": "^6.24.1",
     "babelify": "^8.0.0",
-    "browser-sync": "^2.26.7",
+    "browser-sync": "^2.27.10",
     "browserify": "^16.5.0",
     "connect-history-api-fallback": "^1.6.0",
     "del": "^5.1.0",
