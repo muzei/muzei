@@ -21,7 +21,7 @@
     "gulp-imagemin": "^6.1.1",
     "gulp-load-plugins": "^2.0.1",
     "gulp-minify-html": "^1.0.6",
-    "gulp-sass": "^4.0.2",
+    "gulp-sass": "^5.1.0",
     "gulp-sass-glob": "^1.1.0",
     "gulp-size": "^3.0.0",
     "gulp-swig": "^0.9.1",
