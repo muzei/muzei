@@ -42,13 +42,13 @@ import com.google.android.apps.muzei.api.internal.RemoteActionBroadcastReceiver
 import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
 import com.google.android.apps.muzei.legacy.LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
+import com.google.android.apps.muzei.util.getParcelableCompat
 import com.google.android.apps.muzei.util.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.androidclientcommon.R
 import org.json.JSONArray
 import org.json.JSONException
-import java.util.ArrayList
 
 private const val TAG = "Artwork"
 
@@ -60,7 +60,7 @@ suspend fun Artwork.openArtworkInfo(context: Context) {
             val version = versionResult?.getInt(KEY_VERSION) ?: DEFAULT_VERSION
             if (version >= GET_ARTWORK_INFO_MIN_VERSION) {
                 val result = client.call(METHOD_GET_ARTWORK_INFO, imageUri.toString())
-                val artworkInfo = result?.getParcelable<PendingIntent>(KEY_GET_ARTWORK_INFO)
+                val artworkInfo = result?.getParcelableCompat<PendingIntent>(KEY_GET_ARTWORK_INFO)
                 try {
                     artworkInfo?.run {
                         send()

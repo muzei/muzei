@@ -32,6 +32,7 @@ import android.support.wearable.complications.ProviderChooserIntent
 import android.support.wearable.complications.ProviderInfoRetriever
 import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
+import com.google.android.apps.muzei.util.getParcelableExtraCompat
 import net.nurik.roman.muzei.R
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
@@ -153,7 +154,7 @@ class ConfigActivity : PreferenceActivity() {
                 if (resultCode == Activity.RESULT_OK) {
                     updateComplicationPreference(
                             topPreference,
-                            data?.getParcelableExtra(ProviderChooserIntent.EXTRA_PROVIDER_INFO)
+                            data?.getParcelableExtraCompat(ProviderChooserIntent.EXTRA_PROVIDER_INFO)
                                     as ComplicationProviderInfo?)
 
                 }
@@ -162,7 +163,7 @@ class ConfigActivity : PreferenceActivity() {
                 if (resultCode == Activity.RESULT_OK) {
                     updateComplicationPreference(
                             bottomPreference,
-                            data?.getParcelableExtra(ProviderChooserIntent.EXTRA_PROVIDER_INFO)
+                            data?.getParcelableExtraCompat(ProviderChooserIntent.EXTRA_PROVIDER_INFO)
                                     as ComplicationProviderInfo?)
 
                 }

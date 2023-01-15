@@ -20,12 +20,14 @@ import android.content.Context
 import android.content.Intent
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.withCreated
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.openArtworkInfo
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.launch
 
 /**
  * Open the Artwork Info associated with the current artwork
@@ -42,8 +44,11 @@ class ArtworkInfoRedirectActivity : FragmentActivity() {
     }
 
     init {
-        lifecycleScope.launchWhenCreated {
-            val artwork = MuzeiDatabase.getInstance(this@ArtworkInfoRedirectActivity)
+        lifecycleScope.launch {
+            val database = withCreated {
+                MuzeiDatabase.getInstance(this@ArtworkInfoRedirectActivity)
+            }
+            val artwork = database
                     .artworkDao()
                     .getCurrentArtwork()
             artwork?.run {

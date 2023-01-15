@@ -41,7 +41,9 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
@@ -149,8 +151,10 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
     private var showLoadingSpinner: Job? = null
 
     init {
-        lifecycleScope.launchWhenResumed {
-            NewWallpaperNotificationReceiver.markNotificationRead(requireContext())
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                NewWallpaperNotificationReceiver.markNotificationRead(requireContext())
+            }
         }
     }
 

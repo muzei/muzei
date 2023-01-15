@@ -51,6 +51,7 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.util.collectIn
+import com.google.android.apps.muzei.util.getParcelableCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
@@ -125,7 +126,9 @@ class SourceSettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState != null) {
-            currentInitialSetupSource = savedInstanceState.getParcelable(CURRENT_INITIAL_SETUP_SOURCE)
+            currentInitialSetupSource = savedInstanceState.getParcelableCompat(
+                CURRENT_INITIAL_SETUP_SOURCE
+            )
         }
         val dialog = MaterialAlertDialogBuilder(this, R.style.Theme_Legacy_Dialog)
                 .setTitle(R.string.legacy_source_provider_name)
