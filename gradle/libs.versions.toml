@@ -70,18 +70,18 @@ tasker = '0.4.1'
 
 [libraries]
 
-agp = { group = "com.android.tools.build", name="gradle", version.ref = "agp" }
+agp = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
 
 # AndroidX
-navigation-safeargs = { group = "androidx.navigation", name="navigation-safe-args-gradle-plugin", version.ref = "navigation" }
+navigation-safeargs = { group = "androidx.navigation", name = "navigation-safe-args-gradle-plugin", version.ref = "navigation" }
 
 # Firebase
-firebase-googleservices = { group = "com.google.gms", name="google-services", version.ref = "googleServices" }
-firebase-crashlytics-gradle = { group = "com.google.firebase", name="firebase-crashlytics-gradle", version.ref = "firebaseCrashlyticsGradle" }
-firebase-perf-plugin = { group = "com.google.firebase", name="perf-plugin", version.ref = "firebasePerfPlugin" }
+firebase-googleservices = { group = "com.google.gms", name = "google-services", version.ref = "googleServices" }
+firebase-crashlytics-gradle = { group = "com.google.firebase", name = "firebase-crashlytics-gradle", version.ref = "firebaseCrashlyticsGradle" }
+firebase-perf-plugin = { group = "com.google.firebase", name = "perf-plugin", version.ref = "firebasePerfPlugin" }
 
 # Jetbrains
-jetbrains-dokka = { group = "org.jetbrains.dokka", name="dokka-gradle-plugin", version.ref ="dokka" }
-jetbrains-kotlin-plugin = { group = "org.jetbrains.kotlin", name="kotlin-gradle-plugin", version.ref ="kotlin" }
+jetbrains-dokka = { group = "org.jetbrains.dokka", name = "dokka-gradle-plugin", version.ref = "dokka" }
+jetbrains-kotlin-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 
 # Other
