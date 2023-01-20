@@ -60,18 +60,18 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.0'
-        classpath "com.google.gms:google-services:4.3.15"
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.2'
-        classpath "com.google.firebase:perf-plugin:1.4.2"
-        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$navigationVersion"
+        classpath libs.agp
+        classpath libs.firebase.googleservices
+        classpath libs.firebase.crashlytics.gradle
+        classpath libs.firebase.perf.plugin
+        classpath libs.jetbrains.dokka
+        classpath libs.jetbrains.kotlin.plugin
+        classpath libs.navigation.safeargs
     }
 }
 
 plugins {
-    id "com.google.devtools.ksp" version "$kspVersion"
+    id "com.google.devtools.ksp" version libs.versions.ksp
 }
 
 allprojects {
