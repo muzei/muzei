@@ -30,11 +30,11 @@ dependencies {
 
 android {
     namespace 'com.example.muzei.unsplash'
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    compileSdk libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {
         minSdkVersion 19
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        targetSdkVersion libs.versions.targetSdk.get()
 
         versionName '1.0.0'
         versionCode 1

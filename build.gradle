@@ -16,9 +16,6 @@
 
 buildscript {
     ext {
-        compileSdkVersion = 33
-        targetSdkVersion = 33
-
         activityVersion = '1.7.0-alpha03'
         appCompatVersion = '1.7.0-alpha01'
         archCoreVersion = '2.2.0-alpha01'

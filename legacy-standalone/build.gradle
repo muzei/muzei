@@ -25,7 +25,7 @@ android {
     namespace 'net.nurik.roman.muzei.legacy'
     resourcePrefix 'legacy_'
 
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    compileSdk libs.versions.compileSdk.get().toInteger()
 
     buildFeatures {
         viewBinding true

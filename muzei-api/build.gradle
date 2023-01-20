@@ -44,11 +44,11 @@ dependencies {
 }
 android {
     namespace 'com.google.android.apps.muzei.api'
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    compileSdk libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        targetSdkVersion libs.versions.targetSdk.get()
 
         def apiVersion = versionProps['apiCode'].toInteger()
         manifestPlaceholders = [api_version: apiVersion]

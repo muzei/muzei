@@ -44,7 +44,7 @@ dependencies {
 
 android {
     namespace 'com.google.android.apps.muzei.gallery'
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    compileSdk libs.versions.compileSdk.get().toInteger()
 
     buildFeatures {
         viewBinding true
@@ -52,7 +52,7 @@ android {
 
     defaultConfig {
         minSdkVersion 19
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        targetSdkVersion libs.versions.targetSdk.get()
 
         def galleryAuthorityValue = "com.google.android.apps.muzei.gallery"
         def galleryArtAuthorityValue = "com.google.android.apps.muzei.gallery.art"

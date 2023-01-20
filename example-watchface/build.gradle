@@ -29,11 +29,11 @@ dependencies {
 
 android {
     namespace 'com.example.muzei.watchface'
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    compileSdk libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {
         minSdkVersion 26
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        targetSdkVersion libs.versions.targetSdk.get()
 
         versionName '1.0.0'
         versionCode 1

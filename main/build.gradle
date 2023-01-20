@@ -25,7 +25,7 @@ project.archivesBaseName = "muzei"
 
 android {
     namespace 'net.nurik.roman.muzei'
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    compileSdk libs.versions.compileSdk.get().toInteger()
 
     Properties versionProps = new Properties()
     versionProps.load(new FileInputStream(file('../version.properties')))
@@ -37,7 +37,7 @@ android {
     defaultConfig {
         applicationId "net.nurik.roman.muzei"
         minSdkVersion 19
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        targetSdkVersion libs.versions.targetSdk.get()
 
         versionName versionProps['name']
         versionCode versionProps['code'].toInteger()

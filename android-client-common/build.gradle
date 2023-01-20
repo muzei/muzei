@@ -40,11 +40,11 @@ dependencies {
 
 android {
     namespace 'net.nurik.roman.muzei.androidclientcommon'
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    compileSdk libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {
         minSdkVersion 19
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        targetSdkVersion libs.versions.targetSdk.get()
 
         def documentsAuthorityValue = "com.google.android.apps.muzei.documents"
         manifestPlaceholders = [documentsAuthority: documentsAuthorityValue]

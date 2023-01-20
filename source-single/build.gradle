@@ -31,11 +31,11 @@ android {
     namespace 'com.google.android.apps.muzei.single'
     resourcePrefix 'single_'
 
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    compileSdk libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {
         minSdkVersion 19
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        targetSdkVersion libs.versions.targetSdk.get()
 
         def singleAuthorityValue = "com.google.android.apps.muzei.single"
         manifestPlaceholders = [singleAuthority: singleAuthorityValue]

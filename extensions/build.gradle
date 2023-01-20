@@ -27,11 +27,11 @@ dependencies {
 
 android {
     namespace 'net.nurik.roman.muzei.extensions'
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    compileSdk libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {
         minSdkVersion 19
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        targetSdkVersion libs.versions.targetSdk.get()
     }
 
     buildTypes {
