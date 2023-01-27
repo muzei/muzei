@@ -25,8 +25,8 @@ buildscript {
         classpath libs.googleservices
         classpath libs.firebase.crashlytics.gradle
         classpath libs.firebase.perf.plugin
-        classpath libs.jetbrains.dokka
-        classpath libs.jetbrains.kotlin.plugin
+        classpath libs.dokka
+        classpath libs.kotlin
         classpath libs.navigation.safeargs
     }
 }

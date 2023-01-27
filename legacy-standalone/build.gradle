@@ -88,8 +88,8 @@ android {
 }
 
 dependencies {
-    implementation libs.jetbrains.coroutines.core
-    implementation libs.jetbrains.coroutines.android
+    implementation libs.coroutines.core
+    implementation libs.coroutines.android
     implementation libs.multidex
     implementation libs.appCompat
     implementation libs.core

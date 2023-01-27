@@ -19,8 +19,8 @@ apply plugin: 'kotlin-android'
 apply plugin: 'com.google.devtools.ksp'
 
 dependencies {
-    api libs.jetbrains.coroutines.core
-    api libs.jetbrains.coroutines.android
+    api libs.coroutines.core
+    api libs.coroutines.android
     implementation project(':muzei-api')
     implementation project(':extensions')
     implementation project(':legacy-common')

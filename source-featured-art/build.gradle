@@ -18,8 +18,8 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 dependencies {
-    api libs.jetbrains.coroutines.core
-    api libs.jetbrains.coroutines.android
+    api libs.coroutines.core
+    api libs.coroutines.android
     implementation libs.core
     implementation libs.preference
     implementation libs.workManager
