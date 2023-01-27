@@ -20,11 +20,11 @@ apply plugin: 'kotlin-android'
 dependencies {
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
-    implementation "androidx.core:core-ktx:$coreVersion"
-    implementation "androidx.activity:activity-ktx:$activityVersion"
+    implementation libs.core
+    implementation libs.activity
     api project(':muzei-api')
     implementation project(':extensions')
-    api "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
+    api libs.lifecycle.livedata
 }
 
 android {

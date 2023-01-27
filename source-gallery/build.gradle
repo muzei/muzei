@@ -25,21 +25,21 @@ dependencies {
     implementation project(':extensions')
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
     implementation "io.coil-kt:coil:$coilVersion"
-    implementation "androidx.activity:activity-ktx:$activityVersion"
-    implementation "androidx.core:core-ktx:$coreVersion"
-    implementation "androidx.fragment:fragment-ktx:$fragmentVersion"
-    implementation "androidx.appcompat:appcompat:$appCompatVersion"
+    implementation libs.activity
+    implementation libs.core
+    implementation libs.fragment
+    implementation libs.appCompat
     implementation "com.google.android.material:material:$materialVersion"
-    implementation "androidx.recyclerview:recyclerview:$recyclerViewVersion"
-    implementation "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
-    implementation "androidx.exifinterface:exifinterface:$exifInterfaceVersion"
-    implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion"
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
-    implementation "androidx.room:room-ktx:$roomVersion"
-    implementation "androidx.room:room-paging:$roomVersion"
-    implementation "androidx.work:work-runtime-ktx:$workManagerVersion"
-    ksp "androidx.room:room-compiler:$roomVersion"
-    implementation "androidx.paging:paging-runtime-ktx:$pagingVersion"
+    implementation libs.recyclerView
+    implementation libs.constraintLayout
+    implementation libs.exifInterface
+    implementation libs.lifecycle.common
+    implementation libs.lifecycle.livedata
+    implementation libs.room.ktx
+    implementation libs.room.paging
+    implementation libs.workManager
+    ksp libs.room.compiler
+    implementation libs.paging
 }
 
 android {

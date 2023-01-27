@@ -101,27 +101,27 @@ dependencies {
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$coroutinesVersion"
-    implementation "androidx.multidex:multidex:$multidexVersion"
+    implementation libs.multidex
     implementation "io.coil-kt:coil:$coilVersion"
     implementation "com.google.android.gms:play-services-wearable:$playServicesWearableVersion"
     implementation "com.joaomgcd:taskerpluginlibrary:$taskerVersion"
     implementation "com.davemorrissey.labs:subsampling-scale-image-view-androidx:$subsamplingVersion"
-    implementation "androidx.core:core-ktx:$coreVersion"
-    implementation "androidx.fragment:fragment-ktx:$fragmentVersion"
-    implementation "androidx.appcompat:appcompat:$appCompatVersion"
-    implementation "androidx.drawerlayout:drawerlayout:$drawerLayoutVersion"
-    implementation "androidx.recyclerview:recyclerview:$recyclerViewVersion"
-    implementation "androidx.swiperefreshlayout:swiperefreshlayout:$swipeRefreshLayoutVersion"
-    implementation "androidx.viewpager2:viewpager2:$viewPager2Version"
+    implementation libs.core
+    implementation libs.fragment
+    implementation libs.appCompat
+    implementation libs.drawerLayout
+    implementation libs.recyclerView
+    implementation libs.swipeRefreshLayout
+    implementation libs.viewPager2
     implementation "com.google.android.material:material:$materialVersion"
-    implementation "androidx.browser:browser:$browserVersion"
-    implementation "androidx.exifinterface:exifinterface:$exifInterfaceVersion"
-    implementation "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
-    implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion"
-    implementation "androidx.preference:preference-ktx:$preferenceVersion"
-    implementation "androidx.navigation:navigation-fragment-ktx:$navigationVersion"
-    implementation "androidx.navigation:navigation-ui-ktx:$navigationVersion"
+    implementation libs.browser
+    implementation libs.exifInterface
+    implementation libs.constraintLayout
+    implementation libs.lifecycle.livedata
+    implementation libs.lifecycle.common
+    implementation libs.preference
+    implementation libs.navigation.fragment
+    implementation libs.navigation.ui
 
     implementation project(':muzei-api')
     implementation project(':extensions')

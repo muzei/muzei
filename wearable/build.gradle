@@ -93,14 +93,14 @@ dependencies {
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$coroutinesVersion"
     implementation "io.coil-kt:coil:$coilVersion"
-    implementation "androidx.work:work-runtime-ktx:$workManagerVersion"
-    implementation "androidx.core:core-ktx:$coreVersion"
-    implementation "androidx.lifecycle:lifecycle-livedata-core-ktx:$lifecycleVersion"
-    implementation "androidx.fragment:fragment-ktx:$fragmentVersion"
-    implementation "androidx.exifinterface:exifinterface:$exifInterfaceVersion"
-    implementation "androidx.preference:preference-ktx:$preferenceVersion"
-    implementation "androidx.recyclerview:recyclerview:$recyclerViewVersion"
-    implementation "androidx.wear:wear:$wearVersion"
+    implementation libs.workManager
+    implementation libs.core
+    implementation libs.lifecycle.livedata
+    implementation libs.fragment
+    implementation libs.exifInterface
+    implementation libs.preference
+    implementation libs.recyclerView
+    implementation libs.wear
     compileOnly "com.google.android.wearable:wearable:$wearableVersion"
     implementation "com.google.android.support:wearable:$wearableVersion"
 

@@ -90,15 +90,15 @@ android {
 dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
-    implementation "androidx.multidex:multidex:$multidexVersion"
-    implementation "androidx.appcompat:appcompat:$appCompatVersion"
-    implementation "androidx.core:core-ktx:$coreVersion"
-    implementation "androidx.fragment:fragment-ktx:$fragmentVersion"
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
-    implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion"
-    implementation "androidx.room:room-ktx:$roomVersion"
-    ksp "androidx.room:room-compiler:$roomVersion"
+    implementation libs.multidex
+    implementation libs.appCompat
+    implementation libs.core
+    implementation libs.fragment
+    implementation libs.lifecycle.livedata
+    implementation libs.lifecycle.common
+    implementation libs.lifecycle.runtime
+    implementation libs.room.ktx
+    ksp libs.room.compiler
     implementation "com.google.android.material:material:$materialVersion"
     implementation "com.google.firebase:firebase-analytics-ktx:$firebaseAnalyticsVersion"
     api "com.google.firebase:firebase-crashlytics-ktx:$firebaseCrashlyticsVersion"

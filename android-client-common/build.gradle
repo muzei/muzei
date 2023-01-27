@@ -24,14 +24,14 @@ dependencies {
     implementation project(':muzei-api')
     implementation project(':extensions')
     implementation project(':legacy-common')
-    implementation "androidx.core:core-ktx:$coreVersion"
-    implementation "androidx.exifinterface:exifinterface:$exifInterfaceVersion"
-    implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion"
-    api "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
-    implementation "androidx.preference:preference-ktx:$preferenceVersion"
-    implementation "androidx.work:work-runtime-ktx:$workManagerVersion"
-    api "androidx.room:room-ktx:$roomVersion"
-    ksp "androidx.room:room-compiler:$roomVersion"
+    implementation libs.core
+    implementation libs.exifInterface
+    implementation libs.lifecycle.common
+    api libs.lifecycle.livedata
+    implementation libs.preference
+    implementation libs.workManager
+    api libs.room.ktx
+    ksp libs.room.compiler
     api "com.google.firebase:firebase-analytics-ktx:$firebaseAnalyticsVersion"
     api "com.google.firebase:firebase-crashlytics-ktx:$firebaseCrashlyticsVersion"
     api "com.google.firebase:firebase-perf-ktx:$firebasePerfVersion"
