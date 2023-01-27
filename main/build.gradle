@@ -98,14 +98,14 @@ android {
 }
 
 dependencies {
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$coroutinesVersion"
+    api libs.jetbrains.coroutines.core
+    api libs.jetbrains.coroutines.android
+    api libs.jetbrains.coroutines.playservices
     implementation libs.multidex
-    implementation "io.coil-kt:coil:$coilVersion"
-    implementation "com.google.android.gms:play-services-wearable:$playServicesWearableVersion"
-    implementation "com.joaomgcd:taskerpluginlibrary:$taskerVersion"
-    implementation "com.davemorrissey.labs:subsampling-scale-image-view-androidx:$subsamplingVersion"
+    implementation libs.coil
+    implementation libs.wearable.playservices
+    implementation libs.tasker
+    implementation libs.subsampling
     implementation libs.core
     implementation libs.fragment
     implementation libs.appCompat
@@ -113,7 +113,7 @@ dependencies {
     implementation libs.recyclerView
     implementation libs.swipeRefreshLayout
     implementation libs.viewPager2
-    implementation "com.google.android.material:material:$materialVersion"
+    implementation libs.material
     implementation libs.browser
     implementation libs.exifInterface
     implementation libs.constraintLayout

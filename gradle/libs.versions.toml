@@ -48,6 +48,8 @@ firebaseCrashlytics = '18.3.3'
 firebaseCrashlyticsGradle = '2.9.2'
 firebasePerf = '20.3.1'
 firebasePerfPlugin = '1.4.2'
+
+# Google Play services
 googleServices = '4.3.15'
 playServicesWearable = '18.0.0'
 wearable = '2.8.1'
@@ -105,12 +107,31 @@ watchface-complications = { group = "androidx.wear.watchface", name = "watchface
 workManager = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workManager" }
 
 # Firebase
-firebase-googleservices = { group = "com.google.gms", name = "google-services", version.ref = "googleServices" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics-ktx", version.ref = "firebaseAnalytics" }
+firebase-crashlytics-ktx = { group = "com.google.firebase", name = "firebase-crashlytics-ktx", version.ref = "firebaseCrashlytics" }
 firebase-crashlytics-gradle = { group = "com.google.firebase", name = "firebase-crashlytics-gradle", version.ref = "firebaseCrashlyticsGradle" }
+firebase-perf-ktx = { group = "com.google.firebase", name = "firebase-perf-ktx", version.ref = "firebasePerf" }
 firebase-perf-plugin = { group = "com.google.firebase", name = "perf-plugin", version.ref = "firebasePerfPlugin" }
 
+# Google Play services
+googleservices = { group = "com.google.gms", name = "google-services", version.ref = "googleServices" }
+wearable-playservices = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "playServicesWearable" }
+wearable-compile = { group = "com.google.android.wearable", name = "wearable", version.ref = "wearable" }
+wearable-support = { group = "com.google.android.support", name = "wearable", version.ref = "wearable" }
+
 # Jetbrains
+jetbrains-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
+jetbrains-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
+jetbrains-coroutines-playservices = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "coroutines" }
 jetbrains-dokka = { group = "org.jetbrains.dokka", name = "dokka-gradle-plugin", version.ref = "dokka" }
 jetbrains-kotlin-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 
 # Other
+coil = { group = "io.coil-kt", name = "coil", version.ref = "coil" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+okhttp-core = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+okhttp-coroutines = { group = "ru.gildor.coroutines", name = "kotlin-coroutines-okhttp", version.ref = "okhttpCoroutines" }
+retrofit-core = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-moshi = { group = "com.squareup.retrofit2", name = "converter-moshi", version.ref = "retrofit" }
+subsampling = { group = "com.davemorrissey.labs", name = "subsampling-scale-image-view-androidx", version.ref = "subsampling" }
+tasker = { group = "com.joaomgcd", name = "taskerpluginlibrary", version.ref = "tasker" }

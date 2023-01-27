@@ -21,9 +21,9 @@ dependencies {
     implementation libs.activity
     implementation libs.core
     implementation libs.workManager
-    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
-    implementation "com.squareup.retrofit2:converter-moshi:$retrofitVersion"
-    implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
+    implementation libs.retrofit.core
+    implementation libs.retrofit.moshi
+    implementation libs.okhttp.core
     //implementation "com.google.android.apps.muzei:muzei-api:+"
     implementation project(':muzei-api')
 }

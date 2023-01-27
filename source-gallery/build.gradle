@@ -19,17 +19,17 @@ apply plugin: 'kotlin-android'
 apply plugin: 'com.google.devtools.ksp'
 
 dependencies {
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
+    api libs.jetbrains.coroutines.core
+    api libs.jetbrains.coroutines.android
     implementation project(':muzei-api')
     implementation project(':extensions')
-    implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
-    implementation "io.coil-kt:coil:$coilVersion"
+    implementation libs.okhttp.core
+    implementation libs.coil
     implementation libs.activity
     implementation libs.core
     implementation libs.fragment
     implementation libs.appCompat
-    implementation "com.google.android.material:material:$materialVersion"
+    implementation libs.material
     implementation libs.recyclerView
     implementation libs.constraintLayout
     implementation libs.exifInterface

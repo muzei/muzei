@@ -89,10 +89,10 @@ android {
 }
 
 dependencies {
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$coroutinesVersion"
-    implementation "io.coil-kt:coil:$coilVersion"
+    api libs.jetbrains.coroutines.core
+    api libs.jetbrains.coroutines.android
+    api libs.jetbrains.coroutines.playservices
+    implementation libs.coil
     implementation libs.workManager
     implementation libs.core
     implementation libs.lifecycle.livedata
@@ -101,10 +101,10 @@ dependencies {
     implementation libs.preference
     implementation libs.recyclerView
     implementation libs.wear
-    compileOnly "com.google.android.wearable:wearable:$wearableVersion"
-    implementation "com.google.android.support:wearable:$wearableVersion"
+    compileOnly libs.wearable.compile
+    implementation libs.wearable.support
 
-    implementation "com.google.android.gms:play-services-wearable:$playServicesWearableVersion"
+    implementation libs.wearable.playservices
 
     implementation project(':muzei-api')
     implementation project(':extensions')

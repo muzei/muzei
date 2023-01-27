@@ -88,8 +88,8 @@ android {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
+    implementation libs.jetbrains.coroutines.core
+    implementation libs.jetbrains.coroutines.android
     implementation libs.multidex
     implementation libs.appCompat
     implementation libs.core
@@ -99,11 +99,11 @@ dependencies {
     implementation libs.lifecycle.runtime
     implementation libs.room.ktx
     ksp libs.room.compiler
-    implementation "com.google.android.material:material:$materialVersion"
-    implementation "com.google.firebase:firebase-analytics-ktx:$firebaseAnalyticsVersion"
-    api "com.google.firebase:firebase-crashlytics-ktx:$firebaseCrashlyticsVersion"
-    implementation "com.google.firebase:firebase-perf-ktx:$firebasePerfVersion"
-    implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
+    implementation libs.material
+    implementation libs.firebase.analytics
+    api libs.firebase.crashlytics.ktx
+    implementation libs.firebase.perf.ktx
+    implementation libs.okhttp.core
     implementation project(':muzei-api')
     implementation project(':extensions')
     implementation project(':legacy-common')
