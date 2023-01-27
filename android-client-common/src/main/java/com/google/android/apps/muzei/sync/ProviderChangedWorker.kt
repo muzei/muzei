@@ -140,8 +140,8 @@ class ProviderChangedWorker(
                         .currentProviderLiveData
                 providerLiveData.observeForever(
                         object : Observer<Provider?> {
-                            override fun onChanged(provider: Provider?) {
-                                if (provider == null) {
+                            override fun onChanged(value: Provider?) {
+                                if (value == null) {
                                     // Keep listening until there's an active Provider
                                     return
                                 }
@@ -149,7 +149,7 @@ class ProviderChangedWorker(
                                 // Make sure we're still not actively listening
                                 if (!providerManager.hasActiveObservers()) {
                                     val contentUri = ProviderContract.getContentUri(
-                                            provider.authority)
+                                        value.authority)
                                     scheduleObserver(context, contentUri)
                                 }
                             }

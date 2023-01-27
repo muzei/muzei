@@ -254,10 +254,10 @@ class ProviderManager private constructor(private val context: Context)
         }
     }
 
-    override fun onChanged(newProvider: Provider?) {
-        val existingProvider = value
-        value = newProvider
-        runIfValid(newProvider) { provider ->
+    override fun onChanged(value: Provider?) {
+        val existingProvider = this.value
+        this.value = value
+        runIfValid(value) { provider ->
             if (existingProvider == null || provider.authority != existingProvider.authority) {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "Provider changed to ${provider.authority}")
