@@ -16,58 +16,58 @@
 
 [versions]
 
-compileSdk = '33'
-targetSdk = '33'
-agp = '7.4.0'
+compileSdk = "33"
+targetSdk = "33"
+agp = "7.4.0"
 
 # AndroidX
 activity = "1.7.0-alpha04"
-appCompat = '1.7.0-alpha01'
-browser = '1.4.0'
-constraintLayout = '2.1.4'
+appCompat = "1.7.0-alpha01"
+browser = "1.4.0"
+constraintLayout = "2.1.4"
 core = "1.10.0-alpha02"
-drawerLayout = '1.2.0-alpha01'
-exifInterface = '1.3.5'
-fragment = '1.6.0-alpha04'
+drawerLayout = "1.2.0-alpha01"
+exifInterface = "1.3.5"
+fragment = "1.6.0-alpha04"
 lifecycle = "2.6.0-alpha05"
-multidex = '2.0.1'
-navigation = '2.6.0-alpha04'
-paging = '3.2.0-alpha03'
-preference = '1.2.0'
-recyclerView = '1.3.0-rc01'
-room = '2.5.0'
-swipeRefreshLayout = '1.1.0'
-viewPager2 = '1.1.0-beta01'
-watchface = '1.1.1'
-wear = '1.2.0'
-workManager = '2.8.0-rc01'
+multidex = "2.0.1"
+navigation = "2.6.0-alpha04"
+paging = "3.2.0-alpha03"
+preference = "1.2.0"
+recyclerView = "1.3.0-rc01"
+room = "2.5.0"
+swipeRefreshLayout = "1.1.0"
+viewPager2 = "1.1.0-beta01"
+watchface = "1.1.1"
+wear = "1.2.0"
+workManager = "2.8.0-rc01"
 
 # Firebase
-firebaseAnalytics = '21.2.0'
-firebaseCrashlytics = '18.3.3'
-firebaseCrashlyticsGradle = '2.9.2'
-firebasePerf = '20.3.1'
-firebasePerfPlugin = '1.4.2'
+firebaseAnalytics = "21.2.0"
+firebaseCrashlytics = "18.3.3"
+firebaseCrashlyticsGradle = "2.9.2"
+firebasePerf = "20.3.1"
+firebasePerfPlugin = "1.4.2"
 
 # Google Play services
-googleServices = '4.3.15'
-playServicesWearable = '18.0.0'
-wearable = '2.8.1'
+googleServices = "4.3.15"
+playServicesWearable = "18.0.0"
+wearable = "2.8.1"
 
 # Jetbrains
-coroutines = '1.6.4'
-dokka = '1.6.0'
-kotlin = '1.8.0'
-ksp = '1.8.0-1.0.9'
+coroutines = "1.6.4"
+dokka = "1.6.0"
+kotlin = "1.8.0"
+ksp = "1.8.0-1.0.9"
 
 # Other
-coil = '1.3.2'
-material = '1.8.0-rc01'
-okhttp = '3.12.12'
-okhttpCoroutines = '1.0'
-retrofit = '2.9.0'
-subsampling = '3.10.0'
-tasker = '0.4.1'
+coil = "1.3.2"
+material = "1.8.0-rc01"
+okhttp = "3.12.12"
+okhttpCoroutines = "1.0"
+retrofit = "2.9.0"
+subsampling = "3.10.0"
+tasker = "0.4.1"
 
 [libraries]
 
