@@ -62,12 +62,14 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.rbgrn.android.glwallpaperservice.GLWallpaperService
 
 data class WallpaperSize(val width: Int, val height: Int)
@@ -145,7 +147,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
 
         private lateinit var renderer: MuzeiBlurRenderer
         private lateinit var renderController: RenderController
-        private var currentArtwork: Bitmap? = null
+        private var currentArtworkColors: WallpaperColors? = null
 
         private var validDoubleTap: Boolean = false
         private var lastThreeFingerTap = 0L
@@ -239,17 +241,18 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
 
         @RequiresApi(Build.VERSION_CODES.O_MR1)
         private suspend fun updateCurrentArtwork(artwork: Artwork) {
-            currentArtwork = ImageLoader.decode(
+            val image = ImageLoader.decode(
                     contentResolver, artwork.contentUri,
                     MAX_ARTWORK_SIZE / 2) ?: return
+            currentArtworkColors = withContext(Dispatchers.IO) {
+                WallpaperColors.fromBitmap(image)
+            }
             notifyColorsChanged()
         }
 
         @RequiresApi(Build.VERSION_CODES.O_MR1)
         override fun onComputeColors(): WallpaperColors? =
-                currentArtwork?.run {
-                    WallpaperColors.fromBitmap(this)
-                } ?: super.onComputeColors()
+            currentArtworkColors ?: super.onComputeColors()
 
         override fun onSurfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
             super.onSurfaceChanged(holder, format, width, height)
