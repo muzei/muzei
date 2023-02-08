@@ -46,6 +46,8 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.R
 
 class NewWallpaperNotificationReceiver : BroadcastReceiver() {
@@ -131,8 +133,8 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
             val largeIconHeight = context.resources
                     .getDimensionPixelSize(android.R.dimen.notification_large_icon_height)
             val imageLoader = ContentUriImageLoader(contentResolver, artwork.contentUri)
-            val largeIcon = imageLoader.decode(largeIconHeight) ?: return
-            val bigPicture = imageLoader.decode(400) ?: return
+            val largeIcon = withContext(Dispatchers.IO) { imageLoader.decode(largeIconHeight) } ?: return
+            val bigPicture = withContext(Dispatchers.IO) { imageLoader.decode(400) } ?: return
 
             createNotificationChannel(context)
 
