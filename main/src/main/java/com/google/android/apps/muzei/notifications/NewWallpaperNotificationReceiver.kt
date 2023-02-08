@@ -145,6 +145,9 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                         "missing notification icon", e)
                 return
             }
+            val launchIntent = withContext(Dispatchers.IO) {
+                context.packageManager.getLaunchIntentForPackage(context.packageName)
+            }
             val artworkTitle = artwork.title
             val title = artworkTitle?.takeUnless { it.isEmpty() }
                     ?: context.getString(R.string.app_name)
@@ -156,8 +159,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                     .setContentTitle(title)
                     .setContentText(context.getString(R.string.notification_new_wallpaper))
                     .setLargeIcon(largeIcon)
-                    .setContentIntent(PendingIntent.getActivity(context, 0,
-                            context.packageManager.getLaunchIntentForPackage(context.packageName),
+                    .setContentIntent(PendingIntent.getActivity(context, 0, launchIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
                     .setDeleteIntent(PendingIntent.getBroadcast(context, 0,
                             Intent(context, NewWallpaperNotificationReceiver::class.java)
@@ -229,8 +231,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                     .setAutoCancel(true)
                     .setContentTitle(context.getString(R.string.app_name))
                     .setContentText(context.getString(R.string.notification_new_wallpaper))
-                    .setContentIntent(PendingIntent.getActivity(context, 0,
-                            context.packageManager.getLaunchIntentForPackage(context.packageName),
+                    .setContentIntent(PendingIntent.getActivity(context, 0, launchIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
                     .setDeleteIntent(PendingIntent.getBroadcast(context, 0,
                             Intent(context, NewWallpaperNotificationReceiver::class.java)
