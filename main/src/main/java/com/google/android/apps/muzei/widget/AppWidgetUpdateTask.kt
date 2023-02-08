@@ -38,8 +38,10 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.room.contentUri
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.R
 import kotlin.math.max
 import kotlin.math.min
@@ -81,10 +83,12 @@ suspend fun showWidgetPreview(context: Context) {
 suspend fun updateAppWidget(context: Context) = coroutineScope {
     val widget = ComponentName(context, MuzeiAppWidgetProvider::class.java)
     val appWidgetManager = AppWidgetManager.getInstance(context) ?: return@coroutineScope
-    val appWidgetIds = try {
-        appWidgetManager.getAppWidgetIds(widget)
-    } catch (e: Exception) {
-        intArrayOf()
+    val appWidgetIds = withContext(Dispatchers.IO) {
+        try {
+            appWidgetManager.getAppWidgetIds(widget)
+        } catch (e: Exception) {
+            intArrayOf()
+        }
     }
     if (appWidgetIds.isEmpty()) {
         // No app widgets, nothing to do
