@@ -72,9 +72,7 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
         }
     }
 
-    override fun getLifecycle(): Lifecycle {
-        return lifecycleRegistry
-    }
+    override val lifecycle: Lifecycle = lifecycleRegistry
 
     override fun onTileAdded() {
         Firebase.analytics.logEvent("tile_next_artwork_added", null)

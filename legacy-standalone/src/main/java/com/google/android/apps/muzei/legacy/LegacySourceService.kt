@@ -264,10 +264,10 @@ class LegacySourceService : Service(), LifecycleOwner {
     }
 
     init {
-        lifecycle.addObserver(NetworkChangeObserver(this))
+        lifecycleRegistry.addObserver(NetworkChangeObserver(this))
     }
 
-    override fun getLifecycle() = lifecycleRegistry
+    override val lifecycle: Lifecycle = lifecycleRegistry
 
     override fun onBind(intent: Intent): IBinder? {
         return messenger.binder

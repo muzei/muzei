@@ -126,9 +126,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         }
     }
 
-    override fun getLifecycle(): Lifecycle {
-        return wallpaperLifecycle
-    }
+    override val lifecycle: Lifecycle = wallpaperLifecycle
 
     override fun onDestroy() {
         if (unlockReceiver != null) {
@@ -227,9 +225,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             }
         }
 
-        override fun getLifecycle(): Lifecycle {
-            return engineLifecycle
-        }
+        override val lifecycle: Lifecycle = engineLifecycle
 
         override fun onStart(owner: LifecycleOwner) {
             // The MuzeiWallpaperService only gets to ON_START when the user is unlocked

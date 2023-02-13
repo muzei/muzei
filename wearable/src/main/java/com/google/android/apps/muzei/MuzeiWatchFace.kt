@@ -104,9 +104,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
 
     private val lifecycleRegistry = LifecycleRegistry(this)
 
-    override fun getLifecycle(): Lifecycle {
-        return lifecycleRegistry
-    }
+    override val lifecycle: Lifecycle = lifecycleRegistry
 
     override fun onCreate() {
         super.onCreate()
