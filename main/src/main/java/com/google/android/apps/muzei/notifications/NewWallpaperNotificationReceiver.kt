@@ -22,6 +22,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
+import android.graphics.Bitmap
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
@@ -166,7 +167,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                                     .setAction(ACTION_MARK_NOTIFICATION_READ),
                         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
             val style = NotificationCompat.BigPictureStyle()
-                    .bigLargeIcon(null)
+                    .bigLargeIcon(null as Bitmap?)
                     .setBigContentTitle(title)
                     .setSummaryText(artwork.byline)
                     .bigPicture(bigPicture)
