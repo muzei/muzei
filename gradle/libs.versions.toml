@@ -75,6 +75,7 @@ tasker = "0.4.1"
 agp = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
 
 # Use the minimum value needed for muzei-api to avoid forcing apps to upgrade
+#noinspection GradleDependency
 api-core = { group = "androidx.core", name = "core", version.prefer = "1.1.0" }
 api-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifInterface" }
 
