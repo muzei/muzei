@@ -44,8 +44,8 @@ workManager = "2.8.0"
 
 # Firebase
 firebaseAnalytics = "21.2.0"
-firebaseCrashlytics = "18.3.3"
-firebaseCrashlyticsGradle = "2.9.2"
+firebaseCrashlytics = "18.3.5"
+firebaseCrashlyticsGradle = "2.9.4"
 firebasePerf = "20.3.1"
 firebasePerfPlugin = "1.4.2"
 
