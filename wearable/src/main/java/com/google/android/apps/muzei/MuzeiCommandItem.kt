@@ -58,7 +58,8 @@ data class ArtworkCommand(
 }
 
 class MuzeiCommandViewModel(application: Application) : AndroidViewModel(application) {
-    val commands = MuzeiDatabase.getInstance(application).artworkDao().currentArtwork.map { artwork ->
+    val commands = MuzeiDatabase.getInstance(application).artworkDao().getCurrentArtworkFlow()
+      .map { artwork ->
         artwork?.getCommands(application)?.sortedByDescending { command ->
             command.shouldShowIcon()
         }?.map { command ->

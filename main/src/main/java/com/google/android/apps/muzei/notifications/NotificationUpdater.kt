@@ -31,7 +31,7 @@ class NotificationUpdater(private val context: Context) : DefaultLifecycleObserv
     override fun onCreate(owner: LifecycleOwner) {
         // Update notifications whenever the artwork changes
         val database = MuzeiDatabase.getInstance(context)
-        database.artworkDao().currentArtwork.filterNotNull().collectIn(owner) {
+        database.artworkDao().getCurrentArtworkFlow().filterNotNull().collectIn(owner) {
             NewWallpaperNotificationReceiver
                     .maybeShowNewArtworkNotification(context)
         }

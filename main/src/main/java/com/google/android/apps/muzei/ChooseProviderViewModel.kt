@@ -76,7 +76,7 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
 
     private val database = MuzeiDatabase.getInstance(application)
 
-    val currentProvider = database.providerDao().currentProvider
+    val currentProvider = database.providerDao().getCurrentProviderFlow()
             .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), 1)
 
     val unsupportedSources = LegacySourceManager.getInstance(application).unsupportedSources
@@ -116,14 +116,16 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
     /**
      * The authority of the current MuzeiArtProvider
      */
-    private val currentProviderAuthority = database.providerDao().currentProvider.map { provider ->
+    private val currentProviderAuthority = database.providerDao().getCurrentProviderFlow()
+      .map { provider ->
         provider?.authority
     }
 
     /**
      * An authority to current artwork URI map
      */
-    private val currentArtworkByProvider = database.artworkDao().currentArtworkByProvider.map { artworkForProvider ->
+    private val currentArtworkByProvider = database.artworkDao().getCurrentArtworkByProvider()
+      .map { artworkForProvider ->
         val artworkMap = mutableMapOf<String, Artwork>()
         artworkForProvider.forEach {  artwork ->
             artworkMap[artwork.providerAuthority] = artwork

@@ -42,7 +42,7 @@ import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.MuzeiArtworkItemBinding
 
 class MuzeiArtworkViewModel(application: Application) : AndroidViewModel(application) {
-    val currentArtwork = MuzeiDatabase.getInstance(application).artworkDao().currentArtwork
+    val currentArtwork = MuzeiDatabase.getInstance(application).artworkDao().getCurrentArtworkFlow()
             .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), 1)
 }
 

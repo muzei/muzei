@@ -172,7 +172,7 @@ class MuzeiProvider : ContentProvider() {
         qb.columns(computeColumns(projection, allArtworkColumnProjectionMap))
         val provider = ensureBackground {
             MuzeiDatabase.getInstance(context).providerDao()
-                    .currentProviderBlocking
+                    .getCurrentProviderBlocking()
         }
         var finalSelection = provider?.run {
             DatabaseUtils.concatenateWhere(selection,
@@ -198,7 +198,7 @@ class MuzeiProvider : ContentProvider() {
         val c = MatrixCursor(projection)
         val currentProvider = ensureBackground {
             MuzeiDatabase.getInstance(context).providerDao()
-                    .currentProviderBlocking
+                    .getCurrentProviderBlocking()
         }
         currentProvider?.let { provider ->
             c.newRow().apply {
@@ -252,7 +252,7 @@ class MuzeiProvider : ContentProvider() {
         val artworkDao = MuzeiDatabase.getInstance(context).artworkDao()
         val artwork = ensureBackground {
             when (uriMatcher.match(uri)) {
-                ARTWORK -> artworkDao.currentArtworkBlocking
+                ARTWORK -> artworkDao.getCurrentArtworkBlocking()
                 else -> artworkDao.getArtworkByIdBlocking(ContentUris.parseId(uri))
             }
         } ?: throw FileNotFoundException("Could not get artwork file for $uri")

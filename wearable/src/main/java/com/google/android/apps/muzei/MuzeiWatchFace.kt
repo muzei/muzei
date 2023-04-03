@@ -247,7 +247,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
             super.onCreate(holder)
             Firebase.analytics.logEvent("watchface_created", null)
             val database = MuzeiDatabase.getInstance(this@MuzeiWatchFace)
-            database.artworkDao().currentArtwork.collectIn(this@MuzeiWatchFace) { artwork ->
+            database.artworkDao().getCurrentArtworkFlow().collectIn(this@MuzeiWatchFace) { artwork ->
                 loadImage(artwork)
             }
 

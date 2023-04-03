@@ -39,7 +39,7 @@ class RealRenderController(
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
         val database = MuzeiDatabase.getInstance(context)
-        database.artworkDao().currentArtwork.filterNotNull().collectIn(owner) { artwork ->
+        database.artworkDao().getCurrentArtworkFlow().filterNotNull().collectIn(owner) { artwork ->
             currentArtworkUri = artwork.contentUri
             reloadCurrentArtwork()
         }

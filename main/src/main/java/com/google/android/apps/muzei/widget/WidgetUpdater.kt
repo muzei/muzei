@@ -33,10 +33,10 @@ class WidgetUpdater(private val context: Context) : DefaultLifecycleObserver {
     override fun onCreate(owner: LifecycleOwner) {
         // Set up a ContentObserver to update widgets whenever the artwork changes
         val database = MuzeiDatabase.getInstance(context)
-        database.artworkDao().currentArtwork.collectIn(owner) {
+        database.artworkDao().getCurrentArtworkFlow().collectIn(owner) {
             updateAppWidget()
         }
-        database.providerDao().currentProvider.collectIn(owner) {
+        database.providerDao().getCurrentProviderFlow().collectIn(owner) {
             updateAppWidget()
         }
         // Update the widget whenever the wallpaper state is changed

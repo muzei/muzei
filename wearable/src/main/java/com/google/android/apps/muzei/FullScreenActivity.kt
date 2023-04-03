@@ -61,7 +61,7 @@ class FullScreenActivity : FragmentActivity(),
         }
 
         val database = MuzeiDatabase.getInstance(this@FullScreenActivity)
-        database.artworkDao().currentArtwork.filterNotNull().collectIn(this) { artwork ->
+        database.artworkDao().getCurrentArtworkFlow().filterNotNull().collectIn(this) { artwork ->
             val image = ImageLoader.decode(
                     contentResolver, artwork.contentUri)
             showLoadingIndicator?.cancel()
