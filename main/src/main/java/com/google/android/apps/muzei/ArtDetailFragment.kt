@@ -101,10 +101,10 @@ class ArtDetailViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val database = MuzeiDatabase.getInstance(application)
 
-    val currentProvider = database.providerDao().currentProvider
+    val currentProvider = database.providerDao().getCurrentProviderFlow()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), null)
 
-    val currentArtwork = database.artworkDao().currentArtwork
+    val currentArtwork = database.artworkDao().getCurrentArtworkFlow()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), null)
 }
 

@@ -23,7 +23,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
@@ -203,7 +202,8 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             engineLifecycle.addObserver(LockscreenObserver(this@MuzeiWallpaperService, this))
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
                 val database = MuzeiDatabase.getInstance(this@MuzeiWallpaperService)
-                database.artworkDao().currentArtwork.filterNotNull().collectIn(this) { artwork ->
+                database.artworkDao().getCurrentArtworkFlow()
+                    .filterNotNull().collectIn(this) { artwork ->
                     updateCurrentArtwork(artwork)
                 }
             }

@@ -138,10 +138,10 @@ class ProviderManager private constructor(private val context: Context)
     }
     private val contentObserver: ContentObserver
     private val providerLiveData by lazy {
-        MuzeiDatabase.getInstance(context).providerDao().currentProviderLiveData
+        MuzeiDatabase.getInstance(context).providerDao().getCurrentProviderLiveData()
     }
     private val artworkLiveData by lazy {
-        MuzeiDatabase.getInstance(context).artworkDao().currentArtworkLiveData
+        MuzeiDatabase.getInstance(context).artworkDao().getCurrentArtworkLiveData()
     }
     private var nextArtworkJob: Job? = null
     @OptIn(DelicateCoroutinesApi::class)

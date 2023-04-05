@@ -66,7 +66,7 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
         // Start listening for source changes, which will include when a source
         // starts or stops supporting the 'Next Artwork' command
         val database = MuzeiDatabase.getInstance(this)
-        database.providerDao().currentProvider.collectIn(this) { provider ->
+        database.providerDao().getCurrentProviderFlow().collectIn(this) { provider ->
             currentProvider = provider
             updateTile()
         }

@@ -137,7 +137,7 @@ class ProviderChangedWorker(
             val providerManager = ProviderManager.getInstance(context)
             if (!providerManager.hasActiveObservers()) {
                 val providerLiveData = MuzeiDatabase.getInstance(context).providerDao()
-                        .currentProviderLiveData
+                        .getCurrentProviderLiveData()
                 providerLiveData.observeForever(
                         object : Observer<Provider?> {
                             override fun onChanged(value: Provider?) {

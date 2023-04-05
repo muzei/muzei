@@ -140,7 +140,7 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
         unsupportedSources.collectIn(owner)
 
         val database = MuzeiDatabase.getInstance(applicationContext)
-        database.providerDao().currentProvider.collectIn(owner) { provider ->
+        database.providerDao().getCurrentProviderFlow().collectIn(owner) { provider ->
             serviceConnection.onProviderChanged(provider)
         }
     }

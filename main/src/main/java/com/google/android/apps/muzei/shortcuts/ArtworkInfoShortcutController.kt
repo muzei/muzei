@@ -46,7 +46,7 @@ class ArtworkInfoShortcutController(
 
     override fun onCreate(owner: LifecycleOwner) {
         val database = MuzeiDatabase.getInstance(context)
-        database.artworkDao().currentArtwork.collectIn(owner) { artwork ->
+        database.artworkDao().getCurrentArtworkFlow().collectIn(owner) { artwork ->
             updateShortcut(artwork)
         }
     }

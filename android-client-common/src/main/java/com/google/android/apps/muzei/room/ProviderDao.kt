@@ -30,14 +30,14 @@ import kotlinx.coroutines.flow.Flow
  */
 @Dao
 abstract class ProviderDao {
-    @get:Query("SELECT * FROM provider")
-    abstract val currentProvider: Flow<Provider?>
+    @Query("SELECT * FROM provider")
+    abstract fun getCurrentProviderFlow(): Flow<Provider?>
 
-    @get:Query("SELECT * FROM provider")
-    abstract val currentProviderLiveData: LiveData<Provider?>
+    @Query("SELECT * FROM provider")
+    abstract fun getCurrentProviderLiveData(): LiveData<Provider?>
 
-    @get:Query("SELECT * FROM provider")
-    internal abstract val currentProviderBlocking: Provider?
+    @Query("SELECT * FROM provider")
+    internal abstract fun getCurrentProviderBlocking(): Provider?
 
     @Query("SELECT * FROM provider")
     abstract suspend fun getCurrentProvider(): Provider?

@@ -31,23 +31,23 @@ abstract class ArtworkDao {
     @Query("SELECT * FROM artwork ORDER BY date_added DESC LIMIT 100")
     abstract suspend fun getArtwork(): List<Artwork>
 
-    @get:Query("""
+    @Query("""
         SELECT artwork.* FROM artwork 
         inner join provider on providerAuthority = authority
         ORDER BY date_added DESC""")
-    abstract val currentArtwork: Flow<Artwork?>
+    abstract fun getCurrentArtworkFlow(): Flow<Artwork?>
 
-    @get:Query("""
+    @Query("""
         SELECT artwork.* FROM artwork
         inner join provider on providerAuthority = authority
         ORDER BY date_added DESC""")
-    abstract val currentArtworkLiveData: LiveData<Artwork?>
+    abstract fun getCurrentArtworkLiveData(): LiveData<Artwork?>
 
-    @get:Query("""
+    @Query("""
         SELECT artwork.* FROM artwork
         inner join provider on providerAuthority = authority
         ORDER BY date_added DESC""")
-    internal abstract val currentArtworkBlocking: Artwork?
+    internal abstract fun getCurrentArtworkBlocking(): Artwork?
 
     @Query("""
         SELECT artwork.* FROM artwork
@@ -64,11 +64,11 @@ abstract class ArtworkDao {
         ORDER BY date_added DESC""")
     abstract suspend fun getCurrentArtworkForProvider(providerAuthority: String): Artwork?
 
-    @get:Query("""
+    @Query("""
         SELECT art1.* FROM artwork art1,
         (SELECT _id, max(date_added) FROM artwork GROUP BY providerAuthority) as art2
         WHERE art1._id=art2._id""")
-    abstract val currentArtworkByProvider : Flow<List<Artwork>>
+    abstract fun getCurrentArtworkByProvider(): Flow<List<Artwork>>
 
     @Query("SELECT * FROM artwork WHERE _id=:id")
     internal abstract fun getArtworkByIdBlocking(id: Long): Artwork?
