@@ -57,8 +57,8 @@ wearable = "2.8.1"
 # Jetbrains
 coroutines = "1.6.4"
 dokka = "1.6.0"
-kotlin = "1.8.10"
-ksp = "1.8.10-1.0.9"
+kotlin = "1.8.20"
+ksp = "1.8.20-1.0.11"
 
 # Other
 coil = "1.3.2"
