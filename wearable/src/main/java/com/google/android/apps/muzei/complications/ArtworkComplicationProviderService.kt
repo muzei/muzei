@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.complications
 
+import android.app.PendingIntent
 import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.Build
@@ -152,7 +153,7 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
                 val intent = Intent(applicationContext, FullScreenActivity::class.java)
                 val taskStackBuilder = TaskStackBuilder.create(applicationContext)
                         .addNextIntentWithParentStack(intent)
-                val tapAction = taskStackBuilder.getPendingIntent(0, 0)
+                val tapAction = taskStackBuilder.getPendingIntent(0, PendingIntent.FLAG_IMMUTABLE)
                 when (type) {
                     ComplicationData.TYPE_LONG_TEXT -> {
                         val title = artwork.title
