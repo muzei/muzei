@@ -20,7 +20,7 @@
     <string name="provider_title">目前來源</string>
     <string name="provider_settings">來源設定</string>
     <string name="config_show_date_title">日期</string>
-    <string name="config_top_complication_title">頂部資料顯示區</string>
-    <string name="config_bottom_complication_title">底部資料顯示區</string>
+    <string name="config_top_complication_title">頂部小工具版位</string>
+    <string name="config_bottom_complication_title">底部小工具版位</string>
     <string name="config_tap_title">輕觸動作</string>
 </resources>
