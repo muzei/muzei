@@ -25,15 +25,15 @@
     <string name="notification_new_wallpaper">新桌布</string>
     <string name="notification_new_wallpaper_channel_name">新桌布</string>
     <string name="notification_settings">通知設定</string>
-    <string name="notification_settings_failed">開啟通知設定失敗，請在「設定」中變更 <xliff:g id="muzei_name">Muzei</xliff:g> 的通知設定。</string>
+    <string name="notification_settings_failed">無法開啟通知設定，請在「設定」變更 <xliff:g id="muzei_name">Muzei</xliff:g> 的通知設定。</string>
     <string name="notification_settings_done">完成</string>
     <string name="notification_settings_moved_title">通知設定已移動</string>
     <string name="notification_settings_moved_text">檢查您的通知設定</string>
     <string name="auto_advance_settings">自動捲片設定</string>
     <string name="auto_advance_disabled">自動捲片已停用</string>
-    <string name="auto_advance_disabled_description">舊有來源處理自己的桌布載入，不支援自動捲片</string>
+    <string name="auto_advance_disabled_description">舊版來源自行處理桌布載入，不支援自動捲片</string>
     <string name="auto_advance_title">自動捲片</string>
-    <string name="auto_advance_description">控制 <xliff:g id="muzei_name">Muzei</xliff:g> 何時自動捲入下一張桌布。</string>
+    <string name="auto_advance_description">控制 <xliff:g id="muzei_name">Muzei</xliff:g> 何時捲入下一張桌布。</string>
     <string name="auto_advance_wifi">僅透過 Wi-Fi 自動捲片</string>
     <string name="auto_advance_interval">間隔</string>
     <string name="auto_advance_interval_15m">每 15 分鐘</string>
@@ -44,11 +44,11 @@
     <string name="auto_advance_interval_24h">每 24 小時</string>
     <string name="auto_advance_interval_72h">每 3 天</string>
     <string name="auto_advance_interval_never">停用自動捲片</string>
-    <string name="auto_advance_tasker">為精確控制觸發桌布變更的條件，請使用 <xliff:g id="tasker_name">Tasker</xliff:g> 中的「下一個 Artwork」動作，在其外掛程式 -&gt; <xliff:g id="muzei_name">Muzei</xliff:g> 下啟用，並在此停用「自動捲片」功能。</string>
+    <string name="auto_advance_tasker">若要更精確地控制觸發桌布變更的條件，請使用 <xliff:g id="tasker_name">Tasker</xliff:g> 中的「下一個 Artwork」動作，在其外掛程式 -&gt; <xliff:g id="muzei_name">Muzei</xliff:g> 下啟用，並停用此處的「自動捲片」功能。</string>
     <string name="auto_advance_tasker_name"><xliff:g id="tasker_name">Tasker</xliff:g></string>
-    <string name="action_activate">啟動</string>
+    <string name="action_activate">啟用</string>
     <string name="error_view_details">無法檢視 Artwork 詳細資料</string>
-    <string name="error_wallpaper_chooser">無法啟動動態桌布選擇器。您仍然可以透過在「樣式和桌布」中選擇「動態桌布」啟動 <xliff:g id="muzei_name">Muzei</xliff:g>。</string>
+    <string name="error_wallpaper_chooser">無法啟動動態桌布選擇器。您仍然可以透過在「桌布和樣式」中選擇「動態桌布」啟動 <xliff:g id="muzei_name">Muzei</xliff:g>。</string>
     <string name="section_choose_source">來源</string>
     <string name="section_effects">效果</string>
     <string name="action_next_artwork">下一個 Artwork</string>
@@ -56,33 +56,33 @@
     <string name="action_user_command">更多</string>
     <string name="action_user_command_prompt">選擇動作</string>
     <string name="action_artwork_info">Artwork 資訊</string>
-    <string name="action_artwork_info_disabled">目前 Artwork 沒有 Artwork 資訊。</string>
+    <string name="action_artwork_info_disabled">目前 Artwork 未提供資訊。</string>
     <string name="provider_settings">設定</string>
     <string name="provider_browse">瀏覽</string>
-    <string name="legacy_notification_channel_name">舊有來源</string>
-    <string name="legacy_notification_title">不再支援 <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g></string>
-    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> 不直接支援使用舊有來源 API 建置的源。</string>
-    <string name="legacy_action_learn_more">瞭解更多</string>
+    <string name="legacy_notification_channel_name">舊版來源</string>
+    <string name="legacy_notification_title">不再支援「<xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g>」</string>
+    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> 不直接支援以舊版來源 API 建置的來源。</string>
+    <string name="legacy_action_learn_more">深入瞭解</string>
     <string name="legacy_action_send_feedback">意見回饋</string>
-    <string name="legacy_summary_title">不再支援舊有來源</string>
+    <string name="legacy_summary_title">不再支援舊版來源</string>
     <plurals name="legacy_summary_text">
-        <item quantity="other">已找到 <xliff:g id="quantity" example="2">%1$d</xliff:g> 個舊有來源</item>
+        <item quantity="other">已找到 <xliff:g id="quantity" example="2">%1$d</xliff:g> 個舊版來源</item>
     </plurals>
     <plurals name="legacy_unsupported_text">
         <item quantity="other">已找到 <xliff:g id="quantity" example="2">%1$d</xliff:g> 個不支援的來源</item>
     </plurals>
-    <string name="legacy_source_info_title">舊有來源</string>
-    <string name="legacy_source_info_subtitle">建置在舊有來源 API 上的來源不再直接受 <xliff:g id="muzei_name">Muzei</xliff:g> 支援。</string>
+    <string name="legacy_source_info_title">舊版來源</string>
+    <string name="legacy_source_info_subtitle">以舊版來源 API 建置的來源不再受 <xliff:g id="muzei_name">Muzei</xliff:g> 的直接支援。</string>
     <string name="legacy_source_info_app_info">應用程式資訊</string>
     <string name="legacy_source_info_send_feedback">意見回饋</string>
-    <string name="legacy_source_all_uninstalled">所有舊有來源均已解除安裝</string>
+    <string name="legacy_source_all_uninstalled">所有舊版來源均已解除安裝</string>
     <string name="done">完成</string>
     <string name="set_as_wallpaper_using_muzei">桌布 (使用 <xliff:g id="muzei_name">Muzei</xliff:g>)</string>
     <string name="set_as_wallpaper_failed">無法讀取 Artwork</string>
     <string name="tutorial_main">開啟 <xliff:g id="muzei_name">Muzei</xliff:g> 應用程式以查看您的桌布</string>
     <string name="tutorial_subtitle">輕觸兩下主畫面上模糊的桌布以暫時對焦</string>
     <string name="get_more_sources">取得更多來源</string>
-    <string name="get_more_sources_description">從 <xliff:g id="google_play">Google Play</xliff:g> Store 安装其他來源以變更您的桌布</string>
+    <string name="get_more_sources_description">從 <xliff:g id="google_play">Google Play</xliff:g> 商店安裝其他來源以徹底變更您的桌布</string>
     <string name="action_link_effects">主畫面 🔗 螢幕鎖定</string>
     <string name="toast_link_effects">主畫面 &amp; 螢幕鎖定畫面效果現已連結</string>
     <string name="action_link_effects_off">主畫面 &amp; 螢幕鎖定未連結</string>
@@ -90,14 +90,14 @@
     <string name="reset_advanced_settings_defaults">重設滑桿</string>
     <string name="play_store_not_found">無法開啟 <xliff:g id="google_play">Google Play</xliff:g> 商店。</string>
     <string name="browse_refresh">重新整理</string>
-    <string name="browse_set_wallpaper">設定目前桌布</string>
-    <string name="browse_set_wallpaper_with_title">將目前桌布設定為「<xliff:g id="image_name" example="IMG14227.jpg">%s</xliff:g>」</string>
-    <string name="missing_resources_title">無效的 <xliff:g id="muzei_name">Muzei</xliff:g> 安装</string>
-    <string name="missing_resources_message"><xliff:g id="muzei_name">Muzei</xliff:g> 處於無效狀態。请解除安裝 <xliff:g id="muzei_name">Muzei</xliff:g> 並從 <xliff:g id="google_play">Google Play</xliff:g> Store 安装以修復您的安裝。</string>
+    <string name="browse_set_wallpaper">已設為目前桌布</string>
+    <string name="browse_set_wallpaper_with_title">已將「<xliff:g id="image_name" example="IMG14227.jpg">%s</xliff:g>」設為目前桌布</string>
+    <string name="missing_resources_title">所安裝的 <xliff:g id="muzei_name">Muzei</xliff:g> 無效</string>
+    <string name="missing_resources_message"><xliff:g id="muzei_name">Muzei</xliff:g> 處於無效狀態。請解除安裝 <xliff:g id="muzei_name">Muzei</xliff:g>，並從 <xliff:g id="google_play">Google Play</xliff:g> 商店下載以修復安裝。</string>
     <string name="missing_resources_open">開啟 <xliff:g id="google_play">Google Play</xliff:g> 商店</string>
     <string name="missing_resources_quit">關閉 <xliff:g id="muzei_name">Muzei</xliff:g></string>
     <string name="tasker_setting_dialog_title">選取動作</string>
-    <string name="tasker_action_select_provider">選取 <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g></string>
+    <string name="tasker_action_select_provider">選取「<xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g>」</string>
     <string name="actions_gestures">自訂手勢</string>
     <string name="gestures_title">手勢</string>
     <string name="gestures_double_tap_title">輕觸兩下</string>
@@ -110,12 +110,9 @@
     <string name="gestures_tap_action_none">無動作</string>
     <string name="actions_always_dark">深色主題</string>
     <string name="about_title">關於 <xliff:g id="muzei_name">Muzei</xliff:g></string>
-    <string name="about_body"><![CDATA[由 Roman Nurik 和 Ian Lake 以及來自<a href="http://code.muzei.co">開放原始碼社群</a>之重要貢獻製作。
-        <i>Muzei</i> 為俄語字彙 <a href="http://translate.google.com/#en/ru/museum"><i>музей</i></a> 之轉寫，意為&#8220;博物館&#8221;。<br><br>
+    <string name="about_body"><![CDATA[由 Roman Nurik 和 Ian Lake 以及來自<a href="http://code.muzei.co">開放原始碼社群</a>之重要貢獻製作。<i>Muzei</i> 為俄文字彙 <a href="http://translate.google.com/#en/ru/museum"><i>музей</i></a> 之轉寫，意為「博物館」。<br><br>
 
-        Copyright © 2013&ndash;2018 Google Inc. 版權所有
-        <a href="http://m.google.com/utos">服務條款</a>，
-        <a href="http://www.google.com/policies/privacy/">隱私權政策</a>&nbsp;<br><br>
+        Copyright © 2013&ndash;2018 Google Inc. 版權所有<br><a href="http://m.google.com/utos">服務條款</a> - <a href="http://www.google.com/policies/privacy/">隱私權政策</a>&nbsp;<br><br>
 
         非常感謝這些開放原始碼專案：<br>
         &bull; <b><a href="http://square.github.io/okhttp/">OkHttp</a> and <a href="http://square.github.io/picasso/">Picasso</a></b> by Square<br>
