@@ -15,5 +15,5 @@
   limitations under the License.
   -->
 <resources>
-    <string name="legacy_source_warning_message">舊有來源在您的裝置上存在已知問題。您必須在您選取的任何舊有來源上停用電池效能最佳化，以確保它能載入桌布。這可能耗用不必要的電力。\n\n另外，舊有來源会按照自己的計畫載入，不會使用「自動捲片」功能。 如果舊有來源沒有自己的 WiFi 設定可能会增加额外的數據使用量。</string>
+    <string name="legacy_source_warning_message">本裝置上安裝的舊版來源具有已知問題：您必須為其停用電池效能最佳化以確保其能正確載入桌布，這可能導致額外的電力耗損。\n\n另外，由於舊版來源被設計為自行管理排程而非借助於「自動捲片」，若其未提供「僅透過 Wi-Fi」選項，則可能產生額外的數據用量。</string>
 </resources>
