@@ -92,12 +92,12 @@ dokkaHtml.configure {
     doLast {
         copy {
             from "dokka-override"
-            into new File(outputDirectory.get(), "styles")
+            into new File(outputDirectory.get().toString(), "styles")
             include "style.css"
         }
         copy {
             from "dokka-override"
-            into new File(outputDirectory.get(), "images")
+            into new File(outputDirectory.get().toString(), "images")
             include "docs_logo.svg", "logo-icon.svg"
         }
     }
