@@ -71,7 +71,7 @@ class UnsplashRedirectActivity : ComponentActivity() {
             if (success) {
                 // If one launch has succeeded, we don't need to
                 // try any further Intents
-                return@fold success
+                return@fold true
             }
             if (intent == null) {
                 // A null Intent means there's nothing to attempt to launch

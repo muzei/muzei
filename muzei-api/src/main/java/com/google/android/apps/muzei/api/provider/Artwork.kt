@@ -15,6 +15,7 @@
  */
 package com.google.android.apps.muzei.api.provider
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
@@ -143,6 +144,7 @@ public class Artwork private constructor(
          * @return a valid Artwork with values filled in from the
          * [ProviderContract.Artwork] columns.
          */
+        @SuppressLint("Range")
         @JvmStatic
         public fun fromCursor(data: Cursor): Artwork = Artwork(
                 data.getLong(data.getColumnIndex(BaseColumns._ID)),
@@ -218,7 +220,7 @@ public class Artwork private constructor(
         sb.append("Artwork #")
         sb.append(id)
 
-        if (token != null && token.isNotEmpty() && (persistentUri?.toString() != token)) {
+        if (!token.isNullOrEmpty() && (persistentUri?.toString() != token)) {
             sb.append("+")
             sb.append(token)
         }

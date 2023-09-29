@@ -786,6 +786,7 @@ public abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
     /**
      * @suppress
      */
+    @SuppressLint("Range")
     override fun insert(uri: Uri, initialValues: ContentValues?): Uri? {
         val values = initialValues ?: ContentValues()
         val context = context ?: throw IllegalStateException("Called insert() before onCreate()")

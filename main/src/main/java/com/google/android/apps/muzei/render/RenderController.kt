@@ -29,9 +29,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 sealed class ReloadType
-object ReloadWhenVisible : ReloadType()
-object ReloadDespiteInvisible : ReloadType()
-object ReloadImmediate : ReloadType()
+data object ReloadWhenVisible : ReloadType()
+data object ReloadDespiteInvisible : ReloadType()
+data object ReloadImmediate : ReloadType()
 
 abstract class RenderController(
         protected var context: Context,

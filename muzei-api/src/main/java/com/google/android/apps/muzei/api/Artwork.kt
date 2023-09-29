@@ -94,7 +94,7 @@ public class Artwork private constructor(
                         throw IllegalArgumentException("Cursor does not have required " +
                                 "$COLUMN_NAME_PROVIDER_AUTHORITY column")
                     },
-                    dateAdded = if (componentNameColumnIndex != -1) {
+                    dateAdded = if (dateAddedColumnIndex != -1) {
                         Date(cursor.getLong(dateAddedColumnIndex))
                     } else {
                         throw IllegalArgumentException("Cursor does not have required " +

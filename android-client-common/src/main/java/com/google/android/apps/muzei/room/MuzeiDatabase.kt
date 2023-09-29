@@ -249,7 +249,7 @@ abstract class MuzeiDatabase : RoomDatabase() {
                             val metadata = info.metaData
                             if (metadata != null) {
                                 val replacement = metadata.getString("replacement")
-                                if (replacement != null && replacement.isNotEmpty()) {
+                                if (!replacement.isNullOrEmpty()) {
                                     @Suppress("DEPRECATION")
                                     val providerInfo = context.packageManager
                                             .resolveContentProvider(replacement, 0) ?: run {

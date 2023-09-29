@@ -38,7 +38,7 @@ internal sealed class TaskerAction {
     open fun toBundle(): Bundle = Bundle()
 }
 
-internal object NextArtworkAction : TaskerAction() {
+internal data object NextArtworkAction : TaskerAction() {
     override fun toBundle() = bundleOf(
             EXTRA_ACTION to ACTION_NEXT_ARTWORK)
 }
@@ -49,4 +49,4 @@ internal class SelectProviderAction(val authority: String) : TaskerAction() {
             EXTRA_PROVIDER_AUTHORITY to authority)
 }
 
-internal object InvalidAction : TaskerAction()
+internal data object InvalidAction : TaskerAction()

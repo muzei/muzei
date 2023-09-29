@@ -161,7 +161,7 @@ sealed class ImageLoader {
 /**
  * An [ImageLoader] capable of loading images from a [ContentResolver]
  */
-class ContentUriImageLoader constructor(
+class ContentUriImageLoader(
         private val contentResolver: ContentResolver,
         private val uri: Uri
 ) : ImageLoader() {
@@ -178,7 +178,7 @@ class ContentUriImageLoader constructor(
 /**
  * An [ImageLoader] capable of loading images from [AssetManager]
  */
-class AssetImageLoader constructor(
+class AssetImageLoader(
         private val assetManager: AssetManager,
         private val fileName: String
 ) : ImageLoader() {

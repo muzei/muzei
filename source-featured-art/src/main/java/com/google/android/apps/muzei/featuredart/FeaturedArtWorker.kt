@@ -177,7 +177,6 @@ class FeaturedArtWorker(
         val request = Request.Builder()
                 .url(url)
                 .build()
-        @Suppress("BlockingMethodInNonBlockingContext") // Blocked by https://github.com/square/okio/issues/501
         val json = client.newCall(request).await().body()?.string()
         val tokener = JSONTokener(json)
         return tokener.nextValue() as? JSONObject ?: throw JSONException("Expected JSON object.")
