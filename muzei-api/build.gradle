@@ -103,12 +103,13 @@ dokkaHtml.configure {
     }
 }
 
-task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
+tasks.register('javadocJar', Jar) {
+    dependsOn dokkaJavadoc
     setArchiveClassifier('javadoc')
     from dokkaJavadoc.outputDirectory
 }
 
-task sourcesJar(type: Jar) {
+tasks.register('sourcesJar', Jar) {
     setArchiveClassifier('sources')
     from android.sourceSets.main.java.srcDirs
 }
