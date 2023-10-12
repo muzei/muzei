@@ -50,6 +50,7 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.androidclientcommon.R as CommonR
 
 class NewWallpaperNotificationReceiver : BroadcastReceiver() {
 
@@ -140,7 +141,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
             createNotificationChannel(context)
 
             try {
-                ContextCompat.getDrawable(context, R.drawable.ic_stat_muzei)
+                ContextCompat.getDrawable(context, CommonR.drawable.ic_stat_muzei)
             } catch (e : Resources.NotFoundException) {
                 Log.e("Notification", "Invalid installation: " +
                         "missing notification icon", e)
@@ -151,10 +152,10 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
             }
             val artworkTitle = artwork.title
             val title = artworkTitle?.takeUnless { it.isEmpty() }
-                    ?: context.getString(R.string.app_name)
+                    ?: context.getString(CommonR.string.app_name)
             val nb = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL)
-                    .setSmallIcon(R.drawable.ic_stat_muzei)
-                    .setColor(ContextCompat.getColor(context, R.color.notification))
+                    .setSmallIcon(CommonR.drawable.ic_stat_muzei)
+                    .setColor(ContextCompat.getColor(context, CommonR.color.notification))
                     .setPriority(NotificationCompat.PRIORITY_MIN)
                     .setAutoCancel(true)
                     .setContentTitle(title)
@@ -226,11 +227,11 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
 
             // Hide the image and artwork title for the public version
             val publicBuilder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL)
-                    .setSmallIcon(R.drawable.ic_stat_muzei)
-                    .setColor(ContextCompat.getColor(context, R.color.notification))
+                    .setSmallIcon(CommonR.drawable.ic_stat_muzei)
+                    .setColor(ContextCompat.getColor(context, CommonR.color.notification))
                     .setPriority(NotificationCompat.PRIORITY_MIN)
                     .setAutoCancel(true)
-                    .setContentTitle(context.getString(R.string.app_name))
+                    .setContentTitle(context.getString(CommonR.string.app_name))
                     .setContentText(context.getString(R.string.notification_new_wallpaper))
                     .setContentIntent(PendingIntent.getActivity(context, 0, launchIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
@@ -279,8 +280,8 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                         settingsIntent.putExtra(Settings.EXTRA_CHANNEL_ID, NOTIFICATION_CHANNEL)
                         // Build the notification
                         val builder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL)
-                                .setSmallIcon(R.drawable.ic_stat_muzei)
-                                .setColor(ContextCompat.getColor(context, R.color.notification))
+                                .setSmallIcon(CommonR.drawable.ic_stat_muzei)
+                                .setColor(ContextCompat.getColor(context, CommonR.color.notification))
                                 .setAutoCancel(true)
                                 .setContentTitle(context.getText(R.string.notification_settings_moved_title))
                                 .setContentText(context.getText(R.string.notification_settings_moved_text))

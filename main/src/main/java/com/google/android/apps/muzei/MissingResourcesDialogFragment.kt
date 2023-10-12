@@ -30,12 +30,13 @@ import androidx.fragment.app.FragmentActivity
 import com.google.android.apps.muzei.util.toast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.androidclientcommon.R as CommonR
 
 class MissingResourcesDialogFragment : DialogFragment() {
     companion object {
         fun showDialogIfNeeded(activity: FragmentActivity) : Boolean {
             val missingResources = try {
-                ContextCompat.getDrawable(activity, R.drawable.ic_stat_muzei)
+                ContextCompat.getDrawable(activity, CommonR.drawable.ic_stat_muzei)
                 ContextCompat.getDrawable(activity, R.drawable.logo_subtitle)
                 false
             } catch (e : Resources.NotFoundException) {

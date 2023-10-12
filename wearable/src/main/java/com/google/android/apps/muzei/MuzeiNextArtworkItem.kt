@@ -33,6 +33,7 @@ import androidx.wear.widget.RoundedDrawable
 import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.sync.ProviderManager
 import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.androidclientcommon.R as CommonR
 import net.nurik.roman.muzei.databinding.MuzeiNextArtworkItemBinding
 
 class MuzeiNextArtworkViewModel(application: Application) : AndroidViewModel(application) {
@@ -47,8 +48,8 @@ class MuzeiNextArtworkViewHolder(
             val context = root.context
             nextArtwork.setCompoundDrawablesRelative(RoundedDrawable().apply {
                 radius = context.resources.getDimensionPixelSize(R.dimen.art_detail_open_on_phone_radius)
-                backgroundColor = ContextCompat.getColor(context, R.color.theme_primary)
-                drawable = ContextCompat.getDrawable(context, R.drawable.ic_next_artwork)
+                backgroundColor = ContextCompat.getColor(context, CommonR.color.theme_primary)
+                drawable = ContextCompat.getDrawable(context, CommonR.drawable.ic_next_artwork)
                 bounds = Rect(0, 0, radius * 2, radius * 2)
             }, null, null, null)
             nextArtwork.setOnClickListener {

@@ -30,6 +30,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.ResultReceiver
+import android.support.wearable.R as WearableR
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
@@ -49,6 +50,7 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
 import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.androidclientcommon.R as CommonR
 import java.util.TreeSet
 import java.util.concurrent.TimeoutException
 
@@ -121,8 +123,8 @@ class ActivateMuzeiReceiver : BroadcastReceiver() {
                 createNotificationChannel(context)
             }
             val builder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL)
-            builder.setSmallIcon(R.drawable.ic_stat_muzei)
-                    .setColor(ContextCompat.getColor(context, R.color.notification))
+            builder.setSmallIcon(CommonR.drawable.ic_stat_muzei)
+                    .setColor(ContextCompat.getColor(context, CommonR.color.notification))
                     .setAutoCancel(true)
                     .setContentTitle(context.getString(R.string.datalayer_enable_title))
                     .setContentText(context.getString(R.string.datalayer_enable_text,
@@ -142,8 +144,8 @@ class ActivateMuzeiReceiver : BroadcastReceiver() {
                 createNotificationChannel(context)
             }
             val builder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL)
-            builder.setSmallIcon(R.drawable.ic_stat_muzei)
-                    .setColor(ContextCompat.getColor(context, R.color.notification))
+            builder.setSmallIcon(CommonR.drawable.ic_stat_muzei)
+                    .setColor(ContextCompat.getColor(context, CommonR.color.notification))
                     .setAutoCancel(true)
                     .setContentTitle(context.getString(R.string.datalayer_install_title))
                     .setContentText(context.getString(R.string.datalayer_install_text))
@@ -158,7 +160,7 @@ class ActivateMuzeiReceiver : BroadcastReceiver() {
             }
             val pendingIntent = PendingIntent.getBroadcast(context, 0, installMuzeiIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-            builder.addAction(NotificationCompat.Action.Builder(R.drawable.open_on_phone,
+            builder.addAction(NotificationCompat.Action.Builder(WearableR.drawable.open_on_phone,
                     context.getString(R.string.datalayer_install_action), pendingIntent)
                     .extend(NotificationCompat.Action.WearableExtender()
                             .setHintDisplayActionInline(true)

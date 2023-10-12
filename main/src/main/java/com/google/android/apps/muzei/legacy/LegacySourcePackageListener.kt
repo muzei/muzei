@@ -43,6 +43,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.androidclientcommon.R as CommonR
 
 class LegacySourcePackageListener(
         private val applicationContext: Context
@@ -182,8 +183,8 @@ class LegacySourcePackageListener(
                                 "https://play.google.com/store/apps/details?id=${info.packageName}".toUri()),
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
                 val notification = NotificationCompat.Builder(applicationContext, NOTIFICATION_CHANNEL)
-                        .setSmallIcon(R.drawable.ic_stat_muzei)
-                        .setColor(ContextCompat.getColor(applicationContext, R.color.notification))
+                        .setSmallIcon(CommonR.drawable.ic_stat_muzei)
+                        .setColor(ContextCompat.getColor(applicationContext, CommonR.color.notification))
                         .setContentTitle(applicationContext.getString(
                                 R.string.legacy_notification_title, info.title))
                         .setContentText(applicationContext.getString(R.string.legacy_notification_text))
@@ -211,8 +212,8 @@ class LegacySourcePackageListener(
                     R.plurals.legacy_summary_text,
                     legacySources.size, legacySources.size)
             val summaryNotification = NotificationCompat.Builder(applicationContext, NOTIFICATION_CHANNEL)
-                    .setSmallIcon(R.drawable.ic_stat_muzei)
-                    .setColor(ContextCompat.getColor(applicationContext, R.color.notification))
+                    .setSmallIcon(CommonR.drawable.ic_stat_muzei)
+                    .setColor(ContextCompat.getColor(applicationContext, CommonR.color.notification))
                     .setContentTitle(applicationContext.getString(R.string.legacy_summary_title))
                     .setContentText(summaryText)
                     .setContentIntent(contentIntent)

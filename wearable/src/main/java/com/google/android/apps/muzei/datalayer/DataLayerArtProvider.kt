@@ -23,6 +23,7 @@ import androidx.core.app.RemoteActionCompat
 import androidx.core.graphics.drawable.IconCompat
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
+import com.google.android.gms.base.R as GmsBaseR
 import net.nurik.roman.muzei.R
 import java.io.File
 import java.io.FileInputStream
@@ -52,7 +53,7 @@ class DataLayerArtProvider : MuzeiArtProvider() {
     }
 
     private fun createOpenOnPhoneAction(context: Context): RemoteActionCompat {
-        val title = context.getString(R.string.common_open_on_phone)
+        val title = context.getString(GmsBaseR.string.common_open_on_phone)
         val intent = Intent(context, OpenOnPhoneReceiver::class.java)
         return RemoteActionCompat(
                 IconCompat.createWithResource(context, R.drawable.open_on_phone_button),

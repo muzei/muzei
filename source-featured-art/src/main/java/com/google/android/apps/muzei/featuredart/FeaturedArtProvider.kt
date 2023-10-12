@@ -28,6 +28,7 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.RemoteActionCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.IconCompat
+import com.google.android.apps.muzei.api.R as ApiR
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.util.getString
@@ -120,7 +121,7 @@ class FeaturedArtProvider : MuzeiArtProvider() {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         return RemoteActionCompat(
-                IconCompat.createWithResource(context, R.drawable.muzei_launch_command),
+                IconCompat.createWithResource(context, ApiR.drawable.muzei_launch_command),
                 title,
                 title,
                 PendingIntent.getActivity(context, 0, intent,

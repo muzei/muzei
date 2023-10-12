@@ -46,6 +46,7 @@ import com.google.android.apps.muzei.sync.ProviderManager
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.androidclientcommon.R as CommonR
 import net.nurik.roman.muzei.databinding.MuzeiProviderItemBinding
 
 data class ProviderData(
@@ -97,7 +98,7 @@ class MuzeiProviderViewHolder(
         binding.settings.setCompoundDrawablesRelative(RoundedDrawable().apply {
             isClipEnabled = true
             radius = context.resources.getDimensionPixelSize(R.dimen.art_detail_open_on_phone_radius)
-            backgroundColor = ContextCompat.getColor(context, R.color.theme_primary)
+            backgroundColor = ContextCompat.getColor(context, CommonR.color.theme_primary)
             drawable = ContextCompat.getDrawable(context, R.drawable.ic_provider_settings)
             bounds = Rect(0, 0, radius * 2, radius * 2)
         }, null, null, null)

@@ -27,6 +27,7 @@ import androidx.core.graphics.drawable.IconCompat
 import androidx.core.os.bundleOf
 import androidx.versionedparcelable.ParcelUtils
 import com.google.android.apps.muzei.api.BuildConfig.API_VERSION
+import com.google.android.apps.muzei.api.R as ApiR
 import com.google.android.apps.muzei.api.UserCommand
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.DEFAULT_VERSION
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.GET_ARTWORK_INFO_MIN_VERSION
@@ -114,7 +115,7 @@ suspend fun Artwork.getCommands(context: Context) : List<RemoteActionCompat> {
                         val isLegacyNext = providerAuthority == LEGACY_AUTHORITY &&
                                 command.id == LEGACY_COMMAND_ID_NEXT_ARTWORK
                         val iconResourceId = if (isLegacyNext)
-                            R.drawable.muzei_launch_command
+                            ApiR.drawable.muzei_launch_command
                         else
                             R.drawable.ic_next_artwork
                         RemoteActionCompat(

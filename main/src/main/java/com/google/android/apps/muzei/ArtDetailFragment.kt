@@ -84,6 +84,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.androidclientcommon.R as CommonR
 import net.nurik.roman.muzei.databinding.ArtDetailFragmentBinding
 
 val ArtDetailOpen = MutableStateFlow(false)
@@ -390,7 +391,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
                     currentArtwork?.getCommands(this) ?: run {
                         if (viewModel.currentProvider.value?.authority == LEGACY_AUTHORITY) {
                             listOf(RemoteActionCompat(
-                                    IconCompat.createWithResource(this, R.drawable.ic_next_artwork),
+                                    IconCompat.createWithResource(this, CommonR.drawable.ic_next_artwork),
                                     getString(R.string.action_next_artwork),
                                     getString(R.string.action_next_artwork),
                                     RemoteActionBroadcastReceiver.createPendingIntent(

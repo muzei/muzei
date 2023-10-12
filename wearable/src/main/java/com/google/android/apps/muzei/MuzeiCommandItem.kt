@@ -45,6 +45,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.androidclientcommon.R as CommonR
 import net.nurik.roman.muzei.databinding.MuzeiCommandItemBinding
 
 data class ArtworkCommand(
@@ -77,7 +78,7 @@ class MuzeiCommandViewHolder(
         command.text = artworkCommand.title
         command.setCompoundDrawablesRelative(RoundedDrawable().apply {
             radius = root.context.resources.getDimensionPixelSize(R.dimen.art_detail_open_on_phone_radius)
-            backgroundColor = ContextCompat.getColor(context, R.color.theme_primary)
+            backgroundColor = ContextCompat.getColor(context, CommonR.color.theme_primary)
             drawable = artworkCommand.icon.loadDrawable(context)
             bounds = Rect(0, 0, radius * 2, radius * 2)
         }, null, null, null)

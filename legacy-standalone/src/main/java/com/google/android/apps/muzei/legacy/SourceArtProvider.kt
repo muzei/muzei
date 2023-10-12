@@ -24,6 +24,7 @@ import android.content.Intent
 import android.util.Log
 import androidx.core.app.RemoteActionCompat
 import androidx.core.graphics.drawable.IconCompat
+import com.google.android.apps.muzei.api.R as ApiR
 import com.google.android.apps.muzei.api.UserCommand
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
@@ -108,7 +109,7 @@ class SourceArtProvider : MuzeiArtProvider() {
                 }
                 addAll(commands.map { UserCommand.deserialize(it) }.map { command ->
                     RemoteActionCompat(
-                            IconCompat.createWithResource(context, R.drawable.muzei_launch_command),
+                            IconCompat.createWithResource(context, ApiR.drawable.muzei_launch_command),
                             command.title ?: "",
                             command.title ?: "",
                             SendActionBroadcastReceiver.createPendingIntent(context, command.id)

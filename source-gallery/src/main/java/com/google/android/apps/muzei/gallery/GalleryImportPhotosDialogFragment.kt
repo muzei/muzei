@@ -6,11 +6,13 @@ import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import androidx.annotation.LayoutRes
+import androidx.appcompat.R as AppCompatR
 import androidx.core.content.withStyledAttributes
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import com.google.android.apps.muzei.util.collectIn
+import com.google.android.material.R as MaterialR
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class GalleryImportPhotosDialogFragment : DialogFragment() {
@@ -29,8 +31,11 @@ class GalleryImportPhotosDialogFragment : DialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requireContext().withStyledAttributes(attrs = R.styleable.AlertDialog, defStyleAttr = R.attr.alertDialogStyle) {
-            @LayoutRes val listItemLayout = getResourceId(R.styleable.AlertDialog_listItemLayout, 0)
+        requireContext().withStyledAttributes(
+            attrs = AppCompatR.styleable.AlertDialog,
+            defStyleAttr = AppCompatR.attr.alertDialogStyle
+        ) {
+            @LayoutRes val listItemLayout = getResourceId(AppCompatR.styleable.AlertDialog_listItemLayout, 0)
             adapter = ArrayAdapter(requireContext(), listItemLayout)
         }
         viewModel.getContentActivityInfoList.collectIn(this) { getContentActivities ->
@@ -44,7 +49,7 @@ class GalleryImportPhotosDialogFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return MaterialAlertDialogBuilder(requireContext(),
-                R.style.Theme_MaterialComponents_DayNight_Dialog_Alert)
+                MaterialR.style.Theme_MaterialComponents_DayNight_Dialog_Alert)
                 .setTitle(R.string.gallery_import_dialog_title)
                 .setAdapter(adapter) { _, which ->
                     viewModel.getContentActivityInfoList.value.run {

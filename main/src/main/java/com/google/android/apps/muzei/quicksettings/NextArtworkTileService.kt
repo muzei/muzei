@@ -45,6 +45,7 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.androidclientcommon.R as CommonR
 
 /**
  * Quick Settings Tile which allows users quick access to the 'Next Artwork' command, if supported.
@@ -90,7 +91,7 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
                     // If the wallpaper isn't active, the quick tile will activate it
                     state = Tile.STATE_INACTIVE
                     label = getString(R.string.action_activate)
-                    icon = Icon.createWithResource(context, R.drawable.ic_stat_muzei)
+                    icon = Icon.createWithResource(context, CommonR.drawable.ic_stat_muzei)
                 }
                 currentProvider.allowsNextArtwork(context) -> {
                     state = Tile.STATE_ACTIVE

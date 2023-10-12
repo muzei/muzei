@@ -32,6 +32,7 @@ import com.google.android.apps.muzei.render.MuzeiRendererFragment
 import com.google.android.apps.muzei.util.AnimatedMuzeiLogoFragment
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
+import net.nurik.roman.muzei.androidclientcommon.R as CommonR
 import net.nurik.roman.muzei.databinding.AboutActivityBinding
 
 class AboutActivity : AppCompatActivity() {
@@ -72,7 +73,7 @@ class AboutActivity : AppCompatActivity() {
             val cti = CustomTabsIntent.Builder()
                     .setShowTitle(true)
                     .setDefaultColorSchemeParams(CustomTabColorSchemeParams.Builder()
-                            .setToolbarColor(ContextCompat.getColor(this, R.color.theme_primary))
+                            .setToolbarColor(ContextCompat.getColor(this, CommonR.color.theme_primary))
                             .build())
                     .build()
             try {
