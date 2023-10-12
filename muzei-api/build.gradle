@@ -60,7 +60,12 @@ android {
         publicDebug
     }
 
+    publishing {
+        singleVariant("release")
+    }
+
     kotlinOptions {
+        jvmTarget = '1.8'
         freeCompilerArgs += "-Xexplicit-api=strict"
     }
 }
@@ -114,62 +119,58 @@ tasks.register('sourcesJar', Jar) {
     from android.sourceSets.main.java.srcDirs
 }
 
-artifacts {
-    archives sourcesJar
-    archives javadocJar
-}
-
 signing {
     sign publishing.publications
 }
-afterEvaluate {
-    publishing {
-        repositories {
-            maven {
-                name = "sonatype"
 
-                def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-                def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
-                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+publishing {
+    repositories {
+        maven {
+            name = "sonatype"
 
-                credentials {
-                    username props["sonatypeUsername"]
-                    password props["sonatypePassword"]
-                }
+            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+
+            credentials {
+                username props["sonatypeUsername"]
+                password props["sonatypePassword"]
             }
         }
+    }
 
-        publications {
-            release(MavenPublication) {
+    publications {
+        release(MavenPublication) {
+            afterEvaluate {
                 from components.release
+            }
 
-                artifact sourcesJar
-                artifact javadocJar
+            artifact sourcesJar
+            artifact javadocJar
 
-                pom {
-                    name = 'Muzei API'
-                    description = 'The Muzei API allows you to extend Muzei with custom sources'
-                    url = 'https://api.muzei.co'
+            pom {
+                name = 'Muzei API'
+                description = 'The Muzei API allows you to extend Muzei with custom sources'
+                url = 'https://api.muzei.co'
 
-                    scm {
-                        url = 'https://github.com/muzei/muzei.git'
-                        connection = 'scm:git:https://github.com/muzei/muzei'
-                        developerConnection = 'scm:git:https://github.com/muzei/muzei'
+                scm {
+                    url = 'https://github.com/muzei/muzei.git'
+                    connection = 'scm:git:https://github.com/muzei/muzei'
+                    developerConnection = 'scm:git:https://github.com/muzei/muzei'
+                }
+
+                licenses {
+                    license {
+                        name = 'The Apache Software License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution = 'repo'
                     }
+                }
 
-                    licenses {
-                        license {
-                            name = 'The Apache Software License, Version 2.0'
-                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                            distribution = 'repo'
-                        }
-                    }
-
-                    developers {
-                        developer {
-                            id = 'romannurik'
-                            name = 'Roman Nurik'
-                        }
+                developers {
+                    developer {
+                        id = 'romannurik'
+                        name = 'Roman Nurik'
                     }
                 }
             }
