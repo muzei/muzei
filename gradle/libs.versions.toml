@@ -50,7 +50,7 @@ firebasePerf = "20.4.1"
 firebasePerfPlugin = "1.4.2"
 
 # Google Play services
-googleServices = "4.3.15"
+googleServices = "4.4.0"
 playServicesWearable = "18.0.0"
 wearable = "2.8.1"
 
