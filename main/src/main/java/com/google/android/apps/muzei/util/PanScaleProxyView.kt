@@ -163,7 +163,7 @@ class PanScaleProxyView @JvmOverloads constructor(context: Context, attrs: Attri
             return true
         }
 
-        override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+        override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
             if (!panScaleEnabled) {
                 return false
             }
@@ -185,7 +185,7 @@ class PanScaleProxyView @JvmOverloads constructor(context: Context, attrs: Attri
             return true
         }
 
-        override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+        override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
             if (!panScaleEnabled) {
                 return false
             }

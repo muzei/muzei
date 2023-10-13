@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.quicksettings
 
+import android.app.PendingIntent
 import android.app.WallpaperManager
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
@@ -26,6 +27,8 @@ import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.core.service.quicksettings.PendingIntentActivityWrapper
+import androidx.core.service.quicksettings.TileServiceCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -123,15 +126,28 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
                     // Inactive means we attempt to activate Muzei
                     Firebase.analytics.logEvent("tile_next_artwork_activate", null)
                     try {
-                        startActivityAndCollapse(Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
+                        val wrapper = PendingIntentActivityWrapper(
+                            context,
+                            0,
+                            Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
                                 .putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
-                                        ComponentName(context,
-                                                MuzeiWallpaperService::class.java))
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                                    ComponentName(context, MuzeiWallpaperService::class.java))
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                            0,
+                            false
+                        )
+                        TileServiceCompat.startActivityAndCollapse(context, wrapper)
                     } catch (_: ActivityNotFoundException) {
                         try {
-                            startActivityAndCollapse(Intent(WallpaperManager.ACTION_LIVE_WALLPAPER_CHOOSER)
-                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                            val wrapper = PendingIntentActivityWrapper(
+                                context,
+                                0,
+                                Intent(WallpaperManager.ACTION_LIVE_WALLPAPER_CHOOSER)
+                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                                0,
+                                false
+                            )
+                            TileServiceCompat.startActivityAndCollapse(context, wrapper)
                         } catch (e: ActivityNotFoundException) {
                             context.toast(R.string.error_wallpaper_chooser, Toast.LENGTH_LONG)
                         }

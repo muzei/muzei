@@ -300,7 +300,7 @@ class PanView @JvmOverloads constructor(context: Context, attrs: AttributeSet? =
             return true
         }
 
-        override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+        override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
             val scaledImage = scaledImage ?: return true
 
             val oldOffsetX = offsetX
@@ -341,7 +341,7 @@ class PanView @JvmOverloads constructor(context: Context, attrs: AttributeSet? =
             return true
         }
 
-        override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+        override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
             val scaledImage = scaledImage ?: return true
 
             releaseEdgeEffects()
