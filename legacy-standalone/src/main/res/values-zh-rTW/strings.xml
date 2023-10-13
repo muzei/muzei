@@ -15,20 +15,20 @@
   limitations under the License.
   -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="legacy_app_name"><xliff:g id="muzei_name">Muzei</xliff:g> 舊有</string>
-    <string name="legacy_source_provider_name">舊有來源</string>
-    <string name="legacy_source_warning_title">啟動舊有來源？</string>
-    <string name="legacy_source_warning_message">舊有來源按照自己的計畫載入，不使用「自動捲片」功能。如果舊有來源沒有自己的 WiFi 設定可能會增加額外的數據使用量。</string>
+    <string name="legacy_app_name"><xliff:g id="muzei_name">Muzei</xliff:g> 舊版</string>
+    <string name="legacy_source_provider_name">舊版來源</string>
+    <string name="legacy_source_warning_title">啟用舊版來源？</string>
+    <string name="legacy_source_warning_message">由於舊版來源被設計為自行管理排程而非借助於「自動捲片」，若其未提供「僅透過 Wi-Fi」選項，則可能產生額外的數據用量。</string>
     <string name="legacy_source_warning_positive">繼續</string>
-    <string name="legacy_source_warning_learn_more">瞭解更多</string>
+    <string name="legacy_source_warning_learn_more">深入瞭解</string>
     <string name="legacy_source_warning_negative">取消</string>
     <string name="legacy_source_settings">自訂來源</string>
     <string name="legacy_source_selection_done">完成</string>
     <string name="legacy_action_next_artwork">下一個 Artwork</string>
-    <string name="legacy_source_unavailable">您選取的來源不可用，正在切換至預設來源。</string>
+    <string name="legacy_source_unavailable">您選取的來源無法使用，正在切換至預設來源。</string>
     <string name="legacy_source_target_too_high_title">此來源已停用</string>
-    <string name="legacy_source_target_too_high_message"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> 與 <xliff:g id="muzei_name">Muzei</xliff:g> 的 API 不相容。若使用此來源，開發人員須將它們的 <xliff:g id="targetSdkVersion">目標 SDK 版本</xliff:g> 變更為 25 或更低。</string>
-    <string name="legacy_source_target_too_high_send_feedback">傳送 <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> 意見回饋</string>
-    <string name="legacy_source_target_too_high_learn_more">瞭解更多</string>
+    <string name="legacy_source_target_too_high_message">「<xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g>」與 <xliff:g id="muzei_name">Muzei</xliff:g> 的 API 不相容。若要使用此來源，開發人員須將它們的<xliff:g id="targetSdkVersion">目標 SDK 版本</xliff:g>變更為 25 或更低。</string>
+    <string name="legacy_source_target_too_high_send_feedback">傳送「<xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g>」意見回饋</string>
+    <string name="legacy_source_target_too_high_learn_more">深入瞭解</string>
     <string name="legacy_source_target_too_high_dismiss">瞭解了</string>
 </resources>
