@@ -20,15 +20,21 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.Build
-import android.support.wearable.complications.ComplicationData
-import android.support.wearable.complications.ComplicationManager
-import android.support.wearable.complications.ComplicationProviderService
-import android.support.wearable.complications.ComplicationText
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.TaskStackBuilder
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
+import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.complications.data.LongTextComplicationData
+import androidx.wear.watchface.complications.data.NoDataComplicationData
+import androidx.wear.watchface.complications.data.PhotoImageComplicationData
+import androidx.wear.watchface.complications.data.PlainComplicationText
+import androidx.wear.watchface.complications.data.SmallImage
+import androidx.wear.watchface.complications.data.SmallImageComplicationData
+import androidx.wear.watchface.complications.data.SmallImageType
+import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService
+import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import com.google.android.apps.muzei.FullScreenActivity
 import com.google.android.apps.muzei.ProviderChangedReceiver
 import com.google.android.apps.muzei.datalayer.ActivateMuzeiReceiver
@@ -45,13 +51,14 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig
+import net.nurik.roman.muzei.androidclientcommon.R as CommonR
 import java.util.TreeSet
 
 /**
  * Provide Muzei backgrounds to other watch faces
  */
 @RequiresApi(Build.VERSION_CODES.N)
-class ArtworkComplicationProviderService : ComplicationProviderService() {
+class ArtworkComplicationProviderService : ComplicationDataSourceService() {
 
     companion object {
         private const val TAG = "ArtworkComplProvider"
@@ -64,11 +71,11 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
         Firebase.analytics.setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
     }
 
-    override fun onComplicationActivated(complicationId: Int, type: Int, manager: ComplicationManager) {
+    override fun onComplicationActivated(complicationInstanceId: Int, type: ComplicationType) {
         if (BuildConfig.DEBUG) {
-            Log.d(TAG, "Activated $complicationId")
+            Log.d(TAG, "Activated $complicationInstanceId")
         }
-        addComplication(complicationId)
+        addComplication(complicationInstanceId)
         Firebase.analytics.logEvent("complication_artwork_activated") {
             param(FirebaseAnalytics.Param.CONTENT_TYPE, type.toString())
         }
@@ -88,15 +95,15 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
         ArtworkComplicationWorker.scheduleComplicationUpdate(this)
     }
 
-    override fun onComplicationDeactivated(complicationId: Int) {
+    override fun onComplicationDeactivated(complicationInstanceId: Int) {
         if (BuildConfig.DEBUG) {
-            Log.d(TAG, "Deactivated $complicationId")
+            Log.d(TAG, "Deactivated $complicationInstanceId")
         }
         Firebase.analytics.logEvent("complication_artwork_deactivated", null)
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
         val complications = TreeSet(preferences.getStringSet(KEY_COMPLICATION_IDS,
                 null) ?: emptySet())
-        complications.remove(complicationId.toString())
+        complications.remove(complicationInstanceId.toString())
         preferences.edit { putStringSet(KEY_COMPLICATION_IDS, complications) }
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Current complications: $complications")
@@ -108,12 +115,15 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
         }
     }
 
+    override fun getPreviewData(type: ComplicationType) = null
+
     @OptIn(DelicateCoroutinesApi::class)
-    override fun onComplicationUpdate(
-            complicationId: Int,
-            type: Int,
-            complicationManager: ComplicationManager
+    override fun onComplicationRequest(
+        request: ComplicationRequest,
+        listener: ComplicationRequestListener
     ) {
+        val complicationId = request.complicationInstanceId
+        val type = request.complicationType
         // Make sure that the complicationId is really in our set of added complications
         // This fixes corner cases like Muzei being uninstalled and reinstalled
         // (which wipes out our SharedPreferences but keeps any complications activated)
@@ -136,8 +146,7 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
                 }
                 ProviderManager.select(applicationContext, FEATURED_ART_AUTHORITY)
                 ActivateMuzeiReceiver.checkForPhoneApp(applicationContext)
-                complicationManager.updateComplicationData(complicationId,
-                        ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build())
+                listener.onComplicationData(NoDataComplicationData())
                 return@launch
             }
             val artwork = database.artworkDao().getCurrentArtwork()
@@ -145,47 +154,62 @@ class ArtworkComplicationProviderService : ComplicationProviderService() {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "Update no artwork for $complicationId")
                 }
-                complicationManager.updateComplicationData(complicationId,
-                        ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build())
+                listener.onComplicationData(NoDataComplicationData())
                 return@launch
             }
-            val builder = ComplicationData.Builder(type).apply {
-                val intent = Intent(applicationContext, FullScreenActivity::class.java)
-                val taskStackBuilder = TaskStackBuilder.create(applicationContext)
-                        .addNextIntentWithParentStack(intent)
-                val tapAction = taskStackBuilder.getPendingIntent(0, PendingIntent.FLAG_IMMUTABLE)
-                when (type) {
-                    ComplicationData.TYPE_LONG_TEXT -> {
-                        val title = artwork.title
-                        val byline = artwork.byline
-                        if (title.isNullOrBlank() && byline.isNullOrBlank()) {
-                            // Both are empty so we don't have any data to show
-                            complicationManager.updateComplicationData(complicationId,
-                                    ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build())
-                            return@launch
-                        } else if (title.isNullOrBlank()) {
-                            // We only have the byline, so use that as the long text
-                            setLongText(ComplicationText.plainText(byline))
-                        } else {
-                            if (!byline.isNullOrBlank()) {
-                                setLongTitle(ComplicationText.plainText(byline))
-                            }
-                            setLongText(ComplicationText.plainText(title))
-                        }
-                        setTapAction(tapAction)
-                    }
-                    ComplicationData.TYPE_SMALL_IMAGE -> {
-                        setImageStyle(ComplicationData.IMAGE_STYLE_PHOTO)
-                                .setSmallImage(Icon.createWithContentUri(artwork.contentUri))
-                        setTapAction(tapAction)
-                    }
-                    ComplicationData.TYPE_LARGE_IMAGE -> setLargeImage(Icon.createWithContentUri(artwork.contentUri))
-                }
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "Updated $complicationId")
-                }
+            val title = artwork.title
+            val byline = artwork.byline
+            // Use the byline by default, falling back to the title
+            val primaryText = when {
+                title.isNullOrBlank() && !byline.isNullOrBlank() -> byline
+                !title.isNullOrBlank() -> title
+                else -> null
             }
-            complicationManager.updateComplicationData(complicationId, builder.build())
+            // Use the title as the secondary text only if the byline
+            // is the primary text and there is a title
+            val secondaryText = when {
+                primaryText == byline && !title.isNullOrBlank() -> title
+                else -> null
+            }
+            val contentDescription = primaryText ?: secondaryText ?: getString(CommonR.string.app_name)
+            val intent = Intent(applicationContext, FullScreenActivity::class.java)
+            val taskStackBuilder = TaskStackBuilder.create(applicationContext)
+                .addNextIntentWithParentStack(intent)
+            val tapAction = taskStackBuilder.getPendingIntent(0, PendingIntent.FLAG_IMMUTABLE)
+            val complicationData = when (type) {
+                ComplicationType.LONG_TEXT -> {
+                    if (primaryText == null) {
+                        // We don't have any text to show
+                        NoDataComplicationData()
+                    } else {
+                        LongTextComplicationData.Builder(
+                            PlainComplicationText.Builder(primaryText).build(),
+                            PlainComplicationText.Builder(contentDescription).build()
+                        ).apply {
+                            if (secondaryText != null) {
+                                setTitle(PlainComplicationText.Builder(secondaryText).build())
+                            }
+                        }.setTapAction(tapAction).build()
+                    }
+                }
+                ComplicationType.SMALL_IMAGE -> {
+                    SmallImageComplicationData.Builder(
+                        SmallImage.Builder(
+                            Icon.createWithContentUri(artwork.contentUri),
+                            SmallImageType.PHOTO
+                        ).build(),
+                        PlainComplicationText.Builder(contentDescription).build()
+                    ).setTapAction(tapAction).build()
+                }
+                ComplicationType.PHOTO_IMAGE -> {
+                    PhotoImageComplicationData.Builder(
+                        Icon.createWithContentUri(artwork.contentUri),
+                        PlainComplicationText.Builder(contentDescription).build()
+                    ).setTapAction(tapAction).build()
+                }
+                else -> NoDataComplicationData()
+            }
+            listener.onComplicationData(complicationData)
         }
     }
 }
