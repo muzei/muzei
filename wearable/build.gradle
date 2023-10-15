@@ -93,6 +93,7 @@ dependencies {
     api libs.coroutines.android
     api libs.coroutines.playservices
     implementation libs.coil
+    implementation libs.concurrent
     implementation libs.workManager
     implementation libs.core
     implementation libs.lifecycle.livedata

@@ -24,6 +24,7 @@ agp = "8.1.2"
 activity = "1.8.0"
 appCompat = "1.7.0-alpha03"
 browser = "1.6.0"
+concurrent = "1.1.0"
 constraintLayout = "2.1.4"
 core = "1.12.0"
 drawerLayout = "1.2.0"
@@ -85,6 +86,7 @@ api-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", 
 activity = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity" }
 appCompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appCompat" }
 browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
+concurrent = { group = "androidx.concurrent", name = "concurrent-futures-ktx", version.ref = "concurrent" }
 constraintLayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintLayout" }
 core = { group = "androidx.core", name = "core-ktx", version.ref = "core" }
 drawerLayout = { group = "androidx.drawerlayout", name = "drawerlayout", version.ref = "drawerLayout" }

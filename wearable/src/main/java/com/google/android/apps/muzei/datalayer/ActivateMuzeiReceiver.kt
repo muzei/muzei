@@ -26,33 +26,31 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.ResultReceiver
-import android.support.wearable.R as WearableR
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.concurrent.futures.await
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
+import androidx.wear.remote.interactions.RemoteActivityHelper
 import com.google.android.apps.muzei.ChooseProviderActivity
+import com.google.android.apps.muzei.util.goAsync
 import com.google.android.apps.muzei.util.toast
 import com.google.android.gms.wearable.CapabilityClient
 import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.Wearable
-import com.google.android.wearable.intent.RemoteIntent
 import com.google.android.wearable.playstore.PlayStoreAvailability
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
 import net.nurik.roman.muzei.R
-import net.nurik.roman.muzei.androidclientcommon.R as CommonR
 import java.util.TreeSet
 import java.util.concurrent.TimeoutException
+import android.support.wearable.R as WearableR
+import net.nurik.roman.muzei.androidclientcommon.R as CommonR
 
 class ActivateMuzeiReceiver : BroadcastReceiver() {
 
@@ -198,18 +196,17 @@ class ActivateMuzeiReceiver : BroadcastReceiver() {
                 resetPendingInstall(this)
             }
             ACTION_REMOTE_INSTALL_MUZEI -> {
-                val remoteIntent = Intent(Intent.ACTION_VIEW)
+                goAsync {
+                    val remoteIntent = Intent(Intent.ACTION_VIEW)
                         .addCategory(Intent.CATEGORY_BROWSABLE)
                         .setData(Uri.parse("market://details?id=$packageName"))
-                RemoteIntent.startRemoteActivity(this, remoteIntent, object : ResultReceiver(Handler(Looper.getMainLooper())) {
-                    override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
-                        if (resultCode == RemoteIntent.RESULT_OK) {
-                            Firebase.analytics.logEvent("activate_notif_install_sent", null)
-                        } else {
-                            toast(R.string.datalayer_install_failed)
-                        }
+                    try {
+                        RemoteActivityHelper(this).startRemoteActivity(remoteIntent).await()
+                        Firebase.analytics.logEvent("activate_notif_install_sent", null)
+                    } catch (e: Exception) {
+                        toast(R.string.datalayer_install_failed)
                     }
-                })
+                }
             }
         }
     }
