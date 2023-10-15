@@ -35,14 +35,15 @@ import androidx.core.app.TaskStackBuilder
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
+import androidx.wear.phone.interactions.PhoneTypeHelper
 import androidx.wear.remote.interactions.RemoteActivityHelper
+import androidx.wear.utils.WearTypeHelper
 import com.google.android.apps.muzei.ChooseProviderActivity
 import com.google.android.apps.muzei.util.goAsync
 import com.google.android.apps.muzei.util.toast
 import com.google.android.gms.wearable.CapabilityClient
 import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.Wearable
-import com.google.android.wearable.playstore.PlayStoreAvailability
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
@@ -99,8 +100,9 @@ class ActivateMuzeiReceiver : BroadcastReceiver() {
                         PackageManager.DONT_KILL_APP)
 
                 // Check whether they can even install Muzei on their phone
-                if (PlayStoreAvailability.getPlayStoreAvailabilityOnPhone(context) ==
-                        PlayStoreAvailability.PLAY_STORE_ON_PHONE_AVAILABLE) {
+                val isAndroid = PhoneTypeHelper.getPhoneDeviceType(context) == PhoneTypeHelper.DEVICE_TYPE_ANDROID
+                val hasPlayStore = !WearTypeHelper.isChinaBuild(context)
+                if (isAndroid && hasPlayStore) {
                     // They can install Muzei. Mark that we're about to ask them
                     // since they might not click through the notification but
                     // instead go to their phone manually
