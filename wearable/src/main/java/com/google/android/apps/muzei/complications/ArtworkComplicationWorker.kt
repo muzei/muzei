@@ -19,10 +19,9 @@ package com.google.android.apps.muzei.complications
 import android.content.ComponentName
 import android.content.Context
 import android.os.Build
-import android.support.wearable.complications.ProviderUpdateRequester
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.preference.PreferenceManager
+import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester
 import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
@@ -31,7 +30,6 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.google.android.apps.muzei.api.MuzeiContract
 import net.nurik.roman.muzei.BuildConfig
-import java.util.TreeSet
 
 /**
  * Worker which listens for artwork change events and updates the Artwork Complication
@@ -68,14 +66,9 @@ class ArtworkComplicationWorker(
     }
 
     override fun doWork(): Result {
-        val providerUpdateRequester = ProviderUpdateRequester(applicationContext,
+        val updateRequester = ComplicationDataSourceUpdateRequester.create(applicationContext,
                 ComponentName(applicationContext, ArtworkComplicationProviderService::class.java))
-        val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        val complicationSet = preferences.getStringSet(
-                ArtworkComplicationProviderService.KEY_COMPLICATION_IDS, TreeSet())
-        if (complicationSet?.isNotEmpty() == true) {
-            providerUpdateRequester.requestUpdate(*complicationSet.map { Integer.parseInt(it) }.toIntArray())
-        }
+        updateRequester.requestUpdateAll()
         // Reschedule the job to listen for the next change
         scheduleComplicationUpdate(applicationContext)
         return Result.success()
