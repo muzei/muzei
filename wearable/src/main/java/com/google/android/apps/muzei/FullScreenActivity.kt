@@ -17,10 +17,10 @@
 package com.google.android.apps.muzei
 
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.core.view.isVisible
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.wear.ambient.AmbientModeSupport
+import androidx.wear.ambient.AmbientLifecycleObserver
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.contentUri
@@ -35,14 +35,14 @@ import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.databinding.FullScreenActivityBinding
 
-class FullScreenActivity : FragmentActivity(),
-        AmbientModeSupport.AmbientCallbackProvider {
-    private val ambientCallback: AmbientModeSupport.AmbientCallback =
-            object : AmbientModeSupport.AmbientCallback() {
-                override fun onEnterAmbient(ambientDetails: Bundle?) {
+class FullScreenActivity : ComponentActivity() {
+    private val ambientCallback: AmbientLifecycleObserver.AmbientLifecycleCallback =
+            object : AmbientLifecycleObserver.AmbientLifecycleCallback {
+                override fun onEnterAmbient(ambientDetails: AmbientLifecycleObserver.AmbientDetails) {
                     finish()
                 }
             }
+    private val ambientObserver = AmbientLifecycleObserver(this, ambientCallback)
 
     private lateinit var binding: FullScreenActivityBinding
 
@@ -50,7 +50,7 @@ class FullScreenActivity : FragmentActivity(),
 
     public override fun onCreate(savedState: Bundle?) {
         super.onCreate(savedState)
-        AmbientModeSupport.attach(this)
+        lifecycle.addObserver(ambientObserver)
         binding = FullScreenActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
         Firebase.analytics.setUserProperty("device_type", BuildConfig.DEVICE_TYPE)
@@ -69,9 +69,5 @@ class FullScreenActivity : FragmentActivity(),
             binding.panView.isVisible = true
             binding.panView.setImage(image)
         }
-    }
-
-    override fun getAmbientCallback(): AmbientModeSupport.AmbientCallback {
-        return ambientCallback
     }
 }
