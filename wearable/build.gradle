@@ -100,7 +100,10 @@ dependencies {
     implementation libs.exifInterface
     implementation libs.preference
     implementation libs.recyclerView
-    implementation libs.wear
+    implementation libs.watchface.core
+    implementation libs.watchface.complications.data
+    implementation libs.wear.core
+    implementation libs.wear.phone
     compileOnly libs.wearable.compile
     implementation libs.wearable.support
 

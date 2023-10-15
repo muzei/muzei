@@ -21,7 +21,7 @@ dependencies {
     api libs.coroutines.core
     api libs.coroutines.android
     implementation libs.watchface.core
-    implementation libs.watchface.complications
+    implementation libs.watchface.complications.rendering
     //implementation "com.google.android.apps.muzei:muzei-api:+"
     implementation project(':muzei-api')
 }

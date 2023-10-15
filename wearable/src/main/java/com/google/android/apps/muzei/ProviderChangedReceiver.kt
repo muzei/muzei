@@ -3,12 +3,12 @@ package com.google.android.apps.muzei
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.support.wearable.notifications.BridgingConfig
-import android.support.wearable.notifications.BridgingManager
 import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.wear.phone.interactions.notifications.BridgingConfig
+import androidx.wear.phone.interactions.notifications.BridgingManager
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.sync.ProviderChangedWorker
 import com.google.android.apps.muzei.sync.ProviderManager

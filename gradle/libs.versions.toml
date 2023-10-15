@@ -39,7 +39,8 @@ room = "2.6.0-rc01"
 swipeRefreshLayout = "1.1.0"
 viewPager2 = "1.1.0-beta02"
 watchface = "1.1.1"
-wear = "1.2.0"
+wear = "1.3.0"
+wearPhoneInteractions = "1.0.1"
 workManager = "2.9.0-beta01"
 
 # Firebase
@@ -51,8 +52,8 @@ firebasePerfPlugin = "1.4.2"
 
 # Google Play services
 googleServices = "4.4.0"
-playServicesWearable = "18.0.0"
-wearable = "2.8.1"
+playServicesWearable = "18.1.0"
+wearable = "2.9.0"
 
 # Jetbrains
 coroutines = "1.7.3"
@@ -103,9 +104,11 @@ room-compiler = { group = "androidx.room", name = "room-compiler", version.ref =
 recyclerView = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerView" }
 swipeRefreshLayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swipeRefreshLayout" }
 viewPager2 = { group = "androidx.viewpager2", name = "viewpager2", version.ref = "viewPager2" }
-wear = { group = "androidx.wear", name = "wear", version.ref = "wear" }
+wear-core = { group = "androidx.wear", name = "wear", version.ref = "wear" }
+wear-phone = { group = "androidx.wear", name = "wear-phone-interactions", version.ref = "wearPhoneInteractions" }
 watchface-core = { group = "androidx.wear.watchface", name = "watchface", version.ref = "watchface" }
-watchface-complications = { group = "androidx.wear.watchface", name = "watchface-complications-rendering", version.ref = "watchface" }
+watchface-complications-data = { group = "androidx.wear.watchface", name = "watchface-complications-data-source-ktx", version.ref = "watchface" }
+watchface-complications-rendering = { group = "androidx.wear.watchface", name = "watchface-complications-rendering", version.ref = "watchface" }
 workManager = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workManager" }
 
 # Firebase
