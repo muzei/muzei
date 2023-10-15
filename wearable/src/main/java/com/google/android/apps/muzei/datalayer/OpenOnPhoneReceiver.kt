@@ -19,9 +19,9 @@ package com.google.android.apps.muzei.datalayer
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.support.wearable.activity.ConfirmationActivity
 import android.util.Log
 import androidx.core.net.toUri
+import androidx.wear.activity.ConfirmationActivity
 import com.google.android.apps.muzei.util.goAsync
 import com.google.android.apps.muzei.util.toast
 import com.google.android.gms.wearable.CapabilityClient

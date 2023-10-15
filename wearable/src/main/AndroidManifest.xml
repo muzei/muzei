@@ -169,7 +169,7 @@
             </intent-filter>
         </service>
 
-        <activity android:name="android.support.wearable.activity.ConfirmationActivity"/>
+        <activity android:name="androidx.wear.activity.ConfirmationActivity"/>
 
         <meta-data
             android:name="com.google.android.wearable.standalone"
