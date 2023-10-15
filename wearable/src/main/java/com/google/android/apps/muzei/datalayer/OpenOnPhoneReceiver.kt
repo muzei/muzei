@@ -22,12 +22,12 @@ import android.content.Intent
 import android.util.Log
 import androidx.core.net.toUri
 import androidx.wear.activity.ConfirmationActivity
+import androidx.wear.remote.interactions.RemoteActivityHelper
 import com.google.android.apps.muzei.util.goAsync
 import com.google.android.apps.muzei.util.toast
 import com.google.android.gms.wearable.CapabilityClient
 import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.Wearable
-import com.google.android.wearable.intent.RemoteIntent
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
@@ -67,12 +67,12 @@ class OpenOnPhoneReceiver : BroadcastReceiver() {
                             ConfirmationActivity.OPEN_ON_PHONE_ANIMATION)
                 }
                 context.startActivity(openOnPhoneIntent)
-                // Use RemoteIntent.startRemoteActivity to open Muzei on the phone
+                // Use RemoteActivityHelper.startRemoteActivity to open Muzei on the phone
                 for (node in nodes) {
-                    RemoteIntent.startRemoteActivity(context, Intent(Intent.ACTION_VIEW).apply {
+                    RemoteActivityHelper(context).startRemoteActivity(Intent(Intent.ACTION_VIEW).apply {
                         data = "android-app://${context.packageName}".toUri()
                         addCategory(Intent.CATEGORY_BROWSABLE)
-                    }, null, node.id)
+                    }, node.id)
                 }
             }
         }

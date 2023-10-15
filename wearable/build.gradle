@@ -104,6 +104,7 @@ dependencies {
     implementation libs.watchface.complications.data
     implementation libs.wear.core
     implementation libs.wear.phone
+    implementation libs.wear.remote
     compileOnly libs.wearable.compile
     implementation libs.wearable.support
 
