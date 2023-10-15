@@ -25,6 +25,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.TaskStackBuilder
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
+import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.LongTextComplicationData
 import androidx.wear.watchface.complications.data.NoDataComplicationData
@@ -33,8 +34,8 @@ import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.SmallImage
 import androidx.wear.watchface.complications.data.SmallImageComplicationData
 import androidx.wear.watchface.complications.data.SmallImageType
-import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
+import androidx.wear.watchface.complications.datasource.SuspendingComplicationDataSourceService
 import com.google.android.apps.muzei.FullScreenActivity
 import com.google.android.apps.muzei.ProviderChangedReceiver
 import com.google.android.apps.muzei.datalayer.ActivateMuzeiReceiver
@@ -47,18 +48,15 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig
-import net.nurik.roman.muzei.androidclientcommon.R as CommonR
 import java.util.TreeSet
+import net.nurik.roman.muzei.androidclientcommon.R as CommonR
 
 /**
  * Provide Muzei backgrounds to other watch faces
  */
 @RequiresApi(Build.VERSION_CODES.N)
-class ArtworkComplicationProviderService : ComplicationDataSourceService() {
+class ArtworkComplicationProviderService : SuspendingComplicationDataSourceService() {
 
     companion object {
         private const val TAG = "ArtworkComplProvider"
@@ -117,11 +115,9 @@ class ArtworkComplicationProviderService : ComplicationDataSourceService() {
 
     override fun getPreviewData(type: ComplicationType) = null
 
-    @OptIn(DelicateCoroutinesApi::class)
-    override fun onComplicationRequest(
-        request: ComplicationRequest,
-        listener: ComplicationRequestListener
-    ) {
+    override suspend fun onComplicationRequest(
+        request: ComplicationRequest
+    ): ComplicationData {
         val complicationId = request.complicationInstanceId
         val type = request.complicationType
         // Make sure that the complicationId is really in our set of added complications
@@ -137,79 +133,74 @@ class ArtworkComplicationProviderService : ComplicationDataSourceService() {
             addComplication(complicationId)
         }
         val applicationContext = applicationContext
-        GlobalScope.launch {
-            val database = MuzeiDatabase.getInstance(applicationContext)
-            val provider = database.providerDao().getCurrentProvider()
-            if (provider == null) {
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "Update no provider for $complicationId")
-                }
-                ProviderManager.select(applicationContext, FEATURED_ART_AUTHORITY)
-                ActivateMuzeiReceiver.checkForPhoneApp(applicationContext)
-                listener.onComplicationData(NoDataComplicationData())
-                return@launch
+        val database = MuzeiDatabase.getInstance(applicationContext)
+        val provider = database.providerDao().getCurrentProvider()
+        if (provider == null) {
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Update no provider for $complicationId")
             }
-            val artwork = database.artworkDao().getCurrentArtwork()
-            if (artwork == null) {
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "Update no artwork for $complicationId")
-                }
-                listener.onComplicationData(NoDataComplicationData())
-                return@launch
+            ProviderManager.select(applicationContext, FEATURED_ART_AUTHORITY)
+            ActivateMuzeiReceiver.checkForPhoneApp(applicationContext)
+            return NoDataComplicationData()
+        }
+        val artwork = database.artworkDao().getCurrentArtwork()
+        if (artwork == null) {
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Update no artwork for $complicationId")
             }
-            val title = artwork.title
-            val byline = artwork.byline
-            // Use the byline by default, falling back to the title
-            val primaryText = when {
-                title.isNullOrBlank() && !byline.isNullOrBlank() -> byline
-                !title.isNullOrBlank() -> title
-                else -> null
-            }
-            // Use the title as the secondary text only if the byline
-            // is the primary text and there is a title
-            val secondaryText = when {
-                primaryText == byline && !title.isNullOrBlank() -> title
-                else -> null
-            }
-            val contentDescription = primaryText ?: secondaryText ?: getString(CommonR.string.app_name)
-            val intent = Intent(applicationContext, FullScreenActivity::class.java)
-            val taskStackBuilder = TaskStackBuilder.create(applicationContext)
-                .addNextIntentWithParentStack(intent)
-            val tapAction = taskStackBuilder.getPendingIntent(0, PendingIntent.FLAG_IMMUTABLE)
-            val complicationData = when (type) {
-                ComplicationType.LONG_TEXT -> {
-                    if (primaryText == null) {
-                        // We don't have any text to show
-                        NoDataComplicationData()
-                    } else {
-                        LongTextComplicationData.Builder(
-                            PlainComplicationText.Builder(primaryText).build(),
-                            PlainComplicationText.Builder(contentDescription).build()
-                        ).apply {
-                            if (secondaryText != null) {
-                                setTitle(PlainComplicationText.Builder(secondaryText).build())
-                            }
-                        }.setTapAction(tapAction).build()
-                    }
-                }
-                ComplicationType.SMALL_IMAGE -> {
-                    SmallImageComplicationData.Builder(
-                        SmallImage.Builder(
-                            Icon.createWithContentUri(artwork.contentUri),
-                            SmallImageType.PHOTO
-                        ).build(),
+            return NoDataComplicationData()
+        }
+        val title = artwork.title
+        val byline = artwork.byline
+        // Use the byline by default, falling back to the title
+        val primaryText = when {
+            title.isNullOrBlank() && !byline.isNullOrBlank() -> byline
+            !title.isNullOrBlank() -> title
+            else -> null
+        }
+        // Use the title as the secondary text only if the byline
+        // is the primary text and there is a title
+        val secondaryText = when {
+            primaryText == byline && !title.isNullOrBlank() -> title
+            else -> null
+        }
+        val contentDescription = primaryText ?: secondaryText ?: getString(CommonR.string.app_name)
+        val intent = Intent(applicationContext, FullScreenActivity::class.java)
+        val taskStackBuilder = TaskStackBuilder.create(applicationContext)
+            .addNextIntentWithParentStack(intent)
+        val tapAction = taskStackBuilder.getPendingIntent(0, PendingIntent.FLAG_IMMUTABLE)
+        return when (type) {
+            ComplicationType.LONG_TEXT -> {
+                if (primaryText == null) {
+                    // We don't have any text to show
+                    NoDataComplicationData()
+                } else {
+                    LongTextComplicationData.Builder(
+                        PlainComplicationText.Builder(primaryText).build(),
                         PlainComplicationText.Builder(contentDescription).build()
-                    ).setTapAction(tapAction).build()
+                    ).apply {
+                        if (secondaryText != null) {
+                            setTitle(PlainComplicationText.Builder(secondaryText).build())
+                        }
+                    }.setTapAction(tapAction).build()
                 }
-                ComplicationType.PHOTO_IMAGE -> {
-                    PhotoImageComplicationData.Builder(
+            }
+            ComplicationType.SMALL_IMAGE -> {
+                SmallImageComplicationData.Builder(
+                    SmallImage.Builder(
                         Icon.createWithContentUri(artwork.contentUri),
-                        PlainComplicationText.Builder(contentDescription).build()
-                    ).setTapAction(tapAction).build()
-                }
-                else -> NoDataComplicationData()
+                        SmallImageType.PHOTO
+                    ).build(),
+                    PlainComplicationText.Builder(contentDescription).build()
+                ).setTapAction(tapAction).build()
             }
-            listener.onComplicationData(complicationData)
+            ComplicationType.PHOTO_IMAGE -> {
+                PhotoImageComplicationData.Builder(
+                    Icon.createWithContentUri(artwork.contentUri),
+                    PlainComplicationText.Builder(contentDescription).build()
+                ).setTapAction(tapAction).build()
+            }
+            else -> NoDataComplicationData()
         }
     }
 }
