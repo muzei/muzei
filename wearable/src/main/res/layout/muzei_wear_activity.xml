@@ -28,6 +28,7 @@
         android:paddingStart="8dp"
         android:paddingEnd="8dp"
         android:paddingBottom="8dp"
+        android:scrollbars="vertical"
         app:layoutManager="LinearLayoutManager" />
 
     <TextView
