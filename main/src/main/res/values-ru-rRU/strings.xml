@@ -30,11 +30,11 @@
     <string name="notification_settings_moved_title">Настройки уведомлений переехали</string>
     <string name="notification_settings_moved_text">Просмотрите свои настройки уведомлений</string>
     <string name="auto_advance_settings">Настройки автоматического перехода</string>
-    <string name="auto_advance_disabled">Автопереход отключён</string>
-    <string name="auto_advance_disabled_description">Устаревшие источники самостоятельно загружают обои и не поддерживают автопереход</string>
-    <string name="auto_advance_title">Автопереход</string>
-    <string name="auto_advance_description">Управлять, когда <xliff:g id="muzei_name">Muzei</xliff:g> автоматически переходит к следующим обоям.</string>
-    <string name="auto_advance_wifi">Автопереход только по Wi-Fi</string>
+    <string name="auto_advance_disabled">Автоматический переход отключён</string>
+    <string name="auto_advance_disabled_description">Устаревшие источники самостоятельно загружают обои и не поддерживают автоматический переход</string>
+    <string name="auto_advance_title">Автоматический переход</string>
+    <string name="auto_advance_description">Задайте интервал, через который <xliff:g id="muzei_name">Muzei</xliff:g> автоматически переходит к следующим обоям.</string>
+    <string name="auto_advance_wifi">Автоматический переход только по Wi-Fi</string>
     <string name="auto_advance_interval">Интервал</string>
     <string name="auto_advance_interval_15m">Каждые 15 минут</string>
     <string name="auto_advance_interval_30m">Каждые 30 минут</string>
@@ -45,11 +45,38 @@
     <string name="auto_advance_interval_72h">Каждые 3 дня</string>
     <string name="auto_advance_interval_never">Не переходить автоматически</string>
     <string name="auto_advance_tasker">Для точного контроля над тем, что вызывает изменения ваших обоев, используйте действие \'Следующая работа\' в <xliff:g id="tasker_name">Tasker</xliff:g> под Plugin -&gt; <xliff:g id="muzei_name">Muzei</xliff:g> и отключите автоматический переход здесь.</string>
+    <string name="auto_advance_tasker_name"><xliff:g id="tasker_name">Tasker</xliff:g></string>
+    <string name="action_activate">Активировать</string>
+    <string name="error_view_details">Не удалось отобразить информацию о рисунке.</string>
+    <string name="error_wallpaper_chooser">Не удалось запустить выбор обоев. Вы все ещё можете активировать <xliff:g id="muzei_name">Muzei</xliff:g>, выбрав \'Живые обои\' в списке обоев вашего домашнего экрана.</string>
     <string name="section_choose_source">Источники</string>
     <string name="section_effects">Эффекты</string>
     <string name="action_next_artwork">Следующий рисунок</string>
+    <string name="action_next_artwork_condensed">Следующий</string>
+    <string name="action_user_command">Ещё</string>
+    <string name="action_user_command_prompt">Выберите действие</string>
+    <string name="action_artwork_info">Информация о рисунке</string>
+    <string name="action_artwork_info_disabled">Нет информации о текущем рисунке.</string>
     <string name="provider_settings">Настройки</string>
     <string name="provider_browse">Обзор</string>
     <string name="legacy_notification_channel_name">Устаревшие источники</string>
+    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> больше не поддерживается</string>
+    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> официально не поддерживает источники, созданные с использованием устаревшего API.</string>
+    <string name="legacy_action_learn_more">Подробнее</string>
+    <string name="legacy_action_send_feedback">Отправить отзыв</string>
     <string name="legacy_summary_title">Устаревшие источники больше не поддерживаются</string>
+    <string name="legacy_source_info_title">Устаревшие источники</string>
+    <string name="legacy_source_info_subtitle">Источники, созданные с использованием устаревшего API, более официально не поддерживаются <xliff:g id="muzei_name">Muzei</xliff:g>.</string>
+    <string name="legacy_source_info_app_info">Информация о приложении</string>
+    <string name="legacy_source_info_send_feedback">Отправить отзыв</string>
+    <string name="legacy_source_all_uninstalled">Все Устаревшие источники удалены</string>
+    <string name="done">Готово</string>
+    <string name="actions_gestures">Настроить Жесты</string>
+    <string name="gestures_title">Жесты</string>
+    <string name="gestures_double_tap_title">Двойное касание</string>
+    <string name="gestures_double_tap_description">Дважды коснитесь размытых обоев на домашнем экране, чтобы выполнить выбранное вами действие.</string>
+    <string name="gestures_three_finger_tap_title">Касание тремя пальцами</string>
+    <string name="gestures_three_finger_tap_description">Коснитесь размытых обоев на домашнем экране тремя пальцами, чтобы выполнить выбранное вами действие.</string>
+    <string name="gestures_tap_action_temporary_disable">Временно отключить эффекты</string>
+    <string name="gestures_tap_action_next">Следующий рисунок</string>
 </resources>
