@@ -25,7 +25,7 @@
     <string name="notification_new_wallpaper">Новые обои</string>
     <string name="notification_new_wallpaper_channel_name">Новые обои</string>
     <string name="notification_settings">Настройки уведомлений</string>
-    <string name="notification_settings_failed">Не удалось открыть настройки уведомлений, пожалуйста, измените настройки уведомлений <xliff:g id="muzei_name">Muzei</xliff:g>в приложении настоек.</string>
+    <string name="notification_settings_failed">Не удалось открыть настройки уведомлений. Пожалуйста, измените настройки уведомлений <xliff:g id="muzei_name">Muzei</xliff:g> в настройках приложений Android.</string>
     <string name="notification_settings_done">Готово</string>
     <string name="notification_settings_moved_title">Настройки уведомлений переехали</string>
     <string name="notification_settings_moved_text">Просмотрите свои настройки уведомлений</string>
@@ -45,4 +45,11 @@
     <string name="auto_advance_interval_72h">Каждые 3 дня</string>
     <string name="auto_advance_interval_never">Не переходить автоматически</string>
     <string name="auto_advance_tasker">Для точного контроля над тем, что вызывает изменения ваших обоев, используйте действие \'Следующая работа\' в <xliff:g id="tasker_name">Tasker</xliff:g> под Plugin -&gt; <xliff:g id="muzei_name">Muzei</xliff:g> и отключите автоматический переход здесь.</string>
+    <string name="section_choose_source">Источники</string>
+    <string name="section_effects">Эффекты</string>
+    <string name="action_next_artwork">Следующий рисунок</string>
+    <string name="provider_settings">Настройки</string>
+    <string name="provider_browse">Обзор</string>
+    <string name="legacy_notification_channel_name">Устаревшие источники</string>
+    <string name="legacy_summary_title">Устаревшие источники больше не поддерживаются</string>
 </resources>
