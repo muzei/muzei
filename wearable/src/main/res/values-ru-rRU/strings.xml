@@ -16,9 +16,11 @@
   -->
 <resources>
     <string name="complication_artwork_label">Рисунок</string>
-    <string name="next_artwork">Следующий</string>
+    <string name="next_artwork">Следующий рисунок</string>
     <string name="provider_title">Текущий источник</string>
     <string name="provider_settings">Настройки источника</string>
     <string name="config_show_date_title">Дата</string>
+    <string name="config_top_complication_title">Верхнее усложнение</string>
+    <string name="config_bottom_complication_title">Нижнее усложнение</string>
     <string name="config_tap_title">Действие при нажатии</string>
 </resources>
