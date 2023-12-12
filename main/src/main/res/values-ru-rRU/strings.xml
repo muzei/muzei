@@ -65,6 +65,18 @@
     <string name="legacy_action_learn_more">Подробнее</string>
     <string name="legacy_action_send_feedback">Отправить отзыв</string>
     <string name="legacy_summary_title">Устаревшие источники больше не поддерживаются</string>
+    <plurals name="legacy_summary_text">
+        <item quantity="one">Найден <xliff:g id="quantity" example="1">%1$d</xliff:g> Устаревший источник</item>
+        <item quantity="few">Найдено <xliff:g id="quantity" example="2">%1$d</xliff:g> Устаревших источника</item>
+        <item quantity="many">Найдено <xliff:g id="quantity" example="100">%1$d</xliff:g> Устаревших источников</item>
+        <item quantity="other">Найден <xliff:g id="quantity" example="1">%1$d</xliff:g> Устаревший источник</item>
+    </plurals>
+    <plurals name="legacy_unsupported_text">
+        <item quantity="one">Найден <xliff:g id="quantity" example="1">%1$d</xliff:g> неподдерживаемый источник</item>
+        <item quantity="few">Найдено <xliff:g id="quantity" example="2">%1$d</xliff:g> неподдерживаемых источника</item>
+        <item quantity="many">Найдено <xliff:g id="quantity" example="100">%1$d</xliff:g> неподдерживаемых источников</item>
+        <item quantity="other">Найден <xliff:g id="quantity" example="1">%1$d</xliff:g> неподдерживаемый источник</item>
+    </plurals>
     <string name="legacy_source_info_title">Устаревшие источники</string>
     <string name="legacy_source_info_subtitle">Источники, созданные с использованием устаревшего API, более официально не поддерживаются <xliff:g id="muzei_name">Muzei</xliff:g>.</string>
     <string name="legacy_source_info_app_info">Информация о приложении</string>
