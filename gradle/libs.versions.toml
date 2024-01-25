@@ -18,7 +18,7 @@
 
 compileSdk = "34"
 targetSdk = "33"
-agp = "8.2.1"
+agp = "8.2.2"
 
 # AndroidX
 activity = "1.8.2"
