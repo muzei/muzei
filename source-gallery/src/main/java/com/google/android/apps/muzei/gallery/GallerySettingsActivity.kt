@@ -371,11 +371,22 @@ class GallerySettingsActivity : AppCompatActivity(),
                 return true
             }
             R.id.action_clear_photos -> {
-                val context = this
-                lifecycleScope.launch(NonCancellable) {
-                    GalleryDatabase.getInstance(context)
+                // Display confirmation dialog before removing photos
+                var confirmationDialog = MaterialAlertDialogBuilder(requireContext(), R.style.Theme_Legacy_Dialog)
+                .setTitle(R.string.legacy_source_warning_title)
+                .setMessage(R.string.legacy_source_warning_message)
+                .setPositiveButton(R.string.legacy_source_warning_positive) { _, _ ->
+                    val context = this
+                    lifecycleScope.launch(NonCancellable) {
+                        GalleryDatabase.getInstance(context)
                             .chosenPhotoDao().deleteAll(context)
+                    }
                 }
+                .setNegativeButton(R.string.legacy_source_warning_negative, null)
+                .create()
+                
+                confirmationDialog.show()
+                
                 return true
             }
             else -> return super.onOptionsItemSelected(item)
