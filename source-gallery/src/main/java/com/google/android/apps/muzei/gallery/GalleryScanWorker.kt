@@ -51,7 +51,7 @@ import java.io.IOException
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.LinkedList
-import java.util.Random
+import kotlin.random.Random
 
 class GalleryScanWorker(
         context: Context,
@@ -276,9 +276,8 @@ class GalleryScanWorker(
             }
             val lastToken = providerClient.lastAddedArtwork?.token
 
-            val random = Random()
             val randomSequence = generateSequence {
-                random.nextInt(data.count)
+                Random.nextInt(data.count)
             }.distinct().take(data.count)
             val iterator = randomSequence.iterator()
             while (iterator.hasNext()) {

@@ -45,10 +45,10 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java.util.Random
 import java.util.TimeZone
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.random.Random
 
 class FeaturedArtWorker(
         context: Context,
@@ -68,8 +68,6 @@ class FeaturedArtWorker(
         private const val KEY_TOKEN = "token"
         private const val KEY_DETAILS_URI = "detailsUri"
         private const val MAX_JITTER_MILLIS = 20 * 60 * 1000
-
-        private val RANDOM = Random()
 
         private val DATE_FORMAT_TZ = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US)
         private val DATE_FORMAT_LOCAL = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
@@ -160,7 +158,7 @@ class FeaturedArtWorker(
         }
 
         val nextUpdateMillis = if (nextTime != null)
-            nextTime.time + RANDOM.nextInt(MAX_JITTER_MILLIS) // jitter by up to N milliseconds
+            nextTime.time + Random.nextInt(MAX_JITTER_MILLIS) // jitter by up to N milliseconds
         else
             System.currentTimeMillis() + 12 * 60 * 60 * 1000 // No next time, default to checking in 12 hours
         val sp = PreferenceManager.getDefaultSharedPreferences(applicationContext)

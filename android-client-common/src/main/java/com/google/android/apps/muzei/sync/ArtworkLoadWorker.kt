@@ -50,8 +50,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.IOException
-import java.util.Random
 import java.util.concurrent.TimeUnit
+import kotlin.random.Random
 
 /**
  * Worker responsible for loading artwork from a [MuzeiArtProvider] and inserting it into
@@ -171,7 +171,6 @@ class ArtworkLoadWorker(
                         // artwork. We want to avoid showing artwork we've recently loaded, so
                         // we'll generate two sequences - the first being made up of
                         // non recent artwork, the second being made up of only recent artwork
-                        val random = Random()
                         // Build a lambda that checks whether the given position
                         // represents the current artwork
                         val isCurrentArtwork: (position: Int) -> Boolean = { position ->
@@ -195,13 +194,13 @@ class ArtworkLoadWorker(
                         }
                         // Now generate a random sequence for non recent artwork
                         val nonRecentArtworkSequence = generateSequence {
-                            random.nextInt(allArtwork.count)
+                            Random.nextInt(allArtwork.count)
                         }.distinct().take(allArtwork.count)
                             .filterNot(isCurrentArtwork)
                             .filterNot(isRecentArtwork)
                         // Now generate another sequence for recent artwork
                         val recentArtworkSequence = generateSequence {
-                            random.nextInt(allArtwork.count)
+                            Random.nextInt(allArtwork.count)
                         }.distinct().take(allArtwork.count)
                             .filterNot(isCurrentArtwork)
                             .filter(isRecentArtwork)

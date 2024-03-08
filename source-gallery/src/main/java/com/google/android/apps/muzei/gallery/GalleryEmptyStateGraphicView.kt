@@ -25,7 +25,7 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
 import androidx.core.content.ContextCompat
-import java.util.Random
+import kotlin.random.Random
 
 /**
  * Draws a cool random highlighted cells animation.
@@ -64,7 +64,6 @@ class GalleryEmptyStateGraphicView
     private var onTime: Long = 0
     private var onX: Int = 0
     private var onY: Int = 0
-    private val random = Random()
     private val tempRectF = RectF()
     private val cellSpacing: Int
     private val cellRounding: Int
@@ -114,8 +113,8 @@ class GalleryEmptyStateGraphicView
         if (nowElapsed > onTime + ON_TIME_MILLIS.toLong() + (FADE_TIME_MILLIS * 2).toLong() + OFF_TIME_MILLIS.toLong()) {
             onTime = nowElapsed
             while (true) {
-                val x = random.nextInt(COLS)
-                val y = random.nextInt(ROWS)
+                val x = Random.nextInt(COLS)
+                val y = Random.nextInt(ROWS)
                 if ((x != onX || y != onY) && BITMAP[y * COLS + x] == 1) {
                     onX = x
                     onY = y
