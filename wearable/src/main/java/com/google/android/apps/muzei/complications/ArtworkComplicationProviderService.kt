@@ -44,10 +44,10 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.contentUri
 import com.google.android.apps.muzei.sync.ProviderChangedWorker
 import com.google.android.apps.muzei.sync.ProviderManager
+import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.analytics.ktx.logEvent
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.analytics.analytics
+import com.google.firebase.analytics.logEvent
 import net.nurik.roman.muzei.BuildConfig
 import java.util.TreeSet
 import net.nurik.roman.muzei.androidclientcommon.R as CommonR

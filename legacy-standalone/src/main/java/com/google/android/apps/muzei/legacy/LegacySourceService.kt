@@ -43,8 +43,8 @@ import com.google.android.apps.muzei.sources.SourceSubscriberService
 import com.google.android.apps.muzei.util.collectIn
 import com.google.android.apps.muzei.util.goAsync
 import com.google.android.apps.muzei.util.toast
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.Firebase
+import com.google.firebase.analytics.analytics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.channels.awaitClose

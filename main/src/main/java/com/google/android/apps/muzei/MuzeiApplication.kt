@@ -26,8 +26,8 @@ import androidx.fragment.app.strictmode.FragmentStrictMode
 import androidx.multidex.MultiDexApplication
 import com.google.android.apps.muzei.settings.EffectsScreenFragment
 import com.google.android.apps.muzei.settings.Prefs
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.Firebase
+import com.google.firebase.crashlytics.crashlytics
 import net.nurik.roman.muzei.BuildConfig
 
 class MuzeiApplication : MultiDexApplication(), SharedPreferences.OnSharedPreferenceChangeListener {

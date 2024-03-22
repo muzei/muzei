@@ -46,14 +46,14 @@ wearRemoteInteractions = "1.0.0"
 workManager = "2.9.0"
 
 # Firebase
-firebaseAnalytics = "21.3.0"
-firebaseCrashlytics = "18.4.3"
+firebaseAnalytics = "21.6.1"
+firebaseCrashlytics = "18.6.3"
 firebaseCrashlyticsGradle = "2.9.9"
-firebasePerf = "20.4.1"
+firebasePerf = "20.5.2"
 firebasePerfPlugin = "1.4.2"
 
 # Google Play services
-googleServices = "4.4.0"
+googleServices = "4.4.1"
 playServicesWearable = "18.1.0"
 wearable = "2.9.0"
 
@@ -116,10 +116,10 @@ watchface-complications-rendering = { group = "androidx.wear.watchface", name = 
 workManager = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workManager" }
 
 # Firebase
-firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics-ktx", version.ref = "firebaseAnalytics" }
-firebase-crashlytics-ktx = { group = "com.google.firebase", name = "firebase-crashlytics-ktx", version.ref = "firebaseCrashlytics" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics", version.ref = "firebaseAnalytics" }
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics", version.ref = "firebaseCrashlytics" }
 firebase-crashlytics-gradle = { group = "com.google.firebase", name = "firebase-crashlytics-gradle", version.ref = "firebaseCrashlyticsGradle" }
-firebase-perf-ktx = { group = "com.google.firebase", name = "firebase-perf-ktx", version.ref = "firebasePerf" }
+firebase-perf = { group = "com.google.firebase", name = "firebase-perf", version.ref = "firebasePerf" }
 firebase-perf-plugin = { group = "com.google.firebase", name = "perf-plugin", version.ref = "firebasePerfPlugin" }
 
 # Google Play services
