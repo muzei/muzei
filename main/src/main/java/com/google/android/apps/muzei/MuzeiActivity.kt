@@ -16,14 +16,23 @@
 
 package com.google.android.apps.muzei
 
+import android.annotation.TargetApi
 import android.app.Activity
 import android.app.Application
 import android.app.Notification
+import android.app.WallpaperColors
+import android.app.WallpaperManager
 import android.content.SharedPreferences
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.ColorUtils
+import androidx.core.graphics.toColorInt
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commit
@@ -54,6 +63,50 @@ class MuzeiActivity : AppCompatActivity() {
     private var fadeIn = false
     private var renderLocally = false
     private val viewModel : MuzeiActivityViewModel by viewModels()
+
+    private val lightBarIconColor = "#191919".toColorInt()
+    private val darkBarIconColor = "#D0D0D0".toColorInt()
+    private var currentColors: WallpaperColors? = null
+    private var isShowingBrowseProviderFragment = false
+
+    private val wallpaperManager by lazy {
+        WallpaperManager.getInstance(this)
+    }
+
+    @TargetApi(Build.VERSION_CODES.O_MR1)
+    private val colorsChangedListener =
+        WallpaperManager.OnColorsChangedListener { colors, _ ->
+            currentColors = colors
+            if (!isShowingBrowseProviderFragment) {
+                updateStatusBarColor(colors)
+            }
+        }
+
+    @TargetApi(Build.VERSION_CODES.O_MR1)
+    private fun updateStatusBarColor(colors: WallpaperColors?) {
+        if (colors == null) {
+            return
+        }
+        val backgroundColor = colors.primaryColor.toArgb()
+        val lightContrast = ColorUtils.calculateContrast(lightBarIconColor, backgroundColor)
+        val darkContrast = ColorUtils.calculateContrast(darkBarIconColor, backgroundColor)
+        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars =
+            lightContrast > darkContrast
+    }
+
+    private fun restoreStatusBarColor() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O_MR1) {
+            return
+        }
+        currentColors?.let(::updateStatusBarColor)
+    }
+
+    fun setShowingBrowseProviderFragment(showing: Boolean) {
+        isShowingBrowseProviderFragment = showing
+        if (!showing) {
+            restoreStatusBarColor()
+        }
+    }
 
     private val currentFragment: Fragment
         get() {
@@ -158,6 +211,19 @@ class MuzeiActivity : AppCompatActivity() {
             }
             NotificationSettingsDialogFragment.showSettings(this,
                     supportFragmentManager)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            wallpaperManager.addOnColorsChangedListener(
+                colorsChangedListener,
+                Handler(Looper.getMainLooper())
+            )
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            wallpaperManager.removeOnColorsChangedListener(colorsChangedListener)
         }
     }
 
