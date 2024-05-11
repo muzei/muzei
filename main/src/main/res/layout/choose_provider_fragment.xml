@@ -33,6 +33,7 @@
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
+            app:liftOnScroll="false"
             app:elevation="0dp">
 
             <androidx.appcompat.widget.Toolbar
