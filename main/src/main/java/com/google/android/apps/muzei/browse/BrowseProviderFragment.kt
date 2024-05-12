@@ -22,6 +22,7 @@ import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.LifecycleOwner
@@ -33,6 +34,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import coil.load
+import com.google.android.apps.muzei.MuzeiActivity
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_MARK_ARTWORK_LOADED
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
@@ -41,6 +43,7 @@ import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
 import com.google.android.apps.muzei.util.addMenuProvider
 import com.google.android.apps.muzei.util.collectIn
+import com.google.android.apps.muzei.util.isNightMode
 import com.google.android.apps.muzei.util.toast
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -102,6 +105,17 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
         viewModel.artwork.collectIn(viewLifecycleOwner) {
             adapter.submitList(it)
         }
+        (activity as? MuzeiActivity)?.let {
+            it.setShowingBrowseProviderFragment(true)
+            it.window?.let { window ->
+                WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = !resources.isNightMode()
+            }
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        (activity as? MuzeiActivity)?.setShowingBrowseProviderFragment(false)
     }
 
     private fun refresh(swipeRefreshLayout: SwipeRefreshLayout) {

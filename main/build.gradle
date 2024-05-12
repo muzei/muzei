@@ -122,6 +122,7 @@ dependencies {
     implementation libs.preference
     implementation libs.navigation.fragment
     implementation libs.navigation.ui
+    implementation libs.palette
 
     implementation project(':muzei-api')
     implementation project(':extensions')

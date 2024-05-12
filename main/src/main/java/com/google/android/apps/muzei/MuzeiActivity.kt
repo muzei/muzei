@@ -16,32 +16,48 @@
 
 package com.google.android.apps.muzei
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.app.Notification
 import android.content.SharedPreferences
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.ColorUtils
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commit
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.palette.graphics.Palette
 import androidx.preference.PreferenceManager
 import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
+import com.google.android.apps.muzei.render.ContentUriImageLoader
 import com.google.android.apps.muzei.render.MuzeiRendererFragment
+import com.google.android.apps.muzei.room.Artwork
+import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.room.contentUri
 import com.google.android.apps.muzei.settings.EffectsFragment
 import com.google.android.apps.muzei.util.collectIn
+import com.google.android.apps.muzei.util.isNightMode
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import com.google.android.apps.muzei.wallpaper.initializeWallpaperActiveState
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.analytics
 import com.google.firebase.analytics.logEvent
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.MuzeiActivityBinding
@@ -54,6 +70,26 @@ class MuzeiActivity : AppCompatActivity() {
     private var fadeIn = false
     private var renderLocally = false
     private val viewModel : MuzeiActivityViewModel by viewModels()
+
+    private var _isLightStatusBar: Boolean? = null
+    private var isLightStatusBar: Boolean
+        get() = _isLightStatusBar ?: !resources.isNightMode()
+        set(value) {
+            _isLightStatusBar = value
+        }
+    private var isShowingBrowseProviderFragment = false
+
+    private fun updateStatusBarColor() {
+        if (isShowingBrowseProviderFragment) {
+            return
+        }
+        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = isLightStatusBar
+    }
+
+    fun setShowingBrowseProviderFragment(showing: Boolean) {
+        isShowingBrowseProviderFragment = showing
+        updateStatusBarColor()
+    }
 
     private val currentFragment: Fragment
         get() {
@@ -159,6 +195,47 @@ class MuzeiActivity : AppCompatActivity() {
             NotificationSettingsDialogFragment.showSettings(this,
                     supportFragmentManager)
         }
+        viewModel.currentArtwork.collectIn(this) { artwork ->
+            if (artwork != null) {
+                val isLight = withContext(Dispatchers.IO) {
+                    getStatusBarBitmap(artwork)?.let { isLightBitmap(it) } ?: isLightStatusBar
+                }
+                if (isLight != isLightStatusBar) {
+                    isLightStatusBar = isLight
+                    updateStatusBarColor()
+                }
+            }
+        }
+    }
+
+    private fun isLightBitmap(bitmap: Bitmap): Boolean {
+        val color = Palette.from(bitmap).generate().dominantSwatch?.rgb
+        val luminance = color?.let { ColorUtils.calculateLuminance(it) } ?: return isLightStatusBar
+        return luminance > 0.3
+    }
+
+    private fun artworkToBitmap(artwork: Artwork): Bitmap? {
+        return try {
+            BitmapFactory.decodeStream(ContentUriImageLoader(contentResolver, artwork.contentUri).openInputStream())
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun getStatusBarBitmap(artwork: Artwork): Bitmap? {
+        val bitmap = artworkToBitmap(artwork) ?: return null
+        val statusBarHeight = getStatusBarHeight()
+        if (statusBarHeight <= 0) {
+            return null
+        }
+        if (bitmap.height <= statusBarHeight) return bitmap
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, statusBarHeight)
+    }
+
+    @SuppressLint("DiscouragedApi", "InternalInsetResource")
+    private fun getStatusBarHeight(): Int {
+        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
+        return if (resourceId > 0) resources.getDimensionPixelSize(resourceId) else 0
     }
 
     override fun onPostResume() {
@@ -209,6 +286,9 @@ class MuzeiActivity : AppCompatActivity() {
 
 class MuzeiActivityViewModel(application: Application): AndroidViewModel(application) {
     private val sp: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(application)
+
+    val currentArtwork = MuzeiDatabase.getInstance(application).artworkDao().getCurrentArtworkFlow()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), null)
 
     fun onSeenTutorial(): Flow<Boolean> = callbackFlow {
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
