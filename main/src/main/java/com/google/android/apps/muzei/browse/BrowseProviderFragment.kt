@@ -17,7 +17,6 @@
 package com.google.android.apps.muzei.browse
 
 import android.app.PendingIntent
-import android.content.res.Configuration
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
@@ -44,6 +43,7 @@ import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
 import com.google.android.apps.muzei.util.addMenuProvider
 import com.google.android.apps.muzei.util.collectIn
+import com.google.android.apps.muzei.util.isNightMode
 import com.google.android.apps.muzei.util.toast
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -108,13 +108,10 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
         (activity as? MuzeiActivity)?.let {
             it.setShowingBrowseProviderFragment(true)
             it.window?.let { window ->
-                WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = !isNightMode
+                WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = !resources.isNightMode()
             }
         }
     }
-
-    private val isNightMode: Boolean
-        get() = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
 
     override fun onDestroyView() {
         super.onDestroyView()
