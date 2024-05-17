@@ -24,6 +24,7 @@ dependencies {
     implementation project(':muzei-api')
     implementation project(':extensions')
     implementation project(':legacy-common')
+    implementation libs.multidex
     implementation libs.core
     implementation libs.exifInterface
     implementation libs.lifecycle.common
@@ -49,6 +50,8 @@ android {
         def documentsAuthorityValue = "com.google.android.apps.muzei.documents"
         manifestPlaceholders = [documentsAuthority: documentsAuthorityValue]
         buildConfigField "String", "DOCUMENTS_AUTHORITY", "\"${documentsAuthorityValue}\""
+
+        multiDexEnabled true
 
         ksp {
             arg("room.schemaLocation", "$projectDir/schemas")
