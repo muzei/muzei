@@ -29,7 +29,6 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
 import android.widget.OverScroller
-import androidx.core.view.GestureDetectorCompat
 import kotlin.math.max
 import kotlin.math.min
 
@@ -57,7 +56,7 @@ class PanScaleProxyView @JvmOverloads constructor(context: Context, attrs: Attri
 
     // State objects and values related to gesture tracking.
     private var scaleGestureDetector: ScaleGestureDetector
-    private val gestureDetector: GestureDetectorCompat
+    private val gestureDetector: GestureDetector
     private val scroller = OverScroller(context)
     private val zoomer = Zoomer(context)
     private val zoomFocalPoint = PointF()
@@ -248,7 +247,7 @@ class PanScaleProxyView @JvmOverloads constructor(context: Context, attrs: Attri
         scaleGestureDetector = ScaleGestureDetector(context, scaleGestureListener).apply {
             isQuickScaleEnabled = true
         }
-        gestureDetector = GestureDetectorCompat(context, gestureListener)
+        gestureDetector = GestureDetector(context, gestureListener)
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
