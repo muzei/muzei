@@ -107,7 +107,7 @@ class ChooseProviderActivity : FragmentActivity() {
     private fun launchProviderSetup(provider: ProviderInfo) {
         try {
             startActivityProvider = provider.authority
-            providerSetup.launch(provider.setupActivity)
+            providerSetup.launch(provider.setupActivity!!)
         } catch (e: ActivityNotFoundException) {
             Log.e(TAG, "Can't launch provider setup.", e)
         } catch (e: SecurityException) {
