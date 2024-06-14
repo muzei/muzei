@@ -17,6 +17,8 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="gallery_add_fab">Добавить фото</string>
     <string name="gallery_add_photos">Добавить фото</string>
+    <string name="gallery_add_folder">Добавить папку</string>
+    <string name="gallery_internal_storage_message">Ничего нет? Попробуйте включить отображение внутренней памяти в меню</string>
     <string name="gallery_add_photos_error">Ваше устройство не поддерживает добавление изображений.\nПожалуйста, свяжитесь с производителем.</string>
     <string name="gallery_add_folder_error">Ваше устройство не поддерживает добавление папок.\nПожалуйста, свяжитесь с производителем.</string>
     <string name="gallery_action_clear_photos">Удалить все фотографии</string>
@@ -26,8 +28,31 @@
     <string name="gallery_action_remove">Убрать</string>
     <string name="gallery_title">Мои фотографии</string>
     <string name="gallery_description">Случайные фотографии камеры</string>
+    <plurals name="gallery_description_choice_template">
+        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> фото</item>
+        <item quantity="few"><xliff:g id="quantity" example="2">%1$d</xliff:g> фото</item>
+        <item quantity="many"><xliff:g id="quantity" example="100">%1$d</xliff:g> фото</item>
+        <item quantity="other"><xliff:g id="quantity" example="1">%1$d</xliff:g> фото</item>
+    </plurals>
     <string name="gallery_empty">Случайные фотографии камеры</string>
+    <string name="gallery_empty_subtitle">Выбрать определённые фото</string>
     <string name="gallery_from_gallery">Из своей галереи</string>
     <string name="gallery_touch_to_view">Нажмите для просмотра</string>
+    <string name="gallery_shared_from">Отправлено из <xliff:g id="app_name" example="Gallery">%s</xliff:g></string>
+    <plurals name="gallery_add_photos_success">
+        <item quantity="one"><xliff:g id="quantity" example="1">%d</xliff:g> изображение\nк успешно добавлено в источник \"Мои фотографии\"</item>
+        <item quantity="few"><xliff:g id="quantity" example="1">%d</xliff:g> изображения\nк успешно добавлены в источник \"Мои фотографии\"</item>
+        <item quantity="many"><xliff:g id="quantity" example="100">%d</xliff:g> изображений\nк успешно добавлены в источник \"Мои фотографии\"</item>
+        <item quantity="other"><xliff:g id="quantity" example="1">%d</xliff:g> изображение\nк успешно добавлено в источник \"Мои фотографии\"</item>
+    </plurals>
+    <plurals name="gallery_add_photos_failure">
+        <item quantity="one">Не удается добавить <xliff:g id="quantity" example="1">%d</xliff:g> изображение\nв источник \"Мои фотографии\"</item>
+        <item quantity="few">Не удается добавить <xliff:g id="quantity" example="2">%d</xliff:g> изображения\nв источник \"Мои фотографии\"</item>
+        <item quantity="many">Не удается добавить <xliff:g id="quantity" example="100">%d</xliff:g> изображений\nв источник \"Мои фотографии\"</item>
+        <item quantity="other">Не удается добавить <xliff:g id="quantity" example="1">%d</xliff:g> изображение\nв источник \"Мои фотографии\"</item>
+    </plurals>
     <string name="gallery_enable_random">Включить случайные фотографии с камеры</string>
+    <string name="gallery_permission_rationale">Разрешить доступ к Хранилищу для использования случайных фотографий в качестве обоев.</string>
+    <string name="gallery_edit_settings">Редактировать Разрешения приложения</string>
+    <string name="gallery_denied_explanation">Вам необходимо разрешить доступ к <b>Хранилищу</b> для использования случайных фотографий в качестве обоев.</string>
 </resources>

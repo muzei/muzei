@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="featuredart_source_title">Избранное изображение</string>
+    <string name="featuredart_source_title">Рисунок дня</string>
     <string name="featuredart_source_description">Новый рисунок каждый день</string>
     <string name="featuredart_source_action_view_archive">Просмотр архива</string>
+    <string name="featuredart_action_share_artwork">Поделиться рисунком</string>
 </resources>
