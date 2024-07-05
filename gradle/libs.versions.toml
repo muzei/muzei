@@ -46,15 +46,15 @@ wearRemoteInteractions = "1.0.0"
 workManager = "2.9.0"
 
 # Firebase
-firebaseAnalytics = "21.6.1"
-firebaseCrashlytics = "18.6.3"
-firebaseCrashlyticsGradle = "2.9.9"
-firebasePerf = "20.5.2"
+firebaseAnalytics = "22.0.2"
+firebaseCrashlytics = "19.0.2"
+firebaseCrashlyticsGradle = "3.0.2"
+firebasePerf = "21.0.1"
 firebasePerfPlugin = "1.4.2"
 
 # Google Play services
-googleServices = "4.4.1"
-playServicesWearable = "18.1.0"
+googleServices = "4.4.2"
+playServicesWearable = "18.2.0"
 wearable = "2.9.0"
 
 # Jetbrains
