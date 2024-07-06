@@ -15,7 +15,7 @@
   limitations under the License.
   -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="gallery_add_fab">Fotoğraf ekle</string>
+    <string name="gallery_add_fab">Fotoğraf veya klasör ekleyin</string>
     <string name="gallery_add_photos">Fotoğraf ekle</string>
     <string name="gallery_add_folder">Yeni klasör</string>
     <string name="gallery_internal_storage_message">Hiçbir şey görmüyor musunuz? Üst menüden dahili depolamayı etkinleştirmeyi deneyin</string>
