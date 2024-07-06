@@ -15,7 +15,7 @@
   limitations under the License.
   -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="gallery_add_fab">Lägg till bilder</string>
+    <string name="gallery_add_fab">Lägg till bilder eller en mapp</string>
     <string name="gallery_add_photos">Lägg till bilder</string>
     <string name="gallery_add_folder">Lägg till en mapp</string>
     <string name="gallery_internal_storage_message">Ser du ingenting? Försök att aktivera intern lagring i overflow-menyn</string>
