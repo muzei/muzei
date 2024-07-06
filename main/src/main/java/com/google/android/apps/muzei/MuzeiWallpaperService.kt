@@ -31,6 +31,7 @@ import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.ViewConfiguration
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import androidx.core.os.UserManagerCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
@@ -90,7 +91,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         return MuzeiWallpaperEngine()
     }
 
-    @SuppressLint("InlinedApi")
+    @SuppressLint("InlinedApi", "WrongConstant")
     override fun onCreate() {
         super.onCreate()
         with(wallpaperLifecycle) {
@@ -121,7 +122,12 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                 }
             }
             val filter = IntentFilter(Intent.ACTION_USER_UNLOCKED)
-            registerReceiver(unlockReceiver, filter)
+            ContextCompat.registerReceiver(
+                this,
+                unlockReceiver,
+                filter,
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
         }
     }
 

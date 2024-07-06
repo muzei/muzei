@@ -74,6 +74,7 @@ class LegacySourcePackageListener(
      * A [Flow] that listens for package changes and recomputes all of the
      * legacy sources found.
      */
+    @SuppressLint("WrongConstant")
     private val legacySources: Flow<Set<LegacySourceInfo>> = callbackFlow {
         val sourcePackageChangeReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent?) {
@@ -97,7 +98,12 @@ class LegacySourcePackageListener(
             addAction(Intent.ACTION_PACKAGE_REPLACED)
             addAction(Intent.ACTION_PACKAGE_REMOVED)
         }
-        applicationContext.registerReceiver(sourcePackageChangeReceiver, packageChangeFilter)
+        ContextCompat.registerReceiver(
+            applicationContext,
+            sourcePackageChangeReceiver,
+            packageChangeFilter,
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
         send(queryLegacySources())
 
         awaitClose {

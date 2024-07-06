@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.legacy
 
+import android.annotation.SuppressLint
 import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.ComponentName
@@ -34,6 +35,7 @@ import android.os.Message
 import android.os.Messenger
 import android.util.Log
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -273,6 +275,7 @@ class LegacySourceService : Service(), LifecycleOwner {
         return messenger.binder
     }
 
+    @SuppressLint("WrongConstant")
     override fun onCreate() {
         super.onCreate()
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
@@ -299,7 +302,12 @@ class LegacySourceService : Service(), LifecycleOwner {
             addAction(Intent.ACTION_PACKAGE_REPLACED)
             addAction(Intent.ACTION_PACKAGE_REMOVED)
         }
-        registerReceiver(sourcePackageChangeReceiver, packageChangeFilter)
+        ContextCompat.registerReceiver(
+            this,
+            sourcePackageChangeReceiver,
+            packageChangeFilter,
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
         // Update the available sources in case we missed anything while Muzei was disabled
         lifecycleScope.launch(singleThreadContext) {
             updateSources()

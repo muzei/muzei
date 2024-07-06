@@ -44,6 +44,7 @@ import android.text.format.DateFormat
 import android.util.Log
 import android.view.Gravity
 import android.view.SurfaceHolder
+import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.Lifecycle
@@ -422,16 +423,27 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
             }
         }
 
+        @SuppressLint("WrongConstant")
         private fun registerReceiver() {
             if (registeredTimeZoneReceiver) {
                 return
             }
             registeredTimeZoneReceiver = true
             val filter = IntentFilter(Intent.ACTION_TIMEZONE_CHANGED)
-            this@MuzeiWatchFace.registerReceiver(timeZoneReceiver, filter)
+            ContextCompat.registerReceiver(
+                this@MuzeiWatchFace,
+                timeZoneReceiver,
+                filter,
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
             registeredLocaleChangedReceiver = true
             val localeFilter = IntentFilter(Intent.ACTION_LOCALE_CHANGED)
-            this@MuzeiWatchFace.registerReceiver(localeChangedReceiver, localeFilter)
+            ContextCompat.registerReceiver(
+                this@MuzeiWatchFace,
+                localeChangedReceiver,
+                localeFilter,
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
         }
 
         private fun unregisterReceiver() {

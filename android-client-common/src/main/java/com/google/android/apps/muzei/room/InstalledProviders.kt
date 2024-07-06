@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.room
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
@@ -23,6 +24,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.pm.ProviderInfo
+import androidx.core.content.ContextCompat
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -47,6 +49,7 @@ private fun getProviders(context: Context, packageName: String? = null): List<Pr
 /**
  * Get a [Flow] for the list of currently installed [MuzeiArtProvider] instances.
  */
+@SuppressLint("WrongConstant")
 fun getInstalledProviders(context: Context): Flow<List<ProviderInfo>> = callbackFlow {
     val currentProviders = HashMap<ComponentName, ProviderInfo>()
     val packageChangeReceiver : BroadcastReceiver = object : BroadcastReceiver() {
@@ -81,7 +84,12 @@ fun getInstalledProviders(context: Context): Flow<List<ProviderInfo>> = callback
         addAction(Intent.ACTION_PACKAGE_REPLACED)
         addAction(Intent.ACTION_PACKAGE_REMOVED)
     }
-    context.registerReceiver(packageChangeReceiver, packageChangeFilter)
+    ContextCompat.registerReceiver(
+        context,
+        packageChangeReceiver,
+        packageChangeFilter,
+        ContextCompat.RECEIVER_NOT_EXPORTED
+    )
     // Populate the initial set of providers
     getProviders(context).forEach { providerInfo ->
         currentProviders[providerInfo.getComponentName()] = providerInfo

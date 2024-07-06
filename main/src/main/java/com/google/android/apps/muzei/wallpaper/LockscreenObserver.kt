@@ -16,11 +16,13 @@
 
 package com.google.android.apps.muzei.wallpaper
 
+import android.annotation.SuppressLint
 import android.app.KeyguardManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import androidx.core.content.ContextCompat
 import androidx.core.os.UserManagerCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -49,13 +51,19 @@ class LockscreenObserver(
         }
     }
 
+    @SuppressLint("WrongConstant")
     override fun onCreate(owner: LifecycleOwner) {
         val intentFilter = IntentFilter().apply {
             addAction(Intent.ACTION_USER_PRESENT)
             addAction(Intent.ACTION_SCREEN_OFF)
             addAction(Intent.ACTION_SCREEN_ON)
         }
-        context.registerReceiver(lockScreenVisibleReceiver, intentFilter)
+        ContextCompat.registerReceiver(
+            context,
+            lockScreenVisibleReceiver,
+            intentFilter,
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
         // If the user is not yet unlocked (i.e., using Direct Boot), we should
         // immediately send the lock screen visible callback
         if (!UserManagerCompat.isUserUnlocked(context)) {

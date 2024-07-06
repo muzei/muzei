@@ -16,11 +16,13 @@
 
 package com.google.android.apps.muzei.legacy
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -71,6 +73,7 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
         }
     }
 
+    @SuppressLint("WrongConstant")
     private fun getService(): Flow<ComponentName?> = callbackFlow {
         val pm = applicationContext.packageManager
         // Create an IntentFilter for package change events
@@ -98,7 +101,12 @@ class LegacySourceManager(private val applicationContext: Context) : DefaultLife
                 queryAndSet()
             }
         }
-        applicationContext.registerReceiver(packageChangeReceiver, packageChangeFilter)
+        ContextCompat.registerReceiver(
+            applicationContext,
+            packageChangeReceiver,
+            packageChangeFilter,
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
         // Set the initial state
         queryAndSet()
 
