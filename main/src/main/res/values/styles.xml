@@ -43,8 +43,11 @@
 
     <!-- Global -->
 
-    <style name="Theme.Muzei.Base" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme.Muzei" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:selectableItemBackground">@drawable/white_selectable_item_background
         </item>
         <item name="android:seekBarStyle">@style/Widget.Muzei.SeekBar</item>
@@ -77,22 +80,16 @@
         <item name="colorPrimaryInverse">@color/md_theme_primaryInverse</item>
     </style>
 
-    <style name="Theme.Muzei.Transparent.Base" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme.Muzei.Transparent" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowIsTranslucent">true</item>
     </style>
 
-    <style name="Theme.Muzei.Transparent"
-           parent="Theme.Muzei.Transparent.Base"> <!-- pre-Lollipop -->
-    </style>
-
     <style name="Theme.Muzei.Dialog" parent="Theme.Material3.DayNight.Dialog.Alert" />
-
-    <style name="Theme.Muzei" parent="Theme.Muzei.Base"> <!-- pre-Lollipop -->
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowTranslucentNavigation">true</item>
-    </style>
 
     <style name="Theme.Muzei.Wallpaper" parent="Theme.Muzei">
         <item name="android:windowBackground">@android:color/transparent</item>
@@ -127,10 +124,10 @@
         <item name="colorPrimary">?colorControlNormal</item>
     </style>
 
-    <style name="Widget.Muzei.SeekBar" parent="android:Widget.Holo.SeekBar">
+    <style name="Widget.Muzei.SeekBar" parent="Widget.Material3.Slider">
         <item name="android:progressDrawable">@drawable/scrubber_progress_horizontal</item>
         <item name="android:indeterminateDrawable">@drawable/scrubber_progress_horizontal</item>
-        <item name="android:thumb">@drawable/scrubber_control_selector</item>
+        <item name="android:thumbTint">#FFF</item>
     </style>
 
     <style name="Widget.Muzei.TextView.SettingsAdvancedSeekBarLabel" parent="">

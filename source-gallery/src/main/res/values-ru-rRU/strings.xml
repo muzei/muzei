@@ -15,7 +15,7 @@
   limitations under the License.
   -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="gallery_add_fab">Добавить фото</string>
+    <string name="gallery_add_fab">Выбрать фото или папку</string>
     <string name="gallery_add_photos">Добавить фото</string>
     <string name="gallery_add_photos_error">Ваше устройство не поддерживает добавление изображений.\nПожалуйста, свяжитесь с производителем.</string>
     <string name="gallery_add_folder_error">Ваше устройство не поддерживает добавление папок.\nПожалуйста, свяжитесь с производителем.</string>

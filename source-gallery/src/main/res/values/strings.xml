@@ -15,7 +15,7 @@
   -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="gallery_add_fab">Add photos</string>
+    <string name="gallery_add_fab">Add photos or a folder</string>
     <string name="gallery_add_photos">Add photos</string>
     <string name="gallery_add_folder">Add a folder</string>
     <string name="gallery_internal_storage_message">Don\'t see anything? Try enabling internal storage in the overflow menu</string>

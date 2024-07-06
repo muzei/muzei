@@ -3,10 +3,6 @@ files:
     ignore:
       - example-
     translation: /**/res/values-%android_code%/%original_file_name%
-  - source: /**/res/values-v21/strings.xml
-    ignore:
-      - example-
-    translation: /**/res/values-%android_code%-v21/%original_file_name%
   - source: /**/res/values-v23/strings.xml
     ignore:
       - example-

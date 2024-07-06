@@ -14,11 +14,16 @@
   limitations under the License.
   -->
 
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Theme.Gallery.Base" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme.Gallery" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowBackground">@color/gallery_window_background</item>
         <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">?isLightTheme</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowTranslucentNavigation">true</item>
 
         <item name="colorPrimary">@color/gallery_theme_primary</item>
         <item name="colorOnPrimary">@color/gallery_theme_onPrimary</item>
@@ -46,9 +51,6 @@
         <item name="colorOnSurfaceInverse">@color/gallery_theme_inverseOnSurface</item>
         <item name="colorSurfaceInverse">@color/gallery_theme_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/gallery_theme_inversePrimary</item>
-    </style>
-
-    <style name="Theme.Gallery" parent="Theme.Gallery.Base"> <!-- pre-Lollipop -->
     </style>
 
 </resources>

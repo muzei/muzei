@@ -14,13 +14,12 @@
   limitations under the License.
   -->
 
-<com.google.android.apps.muzei.util.SmartInsetLinearLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:fitsSystemWindows="true">
+    android:orientation="vertical">
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/container"
@@ -37,4 +36,4 @@
         android:background="@color/nav_bar_background"
         android:fitsSystemWindows="true"
         app:menu="@menu/main"/>
-</com.google.android.apps.muzei.util.SmartInsetLinearLayout>
+</LinearLayout>

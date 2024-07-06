@@ -15,7 +15,7 @@
   limitations under the License.
   -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="gallery_add_fab">Adicionar fotos</string>
+    <string name="gallery_add_fab">Adicionar fotos ou uma pasta</string>
     <string name="gallery_add_photos">Adicionar fotos</string>
     <string name="gallery_add_folder">Adicionar uma pasta</string>
     <string name="gallery_internal_storage_message">Não aparece nada? Tente ativar as permissões de armazenamento no menu</string>
