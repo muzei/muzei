@@ -15,7 +15,7 @@
   limitations under the License.
   -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="gallery_add_fab">Προσθήκη φωτογραφιών</string>
+    <string name="gallery_add_fab">Προσθήκη φωτογραφιών ή φακέλου</string>
     <string name="gallery_add_photos">Προσθήκη φωτογραφιών</string>
     <string name="gallery_add_photos_error">Η συσκευή σας δεν υποστηρίζει την προσθήκη εικόνων.\nΠαρακαλώ επικοινωνήστε με τον κατασκευαστή της.</string>
     <string name="gallery_add_folder_error">Η συσκευή σας δεν υποστηρίζει την προσθήκη φακέλων.\nΠαρακαλώ επικοινωνήστε με τον κατασκευαστή της.</string>
