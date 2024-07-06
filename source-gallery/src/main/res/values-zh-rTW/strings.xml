@@ -15,7 +15,7 @@
   limitations under the License.
   -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="gallery_add_fab">新增相片</string>
+    <string name="gallery_add_fab">新增相片或資料夾</string>
     <string name="gallery_add_photos">新增相片</string>
     <string name="gallery_add_folder">新增資料夾</string>
     <string name="gallery_internal_storage_message">空無一物？試著在溢位選單中啟用內部儲存空間</string>
