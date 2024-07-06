@@ -34,7 +34,7 @@ android {
     compileSdk libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion libs.versions.targetSdk.get()
 
         def singleAuthorityValue = "com.google.android.apps.muzei.single"
