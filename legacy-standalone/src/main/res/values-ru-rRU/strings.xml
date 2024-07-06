@@ -17,16 +17,16 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="legacy_app_name"><xliff:g id="muzei_name">Muzei</xliff:g> Устаревшие</string>
     <string name="legacy_source_provider_name">Устаревшие источники</string>
-    <string name="legacy_source_warning_title">Активировать устаревший источник?</string>
-    <string name="legacy_source_warning_message">Устаревшие источники загружаются по собственному графику и не используют автопереход. Это может привести к дополнительному использованию данных, если у устаревшего источника нет настройки \"только WiFi\".</string>
+    <string name="legacy_source_warning_title">Активировать Устаревший источник?</string>
+    <string name="legacy_source_warning_message">Устаревшие источники загружаются по собственному расписанию и не используют Автоматический переход. Это может привести к дополнительному расходу данных, если у Устаревшего источника нет свой настройки \"только по Wi-Fi\".</string>
     <string name="legacy_source_warning_positive">Продолжить</string>
     <string name="legacy_source_warning_learn_more">Подробнее</string>
     <string name="legacy_source_warning_negative">Отмена</string>
     <string name="legacy_source_settings">Настроить источник</string>
     <string name="legacy_source_selection_done">Готово</string>
     <string name="legacy_action_next_artwork">Следующий рисунок</string>
-    <string name="legacy_source_unavailable">Выбранный источник недоступен. Переключение на источник по-умолчанию.</string>
-    <string name="legacy_source_target_too_high_title">Этот источник отключён</string>
+    <string name="legacy_source_unavailable">Выбранный вами источник недоступен. Переключение на источник по умолчанию.</string>
+    <string name="legacy_source_target_too_high_title">Этот источник отключен</string>
     <string name="legacy_source_target_too_high_message"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> не совместим с API <xliff:g id="muzei_name">Muzei</xliff:g>. Чтобы использовать этот источник, разработчик должен изменить <xliff:g id="targetSdkVersion">targetSdkVersion</xliff:g> на 25 или ниже.</string>
     <string name="legacy_source_target_too_high_send_feedback">Отправить <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> отзыв</string>
     <string name="legacy_source_target_too_high_learn_more">Подробнее</string>
