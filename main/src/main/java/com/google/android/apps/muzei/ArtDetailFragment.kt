@@ -170,9 +170,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding = ArtDetailFragmentBinding.bind(view)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            binding.scrim.background = makeCubicGradientScrimDrawable(Gravity.TOP, 0x44)
-        }
+        binding.scrim.background = makeCubicGradientScrimDrawable(Gravity.TOP, 0x44)
 
         val scrimColor = resources.getInteger(R.integer.scrim_channel_color)
         binding.chromeContainer.background = makeCubicGradientScrimDrawable(Gravity.BOTTOM, 0xAA,

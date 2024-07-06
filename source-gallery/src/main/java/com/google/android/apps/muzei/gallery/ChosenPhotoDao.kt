@@ -154,12 +154,7 @@ internal abstract class ChosenPhotoDao {
         } else {
             try {
                 // Prior to N we can't directly check if the URI is a tree URI, so we have to just try it
-                val treeDocumentId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    DocumentsContract.getTreeDocumentId(possibleTreeUri)
-                } else {
-                    // No tree URIs prior to Lollipop
-                    return false
-                }
+                val treeDocumentId = DocumentsContract.getTreeDocumentId(possibleTreeUri)
                 return treeDocumentId?.isNotEmpty() == true
             } catch (e: IllegalArgumentException) {
                 // Definitely not a tree URI

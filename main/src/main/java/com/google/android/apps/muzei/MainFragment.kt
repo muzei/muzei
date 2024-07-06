@@ -72,14 +72,12 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
         navController.currentBackStackEntryFlow.map { backStackEntry ->
             backStackEntry.arguments
         }.collectIn(viewLifecycleOwner) { args ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                requireActivity().window.statusBarColor =
-                    if (args?.getBoolean("useDarkStatusBar") == true) {
-                        darkStatusBarColor
-                    } else {
-                        Color.TRANSPARENT
-                    }
-            }
+            requireActivity().window.statusBarColor =
+                if (args?.getBoolean("useDarkStatusBar") == true) {
+                    darkStatusBarColor
+                } else {
+                    Color.TRANSPARENT
+                }
         }
         // React to the destination changing for analytics
         navController.currentBackStackEntryFlow.map { backStackEntry ->

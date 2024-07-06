@@ -113,7 +113,7 @@ class TutorialFragment : Fragment(R.layout.tutorial_fragment) {
                         ObjectAnimator.ofFloat(iconTextView, View.ALPHA, 1f),
                         a1, a2, a3, a4)
                 doOnEnd {
-                    if (isAdded && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    if (isAdded) {
                         val avd = ResourcesCompat.getDrawable(resources,
                                 R.drawable.avd_tutorial_icon_emanate,
                                 context?.theme) as AnimatedVectorDrawable
@@ -127,7 +127,7 @@ class TutorialFragment : Fragment(R.layout.tutorial_fragment) {
                 }
                 start()
             })
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        } else {
             val avd = ResourcesCompat.getDrawable(resources,
                     R.drawable.avd_tutorial_icon_emanate,
                     context?.theme) as AnimatedVectorDrawable
