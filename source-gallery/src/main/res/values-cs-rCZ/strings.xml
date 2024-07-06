@@ -15,7 +15,7 @@
   limitations under the License.
   -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="gallery_add_fab">Přidat fotky</string>
+    <string name="gallery_add_fab">Přidat fotky nebo složku</string>
     <string name="gallery_add_photos">Přidat fotky</string>
     <string name="gallery_internal_storage_message">Nic nevidíte? Zkuste v menu povolit interní úložiště</string>
     <string name="gallery_add_photos_error">Vaše zařízení nepodporuje přidávání obrázků.\nKontaktujte prosím výrobce.</string>
