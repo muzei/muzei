@@ -43,7 +43,7 @@
     <string name="auto_advance_interval_6h">Alle 6 Stunden</string>
     <string name="auto_advance_interval_24h">Alle 24 Stunden</string>
     <string name="auto_advance_interval_72h">Alle 3 Tage</string>
-    <string name="auto_advance_interval_never">Kwin Auto-Wechsel</string>
+    <string name="auto_advance_interval_never">Kein Auto-Wechsel</string>
     <string name="action_activate">Aktivieren</string>
     <string name="error_view_details">Konnte die Details des Artworks nicht anzeigen.</string>
     <string name="error_wallpaper_chooser">Konnte die Auswahl des Hintergrundbildes nicht starten. Sie können trotzdem <xliff:g id="muzei_name">Muzei</xliff:g> aktivieren, indem Sie \'Live-Hintergrundbilder\' in Ihrem Bildschirmhintergrund wählen.</string>
