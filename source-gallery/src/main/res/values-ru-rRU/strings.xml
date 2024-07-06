@@ -15,7 +15,7 @@
   limitations under the License.
   -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="gallery_add_fab">Добавить фото</string>
+    <string name="gallery_add_fab">Выбрать фото или папку</string>
     <string name="gallery_add_photos">Добавить фото</string>
     <string name="gallery_add_folder">Добавить папку</string>
     <string name="gallery_internal_storage_message">Ничего нет? Попробуйте включить отображение внутренней памяти в меню</string>
