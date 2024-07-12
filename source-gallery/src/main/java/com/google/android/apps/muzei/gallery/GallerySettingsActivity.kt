@@ -260,6 +260,9 @@ class GallerySettingsActivity : AppCompatActivity(),
             insets
         }
 
+        binding.reselectSelectedPhotos.setOnClickListener {
+            requestStoragePermission.launch()
+        }
         binding.enableRandom.setOnClickListener {
             requestStoragePermission.launch()
         }
@@ -563,10 +566,18 @@ class GallerySettingsActivity : AppCompatActivity(),
         } else {
             // No chosen images, show the empty View
             binding.empty.visibility = View.VISIBLE
-            if (RequestStoragePermissions.checkSelfPermission(this)) {
-                // Permission is granted, we can show the random camera photos image
+            if (RequestStoragePermissions.isPartialGrant(this)) {
+                // Only a partial grant is done, which means we can scan for the images
+                // we have, but should offer the ability for users to reselect what images
+                // they want us to have access to
                 GalleryScanWorker.enqueueRescan(this)
                 binding.emptyAnimator.displayedChild = 0
+                binding.emptyDescription.setText(R.string.gallery_empty)
+                setResult(RESULT_OK)
+            } else if (RequestStoragePermissions.checkSelfPermission(this)) {
+                // Permission is granted, we can show the random camera photos image
+                GalleryScanWorker.enqueueRescan(this)
+                binding.emptyAnimator.displayedChild = 1
                 binding.emptyDescription.setText(R.string.gallery_empty)
                 setResult(RESULT_OK)
             } else {
@@ -575,11 +586,11 @@ class GallerySettingsActivity : AppCompatActivity(),
                 if (RequestStoragePermissions.shouldShowRequestPermissionRationale(this)) {
                     // We should show rationale on why they should enable the storage permission and
                     // random camera photos
-                    binding.emptyAnimator.displayedChild = 1
+                    binding.emptyAnimator.displayedChild = 2
                     binding.emptyDescription.setText(R.string.gallery_permission_rationale)
                 } else {
                     // The user has permanently denied the storage permission. Give them a link to app settings
-                    binding.emptyAnimator.displayedChild = 2
+                    binding.emptyAnimator.displayedChild = 3
                     binding.emptyDescription.setText(R.string.gallery_denied_explanation)
                 }
             }

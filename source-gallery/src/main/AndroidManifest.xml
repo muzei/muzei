@@ -21,6 +21,7 @@
         android:maxSdkVersion="32"/>
     <uses-permission-sdk-23 android:name="android.permission.READ_MEDIA_IMAGES"/>
     <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
 
     <!-- Remove unused foreground service permission auto-added by WorkManager -->
     <uses-permission

@@ -37,6 +37,7 @@
         <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> photos</item>
     </plurals>
     <string name="gallery_empty">Random camera photos</string>
+    <string name="gallery_reselect_selected_photos">Reselect selected photos</string>
     <string name="gallery_empty_subtitle">Choose specific photos instead</string>
     <string name="gallery_from_gallery">From your gallery</string>
     <string name="gallery_touch_to_view">Touch to view</string>

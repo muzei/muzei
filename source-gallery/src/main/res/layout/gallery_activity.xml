@@ -71,6 +71,12 @@
                 android:layout_gravity="center"
                 android:measureAllChildren="false">
 
+                <Button
+                    android:id="@+id/reselect_selected_photos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/gallery_reselect_selected_photos"/>
+
                 <com.google.android.apps.muzei.gallery.GalleryEmptyStateGraphicView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
