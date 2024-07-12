@@ -30,6 +30,11 @@
     <!-- Used to restart jobs listening for MuzeiProvider changes on boot -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
+    <!-- Remove unused foreground service permission auto-added by WorkManager -->
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE"
+        tools:node="remove" />
+
     <application
         android:autoRevokePermissions="allowed"
         android:icon="@mipmap/ic_launcher"
