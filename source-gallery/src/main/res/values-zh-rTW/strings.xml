@@ -32,6 +32,7 @@
         <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> 張相片</item>
     </plurals>
     <string name="gallery_empty">自訂隨機相片</string>
+    <string name="gallery_reselect_selected_photos">重新選取已選取的相片</string>
     <string name="gallery_empty_subtitle">選取特定相片</string>
     <string name="gallery_from_gallery">從相簿</string>
     <string name="gallery_touch_to_view">輕觸以檢視</string>
