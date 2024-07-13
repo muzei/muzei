@@ -62,7 +62,7 @@ class LockscreenObserver(
             context,
             lockScreenVisibleReceiver,
             intentFilter,
-            ContextCompat.RECEIVER_NOT_EXPORTED
+            ContextCompat.RECEIVER_EXPORTED
         )
         // If the user is not yet unlocked (i.e., using Direct Boot), we should
         // immediately send the lock screen visible callback
