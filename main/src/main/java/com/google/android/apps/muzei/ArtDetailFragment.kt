@@ -67,6 +67,7 @@ import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.autoCleared
 import com.google.android.apps.muzei.util.collectIn
 import com.google.android.apps.muzei.util.makeCubicGradientScrimDrawable
+import com.google.android.apps.muzei.util.sendFromBackground
 import com.google.android.apps.muzei.widget.showWidgetPreview
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -197,7 +198,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
                         param(FirebaseAnalytics.Param.CONTENT_TYPE, "art_detail")
                     }
                     try {
-                        action.actionIntent.send()
+                        action.actionIntent.sendFromBackground()
                     } catch (e: PendingIntent.CanceledException) {
                         // Why do you give us a cancelled PendingIntent.
                         // We can't do anything with that.

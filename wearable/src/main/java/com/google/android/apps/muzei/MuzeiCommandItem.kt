@@ -37,6 +37,7 @@ import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.getCommands
 import com.google.android.apps.muzei.util.collectIn
+import com.google.android.apps.muzei.util.sendFromBackground
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.analytics
@@ -90,7 +91,7 @@ class MuzeiCommandViewHolder(
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "wear_activity")
             }
             try {
-                artworkCommand.actionIntent.send()
+                artworkCommand.actionIntent.sendFromBackground()
             } catch (e: PendingIntent.CanceledException) {
                 // Why do you give us a cancelled PendingIntent.
                 // We can't do anything with that.

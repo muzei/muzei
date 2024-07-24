@@ -44,6 +44,7 @@ import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
 import com.google.android.apps.muzei.legacy.LegacySourceServiceProtocol.LEGACY_COMMAND_ID_NEXT_ARTWORK
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
 import com.google.android.apps.muzei.util.getParcelableCompat
+import com.google.android.apps.muzei.util.sendFromBackground
 import com.google.android.apps.muzei.util.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -64,7 +65,7 @@ suspend fun Artwork.openArtworkInfo(context: Context) {
                 val artworkInfo = result?.getParcelableCompat<PendingIntent>(KEY_GET_ARTWORK_INFO)
                 try {
                     artworkInfo?.run {
-                        send()
+                        sendFromBackground()
                         true
                     } ?: false
                 } catch (e: PendingIntent.CanceledException) {

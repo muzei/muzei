@@ -43,6 +43,7 @@ import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.contentUri
 import com.google.android.apps.muzei.room.getCommands
 import com.google.android.apps.muzei.util.goAsync
+import com.google.android.apps.muzei.util.sendFromBackground
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.analytics
@@ -336,7 +337,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                         param(FirebaseAnalytics.Param.CONTENT_TYPE, "notification")
                     }
                     try {
-                        actionIntent.send()
+                        actionIntent.sendFromBackground()
                     } catch (e: PendingIntent.CanceledException) {
                         // Why do you give us a cancelled PendingIntent.
                         // We can't do anything with that.
