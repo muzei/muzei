@@ -255,14 +255,17 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
                     }
                 }
         binding.backgroundImageContainer.isVisible = showBackgroundImage
+        val viewLifecycle = viewLifecycleOwner.lifecycle
         binding.backgroundImageContainer.children.forEachIndexed { index, img ->
             val backgroundImage = img as SubsamplingScaleImageView
             backgroundImage.apply {
                 setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CENTER_CROP)
                 setOnImageEventListener(object : SubsamplingScaleImageView.DefaultOnImageEventListener() {
                     override fun onImageLoaded() {
-                        // Only update the displayedChild when the image has finished loading
-                        binding.backgroundImageContainer.displayedChild = index
+                        if (viewLifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
+                            // Only update the displayedChild when the image has finished loading
+                            binding.backgroundImageContainer.displayedChild = index
+                        }
                     }
                 })
                 setOnClickListener {
