@@ -46,7 +46,7 @@ wearRemoteInteractions = "1.0.0"
 workManager = "2.9.1"
 
 # Firebase
-firebaseAnalytics = "22.0.2"
+firebaseAnalytics = "22.1.0"
 firebaseCrashlytics = "19.0.3"
 firebaseCrashlyticsGradle = "3.0.2"
 firebasePerf = "21.0.1"
