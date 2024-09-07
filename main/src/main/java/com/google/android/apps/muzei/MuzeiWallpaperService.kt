@@ -31,6 +31,7 @@ import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.ViewConfiguration
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import androidx.core.os.UserManagerCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
@@ -57,10 +58,10 @@ import com.google.android.apps.muzei.wallpaper.LockscreenObserver
 import com.google.android.apps.muzei.wallpaper.WallpaperAnalytics
 import com.google.android.apps.muzei.wearable.WearableController
 import com.google.android.apps.muzei.widget.WidgetUpdater
+import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.analytics.ktx.logEvent
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.analytics.analytics
+import com.google.firebase.analytics.logEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
@@ -90,7 +91,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         return MuzeiWallpaperEngine()
     }
 
-    @SuppressLint("InlinedApi")
+    @SuppressLint("InlinedApi", "WrongConstant")
     override fun onCreate() {
         super.onCreate()
         with(wallpaperLifecycle) {
@@ -121,7 +122,12 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                 }
             }
             val filter = IntentFilter(Intent.ACTION_USER_UNLOCKED)
-            registerReceiver(unlockReceiver, filter)
+            ContextCompat.registerReceiver(
+                this,
+                unlockReceiver,
+                filter,
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
         }
     }
 

@@ -28,9 +28,9 @@ import androidx.fragment.app.commitNow
 import com.google.android.apps.muzei.util.AnimatedMuzeiLogoFragment
 import com.google.android.apps.muzei.util.autoCleared
 import com.google.android.apps.muzei.util.toast
+import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.analytics.analytics
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.IntroFragmentBinding
 

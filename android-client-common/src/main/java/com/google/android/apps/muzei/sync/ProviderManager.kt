@@ -30,6 +30,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.RemoteException
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -198,6 +199,7 @@ class ProviderManager private constructor(private val context: Context)
         }
     }
 
+    @SuppressLint("WrongConstant")
     override fun onActive() {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "ProviderManager became active")
@@ -210,7 +212,12 @@ class ProviderManager private constructor(private val context: Context)
             addAction(Intent.ACTION_PACKAGE_REPLACED)
             addAction(Intent.ACTION_PACKAGE_REMOVED)
         }
-        context.registerReceiver(packageChangeReceiver, packageChangeFilter)
+        ContextCompat.registerReceiver(
+            context,
+            packageChangeReceiver,
+            packageChangeFilter,
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             ProviderChangedWorker.activeListeningStateChanged(context, true)
         }

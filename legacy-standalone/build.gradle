@@ -32,7 +32,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 21
         //noinspection ExpiredTargetSdkVersion
         targetSdkVersion 25
 
@@ -101,8 +101,8 @@ dependencies {
     ksp libs.room.compiler
     implementation libs.material
     implementation libs.firebase.analytics
-    api libs.firebase.crashlytics.ktx
-    implementation libs.firebase.perf.ktx
+    api libs.firebase.crashlytics
+    implementation libs.firebase.perf
     implementation libs.okhttp.core
     implementation project(':muzei-api')
     implementation project(':extensions')

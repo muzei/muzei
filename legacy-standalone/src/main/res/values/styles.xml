@@ -15,17 +15,15 @@
   -->
 
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Theme.Legacy.Transparent.Base"
+    <style name="Theme.Legacy.Transparent"
            parent="Theme.MaterialComponents.DayNight.NoActionBar"
            tools:ignore="ResourceName">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowIsTranslucent">true</item>
-    </style>
-
-    <style name="Theme.Legacy.Transparent"
-           parent="Theme.Legacy.Transparent.Base"
-           tools:ignore="ResourceName"> <!-- pre-Lollipop -->
     </style>
 
     <style name="Theme.Legacy.Dialog"

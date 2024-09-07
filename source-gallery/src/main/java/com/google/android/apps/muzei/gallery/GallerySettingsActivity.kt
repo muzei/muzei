@@ -25,7 +25,6 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -47,7 +46,6 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
@@ -106,16 +104,13 @@ private class ChoosePhotos : ActivityResultContract<Unit, List<Uri>>() {
 }
 
 private class ChooseFolder : ActivityResultContract<Unit, Uri?>() {
-    @RequiresApi(21)
     private val openDocumentTree = ActivityResultContracts.OpenDocumentTree()
 
-    @RequiresApi(21)
     @SuppressLint("InlinedApi")
     override fun createIntent(context: Context, input: Unit) =
             openDocumentTree.createIntent(context, null)
                     .putExtra(DocumentsContract.EXTRA_EXCLUDE_SELF, true)
 
-    @RequiresApi(21)
     override fun parseResult(resultCode: Int, intent: Intent?) =
             openDocumentTree.parseResult(resultCode, intent)
 }
@@ -265,6 +260,9 @@ class GallerySettingsActivity : AppCompatActivity(),
             insets
         }
 
+        binding.reselectSelectedPhotos.setOnClickListener {
+            requestStoragePermission.launch()
+        }
         binding.enableRandom.setOnClickListener {
             requestStoragePermission.launch()
         }
@@ -276,13 +274,7 @@ class GallerySettingsActivity : AppCompatActivity(),
         }
         binding.addFab.apply {
             setOnClickListener {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    // On Lollipop and higher, we show the add toolbar to allow users to add either
-                    // individual photos or a whole directory
-                    showAddToolbar()
-                } else {
-                    requestPhotos()
-                }
+                showAddToolbar()
             }
         }
         binding.addPhotos.setOnClickListener { requestPhotos() }
@@ -320,9 +312,7 @@ class GallerySettingsActivity : AppCompatActivity(),
         } catch (e: ActivityNotFoundException) {
             Snackbar.make(binding.photoGrid, R.string.gallery_add_photos_error,
                     Snackbar.LENGTH_LONG).show()
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                hideAddToolbar(true)
-            }
+            hideAddToolbar(true)
         }
     }
 
@@ -420,7 +410,6 @@ class GallerySettingsActivity : AppCompatActivity(),
         tryUpdateSelection(!restored)
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun showAddToolbar() {
         // Divide by two since we're doing two animations but we want the total time to the short animation time
         val duration = resources.getInteger(android.R.integer.config_shortAnimTime) / 2
@@ -449,7 +438,6 @@ class GallerySettingsActivity : AppCompatActivity(),
                 }
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun hideAddToolbar(showAddButton: Boolean) {
         // Divide by two since we're doing two animations but we want the total time to the short animation time
         val duration = resources.getInteger(android.R.integer.config_shortAnimTime) / 2
@@ -479,6 +467,7 @@ class GallerySettingsActivity : AppCompatActivity(),
         hideAnimator.start()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun tryUpdateSelection(allowAnimate: Boolean) {
         if (updatePosition >= 0) {
             chosenPhotosAdapter.notifyItemChanged(updatePosition)
@@ -552,7 +541,6 @@ class GallerySettingsActivity : AppCompatActivity(),
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun getDisplayNameForTreeUri(treeUri: Uri): String? {
         val documentUri = DocumentsContract.buildDocumentUriUsingTree(treeUri,
                 DocumentsContract.getTreeDocumentId(treeUri))
@@ -578,10 +566,18 @@ class GallerySettingsActivity : AppCompatActivity(),
         } else {
             // No chosen images, show the empty View
             binding.empty.visibility = View.VISIBLE
-            if (RequestStoragePermissions.checkSelfPermission(this)) {
-                // Permission is granted, we can show the random camera photos image
+            if (RequestStoragePermissions.isPartialGrant(this)) {
+                // Only a partial grant is done, which means we can scan for the images
+                // we have, but should offer the ability for users to reselect what images
+                // they want us to have access to
                 GalleryScanWorker.enqueueRescan(this)
                 binding.emptyAnimator.displayedChild = 0
+                binding.emptyDescription.setText(R.string.gallery_empty)
+                setResult(RESULT_OK)
+            } else if (RequestStoragePermissions.checkSelfPermission(this)) {
+                // Permission is granted, we can show the random camera photos image
+                GalleryScanWorker.enqueueRescan(this)
+                binding.emptyAnimator.displayedChild = 1
                 binding.emptyDescription.setText(R.string.gallery_empty)
                 setResult(RESULT_OK)
             } else {
@@ -590,11 +586,11 @@ class GallerySettingsActivity : AppCompatActivity(),
                 if (RequestStoragePermissions.shouldShowRequestPermissionRationale(this)) {
                     // We should show rationale on why they should enable the storage permission and
                     // random camera photos
-                    binding.emptyAnimator.displayedChild = 1
+                    binding.emptyAnimator.displayedChild = 2
                     binding.emptyDescription.setText(R.string.gallery_permission_rationale)
                 } else {
                     // The user has permanently denied the storage permission. Give them a link to app settings
-                    binding.emptyAnimator.displayedChild = 2
+                    binding.emptyAnimator.displayedChild = 3
                     binding.emptyDescription.setText(R.string.gallery_denied_explanation)
                 }
             }
@@ -668,7 +664,7 @@ class GallerySettingsActivity : AppCompatActivity(),
             }
             val checked = multiSelectionController.isSelected(chosenPhoto.id)
             vh.itemView.setTag(R.id.gallery_viewtag_position, position)
-            if (lastTouchPosition == vh.bindingAdapterPosition && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (lastTouchPosition == vh.bindingAdapterPosition) {
                 handler.post {
                     if (!vh.binding.checkedOverlay.isAttachedToWindow) {
                         // Can't animate detached Views
@@ -716,7 +712,6 @@ class GallerySettingsActivity : AppCompatActivity(),
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun getImagesFromTreeUri(treeUri: Uri, maxImages: Int): List<Uri> {
         val images = ArrayList<Uri>()
         val directories = LinkedList<String>()
@@ -756,15 +751,13 @@ class GallerySettingsActivity : AppCompatActivity(),
     }
 
     private fun processSelectedUris(uris: List<Uri>) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (!binding.addToolbar.isAttachedToWindow) {
-                // Can't animate detached Views
-                binding.addToolbar.visibility = View.INVISIBLE
-                addToolbarOnBackPressedCallback.isEnabled = false
-                binding.addFab.visibility = View.VISIBLE
-            } else {
-                hideAddToolbar(true)
-            }
+        if (!binding.addToolbar.isAttachedToWindow) {
+            // Can't animate detached Views
+            binding.addToolbar.visibility = View.INVISIBLE
+            addToolbarOnBackPressedCallback.isEnabled = false
+            binding.addFab.visibility = View.VISIBLE
+        } else {
+            hideAddToolbar(true)
         }
         if (uris.isEmpty()) {
             // Nothing to do, so we can avoid posting the runnable at all

@@ -23,8 +23,8 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.wear.ambient.AmbientModeSupport
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.Firebase
+import com.google.firebase.analytics.analytics
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.databinding.MuzeiWearActivityBinding
 import java.text.SimpleDateFormat

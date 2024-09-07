@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.BroadcastReceiver
 import android.content.ComponentName
@@ -25,6 +26,7 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
@@ -72,6 +74,7 @@ data class ProviderInfo(
                 selected)
 }
 
+@SuppressLint("WrongConstant")
 class ChooseProviderViewModel(application: Application) : AndroidViewModel(application) {
 
     private val database = MuzeiDatabase.getInstance(application)
@@ -193,9 +196,14 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
     }
 
     init {
-        application.registerReceiver(localeChangeReceiver, IntentFilter().apply {
-            addAction(Intent.ACTION_LOCALE_CHANGED)
-        })
+        ContextCompat.registerReceiver(
+            application,
+            localeChangeReceiver,
+            IntentFilter().apply {
+                addAction(Intent.ACTION_LOCALE_CHANGED)
+            },
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
     }
 
     override fun onCleared() {

@@ -51,7 +51,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion libs.versions.targetSdk.get()
 
         def galleryAuthorityValue = "com.google.android.apps.muzei.gallery"
@@ -60,6 +60,8 @@ android {
                                 galleryArtAuthority: galleryArtAuthorityValue]
         buildConfigField "String", "GALLERY_AUTHORITY", "\"${galleryAuthorityValue}\""
         buildConfigField "String", "GALLERY_ART_AUTHORITY", "\"${galleryArtAuthorityValue}\""
+
+        multiDexEnabled true
 
         ksp {
             arg("room.schemaLocation", "$projectDir/schemas")

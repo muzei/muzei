@@ -16,12 +16,14 @@
 
 package com.google.android.apps.muzei.gallery
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -41,6 +43,7 @@ class GallerySettingsViewModel(application: Application) : AndroidViewModel(appl
         GalleryDatabase.getInstance(application).chosenPhotoDao().chosenPhotosPaged
     }.flow.cachedIn(viewModelScope)
 
+    @SuppressLint("WrongConstant")
     internal val getContentActivityInfoList = callbackFlow {
         val refreshList = {
             val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
@@ -78,8 +81,11 @@ class GallerySettingsViewModel(application: Application) : AndroidViewModel(appl
             addAction(Intent.ACTION_PACKAGE_REMOVED)
             addDataScheme("package")
         }
-        getApplication<Application>().registerReceiver(packagesChangedReceiver,
-                packageChangeIntentFilter)
+        ContextCompat.registerReceiver(
+            getApplication(),
+            packagesChangedReceiver,
+            packageChangeIntentFilter,
+            ContextCompat.RECEIVER_NOT_EXPORTED)
         // Refresh the list to get any changes since we were last active
         refreshList()
 

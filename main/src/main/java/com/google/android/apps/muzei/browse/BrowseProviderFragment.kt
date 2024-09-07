@@ -41,11 +41,12 @@ import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.ContentProviderClientCompat
 import com.google.android.apps.muzei.util.addMenuProvider
 import com.google.android.apps.muzei.util.collectIn
+import com.google.android.apps.muzei.util.sendFromBackground
 import com.google.android.apps.muzei.util.toast
+import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.analytics.ktx.logEvent
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.analytics.analytics
+import com.google.firebase.analytics.logEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -167,7 +168,7 @@ class BrowseProviderFragment: Fragment(R.layout.browse_provider_fragment) {
                                         param(FirebaseAnalytics.Param.CONTENT_TYPE, "browse")
                                     }
                                     try {
-                                        action.actionIntent.send()
+                                        action.actionIntent.sendFromBackground()
                                     } catch (e: PendingIntent.CanceledException) {
                                         // Why do you give us a cancelled PendingIntent.
                                         // We can't do anything with that.

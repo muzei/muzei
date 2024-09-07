@@ -35,10 +35,10 @@ import com.google.android.apps.muzei.settings.EffectsFragment
 import com.google.android.apps.muzei.util.collectIn
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
 import com.google.android.apps.muzei.wallpaper.initializeWallpaperActiveState
+import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.analytics.ktx.logEvent
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.analytics.analytics
+import com.google.firebase.analytics.logEvent
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -104,9 +104,6 @@ class MuzeiActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (MissingResourcesDialogFragment.showDialogIfNeeded(this)) {
-            return
-        }
-        if (Android12Beta1DialogFragment.showDialogIfNeeded(this)) {
             return
         }
         binding = MuzeiActivityBinding.inflate(layoutInflater)

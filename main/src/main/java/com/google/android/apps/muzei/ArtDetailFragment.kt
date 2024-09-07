@@ -67,11 +67,12 @@ import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.autoCleared
 import com.google.android.apps.muzei.util.collectIn
 import com.google.android.apps.muzei.util.makeCubicGradientScrimDrawable
+import com.google.android.apps.muzei.util.sendFromBackground
 import com.google.android.apps.muzei.widget.showWidgetPreview
+import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.analytics.ktx.logEvent
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.analytics.analytics
+import com.google.firebase.analytics.logEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
@@ -84,8 +85,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.R
-import net.nurik.roman.muzei.androidclientcommon.R as CommonR
 import net.nurik.roman.muzei.databinding.ArtDetailFragmentBinding
+import net.nurik.roman.muzei.androidclientcommon.R as CommonR
 
 val ArtDetailOpen = MutableStateFlow(false)
 
@@ -170,9 +171,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding = ArtDetailFragmentBinding.bind(view)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            binding.scrim.background = makeCubicGradientScrimDrawable(Gravity.TOP, 0x44)
-        }
+        binding.scrim.background = makeCubicGradientScrimDrawable(Gravity.TOP, 0x44)
 
         val scrimColor = resources.getInteger(R.integer.scrim_channel_color)
         binding.chromeContainer.background = makeCubicGradientScrimDrawable(Gravity.BOTTOM, 0xAA,
@@ -199,7 +198,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
                         param(FirebaseAnalytics.Param.CONTENT_TYPE, "art_detail")
                     }
                     try {
-                        action.actionIntent.send()
+                        action.actionIntent.sendFromBackground()
                     } catch (e: PendingIntent.CanceledException) {
                         // Why do you give us a cancelled PendingIntent.
                         // We can't do anything with that.
@@ -256,14 +255,17 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
                     }
                 }
         binding.backgroundImageContainer.isVisible = showBackgroundImage
+        val viewLifecycle = viewLifecycleOwner.lifecycle
         binding.backgroundImageContainer.children.forEachIndexed { index, img ->
             val backgroundImage = img as SubsamplingScaleImageView
             backgroundImage.apply {
                 setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CENTER_CROP)
                 setOnImageEventListener(object : SubsamplingScaleImageView.DefaultOnImageEventListener() {
                     override fun onImageLoaded() {
-                        // Only update the displayedChild when the image has finished loading
-                        binding.backgroundImageContainer.displayedChild = index
+                        if (viewLifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
+                            // Only update the displayedChild when the image has finished loading
+                            binding.backgroundImageContainer.displayedChild = index
+                        }
                     }
                 })
                 setOnClickListener {

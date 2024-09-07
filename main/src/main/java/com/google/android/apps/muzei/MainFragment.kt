@@ -34,10 +34,10 @@ import com.google.android.apps.muzei.util.collectIn
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.navigationrail.NavigationRailView
+import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.analytics.ktx.logEvent
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.analytics.analytics
+import com.google.firebase.analytics.logEvent
 import kotlinx.coroutines.flow.map
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.MainFragmentBinding
@@ -72,14 +72,12 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
         navController.currentBackStackEntryFlow.map { backStackEntry ->
             backStackEntry.arguments
         }.collectIn(viewLifecycleOwner) { args ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                requireActivity().window.statusBarColor =
-                    if (args?.getBoolean("useDarkStatusBar") == true) {
-                        darkStatusBarColor
-                    } else {
-                        Color.TRANSPARENT
-                    }
-            }
+            requireActivity().window.statusBarColor =
+                if (args?.getBoolean("useDarkStatusBar") == true) {
+                    darkStatusBarColor
+                } else {
+                    Color.TRANSPARENT
+                }
         }
         // React to the destination changing for analytics
         navController.currentBackStackEntryFlow.map { backStackEntry ->

@@ -21,6 +21,11 @@
     <!-- Used to restart jobs listening for MuzeiArtProvider changes on boot -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
+    <!-- Remove unused foreground service permission auto-added by WorkManager -->
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE"
+        tools:node="remove" />
+
     <permission
         android:name="com.google.android.apps.muzei.api.ACCESS_PROVIDER"
         android:protectionLevel="signature"/>

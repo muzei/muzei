@@ -24,6 +24,7 @@ dependencies {
     implementation project(':muzei-api')
     implementation project(':extensions')
     implementation project(':legacy-common')
+    implementation libs.multidex
     implementation libs.core
     implementation libs.exifInterface
     implementation libs.lifecycle.common
@@ -33,8 +34,8 @@ dependencies {
     api libs.room.ktx
     ksp libs.room.compiler
     api libs.firebase.analytics
-    api libs.firebase.crashlytics.ktx
-    api libs.firebase.perf.ktx
+    api libs.firebase.crashlytics
+    api libs.firebase.perf
     api libs.wearable.playservices
 }
 
@@ -43,12 +44,14 @@ android {
     compileSdk libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion libs.versions.targetSdk.get()
 
         def documentsAuthorityValue = "com.google.android.apps.muzei.documents"
         manifestPlaceholders = [documentsAuthority: documentsAuthorityValue]
         buildConfigField "String", "DOCUMENTS_AUTHORITY", "\"${documentsAuthorityValue}\""
+
+        multiDexEnabled true
 
         ksp {
             arg("room.schemaLocation", "$projectDir/schemas")

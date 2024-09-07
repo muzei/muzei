@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.legacy
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -23,6 +24,7 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.google.android.apps.muzei.util.goAsync
@@ -67,10 +69,16 @@ class NetworkChangeObserver internal constructor(private val context: Context) :
         }
     }
 
+    @SuppressLint("WrongConstant")
     override fun onStart(owner: LifecycleOwner) {
         @Suppress("DEPRECATION")
         val networkChangeFilter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
-        context.registerReceiver(networkChangeReceiver, networkChangeFilter)
+        ContextCompat.registerReceiver(
+            context,
+            networkChangeReceiver,
+            networkChangeFilter,
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
     }
 
     override fun onStop(owner: LifecycleOwner) {

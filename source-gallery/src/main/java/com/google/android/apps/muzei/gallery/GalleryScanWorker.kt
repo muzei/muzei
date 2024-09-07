@@ -30,7 +30,6 @@ import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.text.format.DateUtils
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.exifinterface.media.ExifInterface
 import androidx.work.CoroutineWorker
@@ -51,7 +50,7 @@ import java.io.IOException
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.LinkedList
-import java.util.Random
+import kotlin.random.Random
 
 class GalleryScanWorker(
         context: Context,
@@ -126,7 +125,7 @@ class GalleryScanWorker(
     }
 
     private suspend fun scanChosenPhoto(providerClient: ProviderClient, chosenPhoto: ChosenPhoto) {
-        if (chosenPhoto.isTreeUri && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (chosenPhoto.isTreeUri) {
             addTreeUri(providerClient, chosenPhoto)
         } else {
             val cachedFile = GalleryProvider.getCacheFileForUri(
@@ -164,7 +163,6 @@ class GalleryScanWorker(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private suspend fun addTreeUri(providerClient: ProviderClient, chosenPhoto: ChosenPhoto) {
         val treeUri = chosenPhoto.uri
         val allImages = mutableListOf<Uri>()
@@ -220,8 +218,6 @@ class GalleryScanWorker(
                 .delete(applicationContext, listOf(chosenPhoto.id))
     }
 
-    @SuppressLint("Recycle")
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun addAllImagesFromTree(
             images: MutableList<Uri>,
             treeUri: Uri
@@ -276,9 +272,8 @@ class GalleryScanWorker(
             }
             val lastToken = providerClient.lastAddedArtwork?.token
 
-            val random = Random()
             val randomSequence = generateSequence {
-                random.nextInt(data.count)
+                Random.nextInt(data.count)
             }.distinct().take(data.count)
             val iterator = randomSequence.iterator()
             while (iterator.hasNext()) {

@@ -1,5 +1,5 @@
 <!--
-  Copyright 2017 Google Inc.
+  Copyright 2021 Google Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,26 +14,32 @@
   limitations under the License.
   -->
 
-<LinearLayout
+<!--
+  We specifically use a RelativeLayout to ensure that the FragmentContainerView
+   is measured exactly, as that is required when you have a fragment that has a
+  DrawerLayout as its root view, as we do in Muzei's case.
+  -->
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
+
+    <com.google.android.material.navigationrail.NavigationRailView
+        android:id="@+id/nav_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:background="@color/nav_bar_background"
+        android:fitsSystemWindows="true"
+        app:menuGravity="center"
+        app:menu="@menu/main"/>
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/container"
+        android:layout_toEndOf="@id/nav_bar"
+        android:layout_alignParentEnd="true"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="match_parent"
         android:name="androidx.navigation.fragment.NavHostFragment"
         app:defaultNavHost="true"/>
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/nav_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/nav_bar_background"
-        android:fitsSystemWindows="true"
-        app:menu="@menu/main"/>
-</LinearLayout>
+</RelativeLayout>

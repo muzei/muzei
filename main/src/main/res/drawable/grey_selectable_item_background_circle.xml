@@ -14,19 +14,12 @@
   limitations under the License.
   -->
 
-<selector
+<ripple
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:enterFadeDuration="100"
-    android:exitFadeDuration="100">
-    <item android:state_pressed="true">
+    android:color="#3000">
+    <item android:id="@android:id/mask">
         <shape android:shape="oval">
-            <solid android:color="#3000"/>
+            <solid android:color="#fff"/>
         </shape>
     </item>
-    <item android:state_focused="true">
-        <shape android:shape="oval">
-            <solid android:color="#2000"/>
-        </shape>
-    </item>
-    <item android:drawable="@android:color/transparent"/>
-</selector>
+</ripple>

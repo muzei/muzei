@@ -23,10 +23,10 @@ import android.content.Intent
 import android.os.Bundle
 import com.google.android.apps.muzei.legacy.LegacySourceManager
 import com.google.android.apps.muzei.util.goAsync
+import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.analytics.ktx.logEvent
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.analytics.analytics
+import com.google.firebase.analytics.logEvent
 
 /**
  * AppWidgetProvider for Muzei. The actual updating is done asynchronously in
