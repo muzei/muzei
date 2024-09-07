@@ -15,13 +15,14 @@
   limitations under the License.
   -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="gallery_add_fab">הוספת תמונות</string>
+    <string name="gallery_add_fab">הוספת תמונות או תיקייה</string>
     <string name="gallery_add_photos">הוספת תמונות</string>
     <string name="gallery_add_folder">הוספת תיקייה</string>
     <string name="gallery_action_clear_photos">הסרת כל התמונות</string>
     <string name="gallery_action_import_photos">יבוא תמונות…</string>
     <string name="gallery_action_remove">הסרה</string>
     <string name="gallery_title">התמונות שלי</string>
+    <string name="gallery_reselect_selected_photos">בחירה חדשה של תמונות נבחרות</string>
     <string name="gallery_from_gallery">מהגלריה שלכם</string>
     <string name="gallery_touch_to_view">לחיצה להצגה</string>
 </resources>

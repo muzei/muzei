@@ -33,6 +33,7 @@
         <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> bilder</item>
     </plurals>
     <string name="gallery_empty">Slumpmässiga kamerabilder</string>
+    <string name="gallery_reselect_selected_photos">Välj om valda foton</string>
     <string name="gallery_empty_subtitle">Välj specifika bilder istället</string>
     <string name="gallery_from_gallery">Från ditt galleri</string>
     <string name="gallery_touch_to_view">Tryck för att visa</string>
