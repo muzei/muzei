@@ -15,6 +15,7 @@
   limitations under the License.
   -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="legacy_app_name"><xliff:g id="muzei_name">Muzei</xliff:g> قديم</string>
     <string name="legacy_source_provider_name">المصادر القديمة</string>
     <string name="legacy_source_warning_title">تفعيل مصدر قديم ؟</string>
     <string name="legacy_source_warning_message">يتم تحميل المصادر القديمة على جدولها الزمني الخاص ولا تستخدم التقدم التلقائي. قد يؤدي هذا إلى استخدام بيانات إضافية إذا لم يكن المصدر القديم يحتوي على إعداد WiFi فقط.</string>
