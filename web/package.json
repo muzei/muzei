@@ -9,7 +9,7 @@
     "connect-history-api-fallback": "^1.6.0",
     "del": "^5.1.0",
     "es6-promise": "^4.2.8",
-    "gulp": "^4.0.2",
+    "gulp": "^5.0.0",
     "gulp-autoprefixer": "^7.0.1",
     "gulp-bower": "0.0.15",
     "gulp-cache": "^1.1.3",
