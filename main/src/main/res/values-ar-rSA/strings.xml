@@ -14,4 +14,13 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="settings_home_screen_title">الشاشة الرئيسية</string>
+    <string name="settings_lock_screen_title">شاشة القفل</string>
+    <string name="settings_blur_amount_title">الضبابية</string>
+    <string name="settings_dim_amount_title">الوضوح</string>
+    <string name="settings_grey_amount_title">الرمادية</string>
+    <string name="notification_new_wallpaper">خلفية جديدة</string>
+    <string name="notification_new_wallpaper_channel_name">خلفيات جديدة</string>
+    <string name="notification_settings">إعدادات الإشعارات</string>
+</resources>
