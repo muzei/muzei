@@ -23,4 +23,27 @@
     <string name="notification_new_wallpaper">خلفية جديدة</string>
     <string name="notification_new_wallpaper_channel_name">خلفيات جديدة</string>
     <string name="notification_settings">إعدادات الإشعارات</string>
+    <string name="notification_settings_done">تم</string>
+    <string name="auto_advance_interval">الفاصل الزمني</string>
+    <string name="auto_advance_interval_15m">كل 15 دقيقة</string>
+    <string name="auto_advance_interval_30m">كل 30 دقيقة</string>
+    <string name="auto_advance_interval_1h">كل ساعة</string>
+    <string name="auto_advance_interval_3h">كل 3 ساعات</string>
+    <string name="auto_advance_interval_6h">كل 6 ساعات</string>
+    <string name="auto_advance_interval_24h">كل 24 ساعات</string>
+    <string name="auto_advance_interval_72h">كل 3 أيام</string>
+    <string name="action_activate">تنشيط</string>
+    <string name="error_view_details">تعذر عرض تفاصيل العمل الفني.</string>
+    <string name="section_choose_source">المصادر</string>
+    <string name="section_effects">المؤثرات</string>
+    <string name="action_next_artwork">العمل الفني التالي</string>
+    <string name="action_next_artwork_condensed">التالي</string>
+    <string name="action_user_command">المزيد</string>
+    <string name="action_user_command_prompt">حدد إجراء</string>
+    <string name="action_artwork_info">معلومات العمل الفني</string>
+    <string name="provider_settings">الإعدادات</string>
+    <string name="provider_browse">تصفح</string>
+    <string name="legacy_notification_channel_name">المصادر القديمة</string>
+    <string name="legacy_action_learn_more">معرفة المزيد</string>
+    <string name="gestures_double_tap_title">النقر المزدوج</string>
 </resources>
