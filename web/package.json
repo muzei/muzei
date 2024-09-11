@@ -10,7 +10,7 @@
     "del": "^5.1.0",
     "es6-promise": "^4.2.8",
     "gulp": "^5.0.0",
-    "gulp-autoprefixer": "^7.0.1",
+    "gulp-autoprefixer": "^9.0.0",
     "gulp-bower": "0.0.15",
     "gulp-cache": "^1.1.3",
     "gulp-changed": "^4.0.2",
