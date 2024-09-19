@@ -91,6 +91,7 @@ concurrent = { group = "androidx.concurrent", name = "concurrent-futures-ktx", v
 constraintLayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintLayout" }
 core = { group = "androidx.core", name = "core-ktx", version.ref = "core" }
 drawerLayout = { group = "androidx.drawerlayout", name = "drawerlayout", version.ref = "drawerLayout" }
+#noinspection SimilarGradleDependency
 exifInterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifInterface" }
 fragment = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragment" }
 lifecycle-common = { group = "androidx.lifecycle", name = "lifecycle-common-java8", version.ref = "lifecycle" }
