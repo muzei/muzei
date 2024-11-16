@@ -47,9 +47,9 @@ workManager = "2.10.0"
 
 # Firebase
 firebaseAnalytics = "22.1.2"
-firebaseCrashlytics = "19.2.0"
+firebaseCrashlytics = "19.2.1"
 firebaseCrashlyticsGradle = "3.0.2"
-firebasePerf = "21.0.1"
+firebasePerf = "21.0.2"
 firebasePerfPlugin = "1.4.2"
 
 # Google Play services
