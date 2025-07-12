@@ -407,7 +407,7 @@ public abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
                 }
                 METHOD_REQUEST_LOAD -> databaseHelper.readableDatabase.query(TABLE_NAME,
                         null, null, null, null, null, null, "1").use { data ->
-                    onLoadRequested(data == null || data.count == 0)
+                    onLoadRequested(data.count == 0)
                 }
                 METHOD_MARK_ARTWORK_INVALID -> query(Uri.parse(arg), null, null, null, null).use { data ->
                     if (data.moveToNext()) {
