@@ -72,6 +72,7 @@ class MainFragment : Fragment(R.layout.main_fragment), ChooseProviderFragment.Ca
         navController.currentBackStackEntryFlow.map { backStackEntry ->
             backStackEntry.arguments
         }.collectIn(viewLifecycleOwner) { args ->
+            @Suppress("DEPRECATION")
             requireActivity().window.statusBarColor =
                 if (args?.getBoolean("useDarkStatusBar") == true) {
                     darkStatusBarColor
