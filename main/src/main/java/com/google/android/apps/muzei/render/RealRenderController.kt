@@ -38,12 +38,16 @@ class RealRenderController(
 
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
+        reloadCurrentArtwork()
+    }
+
+    override fun onStart(owner: LifecycleOwner) {
+        super.onStart(owner)
         val database = MuzeiDatabase.getInstance(context)
         database.artworkDao().getCurrentArtworkFlow().filterNotNull().collectIn(owner) { artwork ->
             currentArtworkUri = artwork.contentUri
             reloadCurrentArtwork()
         }
-        reloadCurrentArtwork()
     }
 
     override suspend fun openDownloadedCurrentArtwork() =

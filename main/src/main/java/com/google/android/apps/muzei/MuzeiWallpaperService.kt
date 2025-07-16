@@ -38,6 +38,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
 import com.google.android.apps.muzei.legacy.LegacySourceManager
 import com.google.android.apps.muzei.notifications.NotificationUpdater
@@ -67,6 +68,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -207,11 +209,16 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             engineLifecycle.addObserver(WallpaperAnalytics(this@MuzeiWallpaperService))
             engineLifecycle.addObserver(LockscreenObserver(this@MuzeiWallpaperService, this))
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-                val database = MuzeiDatabase.getInstance(this@MuzeiWallpaperService)
-                database.artworkDao().getCurrentArtworkFlow()
-                    .filterNotNull().collectIn(this) { artwork ->
-                    updateCurrentArtwork(artwork)
+                lifecycleScope.launch {
+                    repeatOnLifecycle(Lifecycle.State.STARTED) {
+                        val database = MuzeiDatabase.getInstance(this@MuzeiWallpaperService)
+                        database.artworkDao().getCurrentArtworkFlow()
+                            .filterNotNull().collectLatest { artwork ->
+                                updateCurrentArtwork(artwork)
+                            }
+                    }
                 }
+
             }
 
             // Use the MuzeiWallpaperService's lifecycle to wait for the user to unlock
