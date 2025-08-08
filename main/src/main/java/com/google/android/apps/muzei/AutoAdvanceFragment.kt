@@ -42,10 +42,22 @@ class AutoAdvanceFragment : Fragment(R.layout.auto_advance_fragment) {
     companion object {
         private const val TASKER_PACKAGE_NAME = "net.dinglisch.android.taskerm"
 
+        private val ORDERING_RADIO_BUTTON_IDS_BY_ORDERING = mutableMapOf<ProviderManager.LoadOrdering, Int>()
+        private val ORDERING_BY_RADIO_BUTTON_ID = mutableMapOf<Int, ProviderManager.LoadOrdering>()
         private val INTERVAL_RADIO_BUTTON_IDS_BY_TIME = SparseIntArray()
         private val INTERVAL_TIME_BY_RADIO_BUTTON_ID = SparseLongArray()
 
         init {
+            ORDERING_RADIO_BUTTON_IDS_BY_ORDERING.apply {
+                put(ProviderManager.LoadOrdering.IN_ORDER, R.id.ordering_in_order)
+                put(ProviderManager.LoadOrdering.NEW_IN_ORDER, R.id.ordering_new_in_order)
+                put(ProviderManager.LoadOrdering.RANDOM, R.id.ordering_random)
+            }
+            ORDERING_BY_RADIO_BUTTON_ID.apply {
+                put(R.id.ordering_in_order, ProviderManager.LoadOrdering.IN_ORDER)
+                put(R.id.ordering_new_in_order, ProviderManager.LoadOrdering.NEW_IN_ORDER)
+                put(R.id.ordering_random, ProviderManager.LoadOrdering.RANDOM)
+            }
             INTERVAL_RADIO_BUTTON_IDS_BY_TIME.apply {
                 put(60 * 15, R.id.interval_15m)
                 put(60 * 30, R.id.interval_30m)
@@ -73,6 +85,16 @@ class AutoAdvanceFragment : Fragment(R.layout.auto_advance_fragment) {
                 param(FirebaseAnalytics.Param.VALUE, isChecked.toString())
             }
             providerManager.loadOnWifi = isChecked
+        }
+
+        val currentOrdering = providerManager.loadOrdering
+
+        binding.orderingGroup.check(ORDERING_RADIO_BUTTON_IDS_BY_ORDERING[currentOrdering]!!)
+        binding.orderingGroup.setOnCheckedChangeListener { _, id ->
+            Firebase.analytics.logEvent("auto_advance_load_ordering") {
+                param(FirebaseAnalytics.Param.VALUE, ORDERING_BY_RADIO_BUTTON_ID[id]!!.name)
+            }
+            providerManager.loadOrdering = ORDERING_BY_RADIO_BUTTON_ID[id]!!
         }
 
         val currentInterval = providerManager.loadFrequencySeconds

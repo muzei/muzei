@@ -38,6 +38,10 @@
     <string name="auto_advance_title">Auto Advance</string>
     <string name="auto_advance_description">Control when <xliff:g id="muzei_name">Muzei</xliff:g> automatically advances to the next wallpaper.</string>
     <string name="auto_advance_wifi">Auto advance only on Wi-Fi</string>
+    <string name="auto_advance_ordering">Ordering</string>
+    <string name="auto_advance_ordering_in_order">Always in order</string>
+    <string name="auto_advance_ordering_new_in_order">New images in order, then random</string>
+    <string name="auto_advance_ordering_random">Always random</string>
     <string name="auto_advance_interval">Interval</string>
     <string name="auto_advance_interval_15m">Every 15 minutes</string>
     <string name="auto_advance_interval_30m">Every 30 minutes</string>

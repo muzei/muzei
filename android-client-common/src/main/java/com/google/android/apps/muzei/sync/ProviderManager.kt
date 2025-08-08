@@ -65,12 +65,23 @@ internal val syncSingleThreadContext by lazy {
 class ProviderManager private constructor(private val context: Context)
     : MutableLiveData<Provider?>(), Observer<Provider?> {
 
+    /**
+     * Enum that represents the order in which new artwork is loaded
+     */
+    enum class LoadOrdering {
+        IN_ORDER,
+        NEW_IN_ORDER,
+        RANDOM,
+    }
+
     companion object {
         private const val TAG = "ProviderManager"
         private const val PREF_LOAD_FREQUENCY_SECONDS = "loadFrequencySeconds"
         private const val DEFAULT_LOAD_FREQUENCY_SECONDS = 3600L
         private const val PREF_LOAD_ON_WIFI = "loadOnWifi"
         private const val DEFAULT_LOAD_ON_WIFI = false
+        private const val PREF_LOAD_ORDERING = "loadOrdering"
+        private val DEFAULT_LOAD_ORDERING = LoadOrdering.NEW_IN_ORDER
 
         @SuppressLint("StaticFieldLeak")
         @Volatile
@@ -114,7 +125,6 @@ class ProviderManager private constructor(private val context: Context)
             } ?: ""
         }
     }
-
     private val packageChangeReceiver : BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
             val provider = value ?: return
@@ -187,6 +197,17 @@ class ProviderManager private constructor(private val context: Context)
         }
         get() = PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(PREF_LOAD_ON_WIFI, DEFAULT_LOAD_ON_WIFI)
+
+    var loadOrdering: LoadOrdering
+        set(newLoadOrdering) {
+            PreferenceManager.getDefaultSharedPreferences(context).edit {
+                putString(PREF_LOAD_ORDERING, newLoadOrdering.name)
+            }
+        }
+        get() = LoadOrdering.valueOf(checkNotNull(PreferenceManager.getDefaultSharedPreferences(context)
+            .getString(PREF_LOAD_ORDERING, DEFAULT_LOAD_ORDERING.name)) {
+            "Invalid load ordering"
+        })
 
     init {
         contentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {

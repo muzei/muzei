@@ -51,6 +51,7 @@ import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.IOException
 import java.util.concurrent.TimeUnit
+import kotlin.math.max
 import kotlin.random.Random
 
 /**
@@ -109,6 +110,7 @@ class ArtworkLoadWorker(
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Artwork Load for $authority")
         }
+        val loadOrdering = ProviderManager.getInstance(applicationContext).loadOrdering
         val contentUri = ProviderContract.getContentUri(authority)
         try {
             ContentProviderClientCompat.getClient(applicationContext, contentUri)?.use { client ->
@@ -116,13 +118,24 @@ class ArtworkLoadWorker(
                         ?: return@withContext Result.failure()
                 val maxLoadedArtworkId = result.getLong(KEY_MAX_LOADED_ARTWORK_ID, 0L)
                 val recentArtworkIds = result.getRecentIds(KEY_RECENT_ARTWORK_IDS)
+                val startingArtworkId = when (loadOrdering) {
+                    // IN_ORDER means we always start with the last artwork we loaded
+                    ProviderManager.LoadOrdering.IN_ORDER ->recentArtworkIds.lastOrNull() ?: maxLoadedArtworkId
+                    // NEW_IN_ORDER means that we load new artwork starting with the max loaded
+                    ProviderManager.LoadOrdering.NEW_IN_ORDER -> maxLoadedArtworkId
+                    // RANDOM means we never care about new artwork
+                    ProviderManager.LoadOrdering.RANDOM -> Int.MAX_VALUE
+                }
                 client.query(
                         contentUri,
                         selection = "_id > ?",
-                        selectionArgs = arrayOf(maxLoadedArtworkId.toString()),
+                        selectionArgs = arrayOf(startingArtworkId.toString()),
                         sortOrder = ProviderContract.Artwork._ID
                 )?.use { newArtwork ->
-                    client.query(contentUri)?.use { allArtwork ->
+                    client.query(
+                        contentUri,
+                        sortOrder = ProviderContract.Artwork._ID
+                    )?.use { allArtwork ->
                         // First prioritize new artwork
                         while (newArtwork.moveToNext()) {
                             val validArtwork = checkForValidArtwork(client, contentUri, newArtwork)
@@ -145,7 +158,11 @@ class ArtworkLoadWorker(
                             }
                         }
                         if (BuildConfig.DEBUG) {
-                            Log.d(TAG, "Could not find any new artwork, requesting load from $authority")
+                            if (loadOrdering == ProviderManager.LoadOrdering.RANDOM) {
+                                Log.d(TAG, "Loading in random order, requesting load from $authority")
+                            } else {
+                                Log.d(TAG, "Could not find any new artwork, requesting load from $authority")
+                            }
                         }
                         // No new artwork, request that they load another in preparation for the next load
                         client.call(METHOD_REQUEST_LOAD)
@@ -165,6 +182,21 @@ class ArtworkLoadWorker(
                                     Log.i(TAG, "Provider $authority only has one artwork")
                                 }
                                 return@withContext Result.failure()
+                            }
+                        }
+                        // We've loaded every artwork IN_ORDER, so we need to loop back around
+                        // to the first artwork again to continue loading in order
+                        if (loadOrdering == ProviderManager.LoadOrdering.IN_ORDER) {
+                            if (allArtwork.moveToPosition(0)) {
+                                checkForValidArtwork(client, contentUri, allArtwork)?.apply {
+                                    providerAuthority = authority
+                                    val artworkId = database.artworkDao().insert(this)
+                                    if (BuildConfig.DEBUG) {
+                                        Log.d(TAG, "Loaded $imageUri into id $artworkId")
+                                    }
+                                    client.call(METHOD_MARK_ARTWORK_LOADED, imageUri.toString())
+                                    return@withContext Result.success()
+                                }
                             }
                         }
                         // At this point, we know there must be some artwork that isn't the current

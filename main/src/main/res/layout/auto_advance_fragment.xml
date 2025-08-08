@@ -50,6 +50,36 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="@string/auto_advance_ordering"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"/>
+
+        <RadioGroup
+            android:id="@+id/ordering_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/ordering_in_order"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/auto_advance_ordering_in_order"/>
+
+            <RadioButton
+                android:id="@+id/ordering_new_in_order"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/auto_advance_ordering_new_in_order"/>
+
+            <RadioButton
+                android:id="@+id/ordering_random"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/auto_advance_ordering_random"/>
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:text="@string/auto_advance_interval"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"/>
 
