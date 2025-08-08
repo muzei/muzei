@@ -104,7 +104,7 @@ class ProviderManager private constructor(private val context: Context)
                     .authority(authority)
                     .build()
             return ContentProviderClientCompat.getClient(context, contentUri)?.use { client ->
-                return try {
+                try {
                     val result = client.call(ProtocolConstants.METHOD_GET_DESCRIPTION)
                     result?.getString(ProtocolConstants.KEY_DESCRIPTION, "") ?: ""
                 } catch (e: RemoteException) {
