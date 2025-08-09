@@ -78,6 +78,8 @@ import kotlinx.coroutines.launch
 import java.util.LinkedList
 import kotlin.math.hypot
 import kotlin.math.max
+import androidx.core.graphics.drawable.toDrawable
+import androidx.core.view.isVisible
 
 private class GetContentsFromActivityInfo : ActivityResultContract<ActivityInfo, List<Uri>>() {
     private val getMultipleContents = ActivityResultContracts.GetMultipleContents()
@@ -158,7 +160,7 @@ class GallerySettingsActivity : AppCompatActivity(),
     }
     private val chooseFolder = registerForActivityResult(ChooseFolder()) { folder ->
         if (folder != null) {
-            getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE).edit {
+            getSharedPreferences(SHARED_PREF_NAME, MODE_PRIVATE).edit {
                 putBoolean(SHOW_INTERNAL_STORAGE_MESSAGE, false)
             }
         }
@@ -181,8 +183,7 @@ class GallerySettingsActivity : AppCompatActivity(),
     }
 
     private val placeholderDrawable: ColorDrawable by lazy {
-        ColorDrawable(ContextCompat.getColor(this,
-                R.color.gallery_chosen_photo_placeholder))
+        ContextCompat.getColor(this, R.color.gallery_chosen_photo_placeholder).toDrawable()
     }
 
     private var updatePosition = -1
@@ -281,11 +282,11 @@ class GallerySettingsActivity : AppCompatActivity(),
         binding.addFolder.setOnClickListener {
             try {
                 chooseFolder.launch()
-                val preferences = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
+                val preferences = getSharedPreferences(SHARED_PREF_NAME, MODE_PRIVATE)
                 if (preferences.getBoolean(SHOW_INTERNAL_STORAGE_MESSAGE, true)) {
                     toast(R.string.gallery_internal_storage_message, Toast.LENGTH_LONG)
                 }
-            } catch (e: ActivityNotFoundException) {
+            } catch (_: ActivityNotFoundException) {
                 Snackbar.make(binding.photoGrid, R.string.gallery_add_folder_error,
                         Snackbar.LENGTH_LONG).show()
                 hideAddToolbar(true)
@@ -309,7 +310,7 @@ class GallerySettingsActivity : AppCompatActivity(),
     private fun requestPhotos() {
         try {
             choosePhotos.launch()
-        } catch (e: ActivityNotFoundException) {
+        } catch (_: ActivityNotFoundException) {
             Snackbar.make(binding.photoGrid, R.string.gallery_add_photos_error,
                     Snackbar.LENGTH_LONG).show()
             hideAddToolbar(true)
@@ -497,7 +498,7 @@ class GallerySettingsActivity : AppCompatActivity(),
                         .setDuration(duration.toLong())
                         .withEndAction(null)
 
-                if (binding.addToolbar.visibility == View.VISIBLE) {
+                if (binding.addToolbar.isVisible) {
                     hideAddToolbar(false)
                 } else {
                     binding.addFab.animate()
@@ -552,7 +553,7 @@ class GallerySettingsActivity : AppCompatActivity(),
                     return data.getStringOrNull(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
                 }
             }
-        } catch (e: SecurityException) {
+        } catch (_: SecurityException) {
             // No longer can read this URI, which means no display name for this URI
         }
         return null
@@ -610,6 +611,7 @@ class GallerySettingsActivity : AppCompatActivity(),
     private inner class GalleryAdapter : PagingDataAdapter<ChosenPhoto, PhotoViewHolder>(CHOSEN_PHOTO_DIFF_CALLBACK) {
         private val handler by lazy { Handler(Looper.getMainLooper()) }
 
+        @SuppressLint("ClickableViewAccessibility")
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoViewHolder {
             val binding = GalleryChosenPhotoItemBinding.inflate(
                     LayoutInflater.from(this@GallerySettingsActivity),
@@ -702,6 +704,7 @@ class GallerySettingsActivity : AppCompatActivity(),
             }
         }
 
+        @Suppress("SameParameterValue")
         private fun maxDistanceToCorner(x: Int, y: Int, left: Int, top: Int, right: Int, bottom: Int): Float {
             var maxDistance = 0f
             maxDistance = max(maxDistance, hypot((x - left).toDouble(), (y - top).toDouble()).toFloat())
@@ -740,7 +743,7 @@ class GallerySettingsActivity : AppCompatActivity(),
                         }
                     }
                 }
-            } catch (e: SecurityException) {
+            } catch (_: SecurityException) {
                 // No longer can read this URI, which means no children from this URI
             } catch (e: Exception) {
                 // Could be anything: NullPointerException, IllegalArgumentException, etc.

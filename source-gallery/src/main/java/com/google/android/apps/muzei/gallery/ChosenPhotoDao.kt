@@ -128,7 +128,7 @@ internal abstract class ChosenPhotoDao {
                                 Log.w(TAG, "Unable to delete $cachedFile")
                             }
                         }
-                    } catch (ignored: SecurityException) {
+                    } catch (_: SecurityException) {
                         // If we don't have FLAG_GRANT_PERSISTABLE_URI_PERMISSION (such as when using ACTION_GET_CONTENT),
                         // this will fail. We'll need to make a local copy (handled below)
                     }
@@ -156,7 +156,7 @@ internal abstract class ChosenPhotoDao {
                 // Prior to N we can't directly check if the URI is a tree URI, so we have to just try it
                 val treeDocumentId = DocumentsContract.getTreeDocumentId(possibleTreeUri)
                 return treeDocumentId?.isNotEmpty() == true
-            } catch (e: IllegalArgumentException) {
+            } catch (_: IllegalArgumentException) {
                 // Definitely not a tree URI
                 return false
             }
@@ -242,7 +242,7 @@ internal abstract class ChosenPhotoDao {
                                 try {
                                     contentResolver.releasePersistableUriPermission(
                                             uriToRelease, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                                } catch (e: SecurityException) {
+                                } catch (_: SecurityException) {
                                     // Thrown if we don't have permission...despite in being in
                                     // the getPersistedUriPermissions(). Alright then.
                                 }

@@ -70,9 +70,9 @@ class GalleryProvider : ContentProvider() {
                 filename.append(digest.joinToString(separator = "") {
                     it.toInt().and(0xff).toString(16).padStart(2, '0')
                 })
-            } catch (e: NoSuchAlgorithmException) {
+            } catch (_: NoSuchAlgorithmException) {
                 filename.append(uri.toString().hashCode())
-            } catch (e: UnsupportedEncodingException) {
+            } catch (_: UnsupportedEncodingException) {
                 filename.append(uri.toString().hashCode())
             }
 

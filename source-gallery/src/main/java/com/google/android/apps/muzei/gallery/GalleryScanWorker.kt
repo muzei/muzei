@@ -245,7 +245,7 @@ class GalleryScanWorker(
                         }
                     }
                 }
-            } catch (e: SecurityException) {
+            } catch (_: SecurityException) {
                 // No longer can read this URI, which means no children from this URI
             } catch (e: Exception) {
                 // Could be anything: NullPointerException, IllegalArgumentException, etc.
@@ -301,11 +301,10 @@ class GalleryScanWorker(
             if (BuildConfig.DEBUG) {
                 Log.i(TAG, "Unable to find any other valid photos in the gallery")
             }
-            return Result.failure()
         } ?: run {
             Log.w(TAG, "Empty cursor.")
-            return Result.failure()
         }
+        return Result.failure()
     }
 
     private suspend fun createArtwork(

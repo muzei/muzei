@@ -76,7 +76,7 @@ class GalleryArtProvider: MuzeiArtProvider() {
                 // Assume if we can access the row, we can access the image itself
                 data?.moveToFirst() == true
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // An exception could mean a lot of things.
             // Delete any cached image and defer to openFile
             artwork.data.run {
