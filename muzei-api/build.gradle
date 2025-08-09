@@ -45,7 +45,7 @@ android {
     compileSdk libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion 23
         targetSdkVersion libs.versions.targetSdk.get()
 
         def apiVersion = versionProps['apiCode'].toInteger()
