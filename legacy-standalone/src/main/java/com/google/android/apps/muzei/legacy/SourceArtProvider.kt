@@ -156,12 +156,10 @@ class SourceArtProvider : MuzeiArtProvider() {
             }?.run {
                 val request = Request.Builder().url(URL(toString())).build()
                 val response = client.newCall(request).execute()
-                val responseCode = response.code()
+                val responseCode = response.code
                 if (responseCode !in 200..299) {
                     throw IOException("HTTP error response $responseCode")
                 }
-                val body = response.body()
-                return body?.byteStream()
-                        ?: throw IOException("Unable to open stream for $this")
+                response.body.byteStream()
             } ?: super.openFile(artwork)
 }

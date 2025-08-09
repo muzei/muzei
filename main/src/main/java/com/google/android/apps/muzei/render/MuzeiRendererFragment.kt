@@ -29,7 +29,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import coil.bitmap.BitmapPool
 import coil.load
 import coil.size.Size
 import coil.transform.Transformation
@@ -66,23 +65,23 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
 
     private val simpleDemoModeTransformation = object : Transformation {
         override suspend fun transform(
-                pool: BitmapPool,
-                input: Bitmap,
-                size: Size
+            input: Bitmap,
+            size: Size
         ) = if (!demoFocus) {
             withContext(Dispatchers.IO) {
                 input.blur(requireContext())?.apply {
                     // Dim
                     val c = Canvas(this)
                     c.drawColor(Color.argb(255 - MuzeiBlurRenderer.DEFAULT_MAX_DIM,
-                            0, 0, 0))
+                        0, 0, 0))
                 }
             } ?: input
         } else {
             input
         }
 
-        override fun key() = TRANSFORMATION_ID
+        override val cacheKey: String
+            get() = TRANSFORMATION_ID
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

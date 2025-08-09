@@ -64,12 +64,11 @@ kotlin = "2.1.21"
 ksp = "2.1.21-2.0.1"
 
 # Other
-coil = "1.3.2"
+coil = "2.7.0"
 material = "1.12.0"
-#noinspection GradleDependency
-okhttp = "3.12.12"
+okhttp = "5.1.0"
 okhttpCoroutines = "1.0"
-retrofit = "2.9.0"
+retrofit = "3.0.0"
 subsampling = "3.10.0"
 tasker = "0.4.1"
 

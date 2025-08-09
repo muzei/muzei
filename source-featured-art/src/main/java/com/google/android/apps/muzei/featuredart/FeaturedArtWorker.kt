@@ -175,7 +175,7 @@ class FeaturedArtWorker(
         val request = Request.Builder()
                 .url(url)
                 .build()
-        val json = client.newCall(request).await().body()?.string()
+        val json = client.newCall(request).await().body.string()
         val tokener = JSONTokener(json)
         return tokener.nextValue() as? JSONObject ?: throw JSONException("Expected JSON object.")
     }

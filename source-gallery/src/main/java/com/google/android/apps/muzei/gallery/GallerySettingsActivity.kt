@@ -50,16 +50,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.graphics.Insets
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import coil.clear
+import coil.dispose
 import coil.load
 import com.google.android.apps.muzei.gallery.databinding.GalleryActivityBinding
 import com.google.android.apps.muzei.gallery.databinding.GalleryChosenPhotoItemBinding
@@ -78,8 +80,6 @@ import kotlinx.coroutines.launch
 import java.util.LinkedList
 import kotlin.math.hypot
 import kotlin.math.max
-import androidx.core.graphics.drawable.toDrawable
-import androidx.core.view.isVisible
 
 private class GetContentsFromActivityInfo : ActivityResultContract<ActivityInfo, List<Uri>>() {
     private val getMultipleContents = ActivityResultContracts.GetMultipleContents()
@@ -661,7 +661,7 @@ class GallerySettingsActivity : AppCompatActivity(),
                 // Show either just the one image or all the images even if
                 // they are just placeholders
                 thumbView.visibility = if (numImages <= 1) View.GONE else View.VISIBLE
-                thumbView.clear()
+                thumbView.dispose()
                 thumbView.setImageDrawable(placeholderDrawable)
             }
             val checked = multiSelectionController.isSelected(chosenPhoto.id)
