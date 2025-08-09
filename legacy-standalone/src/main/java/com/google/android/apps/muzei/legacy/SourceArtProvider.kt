@@ -24,19 +24,20 @@ import android.content.Intent
 import android.util.Log
 import androidx.core.app.RemoteActionCompat
 import androidx.core.graphics.drawable.IconCompat
-import com.google.android.apps.muzei.api.R as ApiR
 import com.google.android.apps.muzei.api.UserCommand
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import net.nurik.roman.muzei.legacy.BuildConfig
 import net.nurik.roman.muzei.legacy.R
+import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
 import java.net.URISyntaxException
 import java.net.URL
+import java.util.concurrent.TimeUnit
+import com.google.android.apps.muzei.api.R as ApiR
 
 /**
  * A MuzeiArtProvider that encapsulates all of the logic for working with MuzeiArtSources
@@ -45,9 +46,16 @@ class SourceArtProvider : MuzeiArtProvider() {
 
     companion object {
         private const val TAG = "SourceArtProvider"
+        private const val DEFAULT_READ_TIMEOUT = 30L // in seconds
+        private const val DEFAULT_CONNECT_TIMEOUT = 15L // in seconds
     }
 
-    private val client by lazy { OkHttpClientFactory.getNewOkHttpsSafeClient() }
+    private val client by lazy {
+        OkHttpClient.Builder()
+            .connectTimeout(DEFAULT_CONNECT_TIMEOUT, TimeUnit.SECONDS)
+            .readTimeout(DEFAULT_READ_TIMEOUT, TimeUnit.SECONDS)
+            .build()
+    }
 
     override fun onLoadRequested(initial: Boolean) {
         if (initial) {

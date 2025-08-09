@@ -51,7 +51,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion libs.versions.targetSdk.get()
 
         def galleryAuthorityValue = "com.google.android.apps.muzei.gallery"
