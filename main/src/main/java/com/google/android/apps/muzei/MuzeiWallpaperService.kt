@@ -144,7 +144,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
     }
 
     inner class MuzeiWallpaperEngine
-        : GLWallpaperService.GLEngine(),
+        : GLEngine(),
             LifecycleOwner,
             DefaultLifecycleObserver,
             RenderController.Callbacks,

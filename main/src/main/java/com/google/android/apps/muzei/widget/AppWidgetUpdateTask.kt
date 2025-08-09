@@ -72,7 +72,7 @@ suspend fun showWidgetPreview(context: Context) {
     val extras = bundleOf(AppWidgetManager.EXTRA_APPWIDGET_PREVIEW to remoteViews)
     try {
         appWidgetManager.requestPinAppWidget(widget, extras, null)
-    } catch (ignored: IllegalStateException) {
+    } catch (_: IllegalStateException) {
         // The user exited out of the app before we could pop up the pin widget dialog
     }
 }
@@ -86,7 +86,7 @@ suspend fun updateAppWidget(context: Context) = coroutineScope {
     val appWidgetIds = withContext(Dispatchers.IO) {
         try {
             appWidgetManager.getAppWidgetIds(widget)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             intArrayOf()
         }
     }
@@ -120,7 +120,7 @@ suspend fun updateAppWidget(context: Context) = coroutineScope {
                 try {
                     appWidgetManager.updateAppWidget(widgetId, remoteViews)
                     success = true
-                } catch (e: IllegalArgumentException) {
+                } catch (_: IllegalArgumentException) {
                     Log.w(TAG, "App widget size $widgetWidth x $widgetHeight exceeded maximum memory, reducing quality")
                     widgetWidth /= 2
                     widgetHeight /= 2

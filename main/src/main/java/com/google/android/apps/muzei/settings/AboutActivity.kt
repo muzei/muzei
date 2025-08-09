@@ -79,7 +79,7 @@ class AboutActivity : AppCompatActivity() {
             try {
                 cti.launchUrl(this,
                         "https://www.androidexperiments.com/experiment/muzei".toUri())
-            } catch (ignored: ActivityNotFoundException) {
+            } catch (_: ActivityNotFoundException) {
             }
         }
     }

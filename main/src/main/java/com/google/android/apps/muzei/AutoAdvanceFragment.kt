@@ -19,15 +19,16 @@ package com.google.android.apps.muzei
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.text.style.UnderlineSpan
 import android.util.SparseIntArray
 import android.util.SparseLongArray
 import android.view.View
 import android.widget.Toast
+import androidx.core.net.toUri
 import androidx.core.text.set
 import androidx.core.text.toSpannable
+import androidx.core.util.size
 import androidx.fragment.app.Fragment
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.toast
@@ -68,7 +69,7 @@ class AutoAdvanceFragment : Fragment(R.layout.auto_advance_fragment) {
                 put(60 * 60 * 72, R.id.interval_72h)
                 put(0, R.id.interval_never)
             }
-            for (i in 0 until INTERVAL_RADIO_BUTTON_IDS_BY_TIME.size()) {
+            for (i in 0 until INTERVAL_RADIO_BUTTON_IDS_BY_TIME.size) {
                 INTERVAL_TIME_BY_RADIO_BUTTON_ID.put(INTERVAL_RADIO_BUTTON_IDS_BY_TIME.valueAt(i),
                         INTERVAL_RADIO_BUTTON_IDS_BY_TIME.keyAt(i).toLong())
             }
@@ -120,17 +121,15 @@ class AutoAdvanceFragment : Fragment(R.layout.auto_advance_fragment) {
                 val pm = context.packageManager
                 context.startActivity(
                         (pm.getLaunchIntentForPackage(TASKER_PACKAGE_NAME)
-                                ?: Intent(Intent.ACTION_VIEW, Uri.parse(
-                                        "https://play.google.com/store/apps/details?id=" +
-                                                TASKER_PACKAGE_NAME +
-                                                "&referrer=utm_source%3Dmuzei" +
-                                                "%26utm_medium%3Dapp" +
-                                                "%26utm_campaign%3Dauto_advance"))
+                                ?: Intent(Intent.ACTION_VIEW,
+                                    ("https://play.google.com/store/apps/details?id=" +
+                                            TASKER_PACKAGE_NAME +
+                                            "&referrer=utm_source%3Dmuzei%26utm_medium%3Dapp%26utm_campaign%3Dauto_advance").toUri())
                                 ).addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT))
                 Firebase.analytics.logEvent("tasker_open", null)
-            } catch (e: ActivityNotFoundException) {
+            } catch (_: ActivityNotFoundException) {
                 context.toast(R.string.play_store_not_found, Toast.LENGTH_LONG)
-            } catch (e: SecurityException) {
+            } catch (_: SecurityException) {
                 context.toast(R.string.play_store_not_found, Toast.LENGTH_LONG)
             }
         }

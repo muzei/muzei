@@ -85,7 +85,7 @@ class BrowseProviderViewModel(
                         }
                     }
                     send(list)
-                } catch (e: DeadObjectException) {
+                } catch (_: DeadObjectException) {
                     // Provider was updated out from underneath us
                     // so there's nothing more we can do here
                 }

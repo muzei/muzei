@@ -44,6 +44,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.androidclientcommon.R as CommonR
+import androidx.core.graphics.createBitmap
 
 class LegacySourcePackageListener(
         private val applicationContext: Context
@@ -247,8 +248,7 @@ class LegacySourcePackageListener(
     }
 
     private fun generateSourceImage(image: Drawable?) = image?.run {
-        Bitmap.createBitmap(largeIconSize, largeIconSize,
-            Bitmap.Config.ARGB_8888).apply {
+        createBitmap(largeIconSize, largeIconSize).apply {
             val canvas = Canvas(this)
             image.setBounds(0, 0, largeIconSize, largeIconSize)
             image.draw(canvas)

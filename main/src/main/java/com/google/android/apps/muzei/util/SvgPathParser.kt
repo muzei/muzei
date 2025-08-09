@@ -239,7 +239,7 @@ internal class SvgPathParser(
             val value = java.lang.Float.parseFloat(str)
             currentIndex = index
             return value
-        } catch (e: NumberFormatException) {
+        } catch (_: NumberFormatException) {
             throw ParseException("Invalid float value '$str'.", currentIndex)
         }
     }

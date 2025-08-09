@@ -147,7 +147,7 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
                                 false
                             )
                             TileServiceCompat.startActivityAndCollapse(context, wrapper)
-                        } catch (e: ActivityNotFoundException) {
+                        } catch (_: ActivityNotFoundException) {
                             context.toast(R.string.error_wallpaper_chooser, Toast.LENGTH_LONG)
                         }
                     }

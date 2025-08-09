@@ -56,11 +56,11 @@ class IntroFragment : Fragment(R.layout.intro_fragment) {
                                 ComponentName(requireContext(),
                                         MuzeiWallpaperService::class.java))
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-            } catch (e: ActivityNotFoundException) {
+            } catch (_: ActivityNotFoundException) {
                 try {
                     startActivity(Intent(WallpaperManager.ACTION_LIVE_WALLPAPER_CHOOSER)
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-                } catch (e2: ActivityNotFoundException) {
+                } catch (_: ActivityNotFoundException) {
                     requireContext().toast(R.string.error_wallpaper_chooser, Toast.LENGTH_LONG)
                 }
             }

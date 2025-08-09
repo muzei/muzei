@@ -18,7 +18,6 @@ package com.google.android.apps.muzei.render
 
 import android.app.ActivityManager
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.RectF
 import android.opengl.GLES20
@@ -27,6 +26,7 @@ import android.opengl.Matrix
 import android.util.Log
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.annotation.Keep
+import androidx.core.graphics.scale
 import com.google.android.apps.muzei.ArtDetailOpen
 import com.google.android.apps.muzei.ArtDetailViewport
 import com.google.android.apps.muzei.settings.Prefs
@@ -357,7 +357,7 @@ class MuzeiBlurRenderer(
                                 attemptedHeight)
                         pictures[0] = image?.toGLPicture()
                         success = true
-                    } catch (e: OutOfMemoryError) {
+                    } catch (_: OutOfMemoryError) {
                         sampleSize = sampleSize shl 1
                         Log.d(TAG, "Decoding image at ${attemptedWidth}x$attemptedHeight " +
                                 "was too large, trying a sample size of $sampleSize")
@@ -391,8 +391,7 @@ class MuzeiBlurRenderer(
 
                         // Note that image width should be a multiple of 4 to avoid
                         // issues with RenderScript allocations.
-                        val scaledBitmap = Bitmap.createScaledBitmap(
-                                tempBitmap, scaledWidth, scaledHeight, true)
+                        val scaledBitmap = tempBitmap.scale(scaledWidth, scaledHeight)
                         if (tempBitmap != scaledBitmap) {
                             tempBitmap.recycle()
                         }

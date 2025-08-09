@@ -67,6 +67,7 @@ import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.ChooseProviderFragmentBinding
 import net.nurik.roman.muzei.databinding.ChooseProviderItemBinding
+import androidx.core.net.toUri
 
 private class StartActivityFromSettings : ActivityResultContract<ComponentName, Boolean>() {
     override fun createIntent(context: Context, input: ComponentName): Intent =
@@ -293,7 +294,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                         param(FirebaseAnalytics.Param.ITEM_NAME, title)
                         param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
                     }
-                } catch (e: ActivityNotFoundException) {
+                } catch (_: ActivityNotFoundException) {
                     return@setOnLongClickListener false
                 }
 
@@ -456,10 +457,10 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
     inner class PlayStoreProviderAdapter : RecyclerView.Adapter<ProviderViewHolder>() {
         @SuppressLint("InlinedApi")
         private val playStoreIntent: Intent = Intent(Intent.ACTION_VIEW,
-                Uri.parse("http://play.google.com/store/search?q=Muzei&c=apps" +
-                        "&referrer=utm_source%3Dmuzei" +
-                        "%26utm_medium%3Dapp" +
-                        "%26utm_campaign%3Dget_more_sources"))
+            ("http://play.google.com/store/search?q=Muzei&c=apps" +
+                    "&referrer=utm_source%3Dmuzei" +
+                    "%26utm_medium%3Dapp" +
+                    "%26utm_campaign%3Dget_more_sources").toUri())
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
                 .setPackage(PLAY_STORE_PACKAGE_NAME)
         private val playStoreComponentName: ComponentName? = playStoreIntent.resolveActivity(
@@ -513,9 +514,9 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                 Firebase.analytics.logEvent("more_sources_open", null)
                 try {
                     startActivity(playStoreIntent)
-                } catch (e: ActivityNotFoundException) {
+                } catch (_: ActivityNotFoundException) {
                     requireContext().toast(R.string.play_store_not_found, Toast.LENGTH_LONG)
-                } catch (e: SecurityException) {
+                } catch (_: SecurityException) {
                     requireContext().toast(R.string.play_store_not_found, Toast.LENGTH_LONG)
                 }
             }

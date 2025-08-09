@@ -21,10 +21,10 @@ import android.content.ActivityNotFoundException
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.res.Resources
-import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
 import com.google.android.apps.muzei.util.toast
@@ -39,7 +39,7 @@ class MissingResourcesDialogFragment : DialogFragment() {
                 ContextCompat.getDrawable(activity, CommonR.drawable.ic_stat_muzei)
                 ContextCompat.getDrawable(activity, R.drawable.logo_subtitle)
                 false
-            } catch (e : Resources.NotFoundException) {
+            } catch (_ : Resources.NotFoundException) {
                 true
             }
             if (missingResources) {
@@ -57,12 +57,12 @@ class MissingResourcesDialogFragment : DialogFragment() {
                 .setPositiveButton(R.string.missing_resources_open) { _: DialogInterface, _: Int ->
                     try {
                         val playStoreIntent = Intent(Intent.ACTION_VIEW,
-                                Uri.parse("https://play.google.com/store/apps/details?id=" +
-                                        requireContext().packageName))
+                            ("https://play.google.com/store/apps/details?id=" +
+                                    requireContext().packageName).toUri())
                         startActivity(playStoreIntent)
-                    } catch (e: ActivityNotFoundException) {
+                    } catch (_: ActivityNotFoundException) {
                         requireContext().toast(R.string.play_store_not_found, Toast.LENGTH_LONG)
-                    } catch (e: SecurityException) {
+                    } catch (_: SecurityException) {
                         requireContext().toast(R.string.play_store_not_found, Toast.LENGTH_LONG)
                     }
                     requireActivity().finish()

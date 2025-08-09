@@ -338,7 +338,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                     }
                     try {
                         actionIntent.sendFromBackground()
-                    } catch (e: PendingIntent.CanceledException) {
+                    } catch (_: PendingIntent.CanceledException) {
                         // Why do you give us a cancelled PendingIntent.
                         // We can't do anything with that.
                     }
