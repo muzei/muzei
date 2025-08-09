@@ -16,12 +16,14 @@
 
 package com.google.android.apps.muzei.util
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.TextView
 import androidx.core.content.res.use
 import net.nurik.roman.muzei.androidclientcommon.R
 
+@SuppressLint("AppCompatCustomView")
 class ShadowDipsTextView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0)
     : TextView(context, attrs, defStyle) {
 

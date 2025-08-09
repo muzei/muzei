@@ -147,7 +147,14 @@ class ProviderManager private constructor(private val context: Context)
             }
         }
     }
-    private val contentObserver: ContentObserver
+    private val contentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
+        override fun onChange(selfChange: Boolean, uri: Uri?) {
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "onChange for $uri")
+            }
+            ProviderChangedWorker.enqueueChanged(context)
+        }
+    }
     private val providerLiveData by lazy {
         MuzeiDatabase.getInstance(context).providerDao().getCurrentProviderLiveData()
     }
@@ -208,17 +215,6 @@ class ProviderManager private constructor(private val context: Context)
             .getString(PREF_LOAD_ORDERING, DEFAULT_LOAD_ORDERING.name)) {
             "Invalid load ordering"
         })
-
-    init {
-        contentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
-            override fun onChange(selfChange: Boolean, uri: Uri?) {
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "onChange for $uri")
-                }
-                ProviderChangedWorker.enqueueChanged(context)
-            }
-        }
-    }
 
     @SuppressLint("WrongConstant")
     override fun onActive() {

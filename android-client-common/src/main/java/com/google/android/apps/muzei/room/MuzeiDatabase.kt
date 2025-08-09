@@ -160,7 +160,7 @@ abstract class MuzeiDatabase : RoomDatabase() {
                         + "commands TEXT NOT NULL);")
                 try {
                     db.execSQL("INSERT INTO sources2 SELECT * FROM sources")
-                } catch (e: SQLiteConstraintException) {
+                } catch (_: SQLiteConstraintException) {
                     // Wtf, multiple sources with the same component_name? Mkay
                     // Just move over the component_name and selected flag then
                     db.execSQL("INSERT INTO sources2 " +
@@ -269,7 +269,7 @@ abstract class MuzeiDatabase : RoomDatabase() {
                             }
                         }
                     }
-                } catch (e: PackageManager.NameNotFoundException) {
+                } catch (_: PackageManager.NameNotFoundException) {
                     // Couldn't find the selected source, so there's nothing more to do
                 }
 
@@ -318,7 +318,7 @@ abstract class MuzeiDatabase : RoomDatabase() {
                                     arrayOf(info.authority, supportsNextArtwork))
                         }
                     }
-                } catch (e: PackageManager.NameNotFoundException) {
+                } catch (_: PackageManager.NameNotFoundException) {
                     // Couldn't find the selected provider, so there's nothing more to do
                 }
                 db.execSQL("DROP TABLE provider")
@@ -356,7 +356,7 @@ abstract class MuzeiDatabase : RoomDatabase() {
                                     + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                                     arrayOf(id, info.authority, imageUri, title,
                                             byline, attribution, metaFont, dateAdded))
-                        } catch (e: PackageManager.NameNotFoundException) {
+                        } catch (_: PackageManager.NameNotFoundException) {
                             // Couldn't find the provider, so there's nothing more to do
                         }
                     }

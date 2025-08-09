@@ -88,8 +88,11 @@ class ProviderChangedWorker(
         @RequiresApi(Build.VERSION_CODES.N)
         fun addPersistentListener(context: Context, name: String) {
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val persistentListeners = preferences.getStringSet(PREF_PERSISTENT_LISTENERS,
-                    null) ?: HashSet()
+            val persistentListeners = HashSet<String>().apply {
+                preferences.getStringSet(PREF_PERSISTENT_LISTENERS, null)?.let {
+                    addAll(it)
+                }
+            }
             persistentListeners.add(name)
             preferences.edit {
                 putStringSet(PREF_PERSISTENT_LISTENERS, persistentListeners)
@@ -107,8 +110,11 @@ class ProviderChangedWorker(
         @RequiresApi(Build.VERSION_CODES.N)
         fun removePersistentListener(context: Context, name: String) {
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val persistentListeners = preferences.getStringSet(PREF_PERSISTENT_LISTENERS,
-                    null) ?: HashSet()
+            val persistentListeners = HashSet<String>().apply {
+                preferences.getStringSet(PREF_PERSISTENT_LISTENERS, null)?.let {
+                    addAll(it)
+                }
+            }
             persistentListeners.remove(name)
             preferences.edit {
                 putStringSet(PREF_PERSISTENT_LISTENERS, persistentListeners)

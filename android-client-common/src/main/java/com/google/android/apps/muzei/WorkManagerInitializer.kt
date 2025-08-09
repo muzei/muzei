@@ -2,7 +2,6 @@ package com.google.android.apps.muzei
 
 import android.app.job.JobScheduler
 import android.content.Context
-import android.os.Build
 import android.util.Log
 import androidx.core.content.edit
 import androidx.core.content.pm.PackageInfoCompat
@@ -61,7 +60,7 @@ class WorkManagerInitializer : Initializer<Unit> {
                             }
                         }
                         .build())
-            } catch(e: IllegalStateException) {
+            } catch(_: IllegalStateException) {
                 // Ignore errors arising from multiple initializations
             }
         }

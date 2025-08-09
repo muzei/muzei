@@ -168,7 +168,7 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
                 add(DocumentsContract.Document.COLUMN_SIZE, null)
             }
         } else {
-            val artworkId = try { documentId.toLong() } catch (e : NumberFormatException) {
+            val artworkId = try { documentId.toLong() } catch (_ : NumberFormatException) {
                 // Documents without a valid artworkId are no longer supported
                 // so just return an empty result
                 return result

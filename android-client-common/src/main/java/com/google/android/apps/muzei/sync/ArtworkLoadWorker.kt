@@ -51,7 +51,6 @@ import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.IOException
 import java.util.concurrent.TimeUnit
-import kotlin.math.max
 import kotlin.random.Random
 
 /**

@@ -94,7 +94,7 @@ suspend fun Artwork.openArtworkInfo(context: Context) {
 
 suspend fun Artwork.getCommands(context: Context) : List<RemoteActionCompat> {
     return ContentProviderClientCompat.getClient(context, imageUri)?.use { client ->
-        return try {
+        try {
             val result = client.call(METHOD_GET_COMMANDS, imageUri.toString(),
                     bundleOf(KEY_VERSION to API_VERSION))
                     ?: return ArrayList()
