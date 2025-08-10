@@ -32,7 +32,7 @@ buildscript {
 }
 
 plugins {
-    id "com.google.devtools.ksp" version libs.versions.ksp
+    alias(libs.plugins.ksp) apply false
 }
 
 allprojects {
