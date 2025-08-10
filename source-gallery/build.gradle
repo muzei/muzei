@@ -40,7 +40,7 @@ dependencies {
     implementation libs.room.paging
     implementation libs.workManager
     ksp libs.room.compiler
-    implementation libs.paging
+    implementation libs.paging.runtime
 }
 
 android {

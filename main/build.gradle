@@ -16,6 +16,7 @@
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'org.jetbrains.kotlin.plugin.compose'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'com.google.firebase.firebase-perf'
@@ -32,6 +33,7 @@ android {
 
     buildFeatures {
         viewBinding true
+        compose true
     }
 
     defaultConfig {
@@ -106,15 +108,24 @@ dependencies {
     api libs.coroutines.android
     api libs.coroutines.playservices
     implementation libs.multidex
+    implementation libs.coil.compose
     implementation libs.coil.runtime
     implementation libs.coil.okhttp
     implementation libs.wearable.playservices
     implementation libs.tasker
     implementation libs.subsampling
     implementation libs.core
+    implementation platform(libs.compose.bom)
+    implementation libs.compose.icons
+    implementation libs.compose.livedata
+    implementation libs.compose.material3
+    implementation libs.compose.ui.tooling.preview
+    debugImplementation libs.compose.ui.tooling.runtime
     implementation libs.fragment
     implementation libs.appCompat
     implementation libs.drawerLayout
+    implementation libs.lifecycle.runtime
+    implementation libs.lifecycle.viewmodel
     implementation libs.recyclerView
     implementation libs.swipeRefreshLayout
     implementation libs.viewPager2
