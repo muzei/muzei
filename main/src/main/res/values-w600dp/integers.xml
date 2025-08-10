@@ -16,5 +16,4 @@
 
 <resources>
     <integer name="choose_provider_span_count">2</integer>
-    <integer name="browse_provider_span_count">3</integer>
 </resources>

@@ -92,6 +92,8 @@
     <string name="legacy_source_all_uninstalled">All Legacy Sources have been uninstalled</string>
 
     <string name="done">Done</string>
+    <string name="navigate_up">Navigate Back</string>
+    <string name="menu_overflow">More options</string>
 
     <string name="set_as_wallpaper_using_muzei">Wallpaper (using <xliff:g id="muzei_name">Muzei</xliff:g>)</string>
     <string name="set_as_wallpaper_failed">Unable to read artwork</string>
