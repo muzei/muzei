@@ -32,6 +32,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.core.net.toUri
 import androidx.core.view.GravityCompat
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
@@ -47,7 +48,8 @@ import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
+import coil3.load
+import coil3.request.lifecycle
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
@@ -67,7 +69,6 @@ import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.ChooseProviderFragmentBinding
 import net.nurik.roman.muzei.databinding.ChooseProviderItemBinding
-import androidx.core.net.toUri
 
 private class StartActivityFromSettings : ActivityResultContract<ComponentName, Boolean>() {
     override fun createIntent(context: Context, input: ComponentName): Intent =

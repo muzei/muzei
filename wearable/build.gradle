@@ -96,7 +96,8 @@ dependencies {
     api libs.coroutines.core
     api libs.coroutines.android
     api libs.coroutines.playservices
-    implementation libs.coil
+    implementation libs.coil.runtime
+    implementation libs.coil.okhttp
     implementation libs.concurrent
     implementation libs.workManager
     implementation libs.core

@@ -24,7 +24,8 @@ dependencies {
     implementation project(':muzei-api')
     implementation project(':extensions')
     implementation libs.okhttp.core
-    implementation libs.coil
+    implementation libs.coil.runtime
+    implementation libs.coil.okhttp
     implementation libs.activity
     implementation libs.core
     implementation libs.fragment

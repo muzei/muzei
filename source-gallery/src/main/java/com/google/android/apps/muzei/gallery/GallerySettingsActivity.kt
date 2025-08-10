@@ -61,8 +61,9 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import coil.dispose
-import coil.load
+import coil3.asImage
+import coil3.dispose
+import coil3.load
 import com.google.android.apps.muzei.gallery.databinding.GalleryActivityBinding
 import com.google.android.apps.muzei.gallery.databinding.GalleryChosenPhotoItemBinding
 import com.google.android.apps.muzei.util.MultiSelectionController
@@ -653,7 +654,7 @@ class GallerySettingsActivity : AppCompatActivity(),
                 thumbView.visibility = View.VISIBLE
                 thumbView.load(images[h]) {
                     size(targetSize)
-                    placeholder(placeholderDrawable)
+                    placeholder(placeholderDrawable.asImage())
                 }
             }
             for (h in numImages until maxImages) {

@@ -106,7 +106,8 @@ dependencies {
     api libs.coroutines.android
     api libs.coroutines.playservices
     implementation libs.multidex
-    implementation libs.coil
+    implementation libs.coil.runtime
+    implementation libs.coil.okhttp
     implementation libs.wearable.playservices
     implementation libs.tasker
     implementation libs.subsampling

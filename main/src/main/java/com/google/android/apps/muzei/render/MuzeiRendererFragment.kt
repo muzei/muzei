@@ -29,9 +29,11 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import coil.load
-import coil.size.Size
-import coil.transform.Transformation
+import coil3.load
+import coil3.request.lifecycle
+import coil3.request.transformations
+import coil3.size.Size
+import coil3.transform.Transformation
 import com.google.android.apps.muzei.settings.EffectsLockScreenOpen
 import com.google.android.apps.muzei.util.ImageBlurrer
 import com.google.android.apps.muzei.util.blur
@@ -63,7 +65,7 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
     private var demoMode: Boolean = false
     private var demoFocus: Boolean = false
 
-    private val simpleDemoModeTransformation = object : Transformation {
+    private val simpleDemoModeTransformation = object : Transformation() {
         override suspend fun transform(
             input: Bitmap,
             size: Size

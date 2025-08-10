@@ -64,7 +64,7 @@ kotlin = "2.1.21"
 ksp = "2.1.21-2.0.1"
 
 # Other
-coil = "2.7.0"
+coil = "3.3.0"
 material = "1.12.0"
 okhttp = "5.1.0"
 okhttpCoroutines = "1.0"
@@ -137,7 +137,8 @@ dokka = { group = "org.jetbrains.dokka", name = "dokka-gradle-plugin", version.r
 kotlin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 
 # Other
-coil = { group = "io.coil-kt", name = "coil", version.ref = "coil" }
+coil-runtime = { group = "io.coil-kt.coil3", name = "coil", version.ref = "coil" }
+coil-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 okhttp-core = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 okhttp-coroutines = { group = "ru.gildor.coroutines", name = "kotlin-coroutines-okhttp", version.ref = "okhttpCoroutines" }

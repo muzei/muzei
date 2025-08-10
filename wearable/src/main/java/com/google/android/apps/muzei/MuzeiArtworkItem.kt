@@ -31,7 +31,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.widget.RoundedDrawable
-import coil.load
+import coil3.asDrawable
+import coil3.load
+import coil3.request.allowHardware
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.contentUri
@@ -63,7 +65,7 @@ class MuzeiArtworkViewHolder(
                 image.setImageDrawable(RoundedDrawable().apply {
                     isClipEnabled = true
                     radius = root.context.resources.getDimensionPixelSize(R.dimen.art_detail_image_radius)
-                    drawable = loadedDrawable
+                    drawable = loadedDrawable.asDrawable(binding.root.context.resources)
                 })
             }
             listener(
