@@ -114,6 +114,7 @@ dependencies {
     implementation libs.wearable.playservices
     implementation libs.tasker
     implementation libs.subsampling
+    implementation libs.activity
     implementation libs.core
     implementation platform(libs.compose.bom)
     implementation libs.compose.icons

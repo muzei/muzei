@@ -27,8 +27,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.compose.AndroidFragment
 import coil3.load
 import coil3.request.lifecycle
 import coil3.request.transformations
@@ -42,13 +45,26 @@ import com.google.android.apps.muzei.util.roundMult4
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+private const val ARG_DEMO_MODE = "demo_mode"
+private const val ARG_DEMO_FOCUS = "demo_focus"
+
+@Composable
+fun MuzeiRendererFragment(
+    demoMode: Boolean,
+    demoFocus: Boolean,
+    modifier: Modifier = Modifier
+) {
+    AndroidFragment<MuzeiRendererFragment>(
+        modifier = modifier,
+        arguments = bundleOf(
+            ARG_DEMO_MODE to demoMode,
+            ARG_DEMO_FOCUS to demoFocus),
+    )
+}
+
 class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurRenderer.Callbacks {
 
     companion object {
-
-        private const val ARG_DEMO_MODE = "demo_mode"
-        private const val ARG_DEMO_FOCUS = "demo_focus"
-
         private const val TRANSFORMATION_ID = "simpleDemoModeTransformation"
 
         fun createInstance(demoMode: Boolean, demoFocus: Boolean = false): MuzeiRendererFragment {

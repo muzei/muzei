@@ -26,8 +26,6 @@
 
     <dimen name="intro_activate_button_size">100dp</dimen>
 
-    <dimen name="keyline_2">72dp</dimen>
-
     <dimen name="tutorial_content_margin">32dp</dimen>
 
     <dimen name="legacy_source_info_padding">8dp</dimen>
@@ -36,6 +34,7 @@
     <dimen name="provider_padding_with_snackbar">56dp</dimen>
     <dimen name="settings_text_size_large">20sp</dimen>
     <dimen name="settings_text_size_normal">16sp</dimen>
+    <dimen name="settings_line_spacing_normal">20sp</dimen>
     <dimen name="settings_seek_bar_margin">8dp</dimen>
 
     <dimen name="tasker_action_icon_size">48dp</dimen>
