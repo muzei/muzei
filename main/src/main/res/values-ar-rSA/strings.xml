@@ -24,6 +24,10 @@
     <string name="notification_new_wallpaper_channel_name">خلفيات جديدة</string>
     <string name="notification_settings">إعدادات الإشعارات</string>
     <string name="notification_settings_done">تم</string>
+    <string name="auto_advance_ordering">الترتيب</string>
+    <string name="auto_advance_ordering_in_order">دائمًا بالترتيب</string>
+    <string name="auto_advance_ordering_new_in_order">الصور الجديدة بالترتيب، ثم عشوائي</string>
+    <string name="auto_advance_ordering_random">عشوائي دائمًا</string>
     <string name="auto_advance_interval">الفاصل الزمني</string>
     <string name="auto_advance_interval_15m">كل 15 دقيقة</string>
     <string name="auto_advance_interval_30m">كل 30 دقيقة</string>
@@ -45,5 +49,7 @@
     <string name="provider_browse">تصفح</string>
     <string name="legacy_notification_channel_name">المصادر القديمة</string>
     <string name="legacy_action_learn_more">معرفة المزيد</string>
+    <string name="navigate_up">العودة إلى الخلف</string>
+    <string name="menu_overflow">خيارات إضافية</string>
     <string name="gestures_double_tap_title">النقر المزدوج</string>
 </resources>
