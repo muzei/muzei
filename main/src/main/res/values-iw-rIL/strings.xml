@@ -35,6 +35,10 @@
     <string name="auto_advance_title">התקדמות אוטומטית</string>
     <string name="auto_advance_description">שולט מתי <xliff:g id="muzei_name">Muzei</xliff:g> מתקדם אוטומטית לרקע הבא.</string>
     <string name="auto_advance_wifi">התקדמות אוטומטית רק ב-WiFi</string>
+    <string name="auto_advance_ordering">סדר</string>
+    <string name="auto_advance_ordering_in_order">תמיד מסודר</string>
+    <string name="auto_advance_ordering_new_in_order">תמונות חדשות מסודרות, אחרים רנדומלי</string>
+    <string name="auto_advance_ordering_random">תמיד רנדומלי</string>
     <string name="auto_advance_interval">מרווח</string>
     <string name="auto_advance_interval_15m">כל 15 דקות</string>
     <string name="auto_advance_interval_30m">כל 30 דקות</string>
@@ -71,6 +75,8 @@
     <string name="legacy_source_info_send_feedback">שליחת משוב</string>
     <string name="legacy_source_all_uninstalled">כל המקורות הישנים הוסרו</string>
     <string name="done">סיום</string>
+    <string name="navigate_up">ניווט חזרה</string>
+    <string name="menu_overflow">אפשרויות נוספות</string>
     <string name="set_as_wallpaper_failed">לא ניתן לקרא את היצירה</string>
     <string name="get_more_sources">הצגת מקורות נוספים</string>
     <string name="reset_advanced_settings_defaults">איפוס מחוונים</string>
