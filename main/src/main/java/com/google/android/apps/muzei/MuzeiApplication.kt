@@ -20,6 +20,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.runtime.Composer
+import androidx.compose.runtime.ExperimentalComposeRuntimeApi
 import androidx.core.content.edit
 import androidx.fragment.app.strictmode.FragmentReuseViolation
 import androidx.fragment.app.strictmode.FragmentStrictMode
@@ -45,8 +47,10 @@ class MuzeiApplication : MultiDexApplication(), SharedPreferences.OnSharedPrefer
                 Prefs.getSharedPreferences(context).getBoolean(ALWAYS_DARK_KEY, false)
     }
 
+    @OptIn(ExperimentalComposeRuntimeApi::class)
     override fun onCreate() {
         super.onCreate()
+        Composer.setDiagnosticStackTraceEnabled(BuildConfig.DEBUG)
         FragmentStrictMode.defaultPolicy = FragmentStrictMode.Policy.Builder()
             .detectFragmentReuse()
             .detectFragmentTagUsage()
