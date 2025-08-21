@@ -33,6 +33,7 @@
         <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> photos</item>
     </plurals>
     <string name="gallery_empty">Photos aléatoires de l\'appareil photo</string>
+    <string name="gallery_reselect_selected_photos">Sélectionner à nouveau les photos sélectionnées</string>
     <string name="gallery_empty_subtitle">Choisir plutôt des photos spécifiques</string>
     <string name="gallery_from_gallery">Depuis votre galerie</string>
     <string name="gallery_touch_to_view">Appuyer pour visualiser</string>
