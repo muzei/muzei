@@ -18,6 +18,7 @@ package com.google.android.apps.muzei.single
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.activity.result.launch
 import androidx.activity.result.registerForActivityResult
@@ -47,9 +48,10 @@ class SingleSettingsActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         try {
             getImage.launch()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             toast(R.string.single_get_content_failure)
             finish()
         }

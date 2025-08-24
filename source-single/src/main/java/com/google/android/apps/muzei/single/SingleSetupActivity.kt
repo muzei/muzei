@@ -19,6 +19,7 @@ package com.google.android.apps.muzei.single
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.component1
 import androidx.activity.result.component2
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
@@ -36,6 +37,7 @@ class SingleSetupActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         if (SingleArtProvider.getArtworkFile(this).exists()) {
             // We already have a single artwork available
             setResult(RESULT_OK)

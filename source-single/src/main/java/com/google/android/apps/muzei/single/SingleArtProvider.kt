@@ -71,7 +71,7 @@ class SingleArtProvider : MuzeiArtProvider() {
                             return data.getStringOrNull(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
                         }
                     }
-                } catch (e: SecurityException) {
+                } catch (_: SecurityException) {
                     // Whelp, I guess no display name for us
                 }
             }
