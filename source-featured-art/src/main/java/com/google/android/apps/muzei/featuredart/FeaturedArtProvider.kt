@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.provider.BaseColumns
 import android.util.Log
 import androidx.browser.customtabs.CustomTabColorSchemeParams
@@ -28,16 +27,17 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.RemoteActionCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.IconCompat
-import com.google.android.apps.muzei.api.R as ApiR
+import androidx.core.net.toUri
 import com.google.android.apps.muzei.api.provider.Artwork
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.util.getString
+import com.google.android.apps.muzei.api.R as ApiR
 
 class FeaturedArtProvider : MuzeiArtProvider() {
 
     companion object {
         private const val TAG = "FeaturedArtProvider"
-        private val ARCHIVE_URI = Uri.parse("http://muzei.co/archive")
+        private val ARCHIVE_URI = "http://muzei.co/archive".toUri()
     }
 
     @SuppressLint("Recycle")
@@ -53,8 +53,8 @@ class FeaturedArtProvider : MuzeiArtProvider() {
                     .title("The Starry Night")
                     .byline("Vincent van Gogh, 1889.\nMuzei shows a new painting every day.")
                     .attribution("wikiart.org")
-                    .persistentUri(Uri.parse("file:///android_asset/starrynight.jpg"))
-                    .webUri(Uri.parse("http://www.wikiart.org/en/vincent-van-gogh/the-starry-night-1889"))
+                    .persistentUri("file:///android_asset/starrynight.jpg".toUri())
+                    .webUri("http://www.wikiart.org/en/vincent-van-gogh/the-starry-night-1889".toUri())
                     .build())
         } else {
             // Delete all but the latest artwork to avoid
