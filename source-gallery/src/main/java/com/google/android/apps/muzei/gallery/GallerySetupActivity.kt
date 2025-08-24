@@ -24,6 +24,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.component1
 import androidx.activity.result.component2
 import androidx.activity.result.contract.ActivityResultContract
@@ -92,6 +93,7 @@ class GallerySetupActivity : FragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         GalleryDatabase.getInstance(this).chosenPhotoDao()
                 .chosenPhotosLiveData.observe(this) { chosenUris ->
             val numChosenUris = chosenUris.size

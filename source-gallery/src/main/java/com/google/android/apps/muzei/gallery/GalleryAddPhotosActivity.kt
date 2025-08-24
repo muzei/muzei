@@ -3,9 +3,10 @@ package com.google.android.apps.muzei.gallery
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.ComponentActivity
+import androidx.activity.enableEdgeToEdge
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ShareCompat
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.android.apps.muzei.util.toast
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +17,7 @@ import kotlinx.coroutines.launch
  * [android.content.Intent.ACTION_SEND_MULTIPLE] to add one or more
  * images to the Gallery
  */
-class GalleryAddPhotosActivity : FragmentActivity() {
+class GalleryAddPhotosActivity : ComponentActivity() {
 
     companion object {
         private const val TAG = "GalleryAddPhotos"
@@ -28,6 +29,7 @@ class GalleryAddPhotosActivity : FragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         val intentReader = ShareCompat.IntentReader(this)
         if (!intentReader.isShareIntent) {
             finish()
