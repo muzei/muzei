@@ -102,7 +102,7 @@ internal abstract class ChosenPhotoDao {
             try {
                 context.contentResolver.takePersistableUriPermission(chosenPhoto.uri,
                         Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            } catch (ignored: SecurityException) {
+            } catch (_: SecurityException) {
                 // You can't persist URI permissions from your own app, so this fails.
                 // We'll still have access to it directly
             }
