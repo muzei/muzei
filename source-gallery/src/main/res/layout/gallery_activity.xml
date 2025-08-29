@@ -77,7 +77,8 @@
                     android:layout_height="wrap_content"
                     android:text="@string/gallery_reselect_selected_photos"/>
 
-                <com.google.android.apps.muzei.gallery.GalleryEmptyStateGraphicView
+                <androidx.compose.ui.platform.ComposeView
+                    android:id="@+id/empty_state_graphic"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
 

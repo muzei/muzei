@@ -16,6 +16,7 @@
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'org.jetbrains.kotlin.plugin.compose'
 apply plugin: 'com.google.devtools.ksp'
 
 dependencies {
@@ -24,9 +25,16 @@ dependencies {
     implementation project(':muzei-api')
     implementation project(':extensions')
     implementation libs.okhttp.core
+    implementation libs.coil.compose
     implementation libs.coil.runtime
     implementation libs.coil.okhttp
     implementation libs.activity
+    implementation platform(libs.compose.bom)
+    implementation libs.compose.icons
+    implementation libs.compose.livedata
+    implementation libs.compose.material3
+    implementation libs.compose.ui.tooling.preview
+    debugImplementation libs.compose.ui.tooling.runtime
     implementation libs.core
     implementation libs.fragment
     implementation libs.appCompat

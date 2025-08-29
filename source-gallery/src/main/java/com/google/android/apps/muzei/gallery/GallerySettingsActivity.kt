@@ -265,6 +265,9 @@ class GallerySettingsActivity : AppCompatActivity(),
         binding.reselectSelectedPhotos.setOnClickListener {
             requestStoragePermission.launch()
         }
+        binding.emptyStateGraphic.setContent {
+            GalleryEmptyStateGraphic()
+        }
         binding.enableRandom.setOnClickListener {
             requestStoragePermission.launch()
         }
