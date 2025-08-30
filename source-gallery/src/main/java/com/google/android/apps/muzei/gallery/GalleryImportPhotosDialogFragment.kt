@@ -69,11 +69,11 @@ class GalleryImportPhotosDialogFragment : DialogFragment() {
         listener = null
     }
 
-    private fun updateAdapter(getContentActivites: List<ActivityInfo>) {
+    private fun updateAdapter(getContentActivities: List<ActivityInfo>) {
         val packageManager = requireContext().packageManager
         adapter.apply {
             clear()
-            addAll(getContentActivites.map { it.loadLabel(packageManager) })
+            addAll(getContentActivities.map { it.loadLabel(packageManager) })
             notifyDataSetChanged()
         }
     }
