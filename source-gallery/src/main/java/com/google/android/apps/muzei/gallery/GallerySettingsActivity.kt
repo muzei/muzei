@@ -66,6 +66,7 @@ import coil3.dispose
 import coil3.load
 import com.google.android.apps.muzei.gallery.databinding.GalleryActivityBinding
 import com.google.android.apps.muzei.gallery.databinding.GalleryChosenPhotoItemBinding
+import com.google.android.apps.muzei.gallery.theme.GalleryTheme
 import com.google.android.apps.muzei.util.MultiSelectionController
 import com.google.android.apps.muzei.util.addMenuProvider
 import com.google.android.apps.muzei.util.collectIn
@@ -266,7 +267,11 @@ class GallerySettingsActivity : AppCompatActivity(),
             requestStoragePermission.launch()
         }
         binding.emptyStateGraphic.setContent {
-            GalleryEmptyStateGraphic()
+            GalleryTheme(
+                dynamicColor = false
+            ) {
+                GalleryEmptyStateGraphic()
+            }
         }
         binding.enableRandom.setOnClickListener {
             requestStoragePermission.launch()

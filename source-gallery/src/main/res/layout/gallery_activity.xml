@@ -119,7 +119,7 @@
             android:textSize="16sp"
             android:fontFamily="sans-serif-condensed"
             android:textStyle="italic"
-            android:textColor="@color/gallery_theme_dark"
+            android:textColor="@color/gallery_theme"
             android:text="@string/gallery_empty_subtitle"/>
 
     </FrameLayout>

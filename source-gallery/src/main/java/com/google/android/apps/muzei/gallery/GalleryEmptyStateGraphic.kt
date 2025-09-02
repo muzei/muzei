@@ -20,6 +20,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
@@ -28,10 +29,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
+import com.google.android.apps.muzei.gallery.theme.GalleryTheme
 import kotlinx.coroutines.delay
 import kotlin.random.Random
 
@@ -52,8 +53,8 @@ private val ROWS = BITMAP.size / COLS
 fun GalleryEmptyStateGraphic() {
     val cellSize = 8.dp
     val cellSpacing = 2.dp
-    val onColor = colorResource(R.color.gallery_empty_state_light)
-    val offColor = colorResource(R.color.gallery_empty_state_dark)
+    val onColor = MaterialTheme.colorScheme.inversePrimary
+    val offColor = MaterialTheme.colorScheme.primary
     val onX = remember {
         mutableIntStateOf(0)
     }
@@ -126,5 +127,9 @@ fun GalleryEmptyStateGraphic() {
 @Preview
 @Composable
 fun GalleryEmptyStateGraphicPreview() {
-    GalleryEmptyStateGraphic()
+    GalleryTheme(
+        dynamicColor = false
+    ) {
+        GalleryEmptyStateGraphic()
+    }
 }
