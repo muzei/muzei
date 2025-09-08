@@ -19,7 +19,6 @@
     <color name="gallery_theme">#006A60</color>
 
     <color name="gallery_window_background">#EEE</color>
-    <color name="gallery_chosen_photo_placeholder">#5AAA</color>
 
     <color name="gallery_theme_primary">#006A60</color>
     <color name="gallery_theme_onPrimary">#FFFFFF</color>

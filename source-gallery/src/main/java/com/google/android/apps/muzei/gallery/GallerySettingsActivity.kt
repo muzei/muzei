@@ -23,15 +23,11 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.provider.DocumentsContract
 import android.provider.Settings
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -47,10 +43,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.edit
 import androidx.core.graphics.Insets
-import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -61,11 +57,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import coil3.asImage
-import coil3.dispose
-import coil3.load
 import com.google.android.apps.muzei.gallery.databinding.GalleryActivityBinding
-import com.google.android.apps.muzei.gallery.databinding.GalleryChosenPhotoItemBinding
 import com.google.android.apps.muzei.gallery.theme.GalleryTheme
 import com.google.android.apps.muzei.util.MultiSelectionController
 import com.google.android.apps.muzei.util.addMenuProvider
@@ -80,8 +72,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.LinkedList
-import kotlin.math.hypot
-import kotlin.math.max
 
 private class GetContentsFromActivityInfo : ActivityResultContract<ActivityInfo, List<Uri>>() {
     private val getMultipleContents = ActivityResultContracts.GetMultipleContents()
@@ -182,10 +172,6 @@ class GallerySettingsActivity : AppCompatActivity(),
         override fun handleOnBackPressed() {
             hideAddToolbar(true)
         }
-    }
-
-    private val placeholderDrawable: ColorDrawable by lazy {
-        ContextCompat.getColor(this, R.color.gallery_chosen_photo_placeholder).toDrawable()
     }
 
     private var updatePosition = -1
@@ -608,27 +594,17 @@ class GallerySettingsActivity : AppCompatActivity(),
     }
 
     internal class PhotoViewHolder(
-            val binding: GalleryChosenPhotoItemBinding
-    ) : RecyclerView.ViewHolder(binding.root) {
-        val thumbViews = listOf(
-                binding.thumbnail1,
-                binding.thumbnail2,
-                binding.thumbnail3,
-                binding.thumbnail4)
-    }
+            val composeView: ComposeView
+    ) : RecyclerView.ViewHolder(composeView)
 
     private inner class GalleryAdapter : PagingDataAdapter<ChosenPhoto, PhotoViewHolder>(CHOSEN_PHOTO_DIFF_CALLBACK) {
-        private val handler by lazy { Handler(Looper.getMainLooper()) }
 
         @SuppressLint("ClickableViewAccessibility")
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoViewHolder {
-            val binding = GalleryChosenPhotoItemBinding.inflate(
-                    LayoutInflater.from(this@GallerySettingsActivity),
-                    parent, false)
-            val vh = PhotoViewHolder(binding)
+            val composeView = ComposeView(parent.context)
+            val vh = PhotoViewHolder(composeView)
 
-            binding.root.layoutParams.height = itemSize
-            binding.root.setOnTouchListener { _, motionEvent ->
+            composeView.setOnTouchListener { _, motionEvent ->
                 if (motionEvent.actionMasked != MotionEvent.ACTION_CANCEL) {
                     lastTouchPosition = vh.bindingAdapterPosition
                     lastTouchX = motionEvent.x.toInt()
@@ -636,7 +612,7 @@ class GallerySettingsActivity : AppCompatActivity(),
                 }
                 false
             }
-            binding.root.setOnClickListener {
+            composeView.setOnClickListener {
                 updatePosition = vh.bindingAdapterPosition
                 if (updatePosition != RecyclerView.NO_POSITION) {
                     val chosenPhoto = getItem(updatePosition)
@@ -648,79 +624,27 @@ class GallerySettingsActivity : AppCompatActivity(),
         }
 
         override fun onBindViewHolder(vh: PhotoViewHolder, position: Int) {
-            val chosenPhoto = getItem(position) ?: return
-            vh.binding.folderIcon.visibility = if (chosenPhoto.isTreeUri) View.VISIBLE else View.GONE
-            val maxImages = vh.thumbViews.size
-            val images = if (chosenPhoto.isTreeUri)
-                getImagesFromTreeUri(chosenPhoto.uri, maxImages)
-            else
-                listOf(chosenPhoto.contentUri)
-            val numImages = images.size
-            val targetSize = if (numImages <= 1) itemSize else itemSize / 2
-            for (h in 0 until numImages) {
-                val thumbView = vh.thumbViews[h]
-                thumbView.visibility = View.VISIBLE
-                thumbView.load(images[h]) {
-                    size(targetSize)
-                    placeholder(placeholderDrawable.asImage())
+            vh.composeView.setContent {
+                val chosenPhoto = getItem(position) ?: return@setContent
+                GalleryTheme(
+                    dynamicColor = false
+                ) {
+                    GalleryChosenPhotoItem(
+                        chosenPhoto,
+                        checked = multiSelectionController.isSelected(chosenPhoto.id),
+                        touchLocation = if (lastTouchPosition == vh.bindingAdapterPosition) {
+                            Offset(lastTouchX.toFloat(), lastTouchY.toFloat())
+                        } else {
+                            null
+                        }
+                    ) { chosenPhoto, maxImages ->
+                        if (chosenPhoto.isTreeUri)
+                            getImagesFromTreeUri(chosenPhoto.uri, maxImages)
+                        else
+                            listOf(chosenPhoto.contentUri)
+                    }
                 }
             }
-            for (h in numImages until maxImages) {
-                val thumbView = vh.thumbViews[h]
-                // Show either just the one image or all the images even if
-                // they are just placeholders
-                thumbView.visibility = if (numImages <= 1) View.GONE else View.VISIBLE
-                thumbView.dispose()
-                thumbView.setImageDrawable(placeholderDrawable)
-            }
-            val checked = multiSelectionController.isSelected(chosenPhoto.id)
-            vh.itemView.setTag(R.id.gallery_viewtag_position, position)
-            if (lastTouchPosition == vh.bindingAdapterPosition) {
-                handler.post {
-                    if (!vh.binding.checkedOverlay.isAttachedToWindow) {
-                        // Can't animate detached Views
-                        vh.binding.checkedOverlay.visibility = if (checked) View.VISIBLE else View.GONE
-                        return@post
-                    }
-                    if (checked) {
-                        vh.binding.checkedOverlay.visibility = View.VISIBLE
-                    }
-
-                    // find the smallest radius that'll cover the item
-                    val coverRadius = maxDistanceToCorner(
-                            lastTouchX, lastTouchY,
-                            0, 0, vh.itemView.width, vh.itemView.height)
-
-                    val revealAnim = ViewAnimationUtils.createCircularReveal(
-                            vh.binding.checkedOverlay,
-                            lastTouchX,
-                            lastTouchY,
-                            if (checked) 0f else coverRadius,
-                            if (checked) coverRadius else 0f)
-                            .setDuration(150)
-
-                    if (!checked) {
-                        revealAnim.addListener(object : AnimatorListenerAdapter() {
-                            override fun onAnimationEnd(animation: Animator) {
-                                vh.binding.checkedOverlay.visibility = View.GONE
-                            }
-                        })
-                    }
-                    revealAnim.start()
-                }
-            } else {
-                vh.binding.checkedOverlay.visibility = if (checked) View.VISIBLE else View.GONE
-            }
-        }
-
-        @Suppress("SameParameterValue")
-        private fun maxDistanceToCorner(x: Int, y: Int, left: Int, top: Int, right: Int, bottom: Int): Float {
-            var maxDistance = 0f
-            maxDistance = max(maxDistance, hypot((x - left).toDouble(), (y - top).toDouble()).toFloat())
-            maxDistance = max(maxDistance, hypot((x - right).toDouble(), (y - top).toDouble()).toFloat())
-            maxDistance = max(maxDistance, hypot((x - left).toDouble(), (y - bottom).toDouble()).toFloat())
-            maxDistance = max(maxDistance, hypot((x - right).toDouble(), (y - bottom).toDouble()).toFloat())
-            return maxDistance
         }
     }
 

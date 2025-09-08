@@ -18,7 +18,6 @@
     <color name="gallery_theme">#82D5C8</color>
 
     <color name="gallery_window_background">#111</color>
-    <color name="gallery_chosen_photo_placeholder">#5666</color>
 
     <color name="gallery_theme_primary">#53DBC9</color>
     <color name="gallery_theme_onPrimary">#003731</color>
