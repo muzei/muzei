@@ -22,19 +22,11 @@
     android:fitsSystemWindows="true"
     app:statusBarBackground="?android:colorBackground">
 
-    <androidx.recyclerview.widget.RecyclerView
+    <androidx.compose.ui.platform.ComposeView
         android:id="@+id/photo_grid"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:stretchMode="columnWidth"
-        android:scrollbarStyle="outsideOverlay"
-        android:scrollbars="vertical"
-        android:clipToPadding="false"
         android:fitsSystemWindows="true"
-        android:drawSelectorOnTop="true"
-        android:horizontalSpacing="@dimen/gallery_chosen_photo_grid_spacing"
-        android:verticalSpacing="@dimen/gallery_chosen_photo_grid_spacing"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     <com.google.android.material.appbar.AppBarLayout

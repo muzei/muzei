@@ -109,6 +109,7 @@ multidex = { group = "androidx.multidex", name = "multidex", version.ref = "mult
 navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment-compose", version.ref = "navigation" }
 navigation-safeargs = { group = "androidx.navigation", name = "navigation-safe-args-gradle-plugin", version.ref = "navigation" }
 navigation-ui = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigation" }
+paging-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "paging" }
 paging-runtime = { group = "androidx.paging", name = "paging-runtime", version.ref = "paging" }
 preference = { group = "androidx.preference", name = "preference-ktx", version.ref = "preference" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }

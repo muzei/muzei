@@ -17,12 +17,12 @@
 package com.google.android.apps.muzei.util
 
 import androidx.activity.OnBackPressedCallback
+import androidx.compose.runtime.snapshots.SnapshotStateSet
 import androidx.core.os.bundleOf
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryOwner
-import java.util.HashSet
 
 /**
  * Utilities for storing multiple selection information in collection views.
@@ -38,7 +38,7 @@ class MultiSelectionController(
     private val lifecycle = savedStateRegistryOwner.lifecycle
     private val savedStateRegistry = savedStateRegistryOwner.savedStateRegistry
 
-    val selection = HashSet<Long>()
+    val selection = SnapshotStateSet<Long>()
     var callbacks: Callbacks? = null
 
     val selectedCount: Int
@@ -85,10 +85,6 @@ class MultiSelectionController(
         selection.clear()
         isEnabled = false
         callbacks?.onSelectionChanged(false, fromUser)
-    }
-
-    fun isSelected(item: Long): Boolean {
-        return selection.contains(item)
     }
 
     fun interface Callbacks {

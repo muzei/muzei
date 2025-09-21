@@ -66,12 +66,13 @@ import kotlin.math.max
 @Composable
 fun GalleryChosenPhotoItem(
     chosenPhoto: ChosenPhoto,
+    modifier: Modifier = Modifier,
     checked: Boolean = false,
     touchLocation: Offset? = null,
     imageProvider: (chosenPhoto: ChosenPhoto, maxImages: Int) -> List<Uri>,
 ) {
     Box(
-        modifier = Modifier.aspectRatio(1f)
+        modifier = modifier.aspectRatio(1f)
     ) {
         val images = if (chosenPhoto.isTreeUri) {
             imageProvider(chosenPhoto, 4)

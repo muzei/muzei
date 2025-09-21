@@ -31,11 +31,8 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewAnimationUtils
-import android.view.ViewGroup
-import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContract
@@ -43,20 +40,26 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.platform.ComposeView
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
-import androidx.core.graphics.Insets
 import androidx.core.view.MenuProvider
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import androidx.paging.PagingDataAdapter
-import androidx.recyclerview.widget.DefaultItemAnimator
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.google.android.apps.muzei.gallery.databinding.GalleryActivityBinding
 import com.google.android.apps.muzei.gallery.theme.GalleryTheme
 import com.google.android.apps.muzei.util.MultiSelectionController
@@ -64,6 +67,7 @@ import com.google.android.apps.muzei.util.addMenuProvider
 import com.google.android.apps.muzei.util.collectIn
 import com.google.android.apps.muzei.util.getString
 import com.google.android.apps.muzei.util.getStringOrNull
+import com.google.android.apps.muzei.util.plus
 import com.google.android.apps.muzei.util.toast
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
@@ -118,18 +122,6 @@ class GallerySettingsActivity : AppCompatActivity(),
         private const val TAG = "GallerySettingsActivity"
         private const val SHARED_PREF_NAME = "GallerySettingsActivity"
         private const val SHOW_INTERNAL_STORAGE_MESSAGE = "show_internal_storage_message"
-
-        internal val CHOSEN_PHOTO_DIFF_CALLBACK: DiffUtil.ItemCallback<ChosenPhoto> = object : DiffUtil.ItemCallback<ChosenPhoto>() {
-            override fun areItemsTheSame(oldItem: ChosenPhoto, newItem: ChosenPhoto): Boolean {
-                return oldItem.uri == newItem.uri
-            }
-
-            override fun areContentsTheSame(oldItem: ChosenPhoto, newItem: ChosenPhoto): Boolean {
-                // If the items are the same (same image URI), then they are equivalent and
-                // no change animation is needed
-                return true
-            }
-        }
     }
 
     private val viewModel: GallerySettingsViewModel by viewModels()
@@ -164,8 +156,6 @@ class GallerySettingsActivity : AppCompatActivity(),
 
     private lateinit var binding: GalleryActivityBinding
 
-    private var itemSize = 10
-
     private val multiSelectionController = MultiSelectionController(this)
 
     private val addToolbarOnBackPressedCallback = object : OnBackPressedCallback(false) {
@@ -174,13 +164,7 @@ class GallerySettingsActivity : AppCompatActivity(),
         }
     }
 
-    private var updatePosition = -1
-
-    private var lastTouchPosition: Int = 0
-    private var lastTouchX: Int = 0
-    private var lastTouchY: Int = 0
-
-    private val chosenPhotosAdapter = GalleryAdapter()
+    private var chosenPhotosCount = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -191,62 +175,40 @@ class GallerySettingsActivity : AppCompatActivity(),
 
         setupMultiSelect()
 
-        val gridLayoutManager = GridLayoutManager(this, 1)
-        binding.photoGrid.apply {
-            layoutManager = gridLayoutManager
-            itemAnimator = DefaultItemAnimator().apply {
-                supportsChangeAnimations = false
-            }
-        }
-
-        val vto = binding.photoGrid.viewTreeObserver
-        vto.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                val width = (binding.photoGrid.width
-                        - binding.photoGrid.paddingStart - binding.photoGrid.paddingEnd)
-                if (width <= 0) {
-                    return
-                }
-
-                // Compute number of columns
-                val maxItemWidth = resources.getDimensionPixelSize(
-                        R.dimen.gallery_chosen_photo_grid_max_item_size)
-                var numColumns = 1
-                while (true) {
-                    if (width / numColumns > maxItemWidth) {
-                        ++numColumns
-                    } else {
-                        break
+        binding.photoGrid.setContent {
+            GalleryTheme(
+                dynamicColor = false
+            ) {
+                val photos = viewModel.chosenPhotos.collectAsLazyPagingItems()
+                val selectedItems = multiSelectionController.selection
+                var firstIdle by remember { mutableStateOf(true) }
+                LaunchedEffect(photos.loadState.isIdle) {
+                    if (photos.loadState.isIdle) {
+                        if (firstIdle) {
+                            tryUpdateSelection(false)
+                            firstIdle = false
+                        }
+                        chosenPhotosCount = photos.itemCount
+                        onDataSetChanged()
                     }
                 }
-
-                val spacing = resources.getDimensionPixelSize(
-                        R.dimen.gallery_chosen_photo_grid_spacing)
-                itemSize = (width - spacing * (numColumns - 1)) / numColumns
-
-                // Complete setup
-                gridLayoutManager.spanCount = numColumns
-                binding.photoGrid.adapter = chosenPhotosAdapter
-
-                binding.photoGrid.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                tryUpdateSelection(false)
+                GalleryChosenPhotoGrid(
+                    photos = photos,
+                    modifier = Modifier.padding(bottom = 90.dp),
+                    contentPadding = WindowInsets.safeDrawing
+                        .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+                        .asPaddingValues() + PaddingValues(bottom = 90.dp),
+                    checkedItemIds = selectedItems,
+                    onCheckedToggled = { chosenPhoto ->
+                        multiSelectionController.toggle(chosenPhoto.id, true)
+                    },
+                ) { chosenPhoto, maxImages ->
+                    if (chosenPhoto.isTreeUri)
+                        getImagesFromTreeUri(chosenPhoto.uri, maxImages)
+                    else
+                        listOf(chosenPhoto.contentUri)
+                }
             }
-        })
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.photoGrid) { v, insets ->
-            val gridSpacing = resources
-                    .getDimensionPixelSize(R.dimen.gallery_chosen_photo_grid_spacing)
-            @Suppress("DEPRECATION")
-            ViewCompat.onApplyWindowInsets(v, WindowInsetsCompat.Builder(insets)
-                    .setSystemWindowInsets(Insets.of(
-                            insets.systemWindowInsetLeft + gridSpacing,
-                            gridSpacing,
-                            insets.systemWindowInsetRight + gridSpacing,
-                            insets.systemWindowInsetBottom +
-                                    insets.systemWindowInsetTop + gridSpacing +
-                                    resources.getDimensionPixelSize(R.dimen.gallery_fab_space)))
-                    .build())
-            insets
         }
 
         binding.reselectSelectedPhotos.setOnClickListener {
@@ -286,12 +248,6 @@ class GallerySettingsActivity : AppCompatActivity(),
                         Snackbar.LENGTH_LONG).show()
                 hideAddToolbar(true)
             }
-        }
-        viewModel.chosenPhotos.collectIn(this) {
-            chosenPhotosAdapter.submitData(it)
-        }
-        chosenPhotosAdapter.onPagesUpdatedFlow.collectIn(this) {
-            onDataSetChanged()
         }
         addMenuProvider(this)
         viewModel.getContentActivityInfoList.map {
@@ -463,15 +419,7 @@ class GallerySettingsActivity : AppCompatActivity(),
         hideAnimator.start()
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     private fun tryUpdateSelection(allowAnimate: Boolean) {
-        if (updatePosition >= 0) {
-            chosenPhotosAdapter.notifyItemChanged(updatePosition)
-            updatePosition = -1
-        } else {
-            chosenPhotosAdapter.notifyDataSetChanged()
-        }
-
         val selectedCount = multiSelectionController.selectedCount
         val toolbarVisible = selectedCount > 0
 
@@ -555,7 +503,7 @@ class GallerySettingsActivity : AppCompatActivity(),
     }
 
     private fun onDataSetChanged() {
-        if (chosenPhotosAdapter.itemCount != 0) {
+        if (chosenPhotosCount != 0) {
             binding.empty.visibility = View.GONE
             // We have at least one image, so consider the Gallery source properly setup
             setResult(RESULT_OK)
@@ -588,61 +536,6 @@ class GallerySettingsActivity : AppCompatActivity(),
                     // The user has permanently denied the storage permission. Give them a link to app settings
                     binding.emptyAnimator.displayedChild = 3
                     binding.emptyDescription.setText(R.string.gallery_denied_explanation)
-                }
-            }
-        }
-    }
-
-    internal class PhotoViewHolder(
-            val composeView: ComposeView
-    ) : RecyclerView.ViewHolder(composeView)
-
-    private inner class GalleryAdapter : PagingDataAdapter<ChosenPhoto, PhotoViewHolder>(CHOSEN_PHOTO_DIFF_CALLBACK) {
-
-        @SuppressLint("ClickableViewAccessibility")
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoViewHolder {
-            val composeView = ComposeView(parent.context)
-            val vh = PhotoViewHolder(composeView)
-
-            composeView.setOnTouchListener { _, motionEvent ->
-                if (motionEvent.actionMasked != MotionEvent.ACTION_CANCEL) {
-                    lastTouchPosition = vh.bindingAdapterPosition
-                    lastTouchX = motionEvent.x.toInt()
-                    lastTouchY = motionEvent.y.toInt()
-                }
-                false
-            }
-            composeView.setOnClickListener {
-                updatePosition = vh.bindingAdapterPosition
-                if (updatePosition != RecyclerView.NO_POSITION) {
-                    val chosenPhoto = getItem(updatePosition)
-                    multiSelectionController.toggle(chosenPhoto?.id ?: -1, true)
-                }
-            }
-
-            return vh
-        }
-
-        override fun onBindViewHolder(vh: PhotoViewHolder, position: Int) {
-            vh.composeView.setContent {
-                val chosenPhoto = getItem(position) ?: return@setContent
-                GalleryTheme(
-                    dynamicColor = false
-                ) {
-                    GalleryChosenPhotoItem(
-                        chosenPhoto,
-                        checked = multiSelectionController.isSelected(chosenPhoto.id),
-                        touchLocation = if (lastTouchPosition == vh.bindingAdapterPosition) {
-                            Offset(lastTouchX.toFloat(), lastTouchY.toFloat())
-                        } else {
-                            null
-                        }
-                    ) { chosenPhoto, maxImages ->
-                        if (chosenPhoto.isTreeUri)
-                            getImagesFromTreeUri(chosenPhoto.uri, maxImages)
-                        else
-                            listOf(chosenPhoto.contentUri)
-                    }
                 }
             }
         }

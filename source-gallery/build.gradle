@@ -44,6 +44,7 @@ dependencies {
     implementation libs.exifInterface
     implementation libs.lifecycle.common
     implementation libs.lifecycle.livedata
+    implementation libs.paging.compose
     implementation libs.room.ktx
     implementation libs.room.paging
     implementation libs.workManager
