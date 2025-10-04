@@ -43,78 +43,10 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <FrameLayout
+    <androidx.compose.ui.platform.ComposeView
         android:id="@android:id/empty"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="32dp"
-            android:layout_gravity="center"
-            android:gravity="center">
-
-            <ViewAnimator
-                android:id="@+id/empty_animator"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:measureAllChildren="false">
-
-                <Button
-                    android:id="@+id/reselect_selected_photos"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/gallery_reselect_selected_photos"/>
-
-                <androidx.compose.ui.platform.ComposeView
-                    android:id="@+id/empty_state_graphic"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-
-                <Button
-                    android:id="@+id/enable_random"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/gallery_enable_random"/>
-
-                <Button
-                    android:id="@+id/edit_permission_settings"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/gallery_edit_settings"/>
-            </ViewAnimator>
-
-            <TextView
-                android:id="@+id/empty_description"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="64dp"
-                android:gravity="center_horizontal"
-                android:textSize="22sp"
-                android:fontFamily="sans-serif-condensed"
-                android:textStyle="italic"
-                android:textColor="@color/gallery_theme"
-                android:breakStrategy="balanced"
-                android:text="@string/gallery_empty"
-                tools:targetApi="M"/>
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center_horizontal"
-            android:layout_marginBottom="88dp"
-            android:textSize="16sp"
-            android:fontFamily="sans-serif-condensed"
-            android:textStyle="italic"
-            android:textColor="@color/gallery_theme"
-            android:text="@string/gallery_empty_subtitle"/>
-
-    </FrameLayout>
+        android:layout_height="match_parent"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_fab"

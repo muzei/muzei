@@ -19,29 +19,55 @@ package com.google.android.apps.muzei.util
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 
 private class CombinedPaddingValues(
     val first: PaddingValues,
-    val second: PaddingValues,
-    val combination: (first: Dp, second: Dp) -> Dp
+    val second: PaddingValues = PaddingValues.Zero,
+    val combinationBottom: (first: Dp, second: Dp) -> Dp,
+    val combinationLeft: (first: Dp, second: Dp) -> Dp,
+    val combinationRight: (first: Dp, second: Dp) -> Dp,
+    val combinationTop: (first: Dp, second: Dp) -> Dp,
 ) : PaddingValues {
+
+    constructor(
+        first: PaddingValues,
+        second: PaddingValues = PaddingValues.Zero,
+        combination: (first: Dp, second: Dp) -> Dp
+    ) : this(first, second, combination, combination, combination, combination)
+
     override fun calculateBottomPadding(): Dp =
-        combination(first.calculateBottomPadding(), second.calculateBottomPadding())
+        combinationBottom(first.calculateBottomPadding(), second.calculateBottomPadding())
 
     override fun calculateLeftPadding(layoutDirection: LayoutDirection): Dp =
-        combination(
+        combinationLeft(
             first.calculateLeftPadding(layoutDirection),
             second.calculateLeftPadding(layoutDirection)
         )
 
     override fun calculateRightPadding(layoutDirection: LayoutDirection): Dp =
-        combination(
+        combinationRight(
             first.calculateRightPadding(layoutDirection),
             second.calculateRightPadding(layoutDirection)
         )
 
     override fun calculateTopPadding(): Dp =
-        combination(first.calculateTopPadding(), second.calculateTopPadding())
+        combinationTop(first.calculateTopPadding(), second.calculateTopPadding())
+}
+
+fun PaddingValues.only(
+    bottom: Boolean = false,
+    left: Boolean = false,
+    right: Boolean = false,
+    top: Boolean = false,
+): PaddingValues {
+    return CombinedPaddingValues(
+        this,
+        combinationBottom = { first, second -> if (bottom) first else 0.dp },
+        combinationLeft = { first, second -> if (left) first else 0.dp },
+        combinationRight = { first, second -> if (right) first else 0.dp },
+        combinationTop = { first, second -> if (top) first else 0.dp },
+    )
 }
 
 operator fun PaddingValues.plus(other: PaddingValues): PaddingValues {

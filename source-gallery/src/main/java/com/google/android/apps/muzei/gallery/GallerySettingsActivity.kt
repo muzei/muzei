@@ -53,7 +53,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import androidx.core.view.MenuProvider
@@ -72,10 +71,12 @@ import com.google.android.apps.muzei.util.toast
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.LinkedList
+import kotlin.getValue
 
 private class GetContentsFromActivityInfo : ActivityResultContract<ActivityInfo, List<Uri>>() {
     private val getMultipleContents = ActivityResultContracts.GetMultipleContents()
@@ -165,6 +166,9 @@ class GallerySettingsActivity : AppCompatActivity(),
     }
 
     private var chosenPhotosCount = 0
+    private val permissionStateFlow by lazy {
+        MutableStateFlow(checkRequestPermissionState(this))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -211,24 +215,29 @@ class GallerySettingsActivity : AppCompatActivity(),
             }
         }
 
-        binding.reselectSelectedPhotos.setOnClickListener {
-            requestStoragePermission.launch()
-        }
-        binding.emptyStateGraphic.setContent {
+        binding.empty.setContent {
             GalleryTheme(
                 dynamicColor = false
             ) {
-                GalleryEmptyStateGraphic()
+                GalleryEmpty(
+                    permissionStateFlow = permissionStateFlow,
+                    contentPadding = PaddingValues(bottom = 90.dp),
+                    onReselectSelectedPhotos = {
+                        requestStoragePermission.launch()
+                    },
+                    onEnableRandom = {
+                        requestStoragePermission.launch()
+                    },
+                    onEditPermissionSettings = {
+                        val intent = Intent(
+                            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                            Uri.fromParts("package", packageName, null)
+                        )
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        startActivity(intent)
+                    },
+                )
             }
-        }
-        binding.enableRandom.setOnClickListener {
-            requestStoragePermission.launch()
-        }
-        binding.editPermissionSettings.setOnClickListener {
-            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                    Uri.fromParts("package", packageName, null))
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
         }
         binding.addFab.apply {
             setOnClickListener {
@@ -510,34 +519,28 @@ class GallerySettingsActivity : AppCompatActivity(),
         } else {
             // No chosen images, show the empty View
             binding.empty.visibility = View.VISIBLE
-            if (RequestStoragePermissions.isPartialGrant(this)) {
-                // Only a partial grant is done, which means we can scan for the images
-                // we have, but should offer the ability for users to reselect what images
-                // they want us to have access to
-                GalleryScanWorker.enqueueRescan(this)
-                binding.emptyAnimator.displayedChild = 0
-                binding.emptyDescription.setText(R.string.gallery_empty)
-                setResult(RESULT_OK)
-            } else if (RequestStoragePermissions.checkSelfPermission(this)) {
-                // Permission is granted, we can show the random camera photos image
-                GalleryScanWorker.enqueueRescan(this)
-                binding.emptyAnimator.displayedChild = 1
-                binding.emptyDescription.setText(R.string.gallery_empty)
-                setResult(RESULT_OK)
-            } else {
-                // We have no images until they enable the permission
-                setResult(RESULT_CANCELED)
-                if (RequestStoragePermissions.shouldShowRequestPermissionRationale(this)) {
-                    // We should show rationale on why they should enable the storage permission and
-                    // random camera photos
-                    binding.emptyAnimator.displayedChild = 2
-                    binding.emptyDescription.setText(R.string.gallery_permission_rationale)
-                } else {
-                    // The user has permanently denied the storage permission. Give them a link to app settings
-                    binding.emptyAnimator.displayedChild = 3
-                    binding.emptyDescription.setText(R.string.gallery_denied_explanation)
+            val newState = checkRequestPermissionState(this)
+            when (newState) {
+                is PartialPermissionGranted -> {
+                    // Only a partial grant is done, which means we can scan for the images
+                    // we have, but should offer the ability for users to reselect what images
+                    // they want us to have access to
+                    GalleryScanWorker.enqueueRescan(this)
+                    setResult(RESULT_OK)
+                }
+
+                PermissionGranted -> {
+                    // Permission is granted, we can show the random camera photos image
+                    GalleryScanWorker.enqueueRescan(this)
+                    setResult(RESULT_OK)
+                }
+
+                is PermissionDenied -> {
+                    // We have no images until they enable the permission
+                    setResult(RESULT_CANCELED)
                 }
             }
+            permissionStateFlow.value = newState
         }
     }
 
