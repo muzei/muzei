@@ -18,29 +18,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    app:statusBarBackground="?android:colorBackground">
+    android:fitsSystemWindows="true">
 
     <androidx.compose.ui.platform.ComposeView
         android:id="@+id/photo_grid"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="true"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
-
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?actionBarSize"
-            app:title="@string/gallery_title"
-            app:layout_scrollFlags="scroll|enterAlways"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.DayNight"/>
-
-    </com.google.android.material.appbar.AppBarLayout>
+        android:fitsSystemWindows="true"/>
 
     <androidx.compose.ui.platform.ComposeView
         android:id="@android:id/empty"

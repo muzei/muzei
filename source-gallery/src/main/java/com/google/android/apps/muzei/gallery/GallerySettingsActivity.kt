@@ -26,9 +26,6 @@ import android.os.Bundle
 import android.provider.DocumentsContract
 import android.provider.Settings
 import android.util.Log
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContract
@@ -41,19 +38,25 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
-import androidx.core.view.MenuProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.savedstate.compose.serialization.serializers.MutableStateSerializer
@@ -61,7 +64,6 @@ import androidx.savedstate.serialization.saved
 import com.google.android.apps.muzei.gallery.databinding.GalleryActivityBinding
 import com.google.android.apps.muzei.gallery.theme.GalleryTheme
 import com.google.android.apps.muzei.util.MultiSelectionController
-import com.google.android.apps.muzei.util.collectIn
 import com.google.android.apps.muzei.util.getString
 import com.google.android.apps.muzei.util.getStringOrNull
 import com.google.android.apps.muzei.util.plus
@@ -69,8 +71,6 @@ import com.google.android.apps.muzei.util.toast
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.LinkedList
 
@@ -111,8 +111,7 @@ private class ChooseFolder : ActivityResultContract<Unit, Uri?>() {
 }
 
 class GallerySettingsActivity : AppCompatActivity(),
-    GalleryImportPhotosDialogFragment.OnRequestContentListener,
-    MenuProvider {
+    GalleryImportPhotosDialogFragment.OnRequestContentListener {
 
     companion object {
         private const val TAG = "GallerySettingsActivity"
@@ -164,11 +163,11 @@ class GallerySettingsActivity : AppCompatActivity(),
         mutableStateOf(AddFab)
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = GalleryActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        setSupportActionBar(binding.toolbar)
 
         setupMultiSelect()
 
@@ -177,28 +176,81 @@ class GallerySettingsActivity : AppCompatActivity(),
                 dynamicColor = false
             ) {
                 val photos = viewModel.chosenPhotos.collectAsLazyPagingItems()
-                val selectedItems = multiSelectionController.selection
-                LaunchedEffect(photos.loadState.isIdle) {
-                    if (photos.loadState.isIdle) {
-                        chosenPhotosCount = photos.itemCount
-                        onDataSetChanged()
-                    }
-                }
-                GalleryChosenPhotoGrid(
-                    photos = photos,
-                    modifier = Modifier.padding(bottom = 90.dp),
-                    contentPadding = WindowInsets.safeDrawing
-                        .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
-                        .asPaddingValues() + PaddingValues(bottom = 90.dp),
-                    checkedItemIds = selectedItems,
-                    onCheckedToggled = { chosenPhoto ->
-                        multiSelectionController.toggle(chosenPhoto.id)
+                val scrollBehavior =
+                    TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+
+                Scaffold(
+                    modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                    topBar = {
+                        val getContentActivityInfoList by viewModel.getContentActivityInfoList.collectAsState(
+                            emptyList()
+                        )
+                        val context = LocalContext.current
+                        val scope = rememberCoroutineScope()
+                        GalleryTopAppBar(
+                            importPhotoCount = getContentActivityInfoList.size,
+                            importPhotoTitle = if (getContentActivityInfoList.size == 1) {
+                                // If there's only one app that supports ACTION_GET_CONTENT, tell the user what that app is
+                                stringResource(
+                                    R.string.gallery_action_import_photos_from,
+                                    getContentActivityInfoList.first().loadLabel(packageManager)
+                                )
+                            } else {
+                                stringResource(R.string.gallery_action_import_photos)
+                            },
+                            photoCount = photos.itemCount,
+                            scrollBehavior = scrollBehavior,
+                            onImportPhotos = {
+                                when (getContentActivityInfoList.size) {
+                                    0 -> {
+                                        // Ignore
+                                    }
+
+                                    1 -> {
+                                        // Just start the one ACTION_GET_CONTENT app
+                                        requestGetContent(getContentActivityInfoList.first())
+                                    }
+
+                                    else -> {
+                                        // Let the user pick which app they want to import photos from
+                                        GalleryImportPhotosDialogFragment.show(
+                                            supportFragmentManager
+                                        )
+                                    }
+                                }
+                            },
+                            onClearPhotos = {
+                                scope.launch(NonCancellable) {
+                                    GalleryDatabase.getInstance(context)
+                                        .chosenPhotoDao().deleteAll(context)
+                                }
+                            }
+                        )
                     },
-                ) { chosenPhoto, maxImages ->
-                    if (chosenPhoto.isTreeUri)
-                        getImagesFromTreeUri(chosenPhoto.uri, maxImages)
-                    else
-                        listOf(chosenPhoto.contentUri)
+                    contentWindowInsets = WindowInsets(),
+                ) { innerPadding ->
+                    val selectedItems = multiSelectionController.selection
+                    LaunchedEffect(photos.loadState.isIdle) {
+                        if (photos.loadState.isIdle) {
+                            chosenPhotosCount = photos.itemCount
+                            onDataSetChanged()
+                        }
+                    }
+                    GalleryChosenPhotoGrid(
+                        photos = photos,
+                        contentPadding = innerPadding + WindowInsets.safeDrawing
+                            .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+                            .asPaddingValues() + PaddingValues(bottom = 90.dp),
+                        checkedItemIds = selectedItems,
+                        onCheckedToggled = { chosenPhoto ->
+                            multiSelectionController.toggle(chosenPhoto.id)
+                        },
+                    ) { chosenPhoto, maxImages ->
+                        if (chosenPhoto.isTreeUri)
+                            getImagesFromTreeUri(chosenPhoto.uri, maxImages)
+                        else
+                            listOf(chosenPhoto.contentUri)
+                    }
                 }
             }
         }
@@ -261,12 +313,6 @@ class GallerySettingsActivity : AppCompatActivity(),
                 )
             }
         }
-        addMenuProvider(this)
-        viewModel.getContentActivityInfoList.map {
-            it.size
-        }.distinctUntilChanged().collectIn(this) {
-            invalidateMenu()
-        }
         GalleryScanWorker.enqueueRescan(this)
     }
 
@@ -286,55 +332,6 @@ class GallerySettingsActivity : AppCompatActivity(),
         onDataSetChanged()
     }
 
-    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-        menuInflater.inflate(R.menu.gallery_activity, menu)
-        // Make sure the 'Import photos' MenuItem is set up properly based on the number of
-        // activities that handle ACTION_GET_CONTENT
-        // 0 = hide the MenuItem
-        // 1 = show 'Import photos from APP_NAME' to go to the one app that exists
-        // 2 = show 'Import photos...' to have the user pick which app to import photos from
-        val getContentActivities = viewModel.getContentActivityInfoList.value
-        // Hide the 'Import photos' action if there are no activities found
-        val importPhotosMenuItem = menu.findItem(R.id.action_import_photos)
-        importPhotosMenuItem.isVisible = getContentActivities.isNotEmpty()
-        // If there's only one app that supports ACTION_GET_CONTENT, tell the user what that app is
-        if (getContentActivities.size == 1) {
-            importPhotosMenuItem.title = getString(R.string.gallery_action_import_photos_from,
-                    getContentActivities.first().loadLabel(packageManager))
-        } else {
-            importPhotosMenuItem.setTitle(R.string.gallery_action_import_photos)
-        }
-    }
-
-    override fun onMenuItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.action_import_photos -> {
-                when (viewModel.getContentActivityInfoList.value.size) {
-                    0 -> {
-                        // Ignore
-                    }
-                    1 -> {
-                        // Just start the one ACTION_GET_CONTENT app
-                        requestGetContent(viewModel.getContentActivityInfoList.value.first())
-                    }
-                    else -> {
-                        // Let the user pick which app they want to import photos from
-                        GalleryImportPhotosDialogFragment.show(supportFragmentManager)
-                    }
-                }
-                return true
-            }
-            R.id.action_clear_photos -> {
-                val context = this
-                lifecycleScope.launch(NonCancellable) {
-                    GalleryDatabase.getInstance(context)
-                            .chosenPhotoDao().deleteAll(context)
-                }
-                return true
-            }
-            else -> return super.onOptionsItemSelected(item)
-        }
-    }
 
     override fun requestGetContent(info: ActivityInfo) {
         getContents.launch(info)
