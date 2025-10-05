@@ -50,6 +50,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -114,8 +115,7 @@ private class ChooseFolder : ActivityResultContract<Unit, Uri?>() {
             openDocumentTree.parseResult(resultCode, intent)
 }
 
-class GallerySettingsActivity : AppCompatActivity(),
-    GalleryImportPhotosDialogFragment.OnRequestContentListener {
+class GallerySettingsActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "GallerySettingsActivity"
@@ -189,6 +189,13 @@ class GallerySettingsActivity : AppCompatActivity(),
                         val getContentActivityInfoList by viewModel.getContentActivityInfoList.collectAsState(
                             emptyList()
                         )
+                        var showImportPhotosDialog by rememberSaveable { mutableStateOf(false) }
+                        LaunchedEffect(getContentActivityInfoList.isEmpty()) {
+                            // Hide the dialog if the list of activities becomes empty
+                            if (getContentActivityInfoList.isEmpty() && showImportPhotosDialog) {
+                                showImportPhotosDialog = false
+                            }
+                        }
                         val context = LocalContext.current
                         val scope = rememberCoroutineScope()
                         GalleryTopAppBar(
@@ -212,14 +219,12 @@ class GallerySettingsActivity : AppCompatActivity(),
 
                                     1 -> {
                                         // Just start the one ACTION_GET_CONTENT app
-                                        requestGetContent(getContentActivityInfoList.first())
+                                        getContents.launch(getContentActivityInfoList.first())
                                     }
 
                                     else -> {
                                         // Let the user pick which app they want to import photos from
-                                        GalleryImportPhotosDialogFragment.show(
-                                            supportFragmentManager
-                                        )
+                                        showImportPhotosDialog = true
                                     }
                                 }
                             },
@@ -230,6 +235,23 @@ class GallerySettingsActivity : AppCompatActivity(),
                                 }
                             }
                         )
+                        if (showImportPhotosDialog) {
+                            val labels = remember(getContentActivityInfoList) {
+                                getContentActivityInfoList.map {
+                                    it.loadLabel(packageManager).toString()
+                                }
+                            }
+                            GalleryImportPhotosDialog(
+                                getContentActivityInfoList = labels,
+                                onInfoSelected = { index ->
+                                    getContents.launch(getContentActivityInfoList[index])
+                                    showImportPhotosDialog = false
+                                },
+                                onDismissRequest = {
+                                    showImportPhotosDialog = false
+                                }
+                            )
+                        }
                     },
                     contentWindowInsets = WindowInsets(),
                 ) { innerPadding ->
@@ -338,11 +360,6 @@ class GallerySettingsActivity : AppCompatActivity(),
         super.onResume()
         // Permissions might have changed in the background
         onDataSetChanged()
-    }
-
-
-    override fun requestGetContent(info: ActivityInfo) {
-        getContents.launch(info)
     }
 
     private fun setupMultiSelect() {
