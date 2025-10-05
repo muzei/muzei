@@ -16,7 +16,6 @@
 
 package com.google.android.apps.muzei.util
 
-import androidx.activity.OnBackPressedCallback
 import androidx.compose.runtime.snapshots.SnapshotStateSet
 import androidx.core.os.bundleOf
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -29,7 +28,7 @@ import androidx.savedstate.SavedStateRegistryOwner
  */
 class MultiSelectionController(
         savedStateRegistryOwner: SavedStateRegistryOwner
-) : DefaultLifecycleObserver, SavedStateRegistry.SavedStateProvider, OnBackPressedCallback(false) {
+) : DefaultLifecycleObserver, SavedStateRegistry.SavedStateProvider {
 
     companion object {
         private const val STATE_SELECTION = "selection"
@@ -39,10 +38,6 @@ class MultiSelectionController(
     private val savedStateRegistry = savedStateRegistryOwner.savedStateRegistry
 
     val selection = SnapshotStateSet<Long>()
-    var callbacks: Callbacks? = null
-
-    val selectedCount: Int
-        get() = selection.size
 
     init {
         lifecycle.addObserver(this)
@@ -59,35 +54,19 @@ class MultiSelectionController(
                 }
             }
         }
-
-        isEnabled = selectedCount > 0
-        callbacks?.onSelectionChanged(restored = true, fromUser = false)
-    }
-
-    override fun handleOnBackPressed() {
-        reset(true)
     }
 
     override fun saveState() = bundleOf(STATE_SELECTION to selection.toLongArray())
 
-    fun toggle(item: Long, fromUser: Boolean) {
+    fun toggle(item: Long) {
         if (selection.contains(item)) {
             selection.remove(item)
         } else {
             selection.add(item)
         }
-
-        isEnabled = selectedCount > 0
-        callbacks?.onSelectionChanged(false, fromUser)
     }
 
-    fun reset(fromUser: Boolean) {
+    fun reset() {
         selection.clear()
-        isEnabled = false
-        callbacks?.onSelectionChanged(false, fromUser)
-    }
-
-    fun interface Callbacks {
-        fun onSelectionChanged(restored: Boolean, fromUser: Boolean)
     }
 }

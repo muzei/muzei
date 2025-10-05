@@ -16,7 +16,6 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
@@ -53,24 +52,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <LinearLayout
-        android:id="@+id/selection_toolbar_container"
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/selection_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="invisible"
-        android:elevation="@dimen/gallery_header_elevation"
-        android:theme="@style/ThemeOverlay.Material3.Dark.ActionBar"
-        tools:targetApi="LOLLIPOP">
-
-        <androidx.appcompat.widget.Toolbar
-            android:background="@color/gallery_theme_dark"
-            android:id="@+id/selection_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?actionBarSize"
-            app:title="@string/gallery_title"
-            app:navigationIcon="?attr/homeAsUpIndicator"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.DayNight"/>
-
-    </LinearLayout>
+        android:layout_height="match_parent"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

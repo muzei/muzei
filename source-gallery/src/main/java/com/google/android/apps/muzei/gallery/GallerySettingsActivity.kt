@@ -48,6 +48,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -60,14 +61,12 @@ import androidx.savedstate.serialization.saved
 import com.google.android.apps.muzei.gallery.databinding.GalleryActivityBinding
 import com.google.android.apps.muzei.gallery.theme.GalleryTheme
 import com.google.android.apps.muzei.util.MultiSelectionController
-import com.google.android.apps.muzei.util.addMenuProvider
 import com.google.android.apps.muzei.util.collectIn
 import com.google.android.apps.muzei.util.getString
 import com.google.android.apps.muzei.util.getStringOrNull
 import com.google.android.apps.muzei.util.plus
 import com.google.android.apps.muzei.util.toast
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -113,7 +112,6 @@ private class ChooseFolder : ActivityResultContract<Unit, Uri?>() {
 
 class GallerySettingsActivity : AppCompatActivity(),
     GalleryImportPhotosDialogFragment.OnRequestContentListener,
-    MultiSelectionController.Callbacks,
     MenuProvider {
 
     companion object {
@@ -180,13 +178,8 @@ class GallerySettingsActivity : AppCompatActivity(),
             ) {
                 val photos = viewModel.chosenPhotos.collectAsLazyPagingItems()
                 val selectedItems = multiSelectionController.selection
-                var firstIdle by remember { mutableStateOf(true) }
                 LaunchedEffect(photos.loadState.isIdle) {
                     if (photos.loadState.isIdle) {
-                        if (firstIdle) {
-                            tryUpdateSelection(false)
-                            firstIdle = false
-                        }
                         chosenPhotosCount = photos.itemCount
                         onDataSetChanged()
                     }
@@ -199,7 +192,7 @@ class GallerySettingsActivity : AppCompatActivity(),
                         .asPaddingValues() + PaddingValues(bottom = 90.dp),
                     checkedItemIds = selectedItems,
                     onCheckedToggled = { chosenPhoto ->
-                        multiSelectionController.toggle(chosenPhoto.id, true)
+                        multiSelectionController.toggle(chosenPhoto.id)
                     },
                 ) { chosenPhoto, maxImages ->
                     if (chosenPhoto.isTreeUri)
@@ -349,88 +342,53 @@ class GallerySettingsActivity : AppCompatActivity(),
 
     private fun setupMultiSelect() {
         // Set up toolbar
-        binding.selectionToolbar.setNavigationOnClickListener {
-            multiSelectionController.reset(true)
-        }
-
-        binding.selectionToolbar.addMenuProvider(R.menu.gallery_selection) { item ->
-            when (item.itemId) {
-                R.id.action_remove -> {
-                    val removePhotos = ArrayList(multiSelectionController.selection)
-
-                    lifecycleScope.launch(NonCancellable) {
-                        // Remove chosen URIs
-                        GalleryDatabase.getInstance(this@GallerySettingsActivity)
-                            .chosenPhotoDao()
-                            .delete(this@GallerySettingsActivity, removePhotos)
+        binding.selectionToolbar.setContent {
+            GalleryTheme(
+                dynamicColor = false
+            ) {
+                val scope = rememberCoroutineScope()
+                var title by remember { mutableStateOf(multiSelectionController.selection.size.toString()) }
+                val firstSelectedId = multiSelectionController.selection.firstOrNull()
+                LaunchedEffect(multiSelectionController.selection.size, firstSelectedId) {
+                    val selectedCount = multiSelectionController.selection.size
+                    if (selectedCount == 0) {
+                        // Don't update the title as we are animating out
+                        return@LaunchedEffect
                     }
-
-                    multiSelectionController.reset(true)
-                    true
-                }
-                else -> false
-            }
-        }
-
-        // Set up controller
-        onBackPressedDispatcher.addCallback(multiSelectionController)
-        multiSelectionController.callbacks = this
-    }
-
-    override fun onSelectionChanged(restored: Boolean, fromUser: Boolean) {
-        tryUpdateSelection(!restored)
-    }
-
-    private fun tryUpdateSelection(allowAnimate: Boolean) {
-        val selectedCount = multiSelectionController.selectedCount
-        val toolbarVisible = selectedCount > 0
-
-        val previouslyVisible: Boolean = binding.selectionToolbarContainer.getTag(
-                R.id.gallery_viewtag_previously_visible) as? Boolean ?: false
-
-        if (previouslyVisible != toolbarVisible) {
-            binding.selectionToolbarContainer.setTag(R.id.gallery_viewtag_previously_visible, toolbarVisible)
-
-            val duration = if (allowAnimate)
-                resources.getInteger(android.R.integer.config_shortAnimTime)
-            else
-                0
-            if (toolbarVisible) {
-                binding.selectionToolbarContainer.visibility = View.VISIBLE
-                binding.selectionToolbarContainer.translationY = (-binding.selectionToolbarContainer.height).toFloat()
-                binding.selectionToolbarContainer.animate()
-                        .translationY(0f)
-                        .setDuration(duration.toLong())
-                        .withEndAction(null)
-
-                addMode.value = AddNone
-            } else {
-                binding.selectionToolbarContainer.animate()
-                        .translationY((-binding.selectionToolbarContainer.height).toFloat())
-                        .setDuration(duration.toLong())
-                        .withEndAction { binding.selectionToolbarContainer.visibility = View.INVISIBLE }
-
-                addMode.value = AddFab
-            }
-        }
-
-        if (toolbarVisible) {
-            val title = selectedCount.toString()
-            if (selectedCount == 1) {
-                // If they've selected a tree URI, show the DISPLAY_NAME instead of just '1'
-                val selectedId = multiSelectionController.selection.iterator().next()
-                lifecycleScope.launch(Dispatchers.Main) {
-                    val chosenPhoto = GalleryDatabase.getInstance(this@GallerySettingsActivity)
+                    title = multiSelectionController.selection.size.toString()
+                    if (selectedCount == 1 && firstSelectedId != null) {
+                        // If they've selected a tree URI, show the DISPLAY_NAME instead of just '1'
+                        val chosenPhoto = GalleryDatabase.getInstance(this@GallerySettingsActivity)
                             .chosenPhotoDao()
-                            .getChosenPhoto(selectedId)
-                    if (chosenPhoto?.isTreeUri == true && binding.selectionToolbar.isAttachedToWindow) {
-                        getDisplayNameForTreeUri(chosenPhoto.uri)?.takeUnless { it.isEmpty() }?.run {
-                            binding.selectionToolbar.title = this
+                            .getChosenPhoto(firstSelectedId)
+                        if (chosenPhoto?.isTreeUri == true) {
+                            val displayName = getDisplayNameForTreeUri(chosenPhoto.uri)
+                            if (displayName != null && displayName.isNotEmpty()) {
+                                title = displayName
+                            }
                         }
                     }
                 }
+                GallerySelectionToolbar(
+                    selectionCount = multiSelectionController.selection.size,
+                    title = title,
+                    onReset = {
+                        multiSelectionController.reset()
+                    },
+                    onRemove = {
+                        val removePhotos = ArrayList(multiSelectionController.selection)
+
+                        scope.launch(NonCancellable) {
+                            // Remove chosen URIs
+                            GalleryDatabase.getInstance(this@GallerySettingsActivity)
+                                .chosenPhotoDao()
+                                .delete(this@GallerySettingsActivity, removePhotos)
+                        }
+
+                        multiSelectionController.reset()
+                    }
+                )
             }
-            binding.selectionToolbar.title = title
         }
     }
 
