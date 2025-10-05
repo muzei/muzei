@@ -48,49 +48,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/add_fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="@dimen/gallery_fab_margin"
-        android:contentDescription="@string/gallery_add_fab"
-        android:src="@drawable/gallery_ic_add"/>
-
-    <LinearLayout
-        android:id="@+id/add_toolbar"
-        style="?android:attr/buttonBarStyle"
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/add"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/gallery_fab_toolbar_height"
-        android:layout_gravity="bottom"
-        android:background="@color/gallery_theme_dark"
-        android:orientation="horizontal"
-        android:visibility="invisible">
-
-        <Button
-            android:id="@+id/add_photos"
-            style="@style/Widget.Material3.Button.IconButton"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:contentDescription="@string/gallery_add_photos"
-            app:icon="@drawable/gallery_ic_add_photo"
-            app:iconGravity="textStart"
-            app:iconSize="24dp"
-            app:iconTint="@null"/>
-
-        <Button
-            android:id="@+id/add_folder"
-            style="@style/Widget.Material3.Button.IconButton"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:contentDescription="@string/gallery_add_folder"
-            app:icon="@drawable/gallery_ic_add_folder"
-            app:iconGravity="textStart"
-            app:iconSize="24dp"
-            app:iconTint="@null"/>
-    </LinearLayout>
+        android:layout_height="match_parent"/>
 
     <LinearLayout
         android:id="@+id/selection_toolbar_container"

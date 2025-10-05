@@ -184,7 +184,7 @@ fun GalleryChosenPhotoItem(
     }
 }
 
-private fun maxDistanceToCorner(offset: Offset, size: Size): Float {
+fun maxDistanceToCorner(offset: Offset, size: Size): Float {
     var maxDistance = 0f
     maxDistance = max(maxDistance, hypot((offset.x - 0), (offset.y - 0)))
     maxDistance = max(maxDistance, hypot((offset.x - size.width), (offset.y - 0)))

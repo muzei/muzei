@@ -16,8 +16,6 @@
 
 package com.google.android.apps.muzei.gallery
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -32,9 +30,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewAnimationUtils
 import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
@@ -48,6 +44,7 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,9 +53,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import androidx.core.view.MenuProvider
-import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.savedstate.compose.serialization.serializers.MutableStateSerializer
+import androidx.savedstate.serialization.saved
 import com.google.android.apps.muzei.gallery.databinding.GalleryActivityBinding
 import com.google.android.apps.muzei.gallery.theme.GalleryTheme
 import com.google.android.apps.muzei.util.MultiSelectionController
@@ -76,7 +74,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.LinkedList
-import kotlin.getValue
 
 private class GetContentsFromActivityInfo : ActivityResultContract<ActivityInfo, List<Uri>>() {
     private val getMultipleContents = ActivityResultContracts.GetMultipleContents()
@@ -159,15 +156,14 @@ class GallerySettingsActivity : AppCompatActivity(),
 
     private val multiSelectionController = MultiSelectionController(this)
 
-    private val addToolbarOnBackPressedCallback = object : OnBackPressedCallback(false) {
-        override fun handleOnBackPressed() {
-            hideAddToolbar(true)
-        }
-    }
-
     private var chosenPhotosCount = 0
     private val permissionStateFlow by lazy {
         MutableStateFlow(checkRequestPermissionState(this))
+    }
+    private val addMode: MutableState<AddMode> by saved(
+        serializer = MutableStateSerializer()
+    ) {
+        mutableStateOf(AddFab)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -175,7 +171,6 @@ class GallerySettingsActivity : AppCompatActivity(),
         binding = GalleryActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
-        onBackPressedDispatcher.addCallback(this, addToolbarOnBackPressedCallback)
 
         setupMultiSelect()
 
@@ -239,23 +234,38 @@ class GallerySettingsActivity : AppCompatActivity(),
                 )
             }
         }
-        binding.addFab.apply {
-            setOnClickListener {
-                showAddToolbar()
-            }
-        }
-        binding.addPhotos.setOnClickListener { requestPhotos() }
-        binding.addFolder.setOnClickListener {
-            try {
-                chooseFolder.launch()
-                val preferences = getSharedPreferences(SHARED_PREF_NAME, MODE_PRIVATE)
-                if (preferences.getBoolean(SHOW_INTERNAL_STORAGE_MESSAGE, true)) {
-                    toast(R.string.gallery_internal_storage_message, Toast.LENGTH_LONG)
-                }
-            } catch (_: ActivityNotFoundException) {
-                Snackbar.make(binding.photoGrid, R.string.gallery_add_folder_error,
-                        Snackbar.LENGTH_LONG).show()
-                hideAddToolbar(true)
+        binding.add.setContent {
+            GalleryTheme(
+                dynamicColor = false
+            ) {
+                GalleryAdd(
+                    mode = addMode.value,
+                    onToggleToolbar = {
+                        when (addMode.value) {
+                            AddFab -> addMode.value = AddToolbar
+                            AddToolbar -> addMode.value = AddFab
+                            AddNone -> addMode.value = AddFab
+                        }
+                    },
+                    onAddPhoto = {
+                        requestPhotos()
+                    },
+                    onAddFolder = {
+                        try {
+                            chooseFolder.launch()
+                            val preferences = getSharedPreferences(SHARED_PREF_NAME, MODE_PRIVATE)
+                            if (preferences.getBoolean(SHOW_INTERNAL_STORAGE_MESSAGE, true)) {
+                                toast(R.string.gallery_internal_storage_message, Toast.LENGTH_LONG)
+                            }
+                        } catch (_: ActivityNotFoundException) {
+                            Snackbar.make(
+                                binding.photoGrid, R.string.gallery_add_folder_error,
+                                Snackbar.LENGTH_LONG
+                            ).show()
+                            addMode.value = AddFab
+                        }
+                    }
+                )
             }
         }
         addMenuProvider(this)
@@ -273,7 +283,7 @@ class GallerySettingsActivity : AppCompatActivity(),
         } catch (_: ActivityNotFoundException) {
             Snackbar.make(binding.photoGrid, R.string.gallery_add_photos_error,
                     Snackbar.LENGTH_LONG).show()
-            hideAddToolbar(true)
+            addMode.value = AddFab
         }
     }
 
@@ -371,63 +381,6 @@ class GallerySettingsActivity : AppCompatActivity(),
         tryUpdateSelection(!restored)
     }
 
-    private fun showAddToolbar() {
-        // Divide by two since we're doing two animations but we want the total time to the short animation time
-        val duration = resources.getInteger(android.R.integer.config_shortAnimTime) / 2
-        // Hide the add button
-        binding.addFab.animate()
-                .scaleX(0f)
-                .scaleY(0f)
-                .translationY(resources.getDimension(R.dimen.gallery_fab_margin))
-                .setDuration(duration.toLong())
-                .withEndAction {
-                    if (isDestroyed) {
-                        return@withEndAction
-                    }
-                    binding.addFab.visibility = View.INVISIBLE
-                    // Then show the toolbar
-                    binding.addToolbar.visibility = View.VISIBLE
-                    addToolbarOnBackPressedCallback.isEnabled = true
-                    ViewAnimationUtils.createCircularReveal(
-                            binding.addToolbar,
-                            binding.addToolbar.width / 2,
-                            binding.addToolbar.height / 2,
-                            0f,
-                            (binding.addToolbar.width / 2).toFloat())
-                            .setDuration(duration.toLong())
-                            .start()
-                }
-    }
-
-    private fun hideAddToolbar(showAddButton: Boolean) {
-        // Divide by two since we're doing two animations but we want the total time to the short animation time
-        val duration = resources.getInteger(android.R.integer.config_shortAnimTime) / 2
-        // Hide the toolbar
-        val hideAnimator = ViewAnimationUtils.createCircularReveal(
-                binding.addToolbar,
-                binding.addToolbar.width / 2,
-                binding.addToolbar.height / 2,
-                (binding.addToolbar.width / 2).toFloat(),
-                0f).setDuration((if (showAddButton) duration else duration * 2).toLong())
-        hideAnimator.addListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator) {
-                binding.addToolbar.visibility = View.INVISIBLE
-                addToolbarOnBackPressedCallback.isEnabled = false
-                if (showAddButton) {
-                    binding.addFab.visibility = View.VISIBLE
-                    binding.addFab.animate()
-                            .scaleX(1f)
-                            .scaleY(1f)
-                            .translationY(0f).duration = duration.toLong()
-                } else {
-                    // Just reset the translationY
-                    binding.addFab.translationY = 0f
-                }
-            }
-        })
-        hideAnimator.start()
-    }
-
     private fun tryUpdateSelection(allowAnimate: Boolean) {
         val selectedCount = multiSelectionController.selectedCount
         val toolbarVisible = selectedCount > 0
@@ -450,27 +403,14 @@ class GallerySettingsActivity : AppCompatActivity(),
                         .setDuration(duration.toLong())
                         .withEndAction(null)
 
-                if (binding.addToolbar.isVisible) {
-                    hideAddToolbar(false)
-                } else {
-                    binding.addFab.animate()
-                            .scaleX(0f)
-                            .scaleY(0f)
-                            .setDuration(duration.toLong())
-                            .withEndAction { binding.addFab.visibility = View.INVISIBLE }
-                }
+                addMode.value = AddNone
             } else {
                 binding.selectionToolbarContainer.animate()
                         .translationY((-binding.selectionToolbarContainer.height).toFloat())
                         .setDuration(duration.toLong())
                         .withEndAction { binding.selectionToolbarContainer.visibility = View.INVISIBLE }
 
-                binding.addFab.visibility = View.VISIBLE
-                binding.addFab.animate()
-                        .scaleY(1f)
-                        .scaleX(1f)
-                        .setDuration(duration.toLong())
-                        .withEndAction(null)
+                addMode.value = AddFab
             }
         }
 
@@ -583,14 +523,7 @@ class GallerySettingsActivity : AppCompatActivity(),
     }
 
     private fun processSelectedUris(uris: List<Uri>) {
-        if (!binding.addToolbar.isAttachedToWindow) {
-            // Can't animate detached Views
-            binding.addToolbar.visibility = View.INVISIBLE
-            addToolbarOnBackPressedCallback.isEnabled = false
-            binding.addFab.visibility = View.VISIBLE
-        } else {
-            hideAddToolbar(true)
-        }
+        addMode.value = AddFab
         if (uris.isEmpty()) {
             // Nothing to do, so we can avoid posting the runnable at all
             return

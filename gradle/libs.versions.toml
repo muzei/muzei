@@ -160,3 +160,4 @@ tasker = { group = "com.joaomgcd", name = "taskerpluginlibrary", version.ref = "
 [plugins]
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
