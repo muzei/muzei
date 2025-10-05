@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.gallery
+package com.google.android.apps.muzei.gallery.settings
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween

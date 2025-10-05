@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.gallery
+package com.google.android.apps.muzei.gallery.settings
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -42,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.google.android.apps.muzei.gallery.R
 import com.google.android.apps.muzei.gallery.theme.GalleryTheme
 
 @OptIn(ExperimentalMaterial3Api::class)

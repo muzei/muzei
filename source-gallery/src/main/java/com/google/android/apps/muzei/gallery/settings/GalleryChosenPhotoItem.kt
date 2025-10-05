@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.gallery
+package com.google.android.apps.muzei.gallery.settings
 
 import android.net.Uri
 import androidx.compose.animation.core.Animatable
@@ -59,6 +59,7 @@ import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePreviewHandler
 import coil3.compose.LocalAsyncImagePreviewHandler
+import com.google.android.apps.muzei.gallery.ChosenPhoto
 import com.google.android.apps.muzei.gallery.theme.GalleryTheme
 import kotlin.math.hypot
 import kotlin.math.max

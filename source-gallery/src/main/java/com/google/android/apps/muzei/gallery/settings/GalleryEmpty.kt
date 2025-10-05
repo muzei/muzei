@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.gallery
+package com.google.android.apps.muzei.gallery.settings
 
 import android.app.Activity
 import androidx.compose.animation.AnimatedContent
@@ -38,6 +38,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.android.apps.muzei.gallery.R
+import com.google.android.apps.muzei.gallery.RequestStoragePermissions
 import com.google.android.apps.muzei.gallery.theme.GalleryTheme
 import com.google.android.apps.muzei.util.only
 import com.google.android.apps.muzei.util.plus

@@ -1,4 +1,4 @@
-package com.google.android.apps.muzei.gallery
+package com.google.android.apps.muzei.gallery.settings
 
 import android.app.Dialog
 import android.content.Context
@@ -11,6 +11,7 @@ import androidx.core.content.withStyledAttributes
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
+import com.google.android.apps.muzei.gallery.R
 import com.google.android.apps.muzei.util.collectIn
 import com.google.android.material.R as MaterialR
 import com.google.android.material.dialog.MaterialAlertDialogBuilder

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.gallery
+package com.google.android.apps.muzei.gallery.settings
 
 import android.net.Uri
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -42,6 +42,7 @@ import coil3.ColorImage
 import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.AsyncImagePreviewHandler
 import coil3.compose.LocalAsyncImagePreviewHandler
+import com.google.android.apps.muzei.gallery.ChosenPhoto
 import com.google.android.apps.muzei.gallery.theme.GalleryTheme
 
 data class TouchInfo(

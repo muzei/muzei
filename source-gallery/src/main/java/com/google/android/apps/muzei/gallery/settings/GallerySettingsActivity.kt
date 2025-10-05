@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.gallery
+package com.google.android.apps.muzei.gallery.settings
 
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
@@ -61,9 +61,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.savedstate.compose.serialization.serializers.MutableStateSerializer
 import androidx.savedstate.serialization.saved
+import com.google.android.apps.muzei.gallery.GalleryDatabase
+import com.google.android.apps.muzei.gallery.GalleryScanWorker
+import com.google.android.apps.muzei.gallery.R
+import com.google.android.apps.muzei.gallery.RequestStoragePermissions
+import com.google.android.apps.muzei.gallery.contentUri
 import com.google.android.apps.muzei.gallery.databinding.GalleryActivityBinding
 import com.google.android.apps.muzei.gallery.theme.GalleryTheme
-import com.google.android.apps.muzei.util.MultiSelectionController
 import com.google.android.apps.muzei.util.getString
 import com.google.android.apps.muzei.util.getStringOrNull
 import com.google.android.apps.muzei.util.plus
@@ -221,7 +225,7 @@ class GallerySettingsActivity : AppCompatActivity(),
                             },
                             onClearPhotos = {
                                 scope.launch(NonCancellable) {
-                                    GalleryDatabase.getInstance(context)
+                                    GalleryDatabase.Companion.getInstance(context)
                                         .chosenPhotoDao().deleteAll(context)
                                 }
                             }
@@ -317,7 +321,7 @@ class GallerySettingsActivity : AppCompatActivity(),
                 )
             }
         }
-        GalleryScanWorker.enqueueRescan(this)
+        GalleryScanWorker.Companion.enqueueRescan(this)
     }
 
     private fun requestPhotos() {
@@ -359,7 +363,7 @@ class GallerySettingsActivity : AppCompatActivity(),
                     title = multiSelectionController.selection.size.toString()
                     if (selectedCount == 1 && firstSelectedId != null) {
                         // If they've selected a tree URI, show the DISPLAY_NAME instead of just '1'
-                        val chosenPhoto = GalleryDatabase.getInstance(this@GallerySettingsActivity)
+                        val chosenPhoto = GalleryDatabase.Companion.getInstance(this@GallerySettingsActivity)
                             .chosenPhotoDao()
                             .getChosenPhoto(firstSelectedId)
                         if (chosenPhoto?.isTreeUri == true) {
@@ -381,7 +385,7 @@ class GallerySettingsActivity : AppCompatActivity(),
 
                         scope.launch(NonCancellable) {
                             // Remove chosen URIs
-                            GalleryDatabase.getInstance(this@GallerySettingsActivity)
+                            GalleryDatabase.Companion.getInstance(this@GallerySettingsActivity)
                                 .chosenPhotoDao()
                                 .delete(this@GallerySettingsActivity, removePhotos)
                         }
@@ -424,13 +428,13 @@ class GallerySettingsActivity : AppCompatActivity(),
                     // Only a partial grant is done, which means we can scan for the images
                     // we have, but should offer the ability for users to reselect what images
                     // they want us to have access to
-                    GalleryScanWorker.enqueueRescan(this)
+                    GalleryScanWorker.Companion.enqueueRescan(this)
                     setResult(RESULT_OK)
                 }
 
                 PermissionGranted -> {
                     // Permission is granted, we can show the random camera photos image
-                    GalleryScanWorker.enqueueRescan(this)
+                    GalleryScanWorker.Companion.enqueueRescan(this)
                     setResult(RESULT_OK)
                 }
 
@@ -489,7 +493,7 @@ class GallerySettingsActivity : AppCompatActivity(),
         }
         // Update chosen URIs
         lifecycleScope.launch(NonCancellable) {
-            GalleryDatabase.getInstance(this@GallerySettingsActivity)
+            GalleryDatabase.Companion.getInstance(this@GallerySettingsActivity)
                     .chosenPhotoDao()
                     .insertAll(this@GallerySettingsActivity, uris)
         }

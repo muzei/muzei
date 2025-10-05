@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.apps.muzei.gallery
+package com.google.android.apps.muzei.gallery.settings
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -69,6 +69,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.savedstate.compose.serialization.serializers.MutableStateSerializer
+import com.google.android.apps.muzei.gallery.R
 import com.google.android.apps.muzei.gallery.theme.GalleryTheme
 import kotlinx.serialization.Serializable
 

@@ -56,7 +56,7 @@
 
             <meta-data
                 android:name="settingsActivity"
-                android:value="com.google.android.apps.muzei.gallery.GallerySettingsActivity" />
+                android:value="com.google.android.apps.muzei.gallery.settings.GallerySettingsActivity" />
             <meta-data
                 android:name="setupActivity"
                 android:value="com.google.android.apps.muzei.gallery.GallerySetupActivity" />
@@ -89,7 +89,7 @@
             android:exported="true"/>
 
         <activity
-            android:name="com.google.android.apps.muzei.gallery.GallerySettingsActivity"
+            android:name="com.google.android.apps.muzei.gallery.settings.GallerySettingsActivity"
             android:label="@string/gallery_title"
             android:theme="@style/Theme.Gallery"/>
 
