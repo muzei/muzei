@@ -283,6 +283,10 @@ class GallerySettingsActivity : AppCompatActivity(),
             GalleryTheme(
                 dynamicColor = false
             ) {
+                val selectedCount = multiSelectionController.selection.size
+                LaunchedEffect(selectedCount > 0) {
+                    addMode.value = if (selectedCount > 0) AddNone else AddFab
+                }
                 GalleryAdd(
                     mode = addMode.value,
                     onToggleToolbar = {
