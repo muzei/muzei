@@ -36,6 +36,7 @@ import com.google.android.apps.muzei.gallery.BuildConfig.GALLERY_ART_AUTHORITY
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -55,7 +56,7 @@ internal abstract class ChosenPhotoDao {
     internal abstract val chosenPhotosPaged: PagingSource<Int, ChosenPhoto>
 
     @get:Query("SELECT * FROM chosen_photos ORDER BY _id DESC")
-    internal abstract val chosenPhotosLiveData: LiveData<List<ChosenPhoto>>
+    internal abstract val chosenPhotosFlow: Flow<List<ChosenPhoto>>
 
     @get:Query("SELECT * FROM chosen_photos ORDER BY _id DESC")
     internal abstract val chosenPhotosBlocking: List<ChosenPhoto>

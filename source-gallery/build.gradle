@@ -32,14 +32,12 @@ dependencies {
     implementation libs.activity
     implementation platform(libs.compose.bom)
     implementation libs.compose.icons
-    implementation libs.compose.livedata
     implementation libs.compose.material3
     implementation libs.compose.ui.tooling.preview
     debugImplementation libs.compose.ui.tooling.runtime
     implementation libs.core
     implementation libs.exifInterface
     implementation libs.lifecycle.common
-    implementation libs.lifecycle.livedata
     implementation libs.paging.compose
     implementation libs.room.ktx
     implementation libs.room.paging

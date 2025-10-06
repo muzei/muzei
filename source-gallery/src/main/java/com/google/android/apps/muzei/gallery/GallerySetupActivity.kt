@@ -36,6 +36,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.gallery.settings.GallerySettingsActivity
+import com.google.android.apps.muzei.util.collectIn
 
 private val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
     arrayOf(Manifest.permission.READ_MEDIA_IMAGES,
@@ -96,7 +97,7 @@ class GallerySetupActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         WindowCompat.enableEdgeToEdge(window)
         GalleryDatabase.getInstance(this).chosenPhotoDao()
-                .chosenPhotosLiveData.observe(this) { chosenUris ->
+                .chosenPhotosFlow.collectIn(this) { chosenUris ->
             val numChosenUris = chosenUris.size
             val hasPermission = RequestStoragePermissions.checkSelfPermission(this)
             if (hasPermission || numChosenUris > 0) {
