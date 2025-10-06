@@ -58,7 +58,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateSet
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -160,8 +162,6 @@ class GallerySettingsActivity : ComponentActivity() {
         processSelectedUris(photos)
     }
 
-    private val multiSelectionController = MultiSelectionController(this)
-
     private var chosenPhotosCount = 0
     private val permissionStateFlow by lazy {
         MutableStateFlow(checkRequestPermissionState(this))
@@ -187,6 +187,9 @@ class GallerySettingsActivity : ComponentActivity() {
                 dynamicColor = false
             ) {
                 val photos = viewModel.chosenPhotos.collectAsLazyPagingItems()
+                val selectedPhotoIds = rememberSerializable(
+                    serializer = SnapshotStateSetSerializer()
+                ) { SnapshotStateSet<Long>() }
                 val scrollBehavior =
                     TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
@@ -264,15 +267,15 @@ class GallerySettingsActivity : ComponentActivity() {
                             )
                         }
                         // Selection toolbar
-                        var title by remember { mutableStateOf(multiSelectionController.selection.size.toString()) }
-                        val firstSelectedId = multiSelectionController.selection.firstOrNull()
-                        LaunchedEffect(multiSelectionController.selection.size, firstSelectedId) {
-                            val selectedCount = multiSelectionController.selection.size
+                        var title by remember { mutableStateOf(selectedPhotoIds.size.toString()) }
+                        val firstSelectedId = selectedPhotoIds.firstOrNull()
+                        LaunchedEffect(selectedPhotoIds.size, firstSelectedId) {
+                            val selectedCount = selectedPhotoIds.size
                             if (selectedCount == 0) {
                                 // Don't update the title as we are animating out
                                 return@LaunchedEffect
                             }
-                            title = multiSelectionController.selection.size.toString()
+                            title = selectedPhotoIds.size.toString()
                             if (selectedCount == 1 && firstSelectedId != null) {
                                 // If they've selected a tree URI, show the DISPLAY_NAME instead of just '1'
                                 val chosenPhoto =
@@ -288,20 +291,20 @@ class GallerySettingsActivity : ComponentActivity() {
                             }
                         }
                         GallerySelectionToolbar(
-                            selectionCount = multiSelectionController.selection.size,
+                            selectionCount = selectedPhotoIds.size,
                             title = title,
                             onReset = {
-                                multiSelectionController.reset()
+                                selectedPhotoIds.clear()
                             },
                             onRemove = {
-                                val removePhotos = ArrayList(multiSelectionController.selection)
+                                val removePhotos = ArrayList(selectedPhotoIds)
                                 scope.launch(NonCancellable) {
                                     // Remove chosen URIs
                                     GalleryDatabase.Companion.getInstance(this@GallerySettingsActivity)
                                         .chosenPhotoDao()
                                         .delete(this@GallerySettingsActivity, removePhotos)
                                 }
-                                multiSelectionController.reset()
+                                selectedPhotoIds.clear()
                             }
                         )
                     },
@@ -313,7 +316,6 @@ class GallerySettingsActivity : ComponentActivity() {
                     Box {
                         if (photos.itemCount > 0) {
                             // Show the list
-                            val selectedItems = multiSelectionController.selection
                             LaunchedEffect(photos.loadState.isIdle) {
                                 if (photos.loadState.isIdle) {
                                     chosenPhotosCount = photos.itemCount
@@ -325,9 +327,13 @@ class GallerySettingsActivity : ComponentActivity() {
                                 contentPadding = innerPadding + WindowInsets.safeDrawing
                                     .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
                                     .asPaddingValues() + PaddingValues(bottom = 90.dp),
-                                checkedItemIds = selectedItems,
+                                checkedItemIds = selectedPhotoIds,
                                 onCheckedToggled = { chosenPhoto ->
-                                    multiSelectionController.toggle(chosenPhoto.id)
+                                    if (selectedPhotoIds.contains(chosenPhoto.id)) {
+                                        selectedPhotoIds.remove(chosenPhoto.id)
+                                    } else {
+                                        selectedPhotoIds.add(chosenPhoto.id)
+                                    }
                                 },
                             ) { chosenPhoto, maxImages ->
                                 if (chosenPhoto.isTreeUri)
@@ -365,7 +371,7 @@ class GallerySettingsActivity : ComponentActivity() {
                         }
                         // FloatingActionButton / Toolbar for adding new photos
                         val scope = rememberCoroutineScope()
-                        val selectedCount = multiSelectionController.selection.size
+                        val selectedCount = selectedPhotoIds.size
                         LaunchedEffect(selectedCount > 0) {
                             addMode.value = if (selectedCount > 0) AddNone else AddFab
                         }
