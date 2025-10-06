@@ -33,7 +33,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
-import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -52,7 +51,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -74,7 +72,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.savedstate.compose.serialization.serializers.MutableStateSerializer
-import androidx.savedstate.serialization.saved
 import com.google.android.apps.muzei.gallery.GalleryDatabase
 import com.google.android.apps.muzei.gallery.GalleryScanWorker
 import com.google.android.apps.muzei.gallery.R
@@ -138,11 +135,6 @@ class GallerySettingsActivity : ComponentActivity() {
     private val permissionStateFlow by lazy {
         MutableStateFlow(checkRequestPermissionState(this))
     }
-    private val addMode: MutableState<AddMode> by saved(
-        serializer = MutableStateSerializer()
-    ) {
-        mutableStateOf(AddFab)
-    }
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -160,6 +152,11 @@ class GallerySettingsActivity : ComponentActivity() {
             ) {
                 val viewModel: GallerySettingsViewModel = viewModel()
                 val photos = viewModel.chosenPhotos.collectAsLazyPagingItems()
+                var addMode: AddMode by rememberSerializable(
+                    serializer = MutableStateSerializer()
+                ) {
+                    mutableStateOf(AddFab)
+                }
                 val selectedPhotoIds = rememberSerializable(
                     serializer = SnapshotStateSetSerializer()
                 ) { SnapshotStateSet<Long>() }
@@ -179,6 +176,7 @@ class GallerySettingsActivity : ComponentActivity() {
                             GetContentsFromActivityInfo()
                         ) { photos ->
                             processSelectedUris(photos)
+                            addMode = AddFab
                         }
                         var showImportPhotosDialog by rememberSaveable { mutableStateOf(false) }
                         LaunchedEffect(getContentActivityInfoList.isEmpty()) {
@@ -356,7 +354,7 @@ class GallerySettingsActivity : ComponentActivity() {
                         val scope = rememberCoroutineScope()
                         val selectedCount = selectedPhotoIds.size
                         LaunchedEffect(selectedCount > 0) {
-                            addMode.value = if (selectedCount > 0) AddNone else AddFab
+                            addMode = if (selectedCount > 0) AddNone else AddFab
                         }
                         // Use ACTION_OPEN_DOCUMENT by default for adding photos.
                         // This allows us to use persistent URI permissions to access the
@@ -370,6 +368,7 @@ class GallerySettingsActivity : ComponentActivity() {
                             ChoosePhotos()
                         ) { photos ->
                             processSelectedUris(photos)
+                            addMode = AddFab
                         }
                         val addPhotoErrorTitle = stringResource(R.string.gallery_add_photos_error)
                         val chooseFolder = rememberLauncherForActivityResult(
@@ -381,10 +380,11 @@ class GallerySettingsActivity : ComponentActivity() {
                                 }
                             }
                             processSelectedUris(listOfNotNull(folder))
+                            addMode = AddFab
                         }
                         val addFolderErrorTitle = stringResource(R.string.gallery_add_folder_error)
                         GalleryAdd(
-                            mode = addMode.value,
+                            mode = addMode,
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
                                 .padding(
@@ -393,10 +393,10 @@ class GallerySettingsActivity : ComponentActivity() {
                                         .asPaddingValues()
                                 ),
                             onToggleToolbar = {
-                                when (addMode.value) {
-                                    AddFab -> addMode.value = AddToolbar
-                                    AddToolbar -> addMode.value = AddFab
-                                    AddNone -> addMode.value = AddFab
+                                addMode = when (addMode) {
+                                    AddFab -> AddToolbar
+                                    AddToolbar -> AddFab
+                                    AddNone -> AddFab
                                 }
                             },
                             onAddPhoto = {
@@ -409,7 +409,7 @@ class GallerySettingsActivity : ComponentActivity() {
                                             duration = SnackbarDuration.Long
                                         )
                                     }
-                                    addMode.value = AddFab
+                                    addMode = AddFab
                                 }
                             },
                             onAddFolder = {
@@ -434,7 +434,7 @@ class GallerySettingsActivity : ComponentActivity() {
                                             duration = SnackbarDuration.Long
                                         )
                                     }
-                                    addMode.value = AddFab
+                                    addMode = AddFab
                                 }
                             }
                         )
@@ -538,7 +538,6 @@ class GallerySettingsActivity : ComponentActivity() {
     }
 
     private fun processSelectedUris(uris: List<Uri>) {
-        addMode.value = AddFab
         if (uris.isEmpty()) {
             // Nothing to do, so we can avoid posting the runnable at all
             return
