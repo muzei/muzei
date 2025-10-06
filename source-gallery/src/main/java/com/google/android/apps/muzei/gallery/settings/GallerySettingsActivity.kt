@@ -71,6 +71,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.savedstate.compose.serialization.serializers.MutableStateSerializer
 import androidx.savedstate.serialization.saved
@@ -133,8 +134,6 @@ class GallerySettingsActivity : ComponentActivity() {
         private const val SHOW_INTERNAL_STORAGE_MESSAGE = "show_internal_storage_message"
     }
 
-    private val viewModel: GallerySettingsViewModel by viewModels()
-
     private var chosenPhotosCount = 0
     private val permissionStateFlow by lazy {
         MutableStateFlow(checkRequestPermissionState(this))
@@ -159,6 +158,7 @@ class GallerySettingsActivity : ComponentActivity() {
             GalleryTheme(
                 dynamicColor = false
             ) {
+                val viewModel: GallerySettingsViewModel = viewModel()
                 val photos = viewModel.chosenPhotos.collectAsLazyPagingItems()
                 val selectedPhotoIds = rememberSerializable(
                     serializer = SnapshotStateSetSerializer()

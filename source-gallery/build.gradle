@@ -37,7 +37,7 @@ dependencies {
     debugImplementation libs.compose.ui.tooling.runtime
     implementation libs.core
     implementation libs.exifInterface
-    implementation libs.lifecycle.common
+    implementation libs.lifecycle.viewmodel
     implementation libs.paging.compose
     implementation libs.room.ktx
     implementation libs.room.paging
