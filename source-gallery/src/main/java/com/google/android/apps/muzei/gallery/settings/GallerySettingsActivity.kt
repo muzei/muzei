@@ -28,6 +28,7 @@ import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
@@ -134,34 +135,6 @@ class GallerySettingsActivity : ComponentActivity() {
 
     private val viewModel: GallerySettingsViewModel by viewModels()
 
-    private val requestStoragePermission = registerForActivityResult(RequestStoragePermissions()) {
-        onDataSetChanged()
-    }
-
-    /**
-     * Use ACTION_OPEN_DOCUMENT by default for adding photos.
-     * This allows us to use persistent URI permissions to access the underlying photos
-     * meaning we don't need to use additional storage space and will pull in edits automatically
-     * in addition to syncing deletions.
-     *
-     * (There's a separate 'Import photos' option which uses ACTION_GET_CONTENT to support
-     * legacy apps)
-     */
-    private val choosePhotos = registerForActivityResult(ChoosePhotos()) { photos ->
-        processSelectedUris(photos)
-    }
-    private val chooseFolder = registerForActivityResult(ChooseFolder()) { folder ->
-        if (folder != null) {
-            getSharedPreferences(SHARED_PREF_NAME, MODE_PRIVATE).edit {
-                putBoolean(SHOW_INTERNAL_STORAGE_MESSAGE, false)
-            }
-        }
-        processSelectedUris(listOfNotNull(folder))
-    }
-    private val getContents = registerForActivityResult(GetContentsFromActivityInfo()) { photos ->
-        processSelectedUris(photos)
-    }
-
     private var chosenPhotosCount = 0
     private val permissionStateFlow by lazy {
         MutableStateFlow(checkRequestPermissionState(this))
@@ -202,6 +175,11 @@ class GallerySettingsActivity : ComponentActivity() {
                         val getContentActivityInfoList by viewModel.getContentActivityInfoList.collectAsState(
                             emptyList()
                         )
+                        val getContents = rememberLauncherForActivityResult(
+                            GetContentsFromActivityInfo()
+                        ) { photos ->
+                            processSelectedUris(photos)
+                        }
                         var showImportPhotosDialog by rememberSaveable { mutableStateOf(false) }
                         LaunchedEffect(getContentActivityInfoList.isEmpty()) {
                             // Hide the dialog if the list of activities becomes empty
@@ -343,6 +321,11 @@ class GallerySettingsActivity : ComponentActivity() {
                             }
                         } else {
                             // Show the empty screen placeholder
+                            val requestStoragePermission = rememberLauncherForActivityResult(
+                                RequestStoragePermissions()
+                            ) {
+                                onDataSetChanged()
+                            }
                             GalleryEmpty(
                                 permissionStateFlow = permissionStateFlow,
                                 modifier = Modifier
@@ -375,7 +358,30 @@ class GallerySettingsActivity : ComponentActivity() {
                         LaunchedEffect(selectedCount > 0) {
                             addMode.value = if (selectedCount > 0) AddNone else AddFab
                         }
+                        // Use ACTION_OPEN_DOCUMENT by default for adding photos.
+                        // This allows us to use persistent URI permissions to access the
+                        // underlying photos meaning we don't need to use additional storage
+                        // space and will pull in edits automatically in addition to syncing
+                        // deletions.
+                        //
+                        // (There's a separate 'Import photos' option which uses
+                        // ACTION_GET_CONTENT to support legacy apps)
+                        val choosePhotos = rememberLauncherForActivityResult(
+                            ChoosePhotos()
+                        ) { photos ->
+                            processSelectedUris(photos)
+                        }
                         val addPhotoErrorTitle = stringResource(R.string.gallery_add_photos_error)
+                        val chooseFolder = rememberLauncherForActivityResult(
+                            ChooseFolder()
+                        ) { folder ->
+                            if (folder != null) {
+                                getSharedPreferences(SHARED_PREF_NAME, MODE_PRIVATE).edit {
+                                    putBoolean(SHOW_INTERNAL_STORAGE_MESSAGE, false)
+                                }
+                            }
+                            processSelectedUris(listOfNotNull(folder))
+                        }
                         val addFolderErrorTitle = stringResource(R.string.gallery_add_folder_error)
                         GalleryAdd(
                             mode = addMode.value,
