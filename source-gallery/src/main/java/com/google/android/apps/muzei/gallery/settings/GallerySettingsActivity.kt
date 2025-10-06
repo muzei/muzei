@@ -181,6 +181,7 @@ class GallerySettingsActivity : ComponentActivity() {
             val darkTheme = isSystemInDarkTheme()
             LaunchedEffect(darkTheme) {
                 windowInsetsController.isAppearanceLightStatusBars = !darkTheme
+                windowInsetsController.isAppearanceLightNavigationBars = !darkTheme
             }
             GalleryTheme(
                 dynamicColor = false
