@@ -93,7 +93,10 @@ fun GalleryTopAppBar(
                 if (photoCount > 0) {
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.gallery_action_clear_photos)) },
-                        onClick = onClearPhotos
+                        onClick = {
+                            expanded = false
+                            onClearPhotos()
+                        }
                     )
                 }
             }
