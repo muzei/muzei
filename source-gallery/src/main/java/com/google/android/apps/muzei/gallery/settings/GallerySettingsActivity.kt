@@ -26,21 +26,28 @@ import android.os.Bundle
 import android.provider.DocumentsContract
 import android.provider.Settings
 import android.util.Log
-import android.view.View
 import android.widget.Toast
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.LaunchedEffect
@@ -52,6 +59,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
@@ -67,13 +75,11 @@ import com.google.android.apps.muzei.gallery.GalleryScanWorker
 import com.google.android.apps.muzei.gallery.R
 import com.google.android.apps.muzei.gallery.RequestStoragePermissions
 import com.google.android.apps.muzei.gallery.contentUri
-import com.google.android.apps.muzei.gallery.databinding.GalleryActivityBinding
 import com.google.android.apps.muzei.gallery.theme.GalleryTheme
 import com.google.android.apps.muzei.util.getString
 import com.google.android.apps.muzei.util.getStringOrNull
 import com.google.android.apps.muzei.util.plus
 import com.google.android.apps.muzei.util.toast
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -153,8 +159,6 @@ class GallerySettingsActivity : AppCompatActivity() {
         processSelectedUris(photos)
     }
 
-    private lateinit var binding: GalleryActivityBinding
-
     private val multiSelectionController = MultiSelectionController(this)
 
     private var chosenPhotosCount = 0
@@ -170,18 +174,17 @@ class GallerySettingsActivity : AppCompatActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = GalleryActivityBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        setupMultiSelect()
-
-        binding.photoGrid.setContent {
+        enableEdgeToEdge()
+        setContent {
             GalleryTheme(
                 dynamicColor = false
             ) {
                 val photos = viewModel.chosenPhotos.collectAsLazyPagingItems()
                 val scrollBehavior =
                     TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+
+                @Suppress("SpellCheckingInspection")
+                val snackbarHostState = remember { SnackbarHostState() }
 
                 Scaffold(
                     modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -235,6 +238,7 @@ class GallerySettingsActivity : AppCompatActivity() {
                                 }
                             }
                         )
+                        // Import Photos Dialog
                         if (showImportPhotosDialog) {
                             val labels = remember(getContentActivityInfoList) {
                                 getContentActivityInfoList.map {
@@ -252,166 +256,180 @@ class GallerySettingsActivity : AppCompatActivity() {
                                 }
                             )
                         }
+                        // Selection toolbar
+                        var title by remember { mutableStateOf(multiSelectionController.selection.size.toString()) }
+                        val firstSelectedId = multiSelectionController.selection.firstOrNull()
+                        LaunchedEffect(multiSelectionController.selection.size, firstSelectedId) {
+                            val selectedCount = multiSelectionController.selection.size
+                            if (selectedCount == 0) {
+                                // Don't update the title as we are animating out
+                                return@LaunchedEffect
+                            }
+                            title = multiSelectionController.selection.size.toString()
+                            if (selectedCount == 1 && firstSelectedId != null) {
+                                // If they've selected a tree URI, show the DISPLAY_NAME instead of just '1'
+                                val chosenPhoto =
+                                    GalleryDatabase.Companion.getInstance(this@GallerySettingsActivity)
+                                        .chosenPhotoDao()
+                                        .getChosenPhoto(firstSelectedId)
+                                if (chosenPhoto?.isTreeUri == true) {
+                                    val displayName = getDisplayNameForTreeUri(chosenPhoto.uri)
+                                    if (displayName != null && displayName.isNotEmpty()) {
+                                        title = displayName
+                                    }
+                                }
+                            }
+                        }
+                        GallerySelectionToolbar(
+                            selectionCount = multiSelectionController.selection.size,
+                            title = title,
+                            onReset = {
+                                multiSelectionController.reset()
+                            },
+                            onRemove = {
+                                val removePhotos = ArrayList(multiSelectionController.selection)
+                                scope.launch(NonCancellable) {
+                                    // Remove chosen URIs
+                                    GalleryDatabase.Companion.getInstance(this@GallerySettingsActivity)
+                                        .chosenPhotoDao()
+                                        .delete(this@GallerySettingsActivity, removePhotos)
+                                }
+                                multiSelectionController.reset()
+                            }
+                        )
+                    },
+                    snackbarHost = {
+                        SnackbarHost(hostState = snackbarHostState)
                     },
                     contentWindowInsets = WindowInsets(),
                 ) { innerPadding ->
-                    val selectedItems = multiSelectionController.selection
-                    LaunchedEffect(photos.loadState.isIdle) {
-                        if (photos.loadState.isIdle) {
-                            chosenPhotosCount = photos.itemCount
-                            onDataSetChanged()
-                        }
-                    }
-                    GalleryChosenPhotoGrid(
-                        photos = photos,
-                        contentPadding = innerPadding + WindowInsets.safeDrawing
-                            .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
-                            .asPaddingValues() + PaddingValues(bottom = 90.dp),
-                        checkedItemIds = selectedItems,
-                        onCheckedToggled = { chosenPhoto ->
-                            multiSelectionController.toggle(chosenPhoto.id)
-                        },
-                    ) { chosenPhoto, maxImages ->
-                        if (chosenPhoto.isTreeUri)
-                            getImagesFromTreeUri(chosenPhoto.uri, maxImages)
-                        else
-                            listOf(chosenPhoto.contentUri)
-                    }
-                }
-            }
-        }
-
-        binding.empty.setContent {
-            GalleryTheme(
-                dynamicColor = false
-            ) {
-                GalleryEmpty(
-                    permissionStateFlow = permissionStateFlow,
-                    contentPadding = PaddingValues(bottom = 90.dp),
-                    onReselectSelectedPhotos = {
-                        requestStoragePermission.launch()
-                    },
-                    onEnableRandom = {
-                        requestStoragePermission.launch()
-                    },
-                    onEditPermissionSettings = {
-                        val intent = Intent(
-                            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                            Uri.fromParts("package", packageName, null)
-                        )
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        startActivity(intent)
-                    },
-                )
-            }
-        }
-        binding.add.setContent {
-            GalleryTheme(
-                dynamicColor = false
-            ) {
-                val selectedCount = multiSelectionController.selection.size
-                LaunchedEffect(selectedCount > 0) {
-                    addMode.value = if (selectedCount > 0) AddNone else AddFab
-                }
-                GalleryAdd(
-                    mode = addMode.value,
-                    onToggleToolbar = {
-                        when (addMode.value) {
-                            AddFab -> addMode.value = AddToolbar
-                            AddToolbar -> addMode.value = AddFab
-                            AddNone -> addMode.value = AddFab
-                        }
-                    },
-                    onAddPhoto = {
-                        requestPhotos()
-                    },
-                    onAddFolder = {
-                        try {
-                            chooseFolder.launch()
-                            val preferences = getSharedPreferences(SHARED_PREF_NAME, MODE_PRIVATE)
-                            if (preferences.getBoolean(SHOW_INTERNAL_STORAGE_MESSAGE, true)) {
-                                toast(R.string.gallery_internal_storage_message, Toast.LENGTH_LONG)
+                    Box {
+                        if (photos.itemCount > 0) {
+                            // Show the list
+                            val selectedItems = multiSelectionController.selection
+                            LaunchedEffect(photos.loadState.isIdle) {
+                                if (photos.loadState.isIdle) {
+                                    chosenPhotosCount = photos.itemCount
+                                    onDataSetChanged()
+                                }
                             }
-                        } catch (_: ActivityNotFoundException) {
-                            Snackbar.make(
-                                binding.photoGrid, R.string.gallery_add_folder_error,
-                                Snackbar.LENGTH_LONG
-                            ).show()
-                            addMode.value = AddFab
+                            GalleryChosenPhotoGrid(
+                                photos = photos,
+                                contentPadding = innerPadding + WindowInsets.safeDrawing
+                                    .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+                                    .asPaddingValues() + PaddingValues(bottom = 90.dp),
+                                checkedItemIds = selectedItems,
+                                onCheckedToggled = { chosenPhoto ->
+                                    multiSelectionController.toggle(chosenPhoto.id)
+                                },
+                            ) { chosenPhoto, maxImages ->
+                                if (chosenPhoto.isTreeUri)
+                                    getImagesFromTreeUri(chosenPhoto.uri, maxImages)
+                                else
+                                    listOf(chosenPhoto.contentUri)
+                            }
+                        } else {
+                            // Show the empty screen placeholder
+                            GalleryEmpty(
+                                permissionStateFlow = permissionStateFlow,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(
+                                        WindowInsets.safeDrawing
+                                            .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+                                            .asPaddingValues()
+                                    ),
+                                contentPadding = PaddingValues(bottom = 90.dp),
+                                onReselectSelectedPhotos = {
+                                    requestStoragePermission.launch()
+                                },
+                                onEnableRandom = {
+                                    requestStoragePermission.launch()
+                                },
+                                onEditPermissionSettings = {
+                                    val intent = Intent(
+                                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                        Uri.fromParts("package", packageName, null)
+                                    )
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    startActivity(intent)
+                                },
+                            )
                         }
+                        // FloatingActionButton / Toolbar for adding new photos
+                        val scope = rememberCoroutineScope()
+                        val selectedCount = multiSelectionController.selection.size
+                        LaunchedEffect(selectedCount > 0) {
+                            addMode.value = if (selectedCount > 0) AddNone else AddFab
+                        }
+                        val addPhotoErrorTitle = stringResource(R.string.gallery_add_photos_error)
+                        val addFolderErrorTitle = stringResource(R.string.gallery_add_folder_error)
+                        GalleryAdd(
+                            mode = addMode.value,
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(
+                                    WindowInsets.safeDrawing
+                                        .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+                                        .asPaddingValues()
+                                ),
+                            onToggleToolbar = {
+                                when (addMode.value) {
+                                    AddFab -> addMode.value = AddToolbar
+                                    AddToolbar -> addMode.value = AddFab
+                                    AddNone -> addMode.value = AddFab
+                                }
+                            },
+                            onAddPhoto = {
+                                try {
+                                    choosePhotos.launch()
+                                } catch (_: ActivityNotFoundException) {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            message = addPhotoErrorTitle,
+                                            duration = SnackbarDuration.Long
+                                        )
+                                    }
+                                    addMode.value = AddFab
+                                }
+                            },
+                            onAddFolder = {
+                                try {
+                                    chooseFolder.launch()
+                                    val preferences =
+                                        getSharedPreferences(SHARED_PREF_NAME, MODE_PRIVATE)
+                                    if (preferences.getBoolean(
+                                            SHOW_INTERNAL_STORAGE_MESSAGE,
+                                            true
+                                        )
+                                    ) {
+                                        toast(
+                                            R.string.gallery_internal_storage_message,
+                                            Toast.LENGTH_LONG
+                                        )
+                                    }
+                                } catch (_: ActivityNotFoundException) {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            message = addFolderErrorTitle,
+                                            duration = SnackbarDuration.Long
+                                        )
+                                    }
+                                    addMode.value = AddFab
+                                }
+                            }
+                        )
                     }
-                )
+                }
             }
         }
         GalleryScanWorker.Companion.enqueueRescan(this)
-    }
-
-    private fun requestPhotos() {
-        try {
-            choosePhotos.launch()
-        } catch (_: ActivityNotFoundException) {
-            Snackbar.make(binding.photoGrid, R.string.gallery_add_photos_error,
-                    Snackbar.LENGTH_LONG).show()
-            addMode.value = AddFab
-        }
     }
 
     override fun onResume() {
         super.onResume()
         // Permissions might have changed in the background
         onDataSetChanged()
-    }
-
-    private fun setupMultiSelect() {
-        // Set up toolbar
-        binding.selectionToolbar.setContent {
-            GalleryTheme(
-                dynamicColor = false
-            ) {
-                val scope = rememberCoroutineScope()
-                var title by remember { mutableStateOf(multiSelectionController.selection.size.toString()) }
-                val firstSelectedId = multiSelectionController.selection.firstOrNull()
-                LaunchedEffect(multiSelectionController.selection.size, firstSelectedId) {
-                    val selectedCount = multiSelectionController.selection.size
-                    if (selectedCount == 0) {
-                        // Don't update the title as we are animating out
-                        return@LaunchedEffect
-                    }
-                    title = multiSelectionController.selection.size.toString()
-                    if (selectedCount == 1 && firstSelectedId != null) {
-                        // If they've selected a tree URI, show the DISPLAY_NAME instead of just '1'
-                        val chosenPhoto = GalleryDatabase.Companion.getInstance(this@GallerySettingsActivity)
-                            .chosenPhotoDao()
-                            .getChosenPhoto(firstSelectedId)
-                        if (chosenPhoto?.isTreeUri == true) {
-                            val displayName = getDisplayNameForTreeUri(chosenPhoto.uri)
-                            if (displayName != null && displayName.isNotEmpty()) {
-                                title = displayName
-                            }
-                        }
-                    }
-                }
-                GallerySelectionToolbar(
-                    selectionCount = multiSelectionController.selection.size,
-                    title = title,
-                    onReset = {
-                        multiSelectionController.reset()
-                    },
-                    onRemove = {
-                        val removePhotos = ArrayList(multiSelectionController.selection)
-
-                        scope.launch(NonCancellable) {
-                            // Remove chosen URIs
-                            GalleryDatabase.Companion.getInstance(this@GallerySettingsActivity)
-                                .chosenPhotoDao()
-                                .delete(this@GallerySettingsActivity, removePhotos)
-                        }
-
-                        multiSelectionController.reset()
-                    }
-                )
-            }
-        }
     }
 
     private fun getDisplayNameForTreeUri(treeUri: Uri): String? {
@@ -433,12 +451,10 @@ class GallerySettingsActivity : AppCompatActivity() {
 
     private fun onDataSetChanged() {
         if (chosenPhotosCount != 0) {
-            binding.empty.visibility = View.GONE
             // We have at least one image, so consider the Gallery source properly setup
             setResult(RESULT_OK)
         } else {
-            // No chosen images, show the empty View
-            binding.empty.visibility = View.VISIBLE
+            // No chosen images
             val newState = checkRequestPermissionState(this)
             when (newState) {
                 is PartialPermissionGranted -> {
