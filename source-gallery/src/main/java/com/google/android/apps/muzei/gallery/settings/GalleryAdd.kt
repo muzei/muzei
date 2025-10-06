@@ -17,16 +17,20 @@
 package com.google.android.apps.muzei.gallery.settings
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.AnimationConstants
 import androidx.compose.animation.core.SeekableTransitionState
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.rememberTransition
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkOut
 import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -57,11 +61,6 @@ import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -93,109 +92,77 @@ fun GalleryAdd(
     onAddPhoto: () -> Unit = {},
     onAddFolder: () -> Unit = {},
 ) {
-    var currentMode by rememberSerializable(
-        serializer = MutableStateSerializer()
-    ) {
-        mutableStateOf(mode)
-    }
-    val fabVisibility = remember { SeekableTransitionState(mode == AddFab) }
-    val fabTransition = rememberTransition(fabVisibility, "AddFabVisibility")
-    val toolbarRevealProgress = remember { Animatable(if (mode == AddToolbar) 1f else 0f) }
-    val toolbarRevealPath = remember { Path() }
-    val stiffness = if (currentMode != AddNone && mode != AddNone) {
-        // Increase the stiffness if we are doing two sequential
-        // animations (e.g., from AddFab to AddToolbar or vice versa)
-        Spring.StiffnessHigh
-    } else {
-        // Use a lower stiffness if doing a single animation to AddNone
-        Spring.StiffnessMedium
-    }
-    LaunchedEffect(currentMode, mode) {
-        if (currentMode == mode) {
+    val modeTransitionState = remember { SeekableTransitionState(mode) }
+    val modeTransition = rememberTransition(modeTransitionState, "AddMode")
+    LaunchedEffect(modeTransitionState.currentState, mode) {
+        if (modeTransitionState.currentState == mode) {
             return@LaunchedEffect
         }
-        // First animate elements out
-        if (currentMode == AddFab) {
-            // Animate out FAB
-            fabVisibility.animateTo(false)
-        }
-        if (currentMode == AddToolbar) {
-            // Animate out toolbar
-            toolbarRevealProgress.animateTo(
-                0f,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioNoBouncy,
-                    stiffness = stiffness,
-                )
-            )
-        }
-        // Now animate in new elements
-        if (mode == AddFab) {
-            // Animate in FAB
-            fabVisibility.animateTo(true)
-        }
-        if (mode == AddToolbar) {
-            // Animate in toolbar
-            toolbarRevealProgress.animateTo(
-                1f,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioNoBouncy,
-                    stiffness = stiffness,
-                )
-            )
-        }
-        currentMode = mode
+        modeTransitionState.animateTo(mode)
+    }
+    val offset = with(LocalDensity.current) {
+        IntOffset(0, 16.dp.toPx().toInt())
     }
     Box(modifier) {
-        if (currentMode == AddFab || mode == AddFab) {
-            val offset = with(LocalDensity.current) {
-                IntOffset(0, 16.dp.toPx().toInt())
-            }
-            fabTransition.AnimatedVisibility(
-                visible = { it },
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 16.dp),
-                enter = scaleIn(
-                    animationSpec = spring(stiffness = stiffness)
-                ) + slideIn(
-                    animationSpec = spring(stiffness = stiffness)
-                ) { offset },
-                exit = scaleOut(
-                    animationSpec = spring(stiffness = stiffness)
-                ) + slideOut(
-                    animationSpec = spring(stiffness = stiffness)
-                ) { offset },
-            ) {
-                GalleryAddFloatingActionButton(
+        modeTransition.AnimatedContent(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            transitionSpec = {
+                val duration = if (initialState == AddNone || targetState == AddNone) {
+                    AnimationConstants.DefaultDurationMillis
+                } else {
+                    AnimationConstants.DefaultDurationMillis / 2
+                }
+                val delay = if (initialState == AddNone || targetState == AddNone) {
+                    0
+                } else {
+                    AnimationConstants.DefaultDurationMillis / 2
+                }
+                when (targetState) {
+                    // EnterTransition
+                    AddFab -> scaleIn(
+                        animationSpec = tween(durationMillis = duration, delayMillis = delay)
+                    ) + slideIn(
+                        animationSpec = tween(durationMillis = duration, delayMillis = delay)
+                    ) { offset }
+
+                    AddToolbar -> expandIn(
+                        animationSpec = tween(durationMillis = duration, delayMillis = delay),
+                        expandFrom = Alignment.TopCenter,
+                    )
+
+                    else -> EnterTransition.None
+                } togetherWith when (initialState) {
+                    // ExitTransition
+                    AddFab -> scaleOut(
+                        animationSpec = tween(durationMillis = duration)
+                    ) + slideOut(
+                        animationSpec = tween(durationMillis = duration)
+                    ) { offset }
+
+                    AddToolbar -> shrinkOut(
+                        animationSpec = tween(durationMillis = duration),
+                        shrinkTowards = Alignment.TopCenter,
+                    )
+
+                    else -> ExitTransition.None
+                } using null
+            },
+            contentAlignment = Alignment.BottomCenter,
+        ) { targetMode ->
+            when (targetMode) {
+                AddFab -> GalleryAddFloatingActionButton(
                     onToggleToolbar = onToggleToolbar,
+                    modifier = Modifier.padding(bottom = 16.dp)
                 )
+
+                AddToolbar -> GalleryAddToolbar(
+                    onToggleToolbar = onToggleToolbar,
+                    onAddPhoto = onAddPhoto,
+                    onAddFolder = onAddFolder,
+                )
+
+                AddNone -> {}
             }
-        }
-        if (currentMode == AddToolbar || mode == AddToolbar) {
-            GalleryAddToolbar(
-                onToggleToolbar = onToggleToolbar,
-                onAddPhoto = onAddPhoto,
-                onAddFolder = onAddFolder,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .drawWithContent {
-                        toolbarRevealPath.rewind()
-                        val center = Offset(size.width / 2f, size.height / 2f)
-                        toolbarRevealPath.addOval(
-                            Rect(
-                                center = center,
-                                radius = maxDistanceToCorner(
-                                    center,
-                                    size
-                                ) * toolbarRevealProgress.value
-                            )
-                        )
-                        clipPath(toolbarRevealPath) {
-                            this@drawWithContent.drawContent()
-                        }
-                    },
-            )
         }
     }
 }
