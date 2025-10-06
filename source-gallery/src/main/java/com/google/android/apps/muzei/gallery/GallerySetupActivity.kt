@@ -24,7 +24,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
+import androidx.activity.ComponentActivity
 import androidx.activity.result.component1
 import androidx.activity.result.component2
 import androidx.activity.result.contract.ActivityResultContract
@@ -33,7 +33,7 @@ import androidx.activity.result.contract.ActivityResultContracts.StartActivityFo
 import androidx.activity.result.launch
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentActivity
+import androidx.core.view.WindowCompat
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.gallery.settings.GallerySettingsActivity
 
@@ -90,11 +90,11 @@ internal class RequestStoragePermissions : ActivityResultContract<Unit, Boolean>
     }
 }
 
-class GallerySetupActivity : FragmentActivity() {
+class GallerySetupActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        WindowCompat.enableEdgeToEdge(window)
         GalleryDatabase.getInstance(this).chosenPhotoDao()
                 .chosenPhotosLiveData.observe(this) { chosenUris ->
             val numChosenUris = chosenUris.size

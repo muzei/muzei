@@ -37,11 +37,6 @@ dependencies {
     implementation libs.compose.ui.tooling.preview
     debugImplementation libs.compose.ui.tooling.runtime
     implementation libs.core
-    implementation libs.fragment
-    implementation libs.appCompat
-    implementation libs.material
-    implementation libs.recyclerView
-    implementation libs.constraintLayout
     implementation libs.exifInterface
     implementation libs.lifecycle.common
     implementation libs.lifecycle.livedata

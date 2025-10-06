@@ -4,9 +4,9 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.activity.enableEdgeToEdge
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ShareCompat
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.apps.muzei.util.toast
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +29,7 @@ class GalleryAddPhotosActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        WindowCompat.enableEdgeToEdge(window)
         val intentReader = ShareCompat.IntentReader(this)
         if (!intentReader.isShareIntent) {
             finish()
