@@ -84,17 +84,20 @@
 
         <activity
             android:name="com.google.android.apps.muzei.gallery.GallerySetupActivity"
+            android:configChanges="assetsPaths|colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|resourcesUnused|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
             android:label="@string/gallery_title"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:exported="true"/>
 
         <activity
             android:name="com.google.android.apps.muzei.gallery.settings.GallerySettingsActivity"
+            android:configChanges="assetsPaths|colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|resourcesUnused|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
             android:label="@string/gallery_title"
             android:theme="@style/Theme.Gallery"/>
 
         <activity
             android:name="com.google.android.apps.muzei.gallery.GalleryAddPhotosActivity"
+            android:configChanges="assetsPaths|colorMode|density|fontScale|fontWeightAdjustment|grammaticalGender|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|resourcesUnused|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
             android:label="@string/gallery_title"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:exported="true">
