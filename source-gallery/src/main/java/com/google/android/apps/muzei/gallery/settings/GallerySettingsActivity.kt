@@ -289,7 +289,7 @@ class GallerySettingsActivity : ComponentActivity() {
                     },
                     contentWindowInsets = WindowInsets(),
                 ) { innerPadding ->
-                    Box {
+                    Box(Modifier.fillMaxSize()) {
                         if (photos.itemCount > 0) {
                             // Show the list
                             LaunchedEffect(photos.loadState.isIdle) {
