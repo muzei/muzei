@@ -70,8 +70,6 @@ import androidx.compose.ui.unit.dp
 import androidx.savedstate.compose.serialization.serializers.MutableStateSerializer
 import com.google.android.apps.muzei.gallery.R
 import com.google.android.apps.muzei.gallery.theme.GalleryTheme
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.collect
 import kotlinx.serialization.Serializable
 
 @Serializable
