@@ -16,8 +16,10 @@
 
 package com.google.android.apps.muzei.gallery.settings
 
-import androidx.activity.compose.BackHandler
+import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.SeekableTransitionState
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.size
@@ -33,6 +35,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -51,14 +55,28 @@ fun GallerySelectionToolbar(
     onRemove: () -> Unit = {},
 ) {
     val visible = selectionCount > 0
-    AnimatedVisibility(
-        visible = visible,
+    val modeTransitionState = remember { SeekableTransitionState(visible) }
+    val modeTransition = rememberTransition(modeTransitionState, "SelectionToolbar")
+    LaunchedEffect(modeTransitionState.currentState, visible) {
+        modeTransitionState.animateTo(visible)
+    }
+    modeTransition.AnimatedVisibility(
+        visible = { it },
         modifier = modifier.wrapContentHeight(align = Alignment.Top),
         enter = slideInVertically { -it },
         exit = slideOutVertically { -it },
-        label = "GallerySelectionToolbar",
     ) {
-        BackHandler(onBack = onReset)
+        PredictiveBackHandler(enabled = visible) { progress ->
+            try {
+                progress.collect { backEvent ->
+                    modeTransitionState.seekTo(backEvent.progress, false)
+                }
+                onReset()
+            } catch (e: Exception) {
+                modeTransitionState.snapTo(visible)
+                throw e
+            }
+        }
         TopAppBar(
             title = { Text(text = title) },
             navigationIcon = {

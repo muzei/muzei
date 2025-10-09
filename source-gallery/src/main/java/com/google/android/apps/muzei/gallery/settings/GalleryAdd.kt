@@ -16,7 +16,7 @@
 
 package com.google.android.apps.muzei.gallery.settings
 
-import androidx.activity.compose.BackHandler
+import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -70,6 +70,8 @@ import androidx.compose.ui.unit.dp
 import androidx.savedstate.compose.serialization.serializers.MutableStateSerializer
 import com.google.android.apps.muzei.gallery.R
 import com.google.android.apps.muzei.gallery.theme.GalleryTheme
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.collect
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -155,11 +157,25 @@ fun GalleryAdd(
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                AddToolbar -> GalleryAddToolbar(
-                    onToggleToolbar = onToggleToolbar,
-                    onAddPhoto = onAddPhoto,
-                    onAddFolder = onAddFolder,
-                )
+                AddToolbar -> {
+                    PredictiveBackHandler(enabled = mode == AddToolbar) { progress ->
+                        try {
+                            progress.collect { backEvent ->
+                                modeTransitionState.seekTo(backEvent.progress, AddFab)
+                            }
+                            onToggleToolbar()
+                        } catch (e: Exception) {
+                            if (mode == AddToolbar) {
+                                modeTransitionState.snapTo(AddToolbar)
+                            }
+                            throw e
+                        }
+                    }
+                    GalleryAddToolbar(
+                        onAddPhoto = onAddPhoto,
+                        onAddFolder = onAddFolder,
+                    )
+                }
 
                 AddNone -> {}
             }
@@ -185,12 +201,10 @@ private fun GalleryAddFloatingActionButton(
 
 @Composable
 private fun GalleryAddToolbar(
-    onToggleToolbar: () -> Unit,
     onAddPhoto: () -> Unit,
     onAddFolder: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    BackHandler(onBack = onToggleToolbar)
     Surface(
         modifier = modifier
             .height(56.dp)
