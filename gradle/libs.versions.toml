@@ -48,13 +48,13 @@ workManager = "2.10.5"
 
 # Firebase
 firebaseAnalytics = "23.0.0"
-firebaseCrashlytics = "20.0.2"
+firebaseCrashlytics = "20.0.3"
 firebaseCrashlyticsGradle = "3.0.6"
 firebasePerf = "22.0.2"
 firebasePerfPlugin = "2.0.1"
 
 # Google Play services
-googleServices = "4.4.3"
+googleServices = "4.4.4"
 playServicesWearable = "19.0.0"
 wearable = "2.9.0"
 
@@ -67,11 +67,11 @@ ksp = "2.2.20-2.0.3"
 # Other
 coil = "3.3.0"
 material = "1.13.0"
-okhttp = "5.1.0"
+okhttp = "5.2.1"
 okhttpCoroutines = "1.0"
 retrofit = "3.0.0"
 subsampling = "3.10.0"
-tasker = "0.4.1"
+tasker = "0.4.10"
 
 [libraries]
 
