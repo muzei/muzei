@@ -36,10 +36,11 @@
         android:layout_gravity="center"
         android:orientation="horizontal">
 
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/animated_logo_fragment"
+        <androidx.compose.ui.platform.ComposeView
+            android:id="@+id/animated_logo"
+            android:layout_width="225dp"
             android:layout_height="wrap_content"
-            android:layout_width="wrap_content"/>
+            android:padding="4dp" />
 
         <Button
             android:id="@+id/activate_muzei"

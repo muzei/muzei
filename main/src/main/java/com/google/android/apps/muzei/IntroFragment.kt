@@ -23,14 +23,19 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.commitNow
-import com.google.android.apps.muzei.util.AnimatedMuzeiLogoFragment
+import com.google.android.apps.muzei.util.AnimatedMuzeiLogo
 import com.google.android.apps.muzei.util.autoCleared
 import com.google.android.apps.muzei.util.toast
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.analytics
+import kotlinx.coroutines.delay
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.IntroFragmentBinding
 
@@ -65,24 +70,23 @@ class IntroFragment : Fragment(R.layout.intro_fragment) {
                 }
             }
         }
-        if (binding.animatedLogoFragment.getFragment<Fragment?>() == null) {
-            val logoFragment = AnimatedMuzeiLogoFragment()
-            childFragmentManager.commitNow {
-                setReorderingAllowed(true)
-                add(R.id.animated_logo_fragment, logoFragment)
-            }
-
-            binding.activateMuzei.alpha = 0f
-            logoFragment.onFillStarted = {
-                binding.activateMuzei.animate().alpha(1f).apply {
-                    duration = 500
+        binding.animatedLogo.setContent {
+            var started by rememberSaveable { mutableStateOf(false) }
+            LaunchedEffect(started) {
+                if (!started) {
+                    binding.activateMuzei.alpha = 0f
+                    delay(1000)
+                    started = true
                 }
             }
-            binding.activateMuzei.postDelayed({
-                if (logoFragment.isAdded) {
-                    logoFragment.start()
+            AnimatedMuzeiLogo(
+                started = started,
+                onFillStarted = {
+                    binding.activateMuzei.animate().alpha(1f).apply {
+                        duration = 500
+                    }
                 }
-            }, 1000)
+            )
         }
     }
 }

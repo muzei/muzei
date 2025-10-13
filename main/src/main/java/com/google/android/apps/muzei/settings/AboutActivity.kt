@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
@@ -46,9 +47,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -69,11 +70,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
-import androidx.fragment.compose.AndroidFragment
 import com.google.android.apps.muzei.render.MuzeiRendererFragment
-import com.google.android.apps.muzei.util.AnimatedMuzeiLogoFragment
+import com.google.android.apps.muzei.util.AnimatedMuzeiLogo
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.androidclientcommon.R as CommonR
@@ -147,17 +146,19 @@ class AboutActivity : AppCompatActivity() {
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
-                            val coroutineScope = rememberCoroutineScope()
-                            AndroidFragment<AnimatedMuzeiLogoFragment> { fragment ->
-                                coroutineScope.launch {
-                                    if (!visible) {
-                                        delay(250)
-                                        visible = true
-                                        delay(1000)
-                                        fragment.start()
-                                    }
+                            var started by rememberSaveable { mutableStateOf(false) }
+                            LaunchedEffect(started) {
+                                if (!started) {
+                                    delay(250)
+                                    visible = true
+                                    delay(1000)
+                                    started = true
                                 }
                             }
+                            AnimatedMuzeiLogo(
+                                modifier = Modifier.padding(4.dp).width(225.dp),
+                                started = started,
+                            )
                             Text(
                                 text = stringResource(
                                     R.string.about_version_template,
