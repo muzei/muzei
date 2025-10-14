@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -102,7 +103,8 @@ fun Intro(
                 ) {
                     Text(
                         text = stringResource(R.string.action_activate),
-                        fontSize = 18.sp,
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        autoSize = TextAutoSize.StepBased(maxFontSize = 18.sp),
                         fontWeight = FontWeight.Bold,
                         fontFamily = FontFamily.SansSerif,
                     )
