@@ -117,6 +117,7 @@ dependencies {
     implementation libs.activity
     implementation libs.core
     implementation platform(libs.compose.bom)
+    implementation libs.compose.animation.graphics
     implementation libs.compose.icons
     implementation libs.compose.livedata
     implementation libs.compose.material3

@@ -87,6 +87,7 @@ api-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", 
 activity = { group = "androidx.activity", name = "activity-compose", version.ref = "activity" }
 appCompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appCompat" }
 browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
+compose-animation-graphics = { group = "androidx.compose.animation", name = "animation-graphics" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose" }
 compose-icons = { group = "androidx.compose.material", name = "material-icons-extended" }
 compose-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata" }
