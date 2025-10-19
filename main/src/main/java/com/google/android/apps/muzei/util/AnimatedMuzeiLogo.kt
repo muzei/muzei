@@ -177,13 +177,13 @@ fun AnimatedMuzeiLogo(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .graphicsLayer { alpha = subtitleAlphaProgress }
                 .padding(top = logoOffset / 2)
                 .drawWithContent {
                     translate(top = -offsetProgress / 2) {
                         this@drawWithContent.drawContent()
                     }
-                },
+                }
+                .graphicsLayer { alpha = subtitleAlphaProgress },
         ) {
             Text(
                 text = "L I V E   W A L L P A P E R",
