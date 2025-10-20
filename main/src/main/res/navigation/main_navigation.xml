@@ -36,8 +36,7 @@
     <fragment
         android:id="@+id/gestures_fragment"
         android:name="com.google.android.apps.muzei.settings.GesturesFragment"
-        android:label="@string/gestures_title"
-        tools:layout="@layout/gestures_fragment">
+        android:label="@string/gestures_title">
         <argument
             android:name="useDarkStatusBar"
             android:defaultValue="true" />
