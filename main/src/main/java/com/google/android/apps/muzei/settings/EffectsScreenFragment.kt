@@ -18,23 +18,36 @@ package com.google.android.apps.muzei.settings
 
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.View
-import android.widget.SeekBar
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.edit
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
+import androidx.fragment.compose.content
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer
+import com.google.android.apps.muzei.theme.AppTheme
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
-import net.nurik.roman.muzei.R
-import net.nurik.roman.muzei.databinding.EffectsScreenFragmentBinding
 
 /**
  * Fragment for allowing the user to configure advanced settings.
  */
-class EffectsScreenFragment : Fragment(R.layout.effects_screen_fragment) {
+class EffectsScreenFragment : Fragment() {
 
     companion object {
         private const val PREF_BLUR = "pref_blur"
@@ -42,14 +55,14 @@ class EffectsScreenFragment : Fragment(R.layout.effects_screen_fragment) {
         private const val PREF_GREY = "pref_grey"
 
         internal fun create(
-                prefBlur: String,
-                prefDim: String,
-                prefGrey: String
+            prefBlur: String,
+            prefDim: String,
+            prefGrey: String
         ) = EffectsScreenFragment().apply {
             arguments = bundleOf(
-                    PREF_BLUR to prefBlur,
-                    PREF_DIM to prefDim,
-                    PREF_GREY to prefGrey
+                PREF_BLUR to prefBlur,
+                PREF_DIM to prefDim,
+                PREF_GREY to prefGrey
             )
         }
     }
@@ -58,106 +71,115 @@ class EffectsScreenFragment : Fragment(R.layout.effects_screen_fragment) {
     private lateinit var dimPref: String
     private lateinit var greyPref: String
 
-    private lateinit var blurOnPreferenceChangeListener: SharedPreferences.OnSharedPreferenceChangeListener
-    private lateinit var dimOnPreferenceChangeListener: SharedPreferences.OnSharedPreferenceChangeListener
-    private lateinit var greyOnPreferenceChangeListener: SharedPreferences.OnSharedPreferenceChangeListener
-
-    private var updateBlur: Job? = null
-    private var updateDim: Job? = null
-    private var updateGrey: Job? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         blurPref = requireArguments().getString(PREF_BLUR)
-                ?: throw IllegalArgumentException("Missing required argument $PREF_BLUR")
+            ?: throw IllegalArgumentException("Missing required argument $PREF_BLUR")
         dimPref = requireArguments().getString(PREF_DIM)
-                ?: throw IllegalArgumentException("Missing required argument $PREF_DIM")
+            ?: throw IllegalArgumentException("Missing required argument $PREF_DIM")
         greyPref = requireArguments().getString(PREF_GREY)
-                ?: throw IllegalArgumentException("Missing required argument $PREF_GREY")
+            ?: throw IllegalArgumentException("Missing required argument $PREF_GREY")
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val binding = EffectsScreenFragmentBinding.bind(view)
-        val prefs = Prefs.getSharedPreferences(requireContext())
-        binding.content.blurAmount.progress = prefs.getInt(blurPref, MuzeiBlurRenderer.DEFAULT_BLUR)
-        binding.content.blurAmount.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
-                if (fromUser) {
-                    updateBlur?.cancel()
-                    updateBlur = lifecycleScope.launch {
-                        delay(750)
-                        prefs.edit {
-                            putInt(blurPref, binding.content.blurAmount.progress)
-                        }
-                    }
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ) = content {
+        AppTheme(
+            dynamicColor = false,
+        ) {
+            val context = LocalContext.current
+            val prefs = remember { Prefs.getSharedPreferences(context) }
+            val blur =
+                rememberPreferenceSourcedValue(prefs, blurPref, MuzeiBlurRenderer.DEFAULT_BLUR)
+            val dim =
+                rememberPreferenceSourcedValue(prefs, dimPref, MuzeiBlurRenderer.DEFAULT_MAX_DIM)
+            val grey =
+                rememberPreferenceSourcedValue(prefs, greyPref, MuzeiBlurRenderer.DEFAULT_GREY)
+            EffectsScreen(
+                blur = blur.value,
+                onBlurChange = {
+                    blur.value = it
+                },
+                onBlurChangeFinished = {
+                    blur.userControlled = false
+                },
+                dim = dim.value,
+                onDimChange = {
+                    dim.value = it
+                },
+                onDimChangeFinished = {
+                    dim.userControlled = false
+                },
+                grey = grey.value,
+                onGreyChange = {
+                    grey.value = it
+                },
+                onGreyChangeFinished = {
+                    grey.userControlled = false
                 }
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar) {}
-
-            override fun onStopTrackingTouch(seekBar: SeekBar) {}
-        })
-        blurOnPreferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener {
-            _, _ ->
-            binding.content.blurAmount.progress = prefs.getInt(blurPref, MuzeiBlurRenderer.DEFAULT_BLUR)
+            )
         }
-        prefs.registerOnSharedPreferenceChangeListener(blurOnPreferenceChangeListener)
-
-        binding.content.dimAmount.progress = prefs.getInt(dimPref, MuzeiBlurRenderer.DEFAULT_MAX_DIM)
-        binding.content.dimAmount.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
-                if (fromUser) {
-                    updateDim?.cancel()
-                    updateDim = lifecycleScope.launch {
-                        delay(750)
-                        prefs.edit {
-                            putInt(dimPref, binding.content.dimAmount.progress)
-                        }
-                    }
-                }
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar) {}
-
-            override fun onStopTrackingTouch(seekBar: SeekBar) {}
-        })
-        dimOnPreferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener {
-            _, _ ->
-            binding.content.dimAmount.progress = prefs.getInt(dimPref, MuzeiBlurRenderer.DEFAULT_MAX_DIM)
-        }
-        prefs.registerOnSharedPreferenceChangeListener(dimOnPreferenceChangeListener)
-
-        binding.content.greyAmount.progress = prefs.getInt(greyPref, MuzeiBlurRenderer.DEFAULT_GREY)
-        binding.content.greyAmount.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar, value: Int, fromUser: Boolean) {
-                if (fromUser) {
-                    updateGrey?.cancel()
-                    updateGrey = lifecycleScope.launch {
-                        delay(750)
-                        prefs.edit {
-                            putInt(greyPref, binding.content.greyAmount.progress)
-                        }
-                    }
-                }
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar) {}
-
-            override fun onStopTrackingTouch(seekBar: SeekBar) {}
-        })
-        greyOnPreferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener {
-            _, _ ->
-            binding.content.greyAmount.progress = prefs.getInt(greyPref, MuzeiBlurRenderer.DEFAULT_GREY)
-        }
-        prefs.registerOnSharedPreferenceChangeListener(greyOnPreferenceChangeListener)
     }
+}
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        Prefs.getSharedPreferences(requireContext()).apply {
-            unregisterOnSharedPreferenceChangeListener(blurOnPreferenceChangeListener)
-            unregisterOnSharedPreferenceChangeListener(dimOnPreferenceChangeListener)
-            unregisterOnSharedPreferenceChangeListener(greyOnPreferenceChangeListener)
+private class PreferenceSourcedValue(
+    private val prefs: SharedPreferences,
+    private val prefName: String,
+    private val coroutineScope: CoroutineScope,
+    private val userControlledValue: MutableIntState,
+    private val preferenceControlledValue: State<Int>
+) {
+    var userControlled by mutableStateOf(false)
+    private var updateJob by mutableStateOf<Job?>(null)
+
+    var value: Int
+        get() = if (userControlled || updateJob != null) userControlledValue.intValue else preferenceControlledValue.value
+        set(value) {
+            userControlledValue.intValue = value
+            userControlled = true
+            updateJob?.cancel()
+            updateJob = coroutineScope.launch {
+                delay(750)
+                prefs.edit {
+                    putInt(prefName, value)
+                }
+                updateJob = null
+            }
         }
+}
+
+@Composable
+private fun rememberPreferenceSourcedValue(
+    prefs: SharedPreferences,
+    prefName: String,
+    defaultValue: Int,
+): PreferenceSourcedValue {
+    val defaultValue = remember {
+        prefs.getInt(prefName, defaultValue)
+    }
+    val userControlledValue = remember { mutableIntStateOf(defaultValue) }
+    val preferenceControlledValue = produceState(defaultValue) {
+        callbackFlow {
+            val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+                if (key == prefName) {
+                    trySend(prefs.getInt(prefName, defaultValue))
+                }
+
+            }
+            prefs.registerOnSharedPreferenceChangeListener(listener)
+            awaitClose {
+                prefs.unregisterOnSharedPreferenceChangeListener(listener)
+            }
+        }.collect {
+            value = it
+        }
+    }
+    val coroutineScope = rememberCoroutineScope()
+    return remember(
+        prefs, prefName, coroutineScope, userControlledValue, preferenceControlledValue
+    ) {
+        PreferenceSourcedValue(
+            prefs, prefName, coroutineScope, userControlledValue, preferenceControlledValue
+        )
     }
 }

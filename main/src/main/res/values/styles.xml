@@ -24,18 +24,6 @@
         <!--<item name="android:windowAnimationStyle">@style/WindowAnimation.MuzeiActivity</item>-->
     </style>
 
-    <style name="Settings.Widget.SeekBar.BlurAmount" parent="Widget.Muzei.SeekBar">
-        <item name="android:progressDrawable">@drawable/scrubber_progress_blur_amount</item>
-    </style>
-
-    <style name="Settings.Widget.SeekBar.DimAmount" parent="Widget.Muzei.SeekBar">
-        <item name="android:progressDrawable">@drawable/scrubber_progress_dim_amount</item>
-    </style>
-
-    <style name="Settings.Widget.SeekBar.GreyAmount" parent="Widget.Muzei.SeekBar">
-        <item name="android:progressDrawable">@drawable/scrubber_progress_grey_amount</item>
-    </style>
-
     <!-- About -->
 
     <style name="Theme.Muzei.About" parent="Theme.Muzei.Wallpaper">
@@ -50,7 +38,6 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:selectableItemBackground">@drawable/white_selectable_item_background
         </item>
-        <item name="android:seekBarStyle">@style/Widget.Muzei.SeekBar</item>
 
         <item name="colorPrimary">@color/md_theme_primary</item>
         <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
@@ -109,21 +96,6 @@
 
     <style name="ThemeOverlay.Muzei.TabLayout" parent="ThemeOverlay.Material3.Dark">
         <item name="colorPrimary">?colorControlNormal</item>
-    </style>
-
-    <style name="Widget.Muzei.SeekBar" parent="Widget.Material3.Slider">
-        <item name="android:progressDrawable">@drawable/scrubber_progress_horizontal</item>
-        <item name="android:indeterminateDrawable">@drawable/scrubber_progress_horizontal</item>
-        <item name="android:thumbTint">#FFF</item>
-    </style>
-
-    <style name="Widget.Muzei.TextView.SettingsAdvancedSeekBarLabel" parent="">
-        <item name="android:gravity">center_vertical</item>
-        <item name="android:textSize">@dimen/settings_text_size_large</item>
-        <item name="android:fontFamily">sans-serif-condensed</item>
-        <item name="android:textAllCaps">true</item>
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
-        <item name="android:textStyle">bold</item>
     </style>
 
 </resources>

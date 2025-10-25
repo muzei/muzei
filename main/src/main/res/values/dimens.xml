@@ -31,7 +31,6 @@
     <dimen name="settings_text_size_large">20sp</dimen>
     <dimen name="settings_text_size_normal">16sp</dimen>
     <dimen name="settings_line_spacing_normal">20sp</dimen>
-    <dimen name="settings_seek_bar_margin">8dp</dimen>
 
     <dimen name="tasker_action_icon_size">48dp</dimen>
 
