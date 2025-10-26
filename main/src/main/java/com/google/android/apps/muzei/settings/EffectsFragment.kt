@@ -17,214 +17,68 @@
 package com.google.android.apps.muzei.settings
 
 import android.app.Activity
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.View
-import android.widget.Toast
-import androidx.core.content.edit
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.fragment.app.Fragment
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
+import androidx.fragment.compose.content
+import androidx.lifecycle.compose.LifecycleStartEffect
 import com.google.android.apps.muzei.isPreviewMode
-import com.google.android.apps.muzei.render.MuzeiBlurRenderer
-import com.google.android.apps.muzei.util.autoCleared
-import com.google.android.apps.muzei.util.toast
-import com.google.android.material.tabs.TabLayoutMediator
+import com.google.android.apps.muzei.theme.AppTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import net.nurik.roman.muzei.R
-import net.nurik.roman.muzei.databinding.EffectsFragmentBinding
 
 val EffectsLockScreenOpen = MutableStateFlow(false)
 
 /**
  * Fragment for allowing the user to configure advanced settings.
  */
-class EffectsFragment : Fragment(R.layout.effects_fragment) {
+class EffectsFragment : Fragment() {
 
-    private var binding: EffectsFragmentBinding by autoCleared()
-
-    private val sharedPreferencesListener = SharedPreferences.OnSharedPreferenceChangeListener {
-        sp, key ->
-        val effectsLinked = sp.getBoolean(Prefs.PREF_LINK_EFFECTS, false)
-        if (key == Prefs.PREF_LINK_EFFECTS) {
-            if (effectsLinked) {
-                if (binding.viewPager.currentItem == 0) {
-                    // Update the lock screen effects to match the home screen
-                    sp.edit {
-                        putInt(Prefs.PREF_LOCK_BLUR_AMOUNT,
-                                sp.getInt(Prefs.PREF_BLUR_AMOUNT, MuzeiBlurRenderer.DEFAULT_BLUR))
-                        putInt(Prefs.PREF_LOCK_DIM_AMOUNT,
-                                sp.getInt(Prefs.PREF_DIM_AMOUNT, MuzeiBlurRenderer.DEFAULT_MAX_DIM))
-                        putInt(Prefs.PREF_LOCK_GREY_AMOUNT,
-                                sp.getInt(Prefs.PREF_GREY_AMOUNT, MuzeiBlurRenderer.DEFAULT_GREY))
-                    }
-                } else {
-                    // Update the home screen effects to match the lock screen
-                    sp.edit {
-                        putInt(Prefs.PREF_BLUR_AMOUNT,
-                                sp.getInt(Prefs.PREF_LOCK_BLUR_AMOUNT, MuzeiBlurRenderer.DEFAULT_BLUR))
-                        putInt(Prefs.PREF_DIM_AMOUNT,
-                                sp.getInt(Prefs.PREF_LOCK_DIM_AMOUNT, MuzeiBlurRenderer.DEFAULT_MAX_DIM))
-                        putInt(Prefs.PREF_GREY_AMOUNT,
-                                sp.getInt(Prefs.PREF_LOCK_GREY_AMOUNT, MuzeiBlurRenderer.DEFAULT_GREY))
-                    }
-                }
-                requireContext().toast(R.string.toast_link_effects, Toast.LENGTH_LONG)
-            } else {
-                requireContext().toast(R.string.toast_link_effects_off, Toast.LENGTH_LONG)
-            }
-            // Update the menu item
-            updateLinkEffectsMenuItem(effectsLinked)
-        } else if (effectsLinked) {
-            when (key) {
-                Prefs.PREF_BLUR_AMOUNT -> {
-                    // Update the lock screen effect to match the updated home screen
-                    sp.edit {
-                        putInt(Prefs.PREF_LOCK_BLUR_AMOUNT, sp.getInt(Prefs.PREF_BLUR_AMOUNT,
-                                MuzeiBlurRenderer.DEFAULT_BLUR))
-                    }
-                }
-                Prefs.PREF_DIM_AMOUNT -> {
-                    // Update the lock screen effect to match the updated home screen
-                    sp.edit {
-                        putInt(Prefs.PREF_LOCK_DIM_AMOUNT, sp.getInt(Prefs.PREF_DIM_AMOUNT,
-                                MuzeiBlurRenderer.DEFAULT_MAX_DIM))
-                    }
-                }
-                Prefs.PREF_GREY_AMOUNT -> {
-                    // Update the lock screen effect to match the updated home screen
-                    sp.edit {
-                        putInt(Prefs.PREF_LOCK_GREY_AMOUNT, sp.getInt(Prefs.PREF_GREY_AMOUNT,
-                                MuzeiBlurRenderer.DEFAULT_GREY))
-                    }
-                }
-                Prefs.PREF_LOCK_BLUR_AMOUNT -> {
-                    // Update the home screen effect to match the updated lock screen
-                    sp.edit {
-                        putInt(Prefs.PREF_BLUR_AMOUNT, sp.getInt(Prefs.PREF_LOCK_BLUR_AMOUNT,
-                                MuzeiBlurRenderer.DEFAULT_BLUR))
-                    }
-                }
-                Prefs.PREF_LOCK_DIM_AMOUNT -> {
-                    // Update the home screen effect to match the updated lock screen
-                    sp.edit {
-                        putInt(Prefs.PREF_DIM_AMOUNT, sp.getInt(Prefs.PREF_LOCK_DIM_AMOUNT,
-                                MuzeiBlurRenderer.DEFAULT_MAX_DIM))
-                    }
-                }
-                Prefs.PREF_LOCK_GREY_AMOUNT -> {
-                    // Update the home screen effect to match the updated lock screen
-                    sp.edit {
-                        putInt(Prefs.PREF_GREY_AMOUNT, sp.getInt(Prefs.PREF_LOCK_GREY_AMOUNT,
-                                MuzeiBlurRenderer.DEFAULT_GREY))
-                    }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ) = content {
+        AppTheme(
+            dynamicColor = false,
+        ) {
+            val pagerState = rememberPagerState(0) { 2 }
+            LifecycleStartEffect(pagerState.currentPage) {
+                EffectsLockScreenOpen.value = pagerState.currentPage == 1
+                onStopOrDispose {
+                    EffectsLockScreenOpen.value = false
                 }
             }
-        }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding = EffectsFragmentBinding.bind(view)
-        if (requireActivity().isPreviewMode) {
-            with(binding.toolbar) {
-                setNavigationIcon(R.drawable.ic_ab_done)
-                navigationContentDescription = getString(R.string.done)
-                setNavigationOnClickListener {
-                    requireActivity().run {
-                        setResult(Activity.RESULT_OK)
-                        finish()
+            val context = LocalContext.current
+            val prefs = remember { Prefs.getSharedPreferences(context) }
+            EffectsSettings(
+                prefs = prefs,
+                navigationIcon = {
+                    if (requireActivity().isPreviewMode) {
+                        IconButton(onClick = {
+                            requireActivity().run {
+                                setResult(Activity.RESULT_OK)
+                                finish()
+                            }
+                        }) {
+                            Icon(
+                                Icons.AutoMirrored.Default.ArrowBack,
+                                contentDescription = stringResource(R.string.done)
+                            )
+                        }
                     }
-                }
-            }
-        }
-        requireActivity().menuInflater.inflate(R.menu.effects_fragment, binding.toolbar.menu)
-        updateLinkEffectsMenuItem()
-        binding.toolbar.setOnMenuItemClickListener { item ->
-            when (item.itemId) {
-                R.id.action_link_effects -> {
-                    val sp = Prefs.getSharedPreferences(requireContext())
-                    val effectsLinked = sp.getBoolean(Prefs.PREF_LINK_EFFECTS, false)
-                    sp.edit {
-                        putBoolean(Prefs.PREF_LINK_EFFECTS, !effectsLinked)
-                    }
-                    true
-                }
-                R.id.action_reset_defaults -> {
-                    Prefs.getSharedPreferences(requireContext()).edit {
-                        putInt(Prefs.PREF_BLUR_AMOUNT, MuzeiBlurRenderer.DEFAULT_BLUR)
-                        putInt(Prefs.PREF_DIM_AMOUNT, MuzeiBlurRenderer.DEFAULT_MAX_DIM)
-                        putInt(Prefs.PREF_GREY_AMOUNT, MuzeiBlurRenderer.DEFAULT_GREY)
-                        putInt(Prefs.PREF_LOCK_BLUR_AMOUNT, MuzeiBlurRenderer.DEFAULT_BLUR)
-                        putInt(Prefs.PREF_LOCK_DIM_AMOUNT, MuzeiBlurRenderer.DEFAULT_MAX_DIM)
-                        putInt(Prefs.PREF_LOCK_GREY_AMOUNT, MuzeiBlurRenderer.DEFAULT_GREY)
-                    }
-                    true
-                }
-                else -> false
-            }
-        }
-        binding.viewPager.adapter = Adapter(this)
-        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position -> 
-            tab.text = when(position) {
-                0 -> getString(R.string.settings_home_screen_title)
-                else -> getString(R.string.settings_lock_screen_title)
-            }
-        }.attach()
-        binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                EffectsLockScreenOpen.value = position == 1
-            }
-        })
-        Prefs.getSharedPreferences(requireContext())
-                .registerOnSharedPreferenceChangeListener(sharedPreferencesListener)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        // Reset the value here to restore the state lost in onStop()
-        EffectsLockScreenOpen.value = binding.viewPager.currentItem == 1
-    }
-
-    private fun updateLinkEffectsMenuItem(
-            effectsLinked: Boolean = Prefs.getSharedPreferences(requireContext())
-                    .getBoolean(Prefs.PREF_LINK_EFFECTS, false)
-    ) {
-        with(binding.toolbar.menu.findItem(R.id.action_link_effects)) {
-            setIcon(if (effectsLinked)
-                R.drawable.ic_action_link_effects
-            else
-                R.drawable.ic_action_link_effects_off)
-            title = if (effectsLinked)
-                getString(R.string.action_link_effects)
-            else
-                getString(R.string.action_link_effects_off)
-        }
-    }
-
-    override fun onStop() {
-        // The lock screen effects screen is no longer visible, so set the value to false
-        EffectsLockScreenOpen.value = false
-        super.onStop()
-    }
-
-    override fun onDestroyView() {
-        Prefs.getSharedPreferences(requireContext())
-                .unregisterOnSharedPreferenceChangeListener(sharedPreferencesListener)
-        super.onDestroyView()
-    }
-
-    private class Adapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
-        override fun getItemCount() = 2
-
-        override fun createFragment(position: Int) = when(position) {
-            0 -> EffectsScreenFragment.create(
-                    Prefs.PREF_BLUR_AMOUNT,
-                    Prefs.PREF_DIM_AMOUNT,
-                    Prefs.PREF_GREY_AMOUNT)
-            else -> EffectsScreenFragment.create(
-                    Prefs.PREF_LOCK_BLUR_AMOUNT,
-                    Prefs.PREF_LOCK_DIM_AMOUNT,
-                    Prefs.PREF_LOCK_GREY_AMOUNT)
+                },
+                pagerState = pagerState,
+            )
         }
     }
 }

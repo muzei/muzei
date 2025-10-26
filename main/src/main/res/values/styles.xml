@@ -94,8 +94,4 @@
         <item name="colorControlNormal">#FFF</item>
     </style>
 
-    <style name="ThemeOverlay.Muzei.TabLayout" parent="ThemeOverlay.Material3.Dark">
-        <item name="colorPrimary">?colorControlNormal</item>
-    </style>
-
 </resources>

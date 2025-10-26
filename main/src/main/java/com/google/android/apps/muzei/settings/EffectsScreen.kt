@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.settings
 
+import android.content.SharedPreferences
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
@@ -45,6 +46,46 @@ import com.google.android.apps.muzei.render.MuzeiBlurRenderer
 import com.google.android.apps.muzei.theme.AppTheme
 import net.nurik.roman.muzei.R
 import kotlin.math.max
+
+@Composable
+fun EffectsScreen(
+    prefs: SharedPreferences,
+    blurPref: String,
+    dimPref: String,
+    greyPref: String,
+    modifier: Modifier = Modifier,
+) {
+    val blur =
+        rememberPreferenceSourcedValue(prefs, blurPref, MuzeiBlurRenderer.DEFAULT_BLUR)
+    val dim =
+        rememberPreferenceSourcedValue(prefs, dimPref, MuzeiBlurRenderer.DEFAULT_MAX_DIM)
+    val grey =
+        rememberPreferenceSourcedValue(prefs, greyPref, MuzeiBlurRenderer.DEFAULT_GREY)
+    EffectsScreen(
+        blur = blur.value,
+        onBlurChange = {
+            blur.value = it
+        },
+        onBlurChangeFinished = {
+            blur.userControlled = false
+        },
+        dim = dim.value,
+        onDimChange = {
+            dim.value = it
+        },
+        onDimChangeFinished = {
+            dim.userControlled = false
+        },
+        grey = grey.value,
+        onGreyChange = {
+            grey.value = it
+        },
+        onGreyChangeFinished = {
+            grey.userControlled = false
+        },
+        modifier = modifier
+    )
+}
 
 @Composable
 fun EffectsScreen(

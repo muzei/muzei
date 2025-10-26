@@ -23,10 +23,8 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.Composer
 import androidx.compose.runtime.ExperimentalComposeRuntimeApi
 import androidx.core.content.edit
-import androidx.fragment.app.strictmode.FragmentReuseViolation
 import androidx.fragment.app.strictmode.FragmentStrictMode
 import androidx.multidex.MultiDexApplication
-import com.google.android.apps.muzei.settings.EffectsScreenFragment
 import com.google.android.apps.muzei.settings.Prefs
 import com.google.firebase.Firebase
 import com.google.firebase.crashlytics.crashlytics
@@ -58,10 +56,6 @@ class MuzeiApplication : MultiDexApplication(), SharedPreferences.OnSharedPrefer
             .detectSetUserVisibleHint()
             .detectTargetFragmentUsage()
             .detectWrongFragmentContainer()
-            .allowViolation(
-                EffectsScreenFragment::class.java,
-                FragmentReuseViolation::class.java
-            ) // https://issuetracker.google.com/issues/191698791
             .apply {
                 if (BuildConfig.DEBUG) {
                     // Log locally on debug builds
