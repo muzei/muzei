@@ -22,7 +22,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.remember
@@ -71,7 +71,7 @@ class EffectsFragment : Fragment() {
                             }
                         }) {
                             Icon(
-                                Icons.AutoMirrored.Default.ArrowBack,
+                                Icons.Default.Done,
                                 contentDescription = stringResource(R.string.done)
                             )
                         }
