@@ -129,7 +129,6 @@ dependencies {
     implementation libs.lifecycle.runtime
     implementation libs.lifecycle.viewmodel
     implementation libs.recyclerView
-    implementation libs.swipeRefreshLayout
     implementation libs.material
     implementation libs.browser
     implementation libs.exifInterface
