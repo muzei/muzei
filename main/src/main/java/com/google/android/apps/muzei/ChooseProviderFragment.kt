@@ -32,11 +32,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.net.toUri
 import androidx.core.view.GravityCompat
-import androidx.core.view.isGone
-import androidx.core.view.isInvisible
-import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -48,13 +48,12 @@ import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import coil3.load
-import coil3.request.lifecycle
 import com.google.android.apps.muzei.api.provider.MuzeiArtProvider
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
 import com.google.android.apps.muzei.notifications.NotificationSettingsDialogFragment
 import com.google.android.apps.muzei.sync.ProviderManager
+import com.google.android.apps.muzei.theme.AppTheme
 import com.google.android.apps.muzei.util.collectIn
 import com.google.android.apps.muzei.util.toast
 import com.google.android.material.snackbar.Snackbar
@@ -68,7 +67,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.ChooseProviderFragmentBinding
-import net.nurik.roman.muzei.databinding.ChooseProviderItemBinding
 
 private class StartActivityFromSettings : ActivityResultContract<ComponentName, Boolean>() {
     override fun createIntent(context: Context, input: ComponentName): Intent =
@@ -83,11 +81,6 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
     companion object {
         private const val TAG = "ChooseProviderFragment"
         private const val START_ACTIVITY_PROVIDER = "startActivityProvider"
-
-        private const val PAYLOAD_HEADER = "HEADER"
-        private const val PAYLOAD_DESCRIPTION = "DESCRIPTION"
-        private const val PAYLOAD_CURRENT_IMAGE_URI = "CURRENT_IMAGE_URI"
-        private const val PAYLOAD_SELECTED = "SELECTED"
 
         private const val PLAY_STORE_PACKAGE_NAME = "com.android.vending"
     }
@@ -269,18 +262,27 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
     }
 
     inner class ProviderViewHolder(
-            private val binding: ChooseProviderItemBinding
-    ) : RecyclerView.ViewHolder(binding.root) {
+        composeView: ComposeView,
+        val onClick: ProviderInfo.() -> Unit,
+    ) : RecyclerView.ViewHolder(composeView) {
 
-        private var isSelected = false
+        private var providerInfo = mutableStateOf<ProviderInfo?>(null)
 
-        fun bind(
-                providerInfo: ProviderInfo,
-                clickListener: (Boolean) -> Unit
-        ) = providerInfo.run {
-            itemView.setOnClickListener {
-                clickListener(isSelected)
+        init {
+            composeView.setContent {
+                AppTheme(
+                    dynamicColor = false,
+                ) {
+                    val providerInfo = providerInfo.value
+                    if (providerInfo != null) {
+                        ChooseProviderItem(providerInfo)
+                    }
+                }
             }
+        }
+
+        fun bind(providerInfo: ProviderInfo) = providerInfo.run {
+            this@ProviderViewHolder.providerInfo.value = this
             itemView.setOnLongClickListener {
                 if (packageName == requireContext().packageName) {
                     // Don't open Muzei's app info
@@ -298,68 +300,43 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                 } catch (_: ActivityNotFoundException) {
                     return@setOnLongClickListener false
                 }
-
                 true
             }
+        }
 
-            setHeader(providerInfo)
-
-            setDescription(providerInfo)
-
-            setImage(providerInfo)
-
-            setSelected(providerInfo)
-            binding.settings.setOnClickListener {
-                Firebase.analytics.logEvent("provider_settings_open") {
-                    param(FirebaseAnalytics.Param.ITEM_LIST_ID, authority)
-                    param(FirebaseAnalytics.Param.ITEM_NAME, title)
-                    param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
-                }
-                launchProviderSettings(this)
-            }
-            binding.browse.setOnClickListener {
-                val navController = findNavController()
-                if (navController.currentDestination?.id == R.id.choose_provider_fragment) {
-                    Firebase.analytics.logEvent("provider_browse_open") {
-                        param(FirebaseAnalytics.Param.ITEM_LIST_ID, authority)
-                        param(FirebaseAnalytics.Param.ITEM_NAME, title)
-                        param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
+        @Composable
+        private fun ChooseProviderItem(providerInfo: ProviderInfo) {
+            providerInfo.run {
+                ChooseProviderItem(
+                    providerInfo,
+                    onClick = {
+                        onClick(providerInfo)
+                    },
+                    onSettingsClick = {
+                        Firebase.analytics.logEvent("provider_settings_open") {
+                            param(FirebaseAnalytics.Param.ITEM_LIST_ID, authority)
+                            param(FirebaseAnalytics.Param.ITEM_NAME, title)
+                            param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
+                        }
+                        launchProviderSettings(this)
+                    },
+                    onBrowseClick = {
+                        val navController = findNavController()
+                        if (navController.currentDestination?.id == R.id.choose_provider_fragment) {
+                            Firebase.analytics.logEvent("provider_browse_open") {
+                                param(FirebaseAnalytics.Param.ITEM_LIST_ID, authority)
+                                param(FirebaseAnalytics.Param.ITEM_NAME, title)
+                                param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
+                            }
+                            navController.navigate(
+                                ChooseProviderFragmentDirections.browse(
+                                    ProviderContract.getContentUri(authority)
+                                )
+                            )
+                        }
                     }
-                    navController.navigate(
-                        ChooseProviderFragmentDirections.browse(
-                            ProviderContract.getContentUri(authority)
-                        )
-                    )
-                }
-            }
-        }
-
-        fun setHeader(providerInfo: ProviderInfo) = providerInfo.run {
-            binding.icon.setImageDrawable(icon)
-            binding.title.text = title
-        }
-
-        fun setDescription(providerInfo: ProviderInfo) = providerInfo.run {
-            binding.description.text = description
-            binding.description.isGone = description.isNullOrEmpty()
-        }
-
-        fun setImage(providerInfo: ProviderInfo) = providerInfo.run {
-            binding.artwork.isVisible = currentArtworkUri != null
-            binding.artwork.load(currentArtworkUri) {
-                lifecycle(viewLifecycleOwner)
-                listener(
-                        onError = { _, _ -> binding.artwork.isVisible = false },
-                        onSuccess = { _, _ -> binding.artwork.isVisible = true }
                 )
             }
-        }
-
-        fun setSelected(providerInfo: ProviderInfo) = providerInfo.run {
-            isSelected = selected
-            binding.selected.isInvisible = !selected
-            binding.settings.isVisible = selected && settingsActivity != null
-            binding.browse.isVisible = selected
         }
     }
 
@@ -374,39 +351,11 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                         providerInfo1: ProviderInfo,
                         providerInfo2: ProviderInfo
                 ) = providerInfo1 == providerInfo2
-
-                override fun getChangePayload(oldItem: ProviderInfo, newItem: ProviderInfo): Any? {
-                    return when {
-                        (oldItem.title != newItem.title || oldItem.icon != newItem.icon) &&
-                                oldItem.copy(title = newItem.title, icon = newItem.icon) ==
-                                newItem ->
-                            PAYLOAD_HEADER
-                        oldItem.description != newItem.description &&
-                                oldItem.copy(description = newItem.description) ==
-                                newItem ->
-                            PAYLOAD_DESCRIPTION
-                        oldItem.currentArtworkUri != newItem.currentArtworkUri &&
-                                oldItem.copy(currentArtworkUri = newItem.currentArtworkUri) ==
-                                newItem ->
-                            PAYLOAD_CURRENT_IMAGE_URI
-                        oldItem.selected != newItem.selected &&
-                                oldItem.copy(selected = newItem.selected) == newItem ->
-                            PAYLOAD_SELECTED
-                        else -> null
-                    }
-                }
             }
     ) {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-                ProviderViewHolder(ChooseProviderItemBinding.inflate(layoutInflater,
-                        parent, false))
-
-        override fun onBindViewHolder(
-                holder: ProviderViewHolder,
-                position: Int
-        ) = getItem(position).run {
-            holder.bind(this) { isSelected ->
-                if (isSelected) {
+            ProviderViewHolder(ComposeView(parent.context)) {
+                if (selected) {
                     val context = context
                     val parentFragment = parentFragment?.parentFragment
                     if (context is Callbacks) {
@@ -437,21 +386,12 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                     }
                 }
             }
-        }
 
         override fun onBindViewHolder(
-                holder: ProviderViewHolder,
-                position: Int,
-                payloads: MutableList<Any>
-        ) {
-            when {
-                payloads.isEmpty() -> super.onBindViewHolder(holder, position, payloads)
-                payloads[0] == PAYLOAD_HEADER -> holder.setHeader(getItem(position))
-                payloads[0] == PAYLOAD_DESCRIPTION -> holder.setDescription(getItem(position))
-                payloads[0] == PAYLOAD_CURRENT_IMAGE_URI -> holder.setImage(getItem(position))
-                payloads[0] == PAYLOAD_SELECTED -> holder.setSelected(getItem(position))
-                else -> throw IllegalArgumentException("Forgot to handle ${payloads[0]}")
-            }
+            holder: ProviderViewHolder,
+            position: Int
+        ) = getItem(position).run {
+            holder.bind(this)
         }
     }
 
@@ -505,13 +445,7 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
             }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-                ProviderViewHolder(ChooseProviderItemBinding.inflate(layoutInflater,
-                        parent, false))
-
-        override fun getItemCount() = if (shouldShow && playStoreProviderInfo != null) 1 else 0
-
-        override fun onBindViewHolder(holder: ProviderViewHolder, position: Int) {
-            holder.bind(playStoreProviderInfo!!) {
+            ProviderViewHolder(ComposeView(parent.context)) {
                 Firebase.analytics.logEvent("more_sources_open", null)
                 try {
                     startActivity(playStoreIntent)
@@ -521,6 +455,11 @@ class ChooseProviderFragment : Fragment(R.layout.choose_provider_fragment) {
                     requireContext().toast(R.string.play_store_not_found, Toast.LENGTH_LONG)
                 }
             }
+
+        override fun getItemCount() = if (shouldShow && playStoreProviderInfo != null) 1 else 0
+
+        override fun onBindViewHolder(holder: ProviderViewHolder, position: Int) {
+            holder.bind(playStoreProviderInfo!!)
         }
     }
 
