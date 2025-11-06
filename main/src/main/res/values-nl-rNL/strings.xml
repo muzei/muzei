@@ -35,6 +35,10 @@
     <string name="auto_advance_title">Automatisch verdergaan</string>
     <string name="auto_advance_description">Controleer wanneer <xliff:g id="muzei_name">Muzei</xliff:g> automatisch verdergaat naar de volgende achtergrond.</string>
     <string name="auto_advance_wifi">Enkel automatisch verdergaan bij Wi-Fi</string>
+    <string name="auto_advance_ordering">Sorteren</string>
+    <string name="auto_advance_ordering_in_order">Automatisch gesorteerd</string>
+    <string name="auto_advance_ordering_new_in_order">Nieuwe afbeeldingen op volgorde, daarna willekeurig</string>
+    <string name="auto_advance_ordering_random">Altijd willekeurig</string>
     <string name="auto_advance_interval">Interval</string>
     <string name="auto_advance_interval_15m">Elk kwartier</string>
     <string name="auto_advance_interval_30m">Elk halfuur</string>
@@ -79,6 +83,8 @@
     <string name="legacy_source_info_send_feedback">Feedback sturen</string>
     <string name="legacy_source_all_uninstalled">Alle verouderde bronnen zijn verwijderd</string>
     <string name="done">Klaar</string>
+    <string name="navigate_up">Ga terug</string>
+    <string name="menu_overflow">Meer opties</string>
     <string name="set_as_wallpaper_using_muzei">Achtergrond (gebruikt <xliff:g id="muzei_name">Muzei</xliff:g>)</string>
     <string name="set_as_wallpaper_failed">Kon kunstwerk niet lezen</string>
     <string name="tutorial_main">Open de app <xliff:g id="muzei_name">Muzei</xliff:g> om uw achtergrond te bekijken</string>
