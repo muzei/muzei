@@ -17,6 +17,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="gallery_add_fab">Foto\'s of map toevoegen</string>
     <string name="gallery_add_photos">Foto\'s toevoegen</string>
+    <string name="gallery_add_folder">Voeg een map toe</string>
     <string name="gallery_internal_storage_message">Ziet u niets? Probeer interne opslag in te schakelen in het menu</string>
     <string name="gallery_add_photos_error">Uw toestel ondersteunt het toevoegen van afbeeldingen niet.\nNeem contact op met de fabrikant.</string>
     <string name="gallery_add_folder_error">Uw toestel ondersteunt het toevoegen van mappen niet.\nNeem contact op met de fabrikant.</string>
@@ -32,6 +33,7 @@
         <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> foto\'s</item>
     </plurals>
     <string name="gallery_empty">Willekeurige camerafoto\'s</string>
+    <string name="gallery_reselect_selected_photos">Geselecteerde foto\'s herselecteren</string>
     <string name="gallery_empty_subtitle">Specifieke foto\'s kiezen</string>
     <string name="gallery_from_gallery">Uit uw galerij</string>
     <string name="gallery_touch_to_view">Druk om te bekijken</string>
