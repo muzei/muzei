@@ -77,6 +77,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -390,7 +391,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
                 }
             }
 
-            loadCommandsJob?.cancel()
+            loadCommandsJob?.cancelAndJoin()
             loadCommandsJob = viewLifecycleOwner.lifecycleScope.launch {
                 val commands = context?.run {
                     currentArtwork?.getCommands(this) ?: run {
