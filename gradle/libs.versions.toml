@@ -65,7 +65,7 @@ ksp = "2.2.20-2.0.3"
 # Other
 coil = "3.3.0"
 material = "1.13.0"
-okhttp = "5.2.1"
+okhttp = "5.3.2"
 okhttpCoroutines = "1.0"
 retrofit = "3.0.0"
 subsampling = "3.10.0"
