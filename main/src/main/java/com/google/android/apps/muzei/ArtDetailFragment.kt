@@ -77,7 +77,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filterNotNull
@@ -151,6 +153,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
 
     private var unsetNextFakeLoading: Job? = null
     private var showLoadingSpinner: Job? = null
+    private var loadCommandsJob: Job? = null
 
     init {
         lifecycleScope.launch {
@@ -388,7 +391,8 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
                 }
             }
 
-            viewLifecycleOwner.lifecycleScope.launch {
+            loadCommandsJob?.cancelAndJoin()
+            loadCommandsJob = viewLifecycleOwner.lifecycleScope.launch {
                 val commands = context?.run {
                     currentArtwork?.getCommands(this) ?: run {
                         if (viewModel.currentProvider.value?.authority == LEGACY_AUTHORITY) {
@@ -403,6 +407,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
                         }
                     }
                 } ?: return@launch
+                ensureActive()
                 val activity = activity ?: return@launch
                 overflowSourceActionMap.clear()
                 binding.overflowMenu.menu.clear()
