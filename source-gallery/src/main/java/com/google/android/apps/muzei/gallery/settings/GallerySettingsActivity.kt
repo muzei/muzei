@@ -219,7 +219,7 @@ class GallerySettingsActivity : ComponentActivity() {
                             },
                             onClearPhotos = {
                                 scope.launch(NonCancellable) {
-                                    GalleryDatabase.Companion.getInstance(context)
+                                    GalleryDatabase.getInstance(context)
                                         .chosenPhotoDao().deleteAll(context)
                                 }
                             }
@@ -255,7 +255,7 @@ class GallerySettingsActivity : ComponentActivity() {
                             if (selectedCount == 1 && firstSelectedId != null) {
                                 // If they've selected a tree URI, show the DISPLAY_NAME instead of just '1'
                                 val chosenPhoto =
-                                    GalleryDatabase.Companion.getInstance(this@GallerySettingsActivity)
+                                    GalleryDatabase.getInstance(this@GallerySettingsActivity)
                                         .chosenPhotoDao()
                                         .getChosenPhoto(firstSelectedId)
                                 if (chosenPhoto?.isTreeUri == true) {
@@ -276,7 +276,7 @@ class GallerySettingsActivity : ComponentActivity() {
                                 val removePhotos = ArrayList(selectedPhotoIds)
                                 scope.launch(NonCancellable) {
                                     // Remove chosen URIs
-                                    GalleryDatabase.Companion.getInstance(this@GallerySettingsActivity)
+                                    GalleryDatabase.getInstance(this@GallerySettingsActivity)
                                         .chosenPhotoDao()
                                         .delete(this@GallerySettingsActivity, removePhotos)
                                 }
@@ -442,7 +442,7 @@ class GallerySettingsActivity : ComponentActivity() {
                 }
             }
         }
-        GalleryScanWorker.Companion.enqueueRescan(this)
+        GalleryScanWorker.enqueueRescan(this)
     }
 
     override fun onResume() {
@@ -480,13 +480,13 @@ class GallerySettingsActivity : ComponentActivity() {
                     // Only a partial grant is done, which means we can scan for the images
                     // we have, but should offer the ability for users to reselect what images
                     // they want us to have access to
-                    GalleryScanWorker.Companion.enqueueRescan(this)
+                    GalleryScanWorker.enqueueRescan(this)
                     setResult(RESULT_OK)
                 }
 
                 PermissionGranted -> {
                     // Permission is granted, we can show the random camera photos image
-                    GalleryScanWorker.Companion.enqueueRescan(this)
+                    GalleryScanWorker.enqueueRescan(this)
                     setResult(RESULT_OK)
                 }
 
@@ -544,7 +544,7 @@ class GallerySettingsActivity : ComponentActivity() {
         }
         // Update chosen URIs
         lifecycleScope.launch(NonCancellable) {
-            GalleryDatabase.Companion.getInstance(this@GallerySettingsActivity)
+            GalleryDatabase.getInstance(this@GallerySettingsActivity)
                     .chosenPhotoDao()
                     .insertAll(this@GallerySettingsActivity, uris)
         }

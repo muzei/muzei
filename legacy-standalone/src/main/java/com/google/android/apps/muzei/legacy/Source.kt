@@ -29,7 +29,6 @@ import androidx.room.TypeConverters
 import com.google.android.apps.muzei.util.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.nurik.roman.muzei.legacy.BuildConfig
 import net.nurik.roman.muzei.legacy.R
 import java.util.ArrayList
 

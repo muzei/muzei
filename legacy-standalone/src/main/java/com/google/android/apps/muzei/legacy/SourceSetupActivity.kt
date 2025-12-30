@@ -63,7 +63,7 @@ class SourceSetupActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 val source = database.sourceDao().getCurrentSource()
                 if (source != null) {
-                    setResult(Activity.RESULT_OK)
+                    setResult(RESULT_OK)
                     finish()
                 } else {
                     // Push the user to the SourceSettingsActivity to select a source

@@ -460,16 +460,16 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
         override fun onPropertiesChanged(properties: Bundle) {
             super.onPropertiesChanged(properties)
 
-            val burnInProtection = properties.getBoolean(WatchFaceService.PROPERTY_BURN_IN_PROTECTION, false)
+            val burnInProtection = properties.getBoolean(PROPERTY_BURN_IN_PROTECTION, false)
             val textTypeface = if (burnInProtection) lightTypeface else heavyTypeface
             clockPaint.typeface = textTypeface
             clockAmbientShadowPaint.typeface = textTypeface
             recomputeClockTextHeight()
 
-            lowBitAmbient = properties.getBoolean(WatchFaceService.PROPERTY_LOW_BIT_AMBIENT, false)
+            lowBitAmbient = properties.getBoolean(PROPERTY_LOW_BIT_AMBIENT, false)
             listOfNotNull(topComplication, bottomComplication).forEach {
                 it.setBurnInProtection(burnInProtection)
-                it.setLowBitAmbient(lowBitAmbient)
+                it.lowBitAmbient = lowBitAmbient
             }
             invalidate()
 
@@ -510,7 +510,7 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
 
         override fun onTapCommand(@TapType tapType: Int, x: Int, y: Int, eventTime: Long) {
             when (tapType) {
-                WatchFaceService.TAP_TYPE_TAP -> {
+                TAP_TYPE_TAP -> {
                     when {
                         topComplication?.onTap(x, y) == true -> {
                             invalidate()

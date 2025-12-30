@@ -151,7 +151,7 @@ class ConfigActivity : PreferenceActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             CHOOSE_TOP_COMPLICATION_REQUEST_CODE -> {
-                if (resultCode == Activity.RESULT_OK) {
+                if (resultCode == RESULT_OK) {
                     updateComplicationPreference(
                             topPreference,
                             data?.getParcelableExtraCompat(ProviderChooserIntent.EXTRA_PROVIDER_INFO)
@@ -160,7 +160,7 @@ class ConfigActivity : PreferenceActivity() {
                 }
             }
             CHOOSE_BOTTOM_COMPLICATION_REQUEST_CODE -> {
-                if (resultCode == Activity.RESULT_OK) {
+                if (resultCode == RESULT_OK) {
                     updateComplicationPreference(
                             bottomPreference,
                             data?.getParcelableExtraCompat(ProviderChooserIntent.EXTRA_PROVIDER_INFO)

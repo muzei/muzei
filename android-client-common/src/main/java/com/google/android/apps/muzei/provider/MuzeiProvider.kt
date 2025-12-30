@@ -126,7 +126,7 @@ class MuzeiProvider : ContentProvider() {
         }
     }
 
-    override fun insert(uri: Uri, values: ContentValues?): Uri? {
+    override fun insert(uri: Uri, values: ContentValues?): Uri {
         throw UnsupportedOperationException("Inserts are not supported")
     }
 

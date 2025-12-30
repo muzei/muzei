@@ -23,7 +23,6 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.google.android.apps.muzei.util.goAsync
-import net.nurik.roman.muzei.legacy.BuildConfig
 
 /**
  * A [BroadcastReceiver] used to trigger actions on legacy sources

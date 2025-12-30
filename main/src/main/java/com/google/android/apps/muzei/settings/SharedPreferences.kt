@@ -164,7 +164,7 @@ class FakeSharedPreferences : SharedPreferences {
             commit()
         }
 
-        override fun clear(): SharedPreferences.Editor? {
+        override fun clear(): SharedPreferences.Editor {
             calledClear = true
             return this
         }
@@ -195,7 +195,7 @@ class FakeSharedPreferences : SharedPreferences {
         override fun putBoolean(
             key: String,
             value: Boolean
-        ): SharedPreferences.Editor? {
+        ): SharedPreferences.Editor {
             modifiedPreferences[key] = value
             return this
         }
@@ -203,7 +203,7 @@ class FakeSharedPreferences : SharedPreferences {
         override fun putFloat(
             key: String,
             value: Float
-        ): SharedPreferences.Editor? {
+        ): SharedPreferences.Editor {
             modifiedPreferences[key] = value
             return this
         }
@@ -211,7 +211,7 @@ class FakeSharedPreferences : SharedPreferences {
         override fun putInt(
             key: String,
             value: Int
-        ): SharedPreferences.Editor? {
+        ): SharedPreferences.Editor {
             modifiedPreferences[key] = value
             return this
         }
@@ -219,7 +219,7 @@ class FakeSharedPreferences : SharedPreferences {
         override fun putLong(
             key: String,
             value: Long
-        ): SharedPreferences.Editor? {
+        ): SharedPreferences.Editor {
             modifiedPreferences[key] = value
             return this
         }
@@ -227,7 +227,7 @@ class FakeSharedPreferences : SharedPreferences {
         override fun putString(
             key: String,
             value: String?
-        ): SharedPreferences.Editor? {
+        ): SharedPreferences.Editor {
 
             modifiedPreferences[key] = value
             return this
@@ -236,12 +236,12 @@ class FakeSharedPreferences : SharedPreferences {
         override fun putStringSet(
             key: String,
             values: Set<String?>?
-        ): SharedPreferences.Editor? {
+        ): SharedPreferences.Editor {
             modifiedPreferences[key] = values
             return this
         }
 
-        override fun remove(key: String): SharedPreferences.Editor? {
+        override fun remove(key: String): SharedPreferences.Editor {
             removedKeys.add(key)
             return this
         }
