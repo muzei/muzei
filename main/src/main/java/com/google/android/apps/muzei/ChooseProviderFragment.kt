@@ -63,6 +63,7 @@ import com.google.firebase.analytics.analytics
 import com.google.firebase.analytics.logEvent
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.R
 
 private class StartActivityFromSettings : ActivityResultContract<ComponentName, Boolean>() {
@@ -101,13 +102,15 @@ class ChooseProviderFragment : Fragment() {
                 val provider = startActivityProviderAuthority
                 if (success && provider.isNotBlank()) {
                     val context = requireContext()
-                    lifecycleScope.launch(NonCancellable) {
-                        Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
-                            param(FirebaseAnalytics.Param.ITEM_LIST_ID, provider)
-                            param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
-                            param(FirebaseAnalytics.Param.CONTENT_TYPE, "after_setup")
+                    lifecycleScope.launch {
+                        withContext(NonCancellable) {
+                            Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                                param(FirebaseAnalytics.Param.ITEM_LIST_ID, provider)
+                                param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
+                                param(FirebaseAnalytics.Param.CONTENT_TYPE, "after_setup")
+                            }
+                            ProviderManager.select(context, provider)
                         }
-                        ProviderManager.select(context, provider)
                     }
                 }
                 startActivityProviderAuthority = ""
@@ -241,8 +244,10 @@ class ChooseProviderFragment : Fragment() {
                                 param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
                                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "choose")
                             }
-                            lifecycleScope.launch(NonCancellable) {
-                                ProviderManager.select(context, providerInfo.authority)
+                            lifecycleScope.launch {
+                                withContext(NonCancellable) {
+                                    ProviderManager.select(context, providerInfo.authority)
+                                }
                             }
                         }
                     }

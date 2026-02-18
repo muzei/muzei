@@ -26,6 +26,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.apps.muzei.util.toast
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Settings Activity which allows users to select a new photo
@@ -34,11 +35,14 @@ class SingleSettingsActivity : ComponentActivity() {
 
     private val getImage = registerForActivityResult(GetContent(), "image/*") { uri ->
         if (uri != null) {
-            lifecycleScope.launch(NonCancellable) {
-                val success = SingleArtProvider.setArtwork(
-                        this@SingleSettingsActivity, uri)
-                setResult(if (success) RESULT_OK else RESULT_CANCELED)
-                finish()
+            lifecycleScope.launch {
+                withContext(NonCancellable) {
+                    val success = SingleArtProvider.setArtwork(
+                        this@SingleSettingsActivity, uri
+                    )
+                    setResult(if (success) RESULT_OK else RESULT_CANCELED)
+                    finish()
+                }
             }
         } else {
             setResult(RESULT_CANCELED)

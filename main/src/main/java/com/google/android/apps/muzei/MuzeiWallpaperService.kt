@@ -108,8 +108,10 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         }
         ProviderManager.getInstance(this).observe(this) { provider ->
             if (provider == null) {
-                lifecycleScope.launch(NonCancellable) {
-                    ProviderManager.select(this@MuzeiWallpaperService, FEATURED_ART_AUTHORITY)
+                lifecycleScope.launch {
+                    withContext(NonCancellable) {
+                        ProviderManager.select(this@MuzeiWallpaperService, FEATURED_ART_AUTHORITY)
+                    }
                 }
             }
         }
@@ -342,24 +344,28 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                     }
                 }
                 Prefs.PREF_TAP_ACTION_NEXT -> {
-                    lifecycleScope.launch(NonCancellable) {
-                        Firebase.analytics.logEvent("next_artwork") {
-                            param(FirebaseAnalytics.Param.CONTENT_TYPE, type)
+                    lifecycleScope.launch {
+                        withContext(NonCancellable) {
+                            Firebase.analytics.logEvent("next_artwork") {
+                                param(FirebaseAnalytics.Param.CONTENT_TYPE, type)
+                            }
+                            LegacySourceManager.getInstance(this@MuzeiWallpaperService).nextArtwork()
                         }
-                        LegacySourceManager.getInstance(this@MuzeiWallpaperService).nextArtwork()
                     }
                 }
                 Prefs.PREF_TAP_ACTION_VIEW_DETAILS -> {
-                    lifecycleScope.launch(NonCancellable) {
-                        val artwork = MuzeiDatabase
+                    lifecycleScope.launch {
+                        withContext(NonCancellable) {
+                            val artwork = MuzeiDatabase
                                 .getInstance(this@MuzeiWallpaperService)
                                 .artworkDao()
                                 .getCurrentArtwork()
-                        artwork?.run {
-                            Firebase.analytics.logEvent("artwork_info_open") {
-                                param(FirebaseAnalytics.Param.CONTENT_TYPE, type)
+                            artwork?.run {
+                                Firebase.analytics.logEvent("artwork_info_open") {
+                                    param(FirebaseAnalytics.Param.CONTENT_TYPE, type)
+                                }
+                                openArtworkInfo(this@MuzeiWallpaperService)
                             }
-                            openArtworkInfo(this@MuzeiWallpaperService)
                         }
                     }
                 }

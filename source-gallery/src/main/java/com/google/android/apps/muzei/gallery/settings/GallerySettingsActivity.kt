@@ -85,6 +85,7 @@ import com.google.android.apps.muzei.util.toast
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.LinkedList
 
 private class GetContentsFromActivityInfo : ActivityResultContract<ActivityInfo, List<Uri>>() {
@@ -218,9 +219,11 @@ class GallerySettingsActivity : ComponentActivity() {
                                 }
                             },
                             onClearPhotos = {
-                                scope.launch(NonCancellable) {
-                                    GalleryDatabase.getInstance(context)
-                                        .chosenPhotoDao().deleteAll(context)
+                                scope.launch {
+                                    withContext(NonCancellable) {
+                                        GalleryDatabase.getInstance(context)
+                                            .chosenPhotoDao().deleteAll(context)
+                                    }
                                 }
                             }
                         )
@@ -274,11 +277,13 @@ class GallerySettingsActivity : ComponentActivity() {
                             },
                             onRemove = {
                                 val removePhotos = ArrayList(selectedPhotoIds)
-                                scope.launch(NonCancellable) {
-                                    // Remove chosen URIs
-                                    GalleryDatabase.getInstance(this@GallerySettingsActivity)
-                                        .chosenPhotoDao()
-                                        .delete(this@GallerySettingsActivity, removePhotos)
+                                scope.launch {
+                                    withContext(NonCancellable) {
+                                        // Remove chosen URIs
+                                        GalleryDatabase.getInstance(this@GallerySettingsActivity)
+                                            .chosenPhotoDao()
+                                            .delete(this@GallerySettingsActivity, removePhotos)
+                                    }
                                 }
                                 selectedPhotoIds.clear()
                             }
@@ -543,10 +548,12 @@ class GallerySettingsActivity : ComponentActivity() {
             return
         }
         // Update chosen URIs
-        lifecycleScope.launch(NonCancellable) {
-            GalleryDatabase.getInstance(this@GallerySettingsActivity)
+        lifecycleScope.launch {
+            withContext(NonCancellable) {
+                GalleryDatabase.getInstance(this@GallerySettingsActivity)
                     .chosenPhotoDao()
                     .insertAll(this@GallerySettingsActivity, uris)
+            }
         }
     }
 }

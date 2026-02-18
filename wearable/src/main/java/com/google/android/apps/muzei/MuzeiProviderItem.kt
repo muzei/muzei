@@ -45,6 +45,7 @@ import com.google.android.apps.muzei.room.Provider
 import com.google.android.apps.muzei.sync.ProviderManager
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.androidclientcommon.R as CommonR
 import net.nurik.roman.muzei.databinding.MuzeiProviderItemBinding
@@ -77,9 +78,11 @@ class MuzeiProviderViewModel(application: Application) : AndroidViewModel(applic
                             settingsActivity))
                 }
             } else {
-                viewModelScope.launch(NonCancellable) {
-                    ProviderManager.select(app, BuildConfig.FEATURED_ART_AUTHORITY)
-                    ActivateMuzeiReceiver.checkForPhoneApp(app)
+                viewModelScope.launch {
+                    withContext(NonCancellable) {
+                        ProviderManager.select(app, BuildConfig.FEATURED_ART_AUTHORITY)
+                        ActivateMuzeiReceiver.checkForPhoneApp(app)
+                    }
                 }
             }
         }

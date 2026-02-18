@@ -42,6 +42,7 @@ import com.google.firebase.analytics.analytics
 import com.google.firebase.analytics.logEvent
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.ChooseProviderActivityBinding
 import net.nurik.roman.muzei.databinding.ChooseProviderWearItemBinding
@@ -77,9 +78,11 @@ class ChooseProviderActivity : FragmentActivity() {
                 param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "after_setup")
             }
-            lifecycleScope.launch(NonCancellable) {
-                ProviderManager.select(this@ChooseProviderActivity, provider)
-                finish()
+            lifecycleScope.launch {
+                withContext(NonCancellable) {
+                    ProviderManager.select(this@ChooseProviderActivity, provider)
+                    finish()
+                }
             }
         }
         startActivityProvider = null
@@ -134,9 +137,14 @@ class ChooseProviderActivity : FragmentActivity() {
                         param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
                         param(FirebaseAnalytics.Param.CONTENT_TYPE, "choose")
                     }
-                    lifecycleScope.launch(NonCancellable) {
-                        ProviderManager.select(this@ChooseProviderActivity, providerInfo.authority)
-                        finish()
+                    lifecycleScope.launch {
+                        withContext(NonCancellable) {
+                            ProviderManager.select(
+                                this@ChooseProviderActivity,
+                                providerInfo.authority
+                            )
+                            finish()
+                        }
                     }
                 }
             }

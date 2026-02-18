@@ -67,6 +67,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.analytics.analytics
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.BuildConfig
 import net.nurik.roman.muzei.R
 import java.io.FileNotFoundException
@@ -114,9 +115,11 @@ class MuzeiWatchFace : CanvasWatchFaceService(), LifecycleOwner {
         ProviderManager.getInstance(this).observe(this) { provider ->
             if (provider == null) {
                 val context = this@MuzeiWatchFace
-                lifecycleScope.launch(NonCancellable) {
-                    ProviderManager.select(context, FEATURED_ART_AUTHORITY)
-                    ActivateMuzeiReceiver.checkForPhoneApp(context)
+                lifecycleScope.launch {
+                    withContext(NonCancellable) {
+                        ProviderManager.select(context, FEATURED_ART_AUTHORITY)
+                        ActivateMuzeiReceiver.checkForPhoneApp(context)
+                    }
                 }
             }
         }

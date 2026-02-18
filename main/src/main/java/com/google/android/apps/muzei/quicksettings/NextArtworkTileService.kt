@@ -46,6 +46,7 @@ import com.google.firebase.analytics.analytics
 import com.google.firebase.analytics.logEvent
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.androidclientcommon.R as CommonR
 
@@ -114,11 +115,13 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
         qsTile?.run {
             when (state) {
                 Tile.STATE_ACTIVE -> { // Active means we send the 'Next Artwork' command
-                    lifecycleScope.launch(NonCancellable) {
-                        Firebase.analytics.logEvent("next_artwork") {
-                            param(FirebaseAnalytics.Param.CONTENT_TYPE, "tile")
+                    lifecycleScope.launch {
+                        withContext(NonCancellable) {
+                            Firebase.analytics.logEvent("next_artwork") {
+                                param(FirebaseAnalytics.Param.CONTENT_TYPE, "tile")
+                            }
+                            LegacySourceManager.getInstance(context).nextArtwork()
                         }
-                        LegacySourceManager.getInstance(context).nextArtwork()
                     }
                 }
                 else -> unlockAndRun {

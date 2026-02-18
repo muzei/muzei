@@ -59,6 +59,7 @@ import com.google.firebase.analytics.analytics
 import com.google.firebase.analytics.logEvent
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.legacy.R
 import net.nurik.roman.muzei.legacy.databinding.LegacyChooseSourceItemBinding
 
@@ -115,8 +116,10 @@ class SourceSettingsActivity : AppCompatActivity() {
                 param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "sources")
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "after_setup")
             }
-            lifecycleScope.launch(NonCancellable) {
-                LegacySourceService.selectSource(this@SourceSettingsActivity, setupSource)
+            lifecycleScope.launch {
+                withContext(NonCancellable) {
+                    LegacySourceService.selectSource(this@SourceSettingsActivity, setupSource)
+                }
             }
         }
 
@@ -244,8 +247,10 @@ class SourceSettingsActivity : AppCompatActivity() {
                 param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "sources")
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "choose")
             }
-            lifecycleScope.launch(NonCancellable) {
-                LegacySourceService.selectSource(this@SourceSettingsActivity, source.componentName)
+            lifecycleScope.launch {
+                withContext(NonCancellable) {
+                    LegacySourceService.selectSource(this@SourceSettingsActivity, source.componentName)
+                }
             }
         }
     }
