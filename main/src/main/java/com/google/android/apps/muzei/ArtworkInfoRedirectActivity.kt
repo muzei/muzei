@@ -18,7 +18,7 @@ package com.google.android.apps.muzei
 
 import android.content.Context
 import android.content.Intent
-import androidx.fragment.app.FragmentActivity
+import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.withCreated
 import com.google.android.apps.muzei.room.MuzeiDatabase
@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 /**
  * Open the Artwork Info associated with the current artwork
  */
-class ArtworkInfoRedirectActivity : FragmentActivity() {
+class ArtworkInfoRedirectActivity : ComponentActivity() {
     companion object {
         private const val EXTRA_FROM = "from"
 
