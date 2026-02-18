@@ -26,6 +26,7 @@ import com.google.firebase.analytics.analytics
 import com.google.firebase.analytics.logEvent
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Simple activity that just triggers the 'Next Artwork' action and finishes
@@ -33,11 +34,13 @@ import kotlinx.coroutines.launch
 class NextArtworkActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        lifecycleScope.launch(NonCancellable) {
-            Firebase.analytics.logEvent("next_artwork") {
-                param(FirebaseAnalytics.Param.CONTENT_TYPE, "activity_shortcut")
+        lifecycleScope.launch {
+            withContext(NonCancellable) {
+                Firebase.analytics.logEvent("next_artwork") {
+                    param(FirebaseAnalytics.Param.CONTENT_TYPE, "activity_shortcut")
+                }
+                LegacySourceManager.getInstance(this@NextArtworkActivity).nextArtwork()
             }
-            LegacySourceManager.getInstance(this@NextArtworkActivity).nextArtwork()
         }
         finish()
     }
