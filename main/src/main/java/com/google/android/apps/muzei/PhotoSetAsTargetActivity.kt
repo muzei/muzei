@@ -33,6 +33,7 @@ import com.google.firebase.analytics.analytics
 import com.google.firebase.analytics.logEvent
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.R
 
 class PhotoSetAsTargetActivity : ComponentActivity() {
@@ -43,32 +44,34 @@ class PhotoSetAsTargetActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        lifecycleScope.launch(NonCancellable) {
-            val uri = intent?.data ?: run {
-                finish()
-                return@launch
-            }
-            val context = this@PhotoSetAsTargetActivity
-            val success = SingleArtProvider.setArtwork(context, uri)
-            if (!success) {
-                Log.e(TAG, "Unable to insert artwork for $uri")
-                toast(R.string.set_as_wallpaper_failed)
-                finish()
-                return@launch
-            }
-
-            // If adding the artwork succeeded, select the single artwork provider
-            if (!MuzeiContract.Sources.isProviderSelected(context, SINGLE_AUTHORITY)) {
-                Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
-                    param(FirebaseAnalytics.Param.ITEM_LIST_ID, SINGLE_AUTHORITY)
-                    param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
-                    param(FirebaseAnalytics.Param.CONTENT_TYPE, "set_as")
+        val uri = intent?.data ?: run {
+            finish()
+            return
+        }
+        val context = this
+        lifecycleScope.launch {
+            withContext(NonCancellable) {
+                val success = SingleArtProvider.setArtwork(context, uri)
+                if (!success) {
+                    Log.e(TAG, "Unable to insert artwork for $uri")
+                    toast(R.string.set_as_wallpaper_failed)
+                    finish()
+                    return@withContext
                 }
-                ProviderManager.select(context, SINGLE_AUTHORITY)
-            }
-            startActivity(Intent.makeMainActivity(ComponentName(
+
+                // If adding the artwork succeeded, select the single artwork provider
+                if (!MuzeiContract.Sources.isProviderSelected(context, SINGLE_AUTHORITY)) {
+                    Firebase.analytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                        param(FirebaseAnalytics.Param.ITEM_LIST_ID, SINGLE_AUTHORITY)
+                        param(FirebaseAnalytics.Param.ITEM_LIST_NAME, "providers")
+                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "set_as")
+                    }
+                    ProviderManager.select(context, SINGLE_AUTHORITY)
+                }
+                startActivity(Intent.makeMainActivity(ComponentName(
                     context, MuzeiActivity::class.java))
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            }
             finish()
         }
     }
