@@ -35,6 +35,10 @@
     <string name="auto_advance_title">自動捲片</string>
     <string name="auto_advance_description">控制 <xliff:g id="muzei_name">Muzei</xliff:g> 何時捲入下一張桌布。</string>
     <string name="auto_advance_wifi">僅透過 Wi-Fi 自動捲片</string>
+    <string name="auto_advance_ordering">排序</string>
+    <string name="auto_advance_ordering_in_order">一律按順序</string>
+    <string name="auto_advance_ordering_new_in_order">新圖像按順序，然後隨機</string>
+    <string name="auto_advance_ordering_random">一律隨機</string>
     <string name="auto_advance_interval">間隔</string>
     <string name="auto_advance_interval_15m">每 15 分鐘</string>
     <string name="auto_advance_interval_30m">每 30 分鐘</string>
@@ -77,6 +81,8 @@
     <string name="legacy_source_info_send_feedback">意見回饋</string>
     <string name="legacy_source_all_uninstalled">所有舊版來源均已解除安裝</string>
     <string name="done">完成</string>
+    <string name="navigate_up">向後巡覽</string>
+    <string name="menu_overflow">更多選項</string>
     <string name="set_as_wallpaper_using_muzei">桌布 (使用 <xliff:g id="muzei_name">Muzei</xliff:g>)</string>
     <string name="set_as_wallpaper_failed">無法讀取 Artwork</string>
     <string name="tutorial_main">開啟 <xliff:g id="muzei_name">Muzei</xliff:g> 應用程式以查看您的桌布</string>
