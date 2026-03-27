@@ -130,7 +130,7 @@ class LegacySourceService : Service(), LifecycleOwner {
                         Log.d(TAG, "Got next artwork command")
                     }
                     val database = LegacyDatabase.getInstance(applicationContext)
-                    val source = database.sourceDao().getCurrentSource()
+                    val source: Source? = database.sourceDao().getCurrentSource()
                     if (source?.supportsNextArtwork == true) {
                         if (BuildConfig.DEBUG) {
                             Log.d(TAG, "Sending next artwork command to ${source.componentName}")
