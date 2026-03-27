@@ -46,6 +46,9 @@ import com.google.android.apps.muzei.util.collectIn
 import com.google.android.apps.muzei.util.goAsync
 import com.google.android.apps.muzei.util.toast
 import com.google.android.apps.muzei.legacy.Source
+import com.google.android.apps.muzei.room.Source
+import com.google.android.apps.muzei.room.MuzeiDatabase
+import com.google.android.apps.muzei.room.SourceDao
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.analytics
 import kotlinx.coroutines.Dispatchers
