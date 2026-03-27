@@ -32,7 +32,7 @@ import kotlinx.coroutines.flow.Flow
 abstract class SourceDao {
 
     @get:Query("SELECT * FROM sources")
-    abstract val sources: Flow<List<Source>>
+    abstract val sourcesFlow: Flow<List<Source>>
 
     @Query("SELECT * FROM sources")
     abstract suspend fun getSources(): List<Source>
@@ -42,7 +42,7 @@ abstract class SourceDao {
     abstract suspend fun getSourceComponentNames(): List<ComponentName>
 
     @get:Query("SELECT * FROM sources WHERE selected=1 ORDER BY component_name")
-    abstract val currentSource: Flow<Source?>
+    abstract val currentSourceFlow: Flow<Source?>
 
     @get:Query("SELECT * FROM sources WHERE selected=1 ORDER BY component_name")
     abstract val currentSourceBlocking: Source?
