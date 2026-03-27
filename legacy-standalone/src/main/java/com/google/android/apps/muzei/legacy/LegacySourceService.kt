@@ -249,22 +249,25 @@ class LegacySourceService : Service(), LifecycleOwner {
         var currentSource: Source? = null
 
         val database = LegacyDatabase.getInstance(this@LegacySourceService)
-        database.sourceDao().currentSource.collect { source ->
-            if (currentSource != null && source != null &&
-                    currentSource?.componentName == source.componentName) {
-                // Don't do anything if it is the same Source
-                return@collect
-            }
-            currentSource?.unsubscribe()
-            currentSource = source
-            if (source != null) {
-                source.subscribe()
-                send(source)
+        launch {
+            database.sourceDao().currentSource.collect { source ->
+                if (currentSource != null && source != null &&
+                        currentSource?.componentName == source?.componentName) {
+                    // Don't do anything if it is the same Source
+                    return@collect
+                }
+                currentSource?.unsubscribe()
+                currentSource = source
+                if (source != null) {
+                    source.subscribe()
+                    trySend(source)
+                }
             }
         }
-
         awaitClose {
-            currentSource?.unsubscribe()
+            runBlocking {
+                currentSource?.unsubscribe()
+            }
         }
     }
 
