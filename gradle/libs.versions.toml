@@ -111,6 +111,7 @@ paging-compose = { group = "androidx.paging", name = "paging-compose", version.r
 paging-runtime = { group = "androidx.paging", name = "paging-runtime", version.ref = "paging" }
 preference = { group = "androidx.preference", name = "preference-ktx", version.ref = "preference" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-paging = { group = "androidx.room", name = "room-paging", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 recyclerView = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerView" }

@@ -45,6 +45,8 @@ import com.google.android.apps.muzei.sources.SourceSubscriberService
 import com.google.android.apps.muzei.util.collectIn
 import com.google.android.apps.muzei.util.goAsync
 import com.google.android.apps.muzei.util.toast
+import com.google.android.apps.muzei.legacy.Source
+import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.analytics
 import kotlinx.coroutines.Dispatchers
@@ -53,6 +55,8 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.collect
 import net.nurik.roman.muzei.legacy.R
 import java.util.concurrent.Executors
 
@@ -129,7 +133,7 @@ class LegacySourceService : Service(), LifecycleOwner {
                         Log.d(TAG, "Got next artwork command")
                     }
                     val database = LegacyDatabase.getInstance(applicationContext)
-                    val source = database.sourceDao().getCurrentSource()
+                    val source: Source? = database.sourceDao().getCurrentSource()
                     if (source?.supportsNextArtwork == true) {
                         if (BuildConfig.DEBUG) {
                             Log.d(TAG, "Sending next artwork command to ${source.componentName}")
@@ -245,22 +249,25 @@ class LegacySourceService : Service(), LifecycleOwner {
         var currentSource: Source? = null
 
         val database = LegacyDatabase.getInstance(this@LegacySourceService)
-        database.sourceDao().currentSource.collect { source ->
-            if (currentSource != null && source != null &&
-                    currentSource?.componentName == source.componentName) {
-                // Don't do anything if it is the same Source
-                return@collect
-            }
-            currentSource?.unsubscribe()
-            currentSource = source
-            if (source != null) {
-                source.subscribe()
-                send(source)
+        launch {
+            database.sourceDao().currentSource.collect { source ->
+                if (currentSource != null && source != null &&
+                        currentSource?.componentName == source?.componentName) {
+                    // Don't do anything if it is the same Source
+                    return@collect
+                }
+                currentSource?.unsubscribe()
+                currentSource = source
+                if (source != null) {
+                    source.subscribe()
+                    trySend(source)
+                }
             }
         }
-
         awaitClose {
-            currentSource?.unsubscribe()
+            runBlocking {
+                currentSource?.unsubscribe()
+            }
         }
     }
 

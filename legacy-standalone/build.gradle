@@ -102,6 +102,7 @@ dependencies {
     implementation libs.lifecycle.common
     implementation libs.lifecycle.runtime
     implementation libs.room.ktx
+    implementation libs.room.runtime
     ksp libs.room.compiler
     implementation libs.material
     implementation libs.firebase.analytics
