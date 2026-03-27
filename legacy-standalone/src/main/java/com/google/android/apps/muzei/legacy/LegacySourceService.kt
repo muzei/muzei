@@ -55,6 +55,8 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.collect
 import net.nurik.roman.muzei.legacy.R
 import java.util.concurrent.Executors
 
