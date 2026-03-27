@@ -146,7 +146,7 @@ class SourceSettingsActivity : AppCompatActivity() {
                     finish()
                 }
                 .create()
-        val database = LegacyDatabase.getInstance(this)
+        val database = LegacyDatabase.getInstance(this).sourceDao()
         database.sourceDao().sources.collectIn(this) { sources ->
             if (sources.any { it.selected }) {
                 setResult(RESULT_OK)
