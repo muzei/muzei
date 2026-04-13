@@ -20,6 +20,7 @@ import android.app.Application
 import android.app.PendingIntent
 import android.content.Context
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -272,38 +273,40 @@ fun BrowseProviderScreen(
                     }
                     var expanded by remember { mutableStateOf(false) }
                     val coroutineScope = rememberCoroutineScope()
-                    AsyncImage(
-                        model = artwork.imageUri,
-                        contentDescription = artwork.title,
-                        modifier = Modifier
-                            .aspectRatio(1f)
-                            .combinedClickable(
-                                onLongClick = {
-                                    if (actions.isNotEmpty()) {
-                                        expanded = true
+                    Box { // Box ensures that the DropdownMenu is anchored to the AsyncImage
+                        AsyncImage(
+                            model = artwork.imageUri,
+                            contentDescription = artwork.title,
+                            modifier = Modifier
+                                .aspectRatio(1f)
+                                .combinedClickable(
+                                    onLongClick = {
+                                        if (actions.isNotEmpty()) {
+                                            expanded = true
+                                        }
                                     }
-                                }
-                            ) {
-                                coroutineScope.launch {
-                                    onArtworkClick(artwork)
-                                }
-                            },
-                        contentScale = ContentScale.Crop,
-                    )
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
-                        for (action in actions) {
-                            DropdownMenuItem(
-                                text = { Text(action) },
-                                onClick = {
+                                ) {
                                     coroutineScope.launch {
-                                        expanded = false
-                                        onActionClick(artwork, action)
+                                        onArtworkClick(artwork)
                                     }
-                                }
-                            )
+                                },
+                            contentScale = ContentScale.Crop,
+                        )
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            for (action in actions) {
+                                DropdownMenuItem(
+                                    text = { Text(action) },
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            expanded = false
+                                            onActionClick(artwork, action)
+                                        }
+                                    }
+                                )
+                            }
                         }
                     }
                 }
