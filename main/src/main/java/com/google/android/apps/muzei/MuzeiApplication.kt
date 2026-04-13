@@ -22,6 +22,7 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.Composer
 import androidx.compose.runtime.ExperimentalComposeRuntimeApi
+import androidx.compose.runtime.tooling.ComposeStackTraceMode
 import androidx.core.content.edit
 import androidx.fragment.app.strictmode.FragmentStrictMode
 import androidx.multidex.MultiDexApplication
@@ -48,7 +49,13 @@ class MuzeiApplication : MultiDexApplication(), SharedPreferences.OnSharedPrefer
     @OptIn(ExperimentalComposeRuntimeApi::class)
     override fun onCreate() {
         super.onCreate()
-        Composer.setDiagnosticStackTraceEnabled(BuildConfig.DEBUG)
+        Composer.setDiagnosticStackTraceMode(
+            if (BuildConfig.DEBUG) {
+                ComposeStackTraceMode.SourceInformation
+            } else {
+                ComposeStackTraceMode.GroupKeys
+            }
+        )
         FragmentStrictMode.defaultPolicy = FragmentStrictMode.Policy.Builder()
             .detectFragmentReuse()
             .detectFragmentTagUsage()
