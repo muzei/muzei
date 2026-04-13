@@ -35,6 +35,10 @@
     <string name="auto_advance_title">Avance Automatique</string>
     <string name="auto_advance_description">Contrôle lorsque <xliff:g id="muzei_name">Muzei</xliff:g> passe automatiquement au fond d\'écran suivant.</string>
     <string name="auto_advance_wifi">Avance Automatique uniquement en Wi-Fi</string>
+    <string name="auto_advance_ordering">Ordre</string>
+    <string name="auto_advance_ordering_in_order">Toujours dans l\'ordre</string>
+    <string name="auto_advance_ordering_new_in_order">Nouvelles images dans l\'ordre, puis aléatoirement</string>
+    <string name="auto_advance_ordering_random">Toujours aléatoirement</string>
     <string name="auto_advance_interval">Intervalle</string>
     <string name="auto_advance_interval_15m">Toutes les 15 minutes</string>
     <string name="auto_advance_interval_30m">Toutes les 30 minutes</string>
@@ -60,6 +64,8 @@
     <string name="provider_settings">Paramètres</string>
     <string name="provider_browse">Parcourir</string>
     <string name="done">Terminé</string>
+    <string name="navigate_up">Revenir en arrière</string>
+    <string name="menu_overflow">Plus d\'options</string>
     <string name="set_as_wallpaper_using_muzei">Fond d\'écran (via <xliff:g id="muzei_name">Muzei</xliff:g>)</string>
     <string name="set_as_wallpaper_failed">Impossible de lire l\'œuvre</string>
     <string name="tutorial_main">Ouvrez l\'application <xliff:g id="muzei_name">Muzei</xliff:g> pour voir votre fond d\'écran</string>
