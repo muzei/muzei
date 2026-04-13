@@ -71,26 +71,6 @@
     <string name="provider_settings">Settings</string>
     <string name="provider_browse">Browse</string>
 
-    <string name="legacy_notification_channel_name">Legacy Sources</string>
-    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> is no longer supported</string>
-    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> does not directly support sources built with the Legacy Source API.</string>
-    <string name="legacy_action_learn_more">Learn more</string>
-    <string name="legacy_action_send_feedback">Send feedback</string>
-    <string name="legacy_summary_title">Legacy Sources are no longer supported</string>
-    <plurals name="legacy_summary_text">
-        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> Legacy Source found</item>
-        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> Legacy Sources found</item>
-    </plurals>
-    <plurals name="legacy_unsupported_text">
-        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> unsupported source found</item>
-        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> unsupported sources found</item>
-    </plurals>
-    <string name="legacy_source_info_title">Legacy Sources</string>
-    <string name="legacy_source_info_subtitle">Sources built with the Legacy Source API are no longer directly supported by <xliff:g id="muzei_name">Muzei</xliff:g>.</string>
-    <string name="legacy_source_info_app_info">App info</string>
-    <string name="legacy_source_info_send_feedback">Send feedback</string>
-    <string name="legacy_source_all_uninstalled">All Legacy Sources have been uninstalled</string>
-
     <string name="done">Done</string>
     <string name="navigate_up">Navigate Back</string>
     <string name="menu_overflow">More options</string>

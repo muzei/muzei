@@ -63,23 +63,6 @@
     <string name="action_artwork_info_disabled">目前 Artwork 未提供資訊。</string>
     <string name="provider_settings">設定</string>
     <string name="provider_browse">瀏覽</string>
-    <string name="legacy_notification_channel_name">舊版來源</string>
-    <string name="legacy_notification_title">不再支援「<xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g>」</string>
-    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> 不直接支援以舊版來源 API 建置的來源。</string>
-    <string name="legacy_action_learn_more">深入瞭解</string>
-    <string name="legacy_action_send_feedback">意見回饋</string>
-    <string name="legacy_summary_title">不再支援舊版來源</string>
-    <plurals name="legacy_summary_text">
-        <item quantity="other">已找到 <xliff:g id="quantity" example="2">%1$d</xliff:g> 個舊版來源</item>
-    </plurals>
-    <plurals name="legacy_unsupported_text">
-        <item quantity="other">已找到 <xliff:g id="quantity" example="2">%1$d</xliff:g> 個不支援的來源</item>
-    </plurals>
-    <string name="legacy_source_info_title">舊版來源</string>
-    <string name="legacy_source_info_subtitle">以舊版來源 API 建置的來源不再受 <xliff:g id="muzei_name">Muzei</xliff:g> 的直接支援。</string>
-    <string name="legacy_source_info_app_info">應用程式資訊</string>
-    <string name="legacy_source_info_send_feedback">意見回饋</string>
-    <string name="legacy_source_all_uninstalled">所有舊版來源均已解除安裝</string>
     <string name="done">完成</string>
     <string name="navigate_up">向後巡覽</string>
     <string name="menu_overflow">更多選項</string>

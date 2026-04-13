@@ -59,29 +59,6 @@
     <string name="action_artwork_info_disabled">Нет информации о текущем рисунке.</string>
     <string name="provider_settings">Настройки</string>
     <string name="provider_browse">Обзор</string>
-    <string name="legacy_notification_channel_name">Устаревшие источники</string>
-    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> больше не поддерживается</string>
-    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> официально не поддерживает источники, созданные с использованием устаревшего API.</string>
-    <string name="legacy_action_learn_more">Подробнее</string>
-    <string name="legacy_action_send_feedback">Отправить отзыв</string>
-    <string name="legacy_summary_title">Устаревшие источники больше не поддерживаются</string>
-    <plurals name="legacy_summary_text">
-        <item quantity="one">Найден <xliff:g id="quantity" example="1">%1$d</xliff:g> Устаревший источник</item>
-        <item quantity="few">Найдено <xliff:g id="quantity" example="2">%1$d</xliff:g> Устаревших источника</item>
-        <item quantity="many">Найдено <xliff:g id="quantity" example="100">%1$d</xliff:g> Устаревших источников</item>
-        <item quantity="other">Найден <xliff:g id="quantity" example="1">%1$d</xliff:g> Устаревший источник</item>
-    </plurals>
-    <plurals name="legacy_unsupported_text">
-        <item quantity="one">Найден <xliff:g id="quantity" example="1">%1$d</xliff:g> неподдерживаемый источник</item>
-        <item quantity="few">Найдено <xliff:g id="quantity" example="2">%1$d</xliff:g> неподдерживаемых источника</item>
-        <item quantity="many">Найдено <xliff:g id="quantity" example="100">%1$d</xliff:g> неподдерживаемых источников</item>
-        <item quantity="other">Найден <xliff:g id="quantity" example="1">%1$d</xliff:g> неподдерживаемый источник</item>
-    </plurals>
-    <string name="legacy_source_info_title">Устаревшие источники</string>
-    <string name="legacy_source_info_subtitle">Источники, созданные с использованием устаревшего API, более официально не поддерживаются <xliff:g id="muzei_name">Muzei</xliff:g>.</string>
-    <string name="legacy_source_info_app_info">Информация о приложении</string>
-    <string name="legacy_source_info_send_feedback">Отправить отзыв</string>
-    <string name="legacy_source_all_uninstalled">Все Устаревшие источники удалены</string>
     <string name="done">Готово</string>
     <string name="set_as_wallpaper_using_muzei">Обои (из <xliff:g id="muzei_name">Muzei</xliff:g>)</string>
     <string name="set_as_wallpaper_failed">Не удалось отобразить рисунок</string>

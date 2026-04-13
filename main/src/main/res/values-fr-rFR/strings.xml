@@ -59,25 +59,6 @@
     <string name="action_artwork_info_disabled">Aucune information sur l\'œuvre actuelle.</string>
     <string name="provider_settings">Paramètres</string>
     <string name="provider_browse">Parcourir</string>
-    <string name="legacy_notification_channel_name">Sources Anciennes</string>
-    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> n\'est plus pris en charge</string>
-    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> ne prend pas directement en charge les sources construites avec l’API Legacy Source.</string>
-    <string name="legacy_action_learn_more">En savoir plus</string>
-    <string name="legacy_action_send_feedback">Envoyer un commentaire</string>
-    <string name="legacy_summary_title">Les Sources Anciennes ne sont plus prises en charge</string>
-    <plurals name="legacy_summary_text">
-        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> Source Ancienne trouvée</item>
-        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g>Sources Anciennes trouvées</item>
-    </plurals>
-    <plurals name="legacy_unsupported_text">
-        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> source n\'est pas prise en charge</item>
-        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> sources ne sont pas prises en charge</item>
-    </plurals>
-    <string name="legacy_source_info_title">Anciennes sources</string>
-    <string name="legacy_source_info_subtitle">Les sources construites à partir de l\'ancienne API ne sont plus directement supportées par <xliff:g id="muzei_name">Muzei</xliff:g>.</string>
-    <string name="legacy_source_info_app_info">Infos sur l\'appli</string>
-    <string name="legacy_source_info_send_feedback">Envoyer des commentaires</string>
-    <string name="legacy_source_all_uninstalled">Toutes les anciennes sources ont été désinstallées</string>
     <string name="done">Terminé</string>
     <string name="set_as_wallpaper_using_muzei">Fond d\'écran (via <xliff:g id="muzei_name">Muzei</xliff:g>)</string>
     <string name="set_as_wallpaper_failed">Impossible de lire l\'œuvre</string>

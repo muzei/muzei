@@ -64,16 +64,6 @@
     <string name="action_artwork_info_disabled">אין נתוני יצירה עבור היצירה הנוכחית.</string>
     <string name="provider_settings">הגדרות</string>
     <string name="provider_browse">דפדוף</string>
-    <string name="legacy_notification_channel_name">מקורות ישנים</string>
-    <string name="legacy_notification_title"><xliff:g id="source_name" example="רקעים נחמדים">%s</xliff:g> אינם נתמכים יותר</string>
-    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> לא תומך ישירות במקורות שנבנו עם ממשק API מקור מיושן.</string>
-    <string name="legacy_action_learn_more">מידע נוסף</string>
-    <string name="legacy_action_send_feedback">שליחת משוב</string>
-    <string name="legacy_summary_title">מקורות ישנים אינם נתמכים יותר</string>
-    <string name="legacy_source_info_title">מקורות ישנים</string>
-    <string name="legacy_source_info_app_info">פרטי אפליקציה</string>
-    <string name="legacy_source_info_send_feedback">שליחת משוב</string>
-    <string name="legacy_source_all_uninstalled">כל המקורות הישנים הוסרו</string>
     <string name="done">סיום</string>
     <string name="navigate_up">ניווט חזרה</string>
     <string name="menu_overflow">אפשרויות נוספות</string>

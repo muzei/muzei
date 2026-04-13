@@ -59,29 +59,6 @@
     <string name="action_artwork_info_disabled">Brak informacji o bieżącej grafice.</string>
     <string name="provider_settings">Ustawienia</string>
     <string name="provider_browse">Przeglądaj</string>
-    <string name="legacy_notification_channel_name">Starsze źródła</string>
-    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> nie jest już obsługiwane</string>
-    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> bezpośrednio nie obsługuje źródeł stworzonych w oparciu o starsze API.</string>
-    <string name="legacy_action_learn_more">Więcej informacji</string>
-    <string name="legacy_action_send_feedback">Prześlij opinię</string>
-    <string name="legacy_summary_title">Starsze źródła nie są już obsługiwane</string>
-    <plurals name="legacy_summary_text">
-        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> Starsze źródło odnaleziono</item>
-        <item quantity="few"><xliff:g id="quantity" example="2">%1$d</xliff:g> Starsze źródła odnaleziono</item>
-        <item quantity="many"><xliff:g id="quantity" example="5">%1$d</xliff:g> Starszych źródeł odnaleziono</item>
-        <item quantity="other"><xliff:g id="quantity" example="5">%1$d</xliff:g> Starszych źródeł odnaleziono</item>
-    </plurals>
-    <plurals name="legacy_unsupported_text">
-        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> Niewspierane źródło odnaleziono</item>
-        <item quantity="few"><xliff:g id="quantity" example="2">%1$d</xliff:g> Niewspierane źródła odnaleziono</item>
-        <item quantity="many"><xliff:g id="quantity" example="5">%1$d</xliff:g> Niewspieranych źródeł odnaleziono</item>
-        <item quantity="other"><xliff:g id="quantity" example="5">%1$d</xliff:g> Niewspieranych źródeł odnaleziono</item>
-    </plurals>
-    <string name="legacy_source_info_title">Starsze źródła</string>
-    <string name="legacy_source_info_subtitle">Źródła zbudowane w oparciu o starsze API nie są już bezpośrednio obsługiwane przez <xliff:g id="muzei_name">Muzei</xliff:g>.</string>
-    <string name="legacy_source_info_app_info">Informacje o aplikacji</string>
-    <string name="legacy_source_info_send_feedback">Prześlij opinię</string>
-    <string name="legacy_source_all_uninstalled">Wszystkie starsze źródła zostały odinstalowane</string>
     <string name="done">Gotowe</string>
     <string name="set_as_wallpaper_using_muzei">Tapeta (przy użyciu <xliff:g id="muzei_name">Muzei</xliff:g>)</string>
     <string name="set_as_wallpaper_failed">Nie można odczytać grafiki</string>

@@ -36,12 +36,11 @@ import androidx.core.os.bundleOf
 import androidx.preference.PreferenceManager
 import com.google.android.apps.muzei.ArtDetailOpen
 import com.google.android.apps.muzei.ArtworkInfoRedirectActivity
-import com.google.android.apps.muzei.legacy.LegacySourceManager
-import com.google.android.apps.muzei.legacy.allowsNextArtwork
 import com.google.android.apps.muzei.render.ContentUriImageLoader
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.contentUri
 import com.google.android.apps.muzei.room.getCommands
+import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.goAsync
 import com.google.android.apps.muzei.util.sendFromBackground
 import com.google.firebase.Firebase
@@ -178,7 +177,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
             val extender = NotificationCompat.WearableExtender()
 
             // Support Next Artwork
-            if (provider.allowsNextArtwork(context)) {
+            if (provider.supportsNextArtwork) {
                 val nextPendingIntent = PendingIntent.getBroadcast(context, 0,
                         Intent(context, NewWallpaperNotificationReceiver::class.java)
                                 .setAction(ACTION_NEXT_ARTWORK),
@@ -314,7 +313,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                     Firebase.analytics.logEvent(
                             "next_artwork", bundleOf(
                             FirebaseAnalytics.Param.CONTENT_TYPE to "notification"))
-                    LegacySourceManager.getInstance(context).nextArtwork()
+                    ProviderManager.getInstance(context).nextArtwork()
                 }
                 ACTION_USER_COMMAND -> triggerUserCommandFromRemoteInput(context, intent)
             }

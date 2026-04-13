@@ -16,7 +16,6 @@
 
 package com.google.android.apps.muzei
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -27,7 +26,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridS
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Update
-import androidx.compose.material.icons.filled.UpdateDisabled
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
@@ -36,9 +34,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -57,8 +52,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices.PHONE
 import androidx.compose.ui.tooling.preview.Devices.TABLET
@@ -70,11 +63,9 @@ import coil3.ColorImage
 import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.AsyncImagePreviewHandler
 import coil3.compose.LocalAsyncImagePreviewHandler
-import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
 import com.google.android.apps.muzei.theme.AppTheme
 import com.google.android.apps.muzei.util.ModalRightNavigationDrawer
 import com.google.android.apps.muzei.util.plus
-import com.google.android.apps.muzei.util.toast
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.analytics
 import kotlinx.coroutines.launch
@@ -85,12 +76,9 @@ import net.nurik.roman.muzei.R
 fun ChooseProvider(
     providers: List<ProviderInfo>,
     modifier: Modifier = Modifier,
-    selectedProviderAuthority: String? = null,
     drawerSheetContent: @Composable ColumnScope.() -> Unit = {},
     drawerSheetContainerColor: Color = DrawerDefaults.modalContainerColor,
     onNotificationSettingsClick: () -> Unit = {},
-    unsupportedSourceCount: Int = 0,
-    onUnsupportedSourceLearnMoreClick: () -> Unit = {},
     autoScrollToProviderAuthority: String? = null,
     onAutoScrollToProviderCompleted: () -> Unit = {},
     onClick: (ProviderInfo) -> Unit = {},
@@ -99,40 +87,12 @@ fun ChooseProvider(
     onBrowseClick: (ProviderInfo) -> Unit = {},
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val legacySourceSelected = selectedProviderAuthority == LEGACY_AUTHORITY
-    LaunchedEffect(legacySourceSelected) {
-        if (legacySourceSelected && drawerState.isOpen) {
-            drawerState.close()
-        }
-    }
     ModalRightNavigationDrawer(
         drawerSheetContent = drawerSheetContent,
         modifier = modifier,
         drawerState = drawerState,
         drawerSheetContainerColor = drawerSheetContainerColor,
-        gesturesEnabled = !legacySourceSelected,
     ) {
-        @Suppress("SpellCheckingInspection")
-        val snackbarHostState = remember { SnackbarHostState() }
-        val hasUnsupportedSources = unsupportedSourceCount > 0
-        val unsupportedSourceMessage =
-            pluralStringResource(R.plurals.legacy_unsupported_text, unsupportedSourceCount)
-        val unsupportedSourceAction = stringResource(R.string.legacy_action_learn_more)
-        LaunchedEffect(
-            hasUnsupportedSources,
-            unsupportedSourceMessage,
-            unsupportedSourceAction
-        ) {
-            if (hasUnsupportedSources) {
-                val result = snackbarHostState.showSnackbar(
-                    message = unsupportedSourceMessage,
-                    actionLabel = unsupportedSourceAction
-                )
-                if (result == SnackbarResult.ActionPerformed) {
-                    onUnsupportedSourceLearnMoreClick()
-                }
-            }
-        }
         val scrollBehavior =
             TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
         Scaffold(
@@ -141,37 +101,19 @@ fun ChooseProvider(
                 TopAppBar(
                     title = {},
                     actions = {
-                        if (legacySourceSelected) {
-                            val context = LocalContext.current
-                            IconButton(
-                                onClick = {
-                                    Firebase.analytics.logEvent("auto_advance_disabled", null)
-                                    context.toast(
-                                        R.string.auto_advance_disabled_description,
-                                        Toast.LENGTH_LONG
-                                    )
-                                },
-                            ) {
-                                Icon(
-                                    Icons.Default.UpdateDisabled,
-                                    contentDescription = stringResource(R.string.auto_advance_disabled),
-                                )
-                            }
-                        } else {
-                            val coroutineScope = rememberCoroutineScope()
-                            IconButton(
-                                onClick = {
-                                    coroutineScope.launch {
-                                        Firebase.analytics.logEvent("auto_advance_open", null)
-                                        drawerState.open()
-                                    }
-                                },
-                            ) {
-                                Icon(
-                                    Icons.Default.Update,
-                                    contentDescription = stringResource(R.string.auto_advance_settings),
-                                )
-                            }
+                        val coroutineScope = rememberCoroutineScope()
+                        IconButton(
+                            onClick = {
+                                coroutineScope.launch {
+                                    Firebase.analytics.logEvent("auto_advance_open", null)
+                                    drawerState.open()
+                                }
+                            },
+                        ) {
+                            Icon(
+                                Icons.Default.Update,
+                                contentDescription = stringResource(R.string.auto_advance_settings),
+                            )
                         }
                         // Show the menu items in a DropdownMenu
                         var expanded by remember { mutableStateOf(false) }
@@ -205,7 +147,6 @@ fun ChooseProvider(
                     scrollBehavior = scrollBehavior
                 )
             },
-            snackbarHost = { SnackbarHost(snackbarHostState) },
             containerColor = Color.Transparent,
             contentColor = Color.White,
         ) { innerPadding ->
@@ -221,9 +162,7 @@ fun ChooseProvider(
                 columns = StaggeredGridCells.Adaptive(minSize = 300.dp),
                 state = state,
                 contentPadding = innerPadding + PaddingValues(horizontal = 16.dp) +
-                        if (snackbarHostState.currentSnackbarData != null) PaddingValues(bottom = 64.dp) else PaddingValues(
-                            bottom = 16.dp
-                        ),
+                        PaddingValues(bottom = 16.dp),
                 verticalItemSpacing = 16.dp,
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {

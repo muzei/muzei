@@ -59,15 +59,6 @@
     <string name="action_artwork_info_disabled">Não há informações sobre a obra de arte atual.</string>
     <string name="provider_settings">Configurações</string>
     <string name="provider_browse">Navegar</string>
-    <string name="legacy_notification_channel_name">Fontes Legadas</string>
-    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> não é mais suportado</string>
-    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> não suporta diretamente fontes construídas com a API Legacy Source.</string>
-    <string name="legacy_action_learn_more">Saiba mais</string>
-    <string name="legacy_action_send_feedback">Enviar feedback</string>
-    <string name="legacy_summary_title">Fontes Legadas não são mais suportadas</string>
-    <string name="legacy_source_info_title">Fontes Legadas</string>
-    <string name="legacy_source_info_app_info">Informações do App</string>
-    <string name="legacy_source_info_send_feedback">Enviar feedback</string>
     <string name="done">Concluido</string>
     <string name="get_more_sources">Obter mais fontes</string>
     <string name="reset_advanced_settings_defaults">Redefinir controles deslizantes</string>

@@ -47,8 +47,6 @@
     <string name="action_artwork_info">معلومات العمل الفني</string>
     <string name="provider_settings">الإعدادات</string>
     <string name="provider_browse">تصفح</string>
-    <string name="legacy_notification_channel_name">المصادر القديمة</string>
-    <string name="legacy_action_learn_more">معرفة المزيد</string>
     <string name="navigate_up">العودة إلى الخلف</string>
     <string name="menu_overflow">خيارات إضافية</string>
     <string name="gestures_double_tap_title">النقر المزدوج</string>

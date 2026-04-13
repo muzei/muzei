@@ -33,7 +33,6 @@ import android.widget.TextView
 import androidx.appcompat.widget.TooltipCompat
 import androidx.core.app.RemoteActionCompat
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.graphics.drawable.IconCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -54,8 +53,6 @@ import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.ImageViewState
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.google.android.apps.muzei.api.MuzeiContract
-import com.google.android.apps.muzei.api.internal.RemoteActionBroadcastReceiver
-import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
 import com.google.android.apps.muzei.notifications.NewWallpaperNotificationReceiver
 import com.google.android.apps.muzei.render.ArtworkSizeStateFlow
 import com.google.android.apps.muzei.render.ContentUriImageLoader
@@ -92,7 +89,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.R
 import net.nurik.roman.muzei.databinding.ArtDetailFragmentBinding
-import net.nurik.roman.muzei.androidclientcommon.R as CommonR
 
 val ArtDetailOpen = MutableStateFlow(false)
 
@@ -394,19 +390,8 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
             loadCommandsJob?.cancelAndJoin()
             loadCommandsJob = viewLifecycleOwner.lifecycleScope.launch {
                 val commands = context?.run {
-                    currentArtwork?.getCommands(this) ?: run {
-                        if (viewModel.currentProvider.value?.authority == LEGACY_AUTHORITY) {
-                            listOf(RemoteActionCompat(
-                                    IconCompat.createWithResource(this, CommonR.drawable.ic_next_artwork),
-                                    getString(R.string.action_next_artwork),
-                                    getString(R.string.action_next_artwork),
-                                    RemoteActionBroadcastReceiver.createPendingIntent(
-                                            this, LEGACY_AUTHORITY, id.toLong(), id)))
-                        } else {
-                            listOf()
-                        }
-                    }
-                } ?: return@launch
+                    currentArtwork?.getCommands(this)
+                } ?: listOf()
                 ensureActive()
                 val activity = activity ?: return@launch
                 overflowSourceActionMap.clear()

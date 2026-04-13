@@ -48,13 +48,6 @@
     <string name="action_artwork_info_disabled">Немає інформації про поточну картину.</string>
     <string name="provider_settings">Налаштування</string>
     <string name="provider_browse">Огляд</string>
-    <string name="legacy_notification_channel_name">Застарілі джерела</string>
-    <string name="legacy_notification_title"><xliff:g id="source_name" example="Гарні шпалери">%s</xliff:g> більше не підтримується</string>
-    <string name="legacy_action_learn_more">Детальніше</string>
-    <string name="legacy_action_send_feedback">Надіслати відгук</string>
-    <string name="legacy_summary_title">Застарілі джерела більше не підтримуються</string>
-    <string name="legacy_source_info_app_info">Про додаток</string>
-    <string name="legacy_source_info_send_feedback">Надіслати відгук</string>
     <string name="done">Готово</string>
     <string name="reset_advanced_settings_defaults">Скинути повзунки</string>
     <string name="browse_refresh">Оновити</string>

@@ -158,8 +158,6 @@ class ChooseProviderFragment : Fragment() {
                     null
                 }
             }
-            val currentProvider by viewModel.currentProvider.collectAsState()
-            val unsupportedSources by viewModel.unsupportedSources.collectAsState()
             var scrolledToProvider by rememberSerializable { mutableStateOf(false) }
             val autoScrollToProviderAuthority = if (!scrolledToProvider) {
                 args.authority
@@ -172,7 +170,6 @@ class ChooseProviderFragment : Fragment() {
                 } else {
                     emptyList()
                 },
-                selectedProviderAuthority = currentProvider?.authority,
                 drawerSheetContent = {
                     AutoAdvance(
                         contentPadding = WindowInsets.safeDrawing
@@ -189,13 +186,6 @@ class ChooseProviderFragment : Fragment() {
                         context,
                         childFragmentManager
                     )
-                },
-                unsupportedSourceCount = unsupportedSources.size,
-                onUnsupportedSourceLearnMoreClick = {
-                    val navController = findNavController()
-                    if (navController.currentDestination?.id == R.id.choose_provider_fragment) {
-                        navController.navigate(R.id.legacy_info)
-                    }
                 },
                 autoScrollToProviderAuthority = autoScrollToProviderAuthority,
                 onAutoScrollToProviderCompleted = {

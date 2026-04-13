@@ -59,25 +59,6 @@
     <string name="action_artwork_info_disabled">Não existem informações da obra de arte atual.</string>
     <string name="provider_settings">Definições</string>
     <string name="provider_browse">Explorar</string>
-    <string name="legacy_notification_channel_name">Fontes Antigas</string>
-    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> já não é suportado</string>
-    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> não suporta diretamente fontes desenvolvidas com a API de Fontes Antigas.</string>
-    <string name="legacy_action_learn_more">Saber mais</string>
-    <string name="legacy_action_send_feedback">Enviar comentários</string>
-    <string name="legacy_summary_title">As Fontes Antigas já não são suportadas</string>
-    <plurals name="legacy_summary_text">
-        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> Fonte Antiga encontrada</item>
-        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> Fontes Antigas encontradas</item>
-    </plurals>
-    <plurals name="legacy_unsupported_text">
-        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> fonte não suportada foi encontrada</item>
-        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> fontes não suportadas foram encontradas</item>
-    </plurals>
-    <string name="legacy_source_info_title">Fontes Antigas</string>
-    <string name="legacy_source_info_subtitle">Fontes desenvolvidas com a API de Fontes Antigas já não são diretamente suportadas pelo <xliff:g id="muzei_name">Muzei</xliff:g>.</string>
-    <string name="legacy_source_info_app_info">Informações da aplicação</string>
-    <string name="legacy_source_info_send_feedback">Enviar comentários</string>
-    <string name="legacy_source_all_uninstalled">Todas as Fontes Antigas foram desinstaladas</string>
     <string name="done">Concluído</string>
     <string name="set_as_wallpaper_using_muzei">Imagem de fundo (usando o <xliff:g id="muzei_name">Muzei</xliff:g>)</string>
     <string name="set_as_wallpaper_failed">Não foi possível ler a obra de arte</string>

@@ -53,14 +53,6 @@
     <string name="action_artwork_info">Información de la obra</string>
     <string name="provider_settings">Configuraciones</string>
     <string name="provider_browse">Navegar</string>
-    <string name="legacy_notification_channel_name">Fuentes Antiguas</string>
-    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> ya no es compatible</string>
-    <string name="legacy_action_learn_more">Aprende más</string>
-    <string name="legacy_action_send_feedback">Dinos tu opinión</string>
-    <string name="legacy_source_info_title">Fuentes Antiguas</string>
-    <string name="legacy_source_info_app_info">Información de la aplicación</string>
-    <string name="legacy_source_info_send_feedback">Enviar feedback</string>
-    <string name="legacy_source_all_uninstalled">Todas las fuentes antiguas han sido desinstaladas</string>
     <string name="done">Hecho</string>
     <string name="set_as_wallpaper_using_muzei">Fondo de pantalla (usando <xliff:g id="muzei_name">Muzei</xliff:g>)</string>
     <string name="set_as_wallpaper_failed">No se puede leer el diseño</string>

@@ -59,25 +59,6 @@
     <string name="action_artwork_info_disabled">Det finns ingen information för den aktuella bilden.</string>
     <string name="provider_settings">Inställningar</string>
     <string name="provider_browse">Bläddra</string>
-    <string name="legacy_notification_channel_name">Gamla källor</string>
-    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> stöds inte längre</string>
-    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> stöder inte direkt källor som byggts med Legacy Source API.</string>
-    <string name="legacy_action_learn_more">Läs mer</string>
-    <string name="legacy_action_send_feedback">Skicka feedback</string>
-    <string name="legacy_summary_title">Gamla källor stöds inte längre</string>
-    <plurals name="legacy_summary_text">
-        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> Gammal källa hittades</item>
-        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> Gammal källa hittades</item>
-    </plurals>
-    <plurals name="legacy_unsupported_text">
-        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> källa som inte stöds hittad</item>
-        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> källa som inte stöds hittad</item>
-    </plurals>
-    <string name="legacy_source_info_title">Gamla källor</string>
-    <string name="legacy_source_info_subtitle">Källor som byggts med Legacy Source API stöds inte längre direkt av <xliff:g id="muzei_name">Muzei</xliff:g>.</string>
-    <string name="legacy_source_info_app_info">Appinfo</string>
-    <string name="legacy_source_info_send_feedback">Skicka feedback</string>
-    <string name="legacy_source_all_uninstalled">Alla gamla källor har avinstallerats</string>
     <string name="done">Klart</string>
     <string name="set_as_wallpaper_using_muzei">Bakgrundsbild (using <xliff:g id="muzei_name">Muzei</xliff:g>)</string>
     <string name="set_as_wallpaper_failed">Det gick inte att läsa in bilden</string>

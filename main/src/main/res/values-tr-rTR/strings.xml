@@ -59,26 +59,6 @@
     <string name="action_artwork_info_disabled">Geçerli resim için resim bilgisi yok.</string>
     <string name="provider_settings">Ayarlar</string>
     <string name="provider_browse">Göz at</string>
-    <string name="legacy_notification_channel_name">Eski kaynaklar</string>
-    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> artık desteklenmiyor</string>
-    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> Eski Kaynak API\'si ile oluşturulan kaynakları doğrudan desteklemez.</string>
-    <string name="legacy_action_learn_more">Daha fazla bilgi edin</string>
-    <string name="legacy_action_send_feedback">Geri bildirim gönder</string>
-    <string name="legacy_summary_title">Eski kaynaklar artık desteklenmiyor</string>
-    <plurals name="legacy_summary_text">
-        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> Eski bir kaynak bulundu</item>
-        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> Eski kaynaklar bulundu</item>
-    </plurals>
-    <plurals name="legacy_unsupported_text">
-        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> Desteklenmeyen bir kaynak bulundu</item>
-        <item quantity="other"><xliff:g id="quantity" example="1">%1$d</xliff:g>
-desteklenmeyen kaynak bulundu</item>
-    </plurals>
-    <string name="legacy_source_info_title">Eski Kaynaklar</string>
-    <string name="legacy_source_info_subtitle">Eski Kaynak API\'si ile oluşturulan kaynaklar artık doğrudan <xliff:g id="muzei_name">Muzei</xliff:g> tarafından desteklenmiyor.</string>
-    <string name="legacy_source_info_app_info">Uygulama bilgisi</string>
-    <string name="legacy_source_info_send_feedback">Geri bildirim yolla</string>
-    <string name="legacy_source_all_uninstalled">Tüm Eski Kaynaklar kaldırıldı</string>
     <string name="done">Bitti</string>
     <string name="set_as_wallpaper_using_muzei">Duvar Kağıdı (<xliff:g id="muzei_name">Muzei</xliff:g> kullanarak)</string>
     <string name="set_as_wallpaper_failed">Resim okunamıyor</string>

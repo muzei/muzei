@@ -40,7 +40,6 @@ import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.apps.muzei.featuredart.BuildConfig.FEATURED_ART_AUTHORITY
-import com.google.android.apps.muzei.legacy.LegacySourceManager
 import com.google.android.apps.muzei.notifications.NotificationUpdater
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer
@@ -98,7 +97,6 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         super.onCreate()
         with(wallpaperLifecycle) {
             addObserver(WorkManagerInitializer.initializeObserver(this@MuzeiWallpaperService))
-            addObserver(LegacySourceManager.getInstance(this@MuzeiWallpaperService))
             addObserver(NotificationUpdater(this@MuzeiWallpaperService))
             addObserver(WearableController(this@MuzeiWallpaperService))
             addObserver(WidgetUpdater(this@MuzeiWallpaperService))
@@ -349,7 +347,7 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                             Firebase.analytics.logEvent("next_artwork") {
                                 param(FirebaseAnalytics.Param.CONTENT_TYPE, type)
                             }
-                            LegacySourceManager.getInstance(this@MuzeiWallpaperService).nextArtwork()
+                            ProviderManager.getInstance(this@MuzeiWallpaperService).nextArtwork()
                         }
                     }
                 }

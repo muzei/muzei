@@ -23,7 +23,6 @@ dependencies {
     api libs.coroutines.android
     implementation project(':muzei-api')
     implementation project(':extensions')
-    implementation project(':legacy-common')
     implementation libs.multidex
     implementation libs.core
     implementation libs.exifInterface

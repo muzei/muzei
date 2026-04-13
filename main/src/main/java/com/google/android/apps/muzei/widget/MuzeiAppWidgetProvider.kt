@@ -21,7 +21,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import com.google.android.apps.muzei.legacy.LegacySourceManager
+import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.goAsync
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -45,7 +45,7 @@ class MuzeiAppWidgetProvider : AppWidgetProvider() {
                 Firebase.analytics.logEvent("next_artwork") {
                     param(FirebaseAnalytics.Param.CONTENT_TYPE, "app_widget")
                 }
-                LegacySourceManager.getInstance(context).nextArtwork()
+                ProviderManager.getInstance(context).nextArtwork()
             }
         }
     }

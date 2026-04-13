@@ -57,14 +57,4 @@
     <string name="action_artwork_info_disabled">Es gibt keine Artwork-info für das aktuelle Artwork.</string>
     <string name="provider_settings">Einstellungen</string>
     <string name="provider_browse">Durchsuchen</string>
-    <string name="legacy_notification_channel_name">Legacy-Quellen</string>
-    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> wird nicht mehr unterstützt</string>
-    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> unterstützt nicht direkt Quellen, die mit der Legacy-Quell-API erstellt wurden.</string>
-    <string name="legacy_action_learn_more">Weitere Informationen</string>
-    <string name="legacy_action_send_feedback">Feedback senden</string>
-    <string name="legacy_summary_title">Legacy-Quellen werden nicht mehr unterstützt</string>
-    <plurals name="legacy_summary_text">
-        <item quantity="one"><xliff:g id="quantity" example="1">%1$d</xliff:g> Legacy-Quelle gefunden</item>
-        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> Legacy-Quellen gefunden</item>
-    </plurals>
 </resources>

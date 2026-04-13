@@ -46,10 +46,6 @@
     <string name="action_artwork_info_disabled">Der er ingen infomationer om det nuværende kunstværk.</string>
     <string name="provider_settings">Indstillinger</string>
     <string name="provider_browse">Gennemse</string>
-    <string name="legacy_action_learn_more">Få mere at vide</string>
-    <string name="legacy_action_send_feedback">Send feedback</string>
-    <string name="legacy_source_info_app_info">App-info</string>
-    <string name="legacy_source_info_send_feedback">Send feedback</string>
     <string name="done">Udfør</string>
     <string name="set_as_wallpaper_using_muzei">Baggrundsbillede (ved hjælp af <xliff:g id="muzei_name">Muzei</xliff:g>)</string>
     <string name="get_more_sources">Få flere kilder</string>

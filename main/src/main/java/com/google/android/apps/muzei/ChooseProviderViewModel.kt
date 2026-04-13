@@ -29,8 +29,6 @@ import android.net.Uri
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
-import com.google.android.apps.muzei.legacy.LegacySourceManager
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.getInstalledProviders
@@ -39,7 +37,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 
 data class ProviderInfo(
@@ -80,20 +77,8 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
 
     private val database = MuzeiDatabase.getInstance(application)
 
-    val currentProvider = database.providerDao().getCurrentProviderFlow()
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), null)
-
-    val unsupportedSources = LegacySourceManager.getInstance(application).unsupportedSources
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
-
     private val comparator = Comparator<ProviderInfo> { p1, p2 ->
-        // The SourceArtProvider should always the last provider listed
-        if (p1.authority == LEGACY_AUTHORITY) {
-            return@Comparator 1
-        } else if (p2.authority == LEGACY_AUTHORITY) {
-            return@Comparator -1
-        }
-        // Then put providers from Muzei on top
+        // Put providers from Muzei on top
         val pn1 = p1.packageName
         val pn2 = p2.packageName
         if (pn1 != pn2) {

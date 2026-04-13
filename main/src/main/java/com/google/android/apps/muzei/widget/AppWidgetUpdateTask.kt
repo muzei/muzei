@@ -31,7 +31,6 @@ import android.widget.RemoteViews
 import androidx.annotation.LayoutRes
 import androidx.annotation.RequiresApi
 import androidx.core.os.bundleOf
-import com.google.android.apps.muzei.legacy.allowsNextArtwork
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
@@ -140,8 +139,7 @@ private suspend fun createRemoteViews(
 ): RemoteViews? {
     val contentDescription = artwork.title ?: artwork.byline ?: ""
     val imageUri = artwork.contentUri
-    val supportsNextArtwork = WallpaperActiveState.value &&
-            provider.allowsNextArtwork(context)
+    val supportsNextArtwork = WallpaperActiveState.value && provider.supportsNextArtwork
 
     // Update the widget(s) with the new artwork information
     val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)

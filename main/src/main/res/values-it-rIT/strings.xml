@@ -59,16 +59,5 @@
     <string name="action_artwork_info_disabled">Non ci sono informazioni per l\'opera attuale.</string>
     <string name="provider_settings">Impostazioni</string>
     <string name="provider_browse">Sfoglia</string>
-    <string name="legacy_notification_channel_name">Sorgenti Legacy</string>
-    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> non è più supportato</string>
-    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> non supporta direttamente le sorgenti programmate con l\'API Legacy Source.</string>
-    <string name="legacy_action_learn_more">Altre informazioni</string>
-    <string name="legacy_action_send_feedback">Invia feedback</string>
-    <string name="legacy_summary_title">Le sorgenti legacy non sono più supportate</string>
-    <string name="legacy_source_info_title">Sorgenti Legacy</string>
-    <string name="legacy_source_info_subtitle">Le sorgenti programmate con l\'API Legacy Source non sono più supportate direttamente da <xliff:g id="muzei_name">Muzei</xliff:g>.</string>
-    <string name="legacy_source_info_app_info">Informazioni applicazione</string>
-    <string name="legacy_source_info_send_feedback">Invia feedback</string>
-    <string name="legacy_source_all_uninstalled">Tutte le sorgenti legacy sono state disinstallate</string>
     <string name="done">Fatto</string>
 </resources>

@@ -46,11 +46,6 @@
     <string name="action_artwork_info_disabled">Δεν υπάρχουν πληροφορίες για το συγκεκριμένο έργο τέχνης.</string>
     <string name="provider_settings">Ρυθμίσεις</string>
     <string name="provider_browse">Περιήγηση</string>
-    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> δεν υποστηρίζεται πλέον</string>
-    <string name="legacy_action_learn_more">Μάθετε περισσότερα</string>
-    <string name="legacy_action_send_feedback">Αποστολή σχολίων</string>
-    <string name="legacy_source_info_app_info">Πληροφορίες εφαρμογής</string>
-    <string name="legacy_source_info_send_feedback">Αποστολή σχολίων</string>
     <string name="done">Τέλος</string>
     <string name="set_as_wallpaper_using_muzei">Ταπετσαρία (χρησιμοποιώντας το <xliff:g id="muzei_name">Muzei</xliff:g>)</string>
     <string name="set_as_wallpaper_failed">Δεν είναι δυνατή η ανάγνωση του έργου τέχνης</string>

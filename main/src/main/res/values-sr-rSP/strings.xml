@@ -44,11 +44,6 @@
     <string name="action_artwork_info">Информације о уметничком делу</string>
     <string name="provider_settings">Подешавања</string>
     <string name="provider_browse">Претражити</string>
-    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> није више подржан</string>
-    <string name="legacy_action_learn_more">Сазнајте више</string>
-    <string name="legacy_action_send_feedback">Пошаљи повратне информације</string>
-    <string name="legacy_source_info_app_info">Информације о апликацији</string>
-    <string name="legacy_source_info_send_feedback">Пошаљи повратне информације</string>
     <string name="done">Готово</string>
     <string name="set_as_wallpaper_using_muzei">Позадина (из <xliff:g id="muzei_name">Muzei</xliff:g>)</string>
     <string name="tutorial_main">Отвори апликацију <xliff:g id="muzei_name">Muzei</xliff:g> да видиш своју позадину</string>

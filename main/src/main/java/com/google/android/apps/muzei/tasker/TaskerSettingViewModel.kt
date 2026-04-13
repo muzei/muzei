@@ -20,7 +20,6 @@ import android.app.Application
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
-import com.google.android.apps.muzei.legacy.BuildConfig.LEGACY_AUTHORITY
 import com.google.android.apps.muzei.room.getInstalledProviders
 import kotlinx.coroutines.flow.map
 import net.nurik.roman.muzei.R
@@ -45,15 +44,7 @@ internal class TaskerSettingViewModel(
         } else if (a2.action is NextArtworkAction) {
             return@Comparator 1
         }
-        // The SourceArtProvider should always the last provider listed
-        if (a1.action is SelectProviderAction &&
-                a1.action.authority == LEGACY_AUTHORITY) {
-            return@Comparator 1
-        } else if (a2.action is SelectProviderAction &&
-                a2.action.authority == LEGACY_AUTHORITY) {
-            return@Comparator -1
-        }
-        // Then put providers from Muzei on top
+        // Put providers from Muzei on top
         val pn1 = a1.packageName
         val pn2 = a2.packageName
         if (pn1 != pn2) {

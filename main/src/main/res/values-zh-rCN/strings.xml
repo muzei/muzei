@@ -59,23 +59,6 @@
     <string name="action_artwork_info_disabled">当前作品没有作品信息。</string>
     <string name="provider_settings">设置</string>
     <string name="provider_browse">浏览</string>
-    <string name="legacy_notification_channel_name">旧版源</string>
-    <string name="legacy_notification_title">不再支持 <xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g></string>
-    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> 不直接支持使用旧版源 API 构建的源。</string>
-    <string name="legacy_action_learn_more">了解详情</string>
-    <string name="legacy_action_send_feedback">发送反馈</string>
-    <string name="legacy_summary_title">不再支持旧版源</string>
-    <plurals name="legacy_summary_text">
-        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> 发现旧版源</item>
-    </plurals>
-    <plurals name="legacy_unsupported_text">
-        <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> 发现不支持的源</item>
-    </plurals>
-    <string name="legacy_source_info_title">旧版源</string>
-    <string name="legacy_source_info_subtitle">构建在旧版源 API 上的源不再直接被 <xliff:g id="muzei_name">Muzei</xliff:g> 支持。</string>
-    <string name="legacy_source_info_app_info">应用信息</string>
-    <string name="legacy_source_info_send_feedback">发送反馈</string>
-    <string name="legacy_source_all_uninstalled">所有旧版源已卸载</string>
     <string name="done">完成</string>
     <string name="set_as_wallpaper_using_muzei">壁纸（使用 <xliff:g id="muzei_name">Muzei</xliff:g>）</string>
     <string name="set_as_wallpaper_failed">无法读取作品</string>

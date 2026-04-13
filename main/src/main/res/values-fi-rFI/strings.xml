@@ -45,8 +45,6 @@
     <string name="auto_advance_interval_72h">Joka kolmas päivä</string>
     <string name="auto_advance_interval_never">Älä tee automaattista vaihtoa</string>
     <string name="action_activate">Ota käyttöön</string>
-    <string name="legacy_source_info_app_info">Sovelluksen tiedot</string>
-    <string name="legacy_source_info_send_feedback">Anna palautetta</string>
     <string name="done">Valmis</string>
     <string name="reset_advanced_settings_defaults">Nollaa säätimet</string>
     <string name="browse_refresh">Päivitä</string>

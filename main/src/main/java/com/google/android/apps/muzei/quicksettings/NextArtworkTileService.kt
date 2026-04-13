@@ -33,10 +33,9 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.lifecycleScope
 import com.google.android.apps.muzei.MuzeiWallpaperService
-import com.google.android.apps.muzei.legacy.LegacySourceManager
-import com.google.android.apps.muzei.legacy.allowsNextArtwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
 import com.google.android.apps.muzei.room.Provider
+import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.collectIn
 import com.google.android.apps.muzei.util.toast
 import com.google.android.apps.muzei.wallpaper.WallpaperActiveState
@@ -86,7 +85,7 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
     }
 
-    private suspend fun updateTile() {
+    private fun updateTile() {
         val context = this
         qsTile?.takeIf { !WallpaperActiveState.value || currentProvider != null }?.apply {
             when {
@@ -96,7 +95,7 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
                     label = getString(R.string.action_activate)
                     icon = Icon.createWithResource(context, CommonR.drawable.ic_stat_muzei)
                 }
-                currentProvider.allowsNextArtwork(context) -> {
+                currentProvider?.supportsNextArtwork == true -> {
                     state = Tile.STATE_ACTIVE
                     label = getString(R.string.action_next_artwork)
                     icon = Icon.createWithResource(context, R.drawable.ic_notif_next_artwork)
@@ -120,7 +119,7 @@ class NextArtworkTileService : TileService(), LifecycleOwner {
                             Firebase.analytics.logEvent("next_artwork") {
                                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "tile")
                             }
-                            LegacySourceManager.getInstance(context).nextArtwork()
+                            ProviderManager.getInstance(context).nextArtwork()
                         }
                     }
                 }

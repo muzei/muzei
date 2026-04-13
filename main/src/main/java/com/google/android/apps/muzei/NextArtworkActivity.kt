@@ -19,7 +19,7 @@ package com.google.android.apps.muzei
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
-import com.google.android.apps.muzei.legacy.LegacySourceManager
+import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.analytics
@@ -39,7 +39,7 @@ class NextArtworkActivity : ComponentActivity() {
                 Firebase.analytics.logEvent("next_artwork") {
                     param(FirebaseAnalytics.Param.CONTENT_TYPE, "activity_shortcut")
                 }
-                LegacySourceManager.getInstance(this@NextArtworkActivity).nextArtwork()
+                ProviderManager.getInstance(this@NextArtworkActivity).nextArtwork()
             }
         }
         finish()

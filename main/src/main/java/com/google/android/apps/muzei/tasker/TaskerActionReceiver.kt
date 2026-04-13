@@ -19,7 +19,6 @@ package com.google.android.apps.muzei.tasker
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.google.android.apps.muzei.legacy.LegacySourceManager
 import com.google.android.apps.muzei.sync.ProviderManager
 import com.google.android.apps.muzei.util.goAsync
 import com.google.firebase.Firebase
@@ -57,7 +56,7 @@ class TaskerActionReceiver : BroadcastReceiver() {
                     Firebase.analytics.logEvent("next_artwork") {
                         param(FirebaseAnalytics.Param.CONTENT_TYPE, "tasker")
                     }
-                    LegacySourceManager.getInstance(context).nextArtwork()
+                    ProviderManager.getInstance(context).nextArtwork()
                 }
                 is InvalidAction -> {}
             }

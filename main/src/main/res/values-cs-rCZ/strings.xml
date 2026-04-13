@@ -59,29 +59,6 @@
     <string name="action_artwork_info_disabled">Nejsou k dispozici žádné informace o aktuálním obrázku.</string>
     <string name="provider_settings">Nastavení</string>
     <string name="provider_browse">Procházet</string>
-    <string name="legacy_notification_channel_name">Starší zdroje</string>
-    <string name="legacy_notification_title"><xliff:g id="source_name" example="Nice Wallpapers">%s</xliff:g> už není podporováno</string>
-    <string name="legacy_notification_text"><xliff:g id="muzei_name">Muzei</xliff:g> přímo nepodporuje zdroje vytvořené s původním API.</string>
-    <string name="legacy_action_learn_more">Zjistit více</string>
-    <string name="legacy_action_send_feedback">Zpětná vazba</string>
-    <string name="legacy_summary_title">Starší zdroje již nejsou podporovány</string>
-    <plurals name="legacy_summary_text">
-        <item quantity="one">Nalezen <xliff:g id="quantity" example="1">%1$d</xliff:g> starší zdroj</item>
-        <item quantity="few">Nalezeny <xliff:g id="quantity" example="2">%1$d</xliff:g> starší zdroje</item>
-        <item quantity="many">Nalezeno <xliff:g id="quantity" example="5">%1$d</xliff:g> starších zdrojů</item>
-        <item quantity="other">Nalezeno <xliff:g id="quantity" example="100">%1$d</xliff:g> starších zdrojů</item>
-    </plurals>
-    <plurals name="legacy_unsupported_text">
-        <item quantity="one">Nalezen <xliff:g id="quantity" example="1">%1$d</xliff:g> nepodporovaný zdroj</item>
-        <item quantity="few">Nalezeny <xliff:g id="quantity" example="2">%1$d</xliff:g> nepodporované zdroje</item>
-        <item quantity="many">Nalezeno <xliff:g id="quantity" example="5">%1$d</xliff:g> nepodporovaných zdrojů</item>
-        <item quantity="other">Nalezeno <xliff:g id="quantity" example="100">%1$d</xliff:g> nepodporovaných zdrojů</item>
-    </plurals>
-    <string name="legacy_source_info_title">Starší zdroje</string>
-    <string name="legacy_source_info_subtitle">Zdroje používající původní API již <xliff:g id="muzei_name">Muzei</xliff:g> přímo nepodporuje.</string>
-    <string name="legacy_source_info_app_info">Informace o aplikaci</string>
-    <string name="legacy_source_info_send_feedback">Zpětná vazba</string>
-    <string name="legacy_source_all_uninstalled">Všechny starší zdroje byly odinstalovány</string>
     <string name="done">Hotovo</string>
     <string name="set_as_wallpaper_using_muzei">Tapetu (použít <xliff:g id="muzei_name">Muzei</xliff:g>)</string>
     <string name="set_as_wallpaper_failed">Obrázek nelze načíst</string>
