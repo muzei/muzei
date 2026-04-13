@@ -19,4 +19,5 @@
     <string name="next_artwork">下一個 Artwork</string>
     <string name="provider_title">目前來源</string>
     <string name="provider_settings">來源設定</string>
+    <string name="open_on_phone">在手機上開啟</string>
 </resources>
