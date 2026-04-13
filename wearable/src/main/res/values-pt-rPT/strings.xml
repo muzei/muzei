@@ -19,8 +19,4 @@
     <string name="next_artwork">Próxima obra de arte</string>
     <string name="provider_title">Fonte de dados atual</string>
     <string name="provider_settings">Definições da Fonte de Dados</string>
-    <string name="config_show_date_title">Data</string>
-    <string name="config_top_complication_title">Elemento Superior</string>
-    <string name="config_bottom_complication_title">Elemento Inferior</string>
-    <string name="config_tap_title">Ação de toque</string>
 </resources>

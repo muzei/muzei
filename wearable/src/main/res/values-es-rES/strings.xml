@@ -19,6 +19,4 @@
     <string name="next_artwork">Siguiente arte</string>
     <string name="provider_title">Origen actual</string>
     <string name="provider_settings">Ajustes de origen</string>
-    <string name="config_show_date_title">Fecha</string>
-    <string name="config_tap_title">Acción al tocar</string>
 </resources>

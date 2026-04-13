@@ -19,7 +19,4 @@
     <string name="next_artwork">Следеће уметничко дело</string>
     <string name="provider_title">Тренутни извор</string>
     <string name="provider_settings">Подешавања извора</string>
-    <string name="config_show_date_title">Датум</string>
-    <string name="config_top_complication_title">Горња компликација</string>
-    <string name="config_bottom_complication_title">Доња компликација</string>
 </resources>

@@ -19,9 +19,5 @@
     <string name="next_artwork">Next artwork</string>
     <string name="provider_title">Current Source</string>
     <string name="provider_settings">Source Settings</string>
-
-    <string name="config_show_date_title">Date</string>
-    <string name="config_top_complication_title">Top Complication</string>
-    <string name="config_bottom_complication_title">Bottom Complication</string>
-    <string name="config_tap_title">Tap Action</string>
+    <string name="open_on_phone">Open on phone</string>
 </resources>

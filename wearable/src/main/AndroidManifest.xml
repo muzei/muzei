@@ -121,45 +121,6 @@
                 android:value="0"/>
         </service>
 
-        <service
-            android:name="com.google.android.apps.muzei.MuzeiWatchFace"
-            android:exported="true"
-            android:permission="android.permission.BIND_WALLPAPER">
-            <meta-data
-                android:name="android.service.wallpaper"
-                android:resource="@xml/watch_face"/>
-            <meta-data
-                android:name="android.service.wallpaper.square_mode"
-                android:value="false"/>
-            <meta-data
-                android:name="com.google.android.wearable.watchface.preview"
-                android:resource="@drawable/preview"/>
-            <meta-data
-                android:name="com.google.android.wearable.watchface.preview_circular"
-                android:resource="@drawable/preview_circular"/>
-            <meta-data
-                android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
-                android:value="com.google.android.apps.muzei.CONFIG_WATCH_FACE"/>
-
-            <intent-filter>
-                <action android:name="android.service.wallpaper.WallpaperService"/>
-                <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE"/>
-            </intent-filter>
-        </service>
-
-        <activity
-            android:name="com.google.android.apps.muzei.ConfigActivity"
-            android:exported="true"
-            android:theme="@style/MuzeiTheme">
-            <intent-filter>
-                <action android:name="com.google.android.apps.muzei.CONFIG_WATCH_FACE"/>
-
-                <category android:name="com.google.android.wearable.watchface.category.WEARABLE_CONFIGURATION"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity>
-        <activity android:name="android.support.wearable.complications.ComplicationHelperActivity"/>
-
         <receiver android:name="com.google.android.apps.muzei.datalayer.ActivateMuzeiReceiver"/>
 
         <service

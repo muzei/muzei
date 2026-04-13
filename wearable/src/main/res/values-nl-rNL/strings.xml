@@ -19,8 +19,4 @@
     <string name="next_artwork">Volgend kunstwerk</string>
     <string name="provider_title">Huidige bron</string>
     <string name="provider_settings">Broninstellingen</string>
-    <string name="config_show_date_title">Datum</string>
-    <string name="config_top_complication_title">Bovenste complicatie</string>
-    <string name="config_bottom_complication_title">Onderste complicatie</string>
-    <string name="config_tap_title">Actie bij drukken</string>
 </resources>

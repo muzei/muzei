@@ -54,7 +54,6 @@ firebasePerfPlugin = "2.0.2"
 # Google Play services
 googleServices = "4.4.4"
 playServicesWearable = "19.0.0"
-wearable = "2.9.0"
 
 # Jetbrains
 coroutines = "1.10.2"
@@ -117,9 +116,7 @@ recyclerView = { group = "androidx.recyclerview", name = "recyclerview", version
 wear-core = { group = "androidx.wear", name = "wear", version.ref = "wear" }
 wear-phone = { group = "androidx.wear", name = "wear-phone-interactions", version.ref = "wearPhoneInteractions" }
 wear-remote = { group = "androidx.wear", name = "wear-remote-interactions", version.ref = "wearRemoteInteractions" }
-watchface-core = { group = "androidx.wear.watchface", name = "watchface", version.ref = "watchface" }
 watchface-complications-data = { group = "androidx.wear.watchface", name = "watchface-complications-data-source-ktx", version.ref = "watchface" }
-watchface-complications-rendering = { group = "androidx.wear.watchface", name = "watchface-complications-rendering", version.ref = "watchface" }
 workManager = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workManager" }
 
 # Firebase
@@ -132,8 +129,6 @@ firebase-perf-plugin = { group = "com.google.firebase", name = "perf-plugin", ve
 # Google Play services
 googleservices = { group = "com.google.gms", name = "google-services", version.ref = "googleServices" }
 wearable-playservices = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "playServicesWearable" }
-wearable-compile = { group = "com.google.android.wearable", name = "wearable", version.ref = "wearable" }
-wearable-support = { group = "com.google.android.support", name = "wearable", version.ref = "wearable" }
 
 # Jetbrains
 coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }

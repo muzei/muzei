@@ -19,5 +19,4 @@
     <string name="next_artwork">Seuraava teos</string>
     <string name="provider_title">Nykyinen lähde</string>
     <string name="provider_settings">Lähteen asetukset</string>
-    <string name="config_tap_title">Napautustoiminto</string>
 </resources>

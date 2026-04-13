@@ -50,7 +50,6 @@ import kotlinx.coroutines.tasks.await
 import net.nurik.roman.muzei.R
 import java.util.TreeSet
 import java.util.concurrent.TimeoutException
-import android.support.wearable.R as WearableR
 import net.nurik.roman.muzei.androidclientcommon.R as CommonR
 
 class ActivateMuzeiReceiver : BroadcastReceiver() {
@@ -160,7 +159,7 @@ class ActivateMuzeiReceiver : BroadcastReceiver() {
             }
             val pendingIntent = PendingIntent.getBroadcast(context, 0, installMuzeiIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-            builder.addAction(NotificationCompat.Action.Builder(WearableR.drawable.open_on_phone,
+            builder.addAction(NotificationCompat.Action.Builder(R.drawable.open_on_phone_button,
                     context.getString(R.string.datalayer_install_action), pendingIntent)
                     .extend(NotificationCompat.Action.WearableExtender()
                             .setHintDisplayActionInline(true)

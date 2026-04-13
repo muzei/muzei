@@ -19,6 +19,4 @@
     <string name="next_artwork">العمل الفني التالي</string>
     <string name="provider_title">المصدر الحالي</string>
     <string name="provider_settings">إعدادات المصدر</string>
-    <string name="config_show_date_title">التاريخ</string>
-    <string name="config_tap_title">إجراء النقر</string>
 </resources>

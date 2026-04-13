@@ -19,8 +19,4 @@
     <string name="next_artwork">Następna grafika</string>
     <string name="provider_title">Bieżące źródło</string>
     <string name="provider_settings">Ustawienia źródła</string>
-    <string name="config_show_date_title">Data</string>
-    <string name="config_top_complication_title">Najlepsze komplikacje</string>
-    <string name="config_bottom_complication_title">Dolna komplikacja</string>
-    <string name="config_tap_title">Akcja kliknięcia</string>
 </resources>

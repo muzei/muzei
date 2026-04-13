@@ -19,8 +19,4 @@
     <string name="next_artwork">Nästa bild</string>
     <string name="provider_title">Nuvarande källa</string>
     <string name="provider_settings">Inställningar för källa</string>
-    <string name="config_show_date_title">Datum</string>
-    <string name="config_top_complication_title">Övre komplikationen</string>
-    <string name="config_bottom_complication_title">Nedre komplikationen</string>
-    <string name="config_tap_title">Åtgärd vid tryck</string>
 </resources>

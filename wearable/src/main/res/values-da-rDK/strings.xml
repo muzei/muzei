@@ -19,6 +19,4 @@
     <string name="next_artwork">Næste kunstværk</string>
     <string name="provider_title">Nuværende kilde</string>
     <string name="provider_settings">Kildeindstillinger</string>
-    <string name="config_show_date_title">Dato</string>
-    <string name="config_tap_title">Handling ved tryk</string>
 </resources>
