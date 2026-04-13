@@ -16,4 +16,5 @@
   -->
 <resources>
     <string name="provider_settings">הגדרות מקור</string>
+    <string name="open_on_phone">פתיחה בטלפון</string>
 </resources>
