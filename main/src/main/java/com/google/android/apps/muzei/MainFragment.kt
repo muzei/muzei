@@ -17,7 +17,6 @@
 package com.google.android.apps.muzei
 
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
