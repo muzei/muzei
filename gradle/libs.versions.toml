@@ -59,11 +59,11 @@ wearable = "2.9.0"
 # Jetbrains
 coroutines = "1.10.2"
 dokka = "1.9.0"
-kotlin = "2.3.0"
+kotlin = "2.3.20"
 ksp = "2.3.4"
 
 # Other
-coil = "3.3.0"
+coil = "3.4.0"
 material = "1.13.0"
 okhttp = "5.3.2"
 okhttpCoroutines = "1.0"
