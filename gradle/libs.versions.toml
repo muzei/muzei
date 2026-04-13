@@ -45,10 +45,10 @@ wearRemoteInteractions = "1.2.0"
 workManager = "2.11.2"
 
 # Firebase
-firebaseAnalytics = "23.0.0"
-firebaseCrashlytics = "20.0.3"
-firebaseCrashlyticsGradle = "3.0.6"
-firebasePerf = "22.0.4"
+firebaseAnalytics = "23.2.0"
+firebaseCrashlytics = "20.0.5"
+firebaseCrashlyticsGradle = "3.0.7"
+firebasePerf = "22.0.5"
 firebasePerfPlugin = "2.0.2"
 
 # Google Play services
