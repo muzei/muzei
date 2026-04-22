@@ -36,6 +36,10 @@ android {
 
     compileSdk libs.versions.compileSdk.get().toInteger()
 
+    buildFeatures {
+        buildConfig true
+    }
+
     defaultConfig {
         minSdkVersion 23
         targetSdkVersion libs.versions.targetSdk.get()

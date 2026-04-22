@@ -32,6 +32,7 @@ android {
     versionProps.load(new FileInputStream(file('../version.properties')))
 
     buildFeatures {
+        buildConfig true
         viewBinding true
         compose true
     }

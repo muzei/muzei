@@ -42,6 +42,10 @@ android {
     namespace 'net.nurik.roman.muzei.androidclientcommon'
     compileSdk libs.versions.compileSdk.get().toInteger()
 
+    buildFeatures {
+        buildConfig true
+    }
+
     defaultConfig {
         minSdkVersion 23
         targetSdkVersion libs.versions.targetSdk.get()
