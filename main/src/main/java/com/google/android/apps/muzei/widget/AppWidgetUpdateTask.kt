@@ -24,13 +24,13 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
+import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
 import androidx.annotation.LayoutRes
 import androidx.annotation.RequiresApi
-import androidx.core.os.bundleOf
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
@@ -68,7 +68,9 @@ suspend fun showWidgetPreview(context: Context) {
             context.resources.getDimensionPixelSize(R.dimen.widget_min_width),
             context.resources.getDimensionPixelSize(R.dimen.widget_min_height))
             ?: return
-    val extras = bundleOf(AppWidgetManager.EXTRA_APPWIDGET_PREVIEW to remoteViews)
+    val extras = Bundle().apply {
+        putParcelable(AppWidgetManager.EXTRA_APPWIDGET_PREVIEW, remoteViews)
+    }
     try {
         appWidgetManager.requestPinAppWidget(widget, extras, null)
     } catch (_: IllegalStateException) {

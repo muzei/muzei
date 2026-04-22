@@ -17,7 +17,7 @@
 package com.google.android.apps.muzei.tasker
 
 import android.os.Bundle
-import androidx.core.os.bundleOf
+import androidx.savedstate.savedState
 
 private const val ACTION_NEXT_ARTWORK = "next_artwork"
 private const val ACTION_SELECT_PROVIDER = "select_provider"
@@ -39,14 +39,16 @@ internal sealed class TaskerAction {
 }
 
 internal data object NextArtworkAction : TaskerAction() {
-    override fun toBundle() = bundleOf(
-            EXTRA_ACTION to ACTION_NEXT_ARTWORK)
+    override fun toBundle() = savedState {
+        putString(EXTRA_ACTION, ACTION_NEXT_ARTWORK)
+    }
 }
 
 internal class SelectProviderAction(val authority: String) : TaskerAction() {
-    override fun toBundle() = bundleOf(
-            EXTRA_ACTION to ACTION_SELECT_PROVIDER,
-            EXTRA_PROVIDER_AUTHORITY to authority)
+    override fun toBundle() = savedState {
+        putString(EXTRA_ACTION, ACTION_SELECT_PROVIDER)
+        putString(EXTRA_PROVIDER_AUTHORITY, authority)
+    }
 }
 
 internal data object InvalidAction : TaskerAction()

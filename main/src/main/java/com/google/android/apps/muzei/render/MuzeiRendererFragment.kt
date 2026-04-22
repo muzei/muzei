@@ -29,9 +29,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.compose.AndroidFragment
+import androidx.savedstate.savedState
 import coil3.load
 import coil3.request.lifecycle
 import coil3.request.transformations
@@ -56,9 +56,10 @@ fun MuzeiRendererFragment(
 ) {
     AndroidFragment<MuzeiRendererFragment>(
         modifier = modifier,
-        arguments = bundleOf(
-            ARG_DEMO_MODE to demoMode,
-            ARG_DEMO_FOCUS to demoFocus),
+        arguments = savedState {
+            putBoolean(ARG_DEMO_MODE, demoMode)
+            putBoolean(ARG_DEMO_FOCUS, demoFocus)
+        }
     )
 }
 
@@ -69,9 +70,10 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
 
         fun createInstance(demoMode: Boolean, demoFocus: Boolean = false): MuzeiRendererFragment {
             return MuzeiRendererFragment().apply {
-                arguments = bundleOf(
-                        ARG_DEMO_MODE to demoMode,
-                        ARG_DEMO_FOCUS to demoFocus)
+                arguments = savedState {
+                    putBoolean(ARG_DEMO_MODE, demoMode)
+                    putBoolean(ARG_DEMO_FOCUS, demoFocus)
+                }
             }
         }
     }

@@ -32,8 +32,8 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.RemoteInput
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
-import androidx.core.os.bundleOf
 import androidx.preference.PreferenceManager
+import androidx.savedstate.savedState
 import com.google.android.apps.muzei.ArtDetailOpen
 import com.google.android.apps.muzei.ArtworkInfoRedirectActivity
 import com.google.android.apps.muzei.render.ContentUriImageLoader
@@ -311,8 +311,9 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                 ACTION_MARK_NOTIFICATION_READ -> markNotificationRead(context)
                 ACTION_NEXT_ARTWORK -> {
                     Firebase.analytics.logEvent(
-                            "next_artwork", bundleOf(
-                            FirebaseAnalytics.Param.CONTENT_TYPE to "notification"))
+                        "next_artwork", savedState {
+                            putString(FirebaseAnalytics.Param.CONTENT_TYPE, "notification")
+                        })
                     ProviderManager.getInstance(context).nextArtwork()
                 }
                 ACTION_USER_COMMAND -> triggerUserCommandFromRemoteInput(context, intent)
