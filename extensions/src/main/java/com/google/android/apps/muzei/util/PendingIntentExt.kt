@@ -30,10 +30,12 @@ fun PendingIntent.sendFromBackground() {
             @Suppress("DEPRECATION") /* Doesn't work unless this is also used ¯\_(ツ)_/¯ */
             isPendingIntentBackgroundActivityLaunchAllowed = true
             if (Build.VERSION.SDK_INT >= 36) {
-                setPendingIntentCreatorBackgroundActivityStartMode(ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOW_ALWAYS)
+                pendingIntentBackgroundActivityStartMode =
+                    ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOW_ALWAYS
             } else {
                 @Suppress("DEPRECATION") /* Needed for API 34-35 */
-                setPendingIntentCreatorBackgroundActivityStartMode(ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED)
+                pendingIntentBackgroundActivityStartMode =
+                    ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED
             }
         }.toBundle()
         send(options)
