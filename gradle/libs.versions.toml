@@ -16,7 +16,7 @@
 
 [versions]
 
-compileSdk = "36"
+compileSdk = "37"
 targetSdk = "34"
 agp = "9.2.0"
 
