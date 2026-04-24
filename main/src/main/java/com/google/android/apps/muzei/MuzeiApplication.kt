@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei
 
+import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
@@ -25,13 +26,12 @@ import androidx.compose.runtime.ExperimentalComposeRuntimeApi
 import androidx.compose.runtime.tooling.ComposeStackTraceMode
 import androidx.core.content.edit
 import androidx.fragment.app.strictmode.FragmentStrictMode
-import androidx.multidex.MultiDexApplication
 import com.google.android.apps.muzei.settings.Prefs
 import com.google.firebase.Firebase
 import com.google.firebase.crashlytics.crashlytics
 import net.nurik.roman.muzei.BuildConfig
 
-class MuzeiApplication : MultiDexApplication(), SharedPreferences.OnSharedPreferenceChangeListener {
+class MuzeiApplication : Application(), SharedPreferences.OnSharedPreferenceChangeListener {
 
     companion object {
         private const val ALWAYS_DARK_KEY = "always_dark"

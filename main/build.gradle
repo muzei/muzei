@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
 apply plugin: 'org.jetbrains.kotlin.plugin.compose'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'androidx.navigation.safeargs.kotlin'
 
-project.archivesBaseName = "muzei"
+base { archivesName = "muzei" }
 
 android {
     namespace 'net.nurik.roman.muzei'
@@ -44,9 +45,6 @@ android {
 
         versionName versionProps['name']
         versionCode versionProps['code'].toInteger()
-
-        multiDexEnabled true
-        wearAppUnbundled true
 
         buildConfigField "String", "DEVICE_TYPE", "\"android\""
     }
@@ -89,14 +87,15 @@ android {
         publicDebug.initWith(buildTypes.publicBeta)
         publicDebug {
             debuggable true
-            renderscriptDebuggable true
             versionNameSuffix " Debug " + versionProps['betaNumber']
         }
     }
 
-    kotlinOptions {
-        jvmTarget = '11'
-        freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+            freeCompilerArgs.add("-opt-in=kotlin.RequiresOptIn")
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
@@ -108,7 +107,6 @@ dependencies {
     api libs.coroutines.core
     api libs.coroutines.android
     api libs.coroutines.playservices
-    implementation libs.multidex
     implementation libs.coil.compose
     implementation libs.coil.runtime
     implementation libs.coil.okhttp

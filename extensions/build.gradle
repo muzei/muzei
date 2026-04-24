@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
 
 dependencies {
     api libs.coroutines.core
@@ -43,9 +44,11 @@ android {
         publicDebug
     }
 
-    kotlinOptions {
-        jvmTarget = '11'
-        freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+            freeCompilerArgs.add("-opt-in=kotlin.RequiresOptIn")
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11

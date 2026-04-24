@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'com.google.firebase.firebase-perf'
@@ -83,9 +84,11 @@ android {
         }
     }
 
-    kotlinOptions {
-        jvmTarget = '11'
-        freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+            freeCompilerArgs.add("-opt-in=kotlin.RequiresOptIn")
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11

@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
 apply plugin: 'com.google.devtools.ksp'
 
 dependencies {
@@ -23,7 +24,6 @@ dependencies {
     api libs.coroutines.android
     implementation project(':muzei-api')
     implementation project(':extensions')
-    implementation libs.multidex
     implementation libs.core
     implementation libs.exifInterface
     implementation libs.lifecycle.common
@@ -54,8 +54,6 @@ android {
         manifestPlaceholders = [documentsAuthority: documentsAuthorityValue]
         buildConfigField "String", "DOCUMENTS_AUTHORITY", "\"${documentsAuthorityValue}\""
 
-        multiDexEnabled true
-
         ksp {
             arg("room.schemaLocation", "$projectDir/schemas")
             arg("room.generateKotlin", "true")
@@ -67,9 +65,11 @@ android {
         publicDebug
     }
 
-    kotlinOptions {
-        jvmTarget = '11'
-        freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+            freeCompilerArgs.add("-opt-in=kotlin.RequiresOptIn")
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11

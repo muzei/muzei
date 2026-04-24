@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
 
 dependencies {
     implementation libs.activity
@@ -48,8 +49,10 @@ android {
         buildConfigField "String", "UNSPLASH_AUTHORITY", "\"${unsplashAuthorityValue}\""
     }
 
-    kotlinOptions {
-        jvmTarget = '11'
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11

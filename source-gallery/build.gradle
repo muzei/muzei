@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
 apply plugin: 'org.jetbrains.kotlin.plugin.compose'
 apply plugin: 'com.google.devtools.ksp'
 apply plugin: 'org.jetbrains.kotlin.plugin.serialization'
@@ -65,8 +65,6 @@ android {
         buildConfigField "String", "GALLERY_AUTHORITY", "\"${galleryAuthorityValue}\""
         buildConfigField "String", "GALLERY_ART_AUTHORITY", "\"${galleryArtAuthorityValue}\""
 
-        multiDexEnabled true
-
         ksp {
             arg("room.schemaLocation", "$projectDir/schemas")
         }
@@ -77,9 +75,11 @@ android {
         publicDebug
     }
 
-    kotlinOptions {
-        jvmTarget = '11'
-        freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+            freeCompilerArgs.add("-opt-in=kotlin.RequiresOptIn")
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11

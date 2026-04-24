@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
 apply plugin: 'org.jetbrains.dokka'
 apply plugin: 'org.jetbrains.dokka-javadoc'
 apply plugin: 'maven-publish'
@@ -67,9 +68,11 @@ android {
         singleVariant("release")
     }
 
-    kotlinOptions {
-        jvmTarget = '11'
-        freeCompilerArgs += "-Xexplicit-api=strict"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+            freeCompilerArgs.add("-Xexplicit-api=strict")
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
@@ -78,7 +81,7 @@ android {
 }
 
 dokka {
-    dokkaSourceSets.main {
+    dokkaSourceSets.configureEach {
         perPackageOption {
             matchingRegex.set(".*\\.internal.*")
             suppress.set(true)
