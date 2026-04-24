@@ -57,7 +57,7 @@ playServicesWearable = "19.0.0"
 
 # Jetbrains
 coroutines = "1.10.2"
-dokka = "1.9.0"
+dokka = "2.2.0"
 kotlin = "2.3.20"
 ksp = "2.3.7"
 
@@ -150,6 +150,8 @@ subsampling = { group = "com.davemorrissey.labs", name = "subsampling-scale-imag
 tasker = { group = "com.joaomgcd", name = "taskerpluginlibrary", version.ref = "tasker" }
 
 [plugins]
+dokka-html = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+dokka-javadoc = { id = "org.jetbrains.dokka-javadoc", version.ref = "dokka" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

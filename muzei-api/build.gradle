@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-import org.jetbrains.dokka.gradle.DokkaTask
-
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'org.jetbrains.dokka'
+apply plugin: 'org.jetbrains.dokka-javadoc'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
@@ -78,48 +77,27 @@ android {
     }
 }
 
-tasks.withType(DokkaTask).configureEach {
-    dokkaSourceSets {
-        named("main") {
-            if (it.name.contains("androidTest")) {
-                suppress.set(true)
-            }
-
-            externalDocumentationLink {
-                url.set(new URL("https://developer.android.com/reference/"))
-                packageListUrl.set(new URL("https://developer.android.com/reference/androidx/package-list"))
-            }
-
-            perPackageOption {
-                matchingRegex.set(".*\\.internal.*")
-                suppress.set(true)
-            }
-
-            // Add module and package level documentation
-            includes.from(files("module.md", "package.md"))
+dokka {
+    dokkaSourceSets.main {
+        perPackageOption {
+            matchingRegex.set(".*\\.internal.*")
+            suppress.set(true)
         }
+
+        // Add module and package level documentation
+        includes.from(files("module.md", "package.md"))
     }
-}
 
-dokkaHtml.configure {
-    doLast {
-        copy {
-            from "dokka-override"
-            into new File(outputDirectory.get().toString(), "styles")
-            include "style.css"
-        }
-        copy {
-            from "dokka-override"
-            into new File(outputDirectory.get().toString(), "images")
-            include "docs_logo.svg", "logo-icon.svg"
+    pluginsConfiguration {
+        html {
+            customAssets.from(file("dokka-override/logo-icon.svg"))
         }
     }
 }
 
 tasks.register('javadocJar', Jar) {
-    dependsOn dokkaJavadoc
-    setArchiveClassifier('javadoc')
-    from dokkaJavadoc.outputDirectory
+    archiveClassifier.set('javadoc')
+    from(tasks.named('dokkaGeneratePublicationJavadoc').flatMap { it.outputDirectory })
 }
 
 tasks.register('sourcesJar', Jar) {
