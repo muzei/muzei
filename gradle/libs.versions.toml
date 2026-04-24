@@ -17,7 +17,7 @@
 [versions]
 
 compileSdk = "37"
-targetSdk = "34"
+targetSdk = "36"
 agp = "9.2.0"
 
 # AndroidX
