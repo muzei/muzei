@@ -14,11 +14,6 @@
   limitations under the License.
   -->
 
-<!--
-  We specifically use a RelativeLayout to ensure that the FragmentContainerView
-   is measured exactly, as that is required when you have a fragment that has a
-  DrawerLayout as its root view, as we do in Muzei's case.
-  -->
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"

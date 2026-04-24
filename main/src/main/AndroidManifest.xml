@@ -55,8 +55,10 @@
 
         <activity
             android:name="com.google.android.apps.muzei.MuzeiActivity"
+            android:enableOnBackInvokedCallback="false"
             android:exported="true"
-            android:theme="@style/Theme.MuzeiActivity">
+            android:theme="@style/Theme.MuzeiActivity"
+            tools:targetApi="33">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

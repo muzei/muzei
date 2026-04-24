@@ -124,14 +124,12 @@ dependencies {
     debugImplementation libs.compose.ui.tooling.runtime
     implementation libs.fragment
     implementation libs.appCompat
-    implementation libs.drawerLayout
     implementation libs.lifecycle.runtime
     implementation libs.lifecycle.viewmodel
     implementation libs.recyclerView
     implementation libs.material
     implementation libs.browser
     implementation libs.exifInterface
-    implementation libs.constraintLayout
     implementation libs.lifecycle.livedata
     implementation libs.lifecycle.common
     implementation libs.preference
