@@ -25,6 +25,11 @@
         android:glEsVersion="0x00020000"
         android:required="true"/>
 
+    <!-- Remove unused foreground service special use permission auto-added by Tasker -->
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"
+        tools:node="remove" />
+
     <!-- Don't request this starting with Marshmallow (we only write to the app's cache folder) -->
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
