@@ -53,9 +53,9 @@ googleServices = "4.4.4"
 playServicesWearable = "20.0.1"
 
 # Jetbrains
-coroutines = "1.10.2"
+coroutines = "1.11.0"
 dokka = "2.2.0"
-kotlin = "2.3.20"
+kotlin = "2.3.21"
 ksp = "2.3.7"
 
 # Other
