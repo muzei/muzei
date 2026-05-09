@@ -43,14 +43,14 @@ workManager = "2.11.2"
 
 # Firebase
 firebaseAnalytics = "23.2.0"
-firebaseCrashlytics = "20.0.5"
+firebaseCrashlytics = "20.0.6"
 firebaseCrashlyticsGradle = "3.0.7"
 firebasePerf = "22.0.5"
 firebasePerfPlugin = "2.0.2"
 
 # Google Play services
 googleServices = "4.4.4"
-playServicesWearable = "19.0.0"
+playServicesWearable = "20.0.1"
 
 # Jetbrains
 coroutines = "1.10.2"
