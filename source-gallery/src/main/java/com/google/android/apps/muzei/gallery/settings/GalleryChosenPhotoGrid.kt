@@ -85,7 +85,7 @@ fun GalleryChosenPhotoGrid(
         photos.itemCount,
         // Workaround for https://issuetracker.google.com/issues/372311615
         keyProvider = { index -> if (index < photos.itemSnapshotList.size) keyProvider(index) else -1 },
-        photoProvider = { index -> photos[index]!! },
+        photoProvider = { index -> if (index < photos.itemSnapshotList.size) photos[index] else null },
         modifier,
         contentPadding,
         checkedItemIds,
@@ -98,7 +98,7 @@ fun GalleryChosenPhotoGrid(
 fun GalleryChosenPhotoGrid(
     photoCount: Int,
     keyProvider: (Int) -> Any,
-    photoProvider: (Int) -> ChosenPhoto,
+    photoProvider: (Int) -> ChosenPhoto?,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     checkedItemIds: Set<Long> = emptySet(),
@@ -115,7 +115,7 @@ fun GalleryChosenPhotoGrid(
             photoCount,
             key = keyProvider
         ) { index ->
-            val photo = photoProvider(index)
+            val photo = photoProvider(index) ?: return@items
             val isChecked = photo.id in checkedItemIds
             GalleryChosenPhotoItem(
                 chosenPhoto = photo,
@@ -157,7 +157,7 @@ fun GalleryChosenPhotoGridPreview() {
             dynamicColor = false,
         ) {
             GalleryChosenPhotoGrid(
-                photos = colors.drop(4).mapIndexed { index, color ->
+                photos = List(colors.drop(4).size) { index ->
                     ChosenPhoto(
                         uri = (index + 4).toString().toUri(),
                         isTreeUri = (index + 1) % 5 == 0
@@ -187,7 +187,7 @@ fun GalleryChosenPhotoGridCheckedPreview() {
             dynamicColor = false,
         ) {
             GalleryChosenPhotoGrid(
-                photos = colors.drop(4).mapIndexed { index, color ->
+                photos = List(colors.drop(4).size) { index ->
                     ChosenPhoto(
                         uri = (index + 4).toString().toUri(),
                         isTreeUri = (index + 1) % 5 == 0
