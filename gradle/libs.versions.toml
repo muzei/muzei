@@ -55,13 +55,13 @@ playServicesWearable = "20.0.1"
 # Jetbrains
 coroutines = "1.11.0"
 dokka = "2.2.0"
-kotlin = "2.3.21"
+kotlin = "2.4.0"
 ksp = "2.3.7"
 
 # Other
-coil = "3.4.0"
+coil = "3.5.0"
 material = "1.14.0"
-okhttp = "5.3.2"
+okhttp = "5.4.0"
 okhttpCoroutines = "1.0"
 retrofit = "3.0.0"
 subsampling = "3.10.0"
