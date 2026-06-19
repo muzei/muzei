@@ -24,12 +24,12 @@ agp = "9.2.1"
 activity = "1.13.0"
 appCompat = "1.7.1"
 browser = "1.10.0"
-compose = "2026.05.01"
+compose = "2026.06.00"
 concurrent = "1.3.0"
 core = "1.19.0"
 exifInterface = "1.4.2"
 fragment = "1.8.9"
-lifecycle = "2.10.0"
+lifecycle = "2.11.0"
 navigation = "2.9.8"
 paging = "3.5.0"
 preference = "1.2.1"
@@ -49,7 +49,7 @@ firebasePerf = "22.0.5"
 firebasePerfPlugin = "2.0.2"
 
 # Google Play services
-googleServices = "4.4.4"
+googleServices = "4.5.0"
 playServicesWearable = "20.0.1"
 
 # Jetbrains
