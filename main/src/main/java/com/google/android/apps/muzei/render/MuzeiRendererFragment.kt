@@ -82,6 +82,7 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
     private lateinit var simpleDemoModeImageView: ImageView
     private var demoMode: Boolean = false
     private var demoFocus: Boolean = false
+    private val scheduledRender = Runnable { requestRender() }
 
     private val simpleDemoModeTransformation = object : Transformation() {
         override suspend fun transform(
@@ -148,11 +149,14 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
     }
 
     override fun onDestroyView() {
+        cancelScheduledRender()
         super.onDestroyView()
         muzeiView = null
     }
 
     override fun onPause() {
+        cancelScheduledRender()
+        muzeiView?.renderController?.visible = false
         super.onPause()
         muzeiView?.onPause()
     }
@@ -160,6 +164,7 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
     override fun onResume() {
         super.onResume()
         muzeiView?.onResume()
+        muzeiView?.renderController?.visible = !isHidden
     }
 
     override fun queueEventOnGlThread(event: () -> Unit) {
@@ -170,6 +175,17 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
 
     override fun requestRender() {
         muzeiView?.requestRender()
+    }
+
+    override fun scheduleRender(delayMillis: Long) {
+        muzeiView?.run {
+            removeCallbacks(scheduledRender)
+            postDelayed(scheduledRender, delayMillis.coerceAtLeast(0))
+        }
+    }
+
+    override fun cancelScheduledRender() {
+        muzeiView?.removeCallbacks(scheduledRender)
     }
 
     private inner class MuzeiView(context: Context) : GLTextureView(context) {

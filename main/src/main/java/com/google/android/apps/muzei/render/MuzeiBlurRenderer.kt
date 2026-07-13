@@ -23,6 +23,7 @@ import android.graphics.RectF
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
+import android.os.SystemClock
 import android.util.Log
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.annotation.Keep
@@ -98,6 +99,7 @@ class MuzeiBlurRenderer(
     private var queuedNextImageLoader: ImageLoader? = null
 
     private var surfaceCreated: Boolean = false
+    private var visible: Boolean = false
 
     @Volatile
     private var normalOffsetX: Float = 0f
@@ -209,6 +211,9 @@ class MuzeiBlurRenderer(
     }
 
     fun hintViewportSize(width: Int, height: Int) {
+        if (width <= 0 || height <= 0) {
+            return
+        }
         currentHeight = height
         aspectRatio = width * 1f / height
     }
@@ -217,6 +222,10 @@ class MuzeiBlurRenderer(
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
 
         Matrix.setIdentityM(modelMatrix, 0)
+
+        val nowUptimeMillis = SystemClock.uptimeMillis()
+        currentGLPictureSet.advanceAnimation(nowUptimeMillis)
+        nextGLPictureSet.advanceAnimation(nowUptimeMillis)
 
         val stillAnimating = crossfadeAnimator.tick() or blurAnimator.tick()
 
@@ -237,7 +246,18 @@ class MuzeiBlurRenderer(
         colorOverlay.draw(modelMatrix) // don't need any perspective or anything for color overlay
 
         if (stillAnimating) {
+            callbacks.cancelScheduledRender()
             callbacks.requestRender()
+        } else {
+            val nextFrameDelay = listOfNotNull(
+                    currentGLPictureSet.millisUntilNextFrame(nowUptimeMillis),
+                    nextGLPictureSet.millisUntilNextFrame(nowUptimeMillis))
+                    .minOrNull()
+            if (nextFrameDelay != null) {
+                callbacks.scheduleRender(nextFrameDelay)
+            } else {
+                callbacks.cancelScheduledRender()
+            }
         }
     }
 
@@ -270,10 +290,17 @@ class MuzeiBlurRenderer(
             return
         }
 
+        if (currentHeight <= 0) {
+            queuedNextImageLoader = imageLoader
+            return
+        }
+
         if (crossfadeAnimator.isRunning && !immediate) {
             queuedNextImageLoader = imageLoader
             return
         }
+
+        queuedNextImageLoader = null
 
         val (width, height) = imageLoader.getSize()
         if (width == 0 || height == 0) {
@@ -305,7 +332,6 @@ class MuzeiBlurRenderer(
             if (!demoMode) {
                 SwitchingPhotosStateFlow.value = SwitchingPhotosDone(currentGLPictureSet.id)
             }
-            System.gc()
             val loader = queuedNextImageLoader
             if (loader != null) {
                 queuedNextImageLoader = null
@@ -319,6 +345,7 @@ class MuzeiBlurRenderer(
         private val projectionMatrix = FloatArray(16)
         private val mvpMatrix = FloatArray(16)
         private val pictures = arrayOfNulls<GLPicture>(blurKeyframes + 1)
+        private val animatedArtwork = AnimatedArtworkSlot()
         private var hasBitmap = false
         private var bitmapAspectRatio = 1f
         var dimAmount = 0
@@ -345,17 +372,47 @@ class MuzeiBlurRenderer(
                     (maxDim * (1 - DIM_RANGE + DIM_RANGE * sqrt(darkness.toDouble()))).toInt()
                 tempBitmap?.recycle()
 
-                // Create the GLPicture objects
+                // Create the original GLPicture. Animated GIFs replace only this texture;
+                // blurred keyframes below remain based on the first frame.
                 var success = false
                 var sampleSize = 1
                 do {
-                    val attemptedWidth = (bitmapAspectRatio * currentHeight / sampleSize).toInt()
-                    val attemptedHeight = currentHeight / sampleSize
+                    val attemptedWidth = max(1,
+                            (bitmapAspectRatio * currentHeight / sampleSize).toInt())
+                    val attemptedHeight = max(1, currentHeight / sampleSize)
                     try {
-                        val image = imageLoader.decode(
+                        val artwork = imageLoader.decodeArtwork(
                                 attemptedWidth,
-                                attemptedHeight)
-                        pictures[0] = image?.toGLPicture()
+                                attemptedHeight,
+                                GLPicture.maxTextureSize)
+                        if (artwork != null) {
+                            try {
+                                when (artwork) {
+                                    is DecodedArtwork.Static -> {
+                                        pictures[0] = artwork.firstFrame.toGLPicture()
+                                    }
+                                    is DecodedArtwork.Animated -> {
+                                        try {
+                                            pictures[0] = GLPicture(artwork.decoder)
+                                            AnimatedArtworkPlayback(artwork.decoder).also { playback ->
+                                                playback.setVisible(visible, SystemClock.uptimeMillis())
+                                                animatedArtwork.replace(playback)
+                                            }
+                                        } catch (error: OutOfMemoryError) {
+                                            artwork.decoder.close()
+                                            throw error
+                                        } catch (exception: Exception) {
+                                            artwork.decoder.close()
+                                            pictures[0] = artwork.firstFrame.toGLPicture()
+                                            Log.w(TAG, "Could not create animated GIF texture; using first frame",
+                                                    exception)
+                                        }
+                                    }
+                                }
+                            } finally {
+                                artwork.firstFrame.recycle()
+                            }
+                        }
                         success = true
                     } catch (_: OutOfMemoryError) {
                         sampleSize = sampleSize shl 1
@@ -549,19 +606,77 @@ class MuzeiBlurRenderer(
             }
         }
 
-        fun destroyPictures() {
-            for (i in pictures.indices) {
-                if (pictures[i] != null) {
-                    pictures[i]?.destroy()
-                    pictures[i] = null
+        fun advanceAnimation(nowUptimeMillis: Long) {
+            val playback = animatedArtwork.playback ?: return
+            try {
+                playback.advance(nowUptimeMillis)?.let { frameIndex ->
+                    pictures[0]?.updateAnimatedFrame(frameIndex)
                 }
+            } catch (exception: Exception) {
+                Log.w(TAG, "Animated GIF playback failed; keeping the last rendered frame",
+                        exception)
+                animatedArtwork.close()
             }
+        }
+
+        fun millisUntilNextFrame(nowUptimeMillis: Long): Long? =
+                animatedArtwork.playback?.millisUntilNextFrame(nowUptimeMillis)
+
+        fun setVisible(visible: Boolean, nowUptimeMillis: Long) {
+            try {
+                animatedArtwork.playback?.setVisible(visible, nowUptimeMillis)
+            } catch (exception: Exception) {
+                Log.w(TAG, "Animated GIF could not resume; keeping the last rendered frame",
+                        exception)
+                animatedArtwork.close()
+            }
+        }
+
+        fun destroyPictures(deleteTextures: Boolean = true) {
+            if (deleteTextures) {
+                pictures.filterNotNull().toSet().forEach(GLPicture::destroy)
+            }
+            for (i in pictures.indices) {
+                pictures[i] = null
+            }
+            animatedArtwork.close()
         }
     }
 
+    fun setVisible(visible: Boolean) {
+        this.visible = visible
+        val nowUptimeMillis = SystemClock.uptimeMillis()
+        currentGLPictureSet.setVisible(visible, nowUptimeMillis)
+        nextGLPictureSet.setVisible(visible, nowUptimeMillis)
+        if (visible) {
+            callbacks.requestRender()
+        } else {
+            callbacks.cancelScheduledRender()
+        }
+    }
+
+    fun onSurfaceDestroyed() {
+        surfaceCreated = false
+        currentHeight = 0
+        aspectRatio = 0f
+        callbacks.cancelScheduledRender()
+        // EGL teardown owns texture cleanup when the surface/context is already going away.
+        currentGLPictureSet.destroyPictures(deleteTextures = false)
+        nextGLPictureSet.destroyPictures(deleteTextures = false)
+    }
+
     fun destroy() {
-        currentGLPictureSet.destroyPictures()
-        nextGLPictureSet.destroyPictures()
+        if (surfaceCreated) {
+            surfaceCreated = false
+            currentHeight = 0
+            aspectRatio = 0f
+            callbacks.cancelScheduledRender()
+            currentGLPictureSet.destroyPictures()
+            nextGLPictureSet.destroyPictures()
+        } else {
+            onSurfaceDestroyed()
+        }
+        queuedNextImageLoader = null
     }
 
     fun setIsBlurred(isBlurred: Boolean, artDetailMode: Boolean) {
@@ -573,15 +688,13 @@ class MuzeiBlurRenderer(
 
         blurRelatedToArtDetailMode = artDetailMode
         this.isBlurred = isBlurred
-        blurAnimator.start(endValue = if (isBlurred) blurKeyframes else 0) {
-            if (isBlurred && artDetailMode) {
-                System.gc()
-            }
-        }
+        blurAnimator.start(endValue = if (isBlurred) blurKeyframes else 0) { }
         callbacks.requestRender()
     }
 
-    fun interface Callbacks {
+    interface Callbacks {
         fun requestRender()
+        fun scheduleRender(delayMillis: Long)
+        fun cancelScheduledRender()
     }
 }

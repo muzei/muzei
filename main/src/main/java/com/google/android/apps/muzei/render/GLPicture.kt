@@ -31,9 +31,14 @@ internal fun Bitmap.toGLPicture(): GLPicture? {
     return GLPicture(this)
 }
 
-internal class GLPicture @SuppressLint("CheckResult") internal constructor(
-        bitmap: Bitmap
+internal class GLPicture @SuppressLint("CheckResult") private constructor(
+        private val bitmap: Bitmap?,
+        private val animatedDecoder: AnimatedArtworkDecoder?
 ) {
+
+    internal constructor(bitmap: Bitmap) : this(bitmap, null)
+
+    internal constructor(animatedDecoder: AnimatedArtworkDecoder) : this(null, animatedDecoder)
 
     companion object {
         private const val VERTEX_SHADER_CODE = "" +
@@ -83,6 +88,8 @@ internal class GLPicture @SuppressLint("CheckResult") internal constructor(
         private var UNIFORM_MVP_MATRIX_HANDLE: Int = 0
 
         private var TILE_SIZE: Int = 0
+        var maxTextureSize: Int = 0
+            private set
 
         fun initGl() {
             // Initialize shaders and create/link program
@@ -99,6 +106,7 @@ internal class GLPicture @SuppressLint("CheckResult") internal constructor(
             // Compute max texture size
             val maxTextureSize = IntArray(1)
             GLES20.glGetIntegerv(GLES20.GL_MAX_TEXTURE_SIZE, maxTextureSize, 0)
+            this.maxTextureSize = maxTextureSize[0]
             TILE_SIZE = min(512, maxTextureSize[0])
         }
     }
@@ -109,41 +117,61 @@ internal class GLPicture @SuppressLint("CheckResult") internal constructor(
 
     private val numColumns: Int
     private val numRows: Int
-    private val width = bitmap.width
-    private val height = bitmap.height
+    private val width = bitmap?.width ?: requireNotNull(animatedDecoder).width
+    private val height = bitmap?.height ?: requireNotNull(animatedDecoder).height
+    private val tileWidth = if (animatedDecoder != null) width else TILE_SIZE
+    private val tileHeight = if (animatedDecoder != null) height else TILE_SIZE
     private val textureHandles: IntArray
 
     init {
-        val leftoverHeight = height % TILE_SIZE
-
-        // Load m x n textures
-        numColumns = width.divideRoundUp(TILE_SIZE)
-        numRows = height.divideRoundUp(TILE_SIZE)
-
-        textureHandles = IntArray(numColumns * numRows)
-        if (numColumns == 1 && numRows == 1) {
-            textureHandles[0] = GLUtil.loadTexture(bitmap)
+        if (animatedDecoder != null) {
+            numColumns = 1
+            numRows = 1
+            textureHandles = IntArray(1)
+            animatedDecoder.seekToFrame(0)
+            textureHandles[0] = GLUtil.loadTexture(animatedDecoder::uploadCurrentFrame)
         } else {
-            val rect = Rect()
-            for (y in 0 until numRows) {
-                for (x in 0 until numColumns) {
-                    rect.set(x * TILE_SIZE,
-                            (numRows - y - 1) * TILE_SIZE,
-                            (x + 1) * TILE_SIZE,
-                            (numRows - y) * TILE_SIZE)
-                    // The bottom tiles must be full tiles for drawing, so only allow edge tiles
-                    // at the top
-                    if (leftoverHeight > 0) {
-                        rect.offset(0, -TILE_SIZE + leftoverHeight)
+            val staticBitmap = requireNotNull(bitmap)
+            val leftoverHeight = height % TILE_SIZE
+
+            // Load m x n textures
+            numColumns = width.divideRoundUp(TILE_SIZE)
+            numRows = height.divideRoundUp(TILE_SIZE)
+
+            textureHandles = IntArray(numColumns * numRows)
+            if (numColumns == 1 && numRows == 1) {
+                textureHandles[0] = GLUtil.loadTexture(staticBitmap)
+            } else {
+                val rect = Rect()
+                for (y in 0 until numRows) {
+                    for (x in 0 until numColumns) {
+                        rect.set(x * TILE_SIZE,
+                                (numRows - y - 1) * TILE_SIZE,
+                                (x + 1) * TILE_SIZE,
+                                (numRows - y) * TILE_SIZE)
+                        // The bottom tiles must be full tiles for drawing, so only allow edge tiles
+                        // at the top
+                        if (leftoverHeight > 0) {
+                            rect.offset(0, -TILE_SIZE + leftoverHeight)
+                        }
+                        rect.intersect(0, 0, width, height)
+                        val subBitmap = Bitmap.createBitmap(staticBitmap,
+                                rect.left, rect.top, rect.width(), rect.height())
+                        textureHandles[y * numColumns + x] = GLUtil.loadTexture(subBitmap)
+                        subBitmap.recycle()
                     }
-                    rect.intersect(0, 0, width, height)
-                    val subBitmap = Bitmap.createBitmap(bitmap,
-                            rect.left, rect.top, rect.width(), rect.height())
-                    textureHandles[y * numColumns + x] = GLUtil.loadTexture(subBitmap)
-                    subBitmap.recycle()
                 }
             }
         }
+    }
+
+    fun updateAnimatedFrame(frameIndex: Int) {
+        val decoder = animatedDecoder ?: return
+        decoder.seekToFrame(frameIndex)
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandles[0])
+        GLUtil.checkGlError("Bind animated artwork texture")
+        decoder.updateTexture()
+        GLUtil.checkGlError("Update animated artwork texture")
     }
 
     fun draw(mvpMatrix: FloatArray, alpha: Float) {
@@ -175,16 +203,16 @@ internal class GLPicture @SuppressLint("CheckResult") internal constructor(
         for (y in 0 until numRows) {
             for (x in 0 until numColumns) {
                 // Pass in the vertex information
-                vertices[9] = min(-1 + 2f * x.toFloat() * TILE_SIZE.toFloat() / width, 1f)
+                vertices[9] = min(-1 + 2f * x.toFloat() * tileWidth.toFloat() / width, 1f)
                 vertices[3] = vertices[9]
                 vertices[0] = vertices[3] // left
-                vertices[16] = min(-1 + 2f * (y + 1).toFloat() * TILE_SIZE.toFloat() / height, 1f)
+                vertices[16] = min(-1 + 2f * (y + 1).toFloat() * tileHeight.toFloat() / height, 1f)
                 vertices[10] = vertices[16]
                 vertices[1] = vertices[10] // top
-                vertices[15] = min(-1 + 2f * (x + 1).toFloat() * TILE_SIZE.toFloat() / width, 1f)
+                vertices[15] = min(-1 + 2f * (x + 1).toFloat() * tileWidth.toFloat() / width, 1f)
                 vertices[12] = vertices[15]
                 vertices[6] = vertices[12] // right
-                vertices[13] = min(-1 + 2f * y.toFloat() * TILE_SIZE.toFloat() / height, 1f)
+                vertices[13] = min(-1 + 2f * y.toFloat() * tileHeight.toFloat() / height, 1f)
                 vertices[7] = vertices[13]
                 vertices[4] = vertices[7] // bottom
                 vertexBuffer.put(vertices)
