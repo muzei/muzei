@@ -17,6 +17,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="gallery_add_fab">添加照片或文件夹</string>
     <string name="gallery_add_photos">添加照片</string>
+    <string name="gallery_add_folder">添加文件夹</string>
     <string name="gallery_internal_storage_message">看不到任何东西？试着在下拉菜单中启用内部存储</string>
     <string name="gallery_add_photos_error">您的设备不支持添加图片。\n请联系您的制造商。</string>
     <string name="gallery_add_folder_error">您的设备不支持添加图片。\n请联系您的制造商。</string>
@@ -31,6 +32,7 @@
         <item quantity="other"><xliff:g id="quantity" example="2">%1$d</xliff:g> 张照片</item>
     </plurals>
     <string name="gallery_empty">随机相机照片</string>
+    <string name="gallery_reselect_selected_photos">重新选择已选照片</string>
     <string name="gallery_empty_subtitle">选择指定照片</string>
     <string name="gallery_from_gallery">从相册中选择</string>
     <string name="gallery_touch_to_view">触摸查看</string>
