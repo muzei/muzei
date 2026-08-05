@@ -35,6 +35,10 @@
     <string name="auto_advance_title">自动前进</string>
     <string name="auto_advance_description">控制 <xliff:g id="muzei_name">Muzei</xliff:g> 何时自动切换下一张壁纸。</string>
     <string name="auto_advance_wifi">仅在 Wi-Fi 上自动前进</string>
+    <string name="auto_advance_ordering">排序方式</string>
+    <string name="auto_advance_ordering_in_order">总是按顺序</string>
+    <string name="auto_advance_ordering_new_in_order">新图片按顺序，其余随机</string>
+    <string name="auto_advance_ordering_random">总是随机</string>
     <string name="auto_advance_interval">时间间隔</string>
     <string name="auto_advance_interval_15m">每 15 分钟</string>
     <string name="auto_advance_interval_30m">每 30 分钟</string>
@@ -60,6 +64,8 @@
     <string name="provider_settings">设置</string>
     <string name="provider_browse">浏览</string>
     <string name="done">完成</string>
+    <string name="navigate_up">返回</string>
+    <string name="menu_overflow">更多选项</string>
     <string name="set_as_wallpaper_using_muzei">壁纸（使用 <xliff:g id="muzei_name">Muzei</xliff:g>）</string>
     <string name="set_as_wallpaper_failed">无法读取作品</string>
     <string name="tutorial_main">打开 <xliff:g id="muzei_name">Muzei</xliff:g> 应用查看您的壁纸</string>
