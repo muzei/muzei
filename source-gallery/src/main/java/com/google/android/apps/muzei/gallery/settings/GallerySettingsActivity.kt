@@ -53,6 +53,7 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -132,7 +133,7 @@ class GallerySettingsActivity : ComponentActivity() {
         private const val SHOW_INTERNAL_STORAGE_MESSAGE = "show_internal_storage_message"
     }
 
-    private var chosenPhotosCount = 0
+    private var chosenPhotosCount = mutableIntStateOf(0)
     private val permissionStateFlow by lazy {
         MutableStateFlow(checkRequestPermissionState(this))
     }
@@ -186,6 +187,13 @@ class GallerySettingsActivity : ComponentActivity() {
                                 showImportPhotosDialog = false
                             }
                         }
+                        var showConfirmClearPhotosDialog by rememberSaveable { mutableStateOf(false) }
+                        LaunchedEffect(chosenPhotosCount.intValue > 0) {
+                            // Hide the dialog if the number of chosen photos goes to zero
+                            if (chosenPhotosCount.intValue > 0 && showConfirmClearPhotosDialog) {
+                                showConfirmClearPhotosDialog = false
+                            }
+                        }
                         val context = LocalContext.current
                         val scope = rememberCoroutineScope()
                         GalleryTopAppBar(
@@ -219,12 +227,7 @@ class GallerySettingsActivity : ComponentActivity() {
                                 }
                             },
                             onClearPhotos = {
-                                scope.launch {
-                                    withContext(NonCancellable) {
-                                        GalleryDatabase.getInstance(context)
-                                            .chosenPhotoDao().deleteAll(context)
-                                    }
-                                }
+                                showConfirmClearPhotosDialog = true
                             }
                         )
                         // Import Photos Dialog
@@ -242,6 +245,21 @@ class GallerySettingsActivity : ComponentActivity() {
                                 },
                                 onDismissRequest = {
                                     showImportPhotosDialog = false
+                                }
+                            )
+                        }
+                        // Confirm Clear Photos Dialog
+                        if (showConfirmClearPhotosDialog) {
+                            GalleryConfirmClearPhotosDialog(
+                                onDismiss = { showConfirmClearPhotosDialog = false },
+                                onConfirm = {
+                                    showConfirmClearPhotosDialog = false
+                                    scope.launch {
+                                        withContext(NonCancellable) {
+                                            GalleryDatabase.getInstance(context)
+                                                .chosenPhotoDao().deleteAll(context)
+                                        }
+                                    }
                                 }
                             )
                         }
@@ -299,7 +317,7 @@ class GallerySettingsActivity : ComponentActivity() {
                             // Show the list
                             LaunchedEffect(photos.loadState.isIdle) {
                                 if (photos.loadState.isIdle) {
-                                    chosenPhotosCount = photos.itemCount
+                                    chosenPhotosCount.intValue = photos.itemCount
                                     onDataSetChanged()
                                 }
                             }
@@ -474,7 +492,7 @@ class GallerySettingsActivity : ComponentActivity() {
     }
 
     private fun onDataSetChanged() {
-        if (chosenPhotosCount != 0) {
+        if (chosenPhotosCount.intValue != 0) {
             // We have at least one image, so consider the Gallery source properly setup
             setResult(RESULT_OK)
         } else {
