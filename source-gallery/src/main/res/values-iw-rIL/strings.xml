@@ -19,6 +19,10 @@
     <string name="gallery_add_photos">הוספת תמונות</string>
     <string name="gallery_add_folder">הוספת תיקייה</string>
     <string name="gallery_action_clear_photos">הסרת כל התמונות</string>
+    <string name="gallery_action_clear_photos_confirm_title">הסרת כל התמונות?</string>
+    <string name="gallery_action_clear_photos_confirm_text">הסרת כל התמונות ותיקיות.</string>
+    <string name="gallery_action_clear_photos_confirm_positive_button">אישור</string>
+    <string name="gallery_action_clear_photos_confirm_negative_button">ביטול</string>
     <string name="gallery_action_import_photos">יבוא תמונות…</string>
     <string name="gallery_action_remove">הסרה</string>
     <string name="gallery_title">התמונות שלי</string>
