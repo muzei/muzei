@@ -18,7 +18,7 @@
 
 compileSdk = "37"
 targetSdk = "37"
-agp = "9.3.2"
+agp = "9.4.0"
 
 # AndroidX
 activity = "1.13.0"
