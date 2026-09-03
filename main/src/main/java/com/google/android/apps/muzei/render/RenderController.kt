@@ -42,14 +42,17 @@ abstract class RenderController(
     var visible: Boolean = false
         set(value) {
             field = value
-            if (value) {
-                callbacks.queueEventOnGlThread {
+            callbacks.queueEventOnGlThread {
+                renderer.setVisible(value)
+                if (value) {
                     val loader = queuedImageLoader
                     if (loader != null) {
                         queuedImageLoader = null
                         renderer.setAndConsumeImageLoader(loader)
                     }
                 }
+            }
+            if (value) {
                 callbacks.requestRender()
             }
         }

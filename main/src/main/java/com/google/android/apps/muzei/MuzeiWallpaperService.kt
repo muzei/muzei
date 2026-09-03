@@ -25,6 +25,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import android.view.GestureDetector
 import android.view.MotionEvent
@@ -190,6 +192,8 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
                 gestureListener)
 
         private var delayedBlur: Job? = null
+        private val renderHandler = Handler(Looper.getMainLooper())
+        private val scheduledRender = Runnable { requestRender() }
 
         override fun onCreate(surfaceHolder: SurfaceHolder) {
             super<GLEngine>.onCreate(surfaceHolder)
@@ -272,12 +276,21 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         }
 
         override fun onDestroy() {
+            cancelScheduledRender()
             wallpaperLifecycle.removeObserver(this)
             engineLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
             queueEvent {
                 renderer.destroy()
             }
             super<GLEngine>.onDestroy()
+        }
+
+        override fun onSurfaceDestroyed(holder: SurfaceHolder) {
+            cancelScheduledRender()
+            queueEvent {
+                renderer.onSurfaceDestroyed()
+            }
+            super.onSurfaceDestroyed(holder)
         }
 
         fun lockScreenVisibleChanged(isLockScreenVisible: Boolean) {
@@ -287,6 +300,9 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
         }
 
         override fun onVisibilityChanged(visible: Boolean) {
+            if (!visible) {
+                cancelScheduledRender()
+            }
             renderController.visible = visible
         }
 
@@ -411,6 +427,15 @@ class MuzeiWallpaperService : GLWallpaperService(), LifecycleOwner {
             if (renderController.visible) {
                 super.requestRender()
             }
+        }
+
+        override fun scheduleRender(delayMillis: Long) {
+            renderHandler.removeCallbacks(scheduledRender)
+            renderHandler.postDelayed(scheduledRender, delayMillis.coerceAtLeast(0))
+        }
+
+        override fun cancelScheduledRender() {
+            renderHandler.removeCallbacks(scheduledRender)
         }
 
         override fun queueEventOnGlThread(event: () -> Unit) {

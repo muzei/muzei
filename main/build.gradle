@@ -112,6 +112,7 @@ dependencies {
     implementation libs.coil.okhttp
     implementation libs.wearable.playservices
     implementation libs.tasker
+    implementation libs.android.gif.drawable
     implementation libs.subsampling
     implementation libs.activity
     implementation libs.core
@@ -143,6 +144,8 @@ dependencies {
     implementation project(':source-gallery')
     implementation project(':source-single')
     implementation project(':gl-wallpaper')
+
+    testImplementation libs.junit
 }
 
 apply plugin: 'com.google.gms.google-services'

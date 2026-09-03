@@ -59,7 +59,9 @@ kotlin = "2.4.10"
 ksp = "2.3.7"
 
 # Other
+androidGifDrawable = "1.2.32"
 coil = "3.5.0"
+junit = "4.13.2"
 material = "1.14.0"
 okhttp = "5.5.0"
 okhttpCoroutines = "1.0"
@@ -133,9 +135,11 @@ dokka = { group = "org.jetbrains.dokka", name = "dokka-gradle-plugin", version.r
 kotlin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 
 # Other
+android-gif-drawable = { group = "pl.droidsonroids.gif", name = "android-gif-drawable", version.ref = "androidGifDrawable" }
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil-runtime = { group = "io.coil-kt.coil3", name = "coil", version.ref = "coil" }
 coil-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 okhttp-core = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 okhttp-coroutines = { group = "ru.gildor.coroutines", name = "kotlin-coroutines-okhttp", version.ref = "okhttpCoroutines" }
