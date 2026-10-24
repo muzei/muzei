@@ -17,18 +17,21 @@
 package com.google.android.apps.muzei.room
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Transaction
-import androidx.room.Update
+import androidx.room3.Dao
+import androidx.room3.DaoReturnTypeConverters
+import androidx.room3.Delete
+import androidx.room3.Insert
+import androidx.room3.Query
+import androidx.room3.Transaction
+import androidx.room3.Update
+import androidx.room3.livedata.LiveDataDaoReturnTypeConverter
 import kotlinx.coroutines.flow.Flow
 
 /**
  * Dao for Providers
  */
 @Dao
+@DaoReturnTypeConverters(LiveDataDaoReturnTypeConverter::class)
 abstract class ProviderDao {
     @Query("SELECT * FROM provider")
     abstract fun getCurrentProviderFlow(): Flow<Provider?>

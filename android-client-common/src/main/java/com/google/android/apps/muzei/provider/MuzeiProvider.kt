@@ -29,6 +29,7 @@ import android.os.ParcelFileDescriptor
 import android.provider.BaseColumns
 import android.util.Log
 import androidx.core.os.UserManagerCompat
+import androidx.room3.support.getSupportWrapper
 import androidx.sqlite.db.SupportSQLiteQueryBuilder
 import com.google.android.apps.muzei.api.MuzeiContract
 import com.google.android.apps.muzei.room.MuzeiDatabase
@@ -187,7 +188,7 @@ class MuzeiProvider : ContentProvider() {
         qb.selection(finalSelection, selectionArgs)
         qb.orderBy(sortOrder ?: "date_added DESC")
         return ensureBackground {
-            MuzeiDatabase.getInstance(context).query(qb.create())
+            MuzeiDatabase.getInstance(context).getSupportWrapper().query(qb.create())
         }.apply {
             setNotificationUri(context.contentResolver, uri)
         }

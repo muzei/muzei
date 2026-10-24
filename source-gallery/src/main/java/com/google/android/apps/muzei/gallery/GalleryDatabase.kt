@@ -17,11 +17,12 @@
 package com.google.android.apps.muzei.gallery
 
 import android.content.Context
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.room3.Database
+import androidx.room3.Room
+import androidx.room3.RoomDatabase
+import androidx.room3.migration.Migration
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.execSQL
 
 /**
  * Database for accessing Gallery data
@@ -51,9 +52,9 @@ internal abstract class GalleryDatabase : RoomDatabase() {
                         .build()
 
         private val MIGRATION_1_2 = object : Migration(1, 2) {
-            override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("DROP TABLE IF EXISTS metadata_cache")
-                db.execSQL("CREATE TABLE metadata_cache ("
+            override suspend fun migrate(connection: SQLiteConnection) {
+                connection.execSQL("DROP TABLE IF EXISTS metadata_cache")
+                connection.execSQL("CREATE TABLE metadata_cache ("
                         + "_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
                         + "uri TEXT NOT NULL,"
                         + "datetime INTEGER,"
@@ -63,64 +64,64 @@ internal abstract class GalleryDatabase : RoomDatabase() {
         }
 
         private val MIGRATION_2_3 = object : Migration(2, 3) {
-            override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("ALTER TABLE chosen_photos" + " ADD COLUMN is_tree_uri INTEGER")
+            override suspend fun migrate(connection: SQLiteConnection) {
+                connection.execSQL("ALTER TABLE chosen_photos ADD COLUMN is_tree_uri INTEGER")
             }
         }
 
         private val MIGRATION_3_4 = object : Migration(3, 4) {
-            override fun migrate(db: SupportSQLiteDatabase) {
+            override suspend fun migrate(connection: SQLiteConnection) {
                 // Due to an issue with upgrading version 2 to 3, some users might have the
                 // COLUMN_NAME_IS_TREE_URI column and some might not. Awkward.
                 // We'll check if the column exists and add it if it doesn't exist
-                val pragma = db.query("PRAGMA table_info(chosen_photos)")
                 var columnExists = false
-                while (pragma.moveToNext()) {
-                    val columnIndex = pragma.getColumnIndex("name")
-                    if (columnIndex != -1 && pragma.getString(columnIndex) == "is_tree_uri") {
-                        columnExists = true
+                connection.prepare("PRAGMA table_info(chosen_photos)").use { stmt ->
+                    while (stmt.step()) {
+                        val columnIndex = stmt.getColumnNames().indexOfFirst { it == "name" }
+                        if (columnIndex != -1 && stmt.getText(columnIndex) == "is_tree_uri") {
+                            columnExists = true
+                        }
                     }
                 }
-                pragma.close()
                 if (!columnExists) {
-                    db.execSQL("ALTER TABLE chosen_photos" + " ADD COLUMN is_tree_uri INTEGER")
+                    connection.execSQL("ALTER TABLE chosen_photos ADD COLUMN is_tree_uri INTEGER")
                 }
             }
         }
 
         private val MIGRATION_4_5 = object : Migration(4, 5) {
-            override fun migrate(db: SupportSQLiteDatabase) {
+            override suspend fun migrate(connection: SQLiteConnection) {
                 // NO-OP
             }
         }
 
         private val MIGRATION_5_6 = object : Migration(5, 6) {
-            override fun migrate(db: SupportSQLiteDatabase) {
+            override suspend fun migrate(connection: SQLiteConnection) {
                 // Handle Chosen Photos
-                db.execSQL("UPDATE chosen_photos "
+                connection.execSQL("UPDATE chosen_photos "
                         + "SET is_tree_uri = 0 "
                         + "WHERE is_tree_uri IS NULL")
-                db.execSQL("CREATE TABLE chosen_photos2 ("
+                connection.execSQL("CREATE TABLE chosen_photos2 ("
                         + "_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
                         + "uri TEXT NOT NULL,"
                         + "is_tree_uri INTEGER NOT NULL,"
                         + "UNIQUE (uri) ON CONFLICT REPLACE)")
-                db.execSQL("INSERT INTO chosen_photos2 " + "SELECT * FROM chosen_photos")
-                db.execSQL("DROP TABLE chosen_photos")
-                db.execSQL("ALTER TABLE chosen_photos2 RENAME TO chosen_photos")
-                db.execSQL("CREATE UNIQUE INDEX index_chosen_photos_uri " + "ON chosen_photos (uri)")
+                connection.execSQL("INSERT INTO chosen_photos2 SELECT * FROM chosen_photos")
+                connection.execSQL("DROP TABLE chosen_photos")
+                connection.execSQL("ALTER TABLE chosen_photos2 RENAME TO chosen_photos")
+                connection.execSQL("CREATE UNIQUE INDEX index_chosen_photos_uri ON chosen_photos (uri)")
 
                 // Handle Metadata
-                db.execSQL("CREATE TABLE metadata_cache2 ("
+                connection.execSQL("CREATE TABLE metadata_cache2 ("
                         + "_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
                         + "uri TEXT NOT NULL,"
                         + "datetime INTEGER,"
                         + "location TEXT,"
                         + "UNIQUE (uri) ON CONFLICT REPLACE)")
-                db.execSQL("INSERT INTO metadata_cache2 " + "SELECT * FROM metadata_cache")
-                db.execSQL("DROP TABLE metadata_cache")
-                db.execSQL("ALTER TABLE metadata_cache2 RENAME TO metadata_cache")
-                db.execSQL("CREATE UNIQUE INDEX index_metadata_cache_uri " + "ON metadata_cache (uri)")
+                connection.execSQL("INSERT INTO metadata_cache2 SELECT * FROM metadata_cache")
+                connection.execSQL("DROP TABLE metadata_cache")
+                connection.execSQL("ALTER TABLE metadata_cache2 RENAME TO metadata_cache")
+                connection.execSQL("CREATE UNIQUE INDEX index_metadata_cache_uri ON metadata_cache (uri)")
             }
         }
 
@@ -130,27 +131,27 @@ internal abstract class GalleryDatabase : RoomDatabase() {
          * constraint that was added in MIGRATION_5_6).
          */
         private val MIGRATION_6_7 = object : Migration(6, 7) {
-            override fun migrate(db: SupportSQLiteDatabase) {
+            override suspend fun migrate(connection: SQLiteConnection) {
                 // Handle Chosen Photos
-                db.execSQL("CREATE TABLE chosen_photos2 ("
+                connection.execSQL("CREATE TABLE chosen_photos2 ("
                         + "_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
                         + "uri TEXT NOT NULL,"
                         + "is_tree_uri INTEGER NOT NULL)")
-                db.execSQL("INSERT INTO chosen_photos2 " + "SELECT * FROM chosen_photos")
-                db.execSQL("DROP TABLE chosen_photos")
-                db.execSQL("ALTER TABLE chosen_photos2 RENAME TO chosen_photos")
-                db.execSQL("CREATE UNIQUE INDEX index_chosen_photos_uri " + "ON chosen_photos (uri)")
+                connection.execSQL("INSERT INTO chosen_photos2 SELECT * FROM chosen_photos")
+                connection.execSQL("DROP TABLE chosen_photos")
+                connection.execSQL("ALTER TABLE chosen_photos2 RENAME TO chosen_photos")
+                connection.execSQL("CREATE UNIQUE INDEX index_chosen_photos_uri ON chosen_photos (uri)")
 
                 // Handle Metadata
-                db.execSQL("CREATE TABLE metadata_cache2 ("
+                connection.execSQL("CREATE TABLE metadata_cache2 ("
                         + "_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
                         + "uri TEXT NOT NULL,"
                         + "datetime INTEGER,"
                         + "location TEXT)")
-                db.execSQL("INSERT INTO metadata_cache2 " + "SELECT * FROM metadata_cache")
-                db.execSQL("DROP TABLE metadata_cache")
-                db.execSQL("ALTER TABLE metadata_cache2 RENAME TO metadata_cache")
-                db.execSQL("CREATE UNIQUE INDEX index_metadata_cache_uri " + "ON metadata_cache (uri)")
+                connection.execSQL("INSERT INTO metadata_cache2 SELECT * FROM metadata_cache")
+                connection.execSQL("DROP TABLE metadata_cache")
+                connection.execSQL("ALTER TABLE metadata_cache2 RENAME TO metadata_cache")
+                connection.execSQL("CREATE UNIQUE INDEX index_metadata_cache_uri ON metadata_cache (uri)")
             }
         }
     }

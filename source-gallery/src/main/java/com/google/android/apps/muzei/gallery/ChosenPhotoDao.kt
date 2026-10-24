@@ -24,11 +24,13 @@ import android.os.Binder
 import android.provider.DocumentsContract
 import android.util.Log
 import androidx.paging.PagingSource
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import androidx.room.Transaction
+import androidx.room3.Dao
+import androidx.room3.DaoReturnTypeConverters
+import androidx.room3.Insert
+import androidx.room3.OnConflictStrategy
+import androidx.room3.Query
+import androidx.room3.Transaction
+import androidx.room3.paging.PagingSourceDaoReturnTypeConverter
 import com.google.android.apps.muzei.api.provider.ProviderContract
 import com.google.android.apps.muzei.gallery.BuildConfig.GALLERY_ART_AUTHORITY
 import kotlinx.coroutines.async
@@ -44,14 +46,15 @@ import java.util.Date
  * Dao for [ChosenPhoto]
  */
 @Dao
+@DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
 internal abstract class ChosenPhotoDao {
 
     companion object {
         private const val TAG = "ChosenPhotoDao"
     }
 
-    @get:Query("SELECT * FROM chosen_photos ORDER BY _id DESC")
-    internal abstract val chosenPhotosPaged: PagingSource<Int, ChosenPhoto>
+    @Query("SELECT * FROM chosen_photos ORDER BY _id DESC")
+    internal abstract fun getChosenPhotosPaged(): PagingSource<Int, ChosenPhoto>
 
     @get:Query("SELECT * FROM chosen_photos ORDER BY _id DESC")
     internal abstract val chosenPhotosFlow: Flow<List<ChosenPhoto>>
