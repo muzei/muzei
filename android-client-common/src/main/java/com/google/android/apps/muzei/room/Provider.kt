@@ -16,8 +16,8 @@
 
 package com.google.android.apps.muzei.room
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import androidx.room3.Entity
+import androidx.room3.PrimaryKey
 
 /**
  * Provider information's representation in Room

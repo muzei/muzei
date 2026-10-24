@@ -41,7 +41,7 @@ import kotlinx.coroutines.flow.stateIn
  */
 class GallerySettingsViewModel(application: Application) : AndroidViewModel(application) {
     internal val chosenPhotos = Pager(PagingConfig(48)) {
-        GalleryDatabase.getInstance(application).chosenPhotoDao().chosenPhotosPaged
+        GalleryDatabase.getInstance(application).chosenPhotoDao().getChosenPhotosPaged()
     }.flow.cachedIn(viewModelScope)
 
     @SuppressLint("WrongConstant")

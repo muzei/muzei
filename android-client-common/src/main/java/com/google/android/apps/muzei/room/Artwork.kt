@@ -20,14 +20,14 @@ import android.content.ContentResolver
 import android.content.ContentUris
 import android.net.Uri
 import android.provider.BaseColumns
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.Index
-import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
+import androidx.room3.ColumnInfo
+import androidx.room3.Entity
+import androidx.room3.Index
+import androidx.room3.PrimaryKey
+import androidx.room3.ColumnTypeConverters
 import com.google.android.apps.muzei.api.MuzeiContract
-import com.google.android.apps.muzei.room.converter.DateTypeConverter
-import com.google.android.apps.muzei.room.converter.UriTypeConverter
+import com.google.android.apps.muzei.room.converter.DateColumnTypeConverter
+import com.google.android.apps.muzei.room.converter.UriColumnTypeConverter
 import java.util.Date
 
 /**
@@ -35,7 +35,7 @@ import java.util.Date
  */
 @Entity(indices = [(Index(value = ["providerAuthority"]))])
 data class Artwork(
-        @field:TypeConverters(UriTypeConverter::class)
+        @field:ColumnTypeConverters(UriColumnTypeConverter::class)
         val imageUri: Uri
 ) {
     @PrimaryKey(autoGenerate = true)
@@ -52,7 +52,7 @@ data class Artwork(
 
     var metaFont = ""
 
-    @TypeConverters(DateTypeConverter::class)
+    @ColumnTypeConverters(DateColumnTypeConverter::class)
     @ColumnInfo(name = "date_added")
     var dateAdded = Date()
 

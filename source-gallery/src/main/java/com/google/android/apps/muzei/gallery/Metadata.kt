@@ -17,13 +17,13 @@
 package com.google.android.apps.muzei.gallery
 
 import android.net.Uri
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.Index
-import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
-import com.google.android.apps.muzei.gallery.converter.DateTypeConverter
-import com.google.android.apps.muzei.gallery.converter.UriTypeConverter
+import androidx.room3.ColumnInfo
+import androidx.room3.Entity
+import androidx.room3.Index
+import androidx.room3.PrimaryKey
+import androidx.room3.ColumnTypeConverters
+import com.google.android.apps.muzei.gallery.converter.DateColumnTypeConverter
+import com.google.android.apps.muzei.gallery.converter.UriColumnTypeConverter
 import java.util.Date
 
 /**
@@ -31,9 +31,9 @@ import java.util.Date
  */
 @Entity(tableName = "metadata_cache", indices = [(Index(value = ["uri"], unique = true))])
 internal data class Metadata(
-        @field:TypeConverters(UriTypeConverter::class)
+        @field:ColumnTypeConverters(UriColumnTypeConverter::class)
         val uri: Uri,
-        @field:TypeConverters(DateTypeConverter::class)
+        @field:ColumnTypeConverters(DateColumnTypeConverter::class)
         @ColumnInfo(name = "datetime")
         var date: Date? = null,
         var location: String? = null

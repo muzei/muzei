@@ -39,10 +39,11 @@ dependencies {
     implementation libs.exifInterface
     implementation libs.lifecycle.viewmodel
     implementation libs.paging.compose
-    implementation libs.room.ktx
-    implementation libs.room.paging
+    implementation libs.room3.runtime
+    implementation libs.room3.livedata
+    implementation libs.room3.paging
     implementation libs.workManager
-    ksp libs.room.compiler
+    ksp libs.room3.compiler
     implementation libs.paging.runtime
 }
 

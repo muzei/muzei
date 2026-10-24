@@ -30,8 +30,10 @@ dependencies {
     api libs.lifecycle.livedata
     implementation libs.preference
     implementation libs.workManager
-    api libs.room.ktx
-    ksp libs.room.compiler
+    api libs.room3.runtime
+    api libs.room3.livedata
+    api libs.room3.wrapper
+    ksp libs.room3.compiler
     api libs.firebase.analytics
     api libs.firebase.crashlytics
     api libs.firebase.perf

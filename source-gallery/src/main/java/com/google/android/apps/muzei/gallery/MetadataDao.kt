@@ -17,12 +17,12 @@
 package com.google.android.apps.muzei.gallery
 
 import android.net.Uri
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import androidx.room.TypeConverters
-import com.google.android.apps.muzei.gallery.converter.UriTypeConverter
+import androidx.room3.Dao
+import androidx.room3.Insert
+import androidx.room3.OnConflictStrategy
+import androidx.room3.Query
+import androidx.room3.ColumnTypeConverters
+import com.google.android.apps.muzei.gallery.converter.UriColumnTypeConverter
 
 /**
  * Dao for [Metadata]
@@ -32,7 +32,7 @@ internal interface MetadataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(metadata: Metadata)
 
-    @TypeConverters(UriTypeConverter::class)
+    @ColumnTypeConverters(UriColumnTypeConverter::class)
     @Query("SELECT * FROM metadata_cache WHERE uri = :uri")
     suspend fun metadataForUri(uri: Uri): Metadata?
 }
