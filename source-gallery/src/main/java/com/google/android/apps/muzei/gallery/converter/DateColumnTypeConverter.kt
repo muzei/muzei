@@ -16,20 +16,20 @@
 
 package com.google.android.apps.muzei.gallery.converter
 
-import androidx.room.TypeConverter
+import androidx.room3.ColumnTypeConverter
 
 import java.util.Date
 
 /**
  * Converts a [Date] into and from a persisted value
  */
-object DateTypeConverter {
-    @TypeConverter
+object DateColumnTypeConverter {
+    @ColumnTypeConverter
     fun fromTimestamp(timestamp: Long?): Date? {
         return if (timestamp == null || timestamp == 0L) null else Date(timestamp)
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun dateToTimestamp(date: Date?): Long? {
         return if (date == null || date.time == 0L) null else date.time
     }

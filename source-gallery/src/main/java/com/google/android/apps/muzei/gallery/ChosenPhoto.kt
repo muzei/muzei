@@ -19,19 +19,19 @@ package com.google.android.apps.muzei.gallery
 import android.content.ContentResolver
 import android.content.ContentUris
 import android.net.Uri
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.Index
-import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
-import com.google.android.apps.muzei.gallery.converter.UriTypeConverter
+import androidx.room3.ColumnInfo
+import androidx.room3.Entity
+import androidx.room3.Index
+import androidx.room3.PrimaryKey
+import androidx.room3.ColumnTypeConverters
+import com.google.android.apps.muzei.gallery.converter.UriColumnTypeConverter
 
 /**
  * Entity representing a chosen photo in Room
  */
 @Entity(tableName = "chosen_photos", indices = [(Index(value = ["uri"], unique = true))])
 data class ChosenPhoto(
-        @field:TypeConverters(UriTypeConverter::class)
+        @field:ColumnTypeConverters(UriColumnTypeConverter::class)
         val uri: Uri,
         @ColumnInfo(name = "is_tree_uri")
         var isTreeUri: Boolean = false

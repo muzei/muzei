@@ -16,20 +16,21 @@
 
 package com.google.android.apps.muzei.room.converter
 
-import androidx.room.TypeConverter
-import java.util.Date
+import android.net.Uri
+import androidx.core.net.toUri
+import androidx.room3.ColumnTypeConverter
 
 /**
- * Converts a [Date] into and from a persisted value
+ * Converts a [Uri] into and from a persisted value
  */
-object DateTypeConverter {
-    @TypeConverter
-    fun fromTimestamp(timestamp: Long?): Date? {
-        return if (timestamp == null || timestamp == 0L) null else Date(timestamp)
+object UriColumnTypeConverter {
+    @ColumnTypeConverter
+    fun fromString(uriString: String?): Uri? {
+        return uriString?.toUri()
     }
 
-    @TypeConverter
-    fun dateToTimestamp(date: Date?): Long? {
-        return if (date == null || date.time == 0L) null else date.time
+    @ColumnTypeConverter
+    fun uriToString(uri: Uri?): String? {
+        return uri?.toString()
     }
 }

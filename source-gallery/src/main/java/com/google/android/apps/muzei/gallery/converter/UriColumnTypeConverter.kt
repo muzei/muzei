@@ -18,18 +18,18 @@ package com.google.android.apps.muzei.gallery.converter
 
 import android.net.Uri
 import androidx.core.net.toUri
-import androidx.room.TypeConverter
+import androidx.room3.ColumnTypeConverter
 
 /**
  * Converts a [Uri] into and from a persisted value
  */
-object UriTypeConverter {
-    @TypeConverter
+object UriColumnTypeConverter {
+    @ColumnTypeConverter
     fun fromString(uriString: String?): Uri? {
         return uriString?.toUri()
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun uriToString(uri: Uri?): String? {
         return uri?.toString()
     }

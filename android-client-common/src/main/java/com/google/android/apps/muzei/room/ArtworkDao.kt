@@ -17,15 +17,18 @@
 package com.google.android.apps.muzei.room
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room3.Dao
+import androidx.room3.DaoReturnTypeConverters
+import androidx.room3.Insert
+import androidx.room3.Query
+import androidx.room3.livedata.LiveDataDaoReturnTypeConverter
 import kotlinx.coroutines.flow.Flow
 
 /**
  * Dao for Artwork
  */
 @Dao
+@DaoReturnTypeConverters(LiveDataDaoReturnTypeConverter::class)
 abstract class ArtworkDao {
 
     @Query("SELECT * FROM artwork ORDER BY date_added DESC LIMIT 100")
