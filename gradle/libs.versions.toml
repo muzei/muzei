@@ -54,7 +54,7 @@ playServicesWearable = "20.0.1"
 
 # Jetbrains
 coroutines = "1.11.0"
-dokka = "2.2.0"
+dokka = "2.3.0"
 kotlin = "2.4.21"
 ksp = "2.3.7"
 
