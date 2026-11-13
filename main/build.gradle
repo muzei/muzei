@@ -126,7 +126,6 @@ dependencies {
     implementation libs.appCompat
     implementation libs.lifecycle.runtime
     implementation libs.lifecycle.viewmodel
-    implementation libs.recyclerView
     implementation libs.material
     implementation libs.browser
     implementation libs.exifInterface
