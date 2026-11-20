@@ -44,7 +44,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.computedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -154,7 +154,7 @@ fun Tutorial(
         }
     }
     val emanateBackground by remember {
-        derivedStateOf { started && iconOffsetProgress == 0f }
+        computedStateOf { started && iconOffsetProgress == 0f }
     }
     LaunchedEffect(emanateBackground) {
         if (emanateBackground) {

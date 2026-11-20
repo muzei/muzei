@@ -31,7 +31,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.FolderOpen
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -220,7 +219,7 @@ private fun GalleryImage(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalCoilApi::class)
+@OptIn(ExperimentalCoilApi::class)
 @Preview
 @Composable
 fun GalleryChosenPhotoItemSinglePreview() {
@@ -243,7 +242,7 @@ fun GalleryChosenPhotoItemSinglePreview() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalCoilApi::class)
+@OptIn(ExperimentalCoilApi::class)
 @Preview
 @Composable
 fun GalleryChosenPhotoItemSingleCheckedPreview() {
@@ -267,7 +266,7 @@ fun GalleryChosenPhotoItemSingleCheckedPreview() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalCoilApi::class)
+@OptIn(ExperimentalCoilApi::class)
 @Preview
 @Composable
 fun GalleryChosenPhotoItemMultiplePreview() {

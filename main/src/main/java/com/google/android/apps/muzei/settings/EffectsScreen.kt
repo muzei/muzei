@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.SliderState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -172,11 +173,12 @@ private fun EffectsGrid(
                 style = MaterialTheme.typography.titleMedium
             )
             // Sliders
+            val blurState = remember { SliderState(value = blur.toFloat(), trackRange = 0f..500f) }
+            blurState.value = blur.toFloat()
             Slider(
-                value = blur.toFloat(),
+                state = blurState,
                 onValueChange = { onBlurChange(it.toInt()) },
                 modifier = Modifier.padding(vertical = 8.dp),
-                valueRange = 0f..500f,
                 onValueChangeFinished = onBlurChangeFinished,
                 colors = SliderDefaults.colors(
                     thumbColor = Color.White,
@@ -184,11 +186,12 @@ private fun EffectsGrid(
                     inactiveTrackColor = Color.DarkGray,
                 )
             )
+            val dimState = remember { SliderState(value = dim.toFloat(), trackRange = 0f..255f) }
+            dimState.value = dim.toFloat()
             Slider(
-                value = dim.toFloat(),
+                state = dimState,
                 onValueChange = { onDimChange(it.toInt()) },
                 modifier = Modifier.padding(vertical = 8.dp),
-                valueRange = 0f..255f,
                 onValueChangeFinished = onDimChangeFinished,
                 colors = SliderDefaults.colors(
                     thumbColor = Color.White,
@@ -196,11 +199,12 @@ private fun EffectsGrid(
                     inactiveTrackColor = Color.DarkGray,
                 )
             )
+            val greyState = remember { SliderState(value = grey.toFloat(), trackRange = 0f..500f) }
+            greyState.value = grey.toFloat()
             Slider(
-                value = grey.toFloat(),
+                state = greyState,
                 onValueChange = { onGreyChange(it.toInt()) },
                 modifier = Modifier.padding(vertical = 8.dp),
-                valueRange = 0f..500f,
                 onValueChangeFinished = onGreyChangeFinished,
                 colors = SliderDefaults.colors(
                     thumbColor = Color.White,

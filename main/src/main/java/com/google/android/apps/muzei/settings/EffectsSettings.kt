@@ -30,7 +30,6 @@ import androidx.compose.material.icons.filled.LinkOff
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -62,7 +61,6 @@ import com.google.android.apps.muzei.theme.AppTheme
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EffectsSettings(
     prefs: SharedPreferences,

@@ -49,7 +49,11 @@ dependencies {
 
 android {
     namespace 'com.google.android.apps.muzei.gallery'
-    compileSdk libs.versions.compileSdk.get().toInteger()
+    compileSdk {
+        version = release(libs.versions.compileSdk.get().toInteger()) {
+            minorApiLevel = libs.versions.compileSdkMinor.get().toInteger()
+        }
+    }
 
     buildFeatures {
         buildConfig true

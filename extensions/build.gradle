@@ -32,7 +32,11 @@ dependencies {
 
 android {
     namespace 'net.nurik.roman.muzei.extensions'
-    compileSdk libs.versions.compileSdk.get().toInteger()
+    compileSdk {
+        version = release(libs.versions.compileSdk.get().toInteger()) {
+            minorApiLevel = libs.versions.compileSdkMinor.get().toInteger()
+        }
+    }
 
     defaultConfig {
         minSdkVersion 24

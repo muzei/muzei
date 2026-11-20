@@ -32,7 +32,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -84,6 +83,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import net.nurik.roman.muzei.R
+import kotlin.time.Duration.Companion.milliseconds
 
 private const val REFRESH_DELAY = 300L // milliseconds
 
@@ -118,7 +118,7 @@ fun BrowseProvider(
                 // Show the refresh indicator for some visible amount of time
                 // rather than immediately dismissing it. We don't know how long
                 // the provider will actually take to refresh, if it does at all.
-                delay(REFRESH_DELAY)
+                delay(REFRESH_DELAY.milliseconds)
                 isRefreshing = false
             }
         },
@@ -188,13 +188,12 @@ private suspend fun onActionClicked(
         try {
             selectedAction.actionIntent.sendFromBackground()
         } catch (_: PendingIntent.CanceledException) {
-            // Why do you give us a cancelled PendingIntent.
+            // Why do you give us a canceled PendingIntent?
             // We can't do anything with that.
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BrowseProviderScreen(
     label: String? = null,
@@ -315,7 +314,7 @@ fun BrowseProviderScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalCoilApi::class)
+@OptIn(ExperimentalCoilApi::class)
 @Preview
 @Composable
 fun BrowseProviderScreenPreview() {

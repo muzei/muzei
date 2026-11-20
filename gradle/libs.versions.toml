@@ -17,6 +17,7 @@
 [versions]
 
 compileSdk = "37"
+compileSdkMinor = "1"
 targetSdk = "37"
 agp = "9.5.1"
 
@@ -24,12 +25,12 @@ agp = "9.5.1"
 activity = "1.13.0"
 appCompat = "1.8.0"
 browser = "1.10.0"
-compose = "2026.09.00"
+compose = "2026.11.01"
 concurrent = "1.3.0"
 core = "1.19.1"
 exifInterface = "1.4.2"
 fragment = "1.9.1"
-lifecycle = "2.11.0"
+lifecycle = "2.11.1"
 navigation = "2.10.2"
 paging = "3.5.3"
 preference = "1.2.1"

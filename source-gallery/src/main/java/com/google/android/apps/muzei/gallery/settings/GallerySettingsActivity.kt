@@ -43,7 +43,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -138,7 +137,6 @@ class GallerySettingsActivity : ComponentActivity() {
         MutableStateFlow(checkRequestPermissionState(this))
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.enableEdgeToEdge(window)
@@ -281,7 +279,7 @@ class GallerySettingsActivity : ComponentActivity() {
                                         .getChosenPhoto(firstSelectedId)
                                 if (chosenPhoto?.isTreeUri == true) {
                                     val displayName = getDisplayNameForTreeUri(chosenPhoto.uri)
-                                    if (displayName != null && displayName.isNotEmpty()) {
+                                    if (!displayName.isNullOrEmpty()) {
                                         title = displayName
                                     }
                                 }

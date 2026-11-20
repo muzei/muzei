@@ -26,7 +26,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -39,7 +38,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.android.apps.muzei.gallery.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GalleryImportPhotosDialog(
     getContentActivityInfoList: List<String>,
@@ -86,7 +84,7 @@ private fun GalleryImportPhotosDialogContent(
                         onClick = { onInfoSelected(index) },
                     ) {
                         Text(
-                            text = getContentActivityInfoList[index],
+                            text = info,
                             modifier = Modifier.fillMaxWidth(),
                             color = AlertDialogDefaults.textContentColor,
                             style = MaterialTheme.typography.bodyMedium,

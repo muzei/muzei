@@ -27,7 +27,11 @@ base { archivesName = "muzei" }
 
 android {
     namespace 'net.nurik.roman.muzei'
-    compileSdk libs.versions.compileSdk.get().toInteger()
+    compileSdk {
+        version = release(libs.versions.compileSdk.get().toInteger()) {
+            minorApiLevel = libs.versions.compileSdkMinor.get().toInteger()
+        }
+    }
 
     Properties versionProps = new Properties()
     versionProps.load(new FileInputStream(file('../version.properties')))
