@@ -63,10 +63,10 @@ fun PaddingValues.only(
 ): PaddingValues {
     return CombinedPaddingValues(
         this,
-        combinationBottom = { first, second -> if (bottom) first else 0.dp },
-        combinationLeft = { first, second -> if (left) first else 0.dp },
-        combinationRight = { first, second -> if (right) first else 0.dp },
-        combinationTop = { first, second -> if (top) first else 0.dp },
+        combinationBottom = { first, _ -> if (bottom) first else 0.dp },
+        combinationLeft = { first, _ -> if (left) first else 0.dp },
+        combinationRight = { first, _ -> if (right) first else 0.dp },
+        combinationTop = { first, _ -> if (top) first else 0.dp },
     )
 }
 

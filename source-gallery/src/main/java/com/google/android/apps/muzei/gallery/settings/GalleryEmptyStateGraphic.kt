@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.times
 import com.google.android.apps.muzei.gallery.theme.GalleryTheme
 import kotlinx.coroutines.delay
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 private val BITMAP = intArrayOf(
     0, 0, 1, 1, 1, 1, 0, 0,
@@ -79,11 +80,11 @@ fun GalleryEmptyStateGraphic() {
             // Fade in the newly 'on' cell
             fadeAlpha.animateTo(1f, animationSpec = tween(100))
             // Keep it on for a bit
-            delay(400L)
+            delay(400L.milliseconds)
             // Then fade it out
             fadeAlpha.animateTo(0f, animationSpec = tween(100))
             // And then turn every cell off for a bit
-            delay(50L)
+            delay(50L.milliseconds)
         }
     }
     Canvas(

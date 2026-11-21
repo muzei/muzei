@@ -23,11 +23,8 @@ import android.content.Context
 import android.content.OperationApplicationException
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.RemoteException
 import android.provider.BaseColumns
-import androidx.annotation.RequiresApi
-import java.util.ArrayList
 
 /**
  * Contract between Muzei and Muzei Art Providers, containing the definitions for all supported
@@ -63,7 +60,6 @@ public object ProviderContract {
      * @return a [ProviderClient] suitable for accessing the [MuzeiArtProvider].
      */
     @JvmStatic
-    @RequiresApi(Build.VERSION_CODES.KITKAT)
     public fun getProviderClient(
             context: Context,
             provider: Class<out MuzeiArtProvider>
@@ -91,7 +87,6 @@ public object ProviderContract {
      * @param Provider The subclass of [MuzeiArtProvider] you need a ProviderClient for.
      * @return a [ProviderClient] suitable for accessing the [MuzeiArtProvider].
      */
-    @RequiresApi(Build.VERSION_CODES.KITKAT)
     public inline fun <reified Provider : MuzeiArtProvider> getProviderClient(
             context: Context): ProviderClient {
         return getProviderClient(context, Provider::class.java)
@@ -106,7 +101,6 @@ public object ProviderContract {
      * @return a [ProviderClient] suitable for accessing the [MuzeiArtProvider].
      */
     @JvmStatic
-    @RequiresApi(Build.VERSION_CODES.KITKAT)
     public fun getProviderClient(
             context: Context,
             authority: String): ProviderClient {
@@ -149,9 +143,9 @@ public object ProviderContract {
                 return try {
                     val results = contentResolver.applyBatch(authority, operations)
                     results.mapNotNull { result -> result.uri }
-                } catch (ignored: OperationApplicationException) {
+                } catch (_: OperationApplicationException) {
                     emptyList()
-                } catch (ignored: RemoteException) {
+                } catch (_: RemoteException) {
                     emptyList()
                 }
             }
@@ -172,7 +166,7 @@ public object ProviderContract {
                     val results = contentResolver.applyBatch(
                             authority, operations)
                     results[0].uri
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     null
                 }
             }
@@ -199,8 +193,8 @@ public object ProviderContract {
                 try {
                     val results = contentResolver.applyBatch(authority, operations)
                     resultUris.addAll(results.take(artworkCount).mapNotNull { result -> result.uri })
-                } catch (ignored: OperationApplicationException) {
-                } catch (ignored: RemoteException) {
+                } catch (_: OperationApplicationException) {
+                } catch (_: RemoteException) {
                 }
 
                 return resultUris
@@ -217,11 +211,11 @@ public object ProviderContract {
         /**
          * The unique ID of the Artwork, suitable for use with [ContentUris.withAppendedId].
          */
-        @Suppress("unused", "ObjectPropertyName")
+        @Suppress("unused", "ConstPropertyName")
         public const val _ID: String = BaseColumns._ID
         /**
          * The token that uniquely defines the artwork. Any inserts using the same non-null token
-         * will be considered updates to the existing artwork. Therefore there will always be at
+         * will be considered updates to the existing artwork. Therefore, there will always be at
          * most one artwork with the same non-null token.
          *
          * This field **cannot** be changed after the artwork is inserted.

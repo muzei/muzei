@@ -40,6 +40,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 class BrowseProviderViewModel(
@@ -49,7 +50,7 @@ class BrowseProviderViewModel(
 
     private val args = BrowseProviderFragmentArgs.fromSavedStateHandle(savedStateHandle)
 
-    val providerInfo = getInstalledProviders(application).debounce(1000L).map { providers ->
+    val providerInfo = getInstalledProviders(application).debounce(1000L.milliseconds).map { providers ->
         providers.firstOrNull { it.authority == args.contentUri.authority }
     }
 

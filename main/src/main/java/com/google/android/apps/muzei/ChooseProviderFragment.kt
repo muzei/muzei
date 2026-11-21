@@ -16,12 +16,14 @@
 
 package com.google.android.apps.muzei
 
+import android.Manifest
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -30,6 +32,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
@@ -164,6 +167,18 @@ class ChooseProviderFragment : Fragment() {
             } else {
                 null
             }
+            val notificationPermissionLauncher = rememberLauncherForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ) { granted ->
+                if (granted) {
+                    // Now that the user has granted permission, we can
+                    // show the notification settings
+                    NotificationSettingsDialogFragment.showSettings(
+                        context,
+                        childFragmentManager
+                    )
+                }
+            }
             ChooseProvider(
                 providers = providers + if (providers.isNotEmpty() && playStoreProviderInfo != null) {
                     listOf(playStoreProviderInfo)
@@ -182,10 +197,15 @@ class ChooseProviderFragment : Fragment() {
                     Firebase.analytics.logEvent("notification_settings_open") {
                         param(FirebaseAnalytics.Param.CONTENT_TYPE, "overflow")
                     }
-                    NotificationSettingsDialogFragment.showSettings(
+                    val shown = NotificationSettingsDialogFragment.showSettings(
                         context,
                         childFragmentManager
                     )
+                    if (!shown && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        notificationPermissionLauncher.launch(
+                            Manifest.permission.POST_NOTIFICATIONS
+                        )
+                    }
                 },
                 autoScrollToProviderAuthority = autoScrollToProviderAuthority,
                 onAutoScrollToProviderCompleted = {

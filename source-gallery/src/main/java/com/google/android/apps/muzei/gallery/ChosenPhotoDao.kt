@@ -197,7 +197,7 @@ internal abstract class ChosenPhotoDao {
 
     /**
      * We can't just simply delete the rows as that won't free up the space occupied by the
-     * chosen image files for each row being deleted. Instead we have to query
+     * chosen image files for each row being deleted. Instead, we have to query
      * and manually delete each chosen image file
      */
     private suspend fun deleteBackingPhotos(

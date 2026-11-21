@@ -33,7 +33,9 @@ import android.util.Log
 import com.google.android.apps.muzei.render.ImageLoader
 import com.google.android.apps.muzei.room.Artwork
 import com.google.android.apps.muzei.room.MuzeiDatabase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import net.nurik.roman.muzei.androidclientcommon.R
 import java.io.File
@@ -257,8 +259,10 @@ class MuzeiDocumentsProvider : DocumentsProvider() {
 
         // Write out the thumbnail to a temporary file
         try {
-            FileOutputStream(tempFile).use { out ->
-                bitmap.compress(Bitmap.CompressFormat.PNG, 90, out)
+            withContext(Dispatchers.IO) {
+                FileOutputStream(tempFile).use { out ->
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 90, out)
+                }
             }
         } catch (e: IOException) {
             Log.e(TAG, "Error writing thumbnail", e)

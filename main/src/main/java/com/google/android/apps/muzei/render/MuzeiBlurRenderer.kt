@@ -281,7 +281,7 @@ class MuzeiBlurRenderer(
         }
 
         if (immediate) {
-            // Stop any running cross fade if we're immediately switching to this new image
+            // Stop any running cross-fade if we're immediately switching to this new image
             crossfadeAnimator.finish()
         }
 
@@ -385,9 +385,9 @@ class MuzeiBlurRenderer(
                     if (tempBitmap != null
                             && tempBitmap.width != 0 && tempBitmap.height != 0) {
                         // Next, create a scaled down version of the bitmap so that the blur radius
-                        // looks appropriate (tempBitmap will likely be bigger than the final
+                        // looks appropriate. tempBitmap will likely be bigger than the final
                         // blurred bitmap, and thus the blur may look smaller if we just used
-                        // tempBitmap as the final blurred bitmap).
+                        // tempBitmap as the final blurred bitmap.
 
                         // Note that image width should be a multiple of 4 to avoid
                         // issues with RenderScript allocations.
@@ -432,7 +432,7 @@ class MuzeiBlurRenderer(
             }
 
             // Ensure the bitmap is as wide as the screen by applying zoom if necessary
-            // ignoring any system wide zoom requests while the Art Detail screen is open
+            // ignoring any system-wide zoom requests while the Art Detail screen is open
             val zoom = max(1f, screenToBitmapAspectRatio) *
                     (if (ArtDetailOpen.value) 1f else zoomAmount)
 

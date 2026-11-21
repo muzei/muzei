@@ -134,7 +134,7 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
     private val descriptionInvalidationNanoTime = MutableStateFlow(0L)
 
     /**
-     * Combine all of the separate signals we have into one final set of [ProviderInfo]:
+     * Combine all the separate signals we have into one final set of [ProviderInfo]:
      * - The set of installed providers
      * - the currently selected provider
      * - the current artwork for each provider
@@ -193,7 +193,6 @@ class ChooseProviderViewModel(application: Application) : AndroidViewModel(appli
     }
 
     override fun onCleared() {
-        super.onCleared()
         getApplication<Application>().unregisterReceiver(localeChangeReceiver)
     }
 }

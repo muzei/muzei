@@ -16,13 +16,16 @@
 
 package com.google.android.apps.muzei.notifications
 
+import android.Manifest
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.core.content.edit
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
@@ -37,15 +40,27 @@ class NotificationSettingsDialogFragment : DialogFragment() {
         /**
          * Show the notification settings. This may come in the form of this dialog or the
          * system notification settings on O+ devices.
+         *
+         * @return whether the notification settings were shown
          */
-        fun showSettings(context: Context, fragmentManager: FragmentManager) {
+        fun showSettings(context: Context, fragmentManager: FragmentManager): Boolean {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                // Ensure the notification channel exists
-                NewWallpaperNotificationReceiver.createNotificationChannel(context)
-                val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
-                intent.putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
-                if (intent.resolveActivity(context.packageManager) != null) {
-                    context.startActivity(intent)
+                if (ActivityCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    // Ensure the notification channel exists
+                    NewWallpaperNotificationReceiver.createNotificationChannel(context)
+                    val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                    intent.putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                    if (intent.resolveActivity(context.packageManager) != null) {
+                        context.startActivity(intent)
+                    } else {
+                        context.toast(R.string.notification_settings_failed, Toast.LENGTH_LONG)
+                    }
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    return false
                 } else {
                     context.toast(R.string.notification_settings_failed, Toast.LENGTH_LONG)
                 }
@@ -53,6 +68,7 @@ class NotificationSettingsDialogFragment : DialogFragment() {
                 NotificationSettingsDialogFragment().show(
                         fragmentManager, "notifications")
             }
+            return true
         }
     }
 

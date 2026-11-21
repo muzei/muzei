@@ -291,7 +291,7 @@ private fun TutorialIcon(
         ),
     ) { measurables, constraints ->
         val (backgroundPlaceable, iconPlaceable, titlePlaceable) = measurables.map { measurable ->
-            // Measure each children
+            // Measure each child
             measurable.measure(constraints)
         }
         val layoutWidth = backgroundPlaceable.width

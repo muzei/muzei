@@ -206,7 +206,7 @@ class ArtDetailFragment : Fragment(R.layout.art_detail_fragment) {
                     try {
                         action.actionIntent.sendFromBackground()
                     } catch (_: PendingIntent.CanceledException) {
-                        // Why do you give us a cancelled PendingIntent.
+                        // Why do you give us a canceled PendingIntent?
                         // We can't do anything with that.
                     }
                 }

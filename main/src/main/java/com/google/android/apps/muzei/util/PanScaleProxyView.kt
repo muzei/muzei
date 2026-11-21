@@ -222,7 +222,7 @@ class PanScaleProxyView @JvmOverloads constructor(context: Context, attrs: Attri
                 newWidth = 1 / zoomer.currZoom
                 newHeight = newWidth * relativeAspectRatio
             }
-            // focalPointOnScreen... 0 = left/top edge of screen, 1 = right/bottom edge of sreen
+            // focalPointOnScreen... 0 = left/top edge of screen, 1 = right/bottom edge of screen
             val focalPointOnScreenX = (zoomFocalPoint.x - scrollerStartViewport.left) / scrollerStartViewport.width()
             val focalPointOnScreenY = (zoomFocalPoint.y - scrollerStartViewport.top) / scrollerStartViewport.height()
             currentViewport.set(

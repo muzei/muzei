@@ -16,6 +16,7 @@
 
 package com.google.android.apps.muzei.notifications
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
@@ -26,6 +27,7 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
+import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -86,6 +88,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
             NotificationManagerCompat.from(context).cancel(NOTIFICATION_ID)
         }
 
+        @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
         private fun isNewWallpaperNotificationEnabled(context: Context): Boolean {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 // On O+ devices, we defer to the system setting
@@ -104,6 +107,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
             return sp.getBoolean(PREF_ENABLED, true)
         }
 
+        @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
         @SuppressLint("InlinedApi")
         suspend fun maybeShowNewArtworkNotification(context: Context) {
             if (ArtDetailOpen.value) {
@@ -255,10 +259,11 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
          * @return False only in the case where the user had wallpapers disabled in-app, but has not
          * yet seen the 'Review your notification settings' notification
          */
+        @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
         internal fun createNotificationChannel(context: Context): Boolean {
             val notificationManager = NotificationManagerCompat.from(context)
             val sp = PreferenceManager.getDefaultSharedPreferences(context)
-            // On O+ devices, we want to push users to change the system notification setting
+            // On O+ devices, we want to push users to change the system notification setting,
             // but we'll use their current value to set the default importance
             val defaultImportance = if (sp.getBoolean(PREF_ENABLED, true))
                 NotificationManagerCompat.IMPORTANCE_MIN
@@ -339,7 +344,7 @@ class NewWallpaperNotificationReceiver : BroadcastReceiver() {
                     try {
                         actionIntent.sendFromBackground()
                     } catch (_: PendingIntent.CanceledException) {
-                        // Why do you give us a cancelled PendingIntent.
+                        // Why do you give us a canceled PendingIntent?
                         // We can't do anything with that.
                     }
                 }

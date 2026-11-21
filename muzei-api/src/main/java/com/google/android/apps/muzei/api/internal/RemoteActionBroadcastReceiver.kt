@@ -22,9 +22,7 @@ import android.content.BroadcastReceiver
 import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
-import androidx.annotation.RequiresApi
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_COMMAND
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_COMMAND_ARTWORK_ID
 import com.google.android.apps.muzei.api.internal.ProtocolConstants.KEY_COMMAND_AUTHORITY
@@ -37,7 +35,6 @@ import com.google.android.apps.muzei.api.provider.ProviderContract
  * of the Muzei API without updating their `MuzeiArtProvider` to use the new
  * [com.google.android.apps.muzei.api.provider.MuzeiArtProvider.getCommandActions].
  */
-@RequiresApi(Build.VERSION_CODES.KITKAT)
 public class RemoteActionBroadcastReceiver : BroadcastReceiver() {
     public companion object {
         /**

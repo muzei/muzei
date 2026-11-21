@@ -21,7 +21,6 @@ import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.provider.BaseColumns
-import com.google.android.apps.muzei.api.provider.Artwork.Builder
 import com.google.android.apps.muzei.api.provider.ProviderContract.Artwork.ATTRIBUTION
 import com.google.android.apps.muzei.api.provider.ProviderContract.Artwork.BYLINE
 import com.google.android.apps.muzei.api.provider.ProviderContract.Artwork.DATA

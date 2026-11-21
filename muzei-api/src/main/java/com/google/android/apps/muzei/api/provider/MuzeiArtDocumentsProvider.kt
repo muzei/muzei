@@ -30,13 +30,11 @@ import android.graphics.Matrix
 import android.graphics.Point
 import android.net.Uri
 import android.os.Binder
-import android.os.Build
 import android.os.CancellationSignal
 import android.os.ParcelFileDescriptor
 import android.provider.DocumentsContract
 import android.provider.DocumentsProvider
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.exifinterface.media.ExifInterface
 import java.io.File
 import java.io.FileNotFoundException
@@ -81,7 +79,7 @@ import kotlin.math.max
  * While in most cases this is not an issue, it does mean that only a single
  * [MuzeiArtDocumentsProvider] class can be added to the final merged application manifest.
  *
- * Therefore in cases where you do not control the final application manifest (e.g., when
+ * Therefore, in cases where you do not control the final application manifest (e.g., when
  * providing a [MuzeiArtProvider] and [MuzeiArtDocumentsProvider] pair as part of a library),
  * it is strongly recommended to subclass [MuzeiArtDocumentsProvider], ensuring that the
  * `android:name` in the manifest is unique.
@@ -101,7 +99,6 @@ import kotlin.math.max
  *
  * @constructor Constructs a `MuzeiArtDocumentsProvider`.
  */
-@RequiresApi(Build.VERSION_CODES.KITKAT)
 public open class MuzeiArtDocumentsProvider : DocumentsProvider() {
 
     public companion object {

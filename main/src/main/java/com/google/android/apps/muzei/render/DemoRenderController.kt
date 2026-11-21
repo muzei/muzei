@@ -25,6 +25,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 class DemoRenderController(
         context: Context,
@@ -60,9 +61,9 @@ class DemoRenderController(
                 }
         if (allowFocus) {
             coroutineScope.launch {
-                delay(FOCUS_DELAY_TIME_MILLIS)
+                delay(FOCUS_DELAY_TIME_MILLIS.milliseconds)
                 renderer.setIsBlurred(isBlurred = false, artDetailMode = false)
-                delay(FOCUS_TIME_MILLIS)
+                delay(FOCUS_TIME_MILLIS.milliseconds)
                 renderer.setIsBlurred(isBlurred = true, artDetailMode = false)
             }
         }

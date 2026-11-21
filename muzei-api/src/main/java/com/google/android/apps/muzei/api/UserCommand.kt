@@ -68,7 +68,7 @@ public data class UserCommand(
             val split = serialized.split(':')
             val id = try {
                 split[0].toInt()
-            } catch (e: NumberFormatException) {
+            } catch (_: NumberFormatException) {
                 -1
             }
             return UserCommand(id, if (split.size > 1) split[1] else null)

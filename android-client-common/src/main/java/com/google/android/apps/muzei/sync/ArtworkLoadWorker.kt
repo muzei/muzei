@@ -52,6 +52,7 @@ import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Worker responsible for loading artwork from a [MuzeiArtProvider] and inserting it into
@@ -101,7 +102,7 @@ class ArtworkLoadWorker(
 
     override suspend fun doWork() = withContext(syncSingleThreadContext) {
         // Throttle artwork loads
-        delay(ARTWORK_LOAD_THROTTLE)
+        delay(ARTWORK_LOAD_THROTTLE.milliseconds)
         // Now actually load the artwork
         val database = MuzeiDatabase.getInstance(applicationContext)
         val (authority) = database.providerDao()

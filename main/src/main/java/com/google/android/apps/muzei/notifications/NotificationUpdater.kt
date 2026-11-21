@@ -16,7 +16,10 @@
 
 package com.google.android.apps.muzei.notifications
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.google.android.apps.muzei.room.MuzeiDatabase
@@ -32,8 +35,14 @@ class NotificationUpdater(private val context: Context) : DefaultLifecycleObserv
         // Update notifications whenever the artwork changes
         val database = MuzeiDatabase.getInstance(context)
         database.artworkDao().getCurrentArtworkFlow().filterNotNull().collectIn(owner) {
-            NewWallpaperNotificationReceiver
+            if (ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                NewWallpaperNotificationReceiver
                     .maybeShowNewArtworkNotification(context)
+            }
         }
     }
 

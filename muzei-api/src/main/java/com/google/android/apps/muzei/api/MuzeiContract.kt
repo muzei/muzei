@@ -29,10 +29,6 @@ import android.os.Looper
 import android.provider.BaseColumns
 import androidx.annotation.RequiresPermission
 import androidx.annotation.WorkerThread
-import com.google.android.apps.muzei.api.MuzeiContract.Artwork.ACTION_ARTWORK_CHANGED
-import com.google.android.apps.muzei.api.MuzeiContract.Artwork.CONTENT_URI
-import com.google.android.apps.muzei.api.MuzeiContract.Artwork.getCurrentArtwork
-import com.google.android.apps.muzei.api.MuzeiContract.Artwork.getCurrentArtworkBitmap
 import com.google.android.apps.muzei.api.provider.ProviderClient
 import java.io.FileNotFoundException
 
@@ -66,7 +62,7 @@ public object MuzeiContract {
      * ### Working with the Artwork table
      *
      * Querying [CONTENT_URI] will return either zero rows (in cases where the user has never
-     * activated Muzei before) or a row for each previously loaded artwork with all of the
+     * activated Muzei before) or a row for each previously loaded artwork with all the
      * details needed to create an [Artwork][com.google.android.apps.muzei.api.Artwork] object.
      * The helper method [getCurrentArtwork] builds an Artwork object for the most recent
      * artwork, although you can certainly query the [CONTENT_URI] directly and either
@@ -108,7 +104,7 @@ public object MuzeiContract {
         /**
          * The unique ID of the Artwork, suitable for use with [ContentUris.withAppendedId].
          */
-        @Suppress("unused", "ObjectPropertyName")
+        @Suppress("unused", "ConstPropertyName")
         public const val _ID: String = BaseColumns._ID
         /**
          * Column name for the authority of the provider for this artwork.
@@ -242,7 +238,7 @@ public object MuzeiContract {
         /**
          * The unique ID of the Source, suitable for use with [ContentUris.withAppendedId].
          */
-        @Suppress("unused", "ObjectPropertyName")
+        @Suppress("unused", "ConstPropertyName")
         public const val _ID: String = BaseColumns._ID
         /**
          * Column name for the authority of the provider for this artwork.

@@ -37,7 +37,7 @@ internal class Zoomer(context: Context) {
             android.R.integer.config_shortAnimTime)
 
     /**
-     * Whether or not the current zoom has finished.
+     * If the current zoom has finished.
      */
     private var finished = true
 

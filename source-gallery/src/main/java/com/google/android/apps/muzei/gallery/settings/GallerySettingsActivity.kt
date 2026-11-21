@@ -72,6 +72,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.savedstate.compose.serialization.serializers.MutableStateSerializer
+import androidx.savedstate.compose.serialization.serializers.SnapshotStateSetSerializer
 import com.google.android.apps.muzei.gallery.GalleryDatabase
 import com.google.android.apps.muzei.gallery.GalleryScanWorker
 import com.google.android.apps.muzei.gallery.R

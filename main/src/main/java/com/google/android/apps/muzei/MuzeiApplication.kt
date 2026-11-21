@@ -22,7 +22,6 @@ import android.content.SharedPreferences
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.Composer
-import androidx.compose.runtime.ExperimentalComposeRuntimeApi
 import androidx.compose.runtime.tooling.ComposeStackTraceMode
 import androidx.core.content.edit
 import androidx.fragment.app.strictmode.FragmentStrictMode
@@ -46,7 +45,6 @@ class MuzeiApplication : Application(), SharedPreferences.OnSharedPreferenceChan
                 Prefs.getSharedPreferences(context).getBoolean(ALWAYS_DARK_KEY, false)
     }
 
-    @OptIn(ExperimentalComposeRuntimeApi::class)
     override fun onCreate() {
         super.onCreate()
         Composer.setDiagnosticStackTraceMode(

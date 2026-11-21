@@ -207,7 +207,6 @@ fun ChooseProviderItem(
     }
 }
 
-@OptIn(ExperimentalCoilApi::class)
 @Preview(
     device = "spec:width=400dp,height=400dp,orientation=landscape,dpi=420",
 )
@@ -218,7 +217,6 @@ fun ChooseProviderItemPreview(
     ChooseProviderItemPreviewContent(providerInfo)
 }
 
-@OptIn(ExperimentalCoilApi::class)
 @Preview(
     device = "spec:width=400dp,height=400dp,orientation=landscape,dpi=420",
 )

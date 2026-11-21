@@ -46,7 +46,6 @@ import android.provider.BaseColumns
 import android.provider.DocumentsContract
 import android.util.Log
 import androidx.annotation.CallSuper
-import androidx.annotation.RequiresApi
 import androidx.core.app.RemoteActionCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.versionedparcelable.ParcelUtils
@@ -77,9 +76,6 @@ import com.google.android.apps.muzei.api.internal.ProtocolConstants.METHOD_TRIGG
 import com.google.android.apps.muzei.api.internal.RemoteActionBroadcastReceiver
 import com.google.android.apps.muzei.api.internal.getRecentIds
 import com.google.android.apps.muzei.api.internal.putRecentIds
-import com.google.android.apps.muzei.api.provider.MuzeiArtProvider.Companion.ACCESS_PERMISSION
-import com.google.android.apps.muzei.api.provider.MuzeiArtProvider.Companion.ACTION_MUZEI_ART_PROVIDER
-import com.google.android.apps.muzei.api.provider.MuzeiArtProvider.Companion.EXTRA_FROM_MUZEI
 import org.json.JSONArray
 import java.io.File
 import java.io.FileInputStream
@@ -89,8 +85,6 @@ import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.ArrayList
-import java.util.HashSet
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.locks.ReadWriteLock
@@ -134,7 +128,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock
  * component name for a configuration activity in the provider's package that Muzei can offer
  * to the user for customizing the extension. This activity must be exported.
  *  * `setupActivity` (optional): if present, should be the qualified
- * component name for an initial setup activity that must be ran before the provider can be
+ * component name for an initial setup activity that must be started before the provider can be
  * activated. It will be started with [android.app.Activity.startActivityForResult] and must
  * return [android.app.Activity.RESULT_OK] for the provider to be activated. This activity
  * must be exported.
@@ -199,7 +193,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock
  * used.
  *
  * All artwork should support opening an Activity to view more details about the artwork.
- * You can provider your own functionality by overriding [getArtworkInfo].
+ * You can provide your own functionality by overriding [getArtworkInfo].
  *
  * If custom behavior is needed to retrieve the artwork's binary data (for example,
  * authentication with a remote server), this behavior can be added to
@@ -215,7 +209,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock
  *
  * @constructor Constructs a `MuzeiArtProvider`.
  */
-@RequiresApi(Build.VERSION_CODES.KITKAT)
 public abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
 
     public companion object {
@@ -240,7 +233,7 @@ public abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
          * activities.
          *
          * Check for this extra in your activity if you need to adjust your UI depending on
-         * whether or not the user came from Muzei.
+         * if the user came from Muzei.
          */
         public const val EXTRA_FROM_MUZEI: String = "com.google.android.apps.muzei.api.extra.FROM_MUZEI_SETTINGS"
         private const val PREF_MAX_LOADED_ARTWORK_ID = "maxLoadedArtworkId"
@@ -521,11 +514,11 @@ public abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
     }
 
     /**
-     * Callback method when the user has viewed all of the available artwork. This should be used
+     * Callback method when the user has viewed all the available artwork. This should be used
      * as a cue to load more artwork so that the user has a constant stream of new artwork.
      *
      * Muzei will always prefer to show unseen artwork, but will automatically cycle through all
-     * of the available artwork if no new artwork is found (i.e., if you don't load new artwork
+     * the available artwork if no new artwork is found (i.e., if you don't load new artwork
      * after receiving this callback).
      *
      * @param initial true when there is no artwork available, such as is the case when this is
@@ -539,7 +532,8 @@ public abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
      *
      * If you only support a single artwork, you should use this callback as an opportunity
      * to provide an alternate version of the artwork or a backup image to avoid repeatedly
-     * loading the same artwork, just to mark it as invalid and be left with no valid artwork.
+     * loading the same artwork. Repeatedly loading the same artwork is likely to lead to the
+     * 'new' artwork also being marked it as invalid and be left with no valid artwork.
      *
      * @param artwork Artwork that Muzei has failed to load
      */
@@ -550,7 +544,7 @@ public abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
 
     /**
      * The longer description for the current state of this MuzeiArtProvider. For example,
-     * 'Popular photos tagged "landscape"'). The default implementation returns the
+     * 'Popular photos tagged "landscape"'. The default implementation returns the
      * `android:description` element of the provider element in the manifest.
      *
      * @return A longer description to be displayed alongside the label of the provider.
@@ -563,7 +557,7 @@ public abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
                     ComponentName(context, javaClass),
                     PackageManager.MATCH_DISABLED_COMPONENTS)
             if (info.descriptionRes != 0) context.getString(info.descriptionRes) else ""
-        } catch (e: PackageManager.NameNotFoundException) {
+        } catch (_: PackageManager.NameNotFoundException) {
             ""
         }
     }
@@ -748,15 +742,18 @@ public abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
         val results: Array<ContentProviderResult>
         db.beginTransaction()
         try {
-            Trace.beginSection("applyBatch")
-            applyingBatch.set(true)
-            results = super.applyBatch(operations)
-            db.setTransactionSuccessful()
+            try {
+                Trace.beginSection("applyBatch")
+                applyingBatch.set(true)
+                results = super.applyBatch(operations)
+                db.setTransactionSuccessful()
+            } finally {
+                Trace.endSection()
+            }
         } finally {
             db.endTransaction()
             applyingBatch.set(false)
             onOperationComplete()
-            Trace.endSection()
         }
         return results
     }
@@ -770,15 +767,18 @@ public abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
         val numberInserted: Int
         db.beginTransaction()
         try {
-            Trace.beginSection("bulkInsert")
-            applyingBatch.set(true)
-            numberInserted = super.bulkInsert(uri, values)
-            db.setTransactionSuccessful()
+            try {
+                Trace.beginSection("bulkInsert")
+                applyingBatch.set(true)
+                numberInserted = super.bulkInsert(uri, values)
+                db.setTransactionSuccessful()
+            } finally {
+                Trace.endSection()
+            }
         } finally {
             db.endTransaction()
             applyingBatch.set(false)
             onOperationComplete()
-            Trace.endSection()
         }
         return numberInserted
     }
@@ -918,7 +918,7 @@ public abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
                 finalWhere = "$finalWhere AND $selection"
             }
         }
-        // Delete all of the files associated with the rows being deleted
+        // Delete all the files associated with the rows being deleted
         query(contentUri, arrayOf(ProviderContract.Artwork.DATA),
                 finalWhere, selectionArgs, null).use { rowsToDelete ->
             while (rowsToDelete.moveToNext()) {
@@ -1040,7 +1040,7 @@ public abstract class MuzeiArtProvider : ContentProvider(), ProviderClient {
      * if you return `false` - there is no need to call this
      * manually from within this method.
      * @param artwork The Artwork to confirm
-     * @return Whether the Artwork is valid and should be loaded
+     * @return If the Artwork is valid and should be loaded
      */
     public open fun isArtworkValid(artwork: Artwork): Boolean {
         return true

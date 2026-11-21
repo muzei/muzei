@@ -34,6 +34,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 class PreferenceSourcedValue<T : Any>(
     private val coroutineScope: CoroutineScope,
@@ -51,7 +52,7 @@ class PreferenceSourcedValue<T : Any>(
             userControlled = true
             updateJob?.cancel()
             updateJob = coroutineScope.launch {
-                delay(750)
+                delay(750.milliseconds)
                 updateValue(value)
                 updateJob = null
             }

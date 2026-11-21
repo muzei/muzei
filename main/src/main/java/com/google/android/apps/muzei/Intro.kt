@@ -124,7 +124,7 @@ fun Intro(
                 ),
             measurePolicy = { measurables, constraints ->
                 val (logoPlaceable, activatePlaceable) = measurables.map { measurable ->
-                    // Measure each children
+                    // Measure each child
                     measurable.measure(constraints)
                 }
                 val layoutWidth = constraints.maxWidth

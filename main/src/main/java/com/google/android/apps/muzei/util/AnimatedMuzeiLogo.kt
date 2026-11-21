@@ -87,7 +87,7 @@ fun AnimatedMuzeiLogo(
     onFillStarted: () -> Unit = {},
 ) {
     val transition = updateTransition(started, label = "AnimatedMuzeiLogo")
-    val glyphTraceProgress = LogoPaths.GLYPHS.mapIndexed { index, glyph ->
+    val glyphTraceProgress = LogoPaths.GLYPHS.mapIndexed { index, _ ->
         key(index) {
             transition.animateFloat(
                 transitionSpec = {
@@ -312,7 +312,7 @@ fun MuzeiLogoNotStartedPreview() {
 @Composable
 fun MuzeiLogoTraceInProgressPreview() {
     val traceProgress = remember {
-        (0..<LogoPaths.GLYPHS.size).map { index ->
+        LogoPaths.GLYPHS.indices.map { index ->
             val offset = (LogoPaths.GLYPHS.size - index).toFloat() / LogoPaths.GLYPHS.size
             mutableFloatStateOf(offset * 0.5f)
         }
@@ -328,7 +328,7 @@ fun MuzeiLogoTraceInProgressPreview() {
 @Composable
 fun MuzeiLogoFillInProgressPreview() {
     val traceProgress = remember {
-        (0..<LogoPaths.GLYPHS.size).map { index ->
+        LogoPaths.GLYPHS.map {
             mutableFloatStateOf(1f)
         }
     }

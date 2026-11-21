@@ -165,7 +165,7 @@ class ProviderManager private constructor(private val context: Context)
     @OptIn(DelicateCoroutinesApi::class)
     private val artworkObserver = Observer<Artwork?> { artwork ->
         if (artwork == null) {
-            // Can't have no artwork at all,
+            // Avoid having no artwork at all:
             // try loading the next artwork with a slight delay
             nextArtworkJob?.cancel()
             nextArtworkJob = GlobalScope.launch {

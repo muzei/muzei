@@ -18,6 +18,7 @@ package com.google.android.apps.muzei.render
 
 import android.graphics.Bitmap
 import android.graphics.Color
+import androidx.core.graphics.get
 
 fun Bitmap?.darkness(): Float {
     if (this == null || width == 0 || height == 0) {
@@ -33,7 +34,7 @@ fun Bitmap?.darkness(): Float {
         x = 0
         while (x < width) {
             ++n
-            color = getPixel(x, y)
+            color = this[x, y]
             totalLum += (0.21f * Color.red(color)
                     + 0.71f * Color.green(color)
                     + 0.07f * Color.blue(color)).toInt()

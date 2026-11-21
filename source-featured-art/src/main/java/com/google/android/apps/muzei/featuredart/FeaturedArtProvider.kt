@@ -58,7 +58,7 @@ class FeaturedArtProvider : MuzeiArtProvider() {
                     .build())
         } else {
             // Delete all but the latest artwork to avoid
-            // cycling through all of the previously Featured Art
+            // cycling through all the previously Featured Art
             query(contentUri, null, null, null, null).use { data ->
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "Found ${data.count} existing artwork")

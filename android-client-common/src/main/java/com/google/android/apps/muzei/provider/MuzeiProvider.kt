@@ -39,7 +39,7 @@ import net.nurik.roman.muzei.androidclientcommon.BuildConfig
 import java.io.FileNotFoundException
 
 /**
- * Provides access to a the most recent artwork
+ * Provides access to the most recent artwork
  */
 class MuzeiProvider : ContentProvider() {
 
