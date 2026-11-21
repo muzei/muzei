@@ -17,7 +17,10 @@
 package com.google.android.apps.muzei.settings
 
 import android.content.SharedPreferences
+import androidx.compose.foundation.layout.Grid
+import androidx.compose.foundation.layout.GridTrackSize
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -32,9 +35,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
@@ -46,7 +49,6 @@ import androidx.compose.ui.unit.dp
 import com.google.android.apps.muzei.render.MuzeiBlurRenderer
 import com.google.android.apps.muzei.theme.AppTheme
 import net.nurik.roman.muzei.R
-import kotlin.math.max
 
 @Composable
 fun EffectsScreen(
@@ -151,106 +153,91 @@ private fun EffectsGrid(
     onGreyChange: (Int) -> Unit = {},
     onGreyChangeFinished: (() -> Unit) = {},
 ) {
-    Layout(
-        content = {
-            // Titles
-            Text(
-                text = stringResource(R.string.settings_blur_amount_title),
-                modifier = Modifier.padding(vertical = 8.dp),
-                color = Color.White,
-                style = MaterialTheme.typography.titleMedium
-            )
-            Text(
-                text = stringResource(R.string.settings_dim_amount_title),
-                modifier = Modifier.padding(vertical = 8.dp),
-                color = Color.White,
-                style = MaterialTheme.typography.titleMedium
-            )
-            Text(
-                text = stringResource(R.string.settings_grey_amount_title),
-                modifier = Modifier.padding(vertical = 8.dp),
-                color = Color.White,
-                style = MaterialTheme.typography.titleMedium
-            )
-            // Sliders
-            val blurState = remember { SliderState(value = blur.toFloat(), trackRange = 0f..500f) }
-            blurState.value = blur.toFloat()
-            Slider(
-                state = blurState,
-                onValueChange = { onBlurChange(it.toInt()) },
-                modifier = Modifier.padding(vertical = 8.dp),
-                onValueChangeFinished = onBlurChangeFinished,
-                colors = SliderDefaults.colors(
-                    thumbColor = Color.White,
-                    activeTrackColor = Color.White,
-                    inactiveTrackColor = Color.DarkGray,
-                )
-            )
-            val dimState = remember { SliderState(value = dim.toFloat(), trackRange = 0f..255f) }
-            dimState.value = dim.toFloat()
-            Slider(
-                state = dimState,
-                onValueChange = { onDimChange(it.toInt()) },
-                modifier = Modifier.padding(vertical = 8.dp),
-                onValueChangeFinished = onDimChangeFinished,
-                colors = SliderDefaults.colors(
-                    thumbColor = Color.White,
-                    activeTrackColor = Color.White,
-                    inactiveTrackColor = Color.DarkGray,
-                )
-            )
-            val greyState = remember { SliderState(value = grey.toFloat(), trackRange = 0f..500f) }
-            greyState.value = grey.toFloat()
-            Slider(
-                state = greyState,
-                onValueChange = { onGreyChange(it.toInt()) },
-                modifier = Modifier.padding(vertical = 8.dp),
-                onValueChangeFinished = onGreyChangeFinished,
-                colors = SliderDefaults.colors(
-                    thumbColor = Color.White,
-                    activeTrackColor = Color.White,
-                    inactiveTrackColor = Color.DarkGray,
-                )
-            )
-        },
-        modifier = modifier
-    ) { measurables, constraints ->
-        val titlePlaceables = measurables.take(3).map { measurable ->
-            measurable.measure(constraints.copy(minWidth = 0))
+    Grid(
+        modifier = modifier,
+        config = {
+            column(GridTrackSize.Auto)
+            column(1.fr)
+            columnGap(16.dp)
         }
-        val maxTitleWidth = titlePlaceables.maxOf { it.width }
-        val spacing = 16.dp.roundToPx()
-        val sliderPlaceables = measurables.takeLast(3).map { measurable ->
-            measurable.measure(
-                constraints.copy(
-                    minWidth = constraints.maxWidth - maxTitleWidth - spacing,
-                    maxWidth = constraints.maxWidth - maxTitleWidth - spacing,
-                )
+    ) {
+        // Blur row
+        Text(
+            text = stringResource(R.string.settings_blur_amount_title),
+            modifier = Modifier
+                .gridItem(alignment = Alignment.CenterStart)
+                .padding(vertical = 8.dp),
+            color = Color.White,
+            style = MaterialTheme.typography.titleMedium
+        )
+        val blurState = remember { SliderState(value = blur.toFloat(), trackRange = 0f..500f) }
+        blurState.value = blur.toFloat()
+        Slider(
+            state = blurState,
+            onValueChange = { onBlurChange(it.toInt()) },
+            modifier = Modifier
+                .gridItem(alignment = Alignment.CenterStart)
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            onValueChangeFinished = onBlurChangeFinished,
+            colors = SliderDefaults.colors(
+                thumbColor = Color.White,
+                activeTrackColor = Color.White,
+                inactiveTrackColor = Color.DarkGray,
             )
-        }
-        val columnHeights = titlePlaceables.mapIndexed { index, titlePlaceable ->
-            max(titlePlaceable.height, sliderPlaceables[index].height)
-        }
-        val maxColumnHeight = columnHeights.max()
+        )
 
-        val layoutWidth = constraints.maxWidth
-        val layoutHeight = maxColumnHeight * 3
-        layout(layoutWidth, layoutHeight) {
-            titlePlaceables.forEachIndexed { index, titlePlaceable ->
-                val height = titlePlaceable.height
-                titlePlaceable.placeRelative(
-                    0,
-                    index * maxColumnHeight + (maxColumnHeight - height) / 2
-                )
-            }
-            sliderPlaceables.forEachIndexed { index, sliderPlaceable ->
-                val height = sliderPlaceable.height
-                sliderPlaceable.placeRelative(
-                    maxTitleWidth + spacing,
-                    index * maxColumnHeight + (maxColumnHeight - height) / 2
-                )
-            }
-        }
+        // Dim row
+        Text(
+            text = stringResource(R.string.settings_dim_amount_title),
+            modifier = Modifier
+                .gridItem(alignment = Alignment.CenterStart)
+                .padding(vertical = 8.dp),
+            color = Color.White,
+            style = MaterialTheme.typography.titleMedium
+        )
+        val dimState = remember { SliderState(value = dim.toFloat(), trackRange = 0f..255f) }
+        dimState.value = dim.toFloat()
+        Slider(
+            state = dimState,
+            onValueChange = { onDimChange(it.toInt()) },
+            modifier = Modifier
+                .gridItem(alignment = Alignment.CenterStart)
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            onValueChangeFinished = onDimChangeFinished,
+            colors = SliderDefaults.colors(
+                thumbColor = Color.White,
+                activeTrackColor = Color.White,
+                inactiveTrackColor = Color.DarkGray,
+            )
+        )
+
+        // Grey row
+        Text(
+            text = stringResource(R.string.settings_grey_amount_title),
+            modifier = Modifier
+                .gridItem(alignment = Alignment.CenterStart)
+                .padding(vertical = 8.dp),
+            color = Color.White,
+            style = MaterialTheme.typography.titleMedium
+        )
+        val greyState = remember { SliderState(value = grey.toFloat(), trackRange = 0f..500f) }
+        greyState.value = grey.toFloat()
+        Slider(
+            state = greyState,
+            onValueChange = { onGreyChange(it.toInt()) },
+            modifier = Modifier
+                .gridItem(alignment = Alignment.CenterStart)
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            onValueChangeFinished = onGreyChangeFinished,
+            colors = SliderDefaults.colors(
+                thumbColor = Color.White,
+                activeTrackColor = Color.White,
+                inactiveTrackColor = Color.DarkGray,
+            )
+        )
     }
 }
 
