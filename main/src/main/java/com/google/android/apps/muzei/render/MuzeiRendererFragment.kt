@@ -47,19 +47,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 private const val ARG_DEMO_MODE = "demo_mode"
-private const val ARG_DEMO_FOCUS = "demo_focus"
 
 @Composable
 fun MuzeiRendererFragment(
     demoMode: Boolean,
-    demoFocus: Boolean,
     modifier: Modifier = Modifier
 ) {
     AndroidFragment<MuzeiRendererFragment>(
         modifier = modifier,
         arguments = savedState {
             putBoolean(ARG_DEMO_MODE, demoMode)
-            putBoolean(ARG_DEMO_FOCUS, demoFocus)
         }
     )
 }
@@ -69,11 +66,10 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
     companion object {
         private const val TRANSFORMATION_ID = "simpleDemoModeTransformation"
 
-        fun createInstance(demoMode: Boolean, demoFocus: Boolean = false): MuzeiRendererFragment {
+        fun createInstance(demoMode: Boolean): MuzeiRendererFragment {
             return MuzeiRendererFragment().apply {
                 arguments = savedState {
                     putBoolean(ARG_DEMO_MODE, demoMode)
-                    putBoolean(ARG_DEMO_FOCUS, demoFocus)
                 }
             }
         }
@@ -82,24 +78,19 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
     private var muzeiView: MuzeiView? = null
     private lateinit var simpleDemoModeImageView: ImageView
     private var demoMode: Boolean = false
-    private var demoFocus: Boolean = false
 
     private val simpleDemoModeTransformation = object : Transformation() {
         override suspend fun transform(
             input: Bitmap,
             size: Size
-        ) = if (!demoFocus) {
-            withContext(Dispatchers.IO) {
-                input.blur(requireContext())?.apply {
-                    // Dim
-                    val c = Canvas(this)
-                    c.drawColor(Color.argb(255 - MuzeiBlurRenderer.DEFAULT_MAX_DIM,
-                        0, 0, 0))
-                }
-            } ?: input
-        } else {
-            input
-        }
+        ) = withContext(Dispatchers.IO) {
+            input.blur(requireContext())?.apply {
+                // Dim
+                val c = Canvas(this)
+                c.drawColor(Color.argb(255 - MuzeiBlurRenderer.DEFAULT_MAX_DIM,
+                    0, 0, 0))
+            }
+        } ?: input
 
         override val cacheKey: String
             get() = TRANSFORMATION_ID
@@ -108,7 +99,6 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         demoMode = arguments?.getBoolean(ARG_DEMO_MODE, false) ?: true
-        demoFocus = arguments?.getBoolean(ARG_DEMO_FOCUS, false) ?: true
     }
 
     override fun onCreateView(
@@ -120,13 +110,9 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
 
         if (demoMode && (activityManager.isLowRamDevice || requireContext().isReducedMotionEnabled)) {
             val dm = resources.displayMetrics
-            var targetWidth = dm.widthPixels
-            var targetHeight = dm.heightPixels
-            if (!demoFocus) {
-                targetHeight = (ImageBlurrer.MAX_SUPPORTED_BLUR_PIXELS * 10000 / MuzeiBlurRenderer.DEFAULT_BLUR)
-                        .roundMult4()
-                targetWidth = (dm.widthPixels * 1f / dm.heightPixels * targetHeight).toInt().roundMult4()
-            }
+            val targetHeight = (ImageBlurrer.MAX_SUPPORTED_BLUR_PIXELS * 10000 / MuzeiBlurRenderer.DEFAULT_BLUR)
+                    .roundMult4()
+            val targetWidth = (dm.widthPixels * 1f / dm.heightPixels * targetHeight).toInt().roundMult4()
 
             simpleDemoModeImageView = ImageView(context).apply {
                 scaleType = ImageView.ScaleType.CENTER_CROP
@@ -185,7 +171,7 @@ class MuzeiRendererFragment : Fragment(), RenderController.Callbacks, MuzeiBlurR
             preserveEGLContextOnPause = true
             renderController = if (demoMode) {
                 DemoRenderController(getContext(), renderer,
-                        this@MuzeiRendererFragment, demoFocus)
+                        this@MuzeiRendererFragment)
             } else {
                 RealRenderController(getContext(), renderer,
                         this@MuzeiRendererFragment)

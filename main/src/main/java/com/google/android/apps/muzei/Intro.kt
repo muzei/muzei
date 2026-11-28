@@ -64,7 +64,6 @@ fun Intro(
     background: @Composable () -> Unit = {
         MuzeiRendererFragment(
             demoMode = true,
-            demoFocus = false,
             modifier = Modifier.fillMaxSize()
         )
     },

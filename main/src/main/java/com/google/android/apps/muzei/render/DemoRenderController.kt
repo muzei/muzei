@@ -21,26 +21,16 @@ import android.animation.ObjectAnimator
 import android.content.Context
 import androidx.core.animation.doOnEnd
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.milliseconds
 
 class DemoRenderController(
         context: Context,
         renderer: MuzeiBlurRenderer,
-        callbacks: Callbacks,
-        private val allowFocus: Boolean
+        callbacks: Callbacks
 ) : RenderController(context, renderer, callbacks) {
 
     companion object {
         private const val ANIMATION_CYCLE_TIME_MILLIS = 35000L
-        private const val FOCUS_DELAY_TIME_MILLIS = 2000L
-        private const val FOCUS_TIME_MILLIS = 6000L
     }
-
-    private lateinit var coroutineScope: CoroutineScope
 
     private var currentScrollAnimator: Animator? = null
     private var reverseDirection = false
@@ -59,19 +49,10 @@ class DemoRenderController(
                     }
                     start()
                 }
-        if (allowFocus) {
-            coroutineScope.launch {
-                delay(FOCUS_DELAY_TIME_MILLIS.milliseconds)
-                renderer.setIsBlurred(isBlurred = false, artDetailMode = false)
-                delay(FOCUS_TIME_MILLIS.milliseconds)
-                renderer.setIsBlurred(isBlurred = true, artDetailMode = false)
-            }
-        }
     }
 
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
-        coroutineScope = owner.lifecycleScope
         runAnimation()
     }
 

@@ -98,7 +98,6 @@ class AboutActivity : AppCompatActivity() {
                 )
                 MuzeiRendererFragment(
                     demoMode = true,
-                    demoFocus = false,
                     modifier = Modifier.fillMaxSize().graphicsLayer {
                         alpha = animatedAlpha
                     }
